@@ -3,176 +3,11 @@ import os, sys
 import operator
 from graphviz import Digraph
 from graphviz import Graph
+import json
+from cert_rules import rules
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
-
-rules_vendor = [
-    'NXP',
-    'Infineon',
-    'Samsung',
-    '(?:STMicroelectronics|STM)',
-    'Feitian',
-    'Gemalto',
-    'Gemplus',
-    'Axalto',
-    '(?:Oberthur|OBERTHUR)',
-    'Idemia',
-    '(?:G\&D|G\+D|Giesecke+Devrient|Giesecke \& Devrient)',
-    'Philips',
-    'Sagem',
-    ]
-
-rules_eval_facilities = [
-    'Serma Technologies',
-    'THALES - CEACI'
-    ]
-
-rules_cert_id = [
-    'BSI-DSZ-CC-[0-9]+?-[0-9]+?', # German BSI
-    'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+?', # German BSI
-    'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+?', # German BSI
-    #'CC-Zert-.+?',
-    'ANSSI(?:-|-CC-)[0-9]+?/[0-9]+?', # French
-    #'ANSSI-CC-CER-F-.+?', # French
-    'DCSSI-[0-9]+?/[0-9]+?', # French
-    'Certification Report [0-9]+?/[0-9]+?', # French
-    'Rapport de certification [0-9]+?/[0-9]+?', # French
-    'NSCIB-CC-[0-9][0-9][0-9][0-9].+?', # Netherlands
-    'SERTIT-[0-9]+?', # Norway
-    'CCEVS-VR-(?:|VID)[0-9]+?-[0-9]+?', # US NSA
-    #'[0-9][0-9\-]+?-CR', # Canada
-    'CRP[0-9][0-9][0-9][0-9]*?',    # UK CESG
-    'CERTIFICATION REPORT No. P[0-9]+?',  # UK CESG
-    '20[0-9][0-9]-[0-9]+-INF-[0-9]+?', # Spain
-    'KECS-CR-[0-9]+?-[0-9]+?', # Korea
-    'KECS-ISIS-[0-9]+?-[0-9][0-9][0-9][0-9]', # Korea
-    'CRP-C[0-9]+?-[0-9]+?', # Japan
-    'ISCB-[0-9]+?-RPT-[0-9]+?', # Malaysia
-    'OCSI/CERT/.+?', # Italia
-    '[0-9\.]+?/TSE-CCCS-[0-9]+?', # Turkis CCCS
-    'BTBD-.+?', # Turkis CCCS
-    ]
-
-
-
-rules_protection_profiles = [
-    'BSI-PP[-]*.+?',
-    'PP-SSCD.+?',
-    'Protection Profile',
-    'CCMB-20.+?',
-    'BSI-CCPP-.+?',
-    'ANSSI-CC-PP.+?',
-    ]
-
-
-rules_device_id = [
-    'G87-.+?',
-    ]
-
-rules_standard_id = [
-    'FIPS180-4',
-    'FIPS197',
-    'PKCS#[1-9]+',
-    'TLSv1.1',
-    'TLSv1.2',
-    'BSI-AIS[ ]*[0-9]+?',
-    'AIS[ ]*[0-9]+?',
-    'RFC[ ]*[0-9]+?',
-    'ISO/IEC 14443',
-    ]
-
-rules_security_level = [
-    'EAL[ ]*[0-9+]+?',
-    'EAL[ ]*[0-9] augmented+?',
-    'ITSEC[ ]*E[1-9]*.+?',
-    ]
-
-rules_javacard = [
-    #'(?:Java Card|JavaCard)',
-    #'(?:Global Platform|GlobalPlatform)',
-    '(?:Java Card|JavaCard)(?: [2-3]\.[0-9]\.[0-9]|)',
-    '(?:Global Platform|GlobalPlatform)(?: [2-3]\.[0-9]\.[0-9]|)',
-    ]
-
-rules_crypto_algs = [
-    'RSA[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)',
-    'RSASSAPKCS1-V1_5',
-    'SHA[-]*(?:160|224|256|384|512)',
-    'AES[-]*(?:128|192|256|)',
-    'SHA-1',
-    'MD5',
-    'HMAC',
-    'Diffie-Hellman',
-    'ECDSA',
-    'DES',
-    'ECC',
-    'DTRNG',
-    'TRNG',
-    'RNG',
-    ]
-
-rules_ecc_curves = [
-    'P-(?:192|224|256|384|521)',
-    'brainpool.+?',
-    'secp.+?1',
-]
-
-rules_cplc = [
-    'IC[ ]*Fabricator',
-    'IC[ ]*Type',
-    'IC[ ]*Version',
-    ]
-
-rules_crypto_engines = [
-    'TORNADO',
-    'SmartMX',
-    ]
-
-
-rules_crypto_libs = [
-    '(?:NesLib|NESLIB) [v]*[0-9.]+',
-    'AT1 Secure .{1,30}? Library [v]*[0-9.]+',
-    'AT1 Secure RSA/ECC/SHA library',
-    'Crypto Library [v]*[0-9.]+',
-    'ATMEL Toolbox [0-9.]+',
-    ]
-
-
-
-rules_defenses = [
-    'SPA',
-    'DPA',
-    '[Ff]+ault induction',
-    'ROCA',
-    ]
-
-
-
-
-rules_other = [
-    'library',
-    ]
-
-rules = {}
-rules['rules_vendor'] = rules_vendor
-rules['rules_cert_id'] = rules_cert_id
-rules['rules_protection_profiles'] = rules_protection_profiles
-rules['rules_device_id'] = rules_device_id
-rules['rules_standard_id'] = rules_standard_id
-rules['rules_security_level'] = rules_security_level
-rules['rules_javacard'] = rules_javacard
-rules['rules_crypto_algs'] = rules_crypto_algs
-rules['rules_ecc_curves'] = rules_ecc_curves
-rules['rules_cplc'] = rules_cplc
-rules['rules_crypto_engines'] = rules_crypto_engines
-rules['rules_crypto_libs'] = rules_crypto_libs
-
-rules['rules_defenses'] = rules_defenses
-
-
-
-rules['rules_other'] = rules_other
 
 
 def search_files(folder):
@@ -183,6 +18,7 @@ def search_files(folder):
 def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
+
 
 unicode_decode_error = []
 def parse_cert_file(file_name):
@@ -264,13 +100,17 @@ def parse_cert_file(file_name):
                 max_occurences = num_occurences
                 this_cert_id = match
             num_items_found_certid_group += num_occurences
+    print('Certificate id based on the most frequent: {}'.format(this_cert_id))
 
     # try to search for certificate id directly in file name - if found, higher priority
+    file_name_no_suff = file_name[:file_name.rfind('.')]
+    file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind('\\') + 1:]
     for rule in rules['rules_cert_id']:
-        matches = re.findall(rule, file_name)
+        file_name_no_suff += ' '
+        matches = re.findall(rule, file_name_no_suff)
         if len(matches) > 0:
             # we found cert id directly in name
-            print('Certificate id found in filename')
+            print('Certificate id found directly in filename: {}'.format(matches[0]))
             this_cert_id = matches[0]
 
     # print
@@ -349,9 +189,9 @@ def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_
 
     # Generate dot graph using GraphViz into pdf
     dot.render(out_dot_name, view=False)
+    print('{} pdf rendered'.format(out_dot_name))
 
-
-MIN_ITEMS_FOUND = 15010
+MIN_ITEMS_FOUND = 29577
 
 
 def main():
@@ -368,6 +208,7 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_anssionly\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test2\\'
+    #walk_dir = 'c:\\Certs\\certs\\cc_search\\test3\\'
 
     total_items_found = 0
     for file_name in search_files(walk_dir):
@@ -376,6 +217,9 @@ def main():
 
         all_items_found[file_name], all_items_found_count[file_name], cert_id[file_name], all_items_found_certid_count[file_name] = parse_cert_file(file_name)
         total_items_found += all_items_found_count[file_name]
+
+    with open("certificate_data.json", "w") as write_file:
+        json.dump(all_items_found, write_file)
 
     print('\nTotal matches found in separate files:')
     #print_total_matches_in_files(all_items_found_count)
@@ -387,8 +231,14 @@ def main():
     #print_guessed_cert_id(cert_id)
 
     print_dot_graph(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph.dot', True)
-    print_dot_graph(['rules_javacard'], all_items_found, cert_id, walk_dir, 'cert_javacard_graph.dot', False)
-    print_dot_graph(['rules_security_level'], all_items_found, cert_id, walk_dir, 'cert_security_level_graph.dot', True)
+#    print_dot_graph(['rules_javacard'], all_items_found, cert_id, walk_dir, 'cert_javacard_graph.dot', False)
+#    print_dot_graph(['rules_security_level'], all_items_found, cert_id, walk_dir, 'cert_security_level_graph.dot', True)
+#    print_dot_graph(['rules_crypto_libs'], all_items_found, cert_id, walk_dir, 'cert_crypto_libs_graph.dot', False)
+#    print_dot_graph(['rules_vendor'], all_items_found, cert_id, walk_dir, 'rules_vendor.dot', False)
+#    print_dot_graph(['rules_crypto_algs'], all_items_found, cert_id, walk_dir, 'rules_crypto_algs.dot', False)
+#    print_dot_graph(['rules_protection_profiles'], all_items_found, cert_id, walk_dir, 'rules_protection_profiles.dot', False)
+#    print_dot_graph(['rules_defenses'], all_items_found, cert_id, walk_dir, 'rules_defenses.dot', False)
+
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
