@@ -5,6 +5,8 @@ from graphviz import Digraph
 from graphviz import Graph
 import json
 from cert_rules import rules
+from time import gmtime, strftime
+from shutil import copyfile
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
@@ -25,13 +27,13 @@ def parse_cert_file(file_name):
     print('*** {} ***'.format(file_name))
 
     lines = []
-
-#    with open(file_name, encoding="utf8") as f:
+    was_unicode_decode_error = False
     with open(file_name, 'r') as f:
         try:
             lines = f.readlines()
         except UnicodeDecodeError as e:
             f.close()
+            was_unicode_decode_error = True
             print('UnicodeDecodeError')
             unicode_decode_error.append(file_name)
 
@@ -46,9 +48,12 @@ def parse_cert_file(file_name):
                         # ignore error
                         continue
 
-
+    # TODO: while searching for regex, highlight found strings
+    #  alternatively, remove found strings and store the rest into file - easy to spot omitted strings
     whole_text = ''
+    whole_text_with_newlines = ''
     for line in lines:
+        whole_text_with_newlines += line
         line = line.replace('\n', '')
         whole_text += line
         whole_text += LINE_SEPARATOR
@@ -114,15 +119,43 @@ def parse_cert_file(file_name):
             this_cert_id = matches[0]
 
     # print
+    PRINT = False
     num_items_found = 0
     for rule_group in items_found_all.keys():
-        print(rule_group)
+        if PRINT:
+            print(rule_group)
         items_found = items_found_all[rule_group]
         for rule in items_found.keys():
-            print('  ' + rule)
+            if PRINT:
+                print('  ' + rule)
             for match in items_found[rule]:
-                print('    {}: {}'.format(match, items_found[rule][match]))
+                if PRINT:
+                    print('    {}: {}'.format(match, items_found[rule][match]))
                 num_items_found += 1
+
+    # remove all found strings from text and store the rest
+    for rule_group in items_found_all.keys():
+        items_found = items_found_all[rule_group]
+        for rule in items_found.keys():
+            for match in items_found[rule]:
+                whole_text_with_newlines = whole_text_with_newlines.replace(match, '') # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
+
+    base_path = file_name[:file_name.rfind('\\')]
+    file_name_short = file_name[file_name.rfind('\\') + 1:]
+    target_file = '{}\\..\\fragments\\{}'.format(base_path, file_name_short)
+    write_file = None
+    if was_unicode_decode_error:
+        write_file = open(target_file, "w", encoding="utf8")
+    else:
+        write_file = open(target_file, "w")
+
+    try:
+        write_file.write(whole_text_with_newlines)
+    except UnicodeEncodeError as e:
+        write_file.close()
+        print('UnicodeDecodeError while writing file fragments back')
+
+    write_file.close()
 
     return items_found_all, num_items_found, this_cert_id, num_items_found_certid_group
 
@@ -157,6 +190,7 @@ def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_
     # insert nodes believed to be cert id for the processed certificates
     for cert in cert_id.keys():
         dot.attr('node', color='green')
+        dot.attr('node', URL='https://stackoverflow.com')
         dot.node(cert_id[cert])
 
     dot.attr('node', color='gray')
@@ -218,8 +252,15 @@ def main():
         all_items_found[file_name], all_items_found_count[file_name], cert_id[file_name], all_items_found_certid_count[file_name] = parse_cert_file(file_name)
         total_items_found += all_items_found_count[file_name]
 
+    # store results into file with fixed name and also with time appendix
     with open("certificate_data.json", "w") as write_file:
-        json.dump(all_items_found, write_file)
+        write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+
+    # curr_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    # curr_time = curr_time.replace(':', '-')
+    # curr_time = curr_time.replace(' ', '_')
+    # with open("certificate_data_{}.json".format(curr_time), "w") as write_file:
+    #     json.dump(all_items_found, write_file)
 
     print('\nTotal matches found in separate files:')
     #print_total_matches_in_files(all_items_found_count)
