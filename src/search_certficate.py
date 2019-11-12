@@ -8,8 +8,11 @@ from cert_rules import rules
 from time import gmtime, strftime
 from shutil import copyfile
 
+
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
+TAG_MATCH_COUNTER = 'count'
+TAG_MATCH_MATCHES = 'matches'
 
 
 def search_files(folder):
@@ -23,15 +26,28 @@ def path_leaf(path):
 
 
 unicode_decode_error = []
-def parse_cert_file(file_name):
-    print('*** {} ***'.format(file_name))
 
+
+def get_line_number(lines, line_length_compensation, match_start_index):
+    line_chars_offset = 0
+    line_number = 1
+    for line in lines:
+        line_chars_offset += len(line) + line_length_compensation
+        if line_chars_offset > match_start_index:
+            # we found the line
+            return line_number
+        line_number += 1
+    # not found
+    return -1
+
+
+def parse_cert_file(file_name):
     lines = []
     was_unicode_decode_error = False
     with open(file_name, 'r') as f:
         try:
             lines = f.readlines()
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             f.close()
             was_unicode_decode_error = True
             print('UnicodeDecodeError')
@@ -44,14 +60,15 @@ def parse_cert_file(file_name):
                     try:
                         line = f2.readline()
                         lines.append(line)
-                    except UnicodeDecodeError as e:
+                    except UnicodeDecodeError:
                         # ignore error
                         continue
 
-    # TODO: while searching for regex, highlight found strings
-    #  alternatively, remove found strings and store the rest into file - easy to spot omitted strings
     whole_text = ''
     whole_text_with_newlines = ''
+    # we will estimate the line for searched matches
+    # => we need to known how much lines were modified (removal of eoln..)
+    line_length_compensation = 1 - len(LINE_SEPARATOR)  # for removed newline and for any added separator
     for line in lines:
         whole_text_with_newlines += line
         line = line.replace('\n', '')
@@ -68,103 +85,53 @@ def parse_cert_file(file_name):
 
         for rule in rules[rule_group]:
             rule_and_sep = rule + REGEXEC_SEP
-            matches = re.findall(rule_and_sep, whole_text)
 
-            if len(matches) > 0:
-                #print(matches)
+            for m in re.finditer(rule_and_sep, whole_text):
+                # insert rule if at least one match for it was found
                 if rule not in items_found:
                     items_found[rule] = {}
 
-                for match in matches:
-                    # normalize match
-                    match = match.strip()
-                    match = match.rstrip(']')
-                    match = match.rstrip('/')
-                    match = match.rstrip(';')
-                    match = match.rstrip('.')
-                    match = match.rstrip('”')
-                    match = match.rstrip('"')
-                    match = match.rstrip(':')
-                    match = match.rstrip(')')
-                    match = match.rstrip('(')
-                    match = match.replace(',', '')
-                    if match not in items_found[rule]:
-                        items_found[rule][match] = 0
+                match = m.group()
 
-                    items_found[rule][match] += 1
+                # normalize match
+                match = match.strip()
+                match = match.rstrip(']')
+                match = match.rstrip('/')
+                match = match.rstrip(';')
+                match = match.rstrip('.')
+                match = match.rstrip('”')
+                match = match.rstrip('"')
+                match = match.rstrip(':')
+                match = match.rstrip(')')
+                match = match.rstrip('(')
+                match = match.rstrip(',')
+                if match not in items_found[rule]:
+                    items_found[rule][match] = {}
+                    items_found[rule][match][TAG_MATCH_COUNTER] = 0
+                    items_found[rule][match][TAG_MATCH_MATCHES] = []
 
-    # find certificate ID which is the most common
-    num_items_found_certid_group = 0
-    max_occurences = 0
-    this_cert_id = ''
-    items_found = items_found_all['rules_cert_id']
-    for rule in items_found.keys():
-        for match in items_found[rule]:
-            num_occurences = items_found[rule][match]
-            if num_occurences > max_occurences:
-                max_occurences = num_occurences
-                this_cert_id = match
-            num_items_found_certid_group += num_occurences
-    print('Certificate id based on the most frequent: {}'.format(this_cert_id))
+                items_found[rule][match][TAG_MATCH_COUNTER] += 1
+                match_span = m.span()
+                # estimate line in original text file
+                line_number = get_line_number(lines, line_length_compensation, match_span[0])
+                # start index, end index, line number
+                items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
 
-    # try to search for certificate id directly in file name - if found, higher priority
-    file_name_no_suff = file_name[:file_name.rfind('.')]
-    file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind('\\') + 1:]
-    for rule in rules['rules_cert_id']:
-        file_name_no_suff += ' '
-        matches = re.findall(rule, file_name_no_suff)
-        if len(matches) > 0:
-            # we found cert id directly in name
-            print('Certificate id found directly in filename: {}'.format(matches[0]))
-            this_cert_id = matches[0]
 
-    # print
-    PRINT = False
-    num_items_found = 0
-    for rule_group in items_found_all.keys():
-        if PRINT:
-            print(rule_group)
-        items_found = items_found_all[rule_group]
-        for rule in items_found.keys():
-            if PRINT:
-                print('  ' + rule)
-            for match in items_found[rule]:
-                if PRINT:
-                    print('    {}: {}'.format(match, items_found[rule][match]))
-                num_items_found += 1
-
-    # remove all found strings from text and store the rest
+    # highlight all found strings from the input text and store the rest
     for rule_group in items_found_all.keys():
         items_found = items_found_all[rule_group]
         for rule in items_found.keys():
             for match in items_found[rule]:
-                whole_text_with_newlines = whole_text_with_newlines.replace(match, '') # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
+                whole_text_with_newlines = whole_text_with_newlines.replace(match, 'x' * len(match)) # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
 
-    base_path = file_name[:file_name.rfind('\\')]
-    file_name_short = file_name[file_name.rfind('\\') + 1:]
-    target_file = '{}\\..\\fragments\\{}'.format(base_path, file_name_short)
-    write_file = None
-    if was_unicode_decode_error:
-        write_file = open(target_file, "w", encoding="utf8")
-    else:
-        write_file = open(target_file, "w")
-
-    try:
-        write_file.write(whole_text_with_newlines)
-    except UnicodeEncodeError as e:
-        write_file.close()
-        print('UnicodeDecodeError while writing file fragments back')
-
-    write_file.close()
-
-    return items_found_all, num_items_found, this_cert_id, num_items_found_certid_group
+    return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
 
 
 def print_total_matches_in_files(all_items_found_count):
     sorted_all_items_found_count = sorted(all_items_found_count.items(), key=operator.itemgetter(1))
     for file_name_count in sorted_all_items_found_count:
         print('{:03d}: {}'.format(file_name_count[1], file_name_count[0]))
-
 
 def print_total_found_cert_ids(all_items_found_certid_count):
     sorted_certid_count = sorted(all_items_found_certid_count.items(), key=operator.itemgetter(1), reverse=True)
@@ -181,16 +148,36 @@ def print_guessed_cert_id(cert_id):
         print('{:30s}: {}'.format(double[1], just_file_name))
 
 
+def print_all_results(items_found_all):
+    # print results
+    for rule_group in items_found_all.keys():
+        print(rule_group)
+        items_found = items_found_all[rule_group]
+        for rule in items_found.keys():
+            print('  ' + rule)
+            for match in items_found[rule]:
+                print('    {}: {}'.format(match, items_found[rule][match]))
+
+
+def count_num_items_found(items_found_all):
+    num_items_found = 0
+    for rule_group in items_found_all.keys():
+        items_found = items_found_all[rule_group]
+        for rule in items_found.keys():
+            for match in items_found[rule]:
+                num_items_found += 1
+
+    return num_items_found
+
 def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_dot_name, thick_as_occurences):
     # print dot
-    dot = Digraph(comment='Certificate ecosystem')
+    dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
     dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
 
     # insert nodes believed to be cert id for the processed certificates
     for cert in cert_id.keys():
         dot.attr('node', color='green')
-        dot.attr('node', URL='https://stackoverflow.com')
         dot.node(cert_id[cert])
 
     dot.attr('node', color='gray')
@@ -215,25 +202,67 @@ def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_
                 for match in items_found[rule]:
                     if match != this_cert_id:
                         if thick_as_occurences:
-                            num_occurrences = str(items_found[rule][match] / 3 + 1)
+                            num_occurrences = str(items_found[rule][match][TAG_MATCH_COUNTER] / 3 + 1)
                         else:
                             num_occurrences = '1'
-                        label = str(items_found[rule][match]) # label with number of occurrences
+                        label = str(items_found[rule][match][TAG_MATCH_COUNTER]) # label with number of occurrences
                         dot.edge(this_cert_id, match, color='orange', style='solid', label=label, penwidth=num_occurrences)
 
     # Generate dot graph using GraphViz into pdf
     dot.render(out_dot_name, view=False)
     print('{} pdf rendered'.format(out_dot_name))
 
+
+def estimate_cert_id(items_found_all, file_name):
+    # find certificate ID which is the most common
+    num_items_found_certid_group = 0
+    max_occurences = 0
+    this_cert_id = ''
+    items_found = items_found_all['rules_cert_id']
+    for rule in items_found.keys():
+        for match in items_found[rule]:
+            num_occurences = items_found[rule][match][TAG_MATCH_COUNTER]
+            if num_occurences > max_occurences:
+                max_occurences = num_occurences
+                this_cert_id = match
+            num_items_found_certid_group += num_occurences
+    print('  -> most frequent cert id: {}'.format(this_cert_id))
+
+    # try to search for certificate id directly in file name - if found, higher priority
+    file_name_no_suff = file_name[:file_name.rfind('.')]
+    file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind('\\') + 1:]
+    for rule in rules['rules_cert_id']:
+        file_name_no_suff += ' '
+        matches = re.findall(rule, file_name_no_suff)
+        if len(matches) > 0:
+            # we found cert id directly in name
+            print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
+            this_cert_id = matches[0]
+
+    return this_cert_id, num_items_found_certid_group
+
+
+def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_text):
+    write_file = None
+    if is_unicode_text:
+        write_file = open(target_file, "w", encoding="utf8")
+    else:
+        write_file = open(target_file, "w")
+
+    try:
+        write_file.write(modified_cert_file_text)
+    except UnicodeEncodeError as e:
+        print(erro_my)
+        write_file.close()
+        print('UnicodeDecodeError while writing file fragments back')
+
+    write_file.close()
+
+
 MIN_ITEMS_FOUND = 29577
 
 
 def main():
-    all_items_found = {}
-
-    all_items_found_count = {}
-    cert_id = {}
-    all_items_found_certid_count = {}
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\only_ic_sc\\test\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\only_ic_sc\\txt\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_current\\'
@@ -244,13 +273,26 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test2\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test3\\'
 
-    total_items_found = 0
+    all_items_found = {}
+    cert_id = {}
+    all_certid_found_count = {}
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
 
-        all_items_found[file_name], all_items_found_count[file_name], cert_id[file_name], all_items_found_certid_count[file_name] = parse_cert_file(file_name)
-        total_items_found += all_items_found_count[file_name]
+        print('*** {} ***'.format(file_name))
+
+        # parse certificate, return all matches
+        all_items_found[file_name], modified_cert_file = parse_cert_file(file_name)
+
+        # try to establish the certificate id of the current certificate
+        cert_id[file_name], all_certid_found_count[file_name] = estimate_cert_id(all_items_found[file_name], file_name)
+
+        # save report text with highlighted/replaced matches into \\fragments\\ directory
+        base_path = file_name[:file_name.rfind('\\')]
+        file_name_short = file_name[file_name.rfind('\\') + 1:]
+        target_file = '{}\\..\\fragments\\{}'.format(base_path, file_name_short)
+        save_modified_cert_file(target_file, modified_cert_file[0], modified_cert_file[1])
 
     # store results into file with fixed name and also with time appendix
     with open("certificate_data.json", "w") as write_file:
@@ -266,7 +308,7 @@ def main():
     #print_total_matches_in_files(all_items_found_count)
 
     print('\nTotal matches for certificate id found in separate files:')
-    print_total_found_cert_ids(all_items_found_certid_count)
+    print_total_found_cert_ids(all_certid_found_count)
 
     print('\nFile name and estimated certificate ID:')
     #print_guessed_cert_id(cert_id)
@@ -280,6 +322,22 @@ def main():
 #    print_dot_graph(['rules_protection_profiles'], all_items_found, cert_id, walk_dir, 'rules_protection_profiles.dot', False)
 #    print_dot_graph(['rules_defenses'], all_items_found, cert_id, walk_dir, 'rules_defenses.dot', False)
 
+    total_items_found = 0
+    for file_name in all_items_found:
+        total_items_found += count_num_items_found(all_items_found[file_name])
+
+    all_matches = []
+    for file_name in all_items_found:
+        for rule_group in all_items_found[file_name].keys():
+            items_found = all_items_found[file_name][rule_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    if match not in all_matches:
+                        all_matches.append(match)
+
+    sorted_all_matches = sorted(all_matches)
+    for match in sorted_all_matches:
+        print(match)
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
@@ -287,11 +345,6 @@ def main():
         print('ERROR: less items found!')
         print(error_less_matches_detected)
 
-
-    # for file_name in unicode_decode_error:
-    #     print(file_name)
-
-    print("\033[44;33mHello World!\033[m")
 
 if __name__ == "__main__":
     main()
