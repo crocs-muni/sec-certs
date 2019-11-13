@@ -70,14 +70,15 @@ rules_os = [
 rules_standard_id = [
     'FIPS180-4',
     'FIPS197',
-    'PKCS#[1-9]+',
-    'TLSv1.1',
-    'TLSv1.2',
+    'PKCS[ #]*[1-9]+',
+    'TLS[ ]*v[0-9\.]+',
+    'TLS[ ]*v[0-9\.]+',
     'BSI-AIS[ ]*[0-9]+?',
     'AIS[ ]*[0-9]+?',
     'RFC[ ]*[0-9]+?',
-    'ISO/IEC 14443',
-    'ISO/IEC [0-9]+:[0-9]+',
+    'ISO/IEC[ ]*[0-9]+[-]*[0-9]*',
+    'ISO/IEC[ ]*[0-9]+:[ 0-9]+',
+    'ICAO(?:-SAC|)',
     ]
 
 rules_security_level = [
@@ -112,7 +113,8 @@ rules_crypto_algs = [
 
 rules_ecc_curves = [
     'P-(?:192|224|256|384|521)',
-    'brainpool.+?',
+    'brainpool.+?[rkt]+1',
+    'brainpoolP{[0-9, ]+}[rkt]+1',
     'secp.+?1',
 ]
 
@@ -150,6 +152,7 @@ rules_defenses = [
 rules_other = [
     'library',
     ]
+
 
 rules = {}
 rules['rules_vendor'] = rules_vendor
