@@ -279,40 +279,54 @@ def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_tex
     write_file.close()
 
 
+def print_specified_property_sorted(item_name, items_found_all):
+    specific_item_values = []
+    for file_name in items_found_all.keys():
+        if item_name in items_found_all[file_name].keys():
+            specific_item_values.append(items_found_all[file_name][item_name])
+        else:
+            print('WARNING: Item {} not found in file {}'.format(item_name, file_name))
+
+    print('*** Occurrences of *{}* item'.format(item_name))
+    sorted_items = sorted(specific_item_values)
+    for item in sorted_items:
+        print(item)
+
+
 def search_only_headers_bsi(walk_dir):
     LINE_SEPARATOR_STRICT = ' '
     NUM_LINES_TO_INVESTIGATE = 15
     rules_certificate_preface = [
-#        '(BSI-DSZ-CC-.+) (?:for|For|zu) (.+) (?:from|der)',
-        '(BSI-DSZ-CC-.+) (?:for|For) (.+) from (.*)',
-        '(BSI-DSZ-CC-.+) zu (.+) der (.*)',
+        '(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)',
+        '(BSI-DSZ-CC-.+?) zu (.+?) der (.*)',
     ]
 
-    all_vendors = []
     items_found_all = {}
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
         print('*** {} ***'.format(file_name))
 
-        whole_text, whole_text_with_newlines = load_cert_file(file_name, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
-
         items_found_all[file_name] = {}
         items_found = items_found_all[file_name]
+
+        #
+        # Process front page with info: cert_id, certified_item and developer
+        #
+        whole_text, whole_text_with_newlines = load_cert_file(file_name, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
+
+        items_found['match_rules'] = []
         for rule in rules_certificate_preface:
             rule_and_sep = rule + REGEXEC_SEP
 
             for m in re.finditer(rule_and_sep, whole_text):
                 # insert rule if at least one match for it was found
-                if rule not in items_found:
-                    items_found[rule] = {}
+                items_found['match_rules'].append(rule)
 
                 match_groups = m.groups()
                 cert_id = match_groups[0]
                 certified_item = match_groups[1]
-                vendor = match_groups[2]
-
-                items_found[rule]['cert_id'] = normalize_match_string(cert_id)
+                developer = match_groups[2]
 
                 FROM_KEYWORD_LIST = [' from ', ' der ']
                 for from_keyword in FROM_KEYWORD_LIST:
@@ -320,34 +334,62 @@ def search_only_headers_bsi(walk_dir):
                     if certified_item.find(from_keyword) != -1:
                         print('string **{}** detected in certified item - shall not be here, fixing...'.format(from_keyword))
                         certified_item_first = certified_item[:certified_item.find(from_keyword)]
-                        vendor = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
+                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
                         certified_item = certified_item_first
                         continue
 
-                items_found[rule]['certified_item'] = normalize_match_string(certified_item)
-
-                end_pos = vendor.find('\f-')
+                end_pos = developer.find('\f-')
                 if end_pos == -1:
-                    end_pos = vendor.find('\fBSI')
+                    end_pos = developer.find('\fBSI')
                 if end_pos == -1:
-                    end_pos = vendor.find('Bundesamt')
+                    end_pos = developer.find('Bundesamt')
                 if end_pos != -1:
-                    vendor = vendor[:end_pos]
+                    developer = developer[:end_pos]
 
-                vendor = normalize_match_string(vendor)
-                items_found[rule]['vendor'] = normalize_match_string(vendor)
+                items_found['cert_id'] = normalize_match_string(cert_id)
+                items_found['certified_item'] = normalize_match_string(certified_item)
+                items_found['developer'] = normalize_match_string(developer)
+                items_found['cert_lab'] = 'BSI'
 
-                if vendor not in all_vendors:
-                    all_vendors.append(vendor)
+        #
+        # Process page with more detailed certificate info
+        # PP Conformance, Functionality, Assurance
+        rules_certificate_third = [
+            'PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified',
+        ]
 
-    print('\n*** Detected vendors:')
-    sorted_vendors = sorted(all_vendors)
-    for vendor in sorted_vendors:
-        print(vendor)
+        whole_text, whole_text_with_newlines = load_cert_file(file_name)
 
-    # store results into file with fixed name and also with time appendix
+        for rule in rules_certificate_third:
+            rule_and_sep = rule + REGEXEC_SEP
+
+            for m in re.finditer(rule_and_sep, whole_text):
+                # check if previous rules had at least one match
+                if not 'cert_id' in items_found.keys():
+                    print('ERROR: front page not found for file: {}'.format(file_name))
+
+                match_groups = m.groups()
+                ref_protection_profiles = match_groups[0]
+                cc_version = match_groups[1]
+                cc_security_level = match_groups[2]
+
+                items_found['referenced_protection_profile'] = normalize_match_string(ref_protection_profiles)
+                items_found['cc_version'] = normalize_match_string(cc_version)
+                items_found['cc_security_level'] = normalize_match_string(cc_security_level)
+
+    if False:
+        print_specified_property_sorted('cert_id', items_found_all)
+        print_specified_property_sorted('certified_item', items_found_all)
+        print_specified_property_sorted('certified_item_version', items_found_all)
+        print_specified_property_sorted('referenced_protection_profile', items_found_all)
+        print_specified_property_sorted('cc_version', items_found_all)
+        print_specified_property_sorted('cc_security_level', items_found_all)
+        print_specified_property_sorted('developer', items_found_all)
+        print_specified_property_sorted('cert_lab', items_found_all)
+
     with open("certificate_data_bsiheader.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
 
     print('\n*** Certificates without detected preface:')
     for file_name in items_found_all.keys():
@@ -355,6 +397,8 @@ def search_only_headers_bsi(walk_dir):
             print('No hits for {}'.format(file_name))
 
     print('\n**********************************')
+    return items_found_all
+
 
 def search_only_headers_anssi(walk_dir):
     LINE_SEPARATOR_STRICT = ' '
@@ -363,64 +407,71 @@ def search_only_headers_anssi(walk_dir):
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
-        'Référence du rapport de certification(.+)Nom du produit(.+)()Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)()Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur\(s\)(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
-        'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur(.+)Centre d\'évaluation(.+)Accords de reconnaissance',
+        'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance',
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
-        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur (.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à des profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
-        'Référence du rapport de certification(.+)Nom et version du produit(.+)revision(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables', # missing version, added via version keyworkd
+        'Référence du rapport de certification(.+)Nom et version du produit(.+)revision(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables', # missing version, added via version keyword
         'Référence du rapport de certification(.+)Nom et version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables', # missing version
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables',
         'Référence du rapport de certification(.+)Nom du produit \(référence/version\)(.+)Nom de la TOE \(référence/version\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  des profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit \(rÃ©fÃ©rence/version\)(.+)Nom de la TOE \(rÃ©fÃ©rence/version\)(.+)ConformitÃ© Ã  un profil de protection(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profisl de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(.+)Centres dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Versions du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        #'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit \(rÃ©fÃ©rence/version\)(.+)Nom de la TOE \(rÃ©fÃ©rence/version\)(.+)ConformitÃ© Ã  un profil de protection(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit \(rÃ©fÃ©rence/version\)(.+)Nom de la TOE \(rÃ©fÃ©rence/version\)(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
         'Certification Report(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
-        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer(.+)Evaluation facility(.+)Recognition arrangements',
-        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer(.+)Evaluation facility(.+)Mutual Recognition Agreements',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profisl de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centres dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Versions du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+#        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs :(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Recognition arrangements',
+        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Mutual Recognition Agreements',
         'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements',
         'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer\(s\)(.+)Evaluation facility(.+)Recognition arrangements',
         'Certification report reference(.+)Products names(.+)Products references(.+)protection profile conformity(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements',
         'Certification report reference(.+)Product name \(reference / version\)(.+)TOE name \(reference / version\)(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements',
-        'Certification report reference(.+)TOE name(.+)Product\'s reference/ version(.+)TOE\'s reference/ version(.+)Conformité à un profil de protection(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer(.+)Evaluation facility(.+)Recognition arrangements',
+        'Certification report reference(.+)TOE name(.+)Product\'s reference/ version(.+)TOE\'s reference/ version(.+)Conformité à un profil de protection(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Recognition arrangements',
     ]
 
     rules_certificate_preface = [
-        'dddd',
-#        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeur\(s\)(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables',
-
+        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements',
+        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer\\(s\\)(.+)Evaluation facility(.+)Recognition arrangements',
+        'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Mutual Recognition Agreements',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur (.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\\(s\\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\\(s\\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\\’évaluation et version(.+)Niveau d\\’évaluation(.+)Développeurs(.+)Centre d\\’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\\(s\\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à des profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'Référence du rapport de certification(.+)Nom du produit \\(référence/version\\)(.+)Nom de la TOE \\(référence/version\\)(.+)Conformité à un profil de protection(.+)Critères d\\’évaluation et version(.+)Niveau d\\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\\(s\\)(.+)dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profisl de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Version du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã\xa0 des profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit \\(rÃ©fÃ©rence/version\\)(.+)Nom de la TOE \\(rÃ©fÃ©rence/version\\)(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centres dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\\(s\\)(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Versions du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
+        'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence du produit(.+)ConformitÃ© Ã\xa0 un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
     ]
 
-    # 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Versions du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
 
-    # 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(s)(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-
-
-
-
-    # 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
-
-    #'Référence du rapport de certification(.+)Nom du produit \(référence/version\)(.+)Nom de la TOE \(référence/version\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables',
-
-    #'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements',
-    # 'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements',
-
-    # 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables',
-    # 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur(.+)Centres dâ€™Ã©valuation(.+)Accords de reconnaissance applicables',
-
-    # 'Référence du rapport de certification(.+)Nom et version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables',
-
-    # 'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer(.+)Evaluation facility(.+)Mutual Recognition Agreements',
+#    rules_certificate_preface = [
+#        'dddd',
+#    ]
 
     # Certification Report 2005/41
     # ST19WP18E microcontroller
@@ -432,7 +483,11 @@ def search_only_headers_anssi(walk_dir):
     # conformant to both PP/9806 and BSI-PP-002-2001 protection profiles
     # Evaluation sponsor: STMicroelectronics Evaluation facility: Serma Technologies
 
-    all_vendors = []
+    # statistics about rules success rate
+    num_rules_hits = {}
+    for rule in rules_certificate_preface:
+        num_rules_hits[rule] = 0
+
     items_found_all = {}
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
@@ -443,10 +498,19 @@ def search_only_headers_anssi(walk_dir):
 
         items_found_all[file_name] = {}
         items_found = items_found_all[file_name]
+        other_rule_already_match = False
+        other_rule = ''
         for rule in rules_certificate_preface:
             rule_and_sep = rule + REGEXEC_SEP
 
             for m in re.finditer(rule_and_sep, whole_text):
+                if not other_rule_already_match:
+                    other_rule_already_match = True
+                    other_rule = rule
+                else:
+                    print('WARNING: multiple rules are matching same certification document: ' + file_name)
+
+                num_rules_hits[rule] += 1  # add hit to this rule
                 # insert rule if at least one match for it was found
                 if rule not in items_found:
                     items_found[rule] = {}
@@ -465,16 +529,22 @@ def search_only_headers_anssi(walk_dir):
                 cc_security_level = match_groups[5]
                 items_found[rule]['cc_security_level'] = normalize_match_string(cc_security_level)
                 vendor = match_groups[6]
-                vendor = normalize_match_string(vendor)
-                items_found[rule]['vendor'] = normalize_match_string(vendor)
+                items_found[rule]['developer'] = normalize_match_string(vendor)
+                cert_lab = match_groups[7]
+                items_found[rule]['cert_lab'] = normalize_match_string(cert_lab)
 
-                if vendor not in all_vendors:
-                    all_vendors.append(vendor)
+                if items_found[rule]['cc_version'].startswith('EAL 3 augmentÃ© ADV_FSP.4, ADV_TDS.3, ADV_IMP.1, ALC_FLR.3'):
+                    print('gotcha')
 
-    print('\n*** Detected vendors:')
-    sorted_vendors = sorted(all_vendors)
-    for vendor in sorted_vendors:
-        print(vendor)
+    if False:
+        print_specified_property_sorted('cert_id', items_found_all)
+        print_specified_property_sorted('certified_item', items_found_all)
+        print_specified_property_sorted('certified_item_version', items_found_all)
+        print_specified_property_sorted('referenced_protection_profile', items_found_all)
+        print_specified_property_sorted('cc_version', items_found_all)
+        print_specified_property_sorted('cc_security_level', items_found_all)
+        print_specified_property_sorted('developer', items_found_all)
+        print_specified_property_sorted('cert_lab', items_found_all)
 
     # store results into file with fixed name and also with time appendix
     with open("certificate_data_anssiheader.json", "w") as write_file:
@@ -490,6 +560,17 @@ def search_only_headers_anssi(walk_dir):
     print('Total no hits files: {}'.format(no_hits_count))
     print('\n**********************************')
 
+    if False:
+        print('# hits for rule')
+        sorted_rules = sorted(num_rules_hits.items(), key=operator.itemgetter(1), reverse=True)
+        used_rules = []
+        for rule in sorted_rules:
+            print('{:4d} : {}'.format(rule[1], rule[0]))
+            if rule[1] > 0:
+                used_rules.append(rule[0])
+
+    return items_found_all
+
 
 MIN_ITEMS_FOUND = 29725
 
@@ -503,7 +584,7 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\only_ic_sc\\txt\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_current\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived\\'
-    #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_bsionly\\'
+    walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_bsionly\\'
     walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_anssionly\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_others\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test\\'
@@ -511,12 +592,11 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test3\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test4\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test5\\'
-    walk_dir = 'c:\\Certs\\certs\\cc_search\\test6\\'
+    #walk_dir = 'c:\\Certs\\certs\\cc_search\\test7\\'
 
     search_only_headers_anssi(walk_dir)
 
-    #search_only_headers_bsi(walk_dir)
-
+    # search_only_headers_bsi(walk_dir)
 
     return
 
