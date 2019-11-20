@@ -705,7 +705,7 @@ def extract_certificates_keywords(walk_dir):
         print(error_less_matches_detected)
 
 
-def parse_product_updates(updates_chunk):
+def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
     rule = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
            '.*?\<a href="(.+?)" title="Maintenance Report' \
@@ -732,6 +732,7 @@ def parse_product_updates(updates_chunk):
                 index_next_item += 1
                 items_found['maintenance_link_security_target'] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
+                link_files_updates.append((items_found['maintenance_link_cert_report'], items_found['maintenance_link_security_target']))
 
             maintenance_reports.append(items_found)
 
@@ -758,7 +759,8 @@ def parse_security_level(security_level):
 
 def extract_certificates_metadata_html(file_name):
     items_found_all = []
-    files_without_match = []
+    download_files_certs = []
+    download_files_updates = []
     print('*** {} ***'.format(file_name))
 
     whole_text = load_cert_html_file(file_name)
@@ -852,9 +854,10 @@ def extract_certificates_metadata_html(file_name):
                 items_found['link_cert_report_file_name'] = link_cert_report[link_cert_report.rfind('/') + 1:]
                 index_next_item += 1
                 items_found['link_security_target'] = normalize_match_string(match_groups[index_next_item])
+                download_files_certs.append((items_found['link_cert_report'], items_found['link_security_target']))
                 index_next_item += 1
 
-                items_found['product_updates'] = parse_product_updates(match_groups[index_next_item])
+                items_found['product_updates'] = parse_product_updates(match_groups[index_next_item], download_files_updates)
                 index_next_item += 1
 
                 items_found['date_cert_issued'] = normalize_match_string(match_groups[index_next_item])
@@ -874,24 +877,49 @@ def extract_certificates_metadata_html(file_name):
     if chunks_found != chunks_matched:
         print('WARNING: not all chunks found were matched')
 
-    return items_found_all
+    return items_found_all, download_files_certs, download_files_updates
+
+
+def generate_download_script(file_name, certs_dir, targets_dir, download_files_certs):
+    with open(file_name, "w") as write_file:
+        # certs files
+        write_file.write('mkdir \"{}\"\n'.format(certs_dir))
+        write_file.write('cd \"{}\"\n\n'.format(certs_dir))
+        for cert in download_files_certs:
+            write_file.write('curl \"{}\" --remote-name\n'.format(cert[0]))
+            write_file.write('pdftotext \"{}\"\n\n'.format(cert[0][cert[0].rfind('/') + 1 : ]))
+
+        # security targets file
+        write_file.write('\n\nmkdir \"{}\"\n'.format(targets_dir))
+        write_file.write('cd \"{}\"\n\n'.format(targets_dir))
+        for cert in download_files_certs:
+            write_file.write('curl \"{}\" --remote-name\n'.format(cert[1]))
+            write_file.write('pdftotext \"{}\"\n'.format(cert[1][cert[1].rfind('/') + 1 : ]))
 
 
 def extract_certificates_html(base_dir):
-    file_name = '{}a.html'.format(base_dir)
-    items_found_all_active = extract_certificates_metadata_html(file_name)
+    download_files_certs = []
+    download_files_updates = []
+    #file_name = '{}a.html'.format(base_dir)
+    #items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
 
     file_name = '{}common_criteria_products_active.html'.format(base_dir)
-    items_found_all_active = extract_certificates_metadata_html(file_name)
+    items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
 
     with open("certificate_data_html_active.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
 
+    generate_download_script('download_active_certs.bat', 'certs', 'targets', download_files_certs)
+    generate_download_script('download_active_updates.bat', 'certs', 'targets', download_files_updates)
+
     file_name = '{}common_criteria_products_archived.html'.format(base_dir)
-    items_found_all_archived = extract_certificates_metadata_html(file_name)
+    items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
 
     with open("certificate_data_html_archived.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
+
+    generate_download_script('download_archived_certs.bat', 'certs', 'targets', download_files_certs)
+    generate_download_script('download_archived_updates.bat', 'certs', 'targets', download_files_updates)
 
     items_found_all = items_found_all_active + items_found_all_archived
     with open("certificate_data_html_all.json", "w") as write_file:
