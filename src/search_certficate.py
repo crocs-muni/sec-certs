@@ -707,9 +707,9 @@ def extract_certificates_keywords(walk_dir):
 
 def parse_product_updates(updates_chunk):
     maintenance_reports = []
-    rule = '([0-9]+?-[0-9]+?-[0-9]+?) – (.+?)<br style=' \
-           '.*?<a href="(.+?)" title="Maintenance Report' \
-           '.*?<a href="(.+?)" title="Maintenance ST'
+    rule = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
+           '.*?\<a href="(.+?)" title="Maintenance Report' \
+           '.*?\<a href="(.+?)" title="Maintenance ST'
 
     if updates_chunk.find('Maintenance Report(s)') != -1:
         start_pos = updates_chunk.find('Maintenance Report(s)</div>')
@@ -717,6 +717,9 @@ def parse_product_updates(updates_chunk):
         while start_pos != -1:
             end_pos = updates_chunk.find('</li>', start_pos)
             report_chunk = updates_chunk[start_pos:end_pos]
+
+            start_pos = updates_chunk.find('<li>', end_pos)
+
             items_found = {}
             for m in re.finditer(rule, report_chunk):
                 match_groups = m.groups()
@@ -735,11 +738,28 @@ def parse_product_updates(updates_chunk):
     return maintenance_reports
 
 
+def parse_security_level(security_level):
+    start_pos = security_level.find('<br>')
+    eal_level = security_level
+    eal_augmented = []
+    if start_pos != -1:
+        eal_level = normalize_match_string(security_level[:start_pos])
+        # some augmented items found
+        augm_chunk = security_level[start_pos:]
+        augm_chunk += ' '
+        rule = '\<br\>(.+?) '       # items are in form of <br>AVA_VLA.4 <br>AVA_MSU.3 ...
+
+        for m in re.finditer(rule, augm_chunk):
+            match_groups = m.groups()
+            eal_augmented.append(normalize_match_string(match_groups[0]))
+
+    return eal_level, eal_augmented
+
+
 def extract_certificates_metadata_html(file_name):
-    items_found_all = {}
+    items_found_all = []
     files_without_match = []
     print('*** {} ***'.format(file_name))
-
 
     whole_text = load_cert_html_file(file_name)
 
@@ -749,7 +769,7 @@ def extract_certificates_metadata_html(file_name):
 
     # First find end extract chunks between <tr class=""> ... </tr>
     start_pos = whole_text.find('<tfoot class="hilite7"><!-- hilite1 -->')
-    start_pos = whole_text.find('<tr class="">', start_pos)
+    start_pos = whole_text.find('<tr class="', start_pos)
 
     chunks_found = 0
     chunks_matched = 0
@@ -770,47 +790,63 @@ def extract_certificates_metadata_html(file_name):
 
         chunks_found += 1
 
-        # the apply regexes on it
+        class HEADER_TYPE(Enum):
+            HEADER_FULL = 1
+            HEADER_MISSING_VENDOR_WEB = 2
+
+        # IMPORTANT: order regexes based on their specificity - the most specific goes first
         rules_cc_html = [
-            '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
+            (HEADER_TYPE.HEADER_FULL, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
             '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
             '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
             '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
-            '(.+?)'
-            '.+?\<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
+            '(.+?)<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
             '.+?\<!--end-product-cell--\>'
             '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
             '.+?\<td style="text-align:center"\>(.*?)\</td\>'
-            '[ ]+?\<td>(.+?)\</td\>',
+            '[ ]+?\<td>(.+?)\</td\>'),
 
-            'Maintenance Report(s)</div>'
+            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB,'\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name=.+?'
+            '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
+            '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
+            '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
+            '(.+?)<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
+            '.+?\<!--end-product-cell--\>'
+            '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
+            '.+?\<td style="text-align:center"\>(.*?)\</td\>'
+            '[ ]+?\<td>(.+?)\</td\>'),
         ]
 
         no_match_yet = True
         for rule in rules_cc_html:
-            rule_and_sep = rule
+            if not no_match_yet:
+                continue    # search only the first match
+
+
+            rule_and_sep = rule[1]
 
             for m in re.finditer(rule_and_sep, chunk):
-                chunks_matched += 1
                 if no_match_yet:
-                    items_found_all[str(chunks_found)] = {}
-                    items_found = items_found_all[str(chunks_found)]
+                    chunks_matched += 1
+                    items_found = {}
+                    items_found_all.append(items_found)
                     items_found[TAG_HEADER_MATCH_RULES] = []
                     no_match_yet = False
 
                 # insert rule if at least one match for it was found
                 #if rule not in items_found[TAG_HEADER_MATCH_RULES]:
-                    # items_found[TAG_HEADER_MATCH_RULES].append(rule)
+                    # items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
 
                 match_groups = m.groups()
 
                 index_next_item = 0
                 items_found['cert_item_name'] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
-                items_found['company_site'] = normalize_match_string(match_groups[index_next_item])
-                index_next_item += 1
-                items_found['company_name'] = normalize_match_string(match_groups[index_next_item])
-                index_next_item += 1
+                if not rule[0] == HEADER_TYPE.HEADER_MISSING_VENDOR_WEB:
+                    items_found['company_site'] = normalize_match_string(match_groups[index_next_item])
+                    index_next_item += 1
+                    items_found['company_name'] = normalize_match_string(match_groups[index_next_item])
+                    index_next_item += 1
                 items_found['link_cert_report'] = normalize_match_string(match_groups[index_next_item])
                 link_cert_report = items_found['link_cert_report']
                 items_found['link_cert_report_file_name'] = link_cert_report[link_cert_report.rfind('/') + 1:]
@@ -825,9 +861,11 @@ def extract_certificates_metadata_html(file_name):
                 index_next_item += 1
                 items_found['date_cert_expiration'] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
-                items_found['cc_security_level'] = normalize_match_string(match_groups[index_next_item])
+                cc_security_level = normalize_match_string(match_groups[index_next_item])
+                items_found['cc_security_level'], items_found['cc_security_level_augmented'] = parse_security_level(cc_security_level)
                 index_next_item += 1
 
+                continue  # we are interested only in first match
 
         if no_match_yet:
             print('No match found in block #{}'.format(chunks_found))
@@ -840,6 +878,9 @@ def extract_certificates_metadata_html(file_name):
 
 
 def extract_certificates_html(base_dir):
+    file_name = '{}a.html'.format(base_dir)
+    items_found_all_active = extract_certificates_metadata_html(file_name)
+
     file_name = '{}common_criteria_products_active.html'.format(base_dir)
     items_found_all_active = extract_certificates_metadata_html(file_name)
 
