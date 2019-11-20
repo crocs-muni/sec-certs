@@ -97,6 +97,18 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
     return whole_text, whole_text_with_newlines, was_unicode_decode_error
 
 
+def load_cert_html_file(file_name):
+    with open(file_name, 'r') as f:
+        try:
+            whole_text = f.read()
+        except UnicodeDecodeError:
+            f.close()
+            with open(file_name, encoding="utf8") as f2:
+                whole_text = f2.read()
+
+    return whole_text
+
+
 def normalize_match_string(match):
     # normalize match
     match = match.strip()
@@ -159,6 +171,9 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 whole_text_with_newlines = whole_text_with_newlines.replace(match, 'x' * len(match)) # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
 
     return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
+
+
+
 
 
 def print_total_matches_in_files(all_items_found_count):
@@ -689,6 +704,159 @@ def extract_certificates_keywords(walk_dir):
         print('ERROR: less items found!')
         print(error_less_matches_detected)
 
+
+def parse_product_updates(updates_chunk):
+    maintenance_reports = []
+    rule = '([0-9]+?-[0-9]+?-[0-9]+?) – (.+?)<br style=' \
+           '.*?<a href="(.+?)" title="Maintenance Report' \
+           '.*?<a href="(.+?)" title="Maintenance ST'
+
+    if updates_chunk.find('Maintenance Report(s)') != -1:
+        start_pos = updates_chunk.find('Maintenance Report(s)</div>')
+        start_pos = updates_chunk.find('<li>', start_pos)
+        while start_pos != -1:
+            end_pos = updates_chunk.find('</li>', start_pos)
+            report_chunk = updates_chunk[start_pos:end_pos]
+            items_found = {}
+            for m in re.finditer(rule, report_chunk):
+                match_groups = m.groups()
+                index_next_item = 0
+                items_found['maintenance_date'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['maintenance_item_name'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['maintenance_link_cert_report'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['maintenance_link_security_target'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+
+            maintenance_reports.append(items_found)
+
+    return maintenance_reports
+
+
+def extract_certificates_metadata_html(file_name):
+    items_found_all = {}
+    files_without_match = []
+    print('*** {} ***'.format(file_name))
+
+
+    whole_text = load_cert_html_file(file_name)
+
+    whole_text = whole_text.replace('\n', ' ')
+    whole_text = whole_text.replace('&nbsp;', ' ')
+    whole_text = whole_text.replace('&amp;', '&')
+
+    # First find end extract chunks between <tr class=""> ... </tr>
+    start_pos = whole_text.find('<tfoot class="hilite7"><!-- hilite1 -->')
+    start_pos = whole_text.find('<tr class="">', start_pos)
+
+    chunks_found = 0
+    chunks_matched = 0
+
+    while start_pos != -1:
+        end_pos = whole_text.find('</tr>', start_pos)
+
+        chunk = whole_text[start_pos:end_pos]
+
+        even_start_pos = whole_text.find('<tr class="even">', start_pos + 1)
+        odd_start_pos = whole_text.find('<tr class="">', start_pos + 1)
+
+        start_pos = min(even_start_pos, odd_start_pos)
+
+        # skip chunks which are not cert item chunks
+        if chunk.find('This list was generated on') != -1:
+            continue
+
+        chunks_found += 1
+
+        # the apply regexes on it
+        rules_cc_html = [
+            '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
+            '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
+            '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
+            '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
+            '(.+?)'
+            '.+?\<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
+            '.+?\<!--end-product-cell--\>'
+            '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
+            '.+?\<td style="text-align:center"\>(.*?)\</td\>'
+            '[ ]+?\<td>(.+?)\</td\>',
+
+            'Maintenance Report(s)</div>'
+        ]
+
+        no_match_yet = True
+        for rule in rules_cc_html:
+            rule_and_sep = rule
+
+            for m in re.finditer(rule_and_sep, chunk):
+                chunks_matched += 1
+                if no_match_yet:
+                    items_found_all[str(chunks_found)] = {}
+                    items_found = items_found_all[str(chunks_found)]
+                    items_found[TAG_HEADER_MATCH_RULES] = []
+                    no_match_yet = False
+
+                # insert rule if at least one match for it was found
+                #if rule not in items_found[TAG_HEADER_MATCH_RULES]:
+                    # items_found[TAG_HEADER_MATCH_RULES].append(rule)
+
+                match_groups = m.groups()
+
+                index_next_item = 0
+                items_found['cert_item_name'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['company_site'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['company_name'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['link_cert_report'] = normalize_match_string(match_groups[index_next_item])
+                link_cert_report = items_found['link_cert_report']
+                items_found['link_cert_report_file_name'] = link_cert_report[link_cert_report.rfind('/') + 1:]
+                index_next_item += 1
+                items_found['link_security_target'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+
+                items_found['product_updates'] = parse_product_updates(match_groups[index_next_item])
+                index_next_item += 1
+
+                items_found['date_cert_issued'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['date_cert_expiration'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+                items_found['cc_security_level'] = normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+
+
+        if no_match_yet:
+            print('No match found in block #{}'.format(chunks_found))
+
+    print('Chunks found: {}, Chunks matched: {}'.format(chunks_found, chunks_matched))
+    if chunks_found != chunks_matched:
+        print('WARNING: not all chunks found were matched')
+
+    return items_found_all
+
+
+def extract_certificates_html(base_dir):
+    file_name = '{}common_criteria_products_active.html'.format(base_dir)
+    items_found_all_active = extract_certificates_metadata_html(file_name)
+
+    with open("certificate_data_html_active.json", "w") as write_file:
+        write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
+
+    file_name = '{}common_criteria_products_archived.html'.format(base_dir)
+    items_found_all_archived = extract_certificates_metadata_html(file_name)
+
+    with open("certificate_data_html_archived.json", "w") as write_file:
+        write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
+
+    items_found_all = items_found_all_active + items_found_all_archived
+    with open("certificate_data_html_all.json", "w") as write_file:
+        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+
 def main():
     # change current directory to store results into results file
     current_dir = os.getcwd()
@@ -698,6 +866,10 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_bsionly\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_anssionly\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test6\\'
+    cc_html_files_dir = 'c:\\Certs\\certs\\cc_search\\'
+
+    extract_certificates_html(cc_html_files_dir)
+    return
 
     extract_certificates_frontpage(walk_dir)
 
