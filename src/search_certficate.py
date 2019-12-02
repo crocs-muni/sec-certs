@@ -226,18 +226,21 @@ def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_
 
     # insert nodes believed to be cert id for the processed certificates
     for cert in cert_id.keys():
-        dot.attr('node', color='green')
-        dot.node(cert_id[cert])
+        if cert != "":
+            dot.attr('node', color='green')
+            dot.node(cert_id[cert])
 
     dot.attr('node', color='gray')
     for file_name in all_items_found.keys():
         just_file_name = file_name
         this_cert_id = cert_id[file_name]
+
         if file_name.rfind('\\') != -1:
             just_file_name = file_name[file_name.rfind('\\') + 1:]
 
         # insert file name and identified probable certification id
-        dot.edge(this_cert_id, this_cert_id, label=just_file_name)
+        if this_cert_id != "":
+            dot.edge(this_cert_id, this_cert_id, label=just_file_name)
 
         items_found_group = all_items_found[file_name]
         for rules_group in items_found_group.keys():
@@ -255,7 +258,8 @@ def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_
                         else:
                             num_occurrences = '1'
                         label = str(items_found[rule][match][TAG_MATCH_COUNTER]) # label with number of occurrences
-                        dot.edge(this_cert_id, match, color='orange', style='solid', label=label, penwidth=num_occurrences)
+                        if this_cert_id != "":
+                            dot.edge(this_cert_id, match, color='orange', style='solid', label=label, penwidth=num_occurrences)
 
     # Generate dot graph using GraphViz into pdf
     dot.render(out_dot_name, view=False)
@@ -635,7 +639,7 @@ def extract_certificates_frontpage(walk_dir):
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
 
-def extract_certificates_keywords(walk_dir):
+def extract_certificates_keywords(walk_dir, fragments_dir):
     MIN_ITEMS_FOUND = 30655
 
     all_items_found = {}
@@ -656,7 +660,7 @@ def extract_certificates_keywords(walk_dir):
         # save report text with highlighted/replaced matches into \\fragments\\ directory
         base_path = file_name[:file_name.rfind('\\')]
         file_name_short = file_name[file_name.rfind('\\') + 1:]
-        target_file = '{}\\..\\fragments\\{}'.format(base_path, file_name_short)
+        target_file = '{}\\{}'.format(fragments_dir, file_name_short)
         save_modified_cert_file(target_file, modified_cert_file[0], modified_cert_file[1])
 
     # store results into file with fixed name and also with time appendix
@@ -890,11 +894,12 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
             write_file.write('pdftotext \"{}\"\n\n'.format(cert[0][cert[0].rfind('/') + 1 : ]))
 
         # security targets file
-        write_file.write('\n\nmkdir \"{}\"\n'.format(targets_dir))
+        write_file.write('\n\ncd ..\n')
+        write_file.write('mkdir \"{}\"\n'.format(targets_dir))
         write_file.write('cd \"{}\"\n\n'.format(targets_dir))
         for cert in download_files_certs:
             write_file.write('curl \"{}\" --remote-name\n'.format(cert[1]))
-            write_file.write('pdftotext \"{}\"\n'.format(cert[1][cert[1].rfind('/') + 1 : ]))
+            write_file.write('pdftotext \"{}\"\n\n'.format(cert[1][cert[1].rfind('/') + 1 : ]))
 
 
 def extract_certificates_html(base_dir):
@@ -936,13 +941,16 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_anssionly\\'
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test6\\'
     cc_html_files_dir = 'c:\\Certs\\certs\\cc_search\\'
+    walk_dir = 'c:\\Certs\\cc_certs_txt\\'
+    fragments_dir = 'c:\\Certs\\cc_certs_txt_fragments\\'
+
 
     extract_certificates_html(cc_html_files_dir)
-    return
+
+    extract_certificates_keywords(walk_dir, fragments_dir)
 
     extract_certificates_frontpage(walk_dir)
 
-    extract_certificates_keywords(walk_dir)
 
 
 if __name__ == "__main__":
