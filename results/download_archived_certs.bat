@@ -8013,5346 +8013,8017 @@ pdftotext "ANSSI-CC_2012-29fr.pdf"
 
 
 
+cd ..
 mkdir "targets"
 cd "targets"
 
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10691-st.pdf" --remote-name
 pdftotext "st_vid10691-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10711-st.pdf" --remote-name
 pdftotext "st_vid10711-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10589-st.pdf" --remote-name
 pdftotext "st_vid10589-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10569-st.pdf" --remote-name
 pdftotext "st_vid10569-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2014-04-14-ST-SCANS_S3-v2.7.pdf" --remote-name
 pdftotext "2014-04-14-ST-SCANS_S3-v2.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10530-st.pdf" --remote-name
 pdftotext "st_vid10530-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/symantec-security-v481-sec-eng.pdf" --remote-name
 pdftotext "symantec-security-v481-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MQAssure_NetSignOn_v3_0_Security_Target_v1_10.pdf" --remote-name
 pdftotext "MQAssure_NetSignOn_v3_0_Security_Target_v1_10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0839b_pdf.pdf" --remote-name
 pdftotext "0839b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0421_est.pdf" --remote-name
 pdftotext "c0421_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0420_est.pdf" --remote-name
 pdftotext "c0420_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0419_est.pdf" --remote-name
 pdftotext "c0419_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/centrify-v20132-sec-eng.pdf" --remote-name
 pdftotext "centrify-v20132-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IBM-LPAR-Security-Target-v0%2033_FINAL.pdf" --remote-name
 pdftotext "IBM-LPAR-Security-Target-v0%2033_FINAL.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-214%20ST%20v1.3.pdf" --remote-name
 pdftotext "383-4-214%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ZTE%20Access%20Systems%20Series%20ZXA10%20C300%20C300M%20C350M%20v1.0.pdf" --remote-name
 pdftotext "ZTE%20Access%20Systems%20Series%20ZXA10%20C300%20C300M%20C350M%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST271%20v1-1%20for%20Citrix%20XenDesktop%205.6.pdf" --remote-name
 pdftotext "ST271%20v1-1%20for%20Citrix%20XenDesktop%205.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10376-st.pdf" --remote-name
 pdftotext "st_vid10376-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20ZTE%20Base%20Station%20Controllers%20Security%20Target%20v1.0.pdf" --remote-name
 pdftotext "[ST]%20ZTE%20Base%20Station%20Controllers%20Security%20Target%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Access%20Gateways%20ST%20v1.0.pdf" --remote-name
 pdftotext "[ST]%20Access%20Gateways%20ST%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0636b_pdf.pdf" --remote-name
 pdftotext "0636b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0553b_pdf.pdf" --remote-name
 pdftotext "0553b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ADFS_ST.pdf" --remote-name
 pdftotext "ADFS_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/FIM_ST.pdf" --remote-name
 pdftotext "FIM_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NetSignON%20ST%20v1.7.pdf" --remote-name
 pdftotext "NetSignON%20ST%20v1.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/OIM%20ST%2009.pdf" --remote-name
 pdftotext "OIM%20ST%2009.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-CISS-0355-2011_Chakra%20Max%20Core%20v2.0%20ST(Eng).pdf" --remote-name
 pdftotext "KECS-CISS-0355-2011_Chakra%20Max%20Core%20v2.0%20ST(Eng).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10451-st.pdf" --remote-name
 pdftotext "st_vid10451-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10342-st.pdf" --remote-name
 pdftotext "st_vid10342-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0319_est.pdf" --remote-name
 pdftotext "c0319_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0315_est.pdf" --remote-name
 pdftotext "c0315_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0305_est.pdf" --remote-name
 pdftotext "c0305_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0303_est.pdf" --remote-name
 pdftotext "c0303_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Concepteers%20Teleconsole%20EAL3%20ST%20v1-2.pdf" --remote-name
 pdftotext "Concepteers%20Teleconsole%20EAL3%20ST%20v1-2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10381-st.pdf" --remote-name
 pdftotext "st_vid10381-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0678b_pdf.pdf" --remote-name
 pdftotext "0678b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/rsa-adaptive-v6021-sp3-sec-eng.pdf" --remote-name
 pdftotext "rsa-adaptive-v6021-sp3-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/enterasys-net-v322-sec-eng.pdf" --remote-name
 pdftotext "enterasys-net-v322-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MQAssure_AppShield_1.2_Security_Target_EAL4_1.21.pdf" --remote-name
 pdftotext "MQAssure_AppShield_1.2_Security_Target_EAL4_1.21.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10416-st.pdf" --remote-name
 pdftotext "st_vid10416-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10415-st.pdf" --remote-name
 pdftotext "st_vid10415-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/t007-st.pdf" --remote-name
 pdftotext "t007-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10436-st.pdf" --remote-name
 pdftotext "st_vid10436-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/crp256st.pdf" --remote-name
 pdftotext "crp256st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10341-st.pdf" --remote-name
 pdftotext "st_vid10341-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10365-st.pdf" --remote-name
 pdftotext "st_vid10365-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10331-st.pdf" --remote-name
 pdftotext "st_vid10331-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/rsa-access-v61-sec-eng.pdf" --remote-name
 pdftotext "rsa-access-v61-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0462b_pdf.pdf" --remote-name
 pdftotext "0462b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_siemens_v3.0.pdf" --remote-name
 pdftotext "tds_siemens_v3.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MOTOROLA_ST-v1.5.pdf" --remote-name
 pdftotext "MOTOROLA_ST-v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MOTOROLA_ST-v1.5.pdf" --remote-name
 pdftotext "MOTOROLA_ST-v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0220_est.pdf" --remote-name
 pdftotext "c0220_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10317-st.pdf" --remote-name
 pdftotext "st_vid10317-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0556b.pdf" --remote-name
 pdftotext "0556b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10233-st.pdf" --remote-name
 pdftotext "st_vid10233-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10329-st.pdf" --remote-name
 pdftotext "st_vid10329-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ncipher-nshield-v23360-sec-eng.pdf" --remote-name
 pdftotext "ncipher-nshield-v23360-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/rsa-adaptive-sec-eng.pdf" --remote-name
 pdftotext "rsa-adaptive-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0199_est.pdf" --remote-name
 pdftotext "c0199_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0200_est.pdf" --remote-name
 pdftotext "c0200_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-136-ST-En.pdf" --remote-name
 pdftotext "NISS-136-ST-En.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-82-ST-EN.pdf" --remote-name
 pdftotext "CISS-82-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Passlogix_ST_v1.0.pdf" --remote-name
 pdftotext "Passlogix_ST_v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/smd06_tds_v4.1.pdf" --remote-name
 pdftotext "smd06_tds_v4.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-108-ST-EN.pdf" --remote-name
 pdftotext "NISS-108-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/snacv110-sec-e.pdf" --remote-name
 pdftotext "snacv110-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/co-06-034-tds_v5.pdf" --remote-name
 pdftotext "co-06-034-tds_v5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10144-st.pdf" --remote-name
 pdftotext "st_vid10144-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/OIAM%20T245_ST_v0.9.pdf" --remote-name
 pdftotext "OIAM%20T245_ST_v0.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-105-ST-EN.pdf" --remote-name
 pdftotext "NISS-105-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6013-st.pdf" --remote-name
 pdftotext "st_vid6013-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/hitachi-sec-e.pdf" --remote-name
 pdftotext "hitachi-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-104-ST-EN.pdf" --remote-name
 pdftotext "CISS-104-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-83-ST-EN.pdf" --remote-name
 pdftotext "NISS-83-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LFS-T528_citrix_ST%20v2.0.pdf" --remote-name
 pdftotext "LFS-T528_citrix_ST%20v2.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0102_est.pdf" --remote-name
 pdftotext "c0102_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-69-ST-EN.pdf" --remote-name
 pdftotext "NISS-69-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-70-ST-EN.pdf" --remote-name
 pdftotext "CISS-70-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-68-ST-EN.pdf" --remote-name
 pdftotext "NISS-68-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3036-st.pdf" --remote-name
 pdftotext "st_vid3036-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T508_ST_v1.0.pdf" --remote-name
 pdftotext "T508_ST_v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0096_est.pdf" --remote-name
 pdftotext "c0096_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10127-st.pdf" --remote-name
 pdftotext "st_vid10127-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10248-st.pdf" --remote-name
 pdftotext "st_vid10248-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0343b.pdf" --remote-name
 pdftotext "0343b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0359b.pdf" --remote-name
 pdftotext "0359b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-60-ST-EN.pdf" --remote-name
 pdftotext "CISS-60-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-58-ST-EN.pdf" --remote-name
 pdftotext "CISS-58-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-57-ST-EN.pdf" --remote-name
 pdftotext "CISS-57-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-54-ST-EN.pdf" --remote-name
 pdftotext "NISS-54-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-55-ST-EN.pdf" --remote-name
 pdftotext "NISS-55-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0305b.pdf" --remote-name
 pdftotext "0305b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0237b.pdf" --remote-name
 pdftotext "0237b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3037-st.pdf" --remote-name
 pdftotext "st_vid3037-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3026-st.pdf" --remote-name
 pdftotext "st_vid3026-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3007-st.pdf" --remote-name
 pdftotext "st_vid3007-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3007-st.pdf" --remote-name
 pdftotext "st_vid3007-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10059-st.pdf" --remote-name
 pdftotext "st_vid10059-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3018-st.pdf" --remote-name
 pdftotext "st_vid3018-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LFS_T488_Citrix_ST_V10.pdf" --remote-name
 pdftotext "LFS_T488_Citrix_ST_V10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0285b.pdf" --remote-name
 pdftotext "0285b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Tarantella_V2.4.pdf" --remote-name
 pdftotext "Tarantella_V2.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_reflex_disknet.pdf" --remote-name
 pdftotext "ST_reflex_disknet.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0186b.pdf" --remote-name
 pdftotext "0186b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4038-st.pdf" --remote-name
 pdftotext "st_vid4038-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LFS_T434_Citrix_ST16.pdf" --remote-name
 pdftotext "LFS_T434_Citrix_ST16.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1000-st.pdf" --remote-name
 pdftotext "st_vid1000-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0790b_pdf.pdf" --remote-name
 pdftotext "0790b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-30-DS.pdf" --remote-name
 pdftotext "2009-30-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0511b.pdf" --remote-name
 pdftotext "0511b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10634-st.pdf" --remote-name
 pdftotext "st_vid10634-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10630-st.pdf" --remote-name
 pdftotext "st_vid10630-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20B-00111-100000_E_1.pdf" --remote-name
 pdftotext "[ST]%20B-00111-100000_E_1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Arbor%20Networks%20ST%20V2%200%20Mar%2010-2014.pdf" --remote-name
 pdftotext "Arbor%20Networks%20ST%20V2%200%20Mar%2010-2014.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10542-st.pdf" --remote-name
 pdftotext "st_vid10542-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-224%20ST%20v2.5.pdf" --remote-name
 pdftotext "383-4-224%20ST%20v2.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10388-st.pdf" --remote-name
 pdftotext "st_vid10388-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0890b_pdf.pdf" --remote-name
 pdftotext "0890b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-246%20ST%20v1.1.pdf" --remote-name
 pdftotext "383-4-246%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-247%20ST%20v1.3.pdf" --remote-name
 pdftotext "383-4-247%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-236%20ST%20v1.15.pdf" --remote-name
 pdftotext "383-4-236%20ST%20v1.15.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2012-28-DS.pdf" --remote-name
 pdftotext "2012-28-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2013-10-18-iDeras-ST-v1.3.pdf" --remote-name
 pdftotext "2013-10-18-iDeras-ST-v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcafee-nsp-v71-sec-eng.pdf" --remote-name
 pdftotext "mcafee-nsp-v71-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC-TG22-%EB%B3%B4%EC%95%88%EB%AA%A9%ED%91%9C%EB%AA%85%EC%84%B8%EC%84%9C_%EC%98%81%EB%AC%B8.pdf" --remote-name
 pdftotext "CC-TG22-%EB%B3%B4%EC%95%88%EB%AA%A9%ED%91%9C%EB%AA%85%EC%84%B8%EC%84%9C_%EC%98%81%EB%AC%B8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/01-01.IPS-G80_Security%20Target.pdf" --remote-name
 pdftotext "01-01.IPS-G80_Security%20Target.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-17fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-17fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10392-st.pdf" --remote-name
 pdftotext "st_vid10392-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/RioRey%20ST-%20v0.9.pdf" --remote-name
 pdftotext "RioRey%20ST-%20v0.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0792b_pdf.pdf" --remote-name
 pdftotext "0792b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST-FFHDD.pdf" --remote-name
 pdftotext "ST-FFHDD.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10387-st.pdf" --remote-name
 pdftotext "st_vid10387-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-215%20ST%20v1.0.pdf" --remote-name
 pdftotext "383-4-215%20ST%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/WAPPLES%20v4.0%20Security%20Target%20v4.0.pdf" --remote-name
 pdftotext "WAPPLES%20v4.0%20Security%20Target%20v4.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10353-st.pdf" --remote-name
 pdftotext "st_vid10353-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10352-st.pdf" --remote-name
 pdftotext "st_vid10352-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-198%20ST%20v2.3.pdf" --remote-name
 pdftotext "383-4-198%20ST%20v2.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0619b_pdf.pdf" --remote-name
 pdftotext "0619b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10452-st.pdf" --remote-name
 pdftotext "st_vid10452-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-cible_2012-34fr.pdf" --remote-name
 pdftotext "ANSSI-cible_2012-34fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10375-st.pdf" --remote-name
 pdftotext "st_vid10375-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-160%20ST%20v0.8.pdf" --remote-name
 pdftotext "383-4-160%20ST%20v0.8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/McAfee%20Firewall%20820%20ST11.pdf" --remote-name
 pdftotext "McAfee%20Firewall%20820%20ST11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CCRA%20StoneGate525_ST.pdf" --remote-name
 pdftotext "CCRA%20StoneGate525_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-133%20ST%20v1.2.pdf" --remote-name
 pdftotext "383-4-133%20ST%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/websense-v76-sec-eng.pdf" --remote-name
 pdftotext "websense-v76-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0718b_pdf.pdf" --remote-name
 pdftotext "0718b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10440-st.pdf" --remote-name
 pdftotext "st_vid10440-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10439-st.pdf" --remote-name
 pdftotext "st_vid10439-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-48fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-48fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10330-st.pdf" --remote-name
 pdftotext "st_vid10330-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/1627_ST-Version_1_9%20(2).pdf" --remote-name
 pdftotext "1627_ST-Version_1_9%20(2).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-152%20ST%20v1.18.pdf" --remote-name
 pdftotext "383-4-152%20ST%20v1.18.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10471-st.pdf" --remote-name
 pdftotext "st_vid10471-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10425-st.pdf" --remote-name
 pdftotext "st_vid10425-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/VID10429_ST_FINAL.pdf" --remote-name
 pdftotext "VID10429_ST_FINAL.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10361-st.pdf" --remote-name
 pdftotext "st_vid10361-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10450-st.pdf" --remote-name
 pdftotext "st_vid10450-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0696b_pdf.pdf" --remote-name
 pdftotext "0696b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10426-st.pdf" --remote-name
 pdftotext "st_vid10426-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10292-st.pdf" --remote-name
 pdftotext "st_vid10292-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-183%20ST%20v1.2.pdf" --remote-name
 pdftotext "383-4-183%20ST%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10346-st.pdf" --remote-name
 pdftotext "st_vid10346-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0670b_pdf.pdf" --remote-name
 pdftotext "0670b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/fortigate-v200b-sec-eng.pdf" --remote-name
 pdftotext "fortigate-v200b-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/symantec-bright-v901-sec-eng.pdf" --remote-name
 pdftotext "symantec-bright-v901-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcAfee-firewall-enterprise-st.pdf" --remote-name
 pdftotext "mcAfee-firewall-enterprise-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10397-st.pdf" --remote-name
 pdftotext "st_vid10397-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcafee-web-v7011-sec-eng.pdf" --remote-name
 pdftotext "mcafee-web-v7011-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcafee-email-v55-sec-eng.pdf" --remote-name
 pdftotext "mcafee-email-v55-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0616b_pdf.pdf" --remote-name
 pdftotext "0616b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0595b_pdf.pdf" --remote-name
 pdftotext "0595b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10207-st.pdf" --remote-name
 pdftotext "st_vid10207-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/prismmicro-v63-sec-eng.pdf" --remote-name
 pdftotext "prismmicro-v63-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Fox%20DataDiode%20Security%20Target%20EAL7%20(v2.04).pdf" --remote-name
 pdftotext "Fox%20DataDiode%20Security%20Target%20EAL7%20(v2.04).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/fortimail-v30-sec-eng.pdf" --remote-name
 pdftotext "fortimail-v30-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10372-st.pdf" --remote-name
 pdftotext "st_vid10372-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/alcatel-lucent-v70-sec-eng.pdf" --remote-name
 pdftotext "alcatel-lucent-v70-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10301-st.pdf" --remote-name
 pdftotext "st_vid10301-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/rsa-envision-v40-sec-eng.pdf" --remote-name
 pdftotext "rsa-envision-v40-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20091125150313.pdf" --remote-name
 pdftotext "20091125150313.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0565b_pdf.pdf" --remote-name
 pdftotext "0565b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/%5BST_Public%5D_Fox_DataDiode_Security_Target.pdf" --remote-name
 pdftotext "%5BST_Public%5D_Fox_DataDiode_Security_Target.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible_2009-30fr.pdf" --remote-name
 pdftotext "anssi-cible_2009-30fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible_2009-29fr.pdf" --remote-name
 pdftotext "anssi-cible_2009-29fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10137-st.pdf" --remote-name
 pdftotext "st_vid10137-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/lfs_t536_st.pdf" --remote-name
 pdftotext "lfs_t536_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-NISS-199-ST-EN.pdf" --remote-name
 pdftotext "KECS-NISS-199-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0453b.pdf" --remote-name
 pdftotext "0453b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10169-st.pdf" --remote-name
 pdftotext "st_vid10169-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-135-ST-EN.pdf" --remote-name
 pdftotext "NISS-135-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-137-ST-EN.pdf" --remote-name
 pdftotext "NISS-137-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/fortinet-v451-sec-eng.pdf" --remote-name
 pdftotext "fortinet-v451-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/proofpoint-sec.pdf" --remote-name
 pdftotext "proofpoint-sec.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sonicwall-sec-e.pdf" --remote-name
 pdftotext "sonicwall-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0418b.pdf" --remote-name
 pdftotext "0418b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080527_ST2006001_Farist.pdf" --remote-name
 pdftotext "20080527_ST2006001_Farist.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10309-st.pdf" --remote-name
 pdftotext "st_vid10309-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10089-st.pdf" --remote-name
 pdftotext "st_vid10089-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10174-st.pdf" --remote-name
 pdftotext "st_vid10174-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sms8300-tar-e.pdf" --remote-name
 pdftotext "sms8300-tar-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0382b.pdf" --remote-name
 pdftotext "0382b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0342b.pdf" --remote-name
 pdftotext "0342b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-67-ST-EN.pdf" --remote-name
 pdftotext "NISS-67-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T534_ST_EAL4_revD.pdf" --remote-name
 pdftotext "T534_ST_EAL4_revD.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0387b.pdf" --remote-name
 pdftotext "0387b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6016-st.pdf" --remote-name
 pdftotext "st_vid6016-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0219b.pdf" --remote-name
 pdftotext "0219b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6015-st.pdf" --remote-name
 pdftotext "st_vid6015-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10038-st.pdf" --remote-name
 pdftotext "st_vid10038-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-52-ST-EN.pdf" --remote-name
 pdftotext "NISS-52-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-53-ST-EN.pdf" --remote-name
 pdftotext "NISS-53-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0356b.pdf" --remote-name
 pdftotext "0356b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3031-st.pdf" --remote-name
 pdftotext "st_vid3031-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3029-st.pdf" --remote-name
 pdftotext "st_vid3029-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0300b.pdf" --remote-name
 pdftotext "0300b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-36-ST-EN.pdf" --remote-name
 pdftotext "NISS-36-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-37-ST-EN.pdf" --remote-name
 pdftotext "NISS-37-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10091-st.pdf" --remote-name
 pdftotext "st_vid10091-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/DeepSecure2.1.pdf" --remote-name
 pdftotext "DeepSecure2.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10024a-st.pdf" --remote-name
 pdftotext "st_vid10024a-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SGS5000_V3.0.pdf" --remote-name
 pdftotext "SGS5000_V3.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9516-st.pdf" --remote-name
 pdftotext "st_vid9516-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6009-st.pdf" --remote-name
 pdftotext "st_vid6009-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10058-st.pdf" --remote-name
 pdftotext "st_vid10058-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10024-st.pdf" --remote-name
 pdftotext "st_vid10024-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10024-vr.pdf" --remote-name
 pdftotext "st_vid10024-vr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/etm-v501-sec-e.pdf" --remote-name
 pdftotext "etm-v501-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9515-st.pdf" --remote-name
 pdftotext "st_vid9515-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0262b.pdf" --remote-name
 pdftotext "0262b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Nokia%20ST.pdf" --remote-name
 pdftotext "Nokia%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SurfControl%20ST%20v1.04.pdf" --remote-name
 pdftotext "SurfControl%20ST%20v1.04.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NortelASF-ST-1.5.pdf" --remote-name
 pdftotext "NortelASF-ST-1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CheckPoint%20FP1%20ST.pdf" --remote-name
 pdftotext "CheckPoint%20FP1%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/WatchGuard%20FireboxR%20X%20v8.0%20EAL4%20ST%20v2_1.pdf" --remote-name
 pdftotext "WatchGuard%20FireboxR%20X%20v8.0%20EAL4%20ST%20v2_1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3035-st.pdf" --remote-name
 pdftotext "st_vid3035-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10051-st.pdf" --remote-name
 pdftotext "st_vid10051-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/STsymantec400.pdf" --remote-name
 pdftotext "STsymantec400.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_06.pdf" --remote-name
 pdftotext "cible2005_06.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/FortiGate%20ST%20v0.90.pdf" --remote-name
 pdftotext "FortiGate%20ST%20v0.90.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/DN11240_4(ST).pdf" --remote-name
 pdftotext "DN11240_4(ST).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_33.pdf" --remote-name
 pdftotext "cible2004_33.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/borderware_3.0Final.pdf" --remote-name
 pdftotext "borderware_3.0Final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID1007-ST.pdf" --remote-name
 pdftotext "ST_VID1007-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/side-g2-v6.1.pdf" --remote-name
 pdftotext "side-g2-v6.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/symantecv8.0.pdf" --remote-name
 pdftotext "symantecv8.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Symantec.pdf" --remote-name
 pdftotext "Symantec.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20ETM%20v4.1.pdf" --remote-name
 pdftotext "ST%20ETM%20v4.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4016-st.pdf" --remote-name
 pdftotext "st_vid4016-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4016a-st.pdf" --remote-name
 pdftotext "st_vid4016a-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/symantec7.pdf" --remote-name
 pdftotext "symantec7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6006-st.pdf" --remote-name
 pdftotext "st_vid6006-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4016-st.pdf" --remote-name
 pdftotext "st_vid4016-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T426-STv2.3.pdf" --remote-name
 pdftotext "T426-STv2.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LFA_T193v1-8.pdf" --remote-name
 pdftotext "LFA_T193v1-8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0218b.pdf" --remote-name
 pdftotext "0218b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3003-st.pdf" --remote-name
 pdftotext "st_vid3003-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NortelASF-ST-1.pdf" --remote-name
 pdftotext "NortelASF-ST-1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2014-st.pdf" --remote-name
 pdftotext "st_vid2014-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/3Com_EFW_ST.pdf" --remote-name
 pdftotext "3Com_EFW_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cs_bastion.pdf" --remote-name
 pdftotext "cs_bastion.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4015-st.pdf" --remote-name
 pdftotext "st_vid4015-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Sidewinder.pdf" --remote-name
 pdftotext "Sidewinder.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20ETM%20v4.0.1.pdf" --remote-name
 pdftotext "ST%20ETM%20v4.0.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC_ST_v3_Final.pdf" --remote-name
 pdftotext "CC_ST_v3_Final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/stciscofw_v2.pdf" --remote-name
 pdftotext "stciscofw_v2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4008-st.pdf" --remote-name
 pdftotext "st_vid4008-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4000-st.pdf" --remote-name
 pdftotext "st_vid4000-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Sidewinder2ST.pdf" --remote-name
 pdftotext "Sidewinder2ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC_Security_Target_NG_FP1-1.pdf" --remote-name
 pdftotext "CC_Security_Target_NG_FP1-1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/GauntletInternetFirewallST.pdf" --remote-name
 pdftotext "GauntletInternetFirewallST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20ETM%20v3.0.1.pdf" --remote-name
 pdftotext "ST%20ETM%20v3.0.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/borderware6_5.pdf" --remote-name
 pdftotext "borderware6_5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1002-st.pdf" --remote-name
 pdftotext "st_vid1002-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/stciscofw.pdf" --remote-name
 pdftotext "stciscofw.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20TeleWall%20%20v2.0.pdf" --remote-name
 pdftotext "ST%20TeleWall%20%20v2.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TTAP-ST-0015.pdf" --remote-name
 pdftotext "TTAP-ST-0015.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SafegateST12.pdf" --remote-name
 pdftotext "SafegateST12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST136.pdf" --remote-name
 pdftotext "ST136.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TTAP-ST-0005.pdf" --remote-name
 pdftotext "TTAP-ST-0005.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20ConSeal%20v1.4.pdf" --remote-name
 pdftotext "ST%20ConSeal%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TTAP-ST-0001.pdf" --remote-name
 pdftotext "TTAP-ST-0001.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Milkyway%20v.3.01E2.pdf" --remote-name
 pdftotext "ST%20Milkyway%20v.3.01E2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Document%20SAFER%20Blue%202%20Security%20Target%20V1.10_%EA%B3%B5%EA%B0%9C%EC%9A%A9.pdf" --remote-name
 pdftotext "Document%20SAFER%20Blue%202%20Security%20Target%20V1.10_%EA%B3%B5%EA%B0%9C%EC%9A%A9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10855-st.pdf" --remote-name
 pdftotext "st_vid10855-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10775-st.pdf" --remote-name
 pdftotext "st_vid10775-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10740-st.pdf" --remote-name
 pdftotext "st_vid10740-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10783-st.pdf" --remote-name
 pdftotext "st_vid10783-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10786-st.pdf" --remote-name
 pdftotext "st_vid10786-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10759-st.pdf" --remote-name
 pdftotext "st_vid10759-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10754-st.pdf" --remote-name
 pdftotext "st_vid10754-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10771-st.pdf" --remote-name
 pdftotext "st_vid10771-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10753-st.pdf" --remote-name
 pdftotext "st_vid10753-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10727-st.pdf" --remote-name
 pdftotext "st_vid10727-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10656-st.pdf" --remote-name
 pdftotext "st_vid10656-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10651-st.pdf" --remote-name
 pdftotext "st_vid10651-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10586-st.pdf" --remote-name
 pdftotext "st_vid10586-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10610-st.pdf" --remote-name
 pdftotext "st_vid10610-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10600-st.pdf" --remote-name
 pdftotext "st_vid10600-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10554-st.pdf" --remote-name
 pdftotext "st_vid10554-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10571-st.pdf" --remote-name
 pdftotext "st_vid10571-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10573-st.pdf" --remote-name
 pdftotext "st_vid10573-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10572-st.pdf" --remote-name
 pdftotext "st_vid10572-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10578-st.pdf" --remote-name
 pdftotext "st_vid10578-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10570-st.pdf" --remote-name
 pdftotext "st_vid10570-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10576-st.pdf" --remote-name
 pdftotext "st_vid10576-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10595-st.pdf" --remote-name
 pdftotext "st_vid10595-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10553-st.pdf" --remote-name
 pdftotext "st_vid10553-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10557-st.pdf" --remote-name
 pdftotext "st_vid10557-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/PRIMX-ZonePoint%203.0%20Cible%20de%20s%C3%A9curit%C3%A9%20%20(PX128371r9).pdf" --remote-name
 pdftotext "PRIMX-ZonePoint%203.0%20Cible%20de%20s%C3%A9curit%C3%A9%20%20(PX128371r9).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/PRIMX-ZonePoint%203.0%20Cible%20de%20s%C3%A9curit%C3%A9%20%20(PX128371r9).pdf" --remote-name
 pdftotext "PRIMX-ZonePoint%203.0%20Cible%20de%20s%C3%A9curit%C3%A9%20%20(PX128371r9).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10540-st.pdf" --remote-name
 pdftotext "st_vid10540-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10529-st.pdf" --remote-name
 pdftotext "st_vid10529-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10343-ci-vr.pdf" --remote-name
 pdftotext "st_vid10343-ci-vr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-242%20ST%20v1.1.pdf" --remote-name
 pdftotext "383-4-242%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcafee-database-v44-sec-eng.pdf" --remote-name
 pdftotext "mcafee-database-v44-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Kermen%20Portable%20v1.0%20ST-%20r1.7.pdf" --remote-name
 pdftotext "Kermen%20Portable%20v1.0%20ST-%20r1.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_Good_Technology_v_1_19.pdf" --remote-name
 pdftotext "ST_Good_Technology_v_1_19.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-28-DS.pdf" --remote-name
 pdftotext "2009-28-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/accessdata-v212-sec-eng.pdf" --remote-name
 pdftotext "accessdata-v212-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EMC%20RSA%20Data%20Loss%20Prevention%20v9.0%20ST%20v0.7.pdf" --remote-name
 pdftotext "EMC%20RSA%20Data%20Loss%20Prevention%20v9.0%20ST%20v0.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/verdasys-v601-sec-eng.pdf" --remote-name
 pdftotext "verdasys-v601-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10500-st.pdf" --remote-name
 pdftotext "st_vid10500-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10486-st.pdf" --remote-name
 pdftotext "st_vid10486-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10462-st.pdf" --remote-name
 pdftotext "st_vid10462-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10484-st.pdf" --remote-name
 pdftotext "st_vid10484-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-71fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-71fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MFE%20HDLP%209-2%20EAL2%20Security%20Target%20v1-0.pdf" --remote-name
 pdftotext "MFE%20HDLP%209-2%20EAL2%20Security%20Target%20v1-0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-170%20ST%20v1.1.pdf" --remote-name
 pdftotext "383-4-170%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SYMC%20DLP%20EAL2%20Security%20Target%20v1-0.pdf" --remote-name
 pdftotext "SYMC%20DLP%20EAL2%20Security%20Target%20v1-0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-07fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-07fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2012_04en.pdf" --remote-name
 pdftotext "anssi-cible2012_04en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-27-DS.pdf" --remote-name
 pdftotext "2009-27-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10400-st.pdf" --remote-name
 pdftotext "st_vid10400-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/USBK%20Cryptobridge%20v2.0%20For%20Model%20A101%20and%20Model%20A103%20ST.pdf" --remote-name
 pdftotext "USBK%20Cryptobridge%20v2.0%20For%20Model%20A101%20and%20Model%20A103%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-20fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-20fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2010-07-ST.pdf" --remote-name
 pdftotext "2010-07-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2010-06-ST.pdf" --remote-name
 pdftotext "2010-06-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10350-st.pdf" --remote-name
 pdftotext "st_vid10350-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SecureObjectsIncorporatingSecureEnvelopesSecurityTarget1.3.pdf" --remote-name
 pdftotext "SecureObjectsIncorporatingSecureEnvelopesSecurityTarget1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10337-st.pdf" --remote-name
 pdftotext "st_vid10337-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10259-st.pdf" --remote-name
 pdftotext "st_vid10259-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcafee-appl-v50-sec-eng.pdf" --remote-name
 pdftotext "mcafee-appl-v50-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10395-st.pdf" --remote-name
 pdftotext "st_vid10395-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10298-st.pdf" --remote-name
 pdftotext "st_vid10298-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-2-DS.pdf" --remote-name
 pdftotext "2009-2-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-15-ST.pdf" --remote-name
 pdftotext "2009-15-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-51fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-51fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10303-st.pdf" --remote-name
 pdftotext "st_vid10303-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10231-st.pdf" --remote-name
 pdftotext "st_vid10231-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-17-DS.pdf" --remote-name
 pdftotext "2009-17-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/pgp-desktop-v9100-sec-eng.pdf" --remote-name
 pdftotext "pgp-desktop-v9100-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/BeCryptTCEAL2SecurityTarget1.1.pdf" --remote-name
 pdftotext "BeCryptTCEAL2SecurityTarget1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10244-st.pdf" --remote-name
 pdftotext "st_vid10244-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SanDisk_FIPS_ST_1.1.pdf" --remote-name
 pdftotext "SanDisk_FIPS_ST_1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10205-st.pdf" --remote-name
 pdftotext "st_vid10205-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10138-st.pdf" --remote-name
 pdftotext "st_vid10138-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/BecryptDISKProtectSecurityTarget1.0.pdf" --remote-name
 pdftotext "BecryptDISKProtectSecurityTarget1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10194-st.pdf" --remote-name
 pdftotext "st_vid10194-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10124-st.pdf" --remote-name
 pdftotext "st_vid10124-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IBMTivoli_V551_ST.pdf" --remote-name
 pdftotext "IBMTivoli_V551_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dlp-suite-v65-sec-eng.pdf" --remote-name
 pdftotext "dlp-suite-v65-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Eaglehawk_Security_Target_v1.5.pdf" --remote-name
 pdftotext "Eaglehawk_Security_Target_v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10189-st.pdf" --remote-name
 pdftotext "st_vid10189-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10123-st.pdf" --remote-name
 pdftotext "st_vid10123-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10035-st.pdf" --remote-name
 pdftotext "st_vid10035-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10104-st.pdf" --remote-name
 pdftotext "st_vid10104-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10107-st.pdf" --remote-name
 pdftotext "st_vid10107-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10020-st.pdf" --remote-name
 pdftotext "st_vid10020-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10003-st.pdf" --remote-name
 pdftotext "st_vid10003-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10003-st.pdf" --remote-name
 pdftotext "st_vid10003-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_46fr.pdf" --remote-name
 pdftotext "dcssi-cible2008_46fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/pgp-universal-sec-e.pdf" --remote-name
 pdftotext "pgp-universal-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10272-st.pdf" --remote-name
 pdftotext "st_vid10272-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10177-st.pdf" --remote-name
 pdftotext "st_vid10177-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Safenet%20V8_sec.pdf" --remote-name
 pdftotext "Safenet%20V8_sec.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10181-st.pdf" --remote-name
 pdftotext "st_vid10181-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10103-st.pdf" --remote-name
 pdftotext "st_vid10103-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10243-st.pdf" --remote-name
 pdftotext "st_vid10243-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10240-st.pdf" --remote-name
 pdftotext "st_vid10240-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080527_ST2006002_Filkrypto.pdf" --remote-name
 pdftotext "20080527_ST2006002_Filkrypto.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10232-st.pdf" --remote-name
 pdftotext "st_vid10232-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10224-st.pdf" --remote-name
 pdftotext "st_vid10224-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/target_sdev43.pdf" --remote-name
 pdftotext "target_sdev43.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10000-st.pdf" --remote-name
 pdftotext "st_vid10000-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sterling-v45-sec-e.pdf" --remote-name
 pdftotext "sterling-v45-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sterling-v37-sec-e.pdf" --remote-name
 pdftotext "sterling-v37-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SafeBoot5.pdf" --remote-name
 pdftotext "SafeBoot5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10014-st.pdf" --remote-name
 pdftotext "st_vid10014-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10018-st.pdf" --remote-name
 pdftotext "st_vid10018-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_Eracom_ProtDrive703.pdf" --remote-name
 pdftotext "ST_Eracom_ProtDrive703.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10064-st.pdf" --remote-name
 pdftotext "st_vid10064-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1005-st.pdf" --remote-name
 pdftotext "st_vid1005-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3005-st.pdf" --remote-name
 pdftotext "st_vid3005-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_34.pdf" --remote-name
 pdftotext "cible2004_34.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9500-st.pdf" --remote-name
 pdftotext "st_vid9500-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_03.pdf" --remote-name
 pdftotext "cible2004_03.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4010-st.pdf" --remote-name
 pdftotext "st_vid4010-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3010-st.pdf" --remote-name
 pdftotext "st_vid3010-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/DestroyDestroyLiteST.pdf" --remote-name
 pdftotext "DestroyDestroyLiteST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3008-st.pdf" --remote-name
 pdftotext "st_vid3008-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6000-st.pdf" --remote-name
 pdftotext "st_vid6000-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6001-st.pdf" --remote-name
 pdftotext "st_vid6001-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0185b.pdf" --remote-name
 pdftotext "0185b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0176b.pdf" --remote-name
 pdftotext "0176b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3000-st.pdf" --remote-name
 pdftotext "st_vid3000-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10290-st.pdf" --remote-name
 pdftotext "st_vid10290-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TTAP-ST-0016.pdf" --remote-name
 pdftotext "TTAP-ST-0016.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20SecureDoc%20%20v2.0.pdf" --remote-name
 pdftotext "ST%20SecureDoc%20%20v2.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20TrueDelete%20v4.0.pdf" --remote-name
 pdftotext "ST%20TrueDelete%20v4.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0884b_pdf.pdf" --remote-name
 pdftotext "0884b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10507-st.pdf" --remote-name
 pdftotext "st_vid10507-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0806b_pdf.pdf" --remote-name
 pdftotext "0806b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-prosphere-v20-sec-eng.pdf" --remote-name
 pdftotext "emc-prosphere-v20-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0807b_pdf.pdf" --remote-name
 pdftotext "0807b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0811b_pdf.pdf" --remote-name
 pdftotext "0811b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0371_est.pdf" --remote-name
 pdftotext "c0371_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0622b_pdf.pdf" --remote-name
 pdftotext "0622b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-greenplum-v42-sec-eng.pdf" --remote-name
 pdftotext "emc-greenplum-v42-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0698b_pdf.pdf" --remote-name
 pdftotext "0698b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0766b_pdf.pdf" --remote-name
 pdftotext "0766b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0765b_pdf.pdf" --remote-name
 pdftotext "0765b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sensage-v462-sec-eng.pdf" --remote-name
 pdftotext "sensage-v462-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10412-st.pdf" --remote-name
 pdftotext "st_vid10412-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10385-st.pdf" --remote-name
 pdftotext "st_vid10385-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0591b_pdf.pdf" --remote-name
 pdftotext "0591b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0621b_pdf.pdf" --remote-name
 pdftotext "0621b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10306-st.pdf" --remote-name
 pdftotext "st_vid10306-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/netezza-v465-sec-eng.pdf" --remote-name
 pdftotext "netezza-v465-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0588b_pdf.pdf" --remote-name
 pdftotext "0588b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0578b_pdf.pdf" --remote-name
 pdftotext "0578b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0577b_pdf.pdf" --remote-name
 pdftotext "0577b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0579b_pdf.pdf" --remote-name
 pdftotext "0579b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10328-st.pdf" --remote-name
 pdftotext "st_vid10328-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10336-st.pdf" --remote-name
 pdftotext "st_vid10336-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10227-st.pdf" --remote-name
 pdftotext "st_vid10227-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10222-st.pdf" --remote-name
 pdftotext "st_vid10222-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10192-st.pdf" --remote-name
 pdftotext "st_vid10192-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0520b.pdf" --remote-name
 pdftotext "0520b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10221-st.pdf" --remote-name
 pdftotext "st_vid10221-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10220-st.pdf" --remote-name
 pdftotext "st_vid10220-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10294-st.pdf" --remote-name
 pdftotext "st_vid10294-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0366b.pdf" --remote-name
 pdftotext "0366b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST244.pdf" --remote-name
 pdftotext "ST244.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10164-st.pdf" --remote-name
 pdftotext "st_vid10164-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0286b.pdf" --remote-name
 pdftotext "20080514_0286b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0403b.pdf" --remote-name
 pdftotext "20080306_0403b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0402b.pdf" --remote-name
 pdftotext "20080306_0402b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10234-st.pdf" --remote-name
 pdftotext "st_vid10234-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/netezza_sec-e.pdf" --remote-name
 pdftotext "netezza_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10157-st.pdf" --remote-name
 pdftotext "st_vid10157-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0416b.pdf" --remote-name
 pdftotext "0416b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cache-v51-sec-e.pdf" --remote-name
 pdftotext "cache-v51-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10145-st.pdf" --remote-name
 pdftotext "st_vid10145-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10146-st.pdf" --remote-name
 pdftotext "st_vid10146-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/OHS_ST_v0.5.pdf" --remote-name
 pdftotext "OHS_ST_v0.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/oracle_server_v1.0.pdf" --remote-name
 pdftotext "oracle_server_v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4046-st.pdf" --remote-name
 pdftotext "st_vid4046-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T209_ST_v1.1.pdf" --remote-name
 pdftotext "T209_ST_v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T210_ST_v1.2.pdf" --remote-name
 pdftotext "T210_ST_v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4047-st.pdf" --remote-name
 pdftotext "st_vid4047-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/OID-ST-v1-0.pdf" --remote-name
 pdftotext "OID-ST-v1-0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/OLS9iR2_v0.8.pdf" --remote-name
 pdftotext "OLS9iR2_v0.8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST211.pdf" --remote-name
 pdftotext "ST211.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4044-st.pdf" --remote-name
 pdftotext "st_vid4044-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID4044-ST.pdf" --remote-name
 pdftotext "ST_VID4044-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4036-st.pdf" --remote-name
 pdftotext "st_vid4036-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4023-st.pdf" --remote-name
 pdftotext "st_vid4023-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1015-st.pdf" --remote-name
 pdftotext "st_vid1015-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid7001-st.pdf" --remote-name
 pdftotext "st_vid7001-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4026-st.pdf" --remote-name
 pdftotext "st_vid4026-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Oracle9iOLS-R2_STv0-7.pdf" --remote-name
 pdftotext "Oracle9iOLS-R2_STv0-7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Oracle9i-R2_STv0-4.pdf" --remote-name
 pdftotext "Oracle9i-R2_STv0-4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/oracle8ir3.pdf" --remote-name
 pdftotext "oracle8ir3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/oracle8i8.pdf" --remote-name
 pdftotext "oracle8i8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/O80_st.pdf" --remote-name
 pdftotext "O80_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/o72cc.pdf" --remote-name
 pdftotext "o72cc.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10537-st.pdf" --remote-name
 pdftotext "st_vid10537-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10537-st.pdf" --remote-name
 pdftotext "st_vid10537-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10402-st.pdf" --remote-name
 pdftotext "st_vid10402-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LogRadar_ST-Document_v1-0R.pdf" --remote-name
 pdftotext "LogRadar_ST-Document_v1-0R.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10466-st.pdf" --remote-name
 pdftotext "st_vid10466-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-202%20ST%20v1.4.pdf" --remote-name
 pdftotext "383-4-202%20ST%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-226%20ST%20v1.5.pdf" --remote-name
 pdftotext "383-4-226%20ST%20v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10389-st.pdf" --remote-name
 pdftotext "st_vid10389-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-220%20ST%20v1.0.pdf" --remote-name
 pdftotext "383-4-220%20ST%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solera-v650-sec-eng.pdf" --remote-name
 pdftotext "solera-v650-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10423-st.pdf" --remote-name
 pdftotext "st_vid10423-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10443-st.pdf" --remote-name
 pdftotext "st_vid10443-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10449-st.pdf" --remote-name
 pdftotext "st_vid10449-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10441-st.pdf" --remote-name
 pdftotext "st_vid10441-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10502-st.pdf" --remote-name
 pdftotext "st_vid10502-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10477-st.pdf" --remote-name
 pdftotext "st_vid10477-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-161%20ST%20v1.9.pdf" --remote-name
 pdftotext "383-4-161%20ST%20v1.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10377-st.pdf" --remote-name
 pdftotext "st_vid10377-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10458-st.pdf" --remote-name
 pdftotext "st_vid10458-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10435-st.pdf" --remote-name
 pdftotext "st_vid10435-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10320-st.pdf" --remote-name
 pdftotext "st_vid10320-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10406-st.pdf" --remote-name
 pdftotext "st_vid10406-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10419-st.pdf" --remote-name
 pdftotext "st_vid10419-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10332-st.pdf" --remote-name
 pdftotext "st_vid10332-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10438-st.pdf" --remote-name
 pdftotext "st_vid10438-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10276-st.pdf" --remote-name
 pdftotext "st_vid10276-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10420-st.pdf" --remote-name
 pdftotext "st_vid10420-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10334-st.pdf" --remote-name
 pdftotext "st_vid10334-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10273-st.pdf" --remote-name
 pdftotext "st_vid10273-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AirMagnet_SecurityTarget_004.pdf" --remote-name
 pdftotext "AirMagnet_SecurityTarget_004.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10312-st.pdf" --remote-name
 pdftotext "st_vid10312-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10316-st.pdf" --remote-name
 pdftotext "st_vid10316-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10333-st.pdf" --remote-name
 pdftotext "st_vid10333-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10302-st.pdf" --remote-name
 pdftotext "st_vid10302-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10238-st.pdf" --remote-name
 pdftotext "st_vid10238-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/triumfant-sec-eng.pdf" --remote-name
 pdftotext "triumfant-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_38en.pdf" --remote-name
 pdftotext "dcssi-cible2008_38en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/enterasys-sec.pdf" --remote-name
 pdftotext "enterasys-sec.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10179-st.pdf" --remote-name
 pdftotext "st_vid10179-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sepv110-sec-e.pdf" --remote-name
 pdftotext "sepv110-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6002-st.pdf" --remote-name
 pdftotext "st_vid6002-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080505_thirdbrigade-sec-e.pdf" --remote-name
 pdftotext "20080505_thirdbrigade-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10236-st.pdf" --remote-name
 pdftotext "st_vid10236-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10159-st.pdf" --remote-name
 pdftotext "st_vid10159-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10225-st.pdf" --remote-name
 pdftotext "st_vid10225-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Network_Chemistry_target-e.pdf" --remote-name
 pdftotext "Network_Chemistry_target-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10008-st.pdf" --remote-name
 pdftotext "st_vid10008-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0364b.pdf" --remote-name
 pdftotext "0364b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9510-st.pdf" --remote-name
 pdftotext "st_vid9510-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10050-st.pdf" --remote-name
 pdftotext "st_vid10050-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-59-ST-EN.pdf" --remote-name
 pdftotext "NISS-59-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/csp-v505-sec-e.pdf" --remote-name
 pdftotext "csp-v505-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4037-st.pdf" --remote-name
 pdftotext "st_vid4037-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1025-st.pdf" --remote-name
 pdftotext "st_vid1025-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3021-st.pdf" --remote-name
 pdftotext "st_vid3021-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4017-st.pdf" --remote-name
 pdftotext "st_vid4017-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6003-st.pdf" --remote-name
 pdftotext "st_vid6003-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID6008-ST.pdf" --remote-name
 pdftotext "ST_VID6008-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4033-st.pdf" --remote-name
 pdftotext "st_vid4033-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2013-st.pdf" --remote-name
 pdftotext "st_vid2013-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6005-st.pdf" --remote-name
 pdftotext "st_vid6005-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1004-st.pdf" --remote-name
 pdftotext "st_vid1004-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Smx2Cl_ST_P60D144_VE_V2_6.pdf" --remote-name
 pdftotext "[ST]%20Smx2Cl_ST_P60D144_VE_V2_6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Protection%20Profile%20for%20Secure%20Smartcard%20Reader%20Application%20Firmware_v2.5.pdf" --remote-name
 pdftotext "Protection%20Profile%20for%20Secure%20Smartcard%20Reader%20Application%20Firmware_v2.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Smx2Cl_ST_P60D024_1.3.pdf" --remote-name
 pdftotext "[ST]%20Smx2Cl_ST_P60D024_1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Smx2Cl_ST_P60D144_2.3.pdf" --remote-name
 pdftotext "[ST]%20Smx2Cl_ST_P60D144_2.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Smx2Cl_ST_P60D144y_1.4.pdf" --remote-name
 pdftotext "[ST]%20Smx2Cl_ST_P60D144y_1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Smx2Cl_ST_P60D080y_1.6.pdf" --remote-name
 pdftotext "[ST]%20Smx2Cl_ST_P60D080y_1.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST_080]%20Smx2Cl_ST_P60D080_1.6.pdf" --remote-name
 pdftotext "[ST_080]%20Smx2Cl_ST_P60D080_1.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AK%C4%B0S_V2%202%208I_Security%20Target_Lite_v01.pdf" --remote-name
 pdftotext "AK%C4%B0S_V2%202%208I_Security%20Target_Lite_v01.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST277.pdf" --remote-name
 pdftotext "ST277.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/P40C012_040_072_VD_SecurityTargetLite_V1.1.pdf" --remote-name
 pdftotext "P40C012_040_072_VD_SecurityTargetLite_V1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/XSMART%20Openplatform%20V1.1_ASE_LITE(ENG)_V1.1.pdf" --remote-name
 pdftotext "XSMART%20Openplatform%20V1.1_ASE_LITE(ENG)_V1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST275.pdf" --remote-name
 pdftotext "ST275.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0898b_pdf.pdf" --remote-name
 pdftotext "0898b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_Lite_JxE081_v00.02.pdf" --remote-name
 pdftotext "ST_Lite_JxE081_v00.02.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_Lite_JxE145_v00.03.pdf" --remote-name
 pdftotext "ST_Lite_JxE145_v00.03.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20ECC2%20CPU%20Card%20Security%20Target%20v1.0.1.pdf" --remote-name
 pdftotext "[ST]%20ECC2%20CPU%20Card%20Security%20Target%20v1.0.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI_cible2014_59en.pdf" --remote-name
 pdftotext "ANSSI_cible2014_59en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI_cible2014_57en.pdf" --remote-name
 pdftotext "ANSSI_cible2014_57en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI_cible2014_58en.pdf" --remote-name
 pdftotext "ANSSI_cible2014_58en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI_cible2014_84en.pdf" --remote-name
 pdftotext "ANSSI_cible2014_84en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0896b_pdf.pdf" --remote-name
 pdftotext "0896b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2014_0000001657%20-%20ASE%20-%20ARES%20-%20Security%20Target%20Lite%20for%20BAC.pdf" --remote-name
 pdftotext "2014_0000001657%20-%20ASE%20-%20ARES%20-%20Security%20Target%20Lite%20for%20BAC.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2014_0000001656%20-%20ASE%20-%20ARES%20-%20Security%20Target%20Lite%20for%20EAC%20with%20PACE.pdf" --remote-name
 pdftotext "2014_0000001656%20-%20ASE%20-%20ARES%20-%20Security%20Target%20Lite%20for%20EAC%20with%20PACE.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-46en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-46en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST33G1M2_SECURITY_TARGET_PUBLIC_SMD_ST33G_ST_13_002_v2_3.pdf" --remote-name
 pdftotext "ST33G1M2_SECURITY_TARGET_PUBLIC_SMD_ST33G_ST_13_002_v2_3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0750V2b_pdf.pdf" --remote-name
 pdftotext "0750V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0633V2b_pdf.pdf" --remote-name
 pdftotext "0633V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-50en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-50en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-49en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-48en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-48en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-2014_37_cible.pdf" --remote-name
 pdftotext "ANSSI-CC-2014_37_cible.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/XSMART%20e-Passport%20V1.3_R2_ASE_LITE(ENG)_v1.0.pdf" --remote-name
 pdftotext "XSMART%20e-Passport%20V1.3_R2_ASE_LITE(ENG)_v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0824b_pdf.pdf" --remote-name
 pdftotext "0824b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cibleLITE-2014_75.pdf" --remote-name
 pdftotext "ANSSI-CC-cibleLITE-2014_75.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TPG0028A_VIC_19Nov13.pdf" --remote-name
 pdftotext "TPG0028A_VIC_19Nov13.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0922b_pdf.pdf" --remote-name
 pdftotext "0922b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0861b_pdf.pdf" --remote-name
 pdftotext "0861b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0827V2b_pdf.pdf" --remote-name
 pdftotext "0827V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0830V2b_pdf.pdf" --remote-name
 pdftotext "0830V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0932b_pdf.pdf" --remote-name
 pdftotext "0932b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Lite%20S3FV9QJ_QL_QH_FH%20v1.4.pdf" --remote-name
 pdftotext "ST%20Lite%20S3FV9QJ_QL_QH_FH%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Lite%20S3FV9QM_QK%20v3.4.pdf" --remote-name
 pdftotext "ST%20Lite%20S3FV9QM_QK%20v3.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0892b_pdf.pdf" --remote-name
 pdftotext "0892b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0893b_pdf.pdf" --remote-name
 pdftotext "0893b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20CC-T6ND7-ST%20Lite-ENG.pdf" --remote-name
 pdftotext "ST%20CC-T6ND7-ST%20Lite-ENG.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TPG0227B_VIC_07Mar14.pdf" --remote-name
 pdftotext "TPG0227B_VIC_07Mar14.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0926b_pdf.pdf" --remote-name
 pdftotext "0926b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0810V2b_pdf.pdf" --remote-name
 pdftotext "0810V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Gep_ST_LITE_BAC_SOMA801STM.pdf" --remote-name
 pdftotext "Gep_ST_LITE_BAC_SOMA801STM.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Gep_ST_LITE_EAC_SOMA801STM.pdf" --remote-name
 pdftotext "Gep_ST_LITE_EAC_SOMA801STM.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0879b_pdf.pdf" --remote-name
 pdftotext "0879b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Lite%20S3FT9MF_MT_MS%20v1.0.pdf" --remote-name
 pdftotext "ST%20Lite%20S3FT9MF_MT_MS%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AKIS1%204i_Pasaport_ST_lite.pdf" --remote-name
 pdftotext "AKIS1%204i_Pasaport_ST_lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0866b_pdf.pdf" --remote-name
 pdftotext "0866b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0867b_pdf.pdf" --remote-name
 pdftotext "0867b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0873b_pdf.pdf" --remote-name
 pdftotext "0873b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_13en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_13en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_11en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_11en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_12en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_12en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-03en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-02en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-02en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0870b_pdf.pdf" --remote-name
 pdftotext "0870b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/XSMART_e-Passport_V1.3_ASE_LITE(ENG)_v1.1.pdf" --remote-name
 pdftotext "XSMART_e-Passport_V1.3_ASE_LITE(ENG)_v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/FQR%20110%206731%20Ed1.pdf" --remote-name
 pdftotext "FQR%20110%206731%20Ed1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_14en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_14en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EPS-04-AN-ST(LITE-EN)-1.0.pdf" --remote-name
 pdftotext "EPS-04-AN-ST(LITE-EN)-1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_07en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_09en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_09en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_08en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0917b_pdf.pdf" --remote-name
 pdftotext "0917b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2014_06en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2014_06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2014-01en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2014-01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/FQR%20110%206672%20Ed1%20-%20ST%20JUBA%20%20Lite.pdf" --remote-name
 pdftotext "FQR%20110%206672%20Ed1%20-%20ST%20JUBA%20%20Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TPG0224C-VIC-09Dec13.pdf" --remote-name
 pdftotext "TPG0224C-VIC-09Dec13.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0866b_pdf.pdf" --remote-name
 pdftotext "0866b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_CSEC2011003_KT2USB.pdf" --remote-name
 pdftotext "ST_CSEC2011003_KT2USB.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0897b_pdf.pdf" --remote-name
 pdftotext "0897b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0845V2b_pdf.pdf" --remote-name
 pdftotext "0845V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0908b_pdf.pdf" --remote-name
 pdftotext "0908b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0872b_pdf.pdf" --remote-name
 pdftotext "0872b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_K330A_F_Public_Neslib3_2_EV1_2_2_v1_02.pdf" --remote-name
 pdftotext "ST_K330A_F_Public_Neslib3_2_EV1_2_2_v1_02.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0882b_pdf.pdf" --remote-name
 pdftotext "0882b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0907b_pdf.pdf" --remote-name
 pdftotext "0907b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20QRCC_001_SHC1302_2907M4_ST_V1.0.pdf" --remote-name
 pdftotext "[ST]%20QRCC_001_SHC1302_2907M4_ST_V1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/PU-2012-RT-767-1.0-LITE.pdf" --remote-name
 pdftotext "PU-2012-RT-767-1.0-LITE.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[JK21-TR-0001]%20Security%20Target-Lite-e-v1.1.pdf" --remote-name
 pdftotext "[JK21-TR-0001]%20Security%20Target-Lite-e-v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2012-02-DS.pdf" --remote-name
 pdftotext "2012-02-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0836b_pdf.pdf" --remote-name
 pdftotext "0836b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0835b_pdf.pdf" --remote-name
 pdftotext "0835b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0700V2b_pdf.pdf" --remote-name
 pdftotext "0700V2b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0871b_pdf.pdf" --remote-name
 pdftotext "0871b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_Lite_JxE081_DF_00.03.pdf" --remote-name
 pdftotext "ST_Lite_JxE081_DF_00.03.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0850b_pdf.pdf" --remote-name
 pdftotext "0850b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0851b_pdf.pdf" --remote-name
 pdftotext "0851b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0883b_pdf.pdf" --remote-name
 pdftotext "0883b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0809b_pdf.pdf" --remote-name
 pdftotext "0809b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0808b_pdf.pdf" --remote-name
 pdftotext "0808b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-61en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-61en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/UKT%C3%9CM-H_v7%200_Security_Target_.pdf" --remote-name
 pdftotext "UKT%C3%9CM-H_v7%200_Security_Target_.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Lite%20S3FT9MD_MC%20v1.0.pdf" --remote-name
 pdftotext "ST%20Lite%20S3FT9MD_MC%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Lite%20S3FV9QJ_QL_QH_FH%20v1.2.pdf" --remote-name
 pdftotext "ST%20Lite%20S3FV9QJ_QL_QH_FH%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0854b_pdf.pdf" --remote-name
 pdftotext "0854b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-60en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-60en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20CC-T6NE1-ST-ENG-001.pdf" --remote-name
 pdftotext "[ST]%20CC-T6NE1-ST-ENG-001.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0886b_pdf.pdf" --remote-name
 pdftotext "0886b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0885b_pdf.pdf" --remote-name
 pdftotext "0885b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-55en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-55en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-57en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-57en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-56en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-56en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0830b_pdf.pdf" --remote-name
 pdftotext "0830b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Smx2Cl_ST_P60D080%20v1.0.pdf" --remote-name
 pdftotext "[ST]%20Smx2Cl_ST_P60D080%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0784b_pdf.pdf" --remote-name
 pdftotext "0784b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0860b_pdf.pdf" --remote-name
 pdftotext "0860b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0783b_pdf.pdf" --remote-name
 pdftotext "0783b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-54en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-54en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-49en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-47en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-47en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Samsung%20SDS_SPass%20NX%20V1.0_R3_ST%20Lite(En).pdf" --remote-name
 pdftotext "Samsung%20SDS_SPass%20NX%20V1.0_R3_ST%20Lite(En).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0761b_pdf.pdf" --remote-name
 pdftotext "0761b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0760b_pdf.pdf" --remote-name
 pdftotext "0760b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-40en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-40en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-46en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-46en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-42en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-42en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0837b_pdf.pdf" --remote-name
 pdftotext "0837b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-44en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-44en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-43en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-43en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-45en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-45en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0858b_pdf.pdf" --remote-name
 pdftotext "0858b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0857b_pdf.pdf" --remote-name
 pdftotext "0857b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-39en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-39en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-36en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-36en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-37en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-37en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/(SP-02-18)Kona102%20ePassport%20BAC%20Security%20Target%20Lite.pdf" --remote-name
 pdftotext "(SP-02-18)Kona102%20ePassport%20BAC%20Security%20Target%20Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/(SP-02-19)Kona102%20ePassport%20EAC%20Security%20Target%20Lite.pdf" --remote-name
 pdftotext "(SP-02-19)Kona102%20ePassport%20EAC%20Security%20Target%20Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-24en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-23en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-27en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-27en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-28en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-15en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-15en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-14en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-14en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-30en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-30en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-31en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-31en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0751b_pdf.pdf" --remote-name
 pdftotext "0751b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-29en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-29en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2013_33en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2013_33en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2013_34en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2013_34en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2013_35en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2013_35en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cible%20ANSSI-CC-2013_32en.pdf" --remote-name
 pdftotext "Cible%20ANSSI-CC-2013_32en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0842b_pdf.pdf" --remote-name
 pdftotext "0842b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20MPP%201.0%20on%20UpTeq%20NFC2.0.4_FRA%20public_v1.01p.pdf" --remote-name
 pdftotext "ST%20MPP%201.0%20on%20UpTeq%20NFC2.0.4_FRA%20public_v1.01p.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_D1266588_V11bp.pdf" --remote-name
 pdftotext "ST_D1266588_V11bp.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_K330A_F_Public_Neslib3_2_v1_00.pdf" --remote-name
 pdftotext "ST_K330A_F_Public_Neslib3_2_v1_00.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0840b_pdf.pdf" --remote-name
 pdftotext "0840b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0855b_pdf.pdf" --remote-name
 pdftotext "0855b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-09en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-09en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-16en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-09en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-09en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-16en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2013_12.pdf" --remote-name
 pdftotext "anssi-cc-cible2013_12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible-2013_11en.pdf" --remote-name
 pdftotext "anssi-cc-cible-2013_11en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2013_10en.pdf" --remote-name
 pdftotext "anssi-cc-cible2013_10en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0818b_pdf.pdf" --remote-name
 pdftotext "0818b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0817b_pdf.pdf" --remote-name
 pdftotext "0817b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible-2012_85en.pdf" --remote-name
 pdftotext "anssi-cc-cible-2012_85en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SECURITY_TARGET_PUBLIC_ST33F1ME_MIFARE_EV1_SMD_SM33Fxxx_ST_12_001_v01_02.pdf" --remote-name
 pdftotext "SECURITY_TARGET_PUBLIC_ST33F1ME_MIFARE_EV1_SMD_SM33Fxxx_ST_12_001_v01_02.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-02en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-02en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_D1267149_Tacho_MultiApp21_PPBSI_Pub.pdf" --remote-name
 pdftotext "ST_D1267149_Tacho_MultiApp21_PPBSI_Pub.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-80en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-80en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0827b_pdf.pdf" --remote-name
 pdftotext "0827b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0877b_pdf.pdf" --remote-name
 pdftotext "0877b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-07en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-05en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-05en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-04en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-04en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-12-DS.pdf" --remote-name
 pdftotext "2011-12-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-13-DS.pdf" --remote-name
 pdftotext "2011-13-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-14-DS.pdf" --remote-name
 pdftotext "2011-14-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-15-DS.pdf" --remote-name
 pdftotext "2011-15-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-06en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2012_50en.pdf" --remote-name
 pdftotext "anssi-cc-cible2012_50en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-cible_2012-51en.pdf" --remote-name
 pdftotext "ANSSI-cible_2012-51en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-03en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-01en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/(130121)EPS-03-AN-ST(LITE-EN)-1.0.pdf" --remote-name
 pdftotext "(130121)EPS-03-AN-ST(LITE-EN)-1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0863b_pdf.pdf" --remote-name
 pdftotext "0863b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-68en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-68en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2012_82.pdf" --remote-name
 pdftotext "anssi-cc-cible2012_82.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2012_83.pdf" --remote-name
 pdftotext "anssi-cc-cible2012_83.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2012_69.pdf" --remote-name
 pdftotext "anssi-cc-cible2012_69.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0763b_pdf.pdf" --remote-name
 pdftotext "0763b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0762b_pdf.pdf" --remote-name
 pdftotext "0762b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2012_38en.pdf" --remote-name
 pdftotext "anssi-cc-cible2012_38en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible2012_44en.pdf" --remote-name
 pdftotext "anssi-cc-cible2012_44en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0864b_pdf.pdf" --remote-name
 pdftotext "0864b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST272%20v3.0%20for%20ID-One%20Tachograph%20v1.0.pdf" --remote-name
 pdftotext "ST272%20v3.0%20for%20ID-One%20Tachograph%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-76en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-76en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-46en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-46en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0810b_pdf.pdf" --remote-name
 pdftotext "0810b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0845b_pdf.pdf" --remote-name
 pdftotext "0845b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-79en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-79en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-77en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-77en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-45en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-45en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/UBJ31-G11-ASE_LITE.pdf" --remote-name
 pdftotext "UBJ31-G11-ASE_LITE.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0812b_pdf.pdf" --remote-name
 pdftotext "0812b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0746b_pdf.pdf" --remote-name
 pdftotext "0746b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0745b_pdf.pdf" --remote-name
 pdftotext "0745b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-75en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-75en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-72en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-72en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-70en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-70en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-71en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-71en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-67en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-67en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2012_65en.pdf" --remote-name
 pdftotext "anssi-cible2012_65en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-66en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-66en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-30en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-30en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0782b_pdf.pdf" --remote-name
 pdftotext "0782b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0798b_pdf.pdf" --remote-name
 pdftotext "0798b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0797b_pdf.pdf" --remote-name
 pdftotext "0797b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0799b_pdf.pdf" --remote-name
 pdftotext "0799b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0829b_pdf.pdf" --remote-name
 pdftotext "0829b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/UKIS_ST_Lite.pdf" --remote-name
 pdftotext "UKIS_ST_Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0791b_pdf.pdf" --remote-name
 pdftotext "0791b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0707b_pdf.pdf" --remote-name
 pdftotext "0707b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0802b_pdf.pdf" --remote-name
 pdftotext "0802b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0801b_pdf.pdf" --remote-name
 pdftotext "0801b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-43en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-43en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-39en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-39en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-36en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-36en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-49en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-48en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-48en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0814b_pdf.pdf" --remote-name
 pdftotext "0814b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0666b_pdf.pdf" --remote-name
 pdftotext "0666b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0819b_pdf.pdf" --remote-name
 pdftotext "0819b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-37en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-37en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-06en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-42fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-42fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-35fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-35fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-cible_2012-31en.pdf" --remote-name
 pdftotext "ANSSI-cible_2012-31en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-cible_2012-40en.pdf" --remote-name
 pdftotext "ANSSI-cible_2012-40en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-cible_2012-32en.pdf" --remote-name
 pdftotext "ANSSI-cible_2012-32en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-cible_2012-41en.pdf" --remote-name
 pdftotext "ANSSI-cible_2012-41en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20P5_CL_C14_ST_Lite_CC012%20v1.1.pdf" --remote-name
 pdftotext "[ST]%20P5_CL_C14_ST_Lite_CC012%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-28en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/UKT23T64H_v4_ST_LITE.pdf" --remote-name
 pdftotext "UKT23T64H_v4_ST_LITE.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-24en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Samsung_SDS_SPass_NX_V1.0_ST_Lite(En).pdf" --remote-name
 pdftotext "Samsung_SDS_SPass_NX_V1.0_ST_Lite(En).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-27en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-27en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-10en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-10en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-21en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-21en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-68en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-68en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-67en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-67en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0813b_pdf.pdf" --remote-name
 pdftotext "0813b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/(SP-02-18)Kona102%20ePassport%20BAC%20Security%20Target%20Lite.pdf" --remote-name
 pdftotext "(SP-02-18)Kona102%20ePassport%20BAC%20Security%20Target%20Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/(SP-02-19)Kona102%20ePassport%20EAC%20Security%20Target%20Lite.pdf" --remote-name
 pdftotext "(SP-02-19)Kona102%20ePassport%20EAC%20Security%20Target%20Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-10-DS.pdf" --remote-name
 pdftotext "2011-10-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-11-DS.pdf" --remote-name
 pdftotext "2011-11-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-23en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-17en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-17en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-18en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-18en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0737b_pdf.pdf" --remote-name
 pdftotext "0737b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-22en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-22en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-ISIS-0378-2012_Samsung%20SDS%20SSCOS%20V1.0%20on%20S3CC9LC%20ST%20Lite(En).pdf" --remote-name
 pdftotext "KECS-ISIS-0378-2012_Samsung%20SDS%20SSCOS%20V1.0%20on%20S3CC9LC%20ST%20Lite(En).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-09en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-09en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC-E-passport-ST-%20ENG_PP_C0247_public2.pdf" --remote-name
 pdftotext "CC-E-passport-ST-%20ENG_PP_C0247_public2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-11en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-11en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-08en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-79en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-79en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-74en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-74en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_ANSSI-CC-2011-75en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_ANSSI-CC-2011-75en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-80en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-80en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0758b_pdf.pdf" --remote-name
 pdftotext "0758b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0800b_pdf.pdf" --remote-name
 pdftotext "0800b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0786b_pdf.pdf" --remote-name
 pdftotext "0786b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-58en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-58en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-59en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-59en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-73en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-73en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-76en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-76en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-77en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-77en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0794b_pdf.pdf" --remote-name
 pdftotext "0794b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KKEC%20Application%20Software%20v1.41.06A%20ST-Lite.pdf" --remote-name
 pdftotext "KKEC%20Application%20Software%20v1.41.06A%20ST-Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0744b_pdf.pdf" --remote-name
 pdftotext "0744b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0743b_pdf.pdf" --remote-name
 pdftotext "0743b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0771b_pdf.pdf" --remote-name
 pdftotext "0771b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-65en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-65en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0632b_pdf.pdf" --remote-name
 pdftotext "0632b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-64en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-64en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-62en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-62en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-63en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-63en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-61en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-61en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0767b_pdf.pdf" --remote-name
 pdftotext "0767b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-46en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-46en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0700b_pdf.pdf" --remote-name
 pdftotext "0700b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0703b_pdf.pdf" --remote-name
 pdftotext "0703b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0702b_pdf.pdf" --remote-name
 pdftotext "0702b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_ANSSI-CC-2011-49en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_ANSSI-CC-2011-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_ANSSI-CC-2011-50en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_ANSSI-CC-2011-50en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0757b_pdf.pdf" --remote-name
 pdftotext "0757b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0774b_pdf.pdf" --remote-name
 pdftotext "0774b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-45en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-45en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-06en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-27en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-27en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-28en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0729b_pdf.pdf" --remote-name
 pdftotext "0729b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0733b_pdf.pdf" --remote-name
 pdftotext "0733b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-16en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Akis_ST_Lite_Infineon.pdf" --remote-name
 pdftotext "Akis_ST_Lite_Infineon.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AKIS_ST_LITE_NXP.pdf" --remote-name
 pdftotext "AKIS_ST_LITE_NXP.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0717b_pdf.pdf" --remote-name
 pdftotext "0717b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0722b_pdf.pdf" --remote-name
 pdftotext "0722b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-81en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-81en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-82en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-82en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-70en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-70en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-72en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-72en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0748b_pdf.pdf" --remote-name
 pdftotext "0748b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0747b_pdf.pdf" --remote-name
 pdftotext "0747b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0740b_pdf.pdf" --remote-name
 pdftotext "0740b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0735b_pdf.pdf" --remote-name
 pdftotext "0735b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0690b_pdf.pdf" --remote-name
 pdftotext "0690b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0691b_pdf.pdf" --remote-name
 pdftotext "0691b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0692b_pdf.pdf" --remote-name
 pdftotext "0692b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0705b_pdf.pdf" --remote-name
 pdftotext "0705b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AKIS_Pasaport_ST_Lite.pdf" --remote-name
 pdftotext "AKIS_Pasaport_ST_Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-24en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0712b_pdf.pdf" --remote-name
 pdftotext "0712b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-21en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-21en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0706b_pdf.pdf" --remote-name
 pdftotext "0706b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-36en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-36en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-39en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-39en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/XSMART%20e-Passport%20V1.2_ST_LITE_ENG__v1.0.pdf" --remote-name
 pdftotext "XSMART%20e-Passport%20V1.2_ST_LITE_ENG__v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0742b_pdf.pdf" --remote-name
 pdftotext "0742b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0741b_pdf.pdf" --remote-name
 pdftotext "0741b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-59en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-59en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-17en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-17en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-34en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-34en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0720b_pdf.pdf" --remote-name
 pdftotext "0720b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-13en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-13en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-12en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-12en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0730b_pdf.pdf" --remote-name
 pdftotext "0730b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC-E-passport-ST-%20ENG_PP_C0247_public.pdf" --remote-name
 pdftotext "CC-E-passport-ST-%20ENG_PP_C0247_public.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0719b_pdf.pdf" --remote-name
 pdftotext "0719b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0727b_pdf.pdf" --remote-name
 pdftotext "0727b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0695b_pdf.pdf" --remote-name
 pdftotext "0695b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0728b_pdf.pdf" --remote-name
 pdftotext "0728b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-10en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-10en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0731b_pdf.pdf" --remote-name
 pdftotext "0731b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-05en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-05en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0750b_pdf.pdf" --remote-name
 pdftotext "0750b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0697b_pdf.pdf" --remote-name
 pdftotext "0697b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0675b_pdf.pdf" --remote-name
 pdftotext "0675b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-07en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-07en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0674b_pdf.pdf" --remote-name
 pdftotext "0674b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0642b_pdf.pdf" --remote-name
 pdftotext "0642b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-03en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0671b_pdf.pdf" --remote-name
 pdftotext "0671b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0664b_pdf.pdf" --remote-name
 pdftotext "0664b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-01en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0710b_pdf.pdf" --remote-name
 pdftotext "0710b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0682b_pdf.pdf" --remote-name
 pdftotext "0682b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-60en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-60en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0709b_pdf.pdf" --remote-name
 pdftotext "0709b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0633b_pdf.pdf" --remote-name
 pdftotext "0633b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0677b_pdf.pdf" --remote-name
 pdftotext "0677b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0704b_pdf.pdf" --remote-name
 pdftotext "0704b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0672b_pdf.pdf" --remote-name
 pdftotext "0672b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0643b_pdf.pdf" --remote-name
 pdftotext "0643b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0680b_pdf.pdf" --remote-name
 pdftotext "0680b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KOMSCO%20JK11%20Security%20Target%20Lite_e.pdf" --remote-name
 pdftotext "KOMSCO%20JK11%20Security%20Target%20Lite_e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20110217163859.pdf" --remote-name
 pdftotext "20110217163859.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0630b_pdf.pdf" --remote-name
 pdftotext "0630b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-09-DS.pdf" --remote-name
 pdftotext "2009-09-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-58en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-58en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-57en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-57en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-56en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-56en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0606b_pdf.pdf" --remote-name
 pdftotext "0606b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-24en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-23en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0658b_pdf.pdf" --remote-name
 pdftotext "0658b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0639b_pdf.pdf" --remote-name
 pdftotext "0639b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0660b_pdf.pdf" --remote-name
 pdftotext "0660b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0612b_pdf.pdf" --remote-name
 pdftotext "0612b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-52en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-52en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0640b_pdf.pdf" --remote-name
 pdftotext "0640b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0645b_pdf.pdf" --remote-name
 pdftotext "0645b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-50en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-50en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-49en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20110217161721.pdf" --remote-name
 pdftotext "20110217161721.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-253-ST-EN.pdf" --remote-name
 pdftotext "ISIS-253-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0609b_pdf.pdf" --remote-name
 pdftotext "0609b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0541b_pdf.pdf" --remote-name
 pdftotext "0541b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-40en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-40en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0587b_pdf.pdf" --remote-name
 pdftotext "0587b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-36en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-36en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-39en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-39en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-38en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-38en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-37en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-37en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0608b_pdf.pdf" --remote-name
 pdftotext "0608b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0629b_pdf.pdf" --remote-name
 pdftotext "0629b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0603b_pdf.pdf" --remote-name
 pdftotext "0603b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0625b_pdf.pdf" --remote-name
 pdftotext "0625b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0625b_pdf.pdf" --remote-name
 pdftotext "0625b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-34en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-34en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-35en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-35en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-32en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-32en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-33en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-33en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-31en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-31en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-30en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-30en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-29en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-29en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-28en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-27en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-27en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-25en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-25en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-26en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-26en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-24en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-23en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-12en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-12en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-11en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-11en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-63en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-63en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-03en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-04en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-04en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-03en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-03en1.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-03en1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-22en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-22en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-21en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-21en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-20en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-20en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-19en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-19en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-18en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-18en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-17en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-17en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0635b_pdf.pdf" --remote-name
 pdftotext "0635b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-06en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0529b_pdf.pdf" --remote-name
 pdftotext "0529b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-ISIS-222-2010-ST-EN-KCOSS%20e-Passport%20V1.1%20S3CC9%20LC.pdf" --remote-name
 pdftotext "KECS-ISIS-222-2010-ST-EN-KCOSS%20e-Passport%20V1.1%20S3CC9%20LC.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-223-ST-En.pdf" --remote-name
 pdftotext "ISIS-223-ST-En.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-57en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-57en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0604b_pdf.pdf" --remote-name
 pdftotext "0604b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0673b_pdf.pdf" --remote-name
 pdftotext "0673b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-08en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-07en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-62en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-62en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0592b_pdf.pdf" --remote-name
 pdftotext "0592b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-56en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-56en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0620b_pdf.pdf" --remote-name
 pdftotext "0620b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0308b_pdf.pdf" --remote-name
 pdftotext "0308b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-02en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-02en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-01en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0624b_pdf.pdf" --remote-name
 pdftotext "0624b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-35en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-35en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-59en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-59en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-05en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-05en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0525b_pdf.pdf" --remote-name
 pdftotext "0525b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0663b_pdf.pdf" --remote-name
 pdftotext "0663b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-61en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-61en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-60en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-60en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-43en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-43en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0537b_pdf.pdf" --remote-name
 pdftotext "0537b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-51en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-51en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-50en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-50en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0628b_pdf.pdf" --remote-name
 pdftotext "0628b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-27en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-27en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-28en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-26en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-26en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0602b_pdf.pdf" --remote-name
 pdftotext "0602b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0581b_pdf.pdf" --remote-name
 pdftotext "0581b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-47en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-47en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-46en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-46en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-49en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-48en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-48en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0626b_pdf.pdf" --remote-name
 pdftotext "0626b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-46en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-46en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-47en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-47en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-49en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-49en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-48en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-48en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0627b_pdf.pdf" --remote-name
 pdftotext "0627b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0498b_pdf.pdf" --remote-name
 pdftotext "0498b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0555b_pdf.pdf" --remote-name
 pdftotext "0555b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0547b_pdf.pdf" --remote-name
 pdftotext "0547b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0586b_pdf.pdf" --remote-name
 pdftotext "0586b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC-FS_SIGMA-ST-ENG_public.pdf" --remote-name
 pdftotext "CC-FS_SIGMA-ST-ENG_public.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible_2009-34en.pdf" --remote-name
 pdftotext "anssi-cible_2009-34en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-40en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-40en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-38en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-38en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-39en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-39en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-37en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-37en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-33en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-33en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2009-25en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2009-25en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0634b_pdf.pdf" --remote-name
 pdftotext "0634b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0425b_pdf.pdf" --remote-name
 pdftotext "0425b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-41en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-41en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0575b_pdf.pdf" --remote-name
 pdftotext "0575b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cc-cible_2009-36en.pdf" --remote-name
 pdftotext "anssi-cc-cible_2009-36en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-189-ST-EN.pdf" --remote-name
 pdftotext "ISIS-189-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2008-13-DS-en.pdf" --remote-name
 pdftotext "2008-13-DS-en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_24en.pdf" --remote-name
 pdftotext "anssi-cible2009_24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_24en.pdf" --remote-name
 pdftotext "anssi-cible2009_24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_23en.pdf" --remote-name
 pdftotext "anssi-cible2009_23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_22en.pdf" --remote-name
 pdftotext "anssi-cible2009_22en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0567b_pdf.pdf" --remote-name
 pdftotext "0567b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0308b_pdf.pdf" --remote-name
 pdftotext "0308b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0229_est.pdf" --remote-name
 pdftotext "c0229_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_17en.pdf" --remote-name
 pdftotext "anssi-cible2009_17en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_20en.pdf" --remote-name
 pdftotext "anssi-cible2009_20en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_19en.pdf" --remote-name
 pdftotext "anssi-cible2009_19en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_14en.pdf" --remote-name
 pdftotext "anssi-cible2009_14en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2009_21en.pdf" --remote-name
 pdftotext "anssi-cible2009_21en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2009_11en.pdf" --remote-name
 pdftotext "dcssi-cible2009_11en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0576b.pdf" --remote-name
 pdftotext "0576b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CC-T6NC9-ST-ENG-002.pdf" --remote-name
 pdftotext "CC-T6NC9-ST-ENG-002.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/957-2-STP-E01-10.pdf" --remote-name
 pdftotext "957-2-STP-E01-10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0584b.pdf" --remote-name
 pdftotext "0584b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2009_10en.pdf" --remote-name
 pdftotext "dcssi-cible2009_10en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0391b.pdf" --remote-name
 pdftotext "0391b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0593b.pdf" --remote-name
 pdftotext "0593b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-162-ST(lite).pdf" --remote-name
 pdftotext "ISIS-162-ST(lite).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0533b.pdf" --remote-name
 pdftotext "0533b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0583b.pdf" --remote-name
 pdftotext "0583b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2009-07en.pdf" --remote-name
 pdftotext "dcssi-cible_2009-07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0554b.pdf" --remote-name
 pdftotext "0554b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2009_08en.pdf" --remote-name
 pdftotext "dcssi-cible2009_08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2009-03en.pdf" --remote-name
 pdftotext "dcssi-cible_2009-03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0487b.pdf" --remote-name
 pdftotext "0487b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2009_04en.pdf" --remote-name
 pdftotext "dcssi-cible2009_04en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2009_05en.pdf" --remote-name
 pdftotext "dcssi-cible2009_05en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2009_06en.pdf" --remote-name
 pdftotext "dcssi-cible2009_06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0515b.pdf" --remote-name
 pdftotext "0515b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_43en.pdf" --remote-name
 pdftotext "dcssi-cible2008_43en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_45en.pdf" --remote-name
 pdftotext "dcssi-cible2008_45en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2008-36en.pdf" --remote-name
 pdftotext "dcssi-cible_2008-36en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0571b.pdf" --remote-name
 pdftotext "0571b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0548b.pdf" --remote-name
 pdftotext "0548b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0457b.pdf" --remote-name
 pdftotext "0457b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0568b.pdf" --remote-name
 pdftotext "0568b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0421b.pdf" --remote-name
 pdftotext "0421b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0551b.pdf" --remote-name
 pdftotext "0551b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0550b.pdf" --remote-name
 pdftotext "0550b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0549b.pdf" --remote-name
 pdftotext "0549b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0572b.pdf" --remote-name
 pdftotext "0572b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0523b.pdf" --remote-name
 pdftotext "0523b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0492b.pdf" --remote-name
 pdftotext "0492b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2008_37en.pdf" --remote-name
 pdftotext "cible2008_37en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0191_est.pdf" --remote-name
 pdftotext "c0191_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2006-01-DS.pdf" --remote-name
 pdftotext "2006-01-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0477b.pdf" --remote-name
 pdftotext "0477b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0522b.pdf" --remote-name
 pdftotext "0522b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_33en.pdf" --remote-name
 pdftotext "dcssi-cible2008_33en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-117-ST.pdf" --remote-name
 pdftotext "ISIS-117-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20090406113650.pdf" --remote-name
 pdftotext "20090406113650.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20090325092515.pdf" --remote-name
 pdftotext "20090325092515.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20100817112501.pdf" --remote-name
 pdftotext "20100817112501.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0521b.pdf" --remote-name
 pdftotext "0521b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0489b.pdf" --remote-name
 pdftotext "0489b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0490b.pdf" --remote-name
 pdftotext "0490b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2008_32en.pdf" --remote-name
 pdftotext "cible2008_32en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2008_30en.pdf" --remote-name
 pdftotext "cible2008_30en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2008_31en.pdf" --remote-name
 pdftotext "cible2008_31en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2008_29en.pdf" --remote-name
 pdftotext "cible2008_29en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0442b.pdf" --remote-name
 pdftotext "0442b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0538b.pdf" --remote-name
 pdftotext "0538b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_28en.pdf" --remote-name
 pdftotext "dcssi-cible2008_28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0528b.pdf" --remote-name
 pdftotext "0528b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0470b.pdf" --remote-name
 pdftotext "0470b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0527b.pdf" --remote-name
 pdftotext "0527b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_22en.pdf" --remote-name
 pdftotext "dcssi-cible2008_22en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_23en.pdf" --remote-name
 pdftotext "dcssi-cible2008_23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0479b.pdf" --remote-name
 pdftotext "0479b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0440b.pdf" --remote-name
 pdftotext "0440b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0483b.pdf" --remote-name
 pdftotext "0483b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0501b.pdf" --remote-name
 pdftotext "0501b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_18en.pdf" --remote-name
 pdftotext "dcssi-cible2008_18en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0532b.pdf" --remote-name
 pdftotext "0532b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0439b.pdf" --remote-name
 pdftotext "0439b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0466b.pdf" --remote-name
 pdftotext "0466b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible-dcssi2008_17en.pdf" --remote-name
 pdftotext "cible-dcssi2008_17en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0465b.pdf" --remote-name
 pdftotext "0465b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0464b.pdf" --remote-name
 pdftotext "0464b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0417b.pdf" --remote-name
 pdftotext "0417b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_16en.pdf" --remote-name
 pdftotext "dcssi-cible2008_16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0506b.pdf" --remote-name
 pdftotext "0506b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0507b.pdf" --remote-name
 pdftotext "0507b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0437b.pdf" --remote-name
 pdftotext "0437b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0482b.pdf" --remote-name
 pdftotext "0482b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible-dcssi2008_12.pdf" --remote-name
 pdftotext "cible-dcssi2008_12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_15en.pdf" --remote-name
 pdftotext "dcssi-cible2008_15en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_11en.pdf" --remote-name
 pdftotext "dcssi-cible2008_11en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_14fr.pdf" --remote-name
 pdftotext "dcssi-cible2008_14fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_13en.pdf" --remote-name
 pdftotext "dcssi-cible2008_13en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0430b.pdf" --remote-name
 pdftotext "0430b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0518b.pdf" --remote-name
 pdftotext "20080514_0518b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_10en.pdf" --remote-name
 pdftotext "dcssi-cible2008_10en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_08en.pdf" --remote-name
 pdftotext "dcssi-cible2008_08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0463b.pdf" --remote-name
 pdftotext "20080514_0463b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_05en.pdf" --remote-name
 pdftotext "dcssi-cible2008_05en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_03en.pdf" --remote-name
 pdftotext "dcssi-cible2008_03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_01en.pdf" --remote-name
 pdftotext "dcssi-cible2008_01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_02en.pdf" --remote-name
 pdftotext "dcssi-cible2008_02en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0447b.pdf" --remote-name
 pdftotext "20080514_0447b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0467b.pdf" --remote-name
 pdftotext "20080514_0467b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0406b.pdf" --remote-name
 pdftotext "20080514_0406b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_24en.pdf" --remote-name
 pdftotext "cible2007_24en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_23en.pdf" --remote-name
 pdftotext "cible2007_23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0476b.pdf" --remote-name
 pdftotext "20080306_0476b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_20en.pdf" --remote-name
 pdftotext "cible2007_20en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_22en.pdf" --remote-name
 pdftotext "cible2007_22en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0446b.pdf" --remote-name
 pdftotext "0446b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_17en.pdf" --remote-name
 pdftotext "cible2007_17en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_18en.pdf" --remote-name
 pdftotext "cible2007_18en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_19en.pdf" --remote-name
 pdftotext "cible2007_19en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0451b.pdf" --remote-name
 pdftotext "0451b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0452b.pdf" --remote-name
 pdftotext "0452b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0431b.pdf" --remote-name
 pdftotext "20080514_0431b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_16en.pdf" --remote-name
 pdftotext "cible2007_16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0426b.pdf" --remote-name
 pdftotext "0426b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0390b.pdf" --remote-name
 pdftotext "0390b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0445b.pdf" --remote-name
 pdftotext "0445b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0429b.pdf" --remote-name
 pdftotext "0429b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0404b.pdf" --remote-name
 pdftotext "0404b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0410b.pdf" --remote-name
 pdftotext "0410b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0411b.pdf" --remote-name
 pdftotext "0411b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0409b.pdf" --remote-name
 pdftotext "0409b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0389b.pdf" --remote-name
 pdftotext "0389b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_14en.pdf" --remote-name
 pdftotext "cible2007_14en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0312b.pdf" --remote-name
 pdftotext "0312b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0434b.pdf" --remote-name
 pdftotext "0434b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0392b.pdf" --remote-name
 pdftotext "0392b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2007-04-DS.pdf" --remote-name
 pdftotext "2007-04-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0383b.pdf" --remote-name
 pdftotext "0383b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0395b.pdf" --remote-name
 pdftotext "0395b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_08en.pdf" --remote-name
 pdftotext "cible2007_08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_07en.pdf" --remote-name
 pdftotext "cible2007_07en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_06en.pdf" --remote-name
 pdftotext "cible2007_06en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0373b.pdf" --remote-name
 pdftotext "0373b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0350b.pdf" --remote-name
 pdftotext "0350b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0438b.pdf" --remote-name
 pdftotext "0438b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0400b.pdf" --remote-name
 pdftotext "0400b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_04en.pdf" --remote-name
 pdftotext "cible2007_04en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0384b.pdf" --remote-name
 pdftotext "0384b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_03en.pdf" --remote-name
 pdftotext "cible2007_03en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_02en.pdf" --remote-name
 pdftotext "cible2007_02en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0399b.pdf" --remote-name
 pdftotext "0399b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_01en.pdf" --remote-name
 pdftotext "cible2007_01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0345b.pdf" --remote-name
 pdftotext "0345b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0354b.pdf" --remote-name
 pdftotext "0354b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0281b.pdf" --remote-name
 pdftotext "0281b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0334b.pdf" --remote-name
 pdftotext "0334b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0348b.pdf" --remote-name
 pdftotext "0348b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0349b.pdf" --remote-name
 pdftotext "0349b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0362b.pdf" --remote-name
 pdftotext "0362b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0243b.pdf" --remote-name
 pdftotext "0243b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_30en.pdf" --remote-name
 pdftotext "cible2006_30en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_26en.pdf" --remote-name
 pdftotext "cible2006_26en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_29en.pdf" --remote-name
 pdftotext "cible2006_29en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_28en.pdf" --remote-name
 pdftotext "cible2006_28en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_27en.pdf" --remote-name
 pdftotext "cible2006_27en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_23en.pdf" --remote-name
 pdftotext "cible2006_23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_19en.pdf" --remote-name
 pdftotext "cible2006_19en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_20.pdf" --remote-name
 pdftotext "cible2006_20.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_18en.pdf" --remote-name
 pdftotext "cible2006_18en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-51-ST-EN.pdf" --remote-name
 pdftotext "ISIS-51-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0355b.pdf" --remote-name
 pdftotext "0355b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_13en.pdf" --remote-name
 pdftotext "cible2006_13en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0401b.pdf" --remote-name
 pdftotext "0401b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0351b.pdf" --remote-name
 pdftotext "0351b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0353b.pdf" --remote-name
 pdftotext "0353b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_14en.pdf" --remote-name
 pdftotext "cible2006_14en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0358b.pdf" --remote-name
 pdftotext "0358b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_15en.pdf" --remote-name
 pdftotext "cible2006_15en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0294b.pdf" --remote-name
 pdftotext "0294b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0313b.pdf" --remote-name
 pdftotext "0313b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0376b.pdf" --remote-name
 pdftotext "0376b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0360b.pdf" --remote-name
 pdftotext "0360b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0361b.pdf" --remote-name
 pdftotext "0361b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0379b.pdf" --remote-name
 pdftotext "0379b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_08en.pdf" --remote-name
 pdftotext "cible2006_08en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_02.pdf" --remote-name
 pdftotext "cible2006_02.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0329b.pdf" --remote-name
 pdftotext "0329b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0269b.pdf" --remote-name
 pdftotext "0269b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0368b.pdf" --remote-name
 pdftotext "0368b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0296b.pdf" --remote-name
 pdftotext "0296b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Public%20v1.04.pdf" --remote-name
 pdftotext "ST%20Public%20v1.04.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2004-03-ST.pdf" --remote-name
 pdftotext "2004-03-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2004-03-ST.pdf" --remote-name
 pdftotext "2004-03-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0346b.pdf" --remote-name
 pdftotext "0346b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0347b.pdf" --remote-name
 pdftotext "0347b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_49.pdf" --remote-name
 pdftotext "cible2005_49.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_52.pdf" --remote-name
 pdftotext "cible2005_52.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_45.pdf" --remote-name
 pdftotext "cible2005_45.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0337b.pdf" --remote-name
 pdftotext "0337b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_43.pdf" --remote-name
 pdftotext "cible2005_43.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_42.pdf" --remote-name
 pdftotext "cible2005_42.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0316b.pdf" --remote-name
 pdftotext "0316b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_38.pdf" --remote-name
 pdftotext "cible2005_38.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2005-40en.pdf" --remote-name
 pdftotext "dcssi-cible_2005-40en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2005-41en.pdf" --remote-name
 pdftotext "dcssi-cible_2005-41en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2005-39en.pdf" --remote-name
 pdftotext "dcssi-cible_2005-39en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0344b.pdf" --remote-name
 pdftotext "0344b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0251b.pdf" --remote-name
 pdftotext "0251b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0338b.pdf" --remote-name
 pdftotext "0338b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_37.pdf" --remote-name
 pdftotext "cible2005_37.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0312b.pdf" --remote-name
 pdftotext "0312b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0340b.pdf" --remote-name
 pdftotext "0340b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0245b.pdf" --remote-name
 pdftotext "0245b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0322b.pdf" --remote-name
 pdftotext "0322b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0311b.pdf" --remote-name
 pdftotext "0311b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0308b_pdf.pdf" --remote-name
 pdftotext "0308b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_21.pdf" --remote-name
 pdftotext "cible2005_21.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0293b.pdf" --remote-name
 pdftotext "0293b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0315b.pdf" --remote-name
 pdftotext "0315b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_20.pdf" --remote-name
 pdftotext "cible2005_20.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0266b.pdf" --remote-name
 pdftotext "0266b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_10.pdf" --remote-name
 pdftotext "cible2005_10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_05.pdf" --remote-name
 pdftotext "cible2005_05.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_04.pdf" --remote-name
 pdftotext "cible2005_04.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_03.pdf" --remote-name
 pdftotext "cible2005_03.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0280b.pdf" --remote-name
 pdftotext "0280b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_36.pdf" --remote-name
 pdftotext "cible2004_36.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_35.pdf" --remote-name
 pdftotext "cible2004_35.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_32.pdf" --remote-name
 pdftotext "cible2004_32.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0263b.pdf" --remote-name
 pdftotext "0263b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_22.pdf" --remote-name
 pdftotext "cible2004_22.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0204b.pdf" --remote-name
 pdftotext "0204b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0244b.pdf" --remote-name
 pdftotext "0244b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_31.pdf" --remote-name
 pdftotext "cible2004_31.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_19.pdf" --remote-name
 pdftotext "cible2004_19.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0227b.pdf" --remote-name
 pdftotext "0227b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0232b.pdf" --remote-name
 pdftotext "0232b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0231b.pdf" --remote-name
 pdftotext "0231b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_18_bis.pdf" --remote-name
 pdftotext "cible2004_18_bis.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_26_bis.pdf" --remote-name
 pdftotext "cible2004_26_bis.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_08.pdf" --remote-name
 pdftotext "cible2004_08.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_06.pdf" --remote-name
 pdftotext "cible2004_06.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_07.pdf" --remote-name
 pdftotext "cible2004_07.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0242b.pdf" --remote-name
 pdftotext "0242b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0267b.pdf" --remote-name
 pdftotext "0267b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_05.pdf" --remote-name
 pdftotext "cible2004_05.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0212b.pdf" --remote-name
 pdftotext "0212b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_28.pdf" --remote-name
 pdftotext "cible2003_28.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_14.pdf" --remote-name
 pdftotext "cible2003_14.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_20.pdf" --remote-name
 pdftotext "cible2003_20.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0223b.pdf" --remote-name
 pdftotext "0223b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_11.pdf" --remote-name
 pdftotext "cible2003_11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_10.pdf" --remote-name
 pdftotext "cible2003_10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_12.pdf" --remote-name
 pdftotext "cible2003_12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0205b.pdf" --remote-name
 pdftotext "0205b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0203b.pdf" --remote-name
 pdftotext "0203b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2003_02.pdf" --remote-name
 pdftotext "cible2003_02.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0196b.pdf" --remote-name
 pdftotext "0196b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0196b.pdf" --remote-name
 pdftotext "0196b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0191b.pdf" --remote-name
 pdftotext "0191b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0177b.pdf" --remote-name
 pdftotext "0177b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0199b.pdf" --remote-name
 pdftotext "0199b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0193b.pdf" --remote-name
 pdftotext "0193b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0188b.pdf" --remote-name
 pdftotext "0188b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0168b.pdf" --remote-name
 pdftotext "0168b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0169b.pdf" --remote-name
 pdftotext "0169b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0187b.pdf" --remote-name
 pdftotext "0187b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0170b.pdf" --remote-name
 pdftotext "0170b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/FeliCaRC.pdf" --remote-name
 pdftotext "FeliCaRC.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0171b.pdf" --remote-name
 pdftotext "0171b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_03.pdf" --remote-name
 pdftotext "cible2002_03.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_24.pdf" --remote-name
 pdftotext "cible2002_24.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_16.pdf" --remote-name
 pdftotext "cible2002_16.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_05.pdf" --remote-name
 pdftotext "cible2002_05.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_04.pdf" --remote-name
 pdftotext "cible2002_04.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_07.pdf" --remote-name
 pdftotext "cible2002_07.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_12.pdf" --remote-name
 pdftotext "cible2002_12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_06.pdf" --remote-name
 pdftotext "cible2002_06.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_25.pdf" --remote-name
 pdftotext "cible2002_25.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0166b.pdf" --remote-name
 pdftotext "0166b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2001_13.pdf" --remote-name
 pdftotext "cible2001_13.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/eal4+_08.pdf" --remote-name
 pdftotext "eal4+_08.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/eal4_14.pdf" --remote-name
 pdftotext "eal4_14.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0153b.pdf" --remote-name
 pdftotext "0153b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ESYA%20v2%200%20Security%20Target%20English_v1%206.pdf" --remote-name
 pdftotext "ESYA%20v2%200%20Security%20Target%20English_v1%206.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/PKIDECC-ST-v1.0-071013.pdf" --remote-name
 pdftotext "PKIDECC-ST-v1.0-071013.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/HSM_UEKAE_ST_LITE.pdf" --remote-name
 pdftotext "HSM_UEKAE_ST_LITE.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st-AEP_Keyper_EAL4_ASE_1_3.pdf" --remote-name
 pdftotext "st-AEP_Keyper_EAL4_ASE_1_3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-81en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-81en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/anssi-cible2012_47en.pdf" --remote-name
 pdftotext "anssi-cible2012_47en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2012-33%20SecurityTarget.pdf" --remote-name
 pdftotext "2012-33%20SecurityTarget.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10359-st.pdf" --remote-name
 pdftotext "st_vid10359-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SafeNet%20LUNA%20CA4%20System%20v2%206%20ST.pdf" --remote-name
 pdftotext "SafeNet%20LUNA%20CA4%20System%20v2%206%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/entrust-v81-sec-eng.pdf" --remote-name
 pdftotext "entrust-v81-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-23en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-23en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-14fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-14fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10407-st.pdf" --remote-name
 pdftotext "st_vid10407-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-03-DS.pdf" --remote-name
 pdftotext "2009-03-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-54fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-54fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ESYASecurityTargetLitev1.0.pdf" --remote-name
 pdftotext "ESYASecurityTargetLitev1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2009-16en.pdf" --remote-name
 pdftotext "dcssi-cible_2009-16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0535B.pdf" --remote-name
 pdftotext "0535B.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10214-st.pdf" --remote-name
 pdftotext "st_vid10214-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10052-st.pdf" --remote-name
 pdftotext "st_vid10052-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10223-st.pdf" --remote-name
 pdftotext "st_vid10223-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10282-st.pdf" --remote-name
 pdftotext "st_vid10282-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0428b.pdf" --remote-name
 pdftotext "0428b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10114-st.pdf" --remote-name
 pdftotext "st_vid10114-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10235-st.pdf" --remote-name
 pdftotext "st_vid10235-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3027-st.pdf" --remote-name
 pdftotext "st_vid3027-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10010-st.pdf" --remote-name
 pdftotext "st_vid10010-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0283b.pdf" --remote-name
 pdftotext "0283b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2004-02-ST.pdf" --remote-name
 pdftotext "2004-02-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2004-1-DS.pdf" --remote-name
 pdftotext "2004-1-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Authority%20v7.0.pdf" --remote-name
 pdftotext "ST%20Authority%20v7.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4041-st.pdf" --remote-name
 pdftotext "st_vid4041-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0235b.pdf" --remote-name
 pdftotext "0235b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/alacris_server_target.pdf" --remote-name
 pdftotext "alacris_server_target.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/alacris_target.pdf" --remote-name
 pdftotext "alacris_target.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0207b.pdf" --remote-name
 pdftotext "0207b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TimestampST.pdf" --remote-name
 pdftotext "TimestampST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TrustedNetConnectST.pdf" --remote-name
 pdftotext "TrustedNetConnectST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4009-st.pdf" --remote-name
 pdftotext "st_vid4009-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4007-st.pdf" --remote-name
 pdftotext "st_vid4007-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Luna%20v3.97.pdf" --remote-name
 pdftotext "ST%20Luna%20v3.97.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20PCS%20%20v4.1.1.pdf" --remote-name
 pdftotext "ST%20PCS%20%20v4.1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EntAuth51.pdf" --remote-name
 pdftotext "EntAuth51.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EntrustRA51.pdf" --remote-name
 pdftotext "EntrustRA51.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/entra.pdf" --remote-name
 pdftotext "entra.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/entauth.pdf" --remote-name
 pdftotext "entauth.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10849_st.pdf" --remote-name
 pdftotext "st_vid10849_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10850-st.pdf" --remote-name
 pdftotext "st_vid10850-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10843-st.pdf" --remote-name
 pdftotext "st_vid10843-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10801-st.pdf" --remote-name
 pdftotext "st_vid10801-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10792-st.pdf" --remote-name
 pdftotext "st_vid10792-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10782-st.pdf" --remote-name
 pdftotext "st_vid10782-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10813-st.pdf" --remote-name
 pdftotext "st_vid10813-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10809-st.pdf" --remote-name
 pdftotext "st_vid10809-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10779-st.pdf" --remote-name
 pdftotext "st_vid10779-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10780-st.pdf" --remote-name
 pdftotext "st_vid10780-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10776-st.pdf" --remote-name
 pdftotext "st_vid10776-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10791-st.pdf" --remote-name
 pdftotext "st_vid10791-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10752-st.pdf" --remote-name
 pdftotext "st_vid10752-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10756-st.pdf" --remote-name
 pdftotext "st_vid10756-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10733-st.pdf" --remote-name
 pdftotext "st_vid10733-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10742-st.pdf" --remote-name
 pdftotext "st_vid10742-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10751-st.pdf" --remote-name
 pdftotext "st_vid10751-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10758-st.pdf" --remote-name
 pdftotext "st_vid10758-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10725-st.PDF" --remote-name
 pdftotext "st_vid10725-st.PDF"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10715-st.pdf" --remote-name
 pdftotext "st_vid10715-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10584-st.pdf" --remote-name
 pdftotext "st_vid10584-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10726-st.pdf" --remote-name
 pdftotext "st_vid10726-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10739-st.pdf" --remote-name
 pdftotext "st_vid10739-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10694-st.pdf" --remote-name
 pdftotext "st_vid10694-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10710-st.pdf" --remote-name
 pdftotext "st_vid10710-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10677-st.pdf" --remote-name
 pdftotext "st_vid10677-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10695-st.pdf" --remote-name
 pdftotext "st_vid10695-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10684-st.pdf" --remote-name
 pdftotext "st_vid10684-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10683-st.pdf" --remote-name
 pdftotext "st_vid10683-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10635-st.pdf" --remote-name
 pdftotext "st_vid10635-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10612-st.pdf" --remote-name
 pdftotext "st_vid10612-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10626-st.pdf" --remote-name
 pdftotext "st_vid10626-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10618-st.pdf" --remote-name
 pdftotext "st_vid10618-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10621-st.pdf" --remote-name
 pdftotext "st_vid10621-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10593-st.pdf" --remote-name
 pdftotext "st_vid10593-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0518_est.pdf" --remote-name
 pdftotext "c0518_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0509_est.pdf" --remote-name
 pdftotext "c0509_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0456_est.pdf" --remote-name
 pdftotext "c0456_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Samsung%20Multifunction%20MultiXpress%20X4300%20K4350_v1.3.pdf" --remote-name
 pdftotext "[ST]%20Samsung%20Multifunction%20MultiXpress%20X4300%20K4350_v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0445_est.pdf" --remote-name
 pdftotext "c0445_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0446_est.pdf" --remote-name
 pdftotext "c0446_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0444_est.pdf" --remote-name
 pdftotext "c0444_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0441_est.pdf" --remote-name
 pdftotext "c0441_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0442_est.pdf" --remote-name
 pdftotext "c0442_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0437_est.pdf" --remote-name
 pdftotext "c0437_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0438_est.pdf" --remote-name
 pdftotext "c0438_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0436_est.pdf" --remote-name
 pdftotext "c0436_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0433_est.pdf" --remote-name
 pdftotext "c0433_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_HP_M525_et_al.pdf" --remote-name
 pdftotext "ST_HP_M525_et_al.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0432_est.pdf" --remote-name
 pdftotext "c0432_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Samsung%20CLX-9201_Final.pdf" --remote-name
 pdftotext "[ST]%20Samsung%20CLX-9201_Final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20Samsung%20CLX-9352_Final.pdf" --remote-name
 pdftotext "[ST]%20Samsung%20CLX-9352_Final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%202.0.pdf" --remote-name
 pdftotext "ST%202.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10512-st.pdf" --remote-name
 pdftotext "st_vid10512-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10511-st.pdf" --remote-name
 pdftotext "st_vid10511-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10510-st.pdf" --remote-name
 pdftotext "st_vid10510-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0426_est.pdf" --remote-name
 pdftotext "c0426_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0425_est.pdf" --remote-name
 pdftotext "c0425_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0566b_pdf.pdf" --remote-name
 pdftotext "0566b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10541-st.pdf" --remote-name
 pdftotext "st_vid10541-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0423_est.pdf" --remote-name
 pdftotext "c0423_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0422_est.pdf" --remote-name
 pdftotext "c0422_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0414_est.pdf" --remote-name
 pdftotext "c0414_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0413_est.pdf" --remote-name
 pdftotext "c0413_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0410_est.pdf" --remote-name
 pdftotext "c0410_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0411_est.pdf" --remote-name
 pdftotext "c0411_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0406_est.pdf" --remote-name
 pdftotext "c0406_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0408_est.pdf" --remote-name
 pdftotext "c0408_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0407_est.pdf" --remote-name
 pdftotext "c0407_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0405_est.pdf" --remote-name
 pdftotext "c0405_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0404_est.pdf" --remote-name
 pdftotext "c0404_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0403_est.pdf" --remote-name
 pdftotext "c0403_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0397_est.pdf" --remote-name
 pdftotext "c0397_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0394_est.pdf" --remote-name
 pdftotext "c0394_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0393_est.pdf" --remote-name
 pdftotext "c0393_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0392_est.pdf" --remote-name
 pdftotext "c0392_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0389_est.pdf" --remote-name
 pdftotext "c0389_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0390_est.pdf" --remote-name
 pdftotext "c0390_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10499-st.pdf" --remote-name
 pdftotext "st_vid10499-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0388_est.pdf" --remote-name
 pdftotext "c0388_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10422-st.pdf" --remote-name
 pdftotext "st_vid10422-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10498-st.pdf" --remote-name
 pdftotext "st_vid10498-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10371-st.pdf" --remote-name
 pdftotext "st_vid10371-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0382_est.pdf" --remote-name
 pdftotext "c0382_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0381_est.pdf" --remote-name
 pdftotext "c0381_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0377_est.pdf" --remote-name
 pdftotext "c0377_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0376_est.pdf" --remote-name
 pdftotext "c0376_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0373_est.pdf" --remote-name
 pdftotext "c0373_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0372_est.pdf" --remote-name
 pdftotext "c0372_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10431-st.pdf" --remote-name
 pdftotext "st_vid10431-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0367_est.pdf" --remote-name
 pdftotext "c0367_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0366_est.pdf" --remote-name
 pdftotext "c0366_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0362_est.pdf" --remote-name
 pdftotext "c0362_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0361_est.pdf" --remote-name
 pdftotext "c0361_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0353_est.pdf" --remote-name
 pdftotext "c0353_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0357_est.pdf" --remote-name
 pdftotext "c0357_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0355_est.pdf" --remote-name
 pdftotext "c0355_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0352_est.pdf" --remote-name
 pdftotext "c0352_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0356_est.pdf" --remote-name
 pdftotext "c0356_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0354_est.pdf" --remote-name
 pdftotext "c0354_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10456-st.pdf" --remote-name
 pdftotext "st_vid10456-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10476-st.pdf" --remote-name
 pdftotext "st_vid10476-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0347_est.pdf" --remote-name
 pdftotext "c0347_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0346_est.pdf" --remote-name
 pdftotext "c0346_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-CISS-0385-2012_Samsung%20SCX%20CLX%20Multi-Function%20Printers(Eng).pdf" --remote-name
 pdftotext "KECS-CISS-0385-2012_Samsung%20SCX%20CLX%20Multi-Function%20Printers(Eng).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-CISS-0380-2012_Samsung%20SCX-5637FRS,CX-5639FR%20Control%20Software%20V2.00.03.00(Eng).pdf" --remote-name
 pdftotext "KECS-CISS-0380-2012_Samsung%20SCX-5637FRS,CX-5639FR%20Control%20Software%20V2.00.03.00(Eng).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-CISS-0379-2012_Samsung%20SCX-5737FW,SCX-5739FW%20Control%20Software%20V2.00.03.00.pdf" --remote-name
 pdftotext "KECS-CISS-0379-2012_Samsung%20SCX-5737FW,SCX-5739FW%20Control%20Software%20V2.00.03.00.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-201%20ST%20v1.4.pdf" --remote-name
 pdftotext "383-4-201%20ST%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-CISS-0365-2012(ST).pdf" --remote-name
 pdftotext "KECS-CISS-0365-2012(ST).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0334_est.pdf" --remote-name
 pdftotext "c0334_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0333_est.pdf" --remote-name
 pdftotext "c0333_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0331_est.pdf" --remote-name
 pdftotext "c0331_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0329_est.pdf" --remote-name
 pdftotext "c0329_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0328_est.pdf" --remote-name
 pdftotext "c0328_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0327_est.pdf" --remote-name
 pdftotext "c0327_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0325_est.pdf" --remote-name
 pdftotext "c0325_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0326_est.pdf" --remote-name
 pdftotext "c0326_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0323_est.pdf" --remote-name
 pdftotext "c0323_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0324_est.pdf" --remote-name
 pdftotext "c0324_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0322_est.pdf" --remote-name
 pdftotext "c0322_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0321_est.pdf" --remote-name
 pdftotext "c0321_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0320_est.pdf" --remote-name
 pdftotext "c0320_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0300_est.pdf" --remote-name
 pdftotext "c0300_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0302_est.pdf" --remote-name
 pdftotext "c0302_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0299_est.pdf" --remote-name
 pdftotext "c0299_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0301_est.pdf" --remote-name
 pdftotext "c0301_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0294_est.pdf" --remote-name
 pdftotext "c0294_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0289_est.pdf" --remote-name
 pdftotext "c0289_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0287_est.pdf" --remote-name
 pdftotext "c0287_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0286_est.pdf" --remote-name
 pdftotext "c0286_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0285_est.pdf" --remote-name
 pdftotext "c0285_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10369-st.pdf" --remote-name
 pdftotext "st_vid10369-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10373-st.pdf" --remote-name
 pdftotext "st_vid10373-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/au_xerox4250-4260_st.pdf" --remote-name
 pdftotext "au_xerox4250-4260_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/xerox-work-5135-sec-eng.pdf" --remote-name
 pdftotext "xerox-work-5135-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/xerox-work-5632-sec-eng.pdf" --remote-name
 pdftotext "xerox-work-5632-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-278-ST-EN-NEW.pdf" --remote-name
 pdftotext "CISS-278-ST-EN-NEW.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0274_est.pdf" --remote-name
 pdftotext "c0274_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-268-ST-EN.pdf" --remote-name
 pdftotext "CISS-268-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-269-ST-EN.pdf" --remote-name
 pdftotext "CISS-269-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-270-ST-EN.pdf" --remote-name
 pdftotext "CISS-270-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0266_est.pdf" --remote-name
 pdftotext "c0266_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0262_est.pdf" --remote-name
 pdftotext "c0262_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0261_est.pdf" --remote-name
 pdftotext "c0261_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0259_est.pdf" --remote-name
 pdftotext "c0259_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0260_est.pdf" --remote-name
 pdftotext "c0260_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0257_est.pdf" --remote-name
 pdftotext "c0257_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-227-ST-EN.pdf" --remote-name
 pdftotext "CISS-227-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-228-ST-EN.pdf" --remote-name
 pdftotext "CISS-228-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-229-ST-EN.pdf" --remote-name
 pdftotext "CISS-229-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-230-ST-EN.pdf" --remote-name
 pdftotext "CISS-230-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0249_est.pdf" --remote-name
 pdftotext "c0249_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0249_est.pdf" --remote-name
 pdftotext "c0249_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0250_est.pdf" --remote-name
 pdftotext "c0250_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0244_est.pdf" --remote-name
 pdftotext "c0244_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0245_est.pdf" --remote-name
 pdftotext "c0245_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0246_est.pdf" --remote-name
 pdftotext "c0246_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0240_est.pdf" --remote-name
 pdftotext "c0240_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0239_est.pdf" --remote-name
 pdftotext "c0239_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0237_est.pdf" --remote-name
 pdftotext "c0237_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0224_est.pdf" --remote-name
 pdftotext "c0224_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0218_est.pdf" --remote-name
 pdftotext "c0218_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0219_est.pdf" --remote-name
 pdftotext "c0219_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0217_est.pdf" --remote-name
 pdftotext "c0217_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T0064-500-108-XRCA3_ST.pdf" --remote-name
 pdftotext "T0064-500-108-XRCA3_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0516b.pdf" --remote-name
 pdftotext "0516b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0207_erpt.pdf" --remote-name
 pdftotext "c0207_erpt.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0209_est.pdf" --remote-name
 pdftotext "c0209_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0206_est.pdf" --remote-name
 pdftotext "c0206_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0208_est.pdf" --remote-name
 pdftotext "c0208_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0201_est.pdf" --remote-name
 pdftotext "c0201_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0202_est.pdf" --remote-name
 pdftotext "c0202_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0203_est.pdf" --remote-name
 pdftotext "c0203_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CISS-134-ST-EN.pdf" --remote-name
 pdftotext "CISS-134-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0196_est.pdf" --remote-name
 pdftotext "c0196_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0189_est.pdf" --remote-name
 pdftotext "c0189_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0188_est.pdf" --remote-name
 pdftotext "c0188_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0184_est.pdf" --remote-name
 pdftotext "c0184_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0183_est.pdf" --remote-name
 pdftotext "c0183_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0478b.pdf" --remote-name
 pdftotext "0478b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0180_est.pdf" --remote-name
 pdftotext "c0180_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0179_est.pdf" --remote-name
 pdftotext "c0179_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0178_est.pdf" --remote-name
 pdftotext "c0178_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0169_est.pdf" --remote-name
 pdftotext "c0169_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0168_est.pdf" --remote-name
 pdftotext "c0168_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/C0165_est.pdf" --remote-name
 pdftotext "C0165_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/C0166_est.pdf" --remote-name
 pdftotext "C0166_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080521_c0147_est.pdf" --remote-name
 pdftotext "20080521_c0147_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080310_c0143_est.pdf" --remote-name
 pdftotext "20080310_c0143_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080310_c0142_est.pdf" --remote-name
 pdftotext "20080310_c0142_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080310_c0141_est.pdf" --remote-name
 pdftotext "20080310_c0141_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080310_c0140_est.pdf" --remote-name
 pdftotext "20080310_c0140_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0137_st.pdf" --remote-name
 pdftotext "c0137_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_c0126_est.pdf" --remote-name
 pdftotext "20080306_c0126_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_c0127_est.pdf" --remote-name
 pdftotext "20080306_c0127_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080303_c0120_erpt.pdf" --remote-name
 pdftotext "20080303_c0120_erpt.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080303_c0121_est.pdf" --remote-name
 pdftotext "20080303_c0121_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10197-st.pdf" --remote-name
 pdftotext "st_vid10197-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10196-st.pdf" --remote-name
 pdftotext "st_vid10196-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10242-st.pdf" --remote-name
 pdftotext "st_vid10242-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0103_est.pdf" --remote-name
 pdftotext "c0103_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10168-st.pdf" --remote-name
 pdftotext "st_vid10168-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0095_est.pdf" --remote-name
 pdftotext "c0095_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10150-st.pdf" --remote-name
 pdftotext "st_vid10150-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0094_est.pdf" --remote-name
 pdftotext "c0094_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0084_est.pdf" --remote-name
 pdftotext "c0084_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0085_est.pdf" --remote-name
 pdftotext "c0085_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080626_c0080_est.pdf" --remote-name
 pdftotext "20080626_c0080_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0075_est.pdf" --remote-name
 pdftotext "c0075_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0072_est.pdf" --remote-name
 pdftotext "c0072_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0074_est.pdf" --remote-name
 pdftotext "c0074_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0069_est.pdf" --remote-name
 pdftotext "c0069_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0062_est.pdf" --remote-name
 pdftotext "c0062_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0063_est.pdf" --remote-name
 pdftotext "c0063_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0064_est.pdf" --remote-name
 pdftotext "c0064_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0059_est.pdf" --remote-name
 pdftotext "c0059_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0060_est.pdf" --remote-name
 pdftotext "c0060_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0058_est.pdf" --remote-name
 pdftotext "c0058_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0055_est.pdf" --remote-name
 pdftotext "c0055_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0054_est.pdf" --remote-name
 pdftotext "c0054_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0051_est.pdf" --remote-name
 pdftotext "c0051_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0052_est.pdf" --remote-name
 pdftotext "c0052_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0053_est.pdf" --remote-name
 pdftotext "c0053_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0049_est.pdf" --remote-name
 pdftotext "c0049_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10135-st.pdf" --remote-name
 pdftotext "st_vid10135-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0045_est.pdf" --remote-name
 pdftotext "c0045_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0041_est.pdf" --remote-name
 pdftotext "c0041_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10071-st.pdf" --remote-name
 pdftotext "st_vid10071-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0029_est.pdf" --remote-name
 pdftotext "c0029_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2021-st.pdf" --remote-name
 pdftotext "st_vid2021-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10022-st.pdf" --remote-name
 pdftotext "st_vid10022-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0017_est.pdf" --remote-name
 pdftotext "c0017_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0018_est.pdf" --remote-name
 pdftotext "c0018_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0016_est.pdf" --remote-name
 pdftotext "c0016_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0011_est.pdf" --remote-name
 pdftotext "c0011_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0008_est.pdf" --remote-name
 pdftotext "c0008_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1010-st.pdf" --remote-name
 pdftotext "st_vid1010-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2012-st.pdf" --remote-name
 pdftotext "st_vid2012-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10816-st.pdf" --remote-name
 pdftotext "st_vid10816-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ALE_OmniSwitch_ST_1.0.pdf%20(373370)%20(0)_TMP.pdf" --remote-name
 pdftotext "ALE_OmniSwitch_ST_1.0.pdf%20(373370)%20(0)_TMP.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10817-st.pdf" --remote-name
 pdftotext "st_vid10817-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10804-st.pdf" --remote-name
 pdftotext "st_vid10804-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10820-st.pdf" --remote-name
 pdftotext "st_vid10820-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10821-st.pdf" --remote-name
 pdftotext "st_vid10821-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10785-st.pdf" --remote-name
 pdftotext "st_vid10785-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10767-st.pdf" --remote-name
 pdftotext "st_vid10767-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10847-st.pdf" --remote-name
 pdftotext "st_vid10847-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10798-st.pdf" --remote-name
 pdftotext "st_vid10798-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10799-st.pdf" --remote-name
 pdftotext "st_vid10799-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10729-st.pdf" --remote-name
 pdftotext "st_vid10729-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10797-st.pdf" --remote-name
 pdftotext "st_vid10797-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10790-st.pdf" --remote-name
 pdftotext "st_vid10790-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10818-st.pdf" --remote-name
 pdftotext "st_vid10818-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10795-st.pdf" --remote-name
 pdftotext "st_vid10795-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10738-st.pdf" --remote-name
 pdftotext "st_vid10738-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10755-st.pdf" --remote-name
 pdftotext "st_vid10755-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10770-st.pdf" --remote-name
 pdftotext "st_vid10770-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10716-st.pdf" --remote-name
 pdftotext "st_vid10716-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10663-st.pdf" --remote-name
 pdftotext "st_vid10663-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10687-st.pdf" --remote-name
 pdftotext "st_vid10687-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10692-st.pdf" --remote-name
 pdftotext "st_vid10692-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10667-st.pdf" --remote-name
 pdftotext "st_vid10667-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10688-st.pdf" --remote-name
 pdftotext "st_vid10688-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10664-st.pdf" --remote-name
 pdftotext "st_vid10664-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10648-st.pdf" --remote-name
 pdftotext "st_vid10648-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10672-st.pdf" --remote-name
 pdftotext "st_vid10672-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10671-st.pdf" --remote-name
 pdftotext "st_vid10671-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10670-st.pdf" --remote-name
 pdftotext "st_vid10670-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10669-st.pdf" --remote-name
 pdftotext "st_vid10669-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10682-st.pdf" --remote-name
 pdftotext "st_vid10682-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10587-st.pdf" --remote-name
 pdftotext "st_vid10587-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10660-st.pdf" --remote-name
 pdftotext "st_vid10660-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10678-st.pdf" --remote-name
 pdftotext "st_vid10678-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10675-st.pdf" --remote-name
 pdftotext "st_vid10675-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10680-st.pdf" --remote-name
 pdftotext "st_vid10680-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10657-st.pdf" --remote-name
 pdftotext "st_vid10657-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10679-st.pdf" --remote-name
 pdftotext "st_vid10679-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10674-st.pdf" --remote-name
 pdftotext "st_vid10674-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10642-st.pdf" --remote-name
 pdftotext "st_vid10642-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10652-st.pdf" --remote-name
 pdftotext "st_vid10652-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10681-st.pdf" --remote-name
 pdftotext "st_vid10681-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10661-st.pdf" --remote-name
 pdftotext "st_vid10661-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10653-st.pdf" --remote-name
 pdftotext "st_vid10653-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10666-st.pdf" --remote-name
 pdftotext "st_vid10666-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10665-st.pdf" --remote-name
 pdftotext "st_vid10665-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10645-st.pdf" --remote-name
 pdftotext "st_vid10645-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10625-st.pdf" --remote-name
 pdftotext "st_vid10625-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10624-st.pdf" --remote-name
 pdftotext "st_vid10624-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10668-st.pdf" --remote-name
 pdftotext "st_vid10668-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10662-st.pdf" --remote-name
 pdftotext "st_vid10662-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10640-st.pdf" --remote-name
 pdftotext "st_vid10640-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10548-st.pdf" --remote-name
 pdftotext "st_vid10548-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10631-st.pdf" --remote-name
 pdftotext "st_vid10631-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10641-st.pdf" --remote-name
 pdftotext "st_vid10641-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10646-st.pdf" --remote-name
 pdftotext "st_vid10646-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10646-st.pdf" --remote-name
 pdftotext "st_vid10646-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10602-st.pdf" --remote-name
 pdftotext "st_vid10602-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10647-st.pdf" --remote-name
 pdftotext "st_vid10647-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10609-st.pdf" --remote-name
 pdftotext "st_vid10609-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10622-st.pdf" --remote-name
 pdftotext "st_vid10622-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10610-st.pdf" --remote-name
 pdftotext "st_vid10610-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10577-st.pdf" --remote-name
 pdftotext "st_vid10577-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10599-st.pdf" --remote-name
 pdftotext "st_vid10599-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10605-st.pdf" --remote-name
 pdftotext "st_vid10605-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10603-st.pdf" --remote-name
 pdftotext "st_vid10603-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10580-st.pdf" --remote-name
 pdftotext "st_vid10580-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10585-st.pdf" --remote-name
 pdftotext "st_vid10585-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10588-st.pdf" --remote-name
 pdftotext "st_vid10588-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10601-st.pdf" --remote-name
 pdftotext "st_vid10601-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10607-st.pdf" --remote-name
 pdftotext "st_vid10607-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10606-st.pdf" --remote-name
 pdftotext "st_vid10606-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10604-st.pdf" --remote-name
 pdftotext "st_vid10604-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10567-st.pdf" --remote-name
 pdftotext "st_vid10567-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10581-st.pdf" --remote-name
 pdftotext "st_vid10581-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10555-st.pdf" --remote-name
 pdftotext "st_vid10555-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10561-st.pdf" --remote-name
 pdftotext "st_vid10561-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/bluecoat-v65-sec-eng.pdf" --remote-name
 pdftotext "bluecoat-v65-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/juniper-network-v133r18-sec-eng.pdf" --remote-name
 pdftotext "juniper-network-v133r18-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Senetas%20Sec%20Target.pdf" --remote-name
 pdftotext "Senetas%20Sec%20Target.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10559-st.pdf" --remote-name
 pdftotext "st_vid10559-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10559-st.pdf" --remote-name
 pdftotext "st_vid10559-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10579-st.pdf" --remote-name
 pdftotext "st_vid10579-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-284%20ST%20v1.0.pdf" --remote-name
 pdftotext "383-4-284%20ST%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10549-st.pdf" --remote-name
 pdftotext "st_vid10549-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Stonesoft-ST.pdf" --remote-name
 pdftotext "Stonesoft-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Dell%20SonicWALL%20SonicOS%20v5.9.0%20ST%20v1.1.pdf" --remote-name
 pdftotext "Dell%20SonicWALL%20SonicOS%20v5.9.0%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-267%20ST%20v1.17.pdf" --remote-name
 pdftotext "383-4-267%20ST%20v1.17.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_Aruba%20Networks%20Mobility%20Controller%20v%206%203.pdf" --remote-name
 pdftotext "ST_Aruba%20Networks%20Mobility%20Controller%20v%206%203.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Fortinet%20FortiAnalyzer%20ST%20v1.0.pdf" --remote-name
 pdftotext "Fortinet%20FortiAnalyzer%20ST%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10565-st.pdf" --remote-name
 pdftotext "st_vid10565-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10564-st.pdf" --remote-name
 pdftotext "st_vid10564-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ASE]CloudEngine%20V100R002%20Security%20Target%20V0.8_1113.pdf" --remote-name
 pdftotext "[ASE]CloudEngine%20V100R002%20Security%20Target%20V0.8_1113.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10503-st.pdf" --remote-name
 pdftotext "st_vid10503-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Lancope%20Stealthwatch%20ST%20v1.3.pdf" --remote-name
 pdftotext "Lancope%20Stealthwatch%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CAT4K%20NDPP%20ST%2020140207-Final-updated-UPDATED20140410-Final.pdf" --remote-name
 pdftotext "CAT4K%20NDPP%20ST%2020140207-Final-updated-UPDATED20140410-Final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-271%20ST%20v1.2.pdf" --remote-name
 pdftotext "383-4-271%20ST%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-249%20ST%20v1.9.pdf" --remote-name
 pdftotext "383-4-249%20ST%20v1.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10508-st.pdf" --remote-name
 pdftotext "st_vid10508-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10472-st.pdf" --remote-name
 pdftotext "st_vid10472-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2013-17-DS-Lite.pdf" --remote-name
 pdftotext "2013-17-DS-Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10473-st.pdf" --remote-name
 pdftotext "st_vid10473-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-228%20ST%20v2.0.pdf" --remote-name
 pdftotext "383-4-228%20ST%20v2.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/STA10Net_Thunder_3030S_1030S_1_1.pdf" --remote-name
 pdftotext "STA10Net_Thunder_3030S_1030S_1_1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20USN9810%20V900R012C00%20ST%20v1.5%20(final).pdf" --remote-name
 pdftotext "ST%20USN9810%20V900R012C00%20ST%20v1.5%20(final).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10517-st.pdf" --remote-name
 pdftotext "st_vid10517-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0937b_pdf.pdf" --remote-name
 pdftotext "0937b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0838b_pdf.pdf" --remote-name
 pdftotext "0838b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0832b_pdf.pdf" --remote-name
 pdftotext "0832b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10558-st.pdf" --remote-name
 pdftotext "st_vid10558-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10505-st.pdf" --remote-name
 pdftotext "st_vid10505-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10515-st.pdf" --remote-name
 pdftotext "st_vid10515-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10521-st.pdf" --remote-name
 pdftotext "st_vid10521-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10487-st.pdf" --remote-name
 pdftotext "st_vid10487-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10523-st.pdf" --remote-name
 pdftotext "st_vid10523-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10518-st.pdf" --remote-name
 pdftotext "st_vid10518-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10506-st.pdf" --remote-name
 pdftotext "st_vid10506-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10543-st.pdf" --remote-name
 pdftotext "st_vid10543-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20UGW9811%20V900R010C00%20ST%20v1.5.pdf" --remote-name
 pdftotext "[ST]%20UGW9811%20V900R010C00%20ST%20v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10538-st.pdf" --remote-name
 pdftotext "st_vid10538-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_055_A10Net_Thunder_5430S_6430S_1_2.pdf" --remote-name
 pdftotext "ST_055_A10Net_Thunder_5430S_6430S_1_2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IPS_ST.pdf" --remote-name
 pdftotext "IPS_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JUNOS_ST.pdf" --remote-name
 pdftotext "JUNOS_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ASA_ST.pdf" --remote-name
 pdftotext "ASA_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ASE]%20CC%20Huawei%20S%20Series%20Ethernet%20Switches%20V200R003%20-%20Security%20Target%20V1.0_Final%20from%20Huawei.pdf" --remote-name
 pdftotext "[ASE]%20CC%20Huawei%20S%20Series%20Ethernet%20Switches%20V200R003%20-%20Security%20Target%20V1.0_Final%20from%20Huawei.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10480-st.pdf" --remote-name
 pdftotext "st_vid10480-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JNPR%20UAC%204.2R4%20EAL3%20ST%20v1.3.pdf" --remote-name
 pdftotext "JNPR%20UAC%204.2R4%20EAL3%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CitrixNetScaler%20v10.0%20-%20ST%20v1-1.pdf" --remote-name
 pdftotext "CitrixNetScaler%20v10.0%20-%20ST%20v1-1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JNPR%20SA%207.2R4%20EAL3%20ST%20v1.4.pdf" --remote-name
 pdftotext "JNPR%20SA%207.2R4%20EAL3%20ST%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10453-st.pdf" --remote-name
 pdftotext "st_vid10453-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10501-st.pdf" --remote-name
 pdftotext "st_vid10501-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0815b_pdf.pdf" --remote-name
 pdftotext "0815b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10379-st.pdf" --remote-name
 pdftotext "st_vid10379-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-216%20ST%20v0.12.pdf" --remote-name
 pdftotext "383-4-216%20ST%20v0.12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10469-st.pdf" --remote-name
 pdftotext "st_vid10469-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-239%20ST%20v0-5.pdf" --remote-name
 pdftotext "383-4-239%20ST%20v0-5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10492-st.pdf" --remote-name
 pdftotext "st_vid10492-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10493-st.pdf" --remote-name
 pdftotext "st_vid10493-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10408-st.pdf" --remote-name
 pdftotext "st_vid10408-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10470-st.pdf" --remote-name
 pdftotext "st_vid10470-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10468-st.pdf" --remote-name
 pdftotext "st_vid10468-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/riverbed-shark-v96-sec-eng.pdf" --remote-name
 pdftotext "riverbed-shark-v96-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST-EricssonSEOS11.pdf" --remote-name
 pdftotext "ST-EricssonSEOS11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/riverbed-profiler-v96-sec-eng.pdf" --remote-name
 pdftotext "riverbed-profiler-v96-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/STA10_1_4.pdf" --remote-name
 pdftotext "STA10_1_4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10494-st.pdf" --remote-name
 pdftotext "st_vid10494-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10355-st.pdf" --remote-name
 pdftotext "st_vid10355-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10465-st.pdf" --remote-name
 pdftotext "st_vid10465-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Senetas%20Sec%20Target%202012.pdf" --remote-name
 pdftotext "Senetas%20Sec%20Target%202012.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/certes-v34-sec-eng.pdf" --remote-name
 pdftotext "certes-v34-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10489-st.pdf" --remote-name
 pdftotext "st_vid10489-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-06-DS-lite.pdf" --remote-name
 pdftotext "2011-06-DS-lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10460-st.pdf" --remote-name
 pdftotext "st_vid10460-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/STA10NetworksV1_6Oct2_2012.pdf" --remote-name
 pdftotext "STA10NetworksV1_6Oct2_2012.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/11.4_ST_1.0.pdf" --remote-name
 pdftotext "11.4_ST_1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-198%20ST%20v2.3.pdf" --remote-name
 pdftotext "383-4-198%20ST%20v2.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_view_document.pdf" --remote-name
 pdftotext "ST_view_document.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sonus-v09-sec-eng.pdf" --remote-name
 pdftotext "sonus-v09-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/VAG%20v1.0.6%20ST%20Lite.pdf" --remote-name
 pdftotext "VAG%20v1.0.6%20ST%20Lite.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_0313.pdf" --remote-name
 pdftotext "ST_0313.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-188%20ST%20v2.2.pdf" --remote-name
 pdftotext "383-4-188%20ST%20v2.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-185%20ST%20v0-12.pdf" --remote-name
 pdftotext "383-4-185%20ST%20v0-12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10490-st.pdf" --remote-name
 pdftotext "st_vid10490-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-191%20ST%20v0.10.pdf" --remote-name
 pdftotext "383-4-191%20ST%20v0.10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10488-st.pdf" --remote-name
 pdftotext "st_vid10488-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2010-26%20EXT-1544%20ST.pdf" --remote-name
 pdftotext "2010-26%20EXT-1544%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Huawei%20WCDMA%20ST%201.19.pdf" --remote-name
 pdftotext "Huawei%20WCDMA%20ST%201.19.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/HUAWEI%20MBSC%20ST%201.07.pdf" --remote-name
 pdftotext "HUAWEI%20MBSC%20ST%201.07.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-ionix-v13-sec-eng.pdf" --remote-name
 pdftotext "emc-ionix-v13-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Huawei%20GBTS%20Release%2013%20Security%20Target%20v1.16.pdf" --remote-name
 pdftotext "Huawei%20GBTS%20Release%2013%20Security%20Target%20v1.16.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Huawei%20HERT%20BBU%20Software%20Platform%20Security%20Target%201.10.pdf" --remote-name
 pdftotext "Huawei%20HERT%20BBU%20Software%20Platform%20Security%20Target%201.10.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/HUAWEI-LTE%20ST%202.6.pdf" --remote-name
 pdftotext "HUAWEI-LTE%20ST%202.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20ZTE%20Softswitch%20and%20Media%20Gateway%20Communication%20System%20Security%20Target%20v0.8.pdf" --remote-name
 pdftotext "[ST]%20ZTE%20Softswitch%20and%20Media%20Gateway%20Communication%20System%20Security%20Target%20v0.8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST267%20v1.0.pdf" --remote-name
 pdftotext "ST267%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Bluecoat%20ProxySG%20v5.5%20ST%20v1.3.pdf" --remote-name
 pdftotext "Bluecoat%20ProxySG%20v5.5%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Bluecoat%20ProxySG%20v6.1%20ST%20v1.3.pdf" --remote-name
 pdftotext "Bluecoat%20ProxySG%20v6.1%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IMAP%20ST.pdf" --remote-name
 pdftotext "IMAP%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Huawei%20iManager%20M2000%20Security%20Target%20v1.20.pdf" --remote-name
 pdftotext "Huawei%20iManager%20M2000%20Security%20Target%20v1.20.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Kaseya%20VSA%20v6.2.1.0%20ST%20v1.1.pdf" --remote-name
 pdftotext "Kaseya%20VSA%20v6.2.1.0%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10347-st.pdf" --remote-name
 pdftotext "st_vid10347-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JNPR%20JUNOS%2010%204%20EAL4%20Security%20Target%20v1%205.pdf" --remote-name
 pdftotext "JNPR%20JUNOS%2010%204%20EAL4%20Security%20Target%20v1%205.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10403-st.pdf" --remote-name
 pdftotext "st_vid10403-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KECS-NISS-0356-2011_Mobiledesk%20VPN%20v1.0%20ST(Eng).pdf" --remote-name
 pdftotext "KECS-NISS-0356-2011_Mobiledesk%20VPN%20v1.0%20ST(Eng).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]%20ZXUN%20USPP%20Security%20Target%20v1.1%20-%20PUBLIC.pdf" --remote-name
 pdftotext "[ST]%20ZXUN%20USPP%20Security%20Target%20v1.1%20-%20PUBLIC.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST%20Public]%20ZXR10%205900&5900E&8900&ZSR&T1200%20Series%20Switches%20and%20Routers%20Running%20ZXROS_ST%20v1.3.pdf" --remote-name
 pdftotext "[ST%20Public]%20ZXR10%205900&5900E&8900&ZSR&T1200%20Series%20Switches%20and%20Routers%20Running%20ZXROS_ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST%20Public]%20ZXR10%20M6000&T8000&8900E%20Series%20Routers%20and%20Switches%20Running%20ZXROSNG%20ST%20v1.6.pdf" --remote-name
 pdftotext "[ST%20Public]%20ZXR10%20M6000&T8000&8900E%20Series%20Routers%20and%20Switches%20Running%20ZXROSNG%20ST%20v1.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10383-st.pdf" --remote-name
 pdftotext "st_vid10383-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10481-st.pdf" --remote-name
 pdftotext "st_vid10481-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10461-st.pdf" --remote-name
 pdftotext "st_vid10461-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST%20Public]%20ZXR10%203900%20Series%20Switches%20Running%20ZXROS_ST%20v1.5.pdf" --remote-name
 pdftotext "[ST%20Public]%20ZXR10%203900%20Series%20Switches%20Running%20ZXROS_ST%20v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10410-st.pdf" --remote-name
 pdftotext "st_vid10410-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/[ST]ZXWN_MSCS_ZXUN_iCX_Security_Target_V1.1.pdf" --remote-name
 pdftotext "[ST]ZXWN_MSCS_ZXUN_iCX_Security_Target_V1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10384-st.pdf" --remote-name
 pdftotext "st_vid10384-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Senetas_ST_V3.0.pdf" --remote-name
 pdftotext "Senetas_ST_V3.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-174%20%20ST%20v1.3.pdf" --remote-name
 pdftotext "383-4-174%20%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-175%20ST%20v1.3.pdf" --remote-name
 pdftotext "383-4-175%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10409-st.pdf" --remote-name
 pdftotext "st_vid10409-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10455-st.pdf" --remote-name
 pdftotext "st_vid10455-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10425-st.pdf" --remote-name
 pdftotext "st_vid10425-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Wyse_ST.pdf" --remote-name
 pdftotext "Wyse_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JNPR%20JUNOS%2010-0%20EAL3%20Reval%20ST%20v2-0.pdf" --remote-name
 pdftotext "JNPR%20JUNOS%2010-0%20EAL3%20Reval%20ST%20v2-0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-26-ST.pdf" --remote-name
 pdftotext "2009-26-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2010-15-DS.pdf" --remote-name
 pdftotext "2010-15-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2010-16-DS.pdf" --remote-name
 pdftotext "2010-16-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10348-st.pdf" --remote-name
 pdftotext "st_vid10348-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10435-st.pdf" --remote-name
 pdftotext "st_vid10435-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10349-st.pdf" --remote-name
 pdftotext "st_vid10349-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-144%20ST%20v1.2.pdf" --remote-name
 pdftotext "383-4-144%20ST%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-142%20ST%20v1.3.pdf" --remote-name
 pdftotext "383-4-142%20ST%20v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ca-directory-r120-sec-eng.pdf" --remote-name
 pdftotext "ca-directory-r120-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST-HP-Router.pdf" --remote-name
 pdftotext "ST-HP-Router.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0283_est.pdf" --remote-name
 pdftotext "c0283_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Citrix%20NS%20v9.2%20ST%20v1-1.pdf" --remote-name
 pdftotext "Citrix%20NS%20v9.2%20ST%20v1-1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0277_est.pdf" --remote-name
 pdftotext "c0277_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/juniper-t009-st-v1.3.pdf" --remote-name
 pdftotext "juniper-t009-st-v1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/silverpeak-v31-sec-eng.pdf" --remote-name
 pdftotext "silverpeak-v31-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/shavlik-v80-sec-eng.pdf" --remote-name
 pdftotext "shavlik-v80-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/riverbed-v41-sec-eng.pdf" --remote-name
 pdftotext "riverbed-v41-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ngenius-v47-sec-eng.pdf" --remote-name
 pdftotext "ngenius-v47-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/microtech-m7245-sec-eng.pdf" --remote-name
 pdftotext "microtech-m7245-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10367-st.pdf" --remote-name
 pdftotext "st_vid10367-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/infoblox-v42245-sec-eng.pdf" --remote-name
 pdftotext "infoblox-v42245-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Citrix_Netscaler_ST.pdf" --remote-name
 pdftotext "Citrix_Netscaler_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-16en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-16en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-16en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST-Juniper_Networks_Secure_Access_Family_V6.4_v1-9.pdf" --remote-name
 pdftotext "ST-Juniper_Networks_Secure_Access_Family_V6.4_v1-9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-78fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-78fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SwitchSecurityTargetV5.pdf" --remote-name
 pdftotext "SwitchSecurityTargetV5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/trustwave-v340-sec-eng.pdf" --remote-name
 pdftotext "trustwave-v340-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10206-st.pdf" --remote-name
 pdftotext "st_vid10206-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CypherNet_Security_Target_v200_for_distribution.pdf" --remote-name
 pdftotext "CypherNet_Security_Target_v200_for_distribution.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-voyencecontrol-v410-sec-eng.pdf" --remote-name
 pdftotext "emc-voyencecontrol-v410-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SCMDM_2008_ST_1.2.pdf" --remote-name
 pdftotext "SCMDM_2008_ST_1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SCMDM%202008_SP1_ST_v1.1.pdf" --remote-name
 pdftotext "SCMDM%202008_SP1_ST_v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ca-spectrum-r90-sec-eng.pdf" --remote-name
 pdftotext "ca-spectrum-r90-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/force-networks-v10-sec-eng.pdf" --remote-name
 pdftotext "force-networks-v10-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JNPR_JUNOS_9-3_EAL3_ST_v1-6.pdf" --remote-name
 pdftotext "JNPR_JUNOS_9-3_EAL3_ST_v1-6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10308-st.pdf" --remote-name
 pdftotext "st_vid10308-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10313-st.pdf" --remote-name
 pdftotext "st_vid10313-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2009-01en.pdf" --remote-name
 pdftotext "dcssi-cible_2009-01en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10324-st.pdf" --remote-name
 pdftotext "st_vid10324-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/bluecoat-proxy-v5319-sec-eng.pdf" --remote-name
 pdftotext "bluecoat-proxy-v5319-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/enterasys-networks-sec-eng.pdf" --remote-name
 pdftotext "enterasys-networks-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10326-st.pdf" --remote-name
 pdftotext "st_vid10326-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cisco_NAC_ST_v1.pdf" --remote-name
 pdftotext "Cisco_NAC_ST_v1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/gdc-sec-eng.pdf" --remote-name
 pdftotext "gdc-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JUNOS%209.3R1.pdf" --remote-name
 pdftotext "JUNOS%209.3R1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10267-st.pdf" --remote-name
 pdftotext "st_vid10267-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10015-st.pdf" --remote-name
 pdftotext "st_vid10015-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10245-st.pdf" --remote-name
 pdftotext "st_vid10245-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/citrix_netscaler.pdf" --remote-name
 pdftotext "citrix_netscaler.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vpn-v705-sec-eng.pdf" --remote-name
 pdftotext "vpn-v705-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10076-st.pdf" --remote-name
 pdftotext "st_vid10076-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10066-st.pdf" --remote-name
 pdftotext "st_vid10066-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10176-st.pdf" --remote-name
 pdftotext "st_vid10176-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10055-st.pdf" --remote-name
 pdftotext "st_vid10055-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10287-st.pdf" --remote-name
 pdftotext "st_vid10287-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10077-st.pdf" --remote-name
 pdftotext "st_vid10077-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_20en.pdf" --remote-name
 pdftotext "dcssi-cible2008_20en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/aruba_st.pdf" --remote-name
 pdftotext "aruba_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Senetas_CypherNet_ST_1.18.pdf" --remote-name
 pdftotext "Senetas_CypherNet_ST_1.18.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10116-st.pdf" --remote-name
 pdftotext "st_vid10116-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6012-st.pdf" --remote-name
 pdftotext "st_vid6012-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10120-st.pdf" --remote-name
 pdftotext "st_vid10120-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080429_mcafee-sec-e.pdf" --remote-name
 pdftotext "20080429_mcafee-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_09fr.pdf" --remote-name
 pdftotext "dcssi-cible2008_09fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6014-st.pdf" --remote-name
 pdftotext "st_vid6014-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10190-st.pdf" --remote-name
 pdftotext "st_vid10190-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/blue_coat_sec-e.pdf" --remote-name
 pdftotext "blue_coat_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10270-st.pdf" --remote-name
 pdftotext "st_vid10270-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sim_4.5-tar-e.pdf" --remote-name
 pdftotext "sim_4.5-tar-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/sam651-tar-e.pdf" --remote-name
 pdftotext "sam651-tar-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T523_ST_v1.1.pdf" --remote-name
 pdftotext "T523_ST_v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10118-st.pdf" --remote-name
 pdftotext "st_vid10118-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080516_VPN3000ConcentratorST_1.17S.pdf" --remote-name
 pdftotext "20080516_VPN3000ConcentratorST_1.17S.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/DC2000%20Security%20Target%20_CC_.001.pdf" --remote-name
 pdftotext "DC2000%20Security%20Target%20_CC_.001.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3022-st.pdf" --remote-name
 pdftotext "st_vid3022-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10134-st.pdf" --remote-name
 pdftotext "st_vid10134-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10101-st.pdf" --remote-name
 pdftotext "st_vid10101-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-66-ST-EN.pdf" --remote-name
 pdftotext "NISS-66-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NISS-65-ST-EN.pdf" --remote-name
 pdftotext "NISS-65-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10031-st.pdf" --remote-name
 pdftotext "st_vid10031-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JUNOS%208%201R1%20ST%20v1%200.pdf" --remote-name
 pdftotext "JUNOS%208%201R1%20ST%20v1%200.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IOS_IPSec_EAL2_ST_v1.0.pdf" --remote-name
 pdftotext "IOS_IPSec_EAL2_ST_v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10156-st.pdf" --remote-name
 pdftotext "st_vid10156-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10090-st.pdf" --remote-name
 pdftotext "st_vid10090-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10081-st.pdf" --remote-name
 pdftotext "st_vid10081-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/evm-v41-sec-e.pdf" --remote-name
 pdftotext "evm-v41-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10045-st.pdf" --remote-name
 pdftotext "st_vid10045-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IOSIPSec12.3.6a_ST_4.8.pdf" --remote-name
 pdftotext "IOSIPSec12.3.6a_ST_4.8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10106-st.pdf" --remote-name
 pdftotext "st_vid10106-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/statvms-v640-sec-e.pdf" --remote-name
 pdftotext "statvms-v640-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10095-st.pdf" --remote-name
 pdftotext "st_vid10095-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/HP_OpenView_Select_Access_ST_v3.0.pdf" --remote-name
 pdftotext "HP_OpenView_Select_Access_ST_v3.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10073-st.pdf" --remote-name
 pdftotext "st_vid10073-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10047-st.pdf" --remote-name
 pdftotext "st_vid10047-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3037-st.pdf" --remote-name
 pdftotext "st_vid3037-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3020-st.pdf" --remote-name
 pdftotext "st_vid3020-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4049-st.pdf" --remote-name
 pdftotext "st_vid4049-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4045-st.pdf" --remote-name
 pdftotext "st_vid4045-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/optics_sec.pdf" --remote-name
 pdftotext "optics_sec.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10013-st.pdf" --remote-name
 pdftotext "st_vid10013-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SRA_security_target_PUBLISH.pdf" --remote-name
 pdftotext "SRA_security_target_PUBLISH.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10037-st.pdf" --remote-name
 pdftotext "st_vid10037-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10011-st.pdf" --remote-name
 pdftotext "st_vid10011-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_13.pdf" --remote-name
 pdftotext "cible2005_13.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/nCircle%20IP360%20v6.3.4%20ST%20v2.1.pdf" --remote-name
 pdftotext "nCircle%20IP360%20v6.3.4%20ST%20v2.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID4017-ST.pdf" --remote-name
 pdftotext "ST_VID4017-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SQ_Phoenix-ST.pdf" --remote-name
 pdftotext "SQ_Phoenix-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4040-st.pdf" --remote-name
 pdftotext "st_vid4040-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NetDV2005_SecurityTarget-Rev5.pdf" --remote-name
 pdftotext "NetDV2005_SecurityTarget-Rev5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1030-st.pdf" --remote-name
 pdftotext "st_vid1030-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Intellitactics%20NSM%20v4.1.pdf" --remote-name
 pdftotext "ST%20Intellitactics%20NSM%20v4.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2004_30.pdf" --remote-name
 pdftotext "cible2004_30.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID1017-ST.pdf" --remote-name
 pdftotext "ST_VID1017-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID3019-ST.pdf" --remote-name
 pdftotext "ST_VID3019-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/DC2KST00M.pdf" --remote-name
 pdftotext "DC2KST00M.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/DC2KST00M.pdf" --remote-name
 pdftotext "DC2KST00M.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MPS1xx.pdf" --remote-name
 pdftotext "MPS1xx.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Citadel%20v2.2.0.pdf" --remote-name
 pdftotext "ST%20Citadel%20v2.2.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2015-st.pdf" --remote-name
 pdftotext "st_vid2015-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4021-st.pdf" --remote-name
 pdftotext "st_vid4021-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3011-st.pdf" --remote-name
 pdftotext "st_vid3011-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SecureworksST.pdf" --remote-name
 pdftotext "SecureworksST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/stat-scanner-v508-sec-eng.pdf" --remote-name
 pdftotext "stat-scanner-v508-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_26.pdf" --remote-name
 pdftotext "cible2002_26.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2006-st.pdf" --remote-name
 pdftotext "st_vid2006-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/IPSecCryptoSystemST.pdf" --remote-name
 pdftotext "IPSecCryptoSystemST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4006-st.pdf" --remote-name
 pdftotext "st_vid4006-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2011-st.pdf" --remote-name
 pdftotext "st_vid2011-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CyphercellATMEncyptorST.pdf" --remote-name
 pdftotext "CyphercellATMEncyptorST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SecureSessionVPNST.pdf" --remote-name
 pdftotext "SecureSessionVPNST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10620-st.pdf" --remote-name
 pdftotext "st_vid10620-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10520-st.pdf" --remote-name
 pdftotext "st_vid10520-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/NetApp%20Clustered%20Data%20ONTAP%20v8.2.1%20Security%20Target%20v1.0-1.pdf" --remote-name
 pdftotext "NetApp%20Clustered%20Data%20ONTAP%20v8.2.1%20Security%20Target%20v1.0-1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/netapp-data-v8217-sec-eng.pdf" --remote-name
 pdftotext "netapp-data-v8217-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_finx_rtos_se_v31_lite01.pdf" --remote-name
 pdftotext "tds_finx_rtos_se_v31_lite01.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-192%20ST%20v2.0.pdf" --remote-name
 pdftotext "383-4-192%20ST%20v2.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0900b_pdf.pdf" --remote-name
 pdftotext "0900b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/data-v5210-sec-eng.pdf" --remote-name
 pdftotext "data-v5210-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-223%20ST%20v0.7.pdf" --remote-name
 pdftotext "383-4-223%20ST%20v0.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0852b_pdf.pdf" --remote-name
 pdftotext "0852b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0787b_pdf.pdf" --remote-name
 pdftotext "0787b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0752b_pdf.pdf" --remote-name
 pdftotext "0752b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0816b_pdf.pdf" --remote-name
 pdftotext "0816b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0846b_pdf.pdf" --remote-name
 pdftotext "0846b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0848b_pdf.pdf" --remote-name
 pdftotext "0848b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0754b_pdf.pdf" --remote-name
 pdftotext "0754b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST270%20Citrix%20XenServer%206.0.2%20ST%20v1-0.pdf" --remote-name
 pdftotext "ST270%20Citrix%20XenServer%206.0.2%20ST%20v1-0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0788b_pdf.pdf" --remote-name
 pdftotext "0788b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0711b_pdf.pdf" --remote-name
 pdftotext "0711b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10321-st.pdf" --remote-name
 pdftotext "st_vid10321-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0724b_pdf.pdf" --remote-name
 pdftotext "0724b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-204%20ST%20v1.4.pdf" --remote-name
 pdftotext "383-4-204%20ST%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-146%20ST%20v0.9.pdf" --remote-name
 pdftotext "383-4-146%20ST%20v0.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0793b_pdf.pdf" --remote-name
 pdftotext "0793b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0753b_pdf.pdf" --remote-name
 pdftotext "0753b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0755b_pdf.pdf" --remote-name
 pdftotext "0755b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/BAE%20STOP%207%20Security%20Target%201.08.pdf" --remote-name
 pdftotext "BAE%20STOP%207%20Security%20Target%201.08.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0687b_pdf.pdf" --remote-name
 pdftotext "0687b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/netapp-data-v800-sec-eng.pdf" --remote-name
 pdftotext "netapp-data-v800-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0701b_pdf.pdf" --remote-name
 pdftotext "0701b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0715b_pdf.pdf" --remote-name
 pdftotext "0715b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10430-st.pdf" --remote-name
 pdftotext "st_vid10430-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10390-st.pdf" --remote-name
 pdftotext "st_vid10390-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10304-st.pdf" --remote-name
 pdftotext "st_vid10304-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10362-st.pdf" --remote-name
 pdftotext "st_vid10362-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/data-domain-v4820-sec-eng.pdf" --remote-name
 pdftotext "data-domain-v4820-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vmware-esx-v40-sec-eng.pdf" --remote-name
 pdftotext "vmware-esx-v40-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vmware-esxi-v40-sec-eng.pdf" --remote-name
 pdftotext "vmware-esxi-v40-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/crp255st.pdf" --remote-name
 pdftotext "crp255st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0637b_pdf.pdf" --remote-name
 pdftotext "0637b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vmware-esxi-v35-sec-eng.pdf" --remote-name
 pdftotext "vmware-esxi-v35-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vmware-esx-v35-sec-eng.pdf" --remote-name
 pdftotext "vmware-esx-v35-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/WM6.5_EAL4Plus_Security_Target_1.0.pdf" --remote-name
 pdftotext "WM6.5_EAL4Plus_Security_Target_1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0536b_pdf.pdf" --remote-name
 pdftotext "0536b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10338-st.pdf" --remote-name
 pdftotext "st_vid10338-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/lfl_t257-hp_st_v1.6.pdf" --remote-name
 pdftotext "lfl_t257-hp_st_v1.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/data-ontap-v7311-sec-eng.pdf" --remote-name
 pdftotext "data-ontap-v7311-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/WM6.1_EAL4_ST_1.1.pdf" --remote-name
 pdftotext "WM6.1_EAL4_ST_1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10291-st.pdf" --remote-name
 pdftotext "st_vid10291-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0534b_pdf.pdf" --remote-name
 pdftotext "0534b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0570b_pdf.pdf" --remote-name
 pdftotext "0570b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0557b_pdf.pdf" --remote-name
 pdftotext "0557b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/neutrino-v640-sec-eng.pdf" --remote-name
 pdftotext "neutrino-v640-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/netapp-data-sec-eng.pdf" --remote-name
 pdftotext "netapp-data-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10217-st.pdf" --remote-name
 pdftotext "st_vid10217-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2008-05-DS.pdf" --remote-name
 pdftotext "2008-05-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2008-04-DS.pdf" --remote-name
 pdftotext "2008-04-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0460b.pdf" --remote-name
 pdftotext "0460b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0481b.pdf" --remote-name
 pdftotext "0481b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EFS-T005_MSVista_MSServer2008_EAL1_ST_v1.0.pdf" --remote-name
 pdftotext "EFS-T005_MSVista_MSServer2008_EAL1_ST_v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10119-st.pdf" --remote-name
 pdftotext "st_vid10119-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/WM6.1_EAL2_ST1.pdf" --remote-name
 pdftotext "WM6.1_EAL2_ST1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0472b.pdf" --remote-name
 pdftotext "0472b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10293-st.pdf" --remote-name
 pdftotext "st_vid10293-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solaris10ext-sec-e.pdf" --remote-name
 pdftotext "solaris10ext-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vmware-sec-e.pdf" --remote-name
 pdftotext "vmware-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0461b.pdf" --remote-name
 pdftotext "0461b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10286-st.pdf" --remote-name
 pdftotext "st_vid10286-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/080328%20st_v1.9_final.pdf" --remote-name
 pdftotext "080328%20st_v1.9_final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080516_WM5_MSFP_Security_Target_1.0.pdf" --remote-name
 pdftotext "20080516_WM5_MSFP_Security_Target_1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080516_WM6_Security_Target_1.2.pdf" --remote-name
 pdftotext "20080516_WM6_Security_Target_1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/xts-400.pdf" --remote-name
 pdftotext "xts-400.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080527_0459b.pdf" --remote-name
 pdftotext "20080527_0459b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10184-st.pdf" --remote-name
 pdftotext "st_vid10184-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solaris10R1106-sec-e.pdf" --remote-name
 pdftotext "solaris10R1106-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-celerra_sec-e.pdf" --remote-name
 pdftotext "emc-celerra_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10271-st.pdf" --remote-name
 pdftotext "st_vid10271-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0427b.pdf" --remote-name
 pdftotext "0427b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0468b.pdf" --remote-name
 pdftotext "0468b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10165-st.pdf" --remote-name
 pdftotext "st_vid10165-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10195-st.pdf" --remote-name
 pdftotext "st_vid10195-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10125-st.pdf" --remote-name
 pdftotext "st_vid10125-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10034-st.pdf" --remote-name
 pdftotext "st_vid10034-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0377b.pdf" --remote-name
 pdftotext "0377b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10149-st.pdf" --remote-name
 pdftotext "st_vid10149-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9506-st.pdf" --remote-name
 pdftotext "st_vid9506-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10062-st.pdf" --remote-name
 pdftotext "st_vid10062-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10063-st.pdf" --remote-name
 pdftotext "st_vid10063-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0396b.pdf" --remote-name
 pdftotext "0396b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0302b.pdf" --remote-name
 pdftotext "0302b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0324b.pdf" --remote-name
 pdftotext "0324b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0378b.pdf" --remote-name
 pdftotext "0378b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0385b.pdf" --remote-name
 pdftotext "0385b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solaris10-sec-e.pdf" --remote-name
 pdftotext "solaris10-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10163-st.pdf" --remote-name
 pdftotext "st_vid10163-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10151-st.pdf" --remote-name
 pdftotext "st_vid10151-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0371b.pdf" --remote-name
 pdftotext "0371b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10133-st.pdf" --remote-name
 pdftotext "st_vid10133-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0303b.pdf" --remote-name
 pdftotext "0303b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/hp-ux11iv2.pdf" --remote-name
 pdftotext "hp-ux11iv2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10056-st.pdf" --remote-name
 pdftotext "st_vid10056-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0304b.pdf" --remote-name
 pdftotext "0304b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10072-st.pdf" --remote-name
 pdftotext "st_vid10072-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0284b.pdf" --remote-name
 pdftotext "0284b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4025-st.pdf" --remote-name
 pdftotext "st_vid4025-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0292b.pdf" --remote-name
 pdftotext "0292b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10023-st.pdf" --remote-name
 pdftotext "st_vid10023-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0327b.pdf" --remote-name
 pdftotext "0327b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4035-st.pdf" --remote-name
 pdftotext "st_vid4035-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1023-st.pdf" --remote-name
 pdftotext "st_vid1023-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0258b.pdf" --remote-name
 pdftotext "0258b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0247b.pdf" --remote-name
 pdftotext "0247b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0256b.pdf" --remote-name
 pdftotext "0256b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3012a-st.pdf" --remote-name
 pdftotext "st_vid3012a-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Solaris%209%20ST.pdf" --remote-name
 pdftotext "Solaris%209%20ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4012-st.pdf" --remote-name
 pdftotext "st_vid4012-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0273b.pdf" --remote-name
 pdftotext "0273b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0274b.pdf" --remote-name
 pdftotext "0274b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0270b.pdf" --remote-name
 pdftotext "0270b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4031-st.pdf" --remote-name
 pdftotext "st_vid4031-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0257b.pdf" --remote-name
 pdftotext "0257b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0259b.pdf" --remote-name
 pdftotext "0259b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0238b.pdf" --remote-name
 pdftotext "0238b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TSolaris8_Issue3.1.pdf" --remote-name
 pdftotext "TSolaris8_Issue3.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3012-st.pdf" --remote-name
 pdftotext "st_vid3012-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Tru64STIssue1.pdf" --remote-name
 pdftotext "Tru64STIssue1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Linux_v1.7.pdf" --remote-name
 pdftotext "Linux_v1.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0225b.pdf" --remote-name
 pdftotext "0225b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0234b.pdf" --remote-name
 pdftotext "0234b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0217b.pdf" --remote-name
 pdftotext "0217b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LFA_T176_ST.pdf" --remote-name
 pdftotext "LFA_T176_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0213b.pdf" --remote-name
 pdftotext "0213b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0214b.pdf" --remote-name
 pdftotext "0214b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/T152_ST_1.0.pdf" --remote-name
 pdftotext "T152_ST_1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/HP-UX%20st_v1.9_final.pdf" --remote-name
 pdftotext "HP-UX%20st_v1.9_final.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0179b.pdf" --remote-name
 pdftotext "0179b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0178b.pdf" --remote-name
 pdftotext "0178b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0194b.pdf" --remote-name
 pdftotext "0194b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4002-st.pdf" --remote-name
 pdftotext "st_vid4002-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4003-st.pdf" --remote-name
 pdftotext "st_vid4003-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4001-st.pdf" --remote-name
 pdftotext "st_vid4001-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0216b.pdf" --remote-name
 pdftotext "0216b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solaris8.pdf" --remote-name
 pdftotext "solaris8.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0143b.pdf" --remote-name
 pdftotext "0143b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10810-st.pdf" --remote-name
 pdftotext "st_vid10810-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10800-st.pdf" --remote-name
 pdftotext "st_vid10800-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10811-st.pdf" --remote-name
 pdftotext "st_vid10811-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10812-st.pdf" --remote-name
 pdftotext "st_vid10812-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10802-st.pdf" --remote-name
 pdftotext "st_vid10802-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10769-st.pdf" --remote-name
 pdftotext "st_vid10769-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10807-st.pdf" --remote-name
 pdftotext "st_vid10807-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10761-st.pdf" --remote-name
 pdftotext "st_vid10761-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10772-st.pdf" --remote-name
 pdftotext "st_vid10772-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10766-st.pdf" --remote-name
 pdftotext "st_vid10766-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10778-st.pdf" --remote-name
 pdftotext "st_vid10778-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10719-st.pdf" --remote-name
 pdftotext "st_vid10719-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10746-st.pdf" --remote-name
 pdftotext "st_vid10746-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10765-st.pdf" --remote-name
 pdftotext "st_vid10765-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10764-st.pdf" --remote-name
 pdftotext "st_vid10764-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10697-st.pdf" --remote-name
 pdftotext "st_vid10697-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10735-st.pdf" --remote-name
 pdftotext "st_vid10735-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10685-st.pdf" --remote-name
 pdftotext "st_vid10685-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10736-st.pdf" --remote-name
 pdftotext "st_vid10736-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10737-st.pdf" --remote-name
 pdftotext "st_vid10737-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10638-st.pdf" --remote-name
 pdftotext "st_vid10638-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10708-st.pdf" --remote-name
 pdftotext "st_vid10708-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10700-st.pdf" --remote-name
 pdftotext "st_vid10700-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10701-st.pdf" --remote-name
 pdftotext "st_vid10701-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10704-st.pdf" --remote-name
 pdftotext "st_vid10704-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10705-st.pdf" --remote-name
 pdftotext "st_vid10705-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10714-st.pdf" --remote-name
 pdftotext "st_vid10714-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10643-st.pdf" --remote-name
 pdftotext "st_vid10643-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Natek%20SIEM%20ST%20v1%2012.pdf" --remote-name
 pdftotext "Natek%20SIEM%20ST%20v1%2012.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10659-st.pdf" --remote-name
 pdftotext "st_vid10659-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10689-st.pdf" --remote-name
 pdftotext "st_vid10689-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10611-st.pdf" --remote-name
 pdftotext "st_vid10611-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10632-st.pdf" --remote-name
 pdftotext "st_vid10632-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10633-st.pdf" --remote-name
 pdftotext "st_vid10633-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10628-st.pdf" --remote-name
 pdftotext "st_vid10628-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10592-st.pdf" --remote-name
 pdftotext "st_vid10592-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10615-st.pdf" --remote-name
 pdftotext "st_vid10615-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10617-st.pdf" --remote-name
 pdftotext "st_vid10617-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AVO4D_ST_r2.6.pdf" --remote-name
 pdftotext "AVO4D_ST_r2.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/AVO4D_ST_r2.6.pdf" --remote-name
 pdftotext "AVO4D_ST_r2.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solarwinds-v570-sec-eng%20(ST).pdf" --remote-name
 pdftotext "solarwinds-v570-sec-eng%20(ST).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10597-st.pdf" --remote-name
 pdftotext "st_vid10597-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/solarwinds-v10-sec-eng%20(ST).pdf" --remote-name
 pdftotext "solarwinds-v10-sec-eng%20(ST).pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10596-st.pdf" --remote-name
 pdftotext "st_vid10596-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10594-st.pdf" --remote-name
 pdftotext "st_vid10594-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10562-st.pdf" --remote-name
 pdftotext "st_vid10562-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-275%20ST%20v1.16.pdf" --remote-name
 pdftotext "383-4-275%20ST%20v1.16.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-272%20ST%20v0.11.pdf" --remote-name
 pdftotext "383-4-272%20ST%20v0.11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0930b_pdf.pdf" --remote-name
 pdftotext "0930b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-vnx-v0533-sec-eng.pdf" --remote-name
 pdftotext "emc-vnx-v0533-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0434_est.pdf" --remote-name
 pdftotext "c0434_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0435_est.pdf" --remote-name
 pdftotext "c0435_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CAYBIS_ST_V1.9.pdf" --remote-name
 pdftotext "CAYBIS_ST_V1.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/violin-6000-sec-eng.pdf" --remote-name
 pdftotext "violin-6000-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2012-10-ST.pdf" --remote-name
 pdftotext "2012-10-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0429_est.pdf" --remote-name
 pdftotext "c0429_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0430_est.pdf" --remote-name
 pdftotext "c0430_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2013-21-ST.pdf" --remote-name
 pdftotext "2013-21-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10535-st.pdf" --remote-name
 pdftotext "st_vid10535-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10556-st.pdf" --remote-name
 pdftotext "st_vid10556-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/vmware-vsphere-v51-sec-eng.pdf" --remote-name
 pdftotext "vmware-vsphere-v51-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10491-st" --remote-name
 pdftotext "st_vid10491-st"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2013-69en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2013-69en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-252%20ST%20v2.2.pdf" --remote-name
 pdftotext "383-4-252%20ST%20v2.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0424_est.pdf" --remote-name
 pdftotext "c0424_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10483-st.pdf" --remote-name
 pdftotext "st_vid10483-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10495-st.pdf" --remote-name
 pdftotext "st_vid10495-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0416_est.pdf" --remote-name
 pdftotext "c0416_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0417_est.pdf" --remote-name
 pdftotext "c0417_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_1_2_MX48.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_1_2_MX48.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_1_2_VX320A.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_1_2_VX320A.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_1_2_VX320V.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_1_2_VX320V.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_1_4_VX640.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_1_4_VX640.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_1_2_VX80.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_1_2_VX80.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0415_est.pdf" --remote-name
 pdftotext "c0415_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-250%20ST%20v1.5.pdf" --remote-name
 pdftotext "383-4-250%20ST%20v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-209%20ST%20v1.16.pdf" --remote-name
 pdftotext "383-4-209%20ST%20v1.16.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2013-01-DS.pdf" --remote-name
 pdftotext "2013-01-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SISOFT%20WEBHBYS%20V2.0.0.3%20Security%20Target%20v1.9.pdf" --remote-name
 pdftotext "SISOFT%20WEBHBYS%20V2.0.0.3%20Security%20Target%20v1.9.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TOV-ST-1.1.pdf" --remote-name
 pdftotext "TOV-ST-1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/pivotal-v282-sec-eng.pdf" --remote-name
 pdftotext "pivotal-v282-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/belkin-sec-eng.pdf" --remote-name
 pdftotext "belkin-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0398_est.pdf" --remote-name
 pdftotext "c0398_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0396_est.pdf" --remote-name
 pdftotext "c0396_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0889b_pdf.pdf" --remote-name
 pdftotext "0889b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0391_est.pdf" --remote-name
 pdftotext "c0391_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0878b_pdf.pdf" --remote-name
 pdftotext "0878b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0688b_pdf.pdf" --remote-name
 pdftotext "0688b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-225%20ST%20v1-2.pdf" --remote-name
 pdftotext "383-4-225%20ST%20v1-2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-217%20ST%20v08.pdf" --remote-name
 pdftotext "383-4-217%20ST%20v08.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ZTE%20Optical%20Transmission%20Equipment%20Security%20Target%20v1.2.pdf" --remote-name
 pdftotext "ZTE%20Optical%20Transmission%20Equipment%20Security%20Target%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0383_est.pdf" --remote-name
 pdftotext "c0383_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/PARS_DT_101_ST_v3n0.pdf" --remote-name
 pdftotext "PARS_DT_101_ST_v3n0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10380-st.pdf" --remote-name
 pdftotext "st_vid10380-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-241%20ST%202.1.pdf" --remote-name
 pdftotext "383-4-241%20ST%202.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0378_est.pdf" --remote-name
 pdftotext "c0378_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0379_est.pdf" --remote-name
 pdftotext "c0379_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10478-st.pdf" --remote-name
 pdftotext "st_vid10478-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10479-st.pdf" --remote-name
 pdftotext "st_vid10479-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0374_est.pdf" --remote-name
 pdftotext "c0374_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0375_est.pdf" --remote-name
 pdftotext "c0375_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st-RadmikSolutionEAL1RADIUSSCorev1_1.pdf" --remote-name
 pdftotext "st-RadmikSolutionEAL1RADIUSSCorev1_1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-avamar-v61-sec-eng.pdf" --remote-name
 pdftotext "emc-avamar-v61-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CRP268%20Adder%20v1.0%20-%20ST%20v1.1.pdf" --remote-name
 pdftotext "CRP268%20Adder%20v1.0%20-%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/CRP269%20Black%20Box%20v1.0%20-%20ST%20v1.1.pdf" --remote-name
 pdftotext "CRP269%20Black%20Box%20v1.0%20-%20ST%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0685b_pdf.pdf" --remote-name
 pdftotext "0685b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0369_est.pdf" --remote-name
 pdftotext "c0369_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0370_est.pdf" --remote-name
 pdftotext "c0370_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/mcafee-enter-v97-sec-eng.pdf" --remote-name
 pdftotext "mcafee-enter-v97-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0764b_pdf.pdf" --remote-name
 pdftotext "0764b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0363_est.pdf" --remote-name
 pdftotext "c0363_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0364_est.pdf" --remote-name
 pdftotext "c0364_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0365_est.pdf" --remote-name
 pdftotext "c0365_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Trustwave%20SIEM%20ST%20v112.pdf" --remote-name
 pdftotext "Trustwave%20SIEM%20ST%20v112.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-323%20ST%20v1_14f.pdf" --remote-name
 pdftotext "383-4-323%20ST%20v1_14f.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-195%20ST%20v1.14.pdf" --remote-name
 pdftotext "383-4-195%20ST%20v1.14.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0358_est.pdf" --remote-name
 pdftotext "c0358_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0359_est.pdf" --remote-name
 pdftotext "c0359_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0360_est.pdf" --remote-name
 pdftotext "c0360_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10378-st.pdf" --remote-name
 pdftotext "st_vid10378-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0559b_pdf.pdf" --remote-name
 pdftotext "0559b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10394-st.pdf" --remote-name
 pdftotext "st_vid10394-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10256-st.pdf" --remote-name
 pdftotext "st_vid10256-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10258-st.pdf" --remote-name
 pdftotext "st_vid10258-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10444-st.pdf" --remote-name
 pdftotext "st_vid10444-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10442-st.pdf" --remote-name
 pdftotext "st_vid10442-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10445-st.pdf" --remote-name
 pdftotext "st_vid10445-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-168%20ST%20v1.pdf" --remote-name
 pdftotext "383-4-168%20ST%20v1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Rapid7_CommonCriteria_STv1.7.pdf" --remote-name
 pdftotext "Rapid7_CommonCriteria_STv1.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/VMware%20vSphere%205.0%20ST%20v0.7.pdf" --remote-name
 pdftotext "VMware%20vSphere%205.0%20ST%20v0.7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-12en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-12en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0344_est.pdf" --remote-name
 pdftotext "c0344_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0343_est.pdf" --remote-name
 pdftotext "c0343_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0345_est.pdf" --remote-name
 pdftotext "c0345_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ORNET%20EAL1%20Security%20Target%20(ORNET%20Neuron)%20v1.1.pdf" --remote-name
 pdftotext "ORNET%20EAL1%20Security%20Target%20(ORNET%20Neuron)%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/JMCS%20Systems%20EAL2%20Security%20Target%20(Northern%20Light%20Video%20Conferencing)%20v1.2.pdf" --remote-name
 pdftotext "JMCS%20Systems%20EAL2%20Security%20Target%20(Northern%20Light%20Video%20Conferencing)%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0339_est.pdf" --remote-name
 pdftotext "c0339_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0340_est.pdf" --remote-name
 pdftotext "c0340_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0342_est.pdf" --remote-name
 pdftotext "c0342_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0341_est.pdf" --remote-name
 pdftotext "c0341_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-151%20ST%20v0.14.pdf" --remote-name
 pdftotext "383-4-151%20ST%20v0.14.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Web%20Bytes%20EAL1%20Security%20Target%20(Xilnex%20Framework)%20v1.1.pdf" --remote-name
 pdftotext "Web%20Bytes%20EAL1%20Security%20Target%20(Xilnex%20Framework)%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0721b_pdf.pdf" --remote-name
 pdftotext "0721b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0335_est.pdf" --remote-name
 pdftotext "c0335_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0336_est.pdf" --remote-name
 pdftotext "c0336_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0337_est.pdf" --remote-name
 pdftotext "c0337_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Authentic%20Venture%20EAL1%20Security%20Target%20(AssetCentral)%20v1.1.pdf" --remote-name
 pdftotext "Authentic%20Venture%20EAL1%20Security%20Target%20(AssetCentral)%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10370-st.pdf" --remote-name
 pdftotext "st_vid10370-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0726b_pdf.pdf" --remote-name
 pdftotext "0726b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EMC%20VPLEX%20with%20GeoSynchrony%205.0%20ST%20v0.6.pdf" --remote-name
 pdftotext "EMC%20VPLEX%20with%20GeoSynchrony%205.0%20ST%20v0.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MYWave%20EAL2%20Security%20Target%20(EmplX%20Security%20Module)%20v1.0.pdf" --remote-name
 pdftotext "MYWave%20EAL2%20Security%20Target%20(EmplX%20Security%20Module)%20v1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10421-st.pdf" --remote-name
 pdftotext "st_vid10421-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/rsa-archer-v50-sec-eng.pdf" --remote-name
 pdftotext "rsa-archer-v50-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0318_est.pdf" --remote-name
 pdftotext "c0318_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0317_est.pdf" --remote-name
 pdftotext "c0317_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0316_est.pdf" --remote-name
 pdftotext "c0316_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/symantec-ccs-v1051-sec-eng.pdf" --remote-name
 pdftotext "symantec-ccs-v1051-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0308_est.pdf" --remote-name
 pdftotext "c0308_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0309_est.pdf" --remote-name
 pdftotext "c0309_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0310_est.pdf" --remote-name
 pdftotext "c0310_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0311_est.pdf" --remote-name
 pdftotext "c0311_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0307_est.pdf" --remote-name
 pdftotext "c0307_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0314_est.pdf" --remote-name
 pdftotext "c0314_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0313_est.pdf" --remote-name
 pdftotext "c0313_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0312_est.pdf" --remote-name
 pdftotext "c0312_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0304_est.pdf" --remote-name
 pdftotext "c0304_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-vnx-v20-sec-eng.pdf" --remote-name
 pdftotext "emc-vnx-v20-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10446-st.pdf" --remote-name
 pdftotext "st_vid10446-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/3AQ_23805_AAAA_SC-D.pdf" --remote-name
 pdftotext "3AQ_23805_AAAA_SC-D.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0295_est.pdf" --remote-name
 pdftotext "c0295_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0297_est.pdf" --remote-name
 pdftotext "c0297_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0296_est.pdf" --remote-name
 pdftotext "c0296_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0298_est.pdf" --remote-name
 pdftotext "c0298_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-31-DS.pdf" --remote-name
 pdftotext "2009-31-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-159%20ST%20v0.6.pdf" --remote-name
 pdftotext "383-4-159%20ST%20v0.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-vnx-v531-sec-eng.pdf" --remote-name
 pdftotext "emc-vnx-v531-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0292_est.pdf" --remote-name
 pdftotext "c0292_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0293_est.pdf" --remote-name
 pdftotext "c0293_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0290_est.pdf" --remote-name
 pdftotext "c0290_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0291_est.pdf" --remote-name
 pdftotext "c0291_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0618b_pdf.pdf" --remote-name
 pdftotext "0618b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_3_6_VX1601.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_3_6_VX1601.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_3_6_VX320.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_3_6_VX320.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ThinklogicalSecurityTarget_3_6_VX40.pdf" --remote-name
 pdftotext "ThinklogicalSecurityTarget_3_6_VX40.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0661b_pdf.pdf" --remote-name
 pdftotext "0661b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-137%20ST%20v23.pdf" --remote-name
 pdftotext "383-4-137%20ST%20v23.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-128%20ST%20v0.29.pdf" --remote-name
 pdftotext "383-4-128%20ST%20v0.29.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-138%20ST%20v2.1.pdf" --remote-name
 pdftotext "383-4-138%20ST%20v2.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/383-4-111%20ST%20v1.04.pdf" --remote-name
 pdftotext "383-4-111%20ST%20v1.04.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10257-st.pdf" --remote-name
 pdftotext "st_vid10257-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10437-st.pdf" --remote-name
 pdftotext "st_vid10437-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-symmetrix-vmax-sec-eng.pdf" --remote-name
 pdftotext "emc-symmetrix-vmax-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/E14_EAL4_ASE_1.0.pdf" --remote-name
 pdftotext "E14_EAL4_ASE_1.0.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0659b_pdf.pdf" --remote-name
 pdftotext "0659b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0281_est.pdf" --remote-name
 pdftotext "c0281_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/t265_st.pdf" --remote-name
 pdftotext "t265_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/t265_st.pdf" --remote-name
 pdftotext "t265_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0280_est.pdf" --remote-name
 pdftotext "c0280_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0279_est.pdf" --remote-name
 pdftotext "c0279_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0276_est.pdf" --remote-name
 pdftotext "c0276_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2009-16-DS.pdf" --remote-name
 pdftotext "2009-16-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0269_est.pdf" --remote-name
 pdftotext "c0269_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0268_est-1.pdf" --remote-name
 pdftotext "c0268_est-1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0271_est.pdf" --remote-name
 pdftotext "c0271_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0270_est.pdf" --remote-name
 pdftotext "c0270_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0272_est.pdf" --remote-name
 pdftotext "c0272_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0273_est.pdf" --remote-name
 pdftotext "c0273_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10318-st.pdf" --remote-name
 pdftotext "st_vid10318-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Microsoft_Exchange_Server_EAL1_ST.pdf" --remote-name
 pdftotext "Microsoft_Exchange_Server_EAL1_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10314-st.pdf" --remote-name
 pdftotext "st_vid10314-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0267_est.pdf" --remote-name
 pdftotext "c0267_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0265_est.pdf" --remote-name
 pdftotext "c0265_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0264_est.pdf" --remote-name
 pdftotext "c0264_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/crp254st.pdf" --remote-name
 pdftotext "crp254st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10230-st.pdf" --remote-name
 pdftotext "st_vid10230-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Noggin_OCA_Incident_Manager_ST.pdf" --remote-name
 pdftotext "Noggin_OCA_Incident_Manager_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0546b_pdf.pdf" --remote-name
 pdftotext "0546b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_elsy_j0p001_v1.0_rev2.pdf" --remote-name
 pdftotext "tds_elsy_j0p001_v1.0_rev2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_elsy_j0d001_v1.0_rev2.pdf" --remote-name
 pdftotext "tds_elsy_j0d001_v1.0_rev2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_elsy_j0h001_v1.0_rev2.pdf" --remote-name
 pdftotext "tds_elsy_j0h001_v1.0_rev2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_elsy_j0e001_v1.0_rev2.pdf" --remote-name
 pdftotext "tds_elsy_j0e001_v1.0_rev2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0255_est.pdf" --remote-name
 pdftotext "c0255_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_elsy_j0a001_v1.0_rev7.pdf" --remote-name
 pdftotext "tds_elsy_j0a001_v1.0_rev7.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/TSF101_ST-edition-2_2.pdf" --remote-name
 pdftotext "TSF101_ST-edition-2_2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0254_est.pdf" --remote-name
 pdftotext "c0254_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0524b_pdf.pdf" --remote-name
 pdftotext "0524b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0524b_pdf.pdf" --remote-name
 pdftotext "0524b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0252_est.pdf" --remote-name
 pdftotext "c0252_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0253_est.pdf" --remote-name
 pdftotext "c0253_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/OTA_Security_Target_ed6_2_2.pdf" --remote-name
 pdftotext "OTA_Security_Target_ed6_2_2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/blackberry-smart-v50-sec-eng.pdf" --remote-name
 pdftotext "blackberry-smart-v50-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/blackberry-smart-v50-sec-eng.pdf" --remote-name
 pdftotext "blackberry-smart-v50-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0248_est.pdf" --remote-name
 pdftotext "c0248_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/FFHDD-ASE_1.07_Public.pdf" --remote-name
 pdftotext "FFHDD-ASE_1.07_Public.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0599b_pdf.pdf" --remote-name
 pdftotext "0599b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/XOmail_Version_14.2_Security_Target_739_20597_aaaa_sc_ed10-public.pdf" --remote-name
 pdftotext "XOmail_Version_14.2_Security_Target_739_20597_aaaa_sc_ed10-public.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/XOmail_Version_14.2_Security_Target_739_20597_aaaa_sc_ed10-public.pdf" --remote-name
 pdftotext "XOmail_Version_14.2_Security_Target_739_20597_aaaa_sc_ed10-public.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-flare-v429-sec-eng.pdf" --remote-name
 pdftotext "emc-flare-v429-sec-eng.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/1ecc_st.pdf" --remote-name
 pdftotext "1ecc_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0241_est.pdf" --remote-name
 pdftotext "c0241_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0436b_pdf.pdf" --remote-name
 pdftotext "0436b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0615b_pdf.pdf" --remote-name
 pdftotext "0615b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0238_est.pdf" --remote-name
 pdftotext "c0238_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0236_est.pdf" --remote-name
 pdftotext "c0236_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10182-st.pdf" --remote-name
 pdftotext "st_vid10182-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0233_est.pdf" --remote-name
 pdftotext "c0233_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10199-st.pdf" --remote-name
 pdftotext "st_vid10199-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0232_est.pdf" --remote-name
 pdftotext "c0232_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0231_est.pdf" --remote-name
 pdftotext "c0231_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0226_est.pdf" --remote-name
 pdftotext "c0226_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0227_est.pdf" --remote-name
 pdftotext "c0227_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0228_est.pdf" --remote-name
 pdftotext "c0228_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0223_est.pdf" --remote-name
 pdftotext "c0223_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0222_est.pdf" --remote-name
 pdftotext "c0222_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/oracle-obiee_st.pdf" --remote-name
 pdftotext "oracle-obiee_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0215_est.pdf" --remote-name
 pdftotext "c0215_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0471b_pdf.pdf" --remote-name
 pdftotext "0471b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0531b.pdf" --remote-name
 pdftotext "0531b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10266-st.pdf" --remote-name
 pdftotext "st_vid10266-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10327-st.pdf" --remote-name
 pdftotext "st_vid10327-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10253-st.pdf" --remote-name
 pdftotext "st_vid10253-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10327-st.pdf" --remote-name
 pdftotext "st_vid10327-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0212_est.pdf" --remote-name
 pdftotext "c0212_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2008-09-DS.pdf" --remote-name
 pdftotext "2008-09-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10092-st.pdf" --remote-name
 pdftotext "st_vid10092-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0540b.pdf" --remote-name
 pdftotext "0540b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0205_st.pdf" --remote-name
 pdftotext "c0205_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0517b.pdf" --remote-name
 pdftotext "0517b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10305-st.pdf" --remote-name
 pdftotext "st_vid10305-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2008xxxx_ST_NORDIS-S_rapport.pdf" --remote-name
 pdftotext "2008xxxx_ST_NORDIS-S_rapport.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2008-01-DS.pdf" --remote-name
 pdftotext "2008-01-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0198_est.pdf" --remote-name
 pdftotext "c0198_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10299-st.pdf" --remote-name
 pdftotext "st_vid10299-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0190_est.pdf" --remote-name
 pdftotext "c0190_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10275-st.pdf" --remote-name
 pdftotext "st_vid10275-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/C0186_est.pdf" --remote-name
 pdftotext "C0186_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0510b.pdf" --remote-name
 pdftotext "0510b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0177_est.pdf" --remote-name
 pdftotext "c0177_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0469b.pdf" --remote-name
 pdftotext "0469b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0474b.pdf" --remote-name
 pdftotext "0474b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0450b.pdf" --remote-name
 pdftotext "0450b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0167_est.pdf" --remote-name
 pdftotext "c0167_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0496b.pdf" --remote-name
 pdftotext "0496b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10211-st.pdf" --remote-name
 pdftotext "st_vid10211-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0156_est.pdf" --remote-name
 pdftotext "c0156_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080429_essentris-sec-e.pdf" --remote-name
 pdftotext "20080429_essentris-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0148_est.pdf" --remote-name
 pdftotext "c0148_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0149_est.pdf" --remote-name
 pdftotext "c0149_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0145_est.pdf" --remote-name
 pdftotext "c0145_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0146_est.pdf" --remote-name
 pdftotext "c0146_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10250-st.pdf" --remote-name
 pdftotext "st_vid10250-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0433b.pdf" --remote-name
 pdftotext "20080306_0433b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-disk_sec-e.pdf" --remote-name
 pdftotext "emc-disk_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080310_c0136_est.pdf" --remote-name
 pdftotext "20080310_c0136_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_c0134_st.pdf" --remote-name
 pdftotext "20080306_c0134_st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10099-st.pdf" --remote-name
 pdftotext "st_vid10099-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10241-st.pdf" --remote-name
 pdftotext "st_vid10241-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0123_est.pdf" --remote-name
 pdftotext "c0123_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0124_est.pdf" --remote-name
 pdftotext "c0124_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-center_sec-e.pdf" --remote-name
 pdftotext "emc-center_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-symmetrix_sec-e.pdf" --remote-name
 pdftotext "emc-symmetrix_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10178-st.pdf" --remote-name
 pdftotext "st_vid10178-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/3aq-21840-xaaa-sczza-ed4.pdf" --remote-name
 pdftotext "3aq-21840-xaaa-sczza-ed4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0435b.pdf" --remote-name
 pdftotext "0435b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10029-st.pdf" --remote-name
 pdftotext "st_vid10029-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10030-st.pdf" --remote-name
 pdftotext "st_vid10030-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0118_est.pdf" --remote-name
 pdftotext "c0118_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/emc-flare_sec-e.pdf" --remote-name
 pdftotext "emc-flare_sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-72-ST-EN.pdf" --remote-name
 pdftotext "ISIS-72-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-73-ST-EN.pdf" --remote-name
 pdftotext "ISIS-73-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/blackberry413-sec-e.pdf" --remote-name
 pdftotext "blackberry413-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/blackberry410-sec-e.pdf" --remote-name
 pdftotext "blackberry410-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0115_est.pdf" --remote-name
 pdftotext "c0115_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10001-st.pdf" --remote-name
 pdftotext "st_vid10001-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10180-st.pdf" --remote-name
 pdftotext "st_vid10180-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2005-08-DS.pdf" --remote-name
 pdftotext "2005-08-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0105_est.pdf" --remote-name
 pdftotext "c0105_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0106_est.pdf" --remote-name
 pdftotext "c0106_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0104_est.pdf" --remote-name
 pdftotext "c0104_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10148-st.pdf" --remote-name
 pdftotext "st_vid10148-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10166-st.pdf" --remote-name
 pdftotext "st_vid10166-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10132-st.pdf" --remote-name
 pdftotext "st_vid10132-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10158-st.pdf" --remote-name
 pdftotext "st_vid10158-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10183-st.pdf" --remote-name
 pdftotext "st_vid10183-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10129-st.pdf" --remote-name
 pdftotext "st_vid10129-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10033-st.pdf" --remote-name
 pdftotext "st_vid10033-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10167-st.pdf" --remote-name
 pdftotext "st_vid10167-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0369b.pdf" --remote-name
 pdftotext "0369b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Sterlingv42_tar-e.pdf" --remote-name
 pdftotext "Sterlingv42_tar-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9507-st.pdf" --remote-name
 pdftotext "st_vid9507-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0087_est.pdf" --remote-name
 pdftotext "c0087_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10288-st.pdf" --remote-name
 pdftotext "st_vid10288-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10210-st.pdf" --remote-name
 pdftotext "st_vid10210-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4027-st.pdf" --remote-name
 pdftotext "st_vid4027-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10297-st.pdf" --remote-name
 pdftotext "st_vid10297-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0083_est.pdf" --remote-name
 pdftotext "c0083_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10289-st.pdf" --remote-name
 pdftotext "st_vid10289-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0388b.pdf" --remote-name
 pdftotext "0388b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10208-st.pdf" --remote-name
 pdftotext "st_vid10208-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10115-st.pdf" --remote-name
 pdftotext "st_vid10115-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0078_est.pdf" --remote-name
 pdftotext "c0078_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0077_est.pdf" --remote-name
 pdftotext "c0077_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10128-st.pdf" --remote-name
 pdftotext "st_vid10128-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10147-st.pdf" --remote-name
 pdftotext "st_vid10147-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0010_est.pdf" --remote-name
 pdftotext "c0010_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0326b.pdf" --remote-name
 pdftotext "0326b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0279b.pdf" --remote-name
 pdftotext "0279b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10126-st.pdf" --remote-name
 pdftotext "st_vid10126-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6011-st.pdf" --remote-name
 pdftotext "st_vid6011-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0070_est.pdf" --remote-name
 pdftotext "c0070_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10105-st.pdf" --remote-name
 pdftotext "st_vid10105-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9513-st.pdf" --remote-name
 pdftotext "st_vid9513-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10093-st.pdf" --remote-name
 pdftotext "st_vid10093-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10088-st.pdf" --remote-name
 pdftotext "st_vid10088-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ISIS-56-ST-EN.pdf" --remote-name
 pdftotext "ISIS-56-ST-EN.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0370b.pdf" --remote-name
 pdftotext "0370b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10110-st.pdf" --remote-name
 pdftotext "st_vid10110-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9504-st.pdf" --remote-name
 pdftotext "st_vid9504-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10043-st.pdf" --remote-name
 pdftotext "st_vid10043-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10117-st.pdf" --remote-name
 pdftotext "st_vid10117-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4030-st.pdf" --remote-name
 pdftotext "st_vid4030-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0282b.pdf" --remote-name
 pdftotext "0282b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0365b.pdf" --remote-name
 pdftotext "0365b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/LiveState.pdf" --remote-name
 pdftotext "LiveState.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10007-st.pdf" --remote-name
 pdftotext "st_vid10007-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10042-st.pdf" --remote-name
 pdftotext "st_vid10042-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10068-st.pdf" --remote-name
 pdftotext "st_vid10068-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10075-st.pdf" --remote-name
 pdftotext "st_vid10075-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10131-st.pdf" --remote-name
 pdftotext "st_vid10131-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10075-st.pdf" --remote-name
 pdftotext "st_vid10075-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1028-st.pdf" --remote-name
 pdftotext "st_vid1028-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10032-st.pdf" --remote-name
 pdftotext "st_vid10032-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3017-st.pdf" --remote-name
 pdftotext "st_vid3017-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST.DEP_PCI.1.1.6.pdf" --remote-name
 pdftotext "ST.DEP_PCI.1.1.6.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/lsf-sec-e.pdf" --remote-name
 pdftotext "lsf-sec-e.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0043_est.pdf" --remote-name
 pdftotext "c0043_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0044_est.pdf" --remote-name
 pdftotext "c0044_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10069-st.pdf" --remote-name
 pdftotext "st_vid10069-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0288b.pdf" --remote-name
 pdftotext "0288b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4048-st.pdf" --remote-name
 pdftotext "st_vid4048-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10083-st.pdf" --remote-name
 pdftotext "st_vid10083-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3038-st.pdf" --remote-name
 pdftotext "st_vid3038-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0325b.pdf" --remote-name
 pdftotext "0325b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10070-st.pdf" --remote-name
 pdftotext "st_vid10070-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10019-st.pdf" --remote-name
 pdftotext "st_vid10019-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4043-st.pdf" --remote-name
 pdftotext "st_vid4043-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10049-st.pdf" --remote-name
 pdftotext "st_vid10049-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0033_est.pdf" --remote-name
 pdftotext "c0033_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0032_est.pdf" --remote-name
 pdftotext "c0032_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10016-st.pdf" --remote-name
 pdftotext "st_vid10016-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0035_est.pdf" --remote-name
 pdftotext "c0035_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0031_est.pdf" --remote-name
 pdftotext "c0031_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9512-st.pdf" --remote-name
 pdftotext "st_vid9512-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1021-st.pdf" --remote-name
 pdftotext "st_vid1021-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0030_est.pdf" --remote-name
 pdftotext "c0030_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10028-st.pdf" --remote-name
 pdftotext "st_vid10028-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_14.pdf" --remote-name
 pdftotext "cible2005_14.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid6004-st.pdf" --remote-name
 pdftotext "st_vid6004-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10017-st.pdf" --remote-name
 pdftotext "st_vid10017-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0026_est.pdf" --remote-name
 pdftotext "c0026_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_12.pdf" --remote-name
 pdftotext "cible2005_12.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0278b.pdf" --remote-name
 pdftotext "0278b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0306b.pdf" --remote-name
 pdftotext "0306b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1029-st.pdf" --remote-name
 pdftotext "st_vid1029-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4034-st.pdf" --remote-name
 pdftotext "st_vid4034-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0022_est.pdf" --remote-name
 pdftotext "c0022_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0019_est.pdf" --remote-name
 pdftotext "c0019_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0268b.pdf" --remote-name
 pdftotext "0268b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0202b.pdf" --remote-name
 pdftotext "0202b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_02.pdf" --remote-name
 pdftotext "cible2005_02.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0248b.pdf" --remote-name
 pdftotext "0248b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_01.pdf" --remote-name
 pdftotext "cible2005_01.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_01.pdf" --remote-name
 pdftotext "cible2005_01.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3028-st.pdf" --remote-name
 pdftotext "st_vid3028-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4039-st.pdf" --remote-name
 pdftotext "st_vid4039-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0220b.pdf" --remote-name
 pdftotext "0220b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0260b.pdf" --remote-name
 pdftotext "0260b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3019-st.pdf" --remote-name
 pdftotext "st_vid3019-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4019-st.pdf" --remote-name
 pdftotext "st_vid4019-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Thales%20ECMS%20v1.2.pdf" --remote-name
 pdftotext "ST%20Thales%20ECMS%20v1.2.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Thales%20ICMS%20v1.4.pdf" --remote-name
 pdftotext "ST%20Thales%20ICMS%20v1.4.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2018-st.pdf" --remote-name
 pdftotext "st_vid2018-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/3aq-21900-xaaa-sczza-8_public.pdf" --remote-name
 pdftotext "3aq-21900-xaaa-sczza-8_public.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4028-st.pdf" --remote-name
 pdftotext "st_vid4028-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Thales%20MHS.pdf" --remote-name
 pdftotext "ST%20Thales%20MHS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0007_est.pdf" --remote-name
 pdftotext "c0007_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0222b.pdf" --remote-name
 pdftotext "0222b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/KnoWhoAuthServerST.pdf" --remote-name
 pdftotext "KnoWhoAuthServerST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID3010-VR.pdf" --remote-name
 pdftotext "ST_VID3010-VR.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible_2003-12en.pdf" --remote-name
 pdftotext "dcssi-cible_2003-12en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST_VID3014-ST.pdf" --remote-name
 pdftotext "ST_VID3014-ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4013-st.pdf" --remote-name
 pdftotext "st_vid4013-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0198b.pdf" --remote-name
 pdftotext "0198b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid3014-st.pdf" --remote-name
 pdftotext "st_vid3014-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4011-st.pdf" --remote-name
 pdftotext "st_vid4011-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid1013-st.pdf" --remote-name
 pdftotext "st_vid1013-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4014-st.pdf" --remote-name
 pdftotext "st_vid4014-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/MessageManagementSystemST.pdf" --remote-name
 pdftotext "MessageManagementSystemST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_08.pdf" --remote-name
 pdftotext "cible2002_08.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2002_11.pdf" --remote-name
 pdftotext "cible2002_11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4005-st.pdf" --remote-name
 pdftotext "st_vid4005-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ST%20Bioscrypt%20v2.1.3.pdf" --remote-name
 pdftotext "ST%20Bioscrypt%20v2.1.3.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid2001-st.pdf" --remote-name
 pdftotext "st_vid2001-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2001_11.pdf" --remote-name
 pdftotext "cible2001_11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2001_24.pdf" --remote-name
 pdftotext "cible2001_24.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0921b_pdf.pdf" --remote-name
 pdftotext "0921b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/EZMCOM%20EzIdentity%20Security%20Target%20v1.1.pdf" --remote-name
 pdftotext "EZMCOM%20EzIdentity%20Security%20Target%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/SecureMetric%20ST3%20Ace%20Security%20Target%20v1.1.pdf" --remote-name
 pdftotext "SecureMetric%20ST3%20Ace%20Security%20Target%20v1.1.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/tds_ensoft_v1.5.pdf" --remote-name
 pdftotext "tds_ensoft_v1.5.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0833b_pdf.pdf" --remote-name
 pdftotext "0833b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0880b_pdf.pdf" --remote-name
 pdftotext "0880b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2012-11-DS.pdf" --remote-name
 pdftotext "2012-11-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-34-DS.pdf" --remote-name
 pdftotext "2011-34-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-43-DS.pdf" --remote-name
 pdftotext "2011-43-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-31-DS.pdf" --remote-name
 pdftotext "2011-31-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0804b_pdf.pdf" --remote-name
 pdftotext "0804b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0769b_pdf.pdf" --remote-name
 pdftotext "0769b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/verizon_ST.pdf" --remote-name
 pdftotext "verizon_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2011-42-DS.pdf" --remote-name
 pdftotext "2011-42-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-26en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-26en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0694b_pdf.pdf" --remote-name
 pdftotext "0694b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0732b_pdf.pdf" --remote-name
 pdftotext "0732b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-60fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-60fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2011-32fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2011-32fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0654b_pdf.pdf" --remote-name
 pdftotext "0654b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0563b_pdf.pdf" --remote-name
 pdftotext "0563b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0562b_pdf.pdf" --remote-name
 pdftotext "0562b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0665b_pdf.pdf" --remote-name
 pdftotext "0665b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0667b_pdf.pdf" --remote-name
 pdftotext "0667b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0668b_pdf.pdf" --remote-name
 pdftotext "0668b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2010-04-DS.pdf" --remote-name
 pdftotext "2010-04-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0648b_pdf.pdf" --remote-name
 pdftotext "0648b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2010-53fr.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2010-53fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0601b_pdf.pdf" --remote-name
 pdftotext "0601b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0552b_pdf.pdf" --remote-name
 pdftotext "0552b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0449b_pdf.pdf" --remote-name
 pdftotext "0449b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0585b.pdf" --remote-name
 pdftotext "0585b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0582b.pdf" --remote-name
 pdftotext "0582b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0564b.pdf" --remote-name
 pdftotext "0564b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0495b.pdf" --remote-name
 pdftotext "0495b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0456b.pdf" --remote-name
 pdftotext "0456b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0480b.pdf" --remote-name
 pdftotext "0480b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/dcssi-cible2008_44fr.pdf" --remote-name
 pdftotext "dcssi-cible2008_44fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0505b.pdf" --remote-name
 pdftotext "0505b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0504b.pdf" --remote-name
 pdftotext "0504b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0397b.pdf" --remote-name
 pdftotext "0397b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0508b.pdf" --remote-name
 pdftotext "0508b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/2007-2-DS.pdf" --remote-name
 pdftotext "2007-2-DS.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080527_0422b.pdf" --remote-name
 pdftotext "20080527_0422b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080527_0407b.pdf" --remote-name
 pdftotext "20080527_0407b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080514_0494b.pdf" --remote-name
 pdftotext "20080514_0494b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0420b.pdf" --remote-name
 pdftotext "20080306_0420b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0415b.pdf" --remote-name
 pdftotext "20080306_0415b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0330b.pdf" --remote-name
 pdftotext "20080306_0330b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080306_0332b.pdf" --remote-name
 pdftotext "20080306_0332b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2007_21fr.pdf" --remote-name
 pdftotext "cible2007_21fr.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0413b.pdf" --remote-name
 pdftotext "0413b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/c0107_est.pdf" --remote-name
 pdftotext "c0107_est.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0432b.pdf" --remote-name
 pdftotext "0432b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0414b.pdf" --remote-name
 pdftotext "0414b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0423b.pdf" --remote-name
 pdftotext "0423b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0405b.pdf" --remote-name
 pdftotext "0405b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0367b.pdf" --remote-name
 pdftotext "0367b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0314b.pdf" --remote-name
 pdftotext "0314b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0363b.pdf" --remote-name
 pdftotext "0363b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0394b.pdf" --remote-name
 pdftotext "0394b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0301b.pdf" --remote-name
 pdftotext "0301b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10212-st.pdf" --remote-name
 pdftotext "st_vid10212-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/Cybertrust_UniCERT_5.2.1_ST.pdf" --remote-name
 pdftotext "Cybertrust_UniCERT_5.2.1_ST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0386b.pdf" --remote-name
 pdftotext "0386b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0374b.pdf" --remote-name
 pdftotext "0374b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0341b.pdf" --remote-name
 pdftotext "0341b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2006_06.pdf" --remote-name
 pdftotext "cible2006_06.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0309b.pdf" --remote-name
 pdftotext "0309b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0323b.pdf" --remote-name
 pdftotext "0323b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0299b.pdf" --remote-name
 pdftotext "0299b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid4024-st.pdf" --remote-name
 pdftotext "st_vid4024-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9501-st.pdf" --remote-name
 pdftotext "st_vid9501-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid9502-st.pdf" --remote-name
 pdftotext "st_vid9502-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/st_vid10004-st.pdf" --remote-name
 pdftotext "st_vid10004-st.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0295b.pdf" --remote-name
 pdftotext "0295b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/cible2005_11.pdf" --remote-name
 pdftotext "cible2005_11.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0277b.pdf" --remote-name
 pdftotext "0277b.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/20080516_iKeyEPLCRandST.pdf" --remote-name
 pdftotext "20080516_iKeyEPLCRandST.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles" --remote-name
 pdftotext "epfiles"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/0844b_pdf.pdf" --remote-name
 pdftotext "0844b_pdf.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-84en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-84en.pdf"
+
 curl "https://www.commoncriteriaportal.org/files/epfiles/ANSSI-CC-cible_2012-29en.pdf" --remote-name
 pdftotext "ANSSI-CC-cible_2012-29en.pdf"
+
