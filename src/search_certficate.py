@@ -711,9 +711,11 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
 
 def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
-    rule = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
+    rule_with_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
            '.*?\<a href="(.+?)" title="Maintenance Report' \
            '.*?\<a href="(.+?)" title="Maintenance ST'
+    rule_without_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
+           '.*?\<a href="(.+?)" title="Maintenance Report'\
 
     if updates_chunk.find('Maintenance Report(s)') != -1:
         start_pos = updates_chunk.find('Maintenance Report(s)</div>')
@@ -723,6 +725,12 @@ def parse_product_updates(updates_chunk, link_files_updates):
             report_chunk = updates_chunk[start_pos:end_pos]
 
             start_pos = updates_chunk.find('<li>', end_pos)
+
+            # decide which search rule to use 1) one that matches also Maintenance ST or 2) without it
+            if report_chunk.find('Maintenance ST') != -1:
+                rule = rule_with_maintainance_ST
+            else:
+                rule = rule_without_maintainance_ST
 
             items_found = {}
             for m in re.finditer(rule, report_chunk):
@@ -734,8 +742,12 @@ def parse_product_updates(updates_chunk, link_files_updates):
                 index_next_item += 1
                 items_found['maintenance_link_cert_report'] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
-                items_found['maintenance_link_security_target'] = normalize_match_string(match_groups[index_next_item])
-                index_next_item += 1
+                if len(match_groups) > index_next_item:
+                    items_found['maintenance_link_security_target'] = normalize_match_string(match_groups[index_next_item])
+                    index_next_item += 1
+                else:
+                    items_found['maintenance_link_security_target'] = ""
+
                 link_files_updates.append((items_found['maintenance_link_cert_report'], items_found['maintenance_link_security_target']))
 
             maintenance_reports.append(items_found)
