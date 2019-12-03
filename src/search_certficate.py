@@ -1111,20 +1111,22 @@ def main():
     walk_dir = 'c:\\Certs\\cc_certs_txt\\'
     fragments_dir = 'c:\\Certs\\cc_certs_txt_fragments\\'
 
+    do_extraction = True
 
-    # all_html = extract_certificates_html(cc_html_files_dir)
-    #
-    # all_front = extract_certificates_frontpage(walk_dir)
-    #
-    # all_keywords = extract_certificates_keywords(walk_dir, fragments_dir)
-    #
-    # all_cert_items = collate_certificates_data(all_html, all_front, all_keywords)
+    if do_extraction:
+        all_html = extract_certificates_html(cc_html_files_dir)
 
-    all_cert_items = {}
+        all_front = extract_certificates_frontpage(walk_dir)
+
+        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir)
+
+        all_cert_items = collate_certificates_data(all_html, all_front, all_keywords)
+
     with open('certificate_data_complete.json') as json_file:
         all_cert_items = json.load(json_file)
 
     generate_dot_graphs(all_cert_items, walk_dir)
+
 
 if __name__ == "__main__":
     main()
