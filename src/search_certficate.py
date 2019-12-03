@@ -8,6 +8,10 @@ from cert_rules import rules
 from time import gmtime, strftime
 from shutil import copyfile
 from enum import Enum
+from collections import defaultdict
+
+STOP_ON_INCORRECT_NUMS = False
+APPEND_DETAILED_MATCH_MATCHES = False
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
@@ -15,7 +19,6 @@ LINE_SEPARATOR = ' '
 TAG_MATCH_COUNTER = 'count'
 TAG_MATCH_MATCHES = 'matches'
 
-TAG_CERT_HEADER_RAW = 'cert_header_raw'
 TAG_CERT_HEADER_PROCESSED = 'cert_header_processed'
 
 TAG_CERT_ID = 'cert_id'
@@ -152,7 +155,10 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 if match not in items_found[rule]:
                     items_found[rule][match] = {}
                     items_found[rule][match][TAG_MATCH_COUNTER] = 0
-                    items_found[rule][match][TAG_MATCH_MATCHES] = []
+                    if APPEND_DETAILED_MATCH_MATCHES:
+                        items_found[rule][match][TAG_MATCH_MATCHES] = []
+                    # else:
+                    #    items_found[rule][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
 
                 items_found[rule][match][TAG_MATCH_COUNTER] += 1
                 match_span = m.span()
@@ -160,7 +166,8 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 # line_number = get_line_number(lines, line_length_compensation, match_span[0])
                 # start index, end index, line number
                 #items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
-                items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
+                if APPEND_DETAILED_MATCH_MATCHES:
+                    items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
 
 
     # highlight all found strings from the input text and store the rest
@@ -218,7 +225,7 @@ def count_num_items_found(items_found_all):
     return num_items_found
 
 
-def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_dot_name, thick_as_occurences):
+def print_dot_graph_keywordsonly(filter_rules_group, all_items_found, cert_id, walk_dir, out_dot_name, thick_as_occurences):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
     dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
@@ -266,33 +273,107 @@ def print_dot_graph(filter_rules_group, all_items_found, cert_id, walk_dir, out_
     print('{} pdf rendered'.format(out_dot_name))
 
 
-def estimate_cert_id(items_found_all, file_name):
-    # find certificate ID which is the most common
-    num_items_found_certid_group = 0
-    max_occurences = 0
-    this_cert_id = ''
-    items_found = items_found_all['rules_cert_id']
-    for rule in items_found.keys():
-        for match in items_found[rule]:
-            num_occurences = items_found[rule][match][TAG_MATCH_COUNTER]
-            if num_occurences > max_occurences:
-                max_occurences = num_occurences
-                this_cert_id = match
-            num_items_found_certid_group += num_occurences
-    print('  -> most frequent cert id: {}'.format(this_cert_id))
+def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name, thick_as_occurences):
+    # print dot
+    dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
+    dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
+    dot.attr('node', style='filled')
+
+    # insert nodes believed to be cert id for the processed certificates
+    for cert_long_id in all_items_found.keys():
+        if defaultdict(lambda: defaultdict(lambda: None), all_items_found[cert_long_id])['processed']['cert_id'] is not None:
+            dot.attr('node', color='green')
+            dot.node(all_items_found[cert_long_id]['processed']['cert_id'])
+
+    dot.attr('node', color='gray')
+    for cert_long_id in all_items_found.keys():
+        # do not continue if no keywords were extracted
+        if 'keywords_scan' not in all_items_found[cert_long_id].keys():
+            continue
+
+        cert = all_items_found[cert_long_id]
+        this_cert_id = ''
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+            this_cert_id = cert['processed']['cert_id']
+
+        just_file_name = cert['html_scan']['link_cert_report_file_name']
+
+        # insert file name and identified probable certification id
+        if this_cert_id != "":
+            dot.edge(this_cert_id, this_cert_id, label=just_file_name)
+
+        items_found_group = all_items_found[cert_long_id]['keywords_scan']
+        for rules_group in items_found_group.keys():
+
+            # process only specified rule groups
+            if rules_group not in filter_rules_group:
+                continue
+
+            items_found = items_found_group[rules_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    if match != this_cert_id:
+                        if thick_as_occurences:
+                            num_occurrences = str(items_found[rule][match][TAG_MATCH_COUNTER] / 3 + 1)
+                        else:
+                            num_occurrences = '1'
+                        label = str(items_found[rule][match][TAG_MATCH_COUNTER]) # label with number of occurrences
+                        if this_cert_id != "":
+                            dot.edge(this_cert_id, match, color='orange', style='solid', label=label, penwidth=num_occurrences)
+
+    # Generate dot graph using GraphViz into pdf
+    dot.render(out_dot_name, view=False)
+    print('{} pdf rendered'.format(out_dot_name))
+
+
+def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
+    # check if cert id was extracted from frontpage (most priority)
+    frontpage_cert_id = ''
+    if frontpage_scan != None:
+        if 'cert_id' in frontpage_scan.keys():
+            frontpage_cert_id = frontpage_scan['cert_id']
+
+    keywords_cert_id = ''
+    if keywords_scan != None:
+        # find certificate ID which is the most common
+        num_items_found_certid_group = 0
+        max_occurences = 0
+        items_found = keywords_scan['rules_cert_id']
+        for rule in items_found.keys():
+            for match in items_found[rule]:
+                num_occurences = items_found[rule][match][TAG_MATCH_COUNTER]
+                if num_occurences > max_occurences:
+                    max_occurences = num_occurences
+                    keywords_cert_id = match
+                num_items_found_certid_group += num_occurences
+        print('  -> most frequent cert id: {}, {}x'.format(keywords_cert_id, num_items_found_certid_group))
 
     # try to search for certificate id directly in file name - if found, higher priority
-    file_name_no_suff = file_name[:file_name.rfind('.')]
-    file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind('\\') + 1:]
-    for rule in rules['rules_cert_id']:
-        file_name_no_suff += ' '
-        matches = re.findall(rule, file_name_no_suff)
-        if len(matches) > 0:
-            # we found cert id directly in name
-            print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
-            this_cert_id = matches[0]
+    filename_cert_id = ''
+    if file_name != None:
+        file_name_no_suff = file_name[:file_name.rfind('.')]
+        file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind('\\') + 1:]
+        for rule in rules['rules_cert_id']:
+            file_name_no_suff += ' '
+            matches = re.findall(rule, file_name_no_suff)
+            if len(matches) > 0:
+                # we found cert id directly in name
+                print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
+                filename_cert_id = matches[0]
 
-    return this_cert_id, num_items_found_certid_group
+    print('Identified cert ids for {}:'.format(file_name))
+    print('  frontpage_cert_id: {}'.format(frontpage_cert_id))
+    print('  filename_cert_id: {}'.format(filename_cert_id))
+    print('  keywords_cert_id: {}'.format(keywords_cert_id))
+
+    if frontpage_cert_id != '':
+        return frontpage_cert_id
+    if filename_cert_id != '':
+        return filename_cert_id
+    if keywords_cert_id != '':
+        return keywords_cert_id
+
+    return ''
 
 
 def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_text):
@@ -332,14 +413,14 @@ def print_specified_property_sorted(section_name, item_name, items_found_all):
 
 
 def print_found_properties(items_found_all):
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_CERT_ID, items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_CERT_ITEM , items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_CERT_ITEM_VERSION, items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_REFERENCED_PROTECTION_PROFILES, items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_CC_VERSION , items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_CC_SECURITY_LEVEL, items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_DEVELOPER , items_found_all)
-    print_specified_property_sorted(TAG_CERT_HEADER_RAW, TAG_CERT_LAB, items_found_all)
+    print_specified_property_sorted(TAG_CERT_ID, items_found_all)
+    print_specified_property_sorted(TAG_CERT_ITEM , items_found_all)
+    print_specified_property_sorted(TAG_CERT_ITEM_VERSION, items_found_all)
+    print_specified_property_sorted(TAG_REFERENCED_PROTECTION_PROFILES, items_found_all)
+    print_specified_property_sorted(TAG_CC_VERSION , items_found_all)
+    print_specified_property_sorted(TAG_CC_SECURITY_LEVEL, items_found_all)
+    print_specified_property_sorted(TAG_DEVELOPER , items_found_all)
+    print_specified_property_sorted(TAG_CERT_LAB, items_found_all)
 
 
 def search_only_headers_bsi(walk_dir):
@@ -369,8 +450,8 @@ def search_only_headers_bsi(walk_dir):
             for m in re.finditer(rule_and_sep, whole_text):
                 if no_match_yet:
                     items_found_all[file_name] = {}
-                    items_found_all[file_name][TAG_CERT_HEADER_RAW] = {}
-                    items_found = items_found_all[file_name][TAG_CERT_HEADER_RAW]
+                    items_found_all[file_name] = {}
+                    items_found = items_found_all[file_name]
                     items_found[TAG_HEADER_MATCH_RULES] = []
                     no_match_yet = False
 
@@ -540,8 +621,8 @@ def search_only_headers_anssi(walk_dir):
             for m in re.finditer(rule_and_sep, whole_text):
                 if no_match_yet:
                     items_found_all[file_name] = {}
-                    items_found_all[file_name][TAG_CERT_HEADER_RAW] = {}
-                    items_found = items_found_all[file_name][TAG_CERT_HEADER_RAW]
+                    items_found_all[file_name] = {}
+                    items_found = items_found_all[file_name]
                     items_found[TAG_HEADER_MATCH_RULES] = []
                     no_match_yet = False
 
@@ -638,13 +719,13 @@ def extract_certificates_frontpage(walk_dir):
     with open("certificate_data_headers.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
+    return items_found_all
 
 def extract_certificates_keywords(walk_dir, fragments_dir):
     MIN_ITEMS_FOUND = 30655
 
     all_items_found = {}
     cert_id = {}
-    all_certid_found_count = {}
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
@@ -655,7 +736,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
         all_items_found[file_name], modified_cert_file = parse_cert_file(file_name, rules, -1)
 
         # try to establish the certificate id of the current certificate
-        cert_id[file_name], all_certid_found_count[file_name] = estimate_cert_id(all_items_found[file_name], file_name)
+        cert_id[file_name] = estimate_cert_id(None, all_items_found[file_name], file_name)
 
         # save report text with highlighted/replaced matches into \\fragments\\ directory
         base_path = file_name[:file_name.rfind('\\')]
@@ -670,20 +751,10 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
     print('\nTotal matches found in separate files:')
     # print_total_matches_in_files(all_items_found_count)
 
-    print('\nTotal matches for certificate id found in separate files:')
-    print_total_found_cert_ids(all_certid_found_count)
-
     print('\nFile name and estimated certificate ID:')
     # print_guessed_cert_id(cert_id)
 
-    print_dot_graph(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph.dot', True)
-    #    print_dot_graph(['rules_javacard'], all_items_found, cert_id, walk_dir, 'cert_javacard_graph.dot', False)
-    #    print_dot_graph(['rules_security_level'], all_items_found, cert_id, walk_dir, 'cert_security_level_graph.dot', True)
-    #    print_dot_graph(['rules_crypto_libs'], all_items_found, cert_id, walk_dir, 'cert_crypto_libs_graph.dot', False)
-    #    print_dot_graph(['rules_vendor'], all_items_found, cert_id, walk_dir, 'rules_vendor.dot', False)
-    #    print_dot_graph(['rules_crypto_algs'], all_items_found, cert_id, walk_dir, 'rules_crypto_algs.dot', False)
-    #    print_dot_graph(['rules_protection_profiles'], all_items_found, cert_id, walk_dir, 'rules_protection_profiles.dot', False)
-    #    print_dot_graph(['rules_defenses'], all_items_found, cert_id, walk_dir, 'rules_defenses.dot', False)
+    #print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
 
     total_items_found = 0
     for file_name in all_items_found:
@@ -706,8 +777,10 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
     print('\nTotal matches found: {}'.format(total_items_found))
     if MIN_ITEMS_FOUND > total_items_found:
         print('ERROR: less items found!')
-        print(error_less_matches_detected)
+        if STOP_ON_INCORRECT_NUMS:
+            print(error_less_matches_detected)
 
+    return all_items_found
 
 def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
@@ -774,7 +847,7 @@ def parse_security_level(security_level):
 
 
 def extract_certificates_metadata_html(file_name):
-    items_found_all = []
+    items_found_all = {}
     download_files_certs = []
     download_files_updates = []
     print('*** {} ***'.format(file_name))
@@ -814,7 +887,7 @@ def extract_certificates_metadata_html(file_name):
 
         # IMPORTANT: order regexes based on their specificity - the most specific goes first
         rules_cc_html = [
-            (HEADER_TYPE.HEADER_FULL, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
+            (HEADER_TYPE.HEADER_FULL, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
             '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
             '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
             '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
@@ -824,7 +897,7 @@ def extract_certificates_metadata_html(file_name):
             '.+?\<td style="text-align:center"\>(.*?)\</td\>'
             '[ ]+?\<td>(.+?)\</td\>'),
 
-            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB,'\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name=.+?'
+            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB,'\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?'
             '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
             '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
             '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
@@ -847,7 +920,7 @@ def extract_certificates_metadata_html(file_name):
                 if no_match_yet:
                     chunks_matched += 1
                     items_found = {}
-                    items_found_all.append(items_found)
+                    #items_found_all.append(items_found)
                     items_found[TAG_HEADER_MATCH_RULES] = []
                     no_match_yet = False
 
@@ -860,6 +933,9 @@ def extract_certificates_metadata_html(file_name):
                 index_next_item = 0
                 items_found['cert_item_name'] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
+                items_found['cc_cert_item_html_id'] = normalize_match_string(match_groups[index_next_item])
+                cert_item_id = items_found['cc_cert_item_html_id']
+                index_next_item += 1
                 if not rule[0] == HEADER_TYPE.HEADER_MISSING_VENDOR_WEB:
                     items_found['company_site'] = normalize_match_string(match_groups[index_next_item])
                     index_next_item += 1
@@ -868,6 +944,7 @@ def extract_certificates_metadata_html(file_name):
                 items_found['link_cert_report'] = normalize_match_string(match_groups[index_next_item])
                 link_cert_report = items_found['link_cert_report']
                 items_found['link_cert_report_file_name'] = link_cert_report[link_cert_report.rfind('/') + 1:]
+                cert_file_name = items_found['link_cert_report_file_name']
                 index_next_item += 1
                 items_found['link_security_target'] = normalize_match_string(match_groups[index_next_item])
                 download_files_certs.append((items_found['link_cert_report'], items_found['link_security_target']))
@@ -883,6 +960,16 @@ def extract_certificates_metadata_html(file_name):
                 cc_security_level = normalize_match_string(match_groups[index_next_item])
                 items_found['cc_security_level'], items_found['cc_security_level_augmented'] = parse_security_level(cc_security_level)
                 index_next_item += 1
+
+
+                # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
+                cert_file_name = cert_file_name.replace('%20', '0')
+                item_unique_name = '{}__{}'.format(cert_file_name, cert_item_id)
+                if item_unique_name not in items_found_all.keys():
+                    items_found_all[item_unique_name] = {}
+                    items_found_all[item_unique_name]['html_scan'] = items_found
+                else:
+                    print('{} already in'.format(cert_file_name))
 
                 continue  # we are interested only in first match
 
@@ -938,9 +1025,77 @@ def extract_certificates_html(base_dir):
     generate_download_script('download_archived_certs.bat', 'certs', 'targets', download_files_certs)
     generate_download_script('download_archived_updates.bat', 'certs', 'targets', download_files_updates)
 
-    items_found_all = items_found_all_active + items_found_all_archived
+    items_found_all = {**items_found_all_active, **items_found_all_archived}
+    #items_found_all = {k: items_found_all_active.get(k, 0) + items_found_all_archived.get(k, 0) for k in set(items_found_all_active) | set(items_found_all_archived)}
+    #items_found_all = items_found_all_active + items_found_all_archived
     with open("certificate_data_html_all.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    return items_found_all
+
+
+def collate_certificates_data(all_html, all_front, all_keywords):
+    print('\n\nPairing results from different scans ***')
+    all_cert_items = all_html
+    # pair html data, front pages and keywords
+    for file_name in all_keywords.keys():
+        pairing_found = False
+
+        file_name_pdf = file_name[file_name.rfind('\\') + 1:]
+        file_name_pdf = file_name_pdf[:file_name_pdf.rfind('.')] + '.pdf'
+
+        # find all items which references same pdf report
+        for file_and_id in all_html.keys():
+            # in items extracted from html, names are in form of 'file_name.pdf__number'
+            if file_and_id.find(file_name_pdf + '__') != -1:
+                if 'processed' not in all_cert_items[file_and_id].keys():
+                    all_cert_items[file_and_id]['processed'] = {}
+                pairing_found = True
+                frontpage_scan = None
+                keywords_scan = None
+                if file_name in all_front.keys():
+                    all_cert_items[file_and_id]['frontpage_scan'] = all_front[file_name]
+                    frontpage_scan = all_front[file_name]
+                if file_name in all_keywords.keys():
+                    all_cert_items[file_and_id]['keywords_scan'] = all_keywords[file_name]
+                    keywords_scan = all_keywords[file_name]
+
+                all_cert_items[file_and_id]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
+
+        if not pairing_found:
+            print('Corresponding report not found')
+
+    with open("certificate_data_complete.json", "w") as write_file:
+        write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+
+    # display all record which were not paired
+    print('Records with missing pairing of frontpage and keywords:')
+    num_frontpage_missing = 0
+    num_keywords_missing = 0
+    for item in all_cert_items.keys():
+        this_item = all_cert_items[item]
+        if 'frontpage_scan' not in this_item.keys():
+            print('{}: no frontpage scan detected'.format(item))
+            num_frontpage_missing += 1
+        if 'keywords_scan' not in this_item.keys():
+            print('{}: no keywords scan detected'.format(item))
+            num_keywords_missing += 1
+
+    print('Records without frontpage: {}\nRecords without keywords: {}'.format(num_frontpage_missing, num_keywords_missing))
+
+    return all_cert_items
+
+
+def generate_dot_graphs(all_items_found, walk_dir):
+    print_dot_graph(['rules_cert_id'], all_items_found, walk_dir, 'certid_graph.dot', True)
+    print_dot_graph(['rules_javacard'], all_items_found, walk_dir, 'cert_javacard_graph.dot', False)
+
+    #    print_dot_graph(['rules_security_level'], all_items_found, walk_dir, 'cert_security_level_graph.dot', True)
+    #    print_dot_graph(['rules_crypto_libs'], all_items_found, walk_dir, 'cert_crypto_libs_graph.dot', False)
+    #    print_dot_graph(['rules_vendor'], all_items_found, walk_dir, 'rules_vendor.dot', False)
+    #    print_dot_graph(['rules_crypto_algs'], all_items_found, walk_dir, 'rules_crypto_algs.dot', False)
+    #    print_dot_graph(['rules_protection_profiles'], all_items_found, walk_dir, 'rules_protection_profiles.dot', False)
+    #    print_dot_graph(['rules_defenses'], all_items_found, walk_dir, 'rules_defenses.dot', False)
 
 
 def main():
@@ -957,13 +1112,19 @@ def main():
     fragments_dir = 'c:\\Certs\\cc_certs_txt_fragments\\'
 
 
-    extract_certificates_html(cc_html_files_dir)
+    # all_html = extract_certificates_html(cc_html_files_dir)
+    #
+    # all_front = extract_certificates_frontpage(walk_dir)
+    #
+    # all_keywords = extract_certificates_keywords(walk_dir, fragments_dir)
+    #
+    # all_cert_items = collate_certificates_data(all_html, all_front, all_keywords)
 
-    extract_certificates_keywords(walk_dir, fragments_dir)
+    all_cert_items = {}
+    with open('certificate_data_complete.json') as json_file:
+        all_cert_items = json.load(json_file)
 
-    extract_certificates_frontpage(walk_dir)
-
-
+    generate_dot_graphs(all_cert_items, walk_dir)
 
 if __name__ == "__main__":
     main()
