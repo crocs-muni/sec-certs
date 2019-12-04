@@ -91,7 +91,9 @@ rules_javacard = [
     #'(?:Java Card|JavaCard)',
     #'(?:Global Platform|GlobalPlatform)',
     '(?:Java Card|JavaCard) [2-3]\.[0-9](?:\.[0-9]|)',
+    '(?:Java Card|JavaCard) \(version [2-3]\.[0-9](?:\.[0-9]|)\)',
     '(?:Global Platform|GlobalPlatform) [2-3]\.[0-9]\.[0-9]',
+    '(?:Global Platform|GlobalPlatform) \(version [2-3]\.[0-9]\.[0-9]\)',
     ]
 
 rules_crypto_algs = [

@@ -326,6 +326,65 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
     print('{} pdf rendered'.format(out_dot_name))
 
 
+def analyze_graph(filter_rules_group, all_items_found):
+    # build cert_id to item name mapping
+    certid_info = {}
+    for cert_long_id in all_items_found.keys():
+        cert = all_items_found[cert_long_id]
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+            if defaultdict(lambda: defaultdict(lambda: None), cert)['frontpage_scan']['cert_item'] is not None:
+                this_cert_id = cert['processed']['cert_id']
+                if this_cert_id not in certid_info.keys():
+                    certid_info[this_cert_id] = {}
+                certid_info[this_cert_id]['cert_item'] = cert['frontpage_scan']['cert_item']
+
+
+    referenced_by = {}
+    for cert_long_id in all_items_found.keys():
+        # do not continue if no keywords were extracted ()
+        if 'keywords_scan' not in all_items_found[cert_long_id].keys():
+            continue
+
+        cert = all_items_found[cert_long_id]
+        this_cert_id = ''
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+            this_cert_id = cert['processed']['cert_id']
+
+        items_found_group = all_items_found[cert_long_id]['keywords_scan']
+        for rules_group in items_found_group.keys():
+
+            # process only specified rule groups
+            if rules_group not in filter_rules_group:
+                continue
+
+            items_found = items_found_group[rules_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    if match != this_cert_id:
+                        if this_cert_id != "":
+                            # add this_cert_id to the list of references of match item
+                            if match not in referenced_by:
+                                referenced_by[match] = []
+                            if this_cert_id not in referenced_by[match]:
+                                referenced_by[match].append(this_cert_id)
+
+    # process referenced_by
+
+    # process direct references
+    referenced_by_direct_nums = {}
+    for cert_id in referenced_by.keys():
+        referenced_by_direct_nums[cert_id] = len(referenced_by[cert_id])
+
+    print('### Certificates sorted by number of other certificates directly referencing them:')
+    sorted_ref_direct = sorted(referenced_by_direct_nums.items(), key=operator.itemgetter(1), reverse=False)
+    for cert_id in sorted_ref_direct:
+        if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
+            print('  {} : {}x : {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
+        else:
+            print('  {} : {}x'.format(cert_id[0], cert_id[1]))
+    print('  Total number of certificates referenced at least once: {}'.format(len(sorted_ref_direct)))
+
+
 def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
     # check if cert id was extracted from frontpage (most priority)
     frontpage_cert_id = ''
@@ -1111,7 +1170,7 @@ def main():
     walk_dir = 'c:\\Certs\\cc_certs_txt\\'
     fragments_dir = 'c:\\Certs\\cc_certs_txt_fragments\\'
 
-    do_extraction = True
+    do_extraction = False
 
     if do_extraction:
         all_html = extract_certificates_html(cc_html_files_dir)
@@ -1124,6 +1183,8 @@ def main():
 
     with open('certificate_data_complete.json') as json_file:
         all_cert_items = json.load(json_file)
+
+    analyze_graph(['rules_cert_id'], all_cert_items)
 
     generate_dot_graphs(all_cert_items, walk_dir)
 
