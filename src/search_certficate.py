@@ -12,6 +12,7 @@ from collections import defaultdict
 
 STOP_ON_INCORRECT_NUMS = False
 APPEND_DETAILED_MATCH_MATCHES = False
+VERBOSE = False
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
@@ -295,6 +296,8 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
         this_cert_id = ''
         if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
             this_cert_id = cert['processed']['cert_id']
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['html_scan']['cert_item_name'] is not None:
+            this_cert_name = cert['html_scan']['cert_item_name']
 
         just_file_name = cert['html_scan']['link_cert_report_file_name']
 
@@ -326,7 +329,7 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
     print('{} pdf rendered'.format(out_dot_name))
 
 
-def analyze_graph(filter_rules_group, all_items_found):
+def analyze_references_graph(filter_rules_group, all_items_found):
     # build cert_id to item name mapping
     certid_info = {}
     for cert_long_id in all_items_found.keys():
@@ -338,7 +341,7 @@ def analyze_graph(filter_rules_group, all_items_found):
                     certid_info[this_cert_id] = {}
                 certid_info[this_cert_id]['cert_item'] = cert['frontpage_scan']['cert_item']
 
-
+    # build list of references
     referenced_by = {}
     for cert_long_id in all_items_found.keys():
         # do not continue if no keywords were extracted ()
@@ -368,9 +371,9 @@ def analyze_graph(filter_rules_group, all_items_found):
                             if this_cert_id not in referenced_by[match]:
                                 referenced_by[match].append(this_cert_id)
 
-    # process referenced_by
-
+    #
     # process direct references
+    #
     referenced_by_direct_nums = {}
     for cert_id in referenced_by.keys():
         referenced_by_direct_nums[cert_id] = len(referenced_by[cert_id])
@@ -379,10 +382,52 @@ def analyze_graph(filter_rules_group, all_items_found):
     sorted_ref_direct = sorted(referenced_by_direct_nums.items(), key=operator.itemgetter(1), reverse=False)
     for cert_id in sorted_ref_direct:
         if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
-            print('  {} : {}x : {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
+            print('  {} : {}x directly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
         else:
-            print('  {} : {}x'.format(cert_id[0], cert_id[1]))
+            print('  {} : {}x directly'.format(cert_id[0], cert_id[1]))
     print('  Total number of certificates referenced at least once: {}'.format(len(sorted_ref_direct)))
+
+    EXPECTED_CERTS_REFERENCED_ONCE = 937
+    if EXPECTED_CERTS_REFERENCED_ONCE != len(sorted_ref_direct):
+        print('  ERROR: Different than expected num certificates referenced at least once: {} vs. {}'.format(EXPECTED_CERTS_REFERENCED_ONCE, len(sorted_ref_direct)))
+        if STOP_ON_INCORRECT_NUMS:
+            print(error_different_than_expected)
+
+    #
+    # compute indirect num of references
+    #
+    referenced_by_indirect = {}
+    for cert_id in referenced_by.keys():
+        referenced_by_indirect[cert_id] = set()
+        for item in referenced_by[cert_id]:
+            referenced_by_indirect[cert_id].add(item)
+
+    new_change_detected = True
+    while new_change_detected:
+        new_change_detected = False
+
+        certids_list = referenced_by.keys()
+        for cert_id in certids_list:
+            tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
+            for referencing in tmp_referenced_by_indirect_nums:
+                if referencing in referenced_by.keys():
+                    tmp_referencing = referenced_by_indirect[referencing].copy()
+                    for in_referencing in tmp_referencing:
+                        if in_referencing not in referenced_by_indirect[cert_id]:
+                            new_change_detected = True
+                            referenced_by_indirect[cert_id].add(in_referencing)
+
+    print('### Certificates sorted by number of other certificates indirectly referencing them:')
+    referenced_by_indirect_nums = {}
+    for cert_id in referenced_by_indirect.keys():
+        referenced_by_indirect_nums[cert_id] = len(referenced_by_indirect[cert_id])
+
+    sorted_ref_indirect = sorted(referenced_by_indirect_nums.items(), key=operator.itemgetter(1), reverse=False)
+    for cert_id in sorted_ref_indirect:
+        if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
+            print('  {} : {}x indirectly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
+        else:
+            print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
 
 
 def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
@@ -405,7 +450,8 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
                     max_occurences = num_occurences
                     keywords_cert_id = match
                 num_items_found_certid_group += num_occurences
-        print('  -> most frequent cert id: {}, {}x'.format(keywords_cert_id, num_items_found_certid_group))
+        if VERBOSE:
+            print('  -> most frequent cert id: {}, {}x'.format(keywords_cert_id, num_items_found_certid_group))
 
     # try to search for certificate id directly in file name - if found, higher priority
     filename_cert_id = ''
@@ -420,10 +466,11 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
                 print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
                 filename_cert_id = matches[0]
 
-    print('Identified cert ids for {}:'.format(file_name))
-    print('  frontpage_cert_id: {}'.format(frontpage_cert_id))
-    print('  filename_cert_id: {}'.format(filename_cert_id))
-    print('  keywords_cert_id: {}'.format(keywords_cert_id))
+    if VERBOSE:
+        print('Identified cert ids for {}:'.format(file_name))
+        print('  frontpage_cert_id: {}'.format(frontpage_cert_id))
+        print('  filename_cert_id: {}'.format(filename_cert_id))
+        print('  keywords_cert_id: {}'.format(keywords_cert_id))
 
     if frontpage_cert_id != '':
         return frontpage_cert_id
@@ -572,10 +619,6 @@ def search_only_headers_bsi(walk_dir):
                 items_found[TAG_CC_VERSION] = normalize_match_string(cc_version)
                 items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(cc_security_level)
 
-                # we now have full raw header extracted - try to process raw data
-                # items_found_all[file_name][TAG_CERT_HEADER_PROCESSED] = {}
-                # items_found_all[file_name][TAG_CERT_HEADER_PROCESSED] = process_raw_header(items_found)
-
         if no_match_yet:
             files_without_match.append(file_name)
 
@@ -668,6 +711,13 @@ def search_only_headers_anssi(walk_dir):
         print('*** {} ***'.format(file_name))
 
         whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
+
+        # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
+        pos = whole_text.find('')
+        if pos != -1:
+            pos = whole_text.find('', pos)
+            if pos != -1:
+                whole_text = whole_text[pos:]
 
         no_match_yet = True
         other_rule_already_match = False
@@ -843,6 +893,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
 
 def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
+
     rule_with_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
            '.*?\<a href="(.+?)" title="Maintenance Report' \
            '.*?\<a href="(.+?)" title="Maintenance ST'
@@ -1061,13 +1112,10 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
 
 
 def extract_certificates_html(base_dir):
-    download_files_certs = []
-    download_files_updates = []
-    #file_name = '{}a.html'.format(base_dir)
-    #items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
-
     file_name = '{}common_criteria_products_active.html'.format(base_dir)
     items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
+    for item in items_found_all_active.keys():
+        items_found_all_active[item]['html_scan']['cert_status'] = 'active'
 
     with open("certificate_data_html_active.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
@@ -1077,6 +1125,8 @@ def extract_certificates_html(base_dir):
 
     file_name = '{}common_criteria_products_archived.html'.format(base_dir)
     items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
+    for item in items_found_all_archived.keys():
+        items_found_all_archived[item]['html_scan']['cert_status'] = 'archived'
 
     with open("certificate_data_html_archived.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
@@ -1085,8 +1135,6 @@ def extract_certificates_html(base_dir):
     generate_download_script('download_archived_updates.bat', 'certs', 'targets', download_files_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
-    #items_found_all = {k: items_found_all_active.get(k, 0) + items_found_all_archived.get(k, 0) for k in set(items_found_all_active) | set(items_found_all_archived)}
-    #items_found_all = items_found_all_active + items_found_all_archived
     with open("certificate_data_html_all.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
@@ -1122,7 +1170,7 @@ def collate_certificates_data(all_html, all_front, all_keywords):
                 all_cert_items[file_and_id]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
 
         if not pairing_found:
-            print('Corresponding report not found')
+            print('Corresponding report not found for {}'.format(file_and_id))
 
     with open("certificate_data_complete.json", "w") as write_file:
         write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
@@ -1168,6 +1216,7 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test6\\'
     cc_html_files_dir = 'c:\\Certs\\certs\\cc_search\\'
     walk_dir = 'c:\\Certs\\cc_certs_txt\\'
+    #walk_dir = 'c:\\Certs\\cc_certs_txt_test2\\'
     fragments_dir = 'c:\\Certs\\cc_certs_txt_fragments\\'
 
     do_extraction = False
@@ -1184,7 +1233,7 @@ def main():
     with open('certificate_data_complete.json') as json_file:
         all_cert_items = json.load(json_file)
 
-    analyze_graph(['rules_cert_id'], all_cert_items)
+    analyze_references_graph(['rules_cert_id'], all_cert_items)
 
     generate_dot_graphs(all_cert_items, walk_dir)
 

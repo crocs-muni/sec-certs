@@ -138,6 +138,7 @@ rules_crypto_libs = [
     'AT1 Secure RSA/ECC/SHA library',
     'Crypto Library [v]*[0-9.]+',
     'ATMEL Toolbox [0-9.]+',
+    'v1.02.013' # Infineon's ROCA-vulnerable library
     ]
 
 
