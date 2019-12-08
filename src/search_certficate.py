@@ -297,10 +297,10 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
         this_cert_id = ''
         if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
             this_cert_id = cert['processed']['cert_id']
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['html_scan']['cert_item_name'] is not None:
-            this_cert_name = cert['html_scan']['cert_item_name']
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cert_item_name'] is not None:
+            this_cert_name = cert['csv_scan']['cert_item_name']
 
-        just_file_name = cert['html_scan']['link_cert_report_file_name']
+        just_file_name = cert['csv_scan']['link_cert_report_file_name']
 
         # insert file name and identified probable certification id
         if this_cert_id != "":
@@ -464,7 +464,7 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
             matches = re.findall(rule, file_name_no_suff)
             if len(matches) > 0:
                 # we found cert id directly in name
-                print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
+                #print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
                 filename_cert_id = matches[0]
 
     if VERBOSE:
@@ -542,6 +542,9 @@ def search_only_headers_bsi(walk_dir):
     files_without_match = []
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
+            continue
+        file_ext = file_name[file_name.rfind('.'):]
+        if file_ext != '.txt':
             continue
         print('*** {} ***'.format(file_name))
 
@@ -709,6 +712,9 @@ def search_only_headers_anssi(walk_dir):
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
+        file_ext = file_name[file_name.rfind('.'):]
+        if file_ext != '.txt':
+            continue
         print('*** {} ***'.format(file_name))
 
         whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
@@ -837,6 +843,9 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
+        file_ext = file_name[file_name.rfind('.'):]
+        if file_ext != '.txt':
+            continue
 
         print('*** {} ***'.format(file_name))
 
@@ -926,7 +935,15 @@ def parse_product_updates(updates_chunk, link_files_updates):
                 else:
                     items_found['maintenance_link_security_target'] = ""
 
-                link_files_updates.append((items_found['maintenance_link_cert_report'], items_found['maintenance_link_security_target']))
+                link_cert_report = items_found['maintenance_link_cert_report']
+                cert_file_name = link_cert_report[link_cert_report.rfind('/') + 1:]
+                cert_file_name = cert_file_name.replace('%20', ' ')
+                items_found['link_cert_report_file_name'] = cert_file_name
+                st_file_name = items_found['maintenance_link_security_target']
+                st_file_name = st_file_name[st_file_name.rfind('/') + 1:]
+                st_file_name = st_file_name.replace('%20', ' ')
+
+                link_files_updates.append((items_found['maintenance_link_cert_report'], cert_file_name, items_found['maintenance_link_security_target'], st_file_name))
 
             maintenance_reports.append(items_found)
 
@@ -1048,11 +1065,15 @@ def extract_certificates_metadata_html(file_name):
                     index_next_item += 1
                 items_found['link_cert_report'] = normalize_match_string(match_groups[index_next_item])
                 link_cert_report = items_found['link_cert_report']
-                items_found['link_cert_report_file_name'] = link_cert_report[link_cert_report.rfind('/') + 1:]
-                cert_file_name = items_found['link_cert_report_file_name']
+                cert_file_name = link_cert_report[link_cert_report.rfind('/') + 1:]
+                cert_file_name = cert_file_name.replace('%20', ' ')
+                items_found['link_cert_report_file_name'] = cert_file_name
                 index_next_item += 1
                 items_found['link_security_target'] = normalize_match_string(match_groups[index_next_item])
-                download_files_certs.append((items_found['link_cert_report'], items_found['link_security_target']))
+                st_file_name = items_found['link_security_target']
+                st_file_name = st_file_name[st_file_name.rfind('/') + 1:]
+                st_file_name = st_file_name.replace('%20', ' ')
+                download_files_certs.append((items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
                 index_next_item += 1
 
                 items_found['maintainance_updates'] = parse_product_updates(match_groups[index_next_item], download_files_updates)
@@ -1068,7 +1089,6 @@ def extract_certificates_metadata_html(file_name):
 
 
                 # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
-                cert_file_name = cert_file_name.replace('%20', '0')
                 item_unique_name = '{}__{}'.format(cert_file_name, cert_item_id)
                 if item_unique_name not in items_found_all.keys():
                     items_found_all[item_unique_name] = {}
@@ -1182,7 +1202,7 @@ def extract_certificates_metadata_csv(file_name):
 
                 if no_further_maintainance:
                     # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
-                    cert_file_name = cert_file_name.replace('%20', '0')
+                    cert_file_name = cert_file_name.replace('%20', ' ')
                     item_unique_name = cert_file_name
                     item_unique_name = '{}__{}'.format(cert_file_name, line_count)
                     if item_unique_name not in items_found_all.keys():
@@ -1204,16 +1224,16 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
         write_file.write('mkdir \"{}\"\n'.format(certs_dir))
         write_file.write('cd \"{}\"\n\n'.format(certs_dir))
         for cert in download_files_certs:
-            write_file.write('curl \"{}\" --remote-name\n'.format(cert[0]))
-            write_file.write('pdftotext \"{}\"\n\n'.format(cert[0][cert[0].rfind('/') + 1 : ]))
+            write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[0], cert[1]))
+            write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
 
         # security targets file
         write_file.write('\n\ncd ..\n')
         write_file.write('mkdir \"{}\"\n'.format(targets_dir))
         write_file.write('cd \"{}\"\n\n'.format(targets_dir))
         for cert in download_files_certs:
-            write_file.write('curl \"{}\" --remote-name\n'.format(cert[1]))
-            write_file.write('pdftotext \"{}\"\n\n'.format(cert[1][cert[1].rfind('/') + 1 : ]))
+            write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[2], cert[3]))
+            write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
 
 
 def extract_certificates_html(base_dir):
@@ -1271,7 +1291,7 @@ def check_expected_results(all_html, all_csv, all_front, all_keywords):
     MIN_ITEMS_FOUND_CSV = 4105
     num_items = len(all_csv)
     if MIN_ITEMS_FOUND_CSV != num_items:
-        print('SANITY: different than expected number of CSV records found!')
+        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_CSV))
         if STOP_ON_INCORRECT_NUMS:
             print(error_less_matches_detected)
 
@@ -1280,93 +1300,94 @@ def check_expected_results(all_html, all_csv, all_front, all_keywords):
     #
     MIN_ITEMS_FOUND_HTML = 4103
     num_items = len(all_html)
-    if MIN_ITEMS_FOUND_HTML != len(all_html):
-        print('SANITY: different than expected number of HTML records found!')
+    if MIN_ITEMS_FOUND_HTML != num_items:
+        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_HTML))
         if STOP_ON_INCORRECT_NUMS:
             print(error_less_matches_detected)
 
     #
     # FRONTPAGE
     #
-    MIN_ITEMS_FOUND_FRONTPAGE = 1355
+    MIN_ITEMS_FOUND_FRONTPAGE = 1369
     num_items = len(all_front)
-    if MIN_ITEMS_FOUND_FRONTPAGE != len(all_front):
-        print('SANITY: different than expected number of frontpage records found!')
+    if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
+        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_FRONTPAGE))
         if STOP_ON_INCORRECT_NUMS:
             print(error_less_matches_detected)
 
     #
     # KEYWORDS
     #
-    MIN_ITEMS_FOUND_KEYWORDS = 53896
+    MIN_ITEMS_FOUND_KEYWORDS = 129181
     total_items_found = 0
     for file_name in all_keywords.keys():
         total_items_found += count_num_items_found(all_keywords[file_name])
     if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
-        print('SANITY: different than expected number of keywords found!')
+        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
         if STOP_ON_INCORRECT_NUMS:
             print(error_less_matches_detected)
 
 
 def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
     print('\n\nPairing results from different scans ***')
-    all_cert_items = all_html
+
+    file_name_to_front_name_mapping = {}
+    for long_file_name in all_front.keys():
+        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        file_name_to_front_name_mapping[short_file_name] = long_file_name
+
+    file_name_to_keywords_name_mapping = {}
+    for long_file_name in all_keywords.keys():
+        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        file_name_to_keywords_name_mapping[short_file_name] = long_file_name
+
+    all_cert_items = all_csv
     # pair html data, csv data, front pages and keywords
-    for file_name in all_keywords.keys():
+    for file_name in all_csv.keys():
         pairing_found = False
 
-        file_name_pdf = file_name[file_name.rfind('\\') + 1:]
-        file_name_pdf = file_name_pdf[:file_name_pdf.rfind('.')] + '.pdf'
+        file_name_pdf = file_name[:file_name.rfind('__')]
+        file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
 
         # find all items which references same pdf report
         for file_and_id in all_html.keys():
             # in items extracted from html, names are in form of 'file_name.pdf__number'
             if file_and_id.find(file_name_pdf + '__') != -1:
-                if 'processed' not in all_cert_items[file_and_id].keys():
-                    all_cert_items[file_and_id]['processed'] = {}
+                if 'processed' not in all_cert_items[file_name].keys():
+                    all_cert_items[file_name]['processed'] = {}
                 pairing_found = True
                 frontpage_scan = None
                 keywords_scan = None
-                if file_name in all_front.keys():
-                    all_cert_items[file_and_id]['frontpage_scan'] = all_front[file_name]
-                    frontpage_scan = all_front[file_name]
-                if file_name in all_keywords.keys():
-                    all_cert_items[file_and_id]['keywords_scan'] = all_keywords[file_name]
-                    keywords_scan = all_keywords[file_name]
+                if file_name_txt in file_name_to_front_name_mapping.keys():
+                    all_cert_items[file_name]['frontpage_scan'] = all_front[file_name_to_front_name_mapping[file_name_txt]]
+                    frontpage_scan = all_front[file_name_to_front_name_mapping[file_name_txt]]
+                if file_name_txt in file_name_to_keywords_name_mapping.keys():
+                    all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt]]
+                    keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt]]
 
-                all_cert_items[file_and_id]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
-
-        if not pairing_found:
-            print('WARNING: Corresponding HTML report not found for:  {}'.format(file_name))
-
-        # find all items which references same pdf report
-        pairing_found = False
-        for file_and_id in all_csv.keys():
-            # in items extracted from html, names are in form of 'file_name.pdf__number'
-            if file_and_id.find(file_name_pdf + '__') != -1:
-                # now find corresponding certid extracted from html
-                for file_and_id_html in all_cert_items.keys():
-                    if file_and_id_html.find(file_name_pdf + '__') != -1:
-                        pairing_found = True
-                        all_cert_items[file_and_id_html]['csv_scan'] = all_csv[file_and_id]['csv_scan']
+                all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
 
         if not pairing_found:
-            print('WARNING: Corresponding CSV report not found for {}'.format(file_name))
+            print('WARNING: Corresponding HTML report not found for CSV item {}'.format(file_name))
 
     with open("certificate_data_complete.json", "w") as write_file:
         write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
     # display all record which were not paired
-    print('Records with missing pairing of frontpage and keywords:')
+    print('\n\nRecords with missing pairing of frontpage:')
     num_frontpage_missing = 0
-    num_keywords_missing = 0
     for item in all_cert_items.keys():
         this_item = all_cert_items[item]
         if 'frontpage_scan' not in this_item.keys():
-            print('{}: no frontpage scan detected'.format(item))
+            print('WARNING: {} no frontpage scan detected'.format(item))
             num_frontpage_missing += 1
+
+    print('\n\nRecords with missing pairing of keywords:')
+    num_keywords_missing = 0
+    for item in all_cert_items.keys():
+        this_item = all_cert_items[item]
         if 'keywords_scan' not in this_item.keys():
-            print('{}: no keywords scan detected'.format(item))
+            print('WARNING: {} no keywords scan detected'.format(item))
             num_keywords_missing += 1
 
     print('Records without frontpage: {}\nRecords without keywords: {}'.format(num_frontpage_missing, num_keywords_missing))
@@ -1413,14 +1434,14 @@ def main():
     #walk_dir = 'c:\\Certs\\certs\\cc_search\\test6\\'
     cc_html_files_dir = 'c:\\Certs\\web\\'
     walk_dir = 'c:\\Certs\\cc_certs_txt\\'
+    walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
     #walk_dir = 'c:\\Certs\\cc_certs_txt_test2\\'
-    fragments_dir = 'c:\\Certs\\cc_certs_txt_fragments\\'
+    fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
 
 
     generate_basic_download_script()
 
     do_extraction = False
-
     if do_extraction:
 
         all_csv = extract_certificates_csv(cc_html_files_dir)
@@ -1431,18 +1452,21 @@ def main():
 
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir)
 
-    with open('certificate_data_csv_all.json') as json_file:
-        all_csv = json.load(json_file)
-    with open('certificate_data_html_all.json') as json_file:
-        all_html = json.load(json_file)
-    with open('certificate_data_frontpage_all.json') as json_file:
-        all_front = json.load(json_file)
-    with open('certificate_data_keywords_all.json') as json_file:
-        all_keywords = json.load(json_file)
+    do_pairing = False
+    if do_pairing:
+        with open('certificate_data_csv_all.json') as json_file:
+            all_csv = json.load(json_file)
+        with open('certificate_data_html_all.json') as json_file:
+            all_html = json.load(json_file)
+        with open('certificate_data_frontpage_all.json') as json_file:
+            all_front = json.load(json_file)
+        with open('certificate_data_keywords_all.json') as json_file:
+            all_keywords = json.load(json_file)
 
-    check_expected_results(all_html, all_csv, all_front, all_keywords)
+        check_expected_results(all_html, all_csv, all_front, all_keywords)
 
-    all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords)
+        all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords)
+
 
     with open('certificate_data_complete.json') as json_file:
         all_cert_items = json.load(json_file)
@@ -1451,6 +1475,6 @@ def main():
 
     generate_dot_graphs(all_cert_items, walk_dir)
 
-    # !!! process csv - category of device
+
 if __name__ == "__main__":
     main()
