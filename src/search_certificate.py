@@ -1425,8 +1425,8 @@ def main():
 
     generate_basic_download_script()
 
-    do_extraction = True
-    do_pairing = True
+    do_extraction = False
+    do_pairing = False
     do_analysis = True
 
     if do_extraction:
