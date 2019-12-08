@@ -11,7 +11,9 @@ from shutil import copyfile
 from enum import Enum
 from collections import defaultdict
 
-STOP_ON_INCORRECT_NUMS = False
+# if True, then exception is raised when unexpect intermediate number is obtained
+# Used as sanity check during development to detect sudden drop in number of extracted features
+STOP_ON_UNEXPECTED_NUMS = False
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 
@@ -44,9 +46,6 @@ def path_leaf(path):
     return tail or ntpath.basename(head)
 
 
-unicode_decode_error = []
-
-
 def get_line_number(lines, line_length_compensation, match_start_index):
     line_chars_offset = 0
     line_number = 1
@@ -69,8 +68,7 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
         except UnicodeDecodeError:
             f.close()
             was_unicode_decode_error = True
-            print('UnicodeDecodeError')
-            unicode_decode_error.append(file_name)
+            print('  WARNING: UnicodeDecodeError, opening as utf8')
 
             with open(file_name, encoding="utf8") as f2:
                 # coding failure, try line by line
@@ -171,7 +169,6 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 if APPEND_DETAILED_MATCH_MATCHES:
                     items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
 
-
     # highlight all found strings from the input text and store the rest
     for rule_group in items_found_all.keys():
         items_found = items_found_all[rule_group]
@@ -182,13 +179,11 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
     return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
 
 
-
-
-
 def print_total_matches_in_files(all_items_found_count):
     sorted_all_items_found_count = sorted(all_items_found_count.items(), key=operator.itemgetter(1))
     for file_name_count in sorted_all_items_found_count:
         print('{:03d}: {}'.format(file_name_count[1], file_name_count[0]))
+
 
 def print_total_found_cert_ids(all_items_found_certid_count):
     sorted_certid_count = sorted(all_items_found_certid_count.items(), key=operator.itemgetter(1), reverse=True)
@@ -227,7 +222,7 @@ def count_num_items_found(items_found_all):
     return num_items_found
 
 
-def print_dot_graph_keywordsonly(filter_rules_group, all_items_found, cert_id, walk_dir, out_dot_name, thick_as_occurences):
+def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found, cert_id, walk_dir, out_dot_name, thick_as_occurences):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
     dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
@@ -388,11 +383,11 @@ def analyze_references_graph(filter_rules_group, all_items_found):
             print('  {} : {}x directly'.format(cert_id[0], cert_id[1]))
     print('  Total number of certificates referenced at least once: {}'.format(len(sorted_ref_direct)))
 
-    EXPECTED_CERTS_REFERENCED_ONCE = 937
+    EXPECTED_CERTS_REFERENCED_ONCE = 942
     if EXPECTED_CERTS_REFERENCED_ONCE != len(sorted_ref_direct):
         print('  ERROR: Different than expected num certificates referenced at least once: {} vs. {}'.format(EXPECTED_CERTS_REFERENCED_ONCE, len(sorted_ref_direct)))
-        if STOP_ON_INCORRECT_NUMS:
-            print(error_different_than_expected)
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # compute indirect num of references
@@ -484,7 +479,6 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
 
 
 def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_text):
-    write_file = None
     if is_unicode_text:
         write_file = open(target_file, "w", encoding="utf8")
     else:
@@ -788,10 +782,6 @@ def search_only_headers_anssi(walk_dir):
                 items_found[TAG_CERT_LAB] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-                # we now have full raw header extracted - try to process raw data
-                # items_found_all[file_name][TAG_CERT_HEADER_PROCESSED] = {}
-                # items_found_all[file_name][TAG_CERT_HEADER_PROCESSED] = process_raw_header(items_found)
-
         if no_match_yet:
             files_without_match.append(file_name)
 
@@ -871,7 +861,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
     print('\nFile name and estimated certificate ID:')
     # print_guessed_cert_id(cert_id)
 
-    #print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
+    depricated_print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
 
     total_items_found = 0
     for file_name in all_items_found:
@@ -1035,7 +1025,6 @@ def extract_certificates_metadata_html(file_name):
             if not no_match_yet:
                 continue    # search only the first match
 
-
             rule_and_sep = rule[1]
 
             for m in re.finditer(rule_and_sep, chunk):
@@ -1087,7 +1076,6 @@ def extract_certificates_metadata_html(file_name):
                 items_found['cc_security_level'], items_found['cc_security_level_augmented'] = parse_security_level(cc_security_level)
                 index_next_item += 1
 
-
                 # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
                 item_unique_name = '{}__{}'.format(cert_file_name, cert_item_id)
                 if item_unique_name not in items_found_all.keys():
@@ -1107,11 +1095,13 @@ def extract_certificates_metadata_html(file_name):
 
     return items_found_all, download_files_certs, download_files_updates
 
+
 def check_if_new_or_same(target_dict, target_key, new_value):
     if target_key in target_dict.keys():
         if target_dict[target_key] != new_value:
-            if STOP_ON_INCORRECT_NUMS:
-                print(error_different_than_expected)
+            if STOP_ON_UNEXPECTED_NUMS:
+                raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+
 
 def extract_certificates_metadata_csv(file_name):
     items_found_all = {}
@@ -1209,9 +1199,9 @@ def extract_certificates_metadata_csv(file_name):
                         items_found_all[item_unique_name] = {}
                         items_found_all[item_unique_name]['csv_scan'] = items_found
                     else:
-                        print('{} already in'.format(cert_file_name))
-                        if STOP_ON_INCORRECT_NUMS:
-                            print(error_already_present)
+                        print('  ERROR: {} already in'.format(cert_file_name))
+                        if STOP_ON_UNEXPECTED_NUMS:
+                            raise ValueError('ERROR: Stopping as value is not unique')
 
                 line_count += 1
 
@@ -1292,8 +1282,8 @@ def check_expected_results(all_html, all_csv, all_front, all_keywords):
     num_items = len(all_csv)
     if MIN_ITEMS_FOUND_CSV != num_items:
         print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_CSV))
-        if STOP_ON_INCORRECT_NUMS:
-            print(error_less_matches_detected)
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # HTML
@@ -1302,8 +1292,8 @@ def check_expected_results(all_html, all_csv, all_front, all_keywords):
     num_items = len(all_html)
     if MIN_ITEMS_FOUND_HTML != num_items:
         print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_HTML))
-        if STOP_ON_INCORRECT_NUMS:
-            print(error_less_matches_detected)
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # FRONTPAGE
@@ -1312,8 +1302,8 @@ def check_expected_results(all_html, all_csv, all_front, all_keywords):
     num_items = len(all_front)
     if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
         print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_FRONTPAGE))
-        if STOP_ON_INCORRECT_NUMS:
-            print(error_less_matches_detected)
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # KEYWORDS
@@ -1324,8 +1314,8 @@ def check_expected_results(all_html, all_csv, all_front, all_keywords):
         total_items_found += count_num_items_found(all_keywords[file_name])
     if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
         print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
-        if STOP_ON_INCORRECT_NUMS:
-            print(error_less_matches_detected)
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
 
 def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
@@ -1428,31 +1418,23 @@ def main():
     current_dir = os.getcwd()
     os.chdir(current_dir + '\\..\\results\\')
 
-    walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived\\'
-    #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_bsionly\\'
-    #walk_dir = 'c:\\Certs\\certs\\cc_search\\20191109_icsconly_currentandachived_anssionly\\'
-    #walk_dir = 'c:\\Certs\\certs\\cc_search\\test6\\'
     cc_html_files_dir = 'c:\\Certs\\web\\'
-    walk_dir = 'c:\\Certs\\cc_certs_txt\\'
     walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
     #walk_dir = 'c:\\Certs\\cc_certs_txt_test2\\'
     fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
 
-
     generate_basic_download_script()
 
-    do_extraction = False
+    do_extraction = True
+    do_pairing = True
+    do_analysis = True
+
     if do_extraction:
-
         all_csv = extract_certificates_csv(cc_html_files_dir)
-
         all_html = extract_certificates_html(cc_html_files_dir)
-
         all_front = extract_certificates_frontpage(walk_dir)
-
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir)
 
-    do_pairing = False
     if do_pairing:
         with open('certificate_data_csv_all.json') as json_file:
             all_csv = json.load(json_file)
@@ -1464,16 +1446,13 @@ def main():
             all_keywords = json.load(json_file)
 
         check_expected_results(all_html, all_csv, all_front, all_keywords)
-
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords)
 
-
-    with open('certificate_data_complete.json') as json_file:
-        all_cert_items = json.load(json_file)
-
-    analyze_references_graph(['rules_cert_id'], all_cert_items)
-
-    generate_dot_graphs(all_cert_items, walk_dir)
+    if do_analysis:
+        with open('certificate_data_complete.json') as json_file:
+            all_cert_items = json.load(json_file)
+        analyze_references_graph(['rules_cert_id'], all_cert_items)
+        generate_dot_graphs(all_cert_items, walk_dir)
 
 
 if __name__ == "__main__":
