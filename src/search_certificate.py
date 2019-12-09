@@ -10,6 +10,7 @@ from time import gmtime, strftime
 from shutil import copyfile
 from enum import Enum
 from collections import defaultdict
+from tabulate import tabulate
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
@@ -279,7 +280,7 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
     # insert nodes believed to be cert id for the processed certificates
     for cert_long_id in all_items_found.keys():
         if defaultdict(lambda: defaultdict(lambda: None), all_items_found[cert_long_id])['processed']['cert_id'] is not None:
-            dot.attr('node', color='green')
+            dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
             dot.node(all_items_found[cert_long_id]['processed']['cert_id'])
 
     dot.attr('node', color='gray')
@@ -424,6 +425,48 @@ def analyze_references_graph(filter_rules_group, all_items_found):
             print('  {} : {}x indirectly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
         else:
             print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
+
+
+def analyze_items_frequency(all_cert_items):
+    scheme_level = {}
+    for cert_long_id in all_cert_items.keys():
+        cert = all_cert_items[cert_long_id]
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_scheme'] is not None:
+            if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_security_level'] is not None:
+                cc_scheme = cert['csv_scan']['cc_scheme']
+                level = cert['csv_scan']['cc_security_level']
+                if level.find(',') != -1:
+                    level = level[:level.find(',')]  # trim list of augmented items
+                if cc_scheme not in scheme_level.keys():
+                    scheme_level[cc_scheme] = {}
+                if level not in scheme_level[cc_scheme]:
+                    scheme_level[cc_scheme][level] = 0
+                scheme_level[cc_scheme][level] += 1
+
+    print('\n### CC EAL levels based on the certification scheme:')
+    for cc_scheme in sorted(scheme_level.keys()):
+        print(cc_scheme)
+        for level in sorted(scheme_level[cc_scheme].keys()):
+            print('  {:5}: {}x'.format(level, scheme_level[cc_scheme][level]))
+
+    print('\n')
+    eal_headers=['EAL1', 'EAL1+','EAL2', 'EAL2+','EAL3', 'EAL3+','EAL4', 'EAL4+','EAL5',
+                 'EAL5+','EAL6', 'EAL6+','EAL7', 'EAL7+', 'None']
+    cc_eal_freq = []
+    for cc_scheme in sorted(scheme_level.keys()):
+        this_scheme_levels = [cc_scheme]
+        total = 0
+        for level in eal_headers:
+            if level in scheme_level[cc_scheme]:
+                this_scheme_levels.append(scheme_level[cc_scheme][level])
+                total += scheme_level[cc_scheme][level]
+            else:
+                this_scheme_levels.append(0)
+
+        this_scheme_levels.append(total)
+        cc_eal_freq.append(this_scheme_levels)
+
+    print(tabulate(cc_eal_freq, ['CC scheme'] + eal_headers + ['Total']))
 
 
 def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
@@ -1452,6 +1495,7 @@ def main():
         with open('certificate_data_complete.json') as json_file:
             all_cert_items = json.load(json_file)
         analyze_references_graph(['rules_cert_id'], all_cert_items)
+        analyze_items_frequency(all_cert_items)
         generate_dot_graphs(all_cert_items, walk_dir)
 
 
