@@ -11,6 +11,10 @@ from shutil import copyfile
 from enum import Enum
 from collections import defaultdict
 from tabulate import tabulate
+import matplotlib.pyplot as plt; plt.rcdefaults()
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
@@ -58,6 +62,16 @@ def get_line_number(lines, line_length_compensation, match_start_index):
         line_number += 1
     # not found
     return -1
+
+
+def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
+    figure(num=None, figsize=(10, 6), dpi=200, facecolor='w', edgecolor='k')
+    y_pos = np.arange(len(x_data_labels))
+    plt.bar(y_pos, data, align='center', alpha=0.5)
+    plt.xticks(y_pos, x_data_labels)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.savefig(file_name)
 
 
 def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
@@ -450,9 +464,15 @@ def analyze_items_frequency(all_cert_items):
             print('  {:5}: {}x'.format(level, scheme_level[cc_scheme][level]))
 
     print('\n')
-    eal_headers=['EAL1', 'EAL1+','EAL2', 'EAL2+','EAL3', 'EAL3+','EAL4', 'EAL4+','EAL5',
+    eal_headers = ['EAL1', 'EAL1+','EAL2', 'EAL2+','EAL3', 'EAL3+','EAL4', 'EAL4+','EAL5',
                  'EAL5+','EAL6', 'EAL6+','EAL7', 'EAL7+', 'None']
+
+    total_eals = {}
+    for level in eal_headers:
+        total_eals[level] = 0
+
     cc_eal_freq = []
+    sum_total = 0
     for cc_scheme in sorted(scheme_level.keys()):
         this_scheme_levels = [cc_scheme]
         total = 0
@@ -460,12 +480,24 @@ def analyze_items_frequency(all_cert_items):
             if level in scheme_level[cc_scheme]:
                 this_scheme_levels.append(scheme_level[cc_scheme][level])
                 total += scheme_level[cc_scheme][level]
+                total_eals[level] += scheme_level[cc_scheme][level]
             else:
                 this_scheme_levels.append(0)
 
         this_scheme_levels.append(total)
+        sum_total += total
         cc_eal_freq.append(this_scheme_levels)
 
+    total_eals_row = []
+    for level in sorted(total_eals.keys()):
+        total_eals_row.append(total_eals[level])
+
+    # plot bar graph with frequency of CC EAL levels
+    plot_bar_graph(total_eals_row, eal_headers, 'Number of certificates', 'Number of certificates of specific EAL level', 'cert_eal_frequency.png')
+
+    # Print table with results over national schemes
+    total_eals_row.append(sum_total)
+    cc_eal_freq.append(['Total'] + total_eals_row)
     print(tabulate(cc_eal_freq, ['CC scheme'] + eal_headers + ['Total']))
 
 
@@ -928,6 +960,13 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
 
     return all_items_found
 
+
+def extract_file_name_from_url(url):
+    file_name = url[url.rfind('/') + 1:]
+    file_name = file_name.replace('%20', ' ')
+    return file_name
+
+
 def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
 
@@ -968,13 +1007,10 @@ def parse_product_updates(updates_chunk, link_files_updates):
                 else:
                     items_found['maintenance_link_security_target'] = ""
 
-                link_cert_report = items_found['maintenance_link_cert_report']
-                cert_file_name = link_cert_report[link_cert_report.rfind('/') + 1:]
-                cert_file_name = cert_file_name.replace('%20', ' ')
+                cert_file_name = extract_file_name_from_url(items_found['maintenance_link_cert_report'])
                 items_found['link_cert_report_file_name'] = cert_file_name
-                st_file_name = items_found['maintenance_link_security_target']
-                st_file_name = st_file_name[st_file_name.rfind('/') + 1:]
-                st_file_name = st_file_name.replace('%20', ' ')
+                st_file_name = extract_file_name_from_url(items_found['maintenance_link_security_target'])
+                items_found['link_security_target_file_name'] = st_file_name
 
                 link_files_updates.append((items_found['maintenance_link_cert_report'], cert_file_name, items_found['maintenance_link_security_target'], st_file_name))
 
@@ -1096,15 +1132,12 @@ def extract_certificates_metadata_html(file_name):
                     items_found['company_name'] = normalize_match_string(match_groups[index_next_item])
                     index_next_item += 1
                 items_found['link_cert_report'] = normalize_match_string(match_groups[index_next_item])
-                link_cert_report = items_found['link_cert_report']
-                cert_file_name = link_cert_report[link_cert_report.rfind('/') + 1:]
-                cert_file_name = cert_file_name.replace('%20', ' ')
+                cert_file_name = extract_file_name_from_url(items_found['link_cert_report'])
                 items_found['link_cert_report_file_name'] = cert_file_name
                 index_next_item += 1
                 items_found['link_security_target'] = normalize_match_string(match_groups[index_next_item])
-                st_file_name = items_found['link_security_target']
-                st_file_name = st_file_name[st_file_name.rfind('/') + 1:]
-                st_file_name = st_file_name.replace('%20', ' ')
+                st_file_name = extract_file_name_from_url(items_found['link_security_target'])
+                items_found['link_security_target_file_name'] = st_file_name
                 download_files_certs.append((items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
                 index_next_item += 1
 
@@ -1209,12 +1242,16 @@ def extract_certificates_metadata_csv(file_name):
                 check_if_new_or_same(items_found, 'link_cert_report', normalize_match_string(row[index_next_item]))
                 items_found['link_cert_report'] = normalize_match_string(row[index_next_item])
                 link_cert_report = items_found['link_cert_report']
-                check_if_new_or_same(items_found, 'link_cert_report_file_name', link_cert_report[link_cert_report.rfind('/') + 1:])
-                items_found['link_cert_report_file_name'] = link_cert_report[link_cert_report.rfind('/') + 1:]
+
+                cert_file_name = extract_file_name_from_url(items_found['link_cert_report'])
+                check_if_new_or_same(items_found, 'link_cert_report_file_name', cert_file_name)
+                items_found['link_cert_report_file_name'] = cert_file_name
                 cert_file_name = items_found['link_cert_report_file_name']
                 index_next_item += 1
                 check_if_new_or_same(items_found, 'link_security_target', normalize_match_string(row[index_next_item]))
                 items_found['link_security_target'] = normalize_match_string(row[index_next_item])
+                st_file_name = extract_file_name_from_url(items_found['link_security_target'])
+                items_found['link_security_target_file_name'] = st_file_name
                 index_next_item += 1
 
                 if 'maintainance_updates' not in items_found:
@@ -1381,6 +1418,12 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
 
         file_name_pdf = file_name[:file_name.rfind('__')]
         file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
+        #file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
+        if 'link_security_target_file_name' in all_csv[file_name]['csv_scan']:
+            file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
+        else:
+            file_name_st = extract_file_name_from_url(all_csv[file_name]['csv_scan']['link_security_target'])
+        file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
 
         # find all items which references same pdf report
         for file_and_id in all_html.keys():
@@ -1397,6 +1440,8 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
                 if file_name_txt in file_name_to_keywords_name_mapping.keys():
                     all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt]]
                     keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt]]
+                if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
+                    all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt]]
 
                 all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
 
@@ -1469,7 +1514,7 @@ def main():
     generate_basic_download_script()
 
     do_extraction = False
-    do_pairing = False
+    do_pairing = True
     do_analysis = True
 
     if do_extraction:
@@ -1498,6 +1543,9 @@ def main():
         analyze_items_frequency(all_cert_items)
         generate_dot_graphs(all_cert_items, walk_dir)
 
+    # extraction of security functions
+    # analysis of security targets documents
+    # analysis of big cert clusters
 
 if __name__ == "__main__":
     main()
