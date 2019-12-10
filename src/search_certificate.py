@@ -69,9 +69,24 @@ def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
     y_pos = np.arange(len(x_data_labels))
     plt.bar(y_pos, data, align='center', alpha=0.5)
     plt.xticks(y_pos, x_data_labels)
+    plt.xticks(rotation=45)
     plt.ylabel(y_label)
     plt.title(title)
+    x1, x2, y1, y2 = plt.axis()
+    plt.axis((x1, x2, y1 - 1, y2))
     plt.savefig(file_name)
+
+
+def compute_and_plot_hist(data, bins, y_label, title, file_name):
+    hist_refs = np.histogram(data, bins)
+    hist_labels = []
+    for index in range(0, len(bins) - 1):
+        if bins[index] == bins[index + 1] - 1:
+            hist_labels.append('{}'.format(bins[index]))
+        else:
+            hist_labels.append('{}-{}'.format(bins[index], bins[index + 1]))
+    # plot bar graph with number of certificates referenced by given number of other certificates
+    plot_bar_graph(hist_refs[0], hist_labels, y_label, title, file_name)
 
 
 def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
@@ -391,12 +406,20 @@ def analyze_references_graph(filter_rules_group, all_items_found):
 
     print('### Certificates sorted by number of other certificates directly referencing them:')
     sorted_ref_direct = sorted(referenced_by_direct_nums.items(), key=operator.itemgetter(1), reverse=False)
+    direct_refs = []
     for cert_id in sorted_ref_direct:
+        direct_refs.append(cert_id[1])
         if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
             print('  {} : {}x directly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
         else:
             print('  {} : {}x directly'.format(cert_id[0], cert_id[1]))
     print('  Total number of certificates referenced at least once: {}'.format(len(sorted_ref_direct)))
+
+    step = 5
+    max_refs = max(direct_refs) + step
+    bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
+    compute_and_plot_hist(direct_refs, bins, 'Number of certificates', '# certificates with specific number of direct references', 'cert_direct_refs_frequency.png')
+
 
     EXPECTED_CERTS_REFERENCED_ONCE = 942
     if EXPECTED_CERTS_REFERENCED_ONCE != len(sorted_ref_direct):
@@ -434,11 +457,18 @@ def analyze_references_graph(filter_rules_group, all_items_found):
         referenced_by_indirect_nums[cert_id] = len(referenced_by_indirect[cert_id])
 
     sorted_ref_indirect = sorted(referenced_by_indirect_nums.items(), key=operator.itemgetter(1), reverse=False)
+    indirect_refs = []
     for cert_id in sorted_ref_indirect:
+        indirect_refs.append(cert_id[1])
         if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
             print('  {} : {}x indirectly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
         else:
             print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
+
+    step = 5
+    max_refs = max(indirect_refs) + step
+    bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
+    compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', '# certificates with specific number of indirect references', 'cert_indirect_refs_frequency.png')
 
 
 def analyze_items_frequency(all_cert_items):
@@ -1404,12 +1434,14 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
     file_name_to_front_name_mapping = {}
     for long_file_name in all_front.keys():
         short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
-        file_name_to_front_name_mapping[short_file_name] = long_file_name
+        if short_file_name != '':
+            file_name_to_front_name_mapping[short_file_name] = long_file_name
 
     file_name_to_keywords_name_mapping = {}
     for long_file_name in all_keywords.keys():
         short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
-        file_name_to_keywords_name_mapping[short_file_name] = long_file_name
+        if short_file_name != '':
+            file_name_to_keywords_name_mapping[short_file_name] = [long_file_name, 0]
 
     all_cert_items = all_csv
     # pair html data, csv data, front pages and keywords
@@ -1438,15 +1470,59 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
                     all_cert_items[file_name]['frontpage_scan'] = all_front[file_name_to_front_name_mapping[file_name_txt]]
                     frontpage_scan = all_front[file_name_to_front_name_mapping[file_name_txt]]
                 if file_name_txt in file_name_to_keywords_name_mapping.keys():
-                    all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt]]
-                    keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt]]
+                    all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
+                    file_name_to_keywords_name_mapping[file_name_txt][1] = 1 # was paired
+                    keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
                 if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
-                    all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt]]
+                    all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
+                    file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
 
                 all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
 
         if not pairing_found:
             print('WARNING: Corresponding HTML report not found for CSV item {}'.format(file_name))
+
+    # pair keywords to maintainance updates
+    for file_name in all_csv.keys():
+        pairing_found = False
+
+        # process all maintainance updates
+        for update in all_cert_items[file_name]['csv_scan']['maintainance_updates']:
+
+            file_name_pdf = extract_file_name_from_url(update['cc_maintainance_report_link'])
+            file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
+
+            file_name_st = extract_file_name_from_url(update['cc_maintainance_st_link'])
+            file_name_st_txt = ''
+            if len(file_name_st) > 0:
+                file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
+
+            for file_and_id in all_keywords.keys():
+                file_name_keyword_txt = file_and_id[file_and_id.rfind('\\') + 1:]
+                # in items extracted from html, names are in form of 'file_name.pdf__number'
+                if file_name_keyword_txt == file_name_txt:
+                    pairing_found = True
+                    if file_name_txt in file_name_to_keywords_name_mapping.keys():
+                        update['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
+                        if file_name_to_keywords_name_mapping[file_name_txt][1] == 1:
+                            print('WARNING: {} already paired'.format(file_name_to_keywords_name_mapping[file_name_txt][0]))
+                        file_name_to_keywords_name_mapping[file_name_txt][1] = 1 # was paired
+
+                if file_name_keyword_txt == file_name_st_txt:
+                    if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
+                        update['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
+                        if file_name_to_keywords_name_mapping[file_name_st_txt][1] == 1:
+                            print('WARNING: {} already paired'.format(file_name_to_keywords_name_mapping[file_name_st_txt][0]))
+                        file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
+
+            if not pairing_found:
+                print('WARNING: Corresponding keywords pairing not found for maintaince item {}'.format(file_name))
+
+
+    print('*** Files with keywords extracted, which were NOT matched to any CSV item:')
+    for item in file_name_to_keywords_name_mapping:
+        if file_name_to_keywords_name_mapping[item][1] == 0: # not paired
+            print('  {}'.format(file_name_to_keywords_name_mapping[item][0]))
 
     with open("certificate_data_complete.json", "w") as write_file:
         write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
@@ -1514,7 +1590,7 @@ def main():
     generate_basic_download_script()
 
     do_extraction = False
-    do_pairing = True
+    do_pairing = False
     do_analysis = True
 
     if do_extraction:
