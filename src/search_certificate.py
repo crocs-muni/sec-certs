@@ -65,7 +65,10 @@ def get_line_number(lines, line_length_compensation, match_start_index):
 
 
 def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
-    figure(num=None, figsize=(10, 6), dpi=200, facecolor='w', edgecolor='k')
+    fig_width = round(len(data) / 2)
+    if fig_width < 10:
+        fig_width = 10
+    figure(num=None, figsize=(fig_width, 8), dpi=200, facecolor='w', edgecolor='k')
     y_pos = np.arange(len(x_data_labels))
     plt.bar(y_pos, data, align='center', alpha=0.5)
     plt.xticks(y_pos, x_data_labels)
@@ -471,7 +474,7 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', '# certificates with specific number of indirect references', 'cert_indirect_refs_frequency.png')
 
 
-def analyze_items_frequency(all_cert_items):
+def analyze_eal_frequency(all_cert_items):
     scheme_level = {}
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
@@ -529,6 +532,35 @@ def analyze_items_frequency(all_cert_items):
     total_eals_row.append(sum_total)
     cc_eal_freq.append(['Total'] + total_eals_row)
     print(tabulate(cc_eal_freq, ['CC scheme'] + eal_headers + ['Total']))
+
+
+def analyze_sars_frequency(all_cert_items):
+    sars_freq = {}
+    for cert_long_id in all_cert_items.keys():
+        cert = all_cert_items[cert_long_id]
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['keywords_scan']['rules_security_target_class'] is not None:
+            sars = cert['keywords_scan']['rules_security_target_class']
+            for sar_rule in sars:
+                for sar_hit in sars[sar_rule]:
+                    if sar_hit not in sars_freq.keys():
+                        sars_freq[sar_hit] = 0
+                    sars_freq[sar_hit] += 1
+
+
+    print('\n### CC security assurance components frequency:')
+    sars_labels = sorted(sars_freq.keys())
+    sars_freq_nums = []
+    for sar in sars_labels:
+        print('{:10}: {}x'.format(sar, sars_freq[sar]))
+        sars_freq_nums.append(sars_freq[sar])
+
+    print('\n### CC security assurance components frequency sorted by num occurences:')
+    sorted_by_occurence = sorted(sars_freq.items(), key=operator.itemgetter(1))
+    for sar in sorted_by_occurence:
+        print('{:10}: {}x'.format(sar[0], sar[1]))
+
+    # plot bar graph with frequency of CC SARs
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', 'Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', 'cert_sars_frequency.png')
 
 
 def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
@@ -1584,7 +1616,7 @@ def main():
 
     cc_html_files_dir = 'c:\\Certs\\web\\'
     walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
-    #walk_dir = 'c:\\Certs\\cc_certs_txt_test2\\'
+    #walk_dir = 'c:\\Certs\\cc_certs_test1\\'
     fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
 
     generate_basic_download_script()
@@ -1616,10 +1648,10 @@ def main():
         with open('certificate_data_complete.json') as json_file:
             all_cert_items = json.load(json_file)
         analyze_references_graph(['rules_cert_id'], all_cert_items)
-        analyze_items_frequency(all_cert_items)
+        analyze_eal_frequency(all_cert_items)
+        analyze_sars_frequency(all_cert_items)
         generate_dot_graphs(all_cert_items, walk_dir)
 
-    # extraction of security functions
     # analysis of security targets documents
     # analysis of big cert clusters
 

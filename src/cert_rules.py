@@ -87,6 +87,21 @@ rules_security_level = [
     'ITSEC[ ]*E[1-9]*.+?',
     ]
 
+rules_security_target_class = [
+    'ACM_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'ADO_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'ADV_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'AGD_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'ALC_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'ATE_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'AVA_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'AMA_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'APE_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    'ASE_[A-Z][A-Z][A-Z](?: |\.[0-9])',
+    ]
+
+
+
 rules_javacard = [
     #'(?:Java Card|JavaCard)',
     #'(?:Global Platform|GlobalPlatform)',
@@ -165,6 +180,7 @@ rules['rules_device_id'] = rules_device_id
 rules['rules_os'] = rules_os
 rules['rules_standard_id'] = rules_standard_id
 rules['rules_security_level'] = rules_security_level
+rules['rules_security_target_class'] = rules_security_target_class
 rules['rules_javacard'] = rules_javacard
 rules['rules_crypto_algs'] = rules_crypto_algs
 rules['rules_ecc_curves'] = rules_ecc_curves
