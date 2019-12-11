@@ -77,8 +77,29 @@ def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
     plt.title(title)
     x1, x2, y1, y2 = plt.axis()
     plt.axis((x1, x2, y1 - 1, y2))
-    plt.savefig(file_name)
+    plt.savefig(file_name + '.png', bbox_inches='tight')
+    plt.savefig(file_name + '.pdf', bbox_inches='tight')
 
+
+def plot_heatmap_graph(data_matrix, x_data_ticks, y_data_ticks, x_label, y_label, title, file_name):
+    plt.figure(figsize=(round(len(x_data_ticks) / 2), 8), dpi=200, facecolor='w', edgecolor='k')
+    #color_map = 'BuGn'
+    color_map = 'Purples'
+    plt.imshow(data_matrix, cmap=color_map, interpolation='none', aspect='auto')
+    #sns.heatmap(data_matrix, cmap=color_map, linewidth=0.5)
+    x_pos = np.arange(len(y_data_ticks))
+    plt.yticks(x_pos, y_data_ticks)
+    y_pos = np.arange(len(x_data_ticks))
+    plt.xticks(y_pos, x_data_ticks)
+    plt.xticks(rotation=90, ha='center')
+    plt.gca().invert_yaxis()
+    x1, x2, y1, y2 = plt.axis()
+    plt.axis((x1, x2, y1 - 0.5, y2))
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.savefig(file_name + '.png', bbox_inches='tight')
+    plt.savefig(file_name + '.pdf', bbox_inches='tight')
 
 def compute_and_plot_hist(data, bins, y_label, title, file_name):
     hist_refs = np.histogram(data, bins)
@@ -526,7 +547,7 @@ def analyze_eal_frequency(all_cert_items):
         total_eals_row.append(total_eals[level])
 
     # plot bar graph with frequency of CC EAL levels
-    plot_bar_graph(total_eals_row, eal_headers, 'Number of certificates', 'Number of certificates of specific EAL level', 'cert_eal_frequency.png')
+    plot_bar_graph(total_eals_row, eal_headers, 'Number of certificates', 'Number of certificates of specific EAL level', 'cert_eal_frequency')
 
     # Print table with results over national schemes
     total_eals_row.append(sum_total)
@@ -560,7 +581,42 @@ def analyze_sars_frequency(all_cert_items):
         print('{:10}: {}x'.format(sar[0], sar[1]))
 
     # plot bar graph with frequency of CC SARs
-    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', 'Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', 'cert_sars_frequency.png')
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', 'Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', 'cert_sars_frequency')
+    sars_freq_nums, sars_labels = (list(t) for t in zip(*sorted(zip(sars_freq_nums, sars_labels), reverse = True)))
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', 'Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', 'cert_sars_frequency_sorted')
+
+    # plot heatmap of SARs frequencies based on type (row) and level (column)
+    sars_labels = sorted(sars_freq.keys())
+    sars_unique_names = []
+    for sar in sars_labels:
+        if sar.find('.') != -1:
+            name = sar[:sar.find('.')]
+        else:
+            name = sar
+        if name not in sars_unique_names:
+            sars_unique_names.append(name)
+
+    sars_unique_names = sorted(sars_unique_names)
+    max_sar_level = 6
+    num_sars = len(sars_unique_names)
+    sar_heatmap = []
+    sar_matrix = []
+    for i in range(1, max_sar_level + 1):
+        sar_row = []
+        for name in sars_unique_names:
+            sar_row.append(0)
+        sar_matrix.append(sar_row)
+
+    for sar in sorted_by_occurence:
+        if sar[0].find('.') != -1:
+            name = sar[0][:sar[0].find('.')]
+            name_index = sars_unique_names.index(name)
+            level = int(sar[0][sar[0].find('.') + 1:])
+            sar_matrix[level - 1][name_index] = sar[1]
+
+    # plot heatmap graph with frequency of SAR levels
+    y_data_labels = range(1, max_sar_level + 2)
+    plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security assurance component (SAR) class', 'Security assurance components (SAR) level', 'Frequency of achieved levels for Security assurance component (SAR) classes', 'cert_sars_heatmap')
 
 
 def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
