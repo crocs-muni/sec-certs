@@ -50,10 +50,13 @@ rules_eval_facilities = [
 rules_protection_profiles = [
     'BSI-(?:CC-|)PP[-]*.+?',
     'PP-SSCD.+?',
-    'Protection Profile',
+    'PP_DBMS_.+?'
+    #    'Protection Profile',
     'CCMB-20.+?',
     'BSI-CCPP-.+?',
     'ANSSI-CC-PP.+?',
+    'WBIS_V[0-9]\.[0-9]',
+    'EHCT_V.+?'
     ]
 
 

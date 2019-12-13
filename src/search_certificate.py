@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
+from dateutil import parser
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
@@ -100,6 +101,7 @@ def plot_heatmap_graph(data_matrix, x_data_ticks, y_data_ticks, x_label, y_label
     plt.title(title)
     plt.savefig(file_name + '.png', bbox_inches='tight')
     plt.savefig(file_name + '.pdf', bbox_inches='tight')
+
 
 def compute_and_plot_hist(data, bins, y_label, title, file_name):
     hist_refs = np.histogram(data, bins)
@@ -379,6 +381,46 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
     print('{} pdf rendered'.format(out_dot_name))
 
 
+def plot_certid_to_item_graph(item_path, all_items_found, walk_dir, out_dot_name, thick_as_occurences):
+    # print dot
+    dot = Digraph(comment='Certificate ecosystem: {}'.format(item_path))
+    dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
+    dot.attr('node', style='filled')
+
+    # insert nodes believed to be cert id for the processed certificates
+    for cert_long_id in all_items_found.keys():
+        if defaultdict(lambda: defaultdict(lambda: None), all_items_found[cert_long_id])['processed']['cert_id'] is not None:
+            dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
+            dot.node(all_items_found[cert_long_id]['processed']['cert_id'])
+
+    dot.attr('node', color='gray')
+    for cert_long_id in all_items_found.keys():
+        # do not continue if no values with specified path were extracted
+        if item_path[0] not in all_items_found[cert_long_id].keys():
+            continue
+
+        cert = all_items_found[cert_long_id]
+        this_cert_id = ''
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+            this_cert_id = cert['processed']['cert_id']
+
+        if defaultdict(lambda: defaultdict(lambda: None), cert)[item_path[0]][item_path[1]] is not None:
+            items_found = cert[item_path[0]][item_path[1]]
+            for rule in items_found:
+                for match in items_found[rule]:
+                    if match != this_cert_id:
+                        if thick_as_occurences:
+                            num_occurrences = str(items_found[rule][match][TAG_MATCH_COUNTER] / 3 + 1)
+                        else:
+                            num_occurrences = '1'
+                        label = str(items_found[rule][match][TAG_MATCH_COUNTER]) # label with number of occurrences
+                        if this_cert_id != "":
+                            dot.edge(this_cert_id, match, color='orange', style='solid', label=label, penwidth=num_occurrences)
+
+    # Generate dot graph using GraphViz into pdf
+    dot.render(out_dot_name, view=False)
+    print('{} pdf rendered'.format(out_dot_name))
+
 def analyze_references_graph(filter_rules_group, all_items_found):
     # build cert_id to item name mapping
     certid_info = {}
@@ -493,6 +535,69 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     max_refs = max(indirect_refs) + step
     bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
     compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', '# certificates with specific number of indirect references', 'cert_indirect_refs_frequency.png')
+
+
+def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name):
+
+    figure(num=None, figsize=(16, 8), dpi=200, facecolor='w', edgecolor='k')
+
+    data_sorted = sorted(data.keys())
+    for group in data_sorted:
+        items_in_year = []
+        for item in sorted(data[group]):
+            num = len(data[group][item])
+            items_in_year.append(num)
+
+        if group in prominent_data:
+            plt.plot(x_ticks, items_in_year, label=group, linewidth=4)
+        else:
+            # plot minor suppliers dashed
+            plt.plot(x_ticks, items_in_year, '--', label=group, linewidth=2)
+
+    plt.rcParams.update({'font.size': 16})
+    plt.legend(loc=2)
+    plt.xticks(x_ticks, rotation=45)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.savefig(file_name + '.png', bbox_inches='tight')
+    plt.savefig(file_name + '.pdf', bbox_inches='tight')
+
+
+def analyze_cert_years_frequency(all_cert_items):
+    scheme_date = {}
+    level_date = {}
+    START_YEAR = 1997
+    END_YEAR = 2020
+    for cert_long_id in all_cert_items.keys():
+        cert = all_cert_items[cert_long_id]
+        if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_scheme'] is not None:
+            if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_certification_date'] is not None:
+                cc_scheme = cert['csv_scan']['cc_scheme']
+                cert_date = cert['csv_scan']['cc_certification_date']
+                level = cert['csv_scan']['cc_security_level']
+                if level.find(',') != -1:
+                    level = level[:level.find(',')]  # trim list of augmented items
+
+                parsed_date = parser.parse(cert_date)
+                year = parsed_date.year
+
+                if cc_scheme not in scheme_date.keys():
+                    scheme_date[cc_scheme] = {}
+                    for year in range(START_YEAR, END_YEAR):
+                        scheme_date[cc_scheme][year] = []
+                if level not in level_date.keys():
+                    level_date[level] = {}
+                    for year in range(START_YEAR, END_YEAR):
+                        level_date[level][year] = []
+
+                scheme_date[cc_scheme][year].append(cert_long_id)
+                level_date[level][year].append(cert_long_id)
+
+
+    years = np.arange(START_YEAR, END_YEAR)
+    plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', 'CC certificates issuance frequency per scheme and year', 'num_certs_in_years')
+    plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+'], 'Year of issuance', 'Number of certificates issued', 'Certificates issuance frequency per EAL and year', 'num_certs_eal_in_years')
 
 
 def analyze_eal_frequency(all_cert_items):
@@ -1020,7 +1125,8 @@ def extract_certificates_frontpage(walk_dir):
 
     return items_found_all
 
-def extract_certificates_keywords(walk_dir, fragments_dir):
+
+def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
     all_items_found = {}
     cert_id = {}
     for file_name in search_files(walk_dir):
@@ -1045,7 +1151,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
         save_modified_cert_file(target_file, modified_cert_file[0], modified_cert_file[1])
 
     # store results into file with fixed name and also with time appendix
-    with open("certificate_data_keywords_all.json", "w") as write_file:
+    with open("{}_data_keywords_all.json".format(file_prefix), "w") as write_file:
         write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
 
     print('\nTotal matches found in separate files:')
@@ -1054,7 +1160,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir):
     print('\nFile name and estimated certificate ID:')
     # print_guessed_cert_id(cert_id)
 
-    depricated_print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
+    #depricated_print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
 
     total_items_found = 0
     for file_name in all_items_found:
@@ -1472,7 +1578,7 @@ def extract_certificates_csv(base_dir):
     return items_found_all
 
 
-def check_expected_results(all_html, all_csv, all_front, all_keywords):
+def check_expected_cert_results(all_html, all_csv, all_front, all_keywords):
     #
     # CSV
     #
@@ -1703,11 +1809,21 @@ def main():
     if do_analysis:
         with open('certificate_data_complete.json') as json_file:
             all_cert_items = json.load(json_file)
+        analyze_cert_years_frequency(all_cert_items)
         analyze_references_graph(['rules_cert_id'], all_cert_items)
         analyze_eal_frequency(all_cert_items)
         analyze_sars_frequency(all_cert_items)
         generate_dot_graphs(all_cert_items, walk_dir)
+        plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, walk_dir, 'certid_pp_graph.dot', False)
 
+        with open('pp_data_complete.json') as json_file:
+            all_pp_items = json.load(json_file)
+
+
+    # extract info about protection profiles, download and parse pdf, map to referencing files
+    # analysis of certificates in time (per year) (different schemes)
+    # how many certificates are extended? How many times
+    # analysis of use of protection profiles
     # analysis of security targets documents
     # analysis of big cert clusters
 
