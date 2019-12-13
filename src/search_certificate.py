@@ -1622,6 +1622,51 @@ def check_expected_cert_results(all_html, all_csv, all_front, all_keywords):
             raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
 
+def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
+    #
+    # CSV
+    #
+    MIN_ITEMS_FOUND_CSV = 4105
+    num_items = len(all_csv)
+    if MIN_ITEMS_FOUND_CSV != num_items:
+        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_CSV))
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+
+    #
+    # HTML
+    #
+    MIN_ITEMS_FOUND_HTML = 4103
+    num_items = len(all_html)
+    if MIN_ITEMS_FOUND_HTML != num_items:
+        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_HTML))
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+
+    #
+    # FRONTPAGE
+    #
+    MIN_ITEMS_FOUND_FRONTPAGE = 1369
+    num_items = len(all_front)
+    if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
+        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_FRONTPAGE))
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+
+    #
+    # KEYWORDS
+    #
+    MIN_ITEMS_FOUND_KEYWORDS = 129181
+    total_items_found = 0
+    for file_name in all_keywords.keys():
+        total_items_found += count_num_items_found(all_keywords[file_name])
+    if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
+        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
+        if STOP_ON_UNEXPECTED_NUMS:
+            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+
+
+
 def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
     print('\n\nPairing results from different scans ***')
 
@@ -1777,13 +1822,17 @@ def main():
     os.chdir(current_dir + '\\..\\results\\')
 
     cc_html_files_dir = 'c:\\Certs\\web\\'
+
     walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
+    walk_dir_pp = 'c:\\Certs\\pp_20191213\\'
+
     #walk_dir = 'c:\\Certs\\cc_certs_test1\\'
     fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
 
     generate_basic_download_script()
 
     do_extraction = False
+    do_extraction_pp = False
     do_pairing = False
     do_analysis = True
 
@@ -1791,7 +1840,13 @@ def main():
         all_csv = extract_certificates_csv(cc_html_files_dir)
         all_html = extract_certificates_html(cc_html_files_dir)
         all_front = extract_certificates_frontpage(walk_dir)
-        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir)
+        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
+
+    if do_extraction_pp:
+        all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
+        all_pp_html = extract_protectionprofiles_html(cc_html_files_dir)
+        all_pp_front = extract_protectionprofiles_frontpage(walk_dir_pp)
+        all_pp_keywords = extract_certificates_keywords(walk_dir_pp, fragments_dir, 'pp')
 
     if do_pairing:
         with open('certificate_data_csv_all.json') as json_file:
@@ -1803,8 +1858,19 @@ def main():
         with open('certificate_data_keywords_all.json') as json_file:
             all_keywords = json.load(json_file)
 
-        check_expected_results(all_html, all_csv, all_front, all_keywords)
+        with open('pp_data_csv_all.json') as json_file:
+            all_pp_csv = json.load(json_file)
+        with open('pp_data_html_all.json') as json_file:
+            all_pp_html = json.load(json_file)
+        with open('v_data_frontpage_all.json') as json_file:
+            all_pp_front = json.load(json_file)
+        with open('pp_data_keywords_all.json') as json_file:
+            all_pp_keywords = json.load(json_file)
+
+        check_expected_cert_results(all_html, all_csv, all_front, all_keywords)
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords)
+        check_expected_pp_results(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
+        all_pp_items = collate_pp_data(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
 
     if do_analysis:
         with open('certificate_data_complete.json') as json_file:
