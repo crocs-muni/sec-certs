@@ -9,7 +9,6 @@ from cert_rules import rules
 from time import gmtime, strftime
 from shutil import copyfile
 from enum import Enum
-from collections import defaultdict
 from tabulate import tabulate
 import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
@@ -63,6 +62,26 @@ def get_line_number(lines, line_length_compensation, match_start_index):
         line_number += 1
     # not found
     return -1
+
+
+def is_in_dict(target_dict, path):
+    current_level = target_dict
+    for item in path:
+        if item not in current_level:
+            return False
+        else:
+            current_level = current_level[item]
+    return True
+
+
+def get_item_from_dict(target_dict, path):
+    current_level = target_dict
+    for item in path:
+        if item not in current_level:
+            return None
+        else:
+            current_level = current_level[item]
+    return current_level
 
 
 def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
@@ -334,7 +353,7 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
 
     # insert nodes believed to be cert id for the processed certificates
     for cert_long_id in all_items_found.keys():
-        if defaultdict(lambda: defaultdict(lambda: None), all_items_found[cert_long_id])['processed']['cert_id'] is not None:
+        if is_in_dict(all_items_found[cert_long_id], ['processed', 'cert_id']):
             dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
             dot.node(all_items_found[cert_long_id]['processed']['cert_id'])
 
@@ -346,9 +365,9 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
 
         cert = all_items_found[cert_long_id]
         this_cert_id = ''
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+        if is_in_dict(cert, ['processed', 'cert_id']):
             this_cert_id = cert['processed']['cert_id']
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cert_item_name'] is not None:
+        if is_in_dict(cert, ['csv_scan', 'cert_item_name']):
             this_cert_name = cert['csv_scan']['cert_item_name']
 
         just_file_name = cert['csv_scan']['link_cert_report_file_name']
@@ -389,7 +408,7 @@ def plot_certid_to_item_graph(item_path, all_items_found, walk_dir, out_dot_name
 
     # insert nodes believed to be cert id for the processed certificates
     for cert_long_id in all_items_found.keys():
-        if defaultdict(lambda: defaultdict(lambda: None), all_items_found[cert_long_id])['processed']['cert_id'] is not None:
+        if is_in_dict(all_items_found[cert_long_id], ['processed', 'cert_id']):
             dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
             dot.node(all_items_found[cert_long_id]['processed']['cert_id'])
 
@@ -401,10 +420,10 @@ def plot_certid_to_item_graph(item_path, all_items_found, walk_dir, out_dot_name
 
         cert = all_items_found[cert_long_id]
         this_cert_id = ''
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+        if is_in_dict(cert, ['processed', 'cert_id']):
             this_cert_id = cert['processed']['cert_id']
 
-        if defaultdict(lambda: defaultdict(lambda: None), cert)[item_path[0]][item_path[1]] is not None:
+        if is_in_dict(cert, [item_path[0], item_path[1]]):
             items_found = cert[item_path[0]][item_path[1]]
             for rule in items_found:
                 for match in items_found[rule]:
@@ -426,8 +445,8 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     certid_info = {}
     for cert_long_id in all_items_found.keys():
         cert = all_items_found[cert_long_id]
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
-            if defaultdict(lambda: defaultdict(lambda: None), cert)['frontpage_scan']['cert_item'] is not None:
+        if is_in_dict(cert, ['processed', 'cert_id']):
+            if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
                 this_cert_id = cert['processed']['cert_id']
                 if this_cert_id not in certid_info.keys():
                     certid_info[this_cert_id] = {}
@@ -442,7 +461,7 @@ def analyze_references_graph(filter_rules_group, all_items_found):
 
         cert = all_items_found[cert_long_id]
         this_cert_id = ''
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['processed']['cert_id'] is not None:
+        if is_in_dict(cert, ['processed', 'cert_id']):
             this_cert_id = cert['processed']['cert_id']
 
         items_found_group = all_items_found[cert_long_id]['keywords_scan']
@@ -475,7 +494,7 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     direct_refs = []
     for cert_id in sorted_ref_direct:
         direct_refs.append(cert_id[1])
-        if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
+        if is_in_dict(certid_info, [cert_id[0], 'cert_item']):
             print('  {} : {}x directly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
         else:
             print('  {} : {}x directly'.format(cert_id[0], cert_id[1]))
@@ -526,7 +545,7 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     indirect_refs = []
     for cert_id in sorted_ref_indirect:
         indirect_refs.append(cert_id[1])
-        if defaultdict(lambda: defaultdict(lambda: None), certid_info)[cert_id[0]]['cert_item'] is not None:
+        if is_in_dict(certid_info, [cert_id[0], 'cert_item']):
             print('  {} : {}x indirectly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
         else:
             print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
@@ -541,6 +560,8 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 
     figure(num=None, figsize=(16, 8), dpi=200, facecolor='w', edgecolor='k')
 
+    line_types = ['-', ':', '-.', '--']
+    num_lines_plotted = 0
     data_sorted = sorted(data.keys())
     for group in data_sorted:
         items_in_year = []
@@ -549,10 +570,13 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
             items_in_year.append(num)
 
         if group in prominent_data:
-            plt.plot(x_ticks, items_in_year, label=group, linewidth=4)
+            plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)], label=group, linewidth=3)
         else:
             # plot minor suppliers dashed
-            plt.plot(x_ticks, items_in_year, '--', label=group, linewidth=2)
+            plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)], label=group, linewidth=2)
+
+        # change line type to prevent color repetitions
+        num_lines_plotted += 1
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
@@ -567,45 +591,96 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 def analyze_cert_years_frequency(all_cert_items):
     scheme_date = {}
     level_date = {}
+    manufacturer_date = {}
+    manufacturer_items = {}
     START_YEAR = 1997
     END_YEAR = 2020
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_scheme'] is not None:
-            if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_certification_date'] is not None:
-                cc_scheme = cert['csv_scan']['cc_scheme']
-                cert_date = cert['csv_scan']['cc_certification_date']
+        if is_in_dict(cert, ['csv_scan', 'cc_certification_date']):
+            # extract year of certification
+            cert_date = cert['csv_scan']['cc_certification_date']
+            parsed_date = parser.parse(cert_date)
+            year = parsed_date.year
+
+            # extract EAL level
+            if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
                 level = cert['csv_scan']['cc_security_level']
                 if level.find(',') != -1:
                     level = level[:level.find(',')]  # trim list of augmented items
+                level_out = level
+                if level == 'None':
+                    if cert['csv_scan']['cc_protection_profiles'] != '':
+                        level_out = 'Protection Profile'
 
-                parsed_date = parser.parse(cert_date)
-                year = parsed_date.year
+                if level_out not in level_date.keys():
+                    level_date[level_out] = {}
+                    for year in range(START_YEAR, END_YEAR):
+                        level_date[level_out][year] = []
+                level_date[level_out][year].append(cert_long_id)
 
+            # extract scheme
+            if is_in_dict(cert, ['csv_scan', 'cc_scheme']):
+                cc_scheme = cert['csv_scan']['cc_scheme']
                 if cc_scheme not in scheme_date.keys():
                     scheme_date[cc_scheme] = {}
                     for year in range(START_YEAR, END_YEAR):
                         scheme_date[cc_scheme][year] = []
-                if level not in level_date.keys():
-                    level_date[level] = {}
-                    for year in range(START_YEAR, END_YEAR):
-                        level_date[level][year] = []
-
                 scheme_date[cc_scheme][year].append(cert_long_id)
-                level_date[level][year].append(cert_long_id)
 
+            # extract manufacturer(s)
+            if 'cc_manufacturer_simple_list' in cert['processed']:
+                for manufacturer in cert['processed']['cc_manufacturer_simple_list']:
+                    if manufacturer not in manufacturer_date.keys():
+                        manufacturer_date[manufacturer] = {}
+                        for year in range(START_YEAR, END_YEAR):
+                            manufacturer_date[manufacturer][year] = []
+                    if manufacturer not in manufacturer_items:
+                        manufacturer_items[manufacturer] = 0
 
+                    manufacturer_date[manufacturer][year].append(cert_long_id)
+                    manufacturer_items[manufacturer] += 1
+
+    # print manufacturers frequency
+    sorted_by_occurence = sorted(manufacturer_items.items(), key=operator.itemgetter(1))
+    print('\n### Frequency of certificates per company')
+    print('  # companies: {}'.format(len(manufacturer_items)))
+    print('  # companies with more than 1 cert: {}'.format(len([i for i in sorted_by_occurence if i[1] > 1])))
+    print('  # companies with more than 10 cert: {}'.format(len([i for i in sorted_by_occurence if i[1] > 10])))
+    print('  # companies with more than 50 cert: {}\n'.format(len([i for i in sorted_by_occurence if i[1] > 50])))
+    for manufacturer in sorted_by_occurence:
+        print('  {}: {}x'.format(manufacturer[0], manufacturer[1]))
+
+    # plot graphs showing cert. scheme and EAL in years
     years = np.arange(START_YEAR, END_YEAR)
     plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', 'CC certificates issuance frequency per scheme and year', 'num_certs_in_years')
-    plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+'], 'Year of issuance', 'Number of certificates issued', 'Certificates issuance frequency per EAL and year', 'num_certs_eal_in_years')
+    plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', 'Certificates issuance frequency per EAL and year', 'num_certs_eal_in_years')
 
+    sc_manufacturers = ['Gemalto', 'NXP Semiconductors', 'Samsung', 'STMicroelectronics', 'Oberthur Technologies',
+                        'Infineon Technologies AG', 'G+D Mobile Security GmbH', 'ATMEL Smart Card ICs', 'Idemia',
+                        'Athena Smartcard', 'Renesas', 'Philips Semiconductors GmbH', 'Oberthur Card Systems']
+
+    # plot only top manufacturers
+    top_manufacturers = dict(sorted_by_occurence[len(sorted_by_occurence) - 20:]).keys()  # top 20 manufacturers
+    plot_manufacturers_date = {}
+    for manuf in manufacturer_date.keys():
+        if manuf in top_manufacturers:
+            plot_manufacturers_date[manuf] = manufacturer_date[manuf]
+    plot_schemes_multi_line_graph(years, plot_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', 'Top 20 manufacturers of certified items per year', 'manufacturer_in_years')
+
+    # plot only smartcard manufacturers
+    plot_manufacturers_date = {}
+    for manuf in manufacturer_date.keys():
+        if manuf in sc_manufacturers:
+            plot_manufacturers_date[manuf] = manufacturer_date[manuf]
+    plot_schemes_multi_line_graph(years, plot_manufacturers_date, [], 'Year of issuance', 'Number of certificates issued', 'Smartcard-related manufacturers of certified items per year', 'manufacturer_sc_in_years')
 
 def analyze_eal_frequency(all_cert_items):
     scheme_level = {}
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_scheme'] is not None:
-            if defaultdict(lambda: defaultdict(lambda: None), cert)['csv_scan']['cc_security_level'] is not None:
+        if is_in_dict(cert, ['csv_scan', 'cc_scheme']):
+            if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
                 cc_scheme = cert['csv_scan']['cc_scheme']
                 level = cert['csv_scan']['cc_security_level']
                 if level.find(',') != -1:
@@ -664,7 +739,7 @@ def analyze_sars_frequency(all_cert_items):
     sars_freq = {}
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
-        if defaultdict(lambda: defaultdict(lambda: None), cert)['keywords_scan']['rules_security_target_class'] is not None:
+        if is_in_dict(cert, ['keywords_scan', 'rules_security_target_class']):
             sars = cert['keywords_scan']['rules_security_target_class']
             for sar_rule in sars:
                 for sar_hit in sars[sar_rule]:
@@ -1763,9 +1838,6 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
         if file_name_to_keywords_name_mapping[item][1] == 0: # not paired
             print('  {}'.format(file_name_to_keywords_name_mapping[item][0]))
 
-    with open("certificate_data_complete.json", "w") as write_file:
-        write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
-
     # display all record which were not paired
     print('\n\nRecords with missing pairing of frontpage:')
     num_frontpage_missing = 0
@@ -1787,6 +1859,140 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
 
     return all_cert_items
 
+
+def get_manufacturer_simple_name(long_manufacturer, reduction_list):
+    if long_manufacturer in reduction_list:
+        return reduction_list[long_manufacturer]
+    else:
+        return long_manufacturer
+
+
+def process_certificates_data(all_cert_items):
+    print('\n\nExtracting useful info from collated files ***')
+
+    #
+    # Process 'cc_manufacturer' CSV field
+    # 1. separate multiple manufacturers (',' '-' '/' 'and')
+    # 2. map different names of a same manufacturer to the same
+    manufacturers = []
+    for file_name in all_cert_items.keys():
+        cert = all_cert_items[file_name]
+        # extract manufacturer
+        if is_in_dict(cert, ['csv_scan', 'cc_manufacturer']):
+            manufacturer = cert['csv_scan']['cc_manufacturer']
+
+            if manufacturer != '':
+                if manufacturer not in manufacturers:
+                    manufacturers.append(manufacturer)
+
+    sorted_manufacturers = sorted(manufacturers)
+    for manuf in sorted_manufacturers:
+        print('{}'.format(manuf))
+
+    print('\n\n')
+    mapping_csvmanuf_separated = {}
+    for manuf in sorted_manufacturers:
+        mapping_csvmanuf_separated[manuf] = []
+
+    for manuf in sorted_manufacturers:
+        # Manufacturer can be single, multiple, separated by - / and ,
+        # heuristics: if separated cnadidate manufacturer can be found in original list (
+        # => is sole manufacturer on another certificate => assumption of correct separation)
+        separators = [',', '/'] # , '/', ',', 'and']
+        multiple_manuf_detected = False
+        for sep in separators:
+            list_manuf = manuf.split(sep)
+            for i in range(0, len(list_manuf)):
+                list_manuf[i] = list_manuf[i].strip()
+            if len(list_manuf) > 1:
+                all_separated_exists = True
+                for separated_manuf in list_manuf:
+                    if separated_manuf in sorted_manufacturers:
+                        continue
+                    else:
+                        print('Problematic separator \'{}\' in {}'.format(sep, manuf))
+                        all_separated_exists = False
+                        break
+
+                if all_separated_exists:
+                    for x in list_manuf:
+                        mapping_csvmanuf_separated[manuf].append(x)
+                    multiple_manuf_detected = True
+
+        if not multiple_manuf_detected:
+            mapping_csvmanuf_separated[manuf].append(manuf)
+
+    print('### Multiple manufactures detected and split:')
+    for manuf in mapping_csvmanuf_separated:
+        if len(mapping_csvmanuf_separated[manuf]) > 1:
+            print('  {}:{}'.format(manuf, mapping_csvmanuf_separated[manuf]))
+
+    manuf_starts = {}
+    already_reduced = {}
+    for manuf1 in sorted_manufacturers: # we are processing from the shorter to longer
+        if manuf1 == '':
+            continue
+        for manuf2 in sorted_manufacturers:
+            if manuf1 != manuf2:
+                if manuf2.startswith(manuf1):
+                    print('Potential consolidation of manufacturers: {} vs. {}'.format(manuf1, manuf2))
+                    if manuf1 not in manuf_starts:
+                        manuf_starts[manuf1] = set()
+                    manuf_starts[manuf1].add(manuf2)
+                    if manuf2 not in already_reduced:
+                        already_reduced[manuf2] = manuf1
+                    else:
+                        print('  Warning: \'{}\' prefixed by \'{}\' already reduced to \'{}\''.format(manuf2, manuf1, already_reduced[manuf2]))
+
+
+    # try to find manufacturers with multiple names and draw the map
+    dot = Digraph(comment='Manufacturers naming simplifications')
+    dot.attr('graph', label='Manufacturers naming simplifications', labelloc='t', fontsize='30')
+    dot.attr('node', style='filled')
+    already_inserted_edges = []
+    for file_name in all_cert_items.keys():
+        cert = all_cert_items[file_name]
+        if is_in_dict(cert, ['csv_scan', 'cc_manufacturer']):
+            joint_manufacturer = cert['csv_scan']['cc_manufacturer']
+            if joint_manufacturer != '':
+                for manuf in mapping_csvmanuf_separated[joint_manufacturer]:
+                    simple_manuf = get_manufacturer_simple_name(manuf, already_reduced)
+                    if simple_manuf != manuf:
+                        edge_name = '{}<->{}'.format(simple_manuf, manuf)
+                        if edge_name not in already_inserted_edges:
+                            dot.edge(simple_manuf, manuf, color='orange', style='solid')
+                            already_inserted_edges.append(edge_name)
+
+    # plot naming hierarchies
+    file_name = 'manufacturer_naming_dependency.dot'
+    dot.render(file_name, view=False)
+    print('{} pdf rendered'.format(file_name))
+
+
+    # update dist with processed list of manufactures
+    all_cert_items_keys = list(all_cert_items.keys())
+    for file_name in all_cert_items_keys:
+        cert = all_cert_items[file_name]
+        # extract manufacturer
+        if is_in_dict(cert, ['csv_scan', 'cc_manufacturer']):
+            manufacturer = cert['csv_scan']['cc_manufacturer']
+
+            if manufacturer != '':
+                if 'processed' not in cert:
+                    cert['processed'] = {}
+
+                # insert extracted manufacturers by full name
+                cert['processed']['cc_manufacturer_list'] = mapping_csvmanuf_separated[manufacturer]
+
+                # insert extracted manufacturers by simplified name
+                simple_manufacturers = []
+                for manuf in mapping_csvmanuf_separated[manufacturer]:
+                    simple_manufacturers.append(get_manufacturer_simple_name(manuf, already_reduced))
+
+                cert['processed']['cc_manufacturer_simple_list'] = simple_manufacturers
+                cert['processed']['cc_manufacturer_simple'] = get_manufacturer_simple_name(manufacturer, already_reduced)
+
+    return all_cert_items
 
 def generate_dot_graphs(all_items_found, walk_dir):
     print_dot_graph(['rules_cert_id'], all_items_found, walk_dir, 'certid_graph.dot', True)
@@ -1858,23 +2064,32 @@ def main():
         with open('certificate_data_keywords_all.json') as json_file:
             all_keywords = json.load(json_file)
 
-        with open('pp_data_csv_all.json') as json_file:
-            all_pp_csv = json.load(json_file)
-        with open('pp_data_html_all.json') as json_file:
-            all_pp_html = json.load(json_file)
-        with open('v_data_frontpage_all.json') as json_file:
-            all_pp_front = json.load(json_file)
-        with open('pp_data_keywords_all.json') as json_file:
-            all_pp_keywords = json.load(json_file)
+        # with open('pp_data_csv_all.json') as json_file:
+        #     all_pp_csv = json.load(json_file)
+        # with open('pp_data_html_all.json') as json_file:
+        #     all_pp_html = json.load(json_file)
+        # with open('v_data_frontpage_all.json') as json_file:
+        #     all_pp_front = json.load(json_file)
+        # with open('pp_data_keywords_all.json') as json_file:
+        #     all_pp_keywords = json.load(json_file)
 
         check_expected_cert_results(all_html, all_csv, all_front, all_keywords)
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords)
-        check_expected_pp_results(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
-        all_pp_items = collate_pp_data(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
+        all_cert_items = process_certificates_data(all_cert_items)
+        with open("certificate_data_complete.json", "w") as write_file:
+            write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+
+        # check_expected_pp_results(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
+        # all_pp_items = collate_pp_data(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
+        # with open("pp_data_complete.json", "w") as write_file:
+        #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
     if do_analysis:
         with open('certificate_data_complete.json') as json_file:
             all_cert_items = json.load(json_file)
+
+        #all_cert_items = process_certificates_data(all_cert_items)
+
         analyze_cert_years_frequency(all_cert_items)
         analyze_references_graph(['rules_cert_id'], all_cert_items)
         analyze_eal_frequency(all_cert_items)
@@ -1882,11 +2097,13 @@ def main():
         generate_dot_graphs(all_cert_items, walk_dir)
         plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, walk_dir, 'certid_pp_graph.dot', False)
 
-        with open('pp_data_complete.json') as json_file:
-            all_pp_items = json.load(json_file)
+        # with open('pp_data_complete.json') as json_file:
+        #     all_pp_items = json.load(json_file)
 
 
+    # process manufacturer(s) item into 'processed' (one single name + all variants found)
     # extract info about protection profiles, download and parse pdf, map to referencing files
+    # analysis of PP only: which PP is the most popular?, what schemes/countries are doing most...
     # analysis of certificates in time (per year) (different schemes)
     # how many certificates are extended? How many times
     # analysis of use of protection profiles
