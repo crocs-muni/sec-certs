@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 from dateutil import parser
+import datetime
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
@@ -591,17 +592,37 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 def analyze_cert_years_frequency(all_cert_items):
     scheme_date = {}
     level_date = {}
+    archive_date = {}
+    validity_length = {}
+    valid_in_years = {}
     manufacturer_date = {}
     manufacturer_items = {}
     START_YEAR = 1997
-    END_YEAR = 2020
+    END_YEAR = datetime.datetime.now().year + 1
+    ARCHIVE_OFFSET = 10
+
+    for i in range(END_YEAR - START_YEAR + ARCHIVE_OFFSET):
+        validity_length[i] = []
+
+    valid_in_years['active'] = {}
+    valid_in_years['archived'] = {}
+    for year in range(START_YEAR, END_YEAR + ARCHIVE_OFFSET):
+        valid_in_years['active'][year] = []
+        valid_in_years['archived'][year] = []
+
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
         if is_in_dict(cert, ['csv_scan', 'cc_certification_date']):
             # extract year of certification
             cert_date = cert['csv_scan']['cc_certification_date']
             parsed_date = parser.parse(cert_date)
-            year = parsed_date.year
+            cert_year = parsed_date.year
+            # try to extract year of archivation (if provided)
+            archived_year = None
+            if is_in_dict(cert, ['csv_scan', 'cc_archived_date']):
+                cert_archive_date = cert['csv_scan']['cc_archived_date']
+                if cert_archive_date != '':
+                    archived_year = parser.parse(cert_archive_date).year
 
             # extract EAL level
             if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
@@ -617,7 +638,7 @@ def analyze_cert_years_frequency(all_cert_items):
                     level_date[level_out] = {}
                     for year in range(START_YEAR, END_YEAR):
                         level_date[level_out][year] = []
-                level_date[level_out][year].append(cert_long_id)
+                level_date[level_out][cert_year].append(cert_long_id)
 
             # extract scheme
             if is_in_dict(cert, ['csv_scan', 'cc_scheme']):
@@ -626,7 +647,7 @@ def analyze_cert_years_frequency(all_cert_items):
                     scheme_date[cc_scheme] = {}
                     for year in range(START_YEAR, END_YEAR):
                         scheme_date[cc_scheme][year] = []
-                scheme_date[cc_scheme][year].append(cert_long_id)
+                scheme_date[cc_scheme][cert_year].append(cert_long_id)
 
             # extract manufacturer(s)
             if 'cc_manufacturer_simple_list' in cert['processed']:
@@ -638,8 +659,37 @@ def analyze_cert_years_frequency(all_cert_items):
                     if manufacturer not in manufacturer_items:
                         manufacturer_items[manufacturer] = 0
 
-                    manufacturer_date[manufacturer][year].append(cert_long_id)
+                    manufacturer_date[manufacturer][cert_year].append(cert_long_id)
                     manufacturer_items[manufacturer] += 1
+
+            # extract cert archival status
+            if archived_year is not None:
+                valid_years = archived_year - cert_year + 1
+                validity_length[valid_years].append(cert_long_id)
+
+                if 'archived_date' not in archive_date.keys():
+                    archive_date['archived_date'] = {}
+                    for year in range(START_YEAR, END_YEAR + ARCHIVE_OFFSET):  # archive year can be quite in future
+                        archive_date['archived_date'][year] = []
+
+                archive_date['archived_date'][archived_year].append(cert_long_id)
+
+            # establish certificates active / archived in give year
+            for year in range(START_YEAR, END_YEAR + ARCHIVE_OFFSET):
+                if archived_year is not None:
+                    # archived date is set
+                    if year >= cert_year:
+                        if year <= archived_year:
+                            # certificate is valid in year
+                            valid_in_years['active'][year].append(cert_long_id)
+                        else:
+                            # certificate is NOT valid in given year
+                            valid_in_years['archived'][year].append(cert_long_id)
+                else:
+                    # no archival date set => active
+                    if year >= cert_year:
+                        # certificate is valid in year
+                        valid_in_years['active'][year].append(cert_long_id)
 
     # print manufacturers frequency
     sorted_by_occurence = sorted(manufacturer_items.items(), key=operator.itemgetter(1))
@@ -653,8 +703,11 @@ def analyze_cert_years_frequency(all_cert_items):
 
     # plot graphs showing cert. scheme and EAL in years
     years = np.arange(START_YEAR, END_YEAR)
+    years_extended = np.arange(START_YEAR, END_YEAR + ARCHIVE_OFFSET)
     plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', 'CC certificates issuance frequency per scheme and year', 'num_certs_in_years')
     plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', 'Certificates issuance frequency per EAL and year', 'num_certs_eal_in_years')
+    plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', 'Number of certificates archived or planned for archival in a given year', 'num_certs_archived_in_years')
+    plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', 'Number of certificates active and archived in given year', 'num_certs_active_archived_in_years')
 
     sc_manufacturers = ['Gemalto', 'NXP Semiconductors', 'Samsung', 'STMicroelectronics', 'Oberthur Technologies',
                         'Infineon Technologies AG', 'G+D Mobile Security GmbH', 'ATMEL Smart Card ICs', 'Idemia',
@@ -674,6 +727,15 @@ def analyze_cert_years_frequency(all_cert_items):
         if manuf in sc_manufacturers:
             plot_manufacturers_date[manuf] = manufacturer_date[manuf]
     plot_schemes_multi_line_graph(years, plot_manufacturers_date, [], 'Year of issuance', 'Number of certificates issued', 'Smartcard-related manufacturers of certified items per year', 'manufacturer_sc_in_years')
+
+    # plot certificate validity lengths
+    print('### Certificates validity period lengths:')
+    validity_length_numbers = []
+    for length in sorted(validity_length.keys()):
+        print('  {} year(s): {}x   {}'.format(length, len(validity_length[length]), validity_length[length]))
+        validity_length_numbers.append(len(validity_length[length]))
+    plot_bar_graph(validity_length_numbers, sorted(validity_length.keys()), 'Number of certificates', 'Number of certificates with specific validity length', 'cert_validity_length_frequency')
+
 
 def analyze_eal_frequency(all_cert_items):
     scheme_level = {}
@@ -2101,7 +2163,6 @@ def main():
         #     all_pp_items = json.load(json_file)
 
 
-    # process manufacturer(s) item into 'processed' (one single name + all variants found)
     # extract info about protection profiles, download and parse pdf, map to referencing files
     # analysis of PP only: which PP is the most popular?, what schemes/countries are doing most...
     # analysis of certificates in time (per year) (different schemes)
@@ -2109,6 +2170,7 @@ def main():
     # analysis of use of protection profiles
     # analysis of security targets documents
     # analysis of big cert clusters
+    # improve logging (info, warnings, errors, final summary)
 
 if __name__ == "__main__":
     main()
