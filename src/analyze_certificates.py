@@ -377,6 +377,7 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 def analyze_cert_years_frequency(all_cert_items):
     scheme_date = {}
     level_date = {}
+    category_date = {}
     archive_date = {}
     validity_length = {}
     valid_in_years = {}
@@ -425,6 +426,15 @@ def analyze_cert_years_frequency(all_cert_items):
                         level_date[level_out][year] = []
                 level_date[level_out][cert_year].append(cert_long_id)
 
+            # extract certificate category
+            if is_in_dict(cert, ['csv_scan', 'cc_category']):
+                category = cert['csv_scan']['cc_category']
+
+                if category not in category_date.keys():
+                    category_date[category] = {}
+                    for year in range(START_YEAR, END_YEAR):
+                        category_date[category][year] = []
+                category_date[category][cert_year].append(cert_long_id)
 
             # extract scheme
             if is_in_dict(cert, ['csv_scan', 'cc_scheme']):
@@ -492,6 +502,7 @@ def analyze_cert_years_frequency(all_cert_items):
     years_extended = np.arange(START_YEAR, END_YEAR + ARCHIVE_OFFSET)
     plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', 'CC certificates issuance frequency per scheme and year', 'num_certs_in_years')
     plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', 'Certificates issuance frequency per EAL and year', 'num_certs_eal_in_years')
+    plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', 'Category of certificates issued in given year', 'num_certs_category_in_years')
     plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', 'Number of certificates archived or planned for archival in a given year', 'num_certs_archived_in_years')
     plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', 'Number of certificates active and archived in given year', 'num_certs_active_archived_in_years')
 
