@@ -1291,6 +1291,12 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
 def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_name_key):
     print('\n\nPairing results from different scans ***')
 
+    file_name_to_html_name_mapping = {}
+    for long_file_name in all_html.keys():
+        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        if short_file_name != '':
+            file_name_to_html_name_mapping[short_file_name] = long_file_name
+
     file_name_to_front_name_mapping = {}
     for long_file_name in all_front.keys():
         short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
@@ -1311,33 +1317,38 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
         file_name_pdf = file_name[:file_name.rfind('__')]
         file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
         #file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
-        file_name_st = extract_file_name_from_url(all_csv[file_name]['csv_scan'][file_name_key])
-        file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
+        if is_in_dict(all_csv, [file_name, 'csv_scan', 'link_security_target']):
+            file_name_st = extract_file_name_from_url(all_csv[file_name]['csv_scan']['link_security_target'])
+            file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
+        else:
+            file_name_st_txt = 'security_target_which_doesnt_exists'
 
-        # find all items which references same pdf report
-        for file_and_id in all_html.keys():
-            # in items extracted from html, names are in form of 'file_name.pdf__number'
-            if file_and_id.find(file_name_pdf + '__') != -1:
-                if 'processed' not in all_cert_items[file_name].keys():
-                    all_cert_items[file_name]['processed'] = {}
-                pairing_found = True
-                frontpage_scan = None
-                keywords_scan = None
-                if file_name_txt in file_name_to_front_name_mapping.keys():
-                    all_cert_items[file_name]['frontpage_scan'] = all_front[file_name_to_front_name_mapping[file_name_txt]]
-                    frontpage_scan = all_front[file_name_to_front_name_mapping[file_name_txt]]
-                if file_name_txt in file_name_to_keywords_name_mapping.keys():
-                    all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
-                    file_name_to_keywords_name_mapping[file_name_txt][1] = 1 # was paired
-                    keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
-                if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
-                    all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
-                    file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
+        # for file_and_id in all_html.keys():
+        #     # in items extracted from html, names are in form of 'file_name.pdf__number'
+        #     if file_and_id.find(file_name_pdf + '__') != -1:
+        if 'processed' not in all_cert_items[file_name].keys():
+            all_cert_items[file_name]['processed'] = {}
+        pairing_found = True
+        frontpage_scan = None
+        keywords_scan = None
 
-                all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
-
-        if not pairing_found:
+        if file_name_txt in file_name_to_html_name_mapping.keys():
+            all_cert_items[file_name]['html_scan'] = all_html[file_name_to_html_name_mapping[file_name_txt][0]]
+            file_name_to_html_name_mapping[file_name_txt][1] = 1 # was paired
+        else:
             print('WARNING: Corresponding HTML report not found for CSV item {}'.format(file_name))
+        if file_name_txt in file_name_to_front_name_mapping.keys():
+            all_cert_items[file_name]['frontpage_scan'] = all_front[file_name_to_front_name_mapping[file_name_txt]]
+            frontpage_scan = all_front[file_name_to_front_name_mapping[file_name_txt]]
+        if file_name_txt in file_name_to_keywords_name_mapping.keys():
+            all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
+            file_name_to_keywords_name_mapping[file_name_txt][1] = 1 # was paired
+            keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
+        if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
+            all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
+            file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
+
+        all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
 
     # pair keywords to maintainance updates
     for file_name in all_csv.keys():
@@ -1349,10 +1360,13 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
             file_name_pdf = extract_file_name_from_url(update['cc_maintainance_report_link'])
             file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
 
-            file_name_st = extract_file_name_from_url(update['cc_maintainance_st_link'])
-            file_name_st_txt = ''
-            if len(file_name_st) > 0:
-                file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
+            if is_in_dict(update, ['cc_maintainance_st_link']):
+                file_name_st = extract_file_name_from_url(update['cc_maintainance_st_link'])
+                file_name_st_txt = ''
+                if len(file_name_st) > 0:
+                    file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
+            else:
+                file_name_st_txt = 'file_name_which_doesnt_exists'
 
             for file_and_id in all_keywords.keys():
                 file_name_keyword_txt = file_and_id[file_and_id.rfind('\\') + 1:]
