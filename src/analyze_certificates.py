@@ -32,6 +32,13 @@ def get_item_from_dict(target_dict, path):
     return current_level
 
 
+def fig_label(title, filter):
+    if filter != '':
+        return '{}\nfilter: {}'.format(title, filter)
+    else:
+        return title
+
+
 def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
     fig_width = round(len(data) / 2)
     if fig_width < 10:
@@ -83,10 +90,10 @@ def compute_and_plot_hist(data, bins, y_label, title, file_name):
 
 
 
-def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found, cert_id, walk_dir, out_dot_name, thick_as_occurences):
+def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found, cert_id, filter_label, out_dot_name, thick_as_occurences):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
-    dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
+    dot.attr('graph', label='{}'.format(filter_label), labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
 
     # insert nodes believed to be cert id for the processed certificates
@@ -131,10 +138,10 @@ def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found,
     print('{} pdf rendered'.format(out_dot_name))
 
 
-def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name, thick_as_occurences):
+def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
-    dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
+    dot.attr('graph', label='{}'.format(filter_label), labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
 
     # insert nodes believed to be cert id for the processed certificates
@@ -186,10 +193,10 @@ def print_dot_graph(filter_rules_group, all_items_found, walk_dir, out_dot_name,
     print('{} pdf rendered'.format(out_dot_name))
 
 
-def plot_certid_to_item_graph(item_path, all_items_found, walk_dir, out_dot_name, thick_as_occurences):
+def plot_certid_to_item_graph(item_path, all_items_found, filter_label, out_dot_name, thick_as_occurences):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(item_path))
-    dot.attr('graph', label='{}'.format(walk_dir), labelloc='t', fontsize='30')
+    dot.attr('graph', label='{}'.format(filter_label), labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
 
     # insert nodes believed to be cert id for the processed certificates
@@ -226,7 +233,7 @@ def plot_certid_to_item_graph(item_path, all_items_found, walk_dir, out_dot_name
     dot.render(out_dot_name, view=False)
     print('{} pdf rendered'.format(out_dot_name))
 
-def analyze_references_graph(filter_rules_group, all_items_found):
+def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     # build cert_id to item name mapping
     certid_info = {}
     for cert_long_id in all_items_found.keys():
@@ -289,7 +296,7 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     step = 5
     max_refs = max(direct_refs) + step
     bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
-    compute_and_plot_hist(direct_refs, bins, 'Number of certificates', '# certificates with specific number of direct references', 'cert_direct_refs_frequency.png')
+    compute_and_plot_hist(direct_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of direct references', filter_label), 'cert_direct_refs_frequency.png')
 
 
     EXPECTED_CERTS_REFERENCED_ONCE = 942
@@ -339,7 +346,7 @@ def analyze_references_graph(filter_rules_group, all_items_found):
     step = 5
     max_refs = max(indirect_refs) + step
     bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
-    compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', '# certificates with specific number of indirect references', 'cert_indirect_refs_frequency.png')
+    compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of indirect references', filter_label), 'cert_indirect_refs_frequency.png')
 
 
 def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name):
@@ -374,7 +381,7 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
     plt.savefig(file_name + '.pdf', bbox_inches='tight')
 
 
-def analyze_cert_years_frequency(all_cert_items):
+def analyze_cert_years_frequency(all_cert_items, filter_label):
     scheme_date = {}
     level_date = {}
     category_date = {}
@@ -500,11 +507,11 @@ def analyze_cert_years_frequency(all_cert_items):
     # plot graphs showing cert. scheme and EAL in years
     years = np.arange(START_YEAR, END_YEAR)
     years_extended = np.arange(START_YEAR, END_YEAR + ARCHIVE_OFFSET)
-    plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', 'CC certificates issuance frequency per scheme and year', 'num_certs_in_years')
-    plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', 'Certificates issuance frequency per EAL and year', 'num_certs_eal_in_years')
-    plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', 'Category of certificates issued in given year', 'num_certs_category_in_years')
-    plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', 'Number of certificates archived or planned for archival in a given year', 'num_certs_archived_in_years')
-    plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', 'Number of certificates active and archived in given year', 'num_certs_active_archived_in_years')
+    plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
+    plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
+    plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
+    plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
+    plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
 
     sc_manufacturers = ['Gemalto', 'NXP Semiconductors', 'Samsung', 'STMicroelectronics', 'Oberthur Technologies',
                         'Infineon Technologies AG', 'G+D Mobile Security GmbH', 'ATMEL Smart Card ICs', 'Idemia',
@@ -516,14 +523,14 @@ def analyze_cert_years_frequency(all_cert_items):
     for manuf in manufacturer_date.keys():
         if manuf in top_manufacturers:
             plot_manufacturers_date[manuf] = manufacturer_date[manuf]
-    plot_schemes_multi_line_graph(years, plot_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', 'Top 20 manufacturers of certified items per year', 'manufacturer_in_years')
+    plot_schemes_multi_line_graph(years, plot_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', fig_label('Top 20 manufacturers of certified items per year', filter_label), 'manufacturer_in_years')
 
     # plot only smartcard manufacturers
     plot_manufacturers_date = {}
     for manuf in manufacturer_date.keys():
         if manuf in sc_manufacturers:
             plot_manufacturers_date[manuf] = manufacturer_date[manuf]
-    plot_schemes_multi_line_graph(years, plot_manufacturers_date, [], 'Year of issuance', 'Number of certificates issued', 'Smartcard-related manufacturers of certified items per year', 'manufacturer_sc_in_years')
+    # plot_schemes_multi_line_graph(years, plot_manufacturers_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Smartcard-related manufacturers of certified items per year', filter_label), 'manufacturer_sc_in_years')
 
     # plot certificate validity lengths
     print('### Certificates validity period lengths:')
@@ -531,10 +538,10 @@ def analyze_cert_years_frequency(all_cert_items):
     for length in sorted(validity_length.keys()):
         print('  {} year(s): {}x   {}'.format(length, len(validity_length[length]), validity_length[length]))
         validity_length_numbers.append(len(validity_length[length]))
-    plot_bar_graph(validity_length_numbers, sorted(validity_length.keys()), 'Number of certificates', 'Number of certificates with specific validity length', 'cert_validity_length_frequency')
+    plot_bar_graph(validity_length_numbers, sorted(validity_length.keys()), 'Number of certificates', fig_label('Number of certificates with specific validity length', filter_label), 'cert_validity_length_frequency')
 
 
-def analyze_eal_frequency(all_cert_items):
+def analyze_eal_frequency(all_cert_items, filter_label):
     scheme_level = {}
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
@@ -586,7 +593,7 @@ def analyze_eal_frequency(all_cert_items):
         total_eals_row.append(total_eals[level])
 
     # plot bar graph with frequency of CC EAL levels
-    plot_bar_graph(total_eals_row, eal_headers, 'Number of certificates', 'Number of certificates of specific EAL level', 'cert_eal_frequency')
+    plot_bar_graph(total_eals_row, eal_headers, 'Number of certificates', fig_label('Number of certificates of specific EAL level', filter_label), 'cert_eal_frequency')
 
     # Print table with results over national schemes
     total_eals_row.append(sum_total)
@@ -594,7 +601,7 @@ def analyze_eal_frequency(all_cert_items):
     print(tabulate(cc_eal_freq, ['CC scheme'] + eal_headers + ['Total']))
 
 
-def analyze_sars_frequency(all_cert_items):
+def analyze_sars_frequency(all_cert_items, filter_label):
     sars_freq = {}
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
@@ -620,9 +627,9 @@ def analyze_sars_frequency(all_cert_items):
         print('{:10}: {}x'.format(sar[0], sar[1]))
 
     # plot bar graph with frequency of CC SARs
-    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', 'Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', 'cert_sars_frequency')
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', filter_label), 'cert_sars_frequency')
     sars_freq_nums, sars_labels = (list(t) for t in zip(*sorted(zip(sars_freq_nums, sars_labels), reverse = True)))
-    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', 'Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', 'cert_sars_frequency_sorted')
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', filter_label), 'cert_sars_frequency_sorted')
 
     # plot heatmap of SARs frequencies based on type (row) and level (column)
     sars_labels = sorted(sars_freq.keys())
@@ -655,17 +662,17 @@ def analyze_sars_frequency(all_cert_items):
 
     # plot heatmap graph with frequency of SAR levels
     y_data_labels = range(1, max_sar_level + 2)
-    plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security assurance component (SAR) class', 'Security assurance components (SAR) level', 'Frequency of achieved levels for Security assurance component (SAR) classes', 'cert_sars_heatmap')
+    plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security assurance component (SAR) class', 'Security assurance components (SAR) level', fig_label('Frequency of achieved levels for Security assurance component (SAR) classes', filter_label), 'cert_sars_heatmap')
 
 
-def generate_dot_graphs(all_items_found, walk_dir):
-    print_dot_graph(['rules_cert_id'], all_items_found, walk_dir, 'certid_graph.dot', True)
-    print_dot_graph(['rules_javacard'], all_items_found, walk_dir, 'cert_javacard_graph.dot', False)
+def generate_dot_graphs(all_items_found, filter_label):
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True)
+    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False)
 
-    #    print_dot_graph(['rules_security_level'], all_items_found, walk_dir, 'cert_security_level_graph.dot', True)
-    #    print_dot_graph(['rules_crypto_libs'], all_items_found, walk_dir, 'cert_crypto_libs_graph.dot', False)
-    #    print_dot_graph(['rules_vendor'], all_items_found, walk_dir, 'rules_vendor.dot', False)
-    #    print_dot_graph(['rules_crypto_algs'], all_items_found, walk_dir, 'rules_crypto_algs.dot', False)
-    #    print_dot_graph(['rules_protection_profiles'], all_items_found, walk_dir, 'rules_protection_profiles.dot', False)
-    #    print_dot_graph(['rules_defenses'], all_items_found, walk_dir, 'rules_defenses.dot', False)
+    #    print_dot_graph(['rules_security_level'], all_items_found, filter_label, 'cert_security_level_graph.dot', True)
+    #    print_dot_graph(['rules_crypto_libs'], all_items_found, filter_label, 'cert_crypto_libs_graph.dot', False)
+    #    print_dot_graph(['rules_vendor'], all_items_found, filter_label, 'rules_vendor.dot', False)
+    #    print_dot_graph(['rules_crypto_algs'], all_items_found, filter_label, 'rules_crypto_algs.dot', False)
+    #    print_dot_graph(['rules_protection_profiles'], all_items_found, filter_label, 'rules_protection_profiles.dot', False)
+    #    print_dot_graph(['rules_defenses'], all_items_found, filter_label, 'rules_defenses.dot', False)
 
