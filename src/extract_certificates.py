@@ -4,6 +4,8 @@ import operator
 from graphviz import Digraph
 import json
 import csv
+
+from analyze_certificates import is_in_dict
 from cert_rules import rules
 from enum import Enum
 import matplotlib.pyplot as plt; plt.rcdefaults()
@@ -23,11 +25,6 @@ LINE_SEPARATOR = ' '
 def search_files(folder):
     for root, dirs, files in os.walk(folder):
         yield from [os.path.join(root, x) for x in files]
-
-
-def path_leaf(path):
-    head, tail = ntpath.split(path)
-    return tail or ntpath.basename(head)
 
 
 def get_line_number(lines, line_length_compensation, match_start_index):
@@ -268,7 +265,6 @@ def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_tex
     try:
         write_file.write(modified_cert_file_text)
     except UnicodeEncodeError as e:
-        print(erro_my)
         write_file.close()
         print('UnicodeDecodeError while writing file fragments back')
 
@@ -995,6 +991,122 @@ def extract_certificates_metadata_csv(file_name):
     return items_found_all
 
 
+def fix_pp_url(original_url):
+    if original_url.find('/epfiles/') != -1:  # links to pp are incorrect - epfiles instead ppfiles
+        original_url = original_url.replace('/epfiles/', '/ppfiles/')
+    original_url = original_url.replace('http://', 'https://')
+    original_url = original_url.replace(':443', '')
+    return original_url
+
+
+def extract_pp_metadata_csv(file_name):
+    items_found_all = {}
+    download_files_certs = []
+    download_files_maintainance = []
+    expected_columns = -1
+    with open(file_name) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        no_further_maintainance = True
+        for row in csv_reader:
+            if line_count == 0:
+                expected_columns = len(row)
+                line_count += 1
+            else:
+                if no_further_maintainance:
+                    items_found = {}
+                if len(row) == 0:
+                    break
+                if len(row) != expected_columns:
+                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(line_count))
+                    # trying to fix
+                    if len(row) == expected_columns + 2:
+                        row[9] = row[9] + row[10] + row[11]
+                        row[10] = row[12]
+                        row[11] = row[13]
+                        del row[13]
+                        del row[12]
+
+                # check if some maintainance reports (based on presence of maintainance date - row[8]) are present.
+                # If yes, then extract these to list of updates
+                if len(row[8]) > 0:
+                    no_further_maintainance = False
+                else:
+                    no_further_maintainance = True
+
+                index_next_item = 0
+                check_if_new_or_same(items_found, 'cc_category', normalize_match_string(row[index_next_item]))
+                items_found['cc_category'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                check_if_new_or_same(items_found, 'cc_pp_name', normalize_match_string(row[index_next_item]))
+                items_found['cc_pp_name'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                check_if_new_or_same(items_found, 'cc_pp_version', normalize_match_string(row[index_next_item]))
+                items_found['cc_pp_version'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                check_if_new_or_same(items_found, 'cc_security_level', normalize_match_string(row[index_next_item]))
+                items_found['cc_security_level'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                check_if_new_or_same(items_found, 'cc_certification_date', normalize_match_string(row[index_next_item]))
+                items_found['cc_certification_date'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                check_if_new_or_same(items_found, 'cc_archived_date', normalize_match_string(row[index_next_item]))
+                items_found['cc_archived_date'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                check_if_new_or_same(items_found, 'link_pp_report', normalize_match_string(row[index_next_item]))
+                items_found['link_pp_report'] = normalize_match_string(row[index_next_item])
+                items_found['link_pp_report'] = fix_pp_url(items_found['link_pp_report'])
+                index_next_item += 1
+                pp_report_file_name = extract_file_name_from_url(items_found['link_pp_report'])
+                check_if_new_or_same(items_found, 'link_pp_document', normalize_match_string(row[index_next_item]))
+                items_found['link_pp_document'] = normalize_match_string(row[index_next_item])
+                items_found['link_pp_document'] = fix_pp_url(items_found['link_pp_document'])
+                index_next_item += 1
+                pp_document_file_name = extract_file_name_from_url(items_found['link_pp_document'])
+
+                if 'maintainance_updates' not in items_found:
+                    items_found['maintainance_updates'] = []
+
+                maintainance = {}
+                maintainance['cc_pp_maintainance_date'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                maintainance['cc_pp_maintainance_title'] = normalize_match_string(row[index_next_item])
+                index_next_item += 1
+                maintainance['cc_maintainance_report_link'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_maintainance_report_link'] = fix_pp_url(maintainance['cc_maintainance_report_link'])
+                index_next_item += 1
+
+                # add this maintainance to parent item only when not empty
+                if len(maintainance['cc_pp_maintainance_title']) > 0:
+                    items_found['maintainance_updates'].append(maintainance)
+
+                if no_further_maintainance:
+                    # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
+                    pp_document_file_name = pp_document_file_name.replace('%20', ' ')
+                    item_unique_name = pp_document_file_name
+                    item_unique_name = '{}__{}'.format(pp_document_file_name, line_count)
+                    if item_unique_name not in items_found_all.keys():
+                        items_found_all[item_unique_name] = {}
+                        items_found_all[item_unique_name]['csv_scan'] = items_found
+                    else:
+                        print('  ERROR: {} already in'.format(pp_document_file_name))
+                        if STOP_ON_UNEXPECTED_NUMS:
+                            raise ValueError('ERROR: Stopping as value is not unique')
+
+                    # save download links for basic protection profile
+                    download_files_certs.append((items_found['link_pp_report'], pp_report_file_name,
+                                                 items_found['link_pp_document'], pp_document_file_name))
+                    # save download links for maintainance updates protection profile
+                    for item in items_found['maintainance_updates']:
+                        if item['cc_maintainance_report_link'] != "":
+                            pp_maintainainace_file_name = extract_file_name_from_url(item['cc_maintainance_report_link'])
+                            download_files_maintainance.append((item['cc_maintainance_report_link'], pp_maintainainace_file_name))
+
+                line_count += 1
+
+    return items_found_all, download_files_certs, download_files_maintainance
+
+
 def generate_download_script(file_name, certs_dir, targets_dir, download_files_certs):
     with open(file_name, "w") as write_file:
         # certs files
@@ -1004,13 +1116,14 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
             write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[0], cert[1]))
             write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
 
-        # security targets file
-        write_file.write('\n\ncd ..\n')
-        write_file.write('mkdir \"{}\"\n'.format(targets_dir))
-        write_file.write('cd \"{}\"\n\n'.format(targets_dir))
-        for cert in download_files_certs:
-            write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[2], cert[3]))
-            write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
+        if len(cert) > 2:
+            # security targets file
+            write_file.write('\n\ncd ..\n')
+            write_file.write('mkdir \"{}\"\n'.format(targets_dir))
+            write_file.write('cd \"{}\"\n\n'.format(targets_dir))
+            for cert in download_files_certs:
+                write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[2], cert[3]))
+                write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
 
 
 def extract_certificates_html(base_dir):
@@ -1056,6 +1169,31 @@ def extract_certificates_csv(base_dir):
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
     with open("certificate_data_csv_all.json", "w") as write_file:
+        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    return items_found_all
+
+
+def extract_protectionprofiles_csv(base_dir):
+    file_name = '{}cc_pp_active.csv'.format(base_dir)
+    items_found_all_active, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(file_name)
+    for item in items_found_all_active.keys():
+        items_found_all_active[item]['csv_scan']['cert_status'] = 'active'
+
+    generate_download_script('download_active_pp.bat', 'pp_report', 'pp', download_files_pp)
+    generate_download_script('download_active_pp_updates.bat', 'pp_updates', '', download_files_pp_updates)
+
+
+    file_name = '{}cc_pp_archived.csv'.format(base_dir)
+    items_found_all_archived, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(file_name)
+    for item in items_found_all_archived.keys():
+        items_found_all_archived[item]['csv_scan']['cert_status'] = 'archived'
+
+    generate_download_script('download_archived_pp.bat', 'pp_report', 'pp', download_files_pp)
+    generate_download_script('download_archived_pp_updates.bat', 'pp_updates', '', download_files_pp_updates)
+
+    items_found_all = {**items_found_all_active, **items_found_all_archived}
+    with open("pp_data_csv_all.json", "w") as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
@@ -1150,7 +1288,7 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
 
 
 
-def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
+def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_name_key):
     print('\n\nPairing results from different scans ***')
 
     file_name_to_front_name_mapping = {}
@@ -1173,10 +1311,7 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords):
         file_name_pdf = file_name[:file_name.rfind('__')]
         file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
         #file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
-        if 'link_security_target_file_name' in all_csv[file_name]['csv_scan']:
-            file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
-        else:
-            file_name_st = extract_file_name_from_url(all_csv[file_name]['csv_scan']['link_security_target'])
+        file_name_st = extract_file_name_from_url(all_csv[file_name]['csv_scan'][file_name_key])
         file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
 
         # find all items which references same pdf report
@@ -1407,6 +1542,8 @@ def generate_basic_download_script():
     with open('download_cc_web.bat', 'w') as file:
         file.write('curl \"https://www.commoncriteriaportal.org/products/\" -o cc_products_active.html\n')
         file.write('curl \"https://www.commoncriteriaportal.org/products/index.cfm?archived=1\" -o cc_products_archived.html\n\n')
+
+        file.write('curl \"https://www.commoncriteriaportal.org/labs/\" -o cc_labs.html\n')
 
         file.write('curl \"https://www.commoncriteriaportal.org/products/certified_products.csv\" -o cc_products_active.csv\n')
         file.write('curl \"https://www.commoncriteriaportal.org/products/certified_products-archived.csv\" -o cc_products_archived.csv\n\n')
