@@ -14,10 +14,30 @@ def do_all_analysis(all_cert_items, filter_label):
     plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
 
 
+def do_analysis_everything(all_cert_items, current_dir):
+    os.chdir(current_dir + '\\..\\results\\')
+    do_all_analysis(all_cert_items, '')
+
+
+def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
+    os.chdir(current_dir + '\\..\\results\\results_archived01092019_only\\')
+    archived_date = '09/01/2019'
+    limited_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_archived_date']) and all_cert_items[x]['csv_scan']['cc_archived_date'] == archived_date}
+    do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
+
+
+def do_analysis_only_smartcards(all_cert_items, current_dir):
+    os.chdir(current_dir + '\\..\\results\\results_sc_only\\')
+    sc_category = 'ICs, Smart Cards and Smart Card-Related Devices and Systems'
+    sc_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_category']) and all_cert_items[x]['csv_scan']['cc_category'] == sc_category}
+    print(len(sc_cert_items))
+    do_all_analysis(sc_cert_items, 'sc_category={}'.format(sc_category))
+
+
 def main():
     # change current directory to store results into results file
     current_dir = os.getcwd()
-    os.chdir(current_dir + '\\..\\results\\')
+    os.chdir(current_dir + '\\..\\results2\\')
 
     cc_html_files_dir = 'c:\\Certs\\web\\'
 
@@ -32,17 +52,16 @@ def main():
 
     generate_basic_download_script()
 
-    all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
-    all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
-    check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
-    all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, 'link_pp_document')
-    with open("pp_data_complete.json", "w") as write_file:
-        write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
-
+    # all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
+    # all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
+    # check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
+    # all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, 'link_pp_document')
+    # with open("pp_data_complete.json", "w") as write_file:
+    #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
     do_extraction = True
-    do_extraction_pp = True
-    do_pairing = True
+    do_extraction_pp = False
+    do_pairing = False
     do_analysis = True
 
     if do_extraction:
@@ -54,13 +73,22 @@ def main():
     if do_extraction_pp:
         all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
         all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
+
+    if do_pairing:
+        with open('pp_data_csv_all.json') as json_file:
+            all_pp_csv = json.load(json_file)
+        # with open('pp_data_html_all.json') as json_file:
+        #     all_pp_html = json.load(json_file)
+        # with open('v_data_frontpage_all.json') as json_file:
+        #     all_pp_front = json.load(json_file)
+        with open('pp_data_keywords_all.json') as json_file:
+            all_pp_keywords = json.load(json_file)
+
         check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
         all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, 'link_pp_document')
         with open("pp_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
-
-    if do_pairing:
         with open('certificate_data_csv_all.json') as json_file:
             all_csv = json.load(json_file)
         with open('certificate_data_html_all.json') as json_file:
@@ -70,25 +98,11 @@ def main():
         with open('certificate_data_keywords_all.json') as json_file:
             all_keywords = json.load(json_file)
 
-        # with open('pp_data_csv_all.json') as json_file:
-        #     all_pp_csv = json.load(json_file)
-        # with open('pp_data_html_all.json') as json_file:
-        #     all_pp_html = json.load(json_file)
-        # with open('v_data_frontpage_all.json') as json_file:
-        #     all_pp_front = json.load(json_file)
-        # with open('pp_data_keywords_all.json') as json_file:
-        #     all_pp_keywords = json.load(json_file)
-
         check_expected_cert_results(all_html, all_csv, all_front, all_keywords)
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords, 'link_security_target')
-        all_cert_items = process_certificates_data(all_cert_items)
+        all_cert_items = process_certificates_data(all_cert_items, all_pp_items)
         with open("certificate_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
-
-        # check_expected_pp_results(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
-        # all_pp_items = collate_pp_data(all_pp_html, all_pp_csv, all_pp_front, all_pp_keywords)
-        # with open("pp_data_complete.json", "w") as write_file:
-        #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
     if do_analysis:
         with open('certificate_data_complete.json') as json_file:
@@ -98,28 +112,18 @@ def main():
         current_dir = os.getcwd()
 
         # analyze all certificates together
-        os.chdir(current_dir + '\\..\\results\\')
-        do_all_analysis(all_cert_items, '')
-
-        # # archived on 09/01/2019
-        # os.chdir(current_dir + '\\..\\results\\results_archived01092019_only\\')
-        # archived_date = '09/01/2019'
-        # limited_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_archived_date']) and all_cert_items[x]['csv_scan']['cc_archived_date'] == archived_date}
-        # do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
-        #
-        # # analyze only smartcards
-        # os.chdir(current_dir + '\\..\\results\\results_sc_only\\')
-        # sc_category = 'ICs, Smart Cards and Smart Card-Related Devices and Systems'
-        # sc_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_category']) and all_cert_items[x]['csv_scan']['cc_category'] == sc_category}
-        # print(len(sc_cert_items))
-        # do_all_analysis(sc_cert_items, 'sc_category={}'.format(sc_category))
+        do_analysis_everything(all_cert_items, current_dir)
+        # archived on 09/01/2019
+        do_analysis_09_01_2019_archival(all_cert_items, current_dir)
+        # analyze only smartcards
+        do_analysis_only_smartcards(all_cert_items, current_dir)
 
         with open('pp_data_complete.json') as json_file:
             all_pp_items = json.load(json_file)
 
     # TODO
     # add extraction of frontpage for protection profiles
-    # If None == protcetion profile => Match PP with its assurance level and recompute
+    # If None == protection profile => Match PP with its assurance level and recompute
     #         analyze_sept2019_cleaning(all_cert_items)
     # extract info about protection profiles, download and parse pdf, map to referencing files
     # analysis of PP only: which PP is the most popular?, what schemes/countries are doing most...
@@ -130,7 +134,8 @@ def main():
     # analysis of big cert clusters
     # improve logging (info, warnings, errors, final summary)
     # other schemes: FIPS140-2 certs, EMVCo, Visa Certification, American Express Certification, MasterCard Certification
-    # dlwload and analyse CC documentation ()
+    # download and analyse CC documentation
+
 
 if __name__ == "__main__":
     main()
