@@ -43,7 +43,7 @@ def main():
 
     walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
     pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
-    #pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test1\\'
+    pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test3\\'
     walk_dir_pp = 'c:\\Certs\\pp_20191213\\'
 
     #walk_dir = 'c:\\Certs\\cc_certs_test1\\'
@@ -59,10 +59,12 @@ def main():
     # with open("pp_data_complete.json", "w") as write_file:
     #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
-    do_extraction = True
+    do_extraction = False
     do_extraction_pp = False
     do_pairing = False
     do_analysis = True
+
+    all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
 
     if do_extraction:
         all_csv = extract_certificates_csv(cc_html_files_dir)
@@ -72,6 +74,7 @@ def main():
 
     if do_extraction_pp:
         all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
+        all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
         all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
 
     if do_pairing:
@@ -135,6 +138,7 @@ def main():
     # improve logging (info, warnings, errors, final summary)
     # other schemes: FIPS140-2 certs, EMVCo, Visa Certification, American Express Certification, MasterCard Certification
     # download and analyse CC documentation
+    # solve treatment of unicode characters
 
 
 if __name__ == "__main__":

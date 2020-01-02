@@ -605,6 +605,238 @@ def extract_certificates_frontpage(walk_dir):
     return items_found_all
 
 
+def search_pp_only_headers(walk_dir):
+    # LINE_SEPARATOR_STRICT = ' '
+    # NUM_LINES_TO_INVESTIGATE = 15
+    # rules_certificate_preface = [
+    #     '(Common Criteria Protection Profile .+)?(BSI-PP-CC-.+?)Federal Office for Information Security',
+    #     '(Protection Profile for the .+)?Schutzprofil für das .+?Certification-ID (BSI-CC-PP-[0-9]+?) ',
+    #  #  'Protection Profile for the Security Module of a Smart Meter Mini-HSM (Mini-HSM Security Module PP) Schutzprofil für das Sicherheitsmodul des Smart Meter Mini-HSM  Mini-HSM SecMod-PP Version 1.0 – 23 June 2017 Certification-ID BSI-CC-PP-0095  Mini-HSM Security Module PP  Bundesamt für Sicherheit in der Informationstechnik'
+    # ]
+
+    class HEADER_TYPE(Enum):
+        BSI_TYPE1 = 1,
+        BSI_TYPE2 = 2,
+        ANSSI_TYPE1 = 3,
+        ANSSI_TYPE2 = 4,
+        ANSSI_TYPE3 = 5,
+        DCSSI_TYPE1 = 10
+        DCSSI_TYPE2 = 11
+
+    rules_pp_third = [
+        (HEADER_TYPE.BSI_TYPE1,
+         'PP Reference .+?Title (.+)?CC Version (.+)?Assurance Level (.+)?General Status (.+)?Version Number (.+)?Registration (.+)?Keywords (.+)?TOE Overview'),
+        (HEADER_TYPE.BSI_TYPE2,
+         'PP Reference.+?Title: (.+)?Version: (.+)?Date: (.+)?Authors: (.+)?Registration: (.+)?Certification-ID: (.+)?Evaluation Assurance Level: (.+)?CC Version: (.+)?Keywords: (.+)?Specific Terms'),
+        (HEADER_TYPE.ANSSI_TYPE1,
+         'PROTECTION PROFILE IDENTIFICATION.+?Title: (.+)?Version: (.+)?Publication date: (.+)?Certified by: (.+)?Sponsor: (.+)?Editor: (.+)?Review Committee: (.+)?This Protection Profile is conformant to the Common Criteria version (.+)?The minimum assurance level for this Protection Profile is (.+)?PROTECTION PROFILE PRESENTATION'),
+        (HEADER_TYPE.ANSSI_TYPE2,
+         'PP reference.+?Title : (.+)?Version : (.+)?Authors : (.+)?Evaluation Assurance Level : (.+)?Registration : (.+)?Conformant to Version (.+)?of Common Criteria.+?Key words : (.+)?A glossary of terms'),
+        (HEADER_TYPE.ANSSI_TYPE3,
+         'Introduction.+?Title: (.+)?Identifications: (.+)?Editor: (.+)?Date: (.+)?Version: (.+)?Sponsor: (.+)?CC Version: (.+)? This Protection Profile'),
+        (HEADER_TYPE.DCSSI_TYPE1,
+         'Protection profile reference  Title: (.+)?Reference: (.+)?, Version (.+)?, (.+)?Author: (.+)?Context'),
+        (HEADER_TYPE.DCSSI_TYPE2,
+         'Protection profile reference  Title: (.+)?Author: (.+)?Version: (.+)?Context'),
+    ]
+
+    items_found_all = {}
+    files_without_match = []
+    for file_name in search_files(walk_dir):
+        if not os.path.isfile(file_name):
+            continue
+        file_ext = file_name[file_name.rfind('.'):]
+        if file_ext != '.txt':
+            continue
+        print('*** {} ***'.format(file_name))
+
+        #
+        # Process page with more detailed protection profile info
+        # PP Reference
+
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
+
+        no_match_yet = True
+        for rule in rules_pp_third:
+            rule_and_sep = rule[1] + REGEXEC_SEP
+
+            for m in re.finditer(rule_and_sep, whole_text):
+                if no_match_yet:
+                    items_found_all[file_name] = {}
+                    items_found_all[file_name] = {}
+                    items_found = items_found_all[file_name]
+                    items_found[TAG_HEADER_MATCH_RULES] = []
+                    no_match_yet = False
+
+                # insert rule if at least one match for it was found
+                if rule[1] not in items_found[TAG_HEADER_MATCH_RULES]:
+                    items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
+
+                match_groups = m.groups()
+                index = 0
+
+                if rule[0] == HEADER_TYPE.BSI_TYPE1:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_GENERAL_STATUS] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    index += 1
+                    keywords = match_groups[index]
+                    items_found[TAG_KEYWORDS] = normalize_match_string(keywords[0:keywords.find('  ')])
+                    index += 1
+                    items_found[TAG_PP_AUTHORS] = 'BSI'
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'BSI'
+
+                if rule[0] == HEADER_TYPE.BSI_TYPE2:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_AUTHORS] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_REGISTRATOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    index += 1
+                    keywords = match_groups[index]
+                    items_found[TAG_KEYWORDS] = normalize_match_string(keywords[0:keywords.find('  ')])
+                    index += 1
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'BSI'
+
+                if rule[0] == HEADER_TYPE.ANSSI_TYPE1:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_REGISTRATOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_SPONSOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_EDITOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_REVIEWER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    index += 1
+                    level = match_groups[index]
+                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(level[0:level.find('  ')])
+                    index += 1
+
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'ANSSI'
+
+                if rule[0] == HEADER_TYPE.ANSSI_TYPE2:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_AUTHORS] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_REGISTRATOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_KEYWORDS] = normalize_match_string(match_groups[index])
+                    index += 1
+
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'ANSSI'
+
+                if rule[0] == HEADER_TYPE.ANSSI_TYPE3:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    # todo: parse if multiple pp ids are present
+                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_EDITOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_SPONSOR] = normalize_match_string(match_groups[index])
+                    index += 1
+                    ccversion = match_groups[index]
+                    items_found[TAG_CC_VERSION] = normalize_match_string(ccversion[0:ccversion.find('  ')])
+                    index += 1
+
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'ANSSI'
+
+                if rule[0] == HEADER_TYPE.DCSSI_TYPE1:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    author = match_groups[index]
+                    items_found[TAG_PP_AUTHORS] = normalize_match_string(author[0:author.find('  ')])
+                    index += 1
+
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'DCSSI'
+
+                if rule[0] == HEADER_TYPE.DCSSI_TYPE2:
+                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    index += 1
+                    items_found[TAG_PP_AUTHORS] = normalize_match_string(match_groups[index])
+                    index += 1
+                    version = match_groups[index]
+                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(version[0:version.find('  ')])
+                    index += 1
+
+                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'DCSSI'
+
+
+        if no_match_yet:
+            files_without_match.append(file_name)
+
+    if False:
+        print_found_properties(items_found_all)
+
+    with open("pp_data_header.json", "w") as write_file:
+        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    print('\n*** Protection profiles without detected header:')
+    for file_name in files_without_match:
+        print('No hits for {}'.format(file_name))
+    print('Total no hits files: {}'.format(len(files_without_match)))
+    print('\n**********************************')
+
+    return items_found_all, files_without_match
+
+
+def extract_protectionprofiles_frontpage(walk_dir):
+    pp_items_found, pp_files_without_match = search_pp_only_headers(walk_dir)
+
+    print('*** Files without detected protection profiles header')
+    for file_name in pp_files_without_match:
+        print(file_name)
+    print('Total no hits files: {}'.format(len(pp_files_without_match)))
+
+    # store results into file with fixed name and also with time appendix
+    with open("pp_data_frontpage_all.json", "w") as write_file:
+        write_file.write(json.dumps(pp_items_found, indent=4, sort_keys=True))
+
+    return pp_items_found
+
+
 def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
     all_items_found = {}
     cert_id = {}
@@ -886,6 +1118,7 @@ def extract_certificates_metadata_csv(file_name):
     items_found_all = {}
     expected_columns = -1
     with open(file_name) as csv_file:
+        print('*** {} ***'.format(file_name))
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         no_further_maintainance = True
@@ -1424,7 +1657,7 @@ def get_manufacturer_simple_name(long_manufacturer, reduction_list):
         return long_manufacturer
 
 
-def process_certificates_data(all_cert_items):
+def process_certificates_data(all_cert_items, all_pp_items):
     print('\n\nExtracting useful info from collated files ***')
 
     #
@@ -1548,6 +1781,13 @@ def process_certificates_data(all_cert_items):
 
                 cert['processed']['cc_manufacturer_simple_list'] = simple_manufacturers
                 cert['processed']['cc_manufacturer_simple'] = get_manufacturer_simple_name(manufacturer, already_reduced)
+
+    #
+    #
+    #
+
+    # TODO: pair certs and protection profiles : all_pp_items
+    all_pp_items
 
     return all_cert_items
 
