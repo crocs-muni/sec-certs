@@ -623,16 +623,20 @@ def search_pp_only_headers(walk_dir):
     # ]
 
     class HEADER_TYPE(Enum):
-        BSI_TYPE1 = 1,
-        BSI_TYPE2 = 2,
-        ANSSI_TYPE1 = 3,
-        ANSSI_TYPE2 = 4,
-        ANSSI_TYPE3 = 5,
+        BSI_TYPE1 = 1
+        BSI_TYPE2 = 2
+
         DCSSI_TYPE1 = 11
         DCSSI_TYPE2 = 12
-        DCSSI_TYPE3_FRONT = 13
-        DCSSI_TYPE4_FRONT = 14
+        FRONT_DCSSI_TYPE3 = 13
+        FRONT_DCSSI_TYPE4 = 14
         DCSSI_TYPE5 = 15
+        DCSSI_TYPE6 = 16
+
+        ANSSI_TYPE1 = 41
+        ANSSI_TYPE2 = 42
+        ANSSI_TYPE3 = 43
+
 
     rules_pp_third = [
         (HEADER_TYPE.BSI_TYPE1,
@@ -649,14 +653,20 @@ def search_pp_only_headers(walk_dir):
          'Protection profile reference[ ]*Title: (.+)?Reference: (.+)?, Version (.+)?, (.+)?Author: (.+)?Context'),
         (HEADER_TYPE.DCSSI_TYPE2,
          'Protection profile reference[ ]*Title: (.+)?Author: (.+)?Version: (.+)?Context'),
-        (HEADER_TYPE.DCSSI_TYPE3_FRONT,
-         'Direction centrale de la sécurité des systèmes d\’information (.+)?Creation date[ ]*:(.+)?Reference[ ]*: (.+)?Version[ ]*: (.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
-        (HEADER_TYPE.DCSSI_TYPE4_FRONT,
-         'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information (.+)?Creation date[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+        (HEADER_TYPE.FRONT_DCSSI_TYPE3,
+         'Direction centrale de la sécurité des systèmes d\’information(.+)?(?:Creation date|Date)[ ]*[:]*(.+)?Reference[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+#        (HEADER_TYPE.FRONT_DCSSI_TYPE4,
+#         'Direction centrale de la sécurité des systèmes d\’information(.+)?Date[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+        (HEADER_TYPE.FRONT_DCSSI_TYPE4,
+         'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information (.+)?(?:Creation date|Date)[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+         #'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information  Time-stamping System Protection Profile  Date  : July 18, 2008  Reference  : PP-SH-CCv3.1  Version  : 1.7  Courtesy Translation  Courtesy translation of the protection profile registered and certified by the French Certification Body under the reference DCSSI-PP-2008/07.  Page'
         (HEADER_TYPE.DCSSI_TYPE5,
-         'Protection Profile identification[ ]*Title:(.+)?Author:(.+)?Version:(.+)?,(.+)?Sponsor:(.+)?CC version:(.+)?Context'),
+         'Protection Profile identification[ ]*Title[ ]*[:]*(.+)?Author[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?,(.+)?Sponsor[ ]*[:]*(.+)?CC version[ ]*[:]*(.+)?(?:Context|Protection Profile introduction)'),
+        (HEADER_TYPE.DCSSI_TYPE6,
+         'PP reference.+?Title[ ]*:(.+)?Author[ ]*:(.+)?Version[ ]*:(.+)?Date[ ]*:(.+)?Sponsor[ ]*:(.+)?CC version[ ]*:(.+)?This protection profile.+?The evaluation assurance level required by this protection profile is (.+)?specified by the DCSSI qualification process'),
+#        (HEADER_TYPE.DCSSI_TYPE7,
+#         'Protection Profile identification.+?Title[ ]*[:]*(.+)?Author[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?,(.+)?Sponsor[ ]*[:]*(.+)?CC version[ ]*[:]*(.+)?Protection Profile introduction')
     ]
-
     items_found_all = {}
     files_without_match = []
     for file_name in search_files(walk_dir):
@@ -705,7 +715,7 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
                     index += 1
-                    keywords = match_groups[index]
+                    keywords = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(keywords[0:keywords.find('  ')]))
                     index += 1
                     set_match_string(items_found, TAG_PP_AUTHORS, 'BSI')
@@ -728,7 +738,7 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
                     index += 1
-                    keywords = match_groups[index]
+                    keywords = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(keywords[0:keywords.find('  ')]))
                     index += 1
                     set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
@@ -750,7 +760,7 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
                     index += 1
-                    level = match_groups[index]
+                    level = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(level[0:level.find('  ')]))
                     index += 1
 
@@ -788,7 +798,7 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    ccversion = match_groups[index]
+                    ccversion = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(ccversion[0:ccversion.find('  ')]))
                     index += 1
 
@@ -803,7 +813,7 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
                     index += 1
-                    author = match_groups[index]
+                    author = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(author[0:author.find('  ')]))
                     index += 1
 
@@ -814,13 +824,13 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
                     index += 1
-                    version = match_groups[index]
+                    version = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(version[0:version.find('  ')]))
                     index += 1
 
                     set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
-                if rule[0] == HEADER_TYPE.DCSSI_TYPE3_FRONT or rule[0] == HEADER_TYPE.DCSSI_TYPE4_FRONT:
+                if rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE3 or rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE4:
                     set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
                     set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
@@ -845,9 +855,28 @@ def search_pp_only_headers(walk_dir):
                     index += 1
                     set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    ccversion = match_groups[index]
+                    ccversion = match_groups[index].lstrip('  ')
                     set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(ccversion[0:ccversion.find('  ')]))
                     index += 1
+
+                if rule[0] == HEADER_TYPE.DCSSI_TYPE6:
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
+                    index += 1
+
+
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
         if no_match_yet:
             files_without_match.append(file_name)
