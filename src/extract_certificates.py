@@ -112,6 +112,14 @@ def normalize_match_string(match):
     return match
 
 
+def set_match_string(items, key_name, new_value):
+    if key_name not in items.keys():
+        items[key_name] = new_value
+    else:
+        old_value = items[key_name]
+        if old_value != new_value:
+            print('  WARNING: values mismatch, key=\'{}\', old=\'{}\', new=\'{}\''.format(key_name, old_value, new_value))
+
 def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name, limit_max_lines, line_separator)
 
@@ -620,8 +628,11 @@ def search_pp_only_headers(walk_dir):
         ANSSI_TYPE1 = 3,
         ANSSI_TYPE2 = 4,
         ANSSI_TYPE3 = 5,
-        DCSSI_TYPE1 = 10
-        DCSSI_TYPE2 = 11
+        DCSSI_TYPE1 = 11
+        DCSSI_TYPE2 = 12
+        DCSSI_TYPE3_FRONT = 13
+        DCSSI_TYPE4_FRONT = 14
+        DCSSI_TYPE5 = 15
 
     rules_pp_third = [
         (HEADER_TYPE.BSI_TYPE1,
@@ -635,9 +646,15 @@ def search_pp_only_headers(walk_dir):
         (HEADER_TYPE.ANSSI_TYPE3,
          'Introduction.+?Title: (.+)?Identifications: (.+)?Editor: (.+)?Date: (.+)?Version: (.+)?Sponsor: (.+)?CC Version: (.+)? This Protection Profile'),
         (HEADER_TYPE.DCSSI_TYPE1,
-         'Protection profile reference  Title: (.+)?Reference: (.+)?, Version (.+)?, (.+)?Author: (.+)?Context'),
+         'Protection profile reference[ ]*Title: (.+)?Reference: (.+)?, Version (.+)?, (.+)?Author: (.+)?Context'),
         (HEADER_TYPE.DCSSI_TYPE2,
-         'Protection profile reference  Title: (.+)?Author: (.+)?Version: (.+)?Context'),
+         'Protection profile reference[ ]*Title: (.+)?Author: (.+)?Version: (.+)?Context'),
+        (HEADER_TYPE.DCSSI_TYPE3_FRONT,
+         'Direction centrale de la sécurité des systèmes d\’information (.+)?Creation date[ ]*:(.+)?Reference[ ]*: (.+)?Version[ ]*: (.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+        (HEADER_TYPE.DCSSI_TYPE4_FRONT,
+         'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information (.+)?Creation date[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+        (HEADER_TYPE.DCSSI_TYPE5,
+         'Protection Profile identification[ ]*Title:(.+)?Author:(.+)?Version:(.+)?,(.+)?Sponsor:(.+)?CC version:(.+)?Context'),
     ]
 
     items_found_all = {}
@@ -676,133 +693,161 @@ def search_pp_only_headers(walk_dir):
                 index = 0
 
                 if rule[0] == HEADER_TYPE.BSI_TYPE1:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_GENERAL_STATUS] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_GENERAL_STATUS, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
                     index += 1
                     keywords = match_groups[index]
-                    items_found[TAG_KEYWORDS] = normalize_match_string(keywords[0:keywords.find('  ')])
+                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(keywords[0:keywords.find('  ')]))
                     index += 1
-                    items_found[TAG_PP_AUTHORS] = 'BSI'
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'BSI'
+                    set_match_string(items_found, TAG_PP_AUTHORS, 'BSI')
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
 
                 if rule[0] == HEADER_TYPE.BSI_TYPE2:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_AUTHORS] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_REGISTRATOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_REGISTRATOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
                     index += 1
                     keywords = match_groups[index]
-                    items_found[TAG_KEYWORDS] = normalize_match_string(keywords[0:keywords.find('  ')])
+                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(keywords[0:keywords.find('  ')]))
                     index += 1
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'BSI'
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
 
                 if rule[0] == HEADER_TYPE.ANSSI_TYPE1:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_REGISTRATOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_REGISTRATOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_SPONSOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_EDITOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_EDITOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_REVIEWER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_REVIEWER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
                     index += 1
                     level = match_groups[index]
-                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(level[0:level.find('  ')])
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(level[0:level.find('  ')]))
                     index += 1
 
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'ANSSI'
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
                 if rule[0] == HEADER_TYPE.ANSSI_TYPE2:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_AUTHORS] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_REGISTRATOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_REGISTRATOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_KEYWORDS] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(match_groups[index]))
                     index += 1
 
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'ANSSI'
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
                 if rule[0] == HEADER_TYPE.ANSSI_TYPE3:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
                     # todo: parse if multiple pp ids are present
-                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_EDITOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_EDITOR, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_SPONSOR] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
                     index += 1
                     ccversion = match_groups[index]
-                    items_found[TAG_CC_VERSION] = normalize_match_string(ccversion[0:ccversion.find('  ')])
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(ccversion[0:ccversion.find('  ')]))
                     index += 1
 
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'ANSSI'
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
                 if rule[0] == HEADER_TYPE.DCSSI_TYPE1:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_ID] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_DATE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
                     index += 1
                     author = match_groups[index]
-                    items_found[TAG_PP_AUTHORS] = normalize_match_string(author[0:author.find('  ')])
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(author[0:author.find('  ')]))
                     index += 1
 
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'DCSSI'
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
                 if rule[0] == HEADER_TYPE.DCSSI_TYPE2:
-                    items_found[TAG_PP_TITLE] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
                     index += 1
-                    items_found[TAG_PP_AUTHORS] = normalize_match_string(match_groups[index])
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
                     index += 1
                     version = match_groups[index]
-                    items_found[TAG_PP_VERSION_NUMBER] = normalize_match_string(version[0:version.find('  ')])
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(version[0:version.find('  ')]))
                     index += 1
 
-                    items_found[TAG_PP_REGISTRATOR_SIMPLIFIED] = 'DCSSI'
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
+                if rule[0] == HEADER_TYPE.DCSSI_TYPE3_FRONT or rule[0] == HEADER_TYPE.DCSSI_TYPE4_FRONT:
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_ID_REGISTRATOR, normalize_match_string(match_groups[index]))
+                    index += 1
+
+                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+
+                if rule[0] == HEADER_TYPE.DCSSI_TYPE5:
+                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    index += 1
+                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
+                    index += 1
+                    ccversion = match_groups[index]
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(ccversion[0:ccversion.find('  ')]))
+                    index += 1
 
         if no_match_yet:
             files_without_match.append(file_name)
