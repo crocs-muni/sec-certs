@@ -1760,7 +1760,7 @@ def process_certificates_data(all_cert_items, all_pp_items):
 
     for manuf in sorted_manufacturers:
         # Manufacturer can be single, multiple, separated by - / and ,
-        # heuristics: if separated cnadidate manufacturer can be found in original list (
+        # heuristics: if separated candidate manufacturer can be found in original list (
         # => is sole manufacturer on another certificate => assumption of correct separation)
         separators = [',', '/'] # , '/', ',', 'and']
         multiple_manuf_detected = False
@@ -1856,6 +1856,21 @@ def process_certificates_data(all_cert_items, all_pp_items):
                 cert['processed']['cc_manufacturer_simple_list'] = simple_manufacturers
                 cert['processed']['cc_manufacturer_simple'] = get_manufacturer_simple_name(manufacturer, already_reduced)
 
+        # extract certification lab
+        if is_in_dict(cert, ['frontpage_scan', 'cert_lab']):
+            lab = cert['frontpage_scan']['cert_lab']
+
+            if lab != '':
+                lab = lab.upper()
+                if 'processed' not in cert:
+                    cert['processed'] = {}
+
+                # insert extracted lab - only the first words, changed to uppercase, omitting the rest
+                pos1 = lab.find(' ')
+                if pos1 != -1:
+                    cert['processed']['cert_lab'] = lab[:pos1]
+                else:
+                    cert['processed']['cert_lab'] = lab
     #
     #
     #

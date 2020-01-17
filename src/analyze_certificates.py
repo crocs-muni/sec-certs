@@ -242,8 +242,21 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
             if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
                 this_cert_id = cert['processed']['cert_id']
                 if this_cert_id not in certid_info.keys():
+
                     certid_info[this_cert_id] = {}
                 certid_info[this_cert_id]['cert_item'] = cert['frontpage_scan']['cert_item']
+
+    # build cert_id to cert_long_id mapping
+    cert_id_to_long_id_mapping = {}
+    for cert_long_id in all_items_found.keys():
+        cert = all_items_found[cert_long_id]
+        if is_in_dict(cert, ['processed', 'cert_id']):
+            if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
+                this_cert_id = cert['processed']['cert_id']
+                if this_cert_id in cert_id_to_long_id_mapping.keys():
+                    print('ERROR: duplicate cert_id for multiple cert_long_id: {}, {} already used by {}'.format(this_cert_id, cert_long_id, cert_id_to_long_id_mapping[this_cert_id]))
+                else:
+                    cert_id_to_long_id_mapping[this_cert_id] = cert_long_id
 
     # build list of references
     referenced_by = {}
@@ -281,6 +294,8 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     referenced_by_direct_nums = {}
     for cert_id in referenced_by.keys():
         referenced_by_direct_nums[cert_id] = len(referenced_by[cert_id])
+        if cert_id in cert_id_to_long_id_mapping.keys():
+            all_items_found[cert_id_to_long_id_mapping[cert_id]]['processed']['direct_refs'] = len(referenced_by[cert_id])
 
     print('### Certificates sorted by number of other certificates directly referencing them:')
     sorted_ref_direct = sorted(referenced_by_direct_nums.items(), key=operator.itemgetter(1), reverse=False)
@@ -333,6 +348,8 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     referenced_by_indirect_nums = {}
     for cert_id in referenced_by_indirect.keys():
         referenced_by_indirect_nums[cert_id] = len(referenced_by_indirect[cert_id])
+        if cert_id in cert_id_to_long_id_mapping.keys():
+            all_items_found[cert_id_to_long_id_mapping[cert_id]]['processed']['indirect_refs'] = referenced_by_indirect_nums[cert_id]
 
     sorted_ref_indirect = sorted(referenced_by_indirect_nums.items(), key=operator.itemgetter(1), reverse=False)
     indirect_refs = []
@@ -385,6 +402,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
     scheme_date = {}
     level_date = {}
     category_date = {}
+    labs_date = {}
     archive_date = {}
     validity_length = {}
     valid_in_years = {}
@@ -420,12 +438,16 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
             # extract EAL level
             if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
                 level = cert['csv_scan']['cc_security_level']
+                level_split = level.split(",")
                 if level.find(',') != -1:
                     level = level[:level.find(',')]  # trim list of augmented items
-                level_out = level
+                level_out = level_split[0]
                 if level == 'None':
                     if cert['csv_scan']['cc_protection_profiles'] != '':
                         level_out = 'Protection Profile'
+
+                cert['processed']['cc_security_level'] = level_split[0]
+                cert['processed']['cc_security_level_augments'] = level_split[1:]
 
                 if level_out not in level_date.keys():
                     level_date[level_out] = {}
@@ -465,10 +487,21 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
                     manufacturer_date[manufacturer][cert_year].append(cert_long_id)
                     manufacturer_items[manufacturer] += 1
 
+            # extract laboratory
+            if is_in_dict(cert, ['processed', 'cert_lab']):
+                lab = cert['processed']['cert_lab']
+
+                if lab not in labs_date.keys():
+                    labs_date[lab] = {}
+                    for year in range(START_YEAR, END_YEAR):
+                        labs_date[lab][year] = []
+                labs_date[lab][cert_year].append(cert_long_id)
+
             # extract cert archival status
             if archived_year is not None:
                 valid_years = archived_year - cert_year + 1
                 validity_length[valid_years].append(cert_long_id)
+                cert['processed']['cert_lifetime_length'] = valid_years
 
                 if 'archived_date' not in archive_date.keys():
                     archive_date['archived_date'] = {}
@@ -510,6 +543,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
     plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
     plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
     plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
+    plot_schemes_multi_line_graph(years, labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number fo certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
     plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
     plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
 

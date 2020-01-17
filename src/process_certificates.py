@@ -37,13 +37,13 @@ def do_analysis_only_smartcards(all_cert_items, current_dir):
 def main():
     # change current directory to store results into results file
     current_dir = os.getcwd()
-    os.chdir(current_dir + '\\..\\results2\\')
+    os.chdir(current_dir + '\\..\\results\\')
 
     cc_html_files_dir = 'c:\\Certs\\web\\'
 
     walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
     pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
-    pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test3\\'
+    #pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test3\\'
     walk_dir_pp = 'c:\\Certs\\pp_20191213\\'
 
     #walk_dir = 'c:\\Certs\\cc_certs_test1\\'
@@ -62,9 +62,11 @@ def main():
     do_extraction = False
     do_extraction_pp = False
     do_pairing = False
+    do_processing = False
     do_analysis = True
 
-    all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
+    #all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
+    #return
 
     if do_extraction:
         all_csv = extract_certificates_csv(cc_html_files_dir)
@@ -103,14 +105,22 @@ def main():
 
         check_expected_cert_results(all_html, all_csv, all_front, all_keywords)
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords, 'link_security_target')
-        all_cert_items = process_certificates_data(all_cert_items, all_pp_items)
         with open("certificate_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
-    if do_analysis:
+    if do_processing:
         with open('certificate_data_complete.json') as json_file:
             all_cert_items = json.load(json_file)
-        #all_cert_items = process_certificates_data(all_cert_items)
+        all_pp_items = {}
+
+        all_cert_items = process_certificates_data(all_cert_items, all_pp_items)
+
+        with open("certificate_data_complete_processed.json", "w") as write_file:
+            write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+
+    if do_analysis:
+        with open('certificate_data_complete_processed.json') as json_file:
+            all_cert_items = json.load(json_file)
 
         current_dir = os.getcwd()
 
@@ -121,8 +131,12 @@ def main():
         # analyze only smartcards
         do_analysis_only_smartcards(all_cert_items, current_dir)
 
+        with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
+            write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+
         with open('pp_data_complete.json') as json_file:
             all_pp_items = json.load(json_file)
+
 
     # TODO
     # add extraction of frontpage for protection profiles
@@ -139,7 +153,10 @@ def main():
     # other schemes: FIPS140-2 certs, EMVCo, Visa Certification, American Express Certification, MasterCard Certification
     # download and analyse CC documentation
     # solve treatment of unicode characters
-
+    # anayze bbliography
+    # histogram/time of cert labs (maybe first two words heuristics)
+    # Statistics about number of characters (length), words, pages
+    # extract frontpage also from other than anssi and bsi certificates (US, BE...)
 
 if __name__ == "__main__":
     main()
