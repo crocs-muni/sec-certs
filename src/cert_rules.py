@@ -59,6 +59,10 @@ rules_protection_profiles = [
     'EHCT_V.+?'
     ]
 
+rules_technical_reports = [
+    'BSI[ ]*TR-[0-9]+?',
+    ]
+
 
 rules_device_id = [
     'G87-.+?',
@@ -179,6 +183,7 @@ rules_certification_process = [
 
 rules_other = [
     'library',
+    'http[s]*://.+?/ '
     ]
 
 
@@ -186,6 +191,7 @@ rules = {}
 rules['rules_vendor'] = rules_vendor
 rules['rules_cert_id'] = rules_cert_id
 rules['rules_protection_profiles'] = rules_protection_profiles
+rules['rules_technical_reports'] = rules_technical_reports
 rules['rules_device_id'] = rules_device_id
 rules['rules_os'] = rules_os
 rules['rules_standard_id'] = rules_standard_id
