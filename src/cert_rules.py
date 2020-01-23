@@ -181,6 +181,10 @@ rules_certification_process = [
     '.{0,100}[oO]ut of [sS]cope.{0,100}',
     ]
 
+rules_vulnerabilities = [
+    'CVE-[0-9]+?-[0-9]+?',
+    ]
+
 rules_other = [
     'library',
     'http[s]*://.+?/ '
@@ -205,4 +209,5 @@ rules['rules_crypto_engines'] = rules_crypto_engines
 rules['rules_crypto_libs'] = rules_crypto_libs
 rules['rules_defenses'] = rules_defenses
 rules['rules_certification_process'] = rules_certification_process
+rules['rules_vulnerabilities'] = rules_vulnerabilities
 rules['rules_other'] = rules_other
