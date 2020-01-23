@@ -67,12 +67,14 @@ def main():
 
     #all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
     #return
+    all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
 
     if do_extraction:
         all_csv = extract_certificates_csv(cc_html_files_dir)
         all_html = extract_certificates_html(cc_html_files_dir)
         all_front = extract_certificates_frontpage(walk_dir)
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
+        all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
 
     if do_extraction_pp:
         all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
@@ -139,6 +141,8 @@ def main():
 
 
     # TODO
+    # extract pdf file metadata (pdf header, file size...), PyPDF2 https://www.blog.pythonlibrary.org/2018/04/10/extracting-pdf-metadata-and-text-with-python/, https://github.com/pdfminer/pdfminer.six
+    #   https://pythonhosted.org/PyPDF2/PdfFileReader.html
     # add extraction of frontpage for protection profiles
     # If None == protection profile => Match PP with its assurance level and recompute
     #         analyze_sept2019_cleaning(all_cert_items)

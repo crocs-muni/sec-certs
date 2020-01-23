@@ -11,6 +11,8 @@ from enum import Enum
 import matplotlib.pyplot as plt; plt.rcdefaults()
 from tags_constants import *
 
+from PyPDF2 import PdfFileReader
+
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
 STOP_ON_UNEXPECTED_NUMS = False
@@ -966,6 +968,50 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
+
+    return all_items_found
+
+
+
+def extract_certificates_pdfmeta(walk_dir, file_prefix):
+    all_items_found = {}
+    for file_name in search_files(walk_dir):
+        if not os.path.isfile(file_name):
+            continue
+        file_ext = file_name[file_name.rfind('.'):]
+        if file_ext != '.pdf':
+            continue
+
+        print('*** {} ***'.format(file_name))
+
+        item = {}
+
+        item['pdf_file_size_bytes'] = os.path.getsize(file_name)
+        try:
+            with open(file_name, 'rb') as f:
+                pdf = PdfFileReader(f)
+
+                info = pdf.getDocumentInfo()
+                if info is not None:
+                    for key in info:
+                        item[key] = info[key]
+                    # item['pdf_author'] = info['/Author']
+                    # item['pdf_creator'] = info.creator
+                    # item['pdf_producer'] = info.producer
+                    # item['pdf_subject'] = info.subject
+                    # item['pdf_title'] = info.title
+                    # item['pdf_creation_date'] = info.author_raw
+
+                item['pdf_is_encrypted'] = pdf.getIsEncrypted()
+                item['pdf_number_of_pages'] = pdf.getNumPages()
+        except Exception as e:
+            item['error'] = str(e)
+
+        all_items_found[file_name] = item
+
+    # store results into file with fixed name and also with time appendix
+    with open("{}_data_pdfmeta_all.json".format(file_prefix), "w") as write_file:
+        write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
 
     return all_items_found
 
