@@ -42,6 +42,8 @@ def main():
     cc_html_files_dir = 'c:\\Certs\\web\\'
 
     walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
+    #walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_test1\\'
+
     pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
     #pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test3\\'
     walk_dir_pp = 'c:\\Certs\\pp_20191213\\'
@@ -62,12 +64,13 @@ def main():
     do_extraction = False
     do_extraction_pp = False
     do_pairing = False
-    do_processing = False
+    do_processing = True
     do_analysis = True
 
     #all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
+    #all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
+    #all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
     #return
-    all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
 
     if do_extraction:
         all_csv = extract_certificates_csv(cc_html_files_dir)
@@ -80,6 +83,7 @@ def main():
         all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
         all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
         all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
+        all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
 
     if do_pairing:
         with open('pp_data_csv_all.json') as json_file:
@@ -90,9 +94,11 @@ def main():
         #     all_pp_front = json.load(json_file)
         with open('pp_data_keywords_all.json') as json_file:
             all_pp_keywords = json.load(json_file)
+        with open('pp_data_pdfmeta_all.json') as json_file:
+            all_pp_pdf_meta = json.load(json_file)
 
         check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
-        all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, 'link_pp_document')
+        all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, all_pp_pdf_meta, 'link_pp_document')
         with open("pp_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
@@ -104,9 +110,11 @@ def main():
             all_front = json.load(json_file)
         with open('certificate_data_keywords_all.json') as json_file:
             all_keywords = json.load(json_file)
+        with open('certificate_data_pdfmeta_all.json') as json_file:
+            all_pdf_meta = json.load(json_file)
 
-        check_expected_cert_results(all_html, all_csv, all_front, all_keywords)
-        all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords, 'link_security_target')
+        check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_pdf_meta)
+        all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pdf_meta, 'link_security_target')
         with open("certificate_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
@@ -143,6 +151,7 @@ def main():
     # TODO
     # extract pdf file metadata (pdf header, file size...), PyPDF2 https://www.blog.pythonlibrary.org/2018/04/10/extracting-pdf-metadata-and-text-with-python/, https://github.com/pdfminer/pdfminer.six
     #   https://pythonhosted.org/PyPDF2/PdfFileReader.html
+    # allow for late extraction of keywords (only newly added regexes)
     # add extraction of frontpage for protection profiles
     # If None == protection profile => Match PP with its assurance level and recompute
     #         analyze_sept2019_cleaning(all_cert_items)
@@ -157,7 +166,7 @@ def main():
     # other schemes: FIPS140-2 certs, EMVCo, Visa Certification, American Express Certification, MasterCard Certification
     # download and analyse CC documentation
     # solve treatment of unicode characters
-    # anayze bbliography
+    # analyze bibliography
     # histogram/time of cert labs (maybe first two words heuristics)
     # Statistics about number of characters (length), words, pages
     # extract frontpage also from other than anssi and bsi certificates (US, BE...)

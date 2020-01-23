@@ -975,6 +975,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
 
 def extract_certificates_pdfmeta(walk_dir, file_prefix):
     all_items_found = {}
+    counter = 0
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
@@ -985,31 +986,39 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix):
         print('*** {} ***'.format(file_name))
 
         item = {}
-
         item['pdf_file_size_bytes'] = os.path.getsize(file_name)
         try:
             with open(file_name, 'rb') as f:
                 pdf = PdfFileReader(f)
+                # store additional interesting info
+                item['pdf_is_encrypted'] = pdf.getIsEncrypted()
+                item['pdf_number_of_pages'] = pdf.getNumPages()
 
+                # extract pdf metadata (as dict) and save it
                 info = pdf.getDocumentInfo()
                 if info is not None:
                     for key in info:
-                        item[key] = info[key]
-                    # item['pdf_author'] = info['/Author']
-                    # item['pdf_creator'] = info.creator
-                    # item['pdf_producer'] = info.producer
-                    # item['pdf_subject'] = info.subject
-                    # item['pdf_title'] = info.title
-                    # item['pdf_creation_date'] = info.author_raw
-
-                item['pdf_is_encrypted'] = pdf.getIsEncrypted()
-                item['pdf_number_of_pages'] = pdf.getNumPages()
+                        item[key] = str(info[key])
         except Exception as e:
             item['error'] = str(e)
 
+        # test save of the data extracted to prevent error only very later
+        # try:
+        #     with open("{}_temp.json".format(file_prefix), "w") as write_file:
+        #         write_file.write(json.dumps(item, indent=4, sort_keys=True))
+        # except Exception:
+        #     print('  ERROR: invalid data from pdf')
+
         all_items_found[file_name] = item
 
-    # store results into file with fixed name and also with time appendix
+        if counter % 100 == 0:
+            # store results into file with fixed name
+            with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w") as write_file:
+                write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+        counter += 1
+
+
+    # store allresults into file with fixed name
     with open("{}_data_pdfmeta_all.json".format(file_prefix), "w") as write_file:
         write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
 
@@ -1552,7 +1561,7 @@ def extract_protectionprofiles_csv(base_dir):
     return items_found_all
 
 
-def check_expected_cert_results(all_html, all_csv, all_front, all_keywords):
+def check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_pdf_meta):
     #
     # CSV
     #
@@ -1641,7 +1650,7 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
 
 
 
-def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_name_key):
+def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pdf_meta, file_name_key):
     print('\n\nPairing results from different scans ***')
 
     file_name_to_html_name_mapping = {}
@@ -1661,6 +1670,14 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
         short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
         if short_file_name != '':
             file_name_to_keywords_name_mapping[short_file_name] = [long_file_name, 0]
+
+    file_name_to_pdfmeta_name_mapping = {}
+    for long_file_name in all_pdf_meta.keys():
+        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        if short_file_name != '':
+            file_name_to_pdfmeta_name_mapping[short_file_name] = [long_file_name, 0]
+
+
 
     all_cert_items = all_csv
     # pair html data, csv data, front pages and keywords
@@ -1700,10 +1717,14 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
         if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
             all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
             file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
-
+        if file_name_pdf in file_name_to_pdfmeta_name_mapping.keys():
+            all_cert_items[file_name]['pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_pdf][0]]
+            file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1 # was paired
+        else:
+            print('ERROR: File {} not found in pdfmeta scan'.format(file_name_pdf))
         all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
 
-    # pair keywords to maintainance updates
+    # pair pairing in maintainance updates
     for file_name in all_csv.keys():
         pairing_found = False
 
@@ -1715,10 +1736,12 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
 
             if is_in_dict(update, ['cc_maintainance_st_link']):
                 file_name_st = extract_file_name_from_url(update['cc_maintainance_st_link'])
+                file_name_st_pdf = file_name_st
                 file_name_st_txt = ''
                 if len(file_name_st) > 0:
                     file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
             else:
+                file_name_st_pdf = 'file_name_which_doesnt_exists'
                 file_name_st_txt = 'file_name_which_doesnt_exists'
 
             for file_and_id in all_keywords.keys():
@@ -1741,6 +1764,28 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
 
             if not pairing_found:
                 print('WARNING: Corresponding keywords pairing not found for maintaince item {}'.format(file_name))
+
+            for file_and_id in file_name_to_pdfmeta_name_mapping.keys():
+                file_name_pdf = file_and_id[file_and_id.rfind('\\') + 1:]
+                file_name_pdfmeta_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
+                # in items extracted from html, names are in form of 'file_name.pdf__number'
+                if file_name_pdfmeta_txt == file_name_txt:
+                    pairing_found = True
+                    if file_name_pdf in file_name_to_pdfmeta_name_mapping.keys():
+                        update['pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_pdf][0]]
+                        if file_name_to_pdfmeta_name_mapping[file_name_pdf][1] == 1:
+                            print('WARNING: {} already paired'.format(file_name_to_pdfmeta_name_mapping[file_name_pdf][0]))
+                        file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1 # was paired
+
+                if file_name_pdfmeta_txt == file_name_st_txt:
+                    if file_name_st_pdf in file_name_to_pdfmeta_name_mapping.keys():
+                        update['st_pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_st_pdf][0]]
+                        if file_name_to_pdfmeta_name_mapping[file_name_st_pdf][1] == 1:
+                            print('WARNING: {} already paired'.format(file_name_to_pdfmeta_name_mapping[file_name_st_pdf][0]))
+                        file_name_to_pdfmeta_name_mapping[file_name_st_pdf][1] = 1 # was paired
+
+            if not pairing_found:
+                print('WARNING: Corresponding pdfmeta pairing not found for maintaince item {}'.format(file_name))
 
 
     print('*** Files with keywords extracted, which were NOT matched to any CSV item:')
@@ -1765,7 +1810,15 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, file_n
             print('WARNING: {} no keywords scan detected'.format(item))
             num_keywords_missing += 1
 
-    print('Records without frontpage: {}\nRecords without keywords: {}'.format(num_frontpage_missing, num_keywords_missing))
+    print('\n\nRecords with missing pairing of pdfmeta:')
+    num_pdfmeta_missing = 0
+    for item in all_cert_items.keys():
+        this_item = all_cert_items[item]
+        if 'pdfmeta_scan' not in this_item.keys():
+            print('WARNING: {} no pdfmeta scan detected'.format(item))
+            num_pdfmeta_missing += 1
+
+    print('Records without frontpage: {}\nRecords without keywords: {}\nRecords without pdfmeta: {}'.format(num_frontpage_missing, num_keywords_missing, num_pdfmeta_missing))
 
     return all_cert_items
 
