@@ -16,19 +16,28 @@ def do_all_analysis(all_cert_items, filter_label):
 
 
 def do_analysis_everything(all_cert_items, current_dir):
-    os.chdir(current_dir + '\\..\\results\\')
+    target_folder = current_dir + '\\..\\results\\'
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
     do_all_analysis(all_cert_items, '')
 
 
 def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
-    os.chdir(current_dir + '\\..\\results\\results_archived01092019_only\\')
+    target_folder = current_dir + '\\..\\results\\results_archived01092019_only\\'
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
     archived_date = '09/01/2019'
     limited_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_archived_date']) and all_cert_items[x]['csv_scan']['cc_archived_date'] == archived_date}
     do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
 
 
 def do_analysis_only_smartcards(all_cert_items, current_dir):
-    os.chdir(current_dir + '\\..\\results\\results_sc_only\\')
+    target_folder = current_dir + '\\..\\results\\results_sc_only\\'
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
     sc_category = 'ICs, Smart Cards and Smart Card-Related Devices and Systems'
     sc_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_category']) and all_cert_items[x]['csv_scan']['cc_category'] == sc_category}
     print(len(sc_cert_items))
@@ -53,7 +62,7 @@ def main():
     #walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_test1\\'
 
     pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
-    #pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test3\\'
+    #pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test1\\'
     walk_dir_pp = 'c:\\Certs\\pp_20191213\\'
 
     #walk_dir = 'c:\\Certs\\cc_certs_test1\\'
@@ -69,15 +78,15 @@ def main():
     # with open("pp_data_complete.json", "w") as write_file:
     #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
-    do_extraction = False
-    do_extraction_pp = False
-    do_pairing = False
-    do_processing = False
+    do_extraction = True
+    do_extraction_pp = True
+    do_pairing = True
+    do_processing = True
     do_analysis = True
 
-    with open('certificate_data_complete_processed.json') as json_file:
-        all_cert_items = json.load(json_file)
-    analyze_pdfmeta(all_cert_items, '')
+    # with open('certificate_data_complete_processed.json') as json_file:
+    #     all_cert_items = json.load(json_file)
+    # analyze_pdfmeta(all_cert_items, '')
 
     #all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
     #all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
@@ -162,6 +171,8 @@ def main():
 
 
     # TODO
+    # add differential partial download of new files only + processing + combine
+    # add analysis of target CC version
     # extract more pdf file metadata https://github.com/pdfminer/pdfminer.six
     # allow for late extraction of keywords (only newly added regexes)
     # If None == protection profile => Match PP with its assurance level and recompute
