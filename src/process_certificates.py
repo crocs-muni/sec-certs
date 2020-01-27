@@ -10,6 +10,7 @@ def do_all_analysis(all_cert_items, filter_label):
     analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
     analyze_eal_frequency(all_cert_items, filter_label)
     analyze_sars_frequency(all_cert_items, filter_label)
+    analyze_pdfmeta(all_cert_items, filter_label)
     generate_dot_graphs(all_cert_items, filter_label)
     plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
 
@@ -35,9 +36,16 @@ def do_analysis_only_smartcards(all_cert_items, current_dir):
 
 
 def main():
-    # change current directory to store results into results file
     current_dir = os.getcwd()
-    os.chdir(current_dir + '\\..\\results\\')
+    results_folder = '\\..\\results\\'
+
+    # ensure existence of results folder
+
+    if not os.path.exists(current_dir + results_folder):
+        os.makedirs(current_dir + results_folder)
+
+    # change current directory to store results into results file
+    os.chdir(current_dir + results_folder)
 
     cc_html_files_dir = 'c:\\Certs\\web\\'
 
@@ -64,8 +72,12 @@ def main():
     do_extraction = False
     do_extraction_pp = False
     do_pairing = False
-    do_processing = True
+    do_processing = False
     do_analysis = True
+
+    with open('certificate_data_complete_processed.json') as json_file:
+        all_cert_items = json.load(json_file)
+    analyze_pdfmeta(all_cert_items, '')
 
     #all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
     #all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
@@ -141,20 +153,18 @@ def main():
         # analyze only smartcards
         do_analysis_only_smartcards(all_cert_items, current_dir)
 
+        os.chdir(current_dir)
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
-        with open('pp_data_complete.json') as json_file:
-            all_pp_items = json.load(json_file)
+        #with open('pp_data_complete.json') as json_file:
+        #    all_pp_items = json.load(json_file)
 
 
     # TODO
-    # extract pdf file metadata (pdf header, file size...), PyPDF2 https://www.blog.pythonlibrary.org/2018/04/10/extracting-pdf-metadata-and-text-with-python/, https://github.com/pdfminer/pdfminer.six
-    #   https://pythonhosted.org/PyPDF2/PdfFileReader.html
+    # extract more pdf file metadata https://github.com/pdfminer/pdfminer.six
     # allow for late extraction of keywords (only newly added regexes)
-    # add extraction of frontpage for protection profiles
     # If None == protection profile => Match PP with its assurance level and recompute
-    #         analyze_sept2019_cleaning(all_cert_items)
     # extract info about protection profiles, download and parse pdf, map to referencing files
     # analysis of PP only: which PP is the most popular?, what schemes/countries are doing most...
     # analysis of certificates in time (per year) (different schemes)
@@ -167,9 +177,11 @@ def main():
     # download and analyse CC documentation
     # solve treatment of unicode characters
     # analyze bibliography
-    # histogram/time of cert labs (maybe first two words heuristics)
     # Statistics about number of characters (length), words, pages
+    # add keywords extraction for trademarks (e.g, from 0963V2b_pdf.pdf)
+    # FRONTPAGE
     # extract frontpage also from other than anssi and bsi certificates (US, BE...)
+    # add extraction of frontpage for protection profiles
 
 if __name__ == "__main__":
     main()
