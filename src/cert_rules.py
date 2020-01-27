@@ -187,7 +187,7 @@ rules_vulnerabilities = [
 
 rules_other = [
     'library',
-    'http[s]*://.+?/ '
+    'http[s]*://.+?/'
     ]
 
 
