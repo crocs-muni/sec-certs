@@ -2,6 +2,7 @@ rules_cert_id = [
     'BSI-DSZ-CC-[0-9]+?-[0-9]+', # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+', # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+', # German BSI
+    'BSI [0-9]+?', # German BSI
     #'CC-Zert-.+?',
     'ANSSI(?:-|-CC-)[0-9]+?/[0-9]+', # French
     #'ANSSI-CC-CER-F-.+?', # French
@@ -48,11 +49,12 @@ rules_eval_facilities = [
     ]
 
 rules_protection_profiles = [
-    'BSI-(?:CC-|)PP[-]*.+?',
+    'BSI-(?:CC[-_]|)PP[-_]*.+?',
     'PP-SSCD.+?',
     'PP_DBMS_.+?'
     #    'Protection Profile',
     'CCMB-20.+?',
+    'CCMB-20[0-9]+?-[0-9]+?-[0-9]+?',
     'BSI-CCPP-.+?',
     'ANSSI-CC-PP.+?',
     'WBIS_V[0-9]\.[0-9]',
@@ -60,7 +62,7 @@ rules_protection_profiles = [
     ]
 
 rules_technical_reports = [
-    'BSI[ ]*TR-[0-9]+?',
+    'BSI[ ]*TR-[0-9]+?(?:-[0-9]+?|)',
     ]
 
 
@@ -75,8 +77,8 @@ rules_os = [
     ]
 
 rules_standard_id = [
-    'FIPS180-4',
-    'FIPS197',
+    'FIPS[0-9]+-[0-9]+?',
+    'FIPS[0-9]+?',
     'PKCS[ #]*[1-9]+',
     'TLS[ ]*v[0-9\.]+',
     'TLS[ ]*v[0-9\.]+',
@@ -85,7 +87,9 @@ rules_standard_id = [
     'RFC[ ]*[0-9]+?',
     'ISO/IEC[ ]*[0-9]+[-]*[0-9]*',
     'ISO/IEC[ ]*[0-9]+:[ 0-9]+',
+    'ISO/IEC[ ]*[0-9]+',
     'ICAO(?:-SAC|)',
+    '[Xx]\.509',
     ]
 
 rules_security_level = [
@@ -95,17 +99,31 @@ rules_security_level = [
     ]
 
 rules_security_target_class = [
-    'ACM_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'ADO_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'ADV_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'AGD_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'ALC_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'ATE_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'AVA_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'AMA_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'APE_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    'ASE_[A-Z][A-Z][A-Z](?: |\.[0-9])',
-    ]
+    # Security assurance requirements
+    'ACM_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'ADO_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'ADV_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'AGD_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'ALC_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'ATE_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'AVA_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'AMA_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'APE_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'ASE_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+
+    # Security functional components
+    'FAU_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FCO_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FCS_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FDP_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FIA_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FMT_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FPR_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FPT_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FRU_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FTA_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    'FTP_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+]
 
 
 
@@ -120,7 +138,7 @@ rules_javacard = [
 
 rules_crypto_algs = [
     'RSA[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)',
-    'RSASSAPKCS1-V1_5',
+    'RSASSAPKCS1-[Vv]1_5',
     'SHA[-]*(?:160|224|256|384|512)',
     'AES[-]*(?:128|192|256|)',
     'SHA-1',
@@ -179,15 +197,18 @@ rules_certification_process = [
     '[oO]ut of [sS]cope',
     '[\.\(].{0,100}?.[oO]ut of [sS]cope..{0,100}?[\.\)]',
     '.{0,100}[oO]ut of [sS]cope.{0,100}',
+    '.{0,100}confidential document{0,100}',
+    '[sS]ecurity [fF]unction SF\.[a-zA-Z0-9_]',
     ]
 
 rules_vulnerabilities = [
     'CVE-[0-9]+?-[0-9]+?',
+    'CWE-[0-9]+?',
     ]
 
 rules_other = [
     'library',
-    'http[s]*://.+?/'
+    #'http[s]*://.+?/'
     ]
 
 
