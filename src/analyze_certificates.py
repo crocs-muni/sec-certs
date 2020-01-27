@@ -309,7 +309,10 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     print('  Total number of certificates referenced at least once: {}'.format(len(sorted_ref_direct)))
 
     step = 5
-    max_refs = max(direct_refs) + step
+    if len(direct_refs) == 0:
+        max_refs = 0
+    else:
+        max_refs = max(direct_refs) + step
     bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
     compute_and_plot_hist(direct_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of direct references', filter_label), 'cert_direct_refs_frequency.png')
 
@@ -361,7 +364,10 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
             print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
 
     step = 5
-    max_refs = max(indirect_refs) + step
+    if len(indirect_refs) == 0:
+        max_refs = 0
+    else:
+        max_refs = max(indirect_refs) + step
     bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
     compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of indirect references', filter_label), 'cert_indirect_refs_frequency.png')
 
