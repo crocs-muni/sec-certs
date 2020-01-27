@@ -543,7 +543,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
     plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
     plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
     plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
-    plot_schemes_multi_line_graph(years, labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number fo certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
+    plot_schemes_multi_line_graph(years, labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
     plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
     plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
 
@@ -633,6 +633,42 @@ def analyze_eal_frequency(all_cert_items, filter_label):
     total_eals_row.append(sum_total)
     cc_eal_freq.append(['Total'] + total_eals_row)
     print(tabulate(cc_eal_freq, ['CC scheme'] + eal_headers + ['Total']))
+
+
+def analyze_pdfmeta(all_cert_items, filter_label):
+    pdf_tags = {}
+    pdf_values = {}
+    for cert_long_id in all_cert_items.keys():
+        cert = all_cert_items[cert_long_id]
+
+        if is_in_dict(cert, ['pdfmeta_scan']):
+            pdf_scan = cert['pdfmeta_scan']
+            for tag in pdf_scan.keys():
+                if tag not in pdf_tags.keys():
+                    pdf_tags[tag] = 1  # count number of occurence of particular pdf tag
+                    pdf_values[tag] = {} # collect values for particular tag and their frequencies
+                    pdf_values[tag][pdf_scan[tag]] = [cert_long_id]
+                else:
+                    pdf_tags[tag] += 1
+                    if pdf_scan[tag] not in pdf_values[tag].keys():
+                        pdf_values[tag][pdf_scan[tag]] = [cert_long_id]
+                    else:
+                        pdf_values[tag][pdf_scan[tag]].append(cert_long_id)
+
+
+    print('\n### Extracted pdf tags frequency:')
+    sorted_by_occurence = sorted(pdf_tags.items(), key=operator.itemgetter(1))
+    for tag in sorted_by_occurence:
+        print('{:10}: {}x'.format(tag[0], tag[1]))
+        if tag[0] in ['pdf_file_size_bytes', '/ModDate', 'pdf_number_of_pages', '/CreationDate']:
+            print('  Would be too many separate outputs, print supressed')
+        else:
+            detected_items_count = {}
+            for item in pdf_values[tag[0]].items():
+                detected_items_count[item[0]] = len(item[1])
+            sorted_by_occurence_values = sorted(detected_items_count.items(), key=operator.itemgetter(1))
+            for value in sorted_by_occurence_values:
+                print('  {:10}: {}x : {}'.format(value[0], value[1], pdf_values[tag[0]][value[0]]))
 
 
 def analyze_sars_frequency(all_cert_items, filter_label):
