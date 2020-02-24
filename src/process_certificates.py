@@ -174,9 +174,13 @@ def main():
 
     # TODO
     # add differential partial download of new files only + processing + combine
+      # generate download script only for new files (need to have previous version of files stored)
+      # option for extraction of info just for single file?
+    # add detection of overly long regex matches
     # add analysis of target CC version
-    # extract more pdf file metadata https://github.com/pdfminer/pdfminer.six
+    # extract even more pdf file metadata https://github.com/pdfminer/pdfminer.six
     # allow for late extraction of keywords (only newly added regexes)
+    # protection profiles dependency graph similarly as certid dependency graph is done
     # If None == protection profile => Match PP with its assurance level and recompute
     # extract info about protection profiles, download and parse pdf, map to referencing files
     # analysis of PP only: which PP is the most popular?, what schemes/countries are doing most...
@@ -195,6 +199,7 @@ def main():
     # FRONTPAGE
     # extract frontpage also from other than anssi and bsi certificates (US, BE...)
     # add extraction of frontpage for protection profiles
+    # check functionality on Linux (script %%20 expansions...)
 
 if __name__ == "__main__":
     main()
