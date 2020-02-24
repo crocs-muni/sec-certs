@@ -98,8 +98,7 @@ rules_security_level = [
     'ITSEC[ ]*E[1-9]*.+?',
     ]
 
-rules_security_target_class = [
-    # Security assurance requirements
+rules_security_assurance_components = [
     'ACM_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
     'ADO_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
     'ADV_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
@@ -110,8 +109,9 @@ rules_security_target_class = [
     'AMA_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
     'APE_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
     'ASE_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
+    ]
 
-    # Security functional components
+rules_security_functional_components = [
     'FAU_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
     'FCO_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
     'FCS_[A-Z][A-Z][A-Z](?:\.[0-9]|)',
@@ -211,7 +211,7 @@ rules_other = [
     #'http[s]*://.+?/'
     ]
 
-
+#rules_security_target_class
 rules = {}
 rules['rules_vendor'] = rules_vendor
 rules['rules_cert_id'] = rules_cert_id
