@@ -677,12 +677,29 @@ def analyze_pdfmeta(all_cert_items, filter_label):
                 print('  {:10}: {}x : {}'.format(value[0], value[1], pdf_values[tag[0]][value[0]]))
 
 
-def analyze_sars_frequency(all_cert_items, filter_label):
+def analyze_security_assurance_component_frequency(all_cert_items, filter_label):
+    return analyze_sc_frequency(all_cert_items, filter_label, 'assurance')
+
+
+def analyze_security_functional_component_frequency(all_cert_items, filter_label):
+    return analyze_sc_frequency(all_cert_items, filter_label, 'functional')
+
+
+def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
     sars_freq = {}
+    key_name = 'invalid'
+    shortcut = 'invalid'
+    if sec_component_label == 'functional':
+        key_name = 'rules_security_functional_components'
+        shortcut = 'sfr'
+    if sec_component_label == 'assurance':
+        key_name = 'rules_security_assurance_components'
+        shortcut = 'sar'
+
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
-        if is_in_dict(cert, ['keywords_scan', 'rules_security_target_class']):
-            sars = cert['keywords_scan']['rules_security_target_class']
+        if is_in_dict(cert, ['keywords_scan', key_name]):
+            sars = cert['keywords_scan'][key_name]
             for sar_rule in sars:
                 for sar_hit in sars[sar_rule]:
                     if sar_hit not in sars_freq.keys():
@@ -690,22 +707,22 @@ def analyze_sars_frequency(all_cert_items, filter_label):
                     sars_freq[sar_hit] += 1
 
 
-    print('\n### CC security assurance components frequency:')
+    print('\n### CC security ' + sec_component_label + ' components frequency:')
     sars_labels = sorted(sars_freq.keys())
     sars_freq_nums = []
     for sar in sars_labels:
         print('{:10}: {}x'.format(sar, sars_freq[sar]))
         sars_freq_nums.append(sars_freq[sar])
 
-    print('\n### CC security assurance components frequency sorted by num occurences:')
+    print('\n### CC security ' + sec_component_label + ' components frequency sorted by num occurences:')
     sorted_by_occurence = sorted(sars_freq.items(), key=operator.itemgetter(1))
     for sar in sorted_by_occurence:
         print('{:10}: {}x'.format(sar[0], sar[1]))
 
     # plot bar graph with frequency of CC SARs
-    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', filter_label), 'cert_sars_frequency')
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security ' + sec_component_label + ' component (' + shortcut + ')\nAll listed occured at least once', filter_label), 'cert_' + shortcut + '_frequency')
     sars_freq_nums, sars_labels = (list(t) for t in zip(*sorted(zip(sars_freq_nums, sars_labels), reverse = True)))
-    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security assurance component (SAR)\nAll listed SARs occured at least once', filter_label), 'cert_sars_frequency_sorted')
+    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security ' + sec_component_label + ' component (' + shortcut + ')\nAll listed occured at least once', filter_label), 'cert_' + shortcut + '_frequency_sorted')
 
     # plot heatmap of SARs frequencies based on type (row) and level (column)
     sars_labels = sorted(sars_freq.keys())
@@ -719,7 +736,7 @@ def analyze_sars_frequency(all_cert_items, filter_label):
             sars_unique_names.append(name)
 
     sars_unique_names = sorted(sars_unique_names)
-    max_sar_level = 6
+    max_sar_level = 8
     num_sars = len(sars_unique_names)
     sar_heatmap = []
     sar_matrix = []
@@ -738,7 +755,7 @@ def analyze_sars_frequency(all_cert_items, filter_label):
 
     # plot heatmap graph with frequency of SAR levels
     y_data_labels = range(1, max_sar_level + 2)
-    plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security assurance component (SAR) class', 'Security assurance components (SAR) level', fig_label('Frequency of achieved levels for Security assurance component (SAR) classes', filter_label), 'cert_sars_heatmap')
+    plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security ' + sec_component_label + ' component (' + shortcut + ') class', 'Security ' + sec_component_label + ' components (' + shortcut + ') level', fig_label('Frequency of achieved levels for Security ' + sec_component_label + ' component (' + shortcut + ') classes', filter_label), 'cert_' + shortcut + '_heatmap')
 
 
 def generate_dot_graphs(all_items_found, filter_label):
