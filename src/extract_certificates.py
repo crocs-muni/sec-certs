@@ -1476,7 +1476,9 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
             write_file.write('mkdir \"{}\"\n'.format(certs_dir))
             write_file.write('cd \"{}\"\n\n'.format(certs_dir))
         for cert in download_files_certs:
-            write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[0], cert[1]))
+            # double %% is necessary to prevent replacement of %2 within script (second argument of script)
+            file_name_short_web = cert[0].replace(' ', '%%20')
+            write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[1]))
             write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
 
         if len(cert) > 2:
@@ -1486,7 +1488,9 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
                 write_file.write('mkdir \"{}\"\n'.format(targets_dir))
                 write_file.write('cd \"{}\"\n\n'.format(targets_dir))
             for cert in download_files_certs:
-                write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[2], cert[3]))
+                # double %% is necessary to prevent replacement of %2 within script (second argument of script)
+                file_name_short_web = cert[2].replace(' ', '%%20')
+                write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[3]))
                 write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
 
 
