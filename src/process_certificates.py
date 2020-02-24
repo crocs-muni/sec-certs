@@ -70,6 +70,7 @@ def main():
     pp_fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_txt_fragments\\'
 
     generate_basic_download_script()
+    generate_missing_download_script(walk_dir)
 
     # all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
     # all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')

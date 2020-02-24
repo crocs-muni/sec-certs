@@ -320,6 +320,7 @@ def search_only_headers_bsi(walk_dir):
     ]
 
     items_found_all = {}
+    items_found = {}
     files_without_match = []
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
@@ -2002,4 +2003,42 @@ def generate_basic_download_script():
 
         file.write('curl \"https://www.commoncriteriaportal.org/pps/pps.csv\" -o cc_pp_active.csv\n')
         file.write('curl \"https://www.commoncriteriaportal.org/pps/pps-archived.csv\" -o cc_pp_archived.csv\n\n')
+
+
+def generate_missing_download_script(base_dir):
+    # obtain list of all downloaded pdf files and their size
+    # check for pdf files with too small length
+    # generate download script again (single one)
+
+    # visit all relevant subfolders
+    sub_folders = ['active\\certs', 'active\\targets', 'active_update\\certs', 'active_update\\targets',
+                   'archived\\certs', 'archived\\targets', 'archived_update\\certs', 'archived_update\\targets']
+
+    # the smallest correct certificate downloaded was 71kB, if server error occured, it was only 1245 bytes
+    MIN_CORRECT_CERT_SIZE = 5000
+    download_again = []
+    for sub_folder in sub_folders:
+        target_dir = '{}\\{}'.format(base_dir, sub_folder)
+        # obtain list of all downloaded pdf files and their size
+        files = search_files(target_dir)
+        for file_name in files:
+            # process only .pdf files
+            if not os.path.isfile(file_name):
+                continue
+            file_ext = file_name[file_name.rfind('.'):].upper()
+            if file_ext != '.PDF':
+                continue
+
+            # obtain size of file
+            file_size = os.path.getsize(file_name)
+            if file_size < MIN_CORRECT_CERT_SIZE:
+                # too small file, likely failed download - retry
+                file_name_short = file_name[file_name.rfind('\\') + 1:]
+                # double %% is necessary to prevent replacement of %2 within script (second argument of script)
+                file_name_short_web = file_name_short.replace(' ', '%%20')
+                download_link = 'https://www.commoncriteriaportal.org/files/epfiles/{}'.format(file_name_short_web)
+                download_again.append((download_link, file_name))
+
+    generate_download_script('download_missing_certs.bat', '', '', download_again)
+    print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format('download_missing_certs.bat', len(download_again)))
 
