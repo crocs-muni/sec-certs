@@ -1472,17 +1472,19 @@ def extract_pp_metadata_csv(file_name):
 def generate_download_script(file_name, certs_dir, targets_dir, download_files_certs):
     with open(file_name, "w") as write_file:
         # certs files
-        write_file.write('mkdir \"{}\"\n'.format(certs_dir))
-        write_file.write('cd \"{}\"\n\n'.format(certs_dir))
+        if certs_dir != '':
+            write_file.write('mkdir \"{}\"\n'.format(certs_dir))
+            write_file.write('cd \"{}\"\n\n'.format(certs_dir))
         for cert in download_files_certs:
             write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[0], cert[1]))
             write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
 
         if len(cert) > 2:
             # security targets file
-            write_file.write('\n\ncd ..\n')
-            write_file.write('mkdir \"{}\"\n'.format(targets_dir))
-            write_file.write('cd \"{}\"\n\n'.format(targets_dir))
+            if targets_dir != '':
+                write_file.write('\n\ncd ..\n')
+                write_file.write('mkdir \"{}\"\n'.format(targets_dir))
+                write_file.write('cd \"{}\"\n\n'.format(targets_dir))
             for cert in download_files_certs:
                 write_file.write('curl \"{}\" -o \"{}\"\n'.format(cert[2], cert[3]))
                 write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
