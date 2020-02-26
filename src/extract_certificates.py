@@ -18,6 +18,10 @@ from PyPDF2 import PdfFileReader
 STOP_ON_UNEXPECTED_NUMS = False
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
+FILE_ERRORS_STRATEGY = 'surrogateescape'
+#FILE_ERRORS_STRATEGY = 'strict'
+CC_WEB_URL = 'https://www.commoncriteriaportal.org'
+
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
@@ -46,7 +50,7 @@ def get_line_number(lines, line_length_compensation, match_start_index):
 def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
     lines = []
     was_unicode_decode_error = False
-    with open(file_name, 'r') as f:
+    with open(file_name, 'r', errors=FILE_ERRORS_STRATEGY) as f:
         try:
             lines = f.readlines()
         except UnicodeDecodeError:
@@ -54,7 +58,7 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
             was_unicode_decode_error = True
             print('  WARNING: UnicodeDecodeError, opening as utf8')
 
-            with open(file_name, encoding="utf8") as f2:
+            with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
                 # coding failure, try line by line
                 line = ' '
                 while line:
@@ -85,14 +89,16 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
 
 
 def load_cert_html_file(file_name):
-    with open(file_name, 'r') as f:
+    with open(file_name, 'r', errors=FILE_ERRORS_STRATEGY) as f:
         try:
             whole_text = f.read()
         except UnicodeDecodeError:
             f.close()
-            with open(file_name, encoding="utf8") as f2:
-                whole_text = f2.read()
-
+            with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+                try:
+                    whole_text = f2.read()
+                except UnicodeDecodeError:
+                    print('### ERROR: failed to read file {}'.format(file_name))
     return whole_text
 
 
@@ -411,7 +417,7 @@ def search_only_headers_bsi(walk_dir):
     if False:
         print_found_properties(items_found_all)
 
-    with open("certificate_data_bsiheader.json", "w") as write_file:
+    with open("certificate_data_bsiheader.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     print('\n*** Certificates without detected preface:')
@@ -577,7 +583,7 @@ def search_only_headers_anssi(walk_dir):
         print_found_properties(items_found_all)
 
     # store results into file with fixed name and also with time appendix
-    with open("certificate_data_anssiheader.json", "w") as write_file:
+    with open("certificate_data_anssiheader.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     print('\n*** Certificates without detected preface:')
@@ -598,7 +604,7 @@ def search_only_headers_anssi(walk_dir):
     return items_found_all, files_without_match
 
 
-def extract_certificates_frontpage(walk_dir):
+def extract_certificates_frontpage(walk_dir, write_output_file = True):
     anssi_items_found, anssi_files_without_match = search_only_headers_anssi(walk_dir)
     bsi_items_found, bsi_files_without_match = search_only_headers_bsi(walk_dir)
 
@@ -610,8 +616,10 @@ def extract_certificates_frontpage(walk_dir):
 
     items_found_all = {**anssi_items_found, **bsi_items_found}
     # store results into file with fixed name and also with time appendix
-    with open("certificate_data_frontpage_all.json", "w") as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    if write_output_file:
+        with open("certificate_data_frontpage_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
@@ -887,7 +895,7 @@ def search_pp_only_headers(walk_dir):
     if False:
         print_found_properties(items_found_all)
 
-    with open("pp_data_header.json", "w") as write_file:
+    with open("pp_data_header.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
         write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     print('\n*** Protection profiles without detected header:')
@@ -899,7 +907,7 @@ def search_pp_only_headers(walk_dir):
     return items_found_all, files_without_match
 
 
-def extract_protectionprofiles_frontpage(walk_dir):
+def extract_protectionprofiles_frontpage(walk_dir, write_output_file = True):
     pp_items_found, pp_files_without_match = search_pp_only_headers(walk_dir)
 
     print('*** Files without detected protection profiles header')
@@ -908,13 +916,14 @@ def extract_protectionprofiles_frontpage(walk_dir):
     print('Total no hits files: {}'.format(len(pp_files_without_match)))
 
     # store results into file with fixed name and also with time appendix
-    with open("pp_data_frontpage_all.json", "w") as write_file:
-        write_file.write(json.dumps(pp_items_found, indent=4, sort_keys=True))
+    if write_output_file:
+        with open("pp_data_frontpage_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(pp_items_found, indent=4, sort_keys=True))
 
     return pp_items_found
 
 
-def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
+def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_output_file = True):
     all_items_found = {}
     cert_id = {}
     for file_name in search_files(walk_dir):
@@ -939,8 +948,9 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
         save_modified_cert_file(target_file, modified_cert_file[0], modified_cert_file[1])
 
     # store results into file with fixed name and also with time appendix
-    with open("{}_data_keywords_all.json".format(file_prefix), "w") as write_file:
-        write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+    if write_output_file:
+        with open("{}_data_keywords_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
 
     print('\nTotal matches found in separate files:')
     # print_total_matches_in_files(all_items_found_count)
@@ -974,7 +984,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix):
 
 
 
-def extract_certificates_pdfmeta(walk_dir, file_prefix):
+def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file = True):
     all_items_found = {}
     counter = 0
     for file_name in search_files(walk_dir):
@@ -989,7 +999,7 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix):
         item = {}
         item['pdf_file_size_bytes'] = os.path.getsize(file_name)
         try:
-            with open(file_name, 'rb') as f:
+            with open(file_name, 'rb', errors=FILE_ERRORS_STRATEGY) as f:
                 pdf = PdfFileReader(f)
                 # store additional interesting info
                 item['pdf_is_encrypted'] = pdf.getIsEncrypted()
@@ -1014,14 +1024,15 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix):
 
         if counter % 100 == 0:
             # store results into file with fixed name
-            with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w") as write_file:
+            with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
                 write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
         counter += 1
 
 
     # store allresults into file with fixed name
-    with open("{}_data_pdfmeta_all.json".format(file_prefix), "w") as write_file:
-        write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+    if write_output_file:
+        with open("{}_data_pdfmeta_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
 
     return all_items_found
 
@@ -1247,7 +1258,7 @@ def check_if_new_or_same(target_dict, target_key, new_value):
 def extract_certificates_metadata_csv(file_name):
     items_found_all = {}
     expected_columns = -1
-    with open(file_name) as csv_file:
+    with open(file_name, errors=FILE_ERRORS_STRATEGY) as csv_file:
         print('*** {} ***'.format(file_name))
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -1279,6 +1290,8 @@ def extract_certificates_metadata_csv(file_name):
                     no_further_maintainance = False
                 else:
                     no_further_maintainance = True
+
+                items_found['raw_csv_line'] = str(row)
 
                 index_next_item = 0
                 check_if_new_or_same(items_found, 'cc_category', normalize_match_string(row[index_next_item]))
@@ -1367,7 +1380,7 @@ def extract_pp_metadata_csv(file_name):
     download_files_certs = []
     download_files_maintainance = []
     expected_columns = -1
-    with open(file_name) as csv_file:
+    with open(file_name, errors=FILE_ERRORS_STRATEGY) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         no_further_maintainance = True
@@ -1396,6 +1409,8 @@ def extract_pp_metadata_csv(file_name):
                     no_further_maintainance = False
                 else:
                     no_further_maintainance = True
+
+                items_found['raw_csv_line'] = str(row)
 
                 index_next_item = 0
                 check_if_new_or_same(items_found, 'cc_category', normalize_match_string(row[index_next_item]))
@@ -1470,8 +1485,8 @@ def extract_pp_metadata_csv(file_name):
     return items_found_all, download_files_certs, download_files_maintainance
 
 
-def generate_download_script(file_name, certs_dir, targets_dir, download_files_certs):
-    with open(file_name, "w") as write_file:
+def generate_download_script(file_name, certs_dir, targets_dir, base_url, download_files_certs):
+    with open(file_name, "w", errors=FILE_ERRORS_STRATEGY) as write_file:
         # certs files
         if certs_dir != '':
             write_file.write('mkdir \"{}\"\n'.format(certs_dir))
@@ -1479,10 +1494,10 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
         for cert in download_files_certs:
             # double %% is necessary to prevent replacement of %2 within script (second argument of script)
             file_name_short_web = cert[0].replace(' ', '%%20')
-            write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[1]))
+            write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
             write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
 
-        if len(cert) > 2:
+        if len(download_files_certs) > 0 and len(cert) > 2:
             # security targets file
             if targets_dir != '':
                 write_file.write('\n\ncd ..\n')
@@ -1491,41 +1506,43 @@ def generate_download_script(file_name, certs_dir, targets_dir, download_files_c
             for cert in download_files_certs:
                 # double %% is necessary to prevent replacement of %2 within script (second argument of script)
                 file_name_short_web = cert[2].replace(' ', '%%20')
-                write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[3]))
+                write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
                 write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
 
 
-def extract_certificates_html(base_dir):
+def extract_certificates_html(base_dir, write_output_file = True):
     file_name = '{}cc_products_active.html'.format(base_dir)
     items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
     for item in items_found_all_active.keys():
         items_found_all_active[item]['html_scan']['cert_status'] = 'active'
 
-    with open("certificate_data_html_active.json", "w") as write_file:
+    with open("certificate_data_html_active.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
         write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
 
-    generate_download_script('download_active_certs.bat', 'certs', 'targets', download_files_certs)
-    generate_download_script('download_active_updates.bat', 'certs', 'targets', download_files_updates)
+    generate_download_script('download_active_certs.bat', 'certs', 'targets', CC_WEB_URL, download_files_certs)
+    generate_download_script('download_active_updates.bat', 'certs', 'targets', CC_WEB_URL, download_files_updates)
 
     file_name = '{}cc_products_archived.html'.format(base_dir)
     items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['html_scan']['cert_status'] = 'archived'
 
-    with open("certificate_data_html_archived.json", "w") as write_file:
+    with open("certificate_data_html_archived.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
         write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
 
-    generate_download_script('download_archived_certs.bat', 'certs', 'targets', download_files_certs)
-    generate_download_script('download_archived_updates.bat', 'certs', 'targets', download_files_updates)
+    generate_download_script('download_archived_certs.bat', 'certs', 'targets', CC_WEB_URL, download_files_certs)
+    generate_download_script('download_archived_updates.bat', 'certs', 'targets', CC_WEB_URL, download_files_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
-    with open("certificate_data_html_all.json", "w") as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    if write_output_file:
+        with open("certificate_data_html_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
 
-def extract_certificates_csv(base_dir):
+def extract_certificates_csv(base_dir, write_output_file = True):
     file_name = '{}cc_products_active.csv'.format(base_dir)
     items_found_all_active = extract_certificates_metadata_csv(file_name)
     for item in items_found_all_active.keys():
@@ -1537,13 +1554,15 @@ def extract_certificates_csv(base_dir):
         items_found_all_archived[item]['csv_scan']['cert_status'] = 'archived'
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
-    with open("certificate_data_csv_all.json", "w") as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    if write_output_file:
+        with open("certificate_data_csv_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
 
-def extract_protectionprofiles_csv(base_dir):
+def extract_protectionprofiles_csv(base_dir, write_output_file = True):
     file_name = '{}cc_pp_active.csv'.format(base_dir)
     items_found_all_active, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(file_name)
     for item in items_found_all_active.keys():
@@ -1562,8 +1581,10 @@ def extract_protectionprofiles_csv(base_dir):
     generate_download_script('download_archived_pp_updates.bat', 'pp_updates', '', download_files_pp_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
-    with open("pp_data_csv_all.json", "w") as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+
+    if write_output_file:
+        with open("pp_data_csv_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
@@ -1988,7 +2009,7 @@ def process_certificates_data(all_cert_items, all_pp_items):
 
 
 def generate_basic_download_script():
-    with open('download_cc_web.bat', 'w') as file:
+    with open('download_cc_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
         file.write('curl \"https://www.commoncriteriaportal.org/products/\" -o cc_products_active.html\n')
         file.write('curl \"https://www.commoncriteriaportal.org/products/index.cfm?archived=1\" -o cc_products_archived.html\n\n')
 
@@ -2026,7 +2047,7 @@ def generate_missing_download_script(base_dir):
             if not os.path.isfile(file_name):
                 continue
             file_ext = file_name[file_name.rfind('.'):].upper()
-            if file_ext != '.PDF':
+            if file_ext != '.PDF' and file_ext != '.DOC' and file_ext != '.DOCX':
                 continue
 
             # obtain size of file
@@ -2036,9 +2057,9 @@ def generate_missing_download_script(base_dir):
                 file_name_short = file_name[file_name.rfind('\\') + 1:]
                 # double %% is necessary to prevent replacement of %2 within script (second argument of script)
                 file_name_short_web = file_name_short.replace(' ', '%%20')
-                download_link = 'https://www.commoncriteriaportal.org/files/epfiles/{}'.format(file_name_short_web)
+                download_link = '/files/epfiles/{}'.format(file_name_short_web)
                 download_again.append((download_link, file_name))
 
-    generate_download_script('download_missing_certs.bat', '', '', download_again)
+    generate_download_script('download_missing_certs.bat', '', '', CC_WEB_URL, download_again)
     print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format('download_missing_certs.bat', len(download_again)))
 
