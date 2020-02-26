@@ -227,10 +227,12 @@ def main():
     # add differential partial download of new files only + processing + combine
       # generate download script only for new files (need to have previous version of files stored)
       # option for extraction of info just for single file?
+      # allow for late extraction of keywords (only newly added regexes)
+      # extraction of keywords done with the provided cert_rules_dict => cert_rules.py and cert_rules_new.py
+    # add tests - few selected files
     # add detection of overly long regex matches
     # add analysis of target CC version
     # extract even more pdf file metadata https://github.com/pdfminer/pdfminer.six
-    # allow for late extraction of keywords (only newly added regexes)
     # protection profiles dependency graph similarly as certid dependency graph is done
     # If None == protection profile => Match PP with its assurance level and recompute
     # extract info about protection profiles, download and parse pdf, map to referencing files
@@ -241,16 +243,19 @@ def main():
     # analysis of security targets documents
     # analysis of big cert clusters
     # improve logging (info, warnings, errors, final summary)
+      # save as json, named segments (start_segment('name'), end_segment('name'), print('log_line', level)
     # other schemes: FIPS140-2 certs, EMVCo, Visa Certification, American Express Certification, MasterCard Certification
     # download and analyse CC documentation
     # solve treatment of unicode characters
     # analyze bibliography
-    # Statistics about number of characters (length), words, pages
+    # Statistics about number of characters (length), words, pages - histogram of pdf length & extracted text length
     # add keywords extraction for trademarks (e.g, from 0963V2b_pdf.pdf)
     # FRONTPAGE
-    # extract frontpage also from other than anssi and bsi certificates (US, BE...)
-    # add extraction of frontpage for protection profiles
-    # check functionality on Linux (script %%20 expansions...)
+      # extract frontpage also from other than anssi and bsi certificates (US, BE...)
+      # add extraction of frontpage for protection profiles
+    # PORTABILITY
+      # check functionality on Linux (script %%20 expansions...)
+    # Add processing of docx files
 
 if __name__ == "__main__":
     main()
