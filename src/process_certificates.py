@@ -45,6 +45,14 @@ def do_analysis_only_smartcards(all_cert_items, current_dir):
     do_all_analysis(sc_cert_items, 'sc_category={}'.format(sc_category))
 
 
+def load_json_files(files_list):
+    loaded_jsons = []
+    for file_name in files_list:
+        with open(file_name) as json_file:
+            loaded_jsons.append(json.load(json_file))
+    return tuple(loaded_jsons)
+
+
 def main():
     current_dir = os.getcwd()
     results_folder = '\\..\\results\\'
@@ -57,18 +65,38 @@ def main():
     # change current directory to store results into results file
     os.chdir(current_dir + results_folder)
 
-    cc_html_files_dir = 'c:\\Certs\\web\\'
+    ### Paths for certificates downloaded on 20191208
+    paths_20191208 = {}
+    paths_20191208['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20191208\\web\\'
+    paths_20191208['walk_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
+    #paths_20191208['walk_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs_test1\\'
+    paths_20191208['pp_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
+    #paths_20191208['pp_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test1\\'
+    paths_20191208['fragments_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
+    paths_20191208['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp_txt_fragments\\'
 
-    walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
-    #walk_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_test1\\'
+    ### Paths for certificates downloaded on 20200225
+    paths_20200225 = {}
+    paths_20200225['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200225\\web\\'
+    paths_20200225['walk_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs\\'
+    paths_20200225['pp_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp\\'
+    paths_20200225['fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs_txt_fragments\\'
+    paths_20200225['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp_txt_fragments\\'
 
-    pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
-    #pp_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test1\\'
-    walk_dir_pp = 'c:\\Certs\\pp_20191213\\'
+    # initialize paths based on the profile used
+    paths_used = paths_20191208
+    #paths_used = paths_20200225
 
-    #walk_dir = 'c:\\Certs\\cc_certs_test1\\'
-    fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
-    pp_fragments_dir = 'c:\\Certs\\cc_certs_20191208\\cc_pp_txt_fragments\\'
+    cc_html_files_dir = paths_used['cc_html_files_dir']
+    walk_dir = paths_used['walk_dir']
+    pp_dir = paths_used['pp_dir']
+    fragments_dir = paths_used['fragments_dir']
+    pp_fragments_dir = paths_used['pp_fragments_dir']
+
+
+    #
+    # Start processing
+    #
 
     generate_basic_download_script()
     generate_missing_download_script(walk_dir)
@@ -80,10 +108,11 @@ def main():
     # with open("pp_data_complete.json", "w") as write_file:
     #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
+    do_complete_extraction = False
     do_extraction = True
-    do_extraction_pp = True
-    do_pairing = True
-    do_processing = True
+    do_extraction_pp = False
+    do_pairing = False
+    do_processing = False
     do_analysis = True
 
     # with open('certificate_data_complete_processed.json') as json_file:
@@ -95,12 +124,37 @@ def main():
     #all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
     #return
 
+    if do_complete_extraction:
+        # set 'previous' state to empty lists
+        prev_csv = []
+        prev_html = []
+        prev_front = []
+        prev_keywords = []
+        prev_pdf_meta = []
+    else:
+        # load previously analyzed results
+        prev_csv, prev_html, prev_front, prev_keywords, prev_pdf_meta = load_json_files(
+            ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
+             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json'])
+
     if do_extraction:
-        all_csv = extract_certificates_csv(cc_html_files_dir)
-        all_html = extract_certificates_html(cc_html_files_dir)
-        all_front = extract_certificates_frontpage(walk_dir)
-        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
-        all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
+        all_csv = extract_certificates_csv(cc_html_files_dir, False)
+        all_html = extract_certificates_html(cc_html_files_dir, False)
+        all_front = extract_certificates_frontpage(walk_dir, False)
+        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate', False)
+        all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', False)
+
+        with open("certificate_data_csv_all.json", "w") as write_file:
+            write_file.write(json.dumps(all_csv, indent=4, sort_keys=True))
+        with open("certificate_data_html_all.json", "w") as write_file:
+            write_file.write(json.dumps(all_html, indent=4, sort_keys=True))
+        with open("certificate_data_frontpage_all.json", "w") as write_file:
+            write_file.write(json.dumps(all_front, indent=4, sort_keys=True))
+        with open("certificate_data_keywords_all.json", "w") as write_file:
+            write_file.write(json.dumps(all_keywords, indent=4, sort_keys=True))
+        with open("certificate_data_pdfmeta_all.json", "w") as write_file:
+            write_file.write(json.dumps(all_pdf_meta, indent=4, sort_keys=True))
+
 
     if do_extraction_pp:
         all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
@@ -108,36 +162,33 @@ def main():
         all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
         all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
 
-    if do_pairing:
-        with open('pp_data_csv_all.json') as json_file:
-            all_pp_csv = json.load(json_file)
-        # with open('pp_data_html_all.json') as json_file:
-        #     all_pp_html = json.load(json_file)
-        # with open('v_data_frontpage_all.json') as json_file:
-        #     all_pp_front = json.load(json_file)
-        with open('pp_data_keywords_all.json') as json_file:
-            all_pp_keywords = json.load(json_file)
-        with open('pp_data_pdfmeta_all.json') as json_file:
-            all_pp_pdf_meta = json.load(json_file)
 
+
+    if do_pairing:
+        # PROTECTION PROFILES
+        # load results from previous step
+        all_pp_csv, all_pp_html, all_pp_front, all_pp_keywords, all_pp_pdf_meta = load_json_files(
+            ['pp_data_csv_all.json', 'pp_data_html_all.json', 'pp_data_frontpage_all.json',
+             'pp_data_keywords_all.json', 'pp_data_pdfmeta_all.json'])
+        # check for unexpected results
         check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
+        # collate all results into single file
         all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, all_pp_pdf_meta, 'link_pp_document')
+        # write collated result
         with open("pp_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
-        with open('certificate_data_csv_all.json') as json_file:
-            all_csv = json.load(json_file)
-        with open('certificate_data_html_all.json') as json_file:
-            all_html = json.load(json_file)
-        with open('certificate_data_frontpage_all.json') as json_file:
-            all_front = json.load(json_file)
-        with open('certificate_data_keywords_all.json') as json_file:
-            all_keywords = json.load(json_file)
-        with open('certificate_data_pdfmeta_all.json') as json_file:
-            all_pdf_meta = json.load(json_file)
 
+        # CERTIFICATES
+        # load results from previous step
+        all_csv, all_html, all_front, all_keywords, all_pdf_meta = load_json_files(
+            ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
+             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json'])
+        # check for unexpected results
         check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_pdf_meta)
+        # collate all results into single file
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pdf_meta, 'link_security_target')
+        # write collated result
         with open("certificate_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
