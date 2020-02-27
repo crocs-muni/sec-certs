@@ -2,7 +2,7 @@
 .idea
 
 # results folder
-results/
+results*/
 
 
 # Byte-compiled / optimized / DLL files
