@@ -125,12 +125,12 @@ def main():
     #return
 
     if do_complete_extraction:
-        # set 'previous' state to empty lists
-        prev_csv = []
-        prev_html = []
-        prev_front = []
-        prev_keywords = []
-        prev_pdf_meta = []
+        # set 'previous' state to empty dict
+        prev_csv = {}
+        prev_html =  {}
+        prev_front =  {}
+        prev_keywords =  {}
+        prev_pdf_meta =  {}
     else:
         # load previously analyzed results
         prev_csv, prev_html, prev_front, prev_keywords, prev_pdf_meta = load_json_files(
