@@ -1496,7 +1496,13 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
         for cert in download_files_certs:
             # double %% is necessary to prevent replacement of %2 within script (second argument of script)
             file_name_short_web = cert[0].replace(' ', '%%20')
-            write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
+
+            if file_name_short_web.find(base_url) != -1:
+                # base url already included
+                write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[1]))
+            else:
+                # insert base url
+                write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
             write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
 
         if len(download_files_certs) > 0 and len(cert) > 2:
@@ -1508,7 +1514,12 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
             for cert in download_files_certs:
                 # double %% is necessary to prevent replacement of %2 within script (second argument of script)
                 file_name_short_web = cert[2].replace(' ', '%%20')
-                write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
+                if file_name_short_web.find(base_url) != -1:
+                    # base url already included
+                    write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[3]))
+                else:
+                    # insert base url
+                    write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
                 write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
 
 
