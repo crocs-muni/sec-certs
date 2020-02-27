@@ -1518,8 +1518,9 @@ def extract_certificates_html(base_dir, write_output_file = True):
     for item in items_found_all_active.keys():
         items_found_all_active[item]['html_scan']['cert_status'] = 'active'
 
-    with open("certificate_data_html_active.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-        write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
+    if write_output_file:
+        with open("certificate_data_html_active.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
 
     generate_download_script('download_active_certs.bat', 'certs', 'targets', CC_WEB_URL, download_files_certs)
     generate_download_script('download_active_updates.bat', 'certs', 'targets', CC_WEB_URL, download_files_updates)
@@ -1529,8 +1530,9 @@ def extract_certificates_html(base_dir, write_output_file = True):
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['html_scan']['cert_status'] = 'archived'
 
-    with open("certificate_data_html_archived.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-        write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
+    if write_output_file:
+        with open("certificate_data_html_archived.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
 
     generate_download_script('download_archived_certs.bat', 'certs', 'targets', CC_WEB_URL, download_files_certs)
     generate_download_script('download_archived_updates.bat', 'certs', 'targets', CC_WEB_URL, download_files_updates)
