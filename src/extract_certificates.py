@@ -964,18 +964,20 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
     for file_name in all_items_found:
         total_items_found += count_num_items_found(all_items_found[file_name])
 
-    all_matches = []
-    for file_name in all_items_found:
-        for rule_group in all_items_found[file_name].keys():
-            items_found = all_items_found[file_name][rule_group]
-            for rule in items_found.keys():
-                for match in items_found[rule]:
-                    if match not in all_matches:
-                        all_matches.append(match)
+    PRINT_MATCHES = False
+    if PRINT_MATCHES:
+        all_matches = []
+        for file_name in all_items_found:
+            for rule_group in all_items_found[file_name].keys():
+                items_found = all_items_found[file_name][rule_group]
+                for rule in items_found.keys():
+                    for match in items_found[rule]:
+                        if match not in all_matches:
+                            all_matches.append(match)
 
-    sorted_all_matches = sorted(all_matches)
-    for match in sorted_all_matches:
-        print(match)
+        sorted_all_matches = sorted(all_matches)
+        for match in sorted_all_matches:
+            print(match)
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
