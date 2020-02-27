@@ -54,19 +54,10 @@ def load_json_files(files_list):
 
 
 def main():
-    current_dir = os.getcwd()
-    results_folder = '\\..\\results\\'
-
-    # ensure existence of results folder
-
-    if not os.path.exists(current_dir + results_folder):
-        os.makedirs(current_dir + results_folder)
-
-    # change current directory to store results into results file
-    os.chdir(current_dir + results_folder)
 
     ### Paths for certificates downloaded on 20191208
     paths_20191208 = {}
+    paths_20191208['id'] = '20191208'
     paths_20191208['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20191208\\web\\'
     paths_20191208['walk_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
     #paths_20191208['walk_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs_test1\\'
@@ -77,6 +68,7 @@ def main():
 
     ### Paths for certificates downloaded on 20200225
     paths_20200225 = {}
+    paths_20200225['id'] = '20200225'
     paths_20200225['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200225\\web\\'
     paths_20200225['walk_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs\\'
     paths_20200225['pp_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp\\'
@@ -92,6 +84,17 @@ def main():
     pp_dir = paths_used['pp_dir']
     fragments_dir = paths_used['fragments_dir']
     pp_fragments_dir = paths_used['pp_fragments_dir']
+
+
+    current_dir = os.getcwd()
+    results_folder = '\\..\\results_{}\\'.format(paths_used['id'])
+
+    # ensure existence of results folder
+    if not os.path.exists(current_dir + results_folder):
+        os.makedirs(current_dir + results_folder)
+    # change current directory to store results into results file
+    os.chdir(current_dir + results_folder)
+
 
 
     #
