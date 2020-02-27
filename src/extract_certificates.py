@@ -1568,8 +1568,8 @@ def extract_protectionprofiles_csv(base_dir, write_output_file = True):
     for item in items_found_all_active.keys():
         items_found_all_active[item]['csv_scan']['cert_status'] = 'active'
 
-    generate_download_script('download_active_pp.bat', 'pp_report', 'pp', download_files_pp)
-    generate_download_script('download_active_pp_updates.bat', 'pp_updates', '', download_files_pp_updates)
+    generate_download_script('download_active_pp.bat', 'pp_report', 'pp', CC_WEB_URL, download_files_pp)
+    generate_download_script('download_active_pp_updates.bat', 'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
 
     file_name = '{}cc_pp_archived.csv'.format(base_dir)
@@ -1577,8 +1577,8 @@ def extract_protectionprofiles_csv(base_dir, write_output_file = True):
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['csv_scan']['cert_status'] = 'archived'
 
-    generate_download_script('download_archived_pp.bat', 'pp_report', 'pp', download_files_pp)
-    generate_download_script('download_archived_pp_updates.bat', 'pp_updates', '', download_files_pp_updates)
+    generate_download_script('download_archived_pp.bat', 'pp_report', 'pp', CC_WEB_URL, download_files_pp)
+    generate_download_script('download_archived_pp_updates.bat', 'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
 
