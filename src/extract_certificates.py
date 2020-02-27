@@ -1001,7 +1001,7 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file = True
         item = {}
         item['pdf_file_size_bytes'] = os.path.getsize(file_name)
         try:
-            with open(file_name, 'rb', errors=FILE_ERRORS_STRATEGY) as f:
+            with open(file_name, 'rb') as f:
                 pdf = PdfFileReader(f)
                 # store additional interesting info
                 item['pdf_is_encrypted'] = pdf.getIsEncrypted()
