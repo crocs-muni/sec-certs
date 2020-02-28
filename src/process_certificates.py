@@ -167,8 +167,8 @@ def main():
     if do_pairing:
         # PROTECTION PROFILES
         # load results from previous step
-        all_pp_csv, all_pp_html, all_pp_front, all_pp_keywords, all_pp_pdf_meta = load_json_files(
-            ['pp_data_csv_all.json', 'pp_data_html_all.json', 'pp_data_frontpage_all.json',
+        all_pp_csv, all_pp_front, all_pp_keywords, all_pp_pdf_meta = load_json_files(
+            ['pp_data_csv_all.json', 'pp_data_frontpage_all.json',
              'pp_data_keywords_all.json', 'pp_data_pdfmeta_all.json'])
         # check for unexpected results
         check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
