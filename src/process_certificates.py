@@ -17,15 +17,14 @@ def do_all_analysis(all_cert_items, filter_label):
 
 
 def do_analysis_everything(all_cert_items, current_dir):
-    target_folder = current_dir + '\\..\\results\\'
-    if not os.path.exists(target_folder):
-        os.makedirs(target_folder)
-    os.chdir(target_folder)
+    if not os.path.exists(current_dir):
+        os.makedirs(current_dir)
+    os.chdir(current_dir)
     do_all_analysis(all_cert_items, '')
 
 
 def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
-    target_folder = current_dir + '\\..\\results\\results_archived01092019_only\\'
+    target_folder = current_dir + '\\results_archived01092019_only\\'
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
@@ -35,7 +34,7 @@ def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
 
 
 def do_analysis_only_smartcards(all_cert_items, current_dir):
-    target_folder = current_dir + '\\..\\results\\results_sc_only\\'
+    target_folder = current_dir + '\\results_sc_only\\'
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
@@ -85,15 +84,13 @@ def main():
     fragments_dir = paths_used['fragments_dir']
     pp_fragments_dir = paths_used['pp_fragments_dir']
 
-
-    current_dir = os.getcwd()
-    results_folder = '\\..\\results_{}\\'.format(paths_used['id'])
-
+    # results folder includes unique identification of input dataset
+    results_folder = '{}\\..\\results_{}\\'.format(os.getcwd(), paths_used['id'])
     # ensure existence of results folder
-    if not os.path.exists(current_dir + results_folder):
-        os.makedirs(current_dir + results_folder)
+    if not os.path.exists(results_folder):
+        os.makedirs(results_folder)
     # change current directory to store results into results file
-    os.chdir(current_dir + results_folder)
+    os.chdir(results_folder)
 
 
 
@@ -209,16 +206,17 @@ def main():
         with open('certificate_data_complete_processed.json') as json_file:
             all_cert_items = json.load(json_file)
 
-        current_dir = os.getcwd()
+        #sanitize_all_strings(all_cert_items)
+
+        #current_dir = os.getcwd()
 
         # analyze all certificates together
-        do_analysis_everything(all_cert_items, current_dir)
+        do_analysis_everything(all_cert_items, results_folder)
         # archived on 09/01/2019
-        do_analysis_09_01_2019_archival(all_cert_items, current_dir)
+        do_analysis_09_01_2019_archival(all_cert_items, results_folder)
         # analyze only smartcards
-        do_analysis_only_smartcards(all_cert_items, current_dir)
+        do_analysis_only_smartcards(all_cert_items, results_folder)
 
-        os.chdir(current_dir)
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
