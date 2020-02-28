@@ -9,6 +9,7 @@ from dateutil import parser
 import datetime
 from tags_constants import *
 
+
 STOP_ON_UNEXPECTED_NUMS = False
 
 
@@ -302,10 +303,13 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     direct_refs = []
     for cert_id in sorted_ref_direct:
         direct_refs.append(cert_id[1])
-        if is_in_dict(certid_info, [cert_id[0], 'cert_item']):
-            print('  {} : {}x directly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
-        else:
-            print('  {} : {}x directly'.format(cert_id[0], cert_id[1]))
+        try:
+            if is_in_dict(certid_info, [cert_id[0], 'cert_item']):
+                print('  {} : {}x directly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
+            else:
+                print('  {} : {}x directly'.format(cert_id[0], cert_id[1]))
+        except UnicodeEncodeError:
+            print('ERROR: UnicodeEncodeError occured')
     print('  Total number of certificates referenced at least once: {}'.format(len(sorted_ref_direct)))
 
     step = 5
@@ -358,10 +362,13 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     indirect_refs = []
     for cert_id in sorted_ref_indirect:
         indirect_refs.append(cert_id[1])
-        if is_in_dict(certid_info, [cert_id[0], 'cert_item']):
-            print('  {} : {}x indirectly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
-        else:
-            print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
+        try:
+            if is_in_dict(certid_info, [cert_id[0], 'cert_item']):
+                print('  {} : {}x indirectly: {}'.format(cert_id[0], cert_id[1], certid_info[cert_id[0]]['cert_item']))
+            else:
+                print('  {} : {}x indirectly'.format(cert_id[0], cert_id[1]))
+        except UnicodeEncodeError:
+            print('ERROR: UnicodeEncodeError occured')
 
     step = 5
     if len(indirect_refs) == 0:
