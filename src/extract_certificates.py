@@ -4,6 +4,7 @@ import operator
 from graphviz import Digraph
 import json
 import csv
+import string
 
 from analyze_certificates import is_in_dict
 from cert_rules import rules
@@ -27,6 +28,7 @@ REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
 #LINE_SEPARATOR = ''  # if newline is not replaced with space, long string included in matches are found
 
+printable = set(string.printable)
 
 def search_files(folder):
     for root, dirs, files in os.walk(folder):
@@ -117,7 +119,9 @@ def normalize_match_string(match):
     match = match.rstrip(',')
     match = match.replace('  ', ' ')  # two spaces into one
 
-    return match
+    sanitized = ''.join(filter(lambda x: x in printable, match))
+
+    return sanitized
 
 
 def set_match_string(items, key_name, new_value):
