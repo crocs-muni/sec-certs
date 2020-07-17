@@ -20,9 +20,10 @@ STOP_ON_UNEXPECTED_NUMS = False
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 FILE_ERRORS_STRATEGY = 'surrogateescape'
+'replace'
 #FILE_ERRORS_STRATEGY = 'strict'
 CC_WEB_URL = 'https://www.commoncriteriaportal.org'
-
+PDF2TEXT_CONVERT = 'pdftotext -raw'
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
@@ -131,6 +132,7 @@ def set_match_string(items, key_name, new_value):
         old_value = items[key_name]
         if old_value != new_value:
             print('  WARNING: values mismatch, key=\'{}\', old=\'{}\', new=\'{}\''.format(key_name, old_value, new_value))
+
 
 def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name, limit_max_lines, line_separator)
@@ -278,9 +280,9 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
 
 def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_text):
     if is_unicode_text:
-        write_file = open(target_file, "w", encoding="utf8")
+        write_file = open(target_file, "w", encoding="utf8", errors="replace")
     else:
-        write_file = open(target_file, "w")
+        write_file = open(target_file, "w", errors="replace")
 
     try:
         write_file.write(modified_cert_file_text)
@@ -928,6 +930,10 @@ def extract_protectionprofiles_frontpage(walk_dir, write_output_file = True):
 
 
 def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_output_file = True):
+    # ensure existence of fragments folder
+    if not os.path.exists(fragments_dir):
+        os.makedirs(fragments_dir)
+
     all_items_found = {}
     cert_id = {}
     for file_name in search_files(walk_dir):
@@ -1507,7 +1513,7 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
             else:
                 # insert base url
                 write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
-            write_file.write('pdftotext \"{}\"\n\n'.format(cert[1]))
+            write_file.write('{} \"{}\"\n\n'.format(PDF2TEXT_CONVERT, cert[1]))
 
         if len(download_files_certs) > 0 and len(cert) > 2:
             # security targets file
@@ -1524,7 +1530,7 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
                 else:
                     # insert base url
                     write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
-                write_file.write('pdftotext \"{}\"\n\n'.format(cert[3]))
+                write_file.write('{} \"{}\"\n\n'.format(PDF2TEXT_CONVERT, cert[3]))
 
 
 def extract_certificates_html(base_dir, write_output_file = True):
@@ -2045,16 +2051,16 @@ def generate_basic_download_script():
         file.write('curl \"https://www.commoncriteriaportal.org/pps/pps-archived.csv\" -o cc_pp_archived.csv\n\n')
 
 
-def generate_missing_download_script(base_dir):
+def generate_failed_download_script(base_dir):
     # obtain list of all downloaded pdf files and their size
     # check for pdf files with too small length
     # generate download script again (single one)
 
     # visit all relevant subfolders
-    sub_folders = ['active\\certs', 'active\\targets', 'active_update\\certs', 'active_update\\targets',
-                   'archived\\certs', 'archived\\targets', 'archived_update\\certs', 'archived_update\\targets']
+    sub_folders = ['active/certs', 'active/targets', 'active_update/certs', 'active_update/targets',
+                   'archived/certs', 'archived/targets', 'archived_update/certs', 'archived_update/targets']
 
-    # the smallest correct certificate downloaded was 71kB, if server error occured, it was only 1245 bytes
+    # the smallest correct certificate downloaded was 71kB, if server error occurred, it was only 1245 bytes
     MIN_CORRECT_CERT_SIZE = 5000
     download_again = []
     for sub_folder in sub_folders:
@@ -2079,6 +2085,6 @@ def generate_missing_download_script(base_dir):
                 download_link = '/files/epfiles/{}'.format(file_name_short_web)
                 download_again.append((download_link, file_name))
 
-    generate_download_script('download_missing_certs.bat', '', '', CC_WEB_URL, download_again)
-    print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format('download_missing_certs.bat', len(download_again)))
+    generate_download_script('download_failed_certs.bat', '', '', CC_WEB_URL, download_again)
+    print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format('download_failed_certs.bat', len(download_again)))
 
