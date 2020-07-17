@@ -52,9 +52,28 @@ def load_json_files(files_list):
     return tuple(loaded_jsons)
 
 
-def main():
+def sanitize_all_strings(data):
+    printable = set(string.printable)
 
-    ### Paths for certificates downloaded on 20191208
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if isinstance(v, dict) or isinstance(v, list) or isinstance(v, tuple):
+                sanitize_all_strings(v)
+            elif isinstance(v, str):
+                sanitized = ''.join(filter(lambda x: x in printable, v))
+                data[k] = ''.join(filter(lambda x: x in printable, v))
+
+    if isinstance(data, list) or isinstance(data, tuple):
+        for v in data:
+            if isinstance(v, dict) or isinstance(v, list) or isinstance(v, tuple):
+                sanitize_all_strings(v)
+            elif isinstance(v, str):
+                sanitized = ''.join(filter(lambda x: x in printable, v))
+                v = ''.join(filter(lambda x: x in printable, v))
+
+
+def main():
+    # Paths for certificates downloaded on 20191208
     paths_20191208 = {}
     paths_20191208['id'] = '20191208'
     paths_20191208['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20191208\\web\\'
@@ -65,7 +84,7 @@ def main():
     paths_20191208['fragments_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
     paths_20191208['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp_txt_fragments\\'
 
-    ### Paths for certificates downloaded on 20200225
+    # Paths for certificates downloaded on 20200225
     paths_20200225 = {}
     paths_20200225['id'] = '20200225'
     paths_20200225['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200225\\web\\'
@@ -74,9 +93,21 @@ def main():
     paths_20200225['fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs_txt_fragments\\'
     paths_20200225['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp_txt_fragments\\'
 
+    # Paths for certificates downloaded on 20200717
+    paths_20200717 = {}
+    paths_20200717['id'] = '20200717'
+    paths_20200717['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200717\\web\\'
+    paths_20200717['walk_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_certs\\'
+    #paths_20200717['walk_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_certs_test\\'
+    paths_20200717['pp_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_pp\\'
+    paths_20200717['fragments_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_certs_txt_fragments\\'
+    paths_20200717['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_pp_txt_fragments\\'
+
     # initialize paths based on the profile used
-    paths_used = paths_20191208
+    #paths_used = paths_20191208
     #paths_used = paths_20200225
+    paths_used = paths_20200717
+    #paths_used['id'] = 'temp' # change id for temporary debugging
 
     cc_html_files_dir = paths_used['cc_html_files_dir']
     walk_dir = paths_used['walk_dir']
@@ -92,14 +123,11 @@ def main():
     # change current directory to store results into results file
     os.chdir(results_folder)
 
-
-
     #
     # Start processing
     #
-
     generate_basic_download_script()
-    generate_missing_download_script(walk_dir)
+    generate_failed_download_script(walk_dir)
 
     # all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
     # all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
@@ -110,9 +138,9 @@ def main():
 
     do_complete_extraction = False
     do_extraction = True
-    do_extraction_pp = False
-    do_pairing = False
-    do_processing = False
+    do_extraction_pp = True
+    do_pairing = True
+    do_processing = True
     do_analysis = True
 
     # with open('certificate_data_complete_processed.json') as json_file:
@@ -127,10 +155,10 @@ def main():
     if do_complete_extraction:
         # set 'previous' state to empty dict
         prev_csv = {}
-        prev_html =  {}
-        prev_front =  {}
-        prev_keywords =  {}
-        prev_pdf_meta =  {}
+        prev_html = {}
+        prev_front = {}
+        prev_keywords = {}
+        prev_pdf_meta = {}
     else:
         # load previously analyzed results
         prev_csv, prev_html, prev_front, prev_keywords, prev_pdf_meta = load_json_files(
@@ -138,12 +166,45 @@ def main():
              'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json'])
 
     if do_extraction:
+        # load info from html, check for new items only, do extraction only for these
+        #current_csv = extract_certificates_csv(cc_html_files_dir, False)
+        current_html = extract_certificates_html(cc_html_files_dir, False)
+
+        print('*** Items: {} vs. {}'.format(len(current_html.keys()), len(prev_html.keys())))
+        current_html_keys = sorted(current_html.keys())
+        prev_html_keys = sorted(prev_html.keys())
+        new_items = list(set(current_html.keys()) - set(prev_html.keys()))
+        print('*** New items detected: {}'.format(len(new_items)))
+        #
+        # # find new items which are not yet processed based on the value of raw csv line
+        # new_items = []
+        # for current_item_key in current_csv.keys():
+        #     current_item = current_csv[current_item_key]
+        #     current_raw_csv = current_item['csv_scan']['raw_csv_line']
+        #     match_found = False
+        #     for prev_item_key in prev_csv.keys():
+        #         prev_item = prev_csv[prev_item_key]
+        #         prev_raw_csv = prev_item['csv_scan']['raw_csv_line']
+        #         if current_raw_csv == prev_raw_csv:
+        #             match_found = True
+        #             break
+        #     if not match_found:
+        #         # we found new item
+        #         new_items.append(current_item_key)
+        #
+        # print('*** New items detected: {}'.format(len(new_items)))
+
         all_csv = extract_certificates_csv(cc_html_files_dir, False)
         all_html = extract_certificates_html(cc_html_files_dir, False)
         all_front = extract_certificates_frontpage(walk_dir, False)
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate', False)
         all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', False)
 
+        # join previous and new results
+        # TODO
+        #return
+
+        # save joined results
         with open("certificate_data_csv_all.json", "w") as write_file:
             write_file.write(json.dumps(all_csv, indent=4, sort_keys=True))
         with open("certificate_data_html_all.json", "w") as write_file:
@@ -155,14 +216,11 @@ def main():
         with open("certificate_data_pdfmeta_all.json", "w") as write_file:
             write_file.write(json.dumps(all_pdf_meta, indent=4, sort_keys=True))
 
-
     if do_extraction_pp:
         all_pp_csv = extract_protectionprofiles_csv(cc_html_files_dir)
         all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
         all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
         all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
-
-
 
     if do_pairing:
         # PROTECTION PROFILES
@@ -177,7 +235,6 @@ def main():
         # write collated result
         with open("pp_data_complete.json", "w") as write_file:
             write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
-
 
         # CERTIFICATES
         # load results from previous step
@@ -206,10 +263,6 @@ def main():
         with open('certificate_data_complete_processed.json') as json_file:
             all_cert_items = json.load(json_file)
 
-        #sanitize_all_strings(all_cert_items)
-
-        #current_dir = os.getcwd()
-
         # analyze all certificates together
         do_analysis_everything(all_cert_items, results_folder)
         # archived on 09/01/2019
@@ -225,11 +278,13 @@ def main():
 
 
     # TODO
+    # include parsing from protection profiles repo
     # add differential partial download of new files only + processing + combine
       # generate download script only for new files (need to have previous version of files stored)
       # option for extraction of info just for single file?
       # allow for late extraction of keywords (only newly added regexes)
       # extraction of keywords done with the provided cert_rules_dict => cert_rules.py and cert_rules_new.py
+      # detect archival of certificates
     # add tests - few selected files
     # add detection of overly long regex matches
     # add analysis of target CC version
@@ -255,8 +310,13 @@ def main():
       # extract frontpage also from other than anssi and bsi certificates (US, BE...)
       # add extraction of frontpage for protection profiles
     # PORTABILITY
-      # check functionality on Linux (script %%20 expansions...)
+      # check functionality on Linux (script %%20 expansions..., \\ vs. /)
     # Add processing of docx files
+    # search for ATR, Response APDU, and custom commands specifying the IC type (CPLC + others)
+      # e.g., KECS-CR-15-105 XSmart e-Passport V1.4 EAC with SAC on M7892(eng).txt
+    # use pdf2text -raw switch to preserve better tables (needs to be checked wrt existing regexes)
+    # add tool for language detection, and if required, use automatic translation into english (https://pypi.org/project/googletrans/)
+    # analyze technical decisions: https://www.niap-ccevs.org/Documents_and_Guidance/view_tds.cfm
 
 if __name__ == "__main__":
     main()
