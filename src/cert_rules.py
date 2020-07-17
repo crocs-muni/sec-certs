@@ -170,6 +170,8 @@ rules_cplc = [
 rules_crypto_engines = [
     'TORNADO',
     'SmartMX',
+    'SmartMX2'
+    'NesCrypt',
     ]
 
 
