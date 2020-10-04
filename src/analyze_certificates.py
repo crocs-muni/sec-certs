@@ -8,9 +8,11 @@ from matplotlib.pyplot import figure
 from dateutil import parser
 import datetime
 from tags_constants import *
-
+import string
 
 STOP_ON_UNEXPECTED_NUMS = False
+
+printable = set(string.printable)
 
 
 def is_in_dict(target_dict, path):
@@ -90,7 +92,6 @@ def compute_and_plot_hist(data, bins, y_label, title, file_name):
     plot_bar_graph(hist_refs[0], hist_labels, y_label, title, file_name)
 
 
-
 def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found, cert_id, filter_label, out_dot_name, thick_as_occurences):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
@@ -139,17 +140,33 @@ def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found,
     print('{} pdf rendered'.format(out_dot_name))
 
 
-def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences):
+def get_cert_node_label(cert_item, print_item_name):
+    if print_item_name:
+        sanitized_name = ''.join(filter(lambda x: x in printable, cert_item['csv_scan']['cert_item_name']))
+        #sanitized_name = cert_item['csv_scan']['cert_item_name'].encode('ascii', 'ignore')
+        #sanitized_name = cert_item['csv_scan']['cert_item_name'].encode("ascii")
+        sanitized_name = sanitized_name.replace('&#x3a;', ' ')  # ':' is not allowed in dot
+        sanitized_name = sanitized_name.replace('&#x2f;', ' ')  # '/' is not allowed in dot
+        return '{}\n{}'.format(cert_item['processed']['cert_id'], sanitized_name)
+    else:
+        return cert_item['processed']['cert_id']
+
+
+def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences, print_item_name):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
     dot.attr('graph', label='{}'.format(filter_label), labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
 
     # insert nodes believed to be cert id for the processed certificates
+    cert_id_to_long_id_map = {}
     for cert_long_id in all_items_found.keys():
         if is_in_dict(all_items_found[cert_long_id], ['processed', 'cert_id']):
             dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
-            dot.node(all_items_found[cert_long_id]['processed']['cert_id'])
+            this_cert_node_label = get_cert_node_label(all_items_found[cert_long_id], print_item_name)
+            # basic node id is cert id, but possibly add additional info
+            dot.node(all_items_found[cert_long_id]['processed']['cert_id'], label=this_cert_node_label)
+            cert_id_to_long_id_map[all_items_found[cert_long_id]['processed']['cert_id']] = cert_long_id
 
     dot.attr('node', color='gray')
     for cert_long_id in all_items_found.keys():
@@ -161,8 +178,6 @@ def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_n
         this_cert_id = ''
         if is_in_dict(cert, ['processed', 'cert_id']):
             this_cert_id = cert['processed']['cert_id']
-        if is_in_dict(cert, ['csv_scan', 'cert_item_name']):
-            this_cert_name = cert['csv_scan']['cert_item_name']
 
         just_file_name = cert['csv_scan']['link_cert_report_file_name']
 
@@ -187,10 +202,16 @@ def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_n
                             num_occurrences = '1'
                         label = str(items_found[rule][match][TAG_MATCH_COUNTER]) # label with number of occurrences
                         if this_cert_id != "":
+                            #if is_in_dict(cert_id_to_long_id_map, [match]):
+                            #    other_cert_node_label = get_cert_node_label(all_items_found[cert_id_to_long_id_map[match]], print_item_name)
+                            #else:
+                            #    other_cert_node_label = match
+                            #dot.edge(this_cert_node_label, other_cert_node_label, color='orange', style='solid', label=label, penwidth=num_occurrences)
                             dot.edge(this_cert_id, match, color='orange', style='solid', label=label, penwidth=num_occurrences)
 
     # Generate dot graph using GraphViz into pdf
     dot.render(out_dot_name, view=False)
+
     print('{} pdf rendered'.format(out_dot_name))
 
 
@@ -728,8 +749,13 @@ def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
 
     # plot bar graph with frequency of CC SARs
     plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security ' + sec_component_label + ' component (' + shortcut + ')\nAll listed occured at least once', filter_label), 'cert_' + shortcut + '_frequency')
-    sars_freq_nums, sars_labels = (list(t) for t in zip(*sorted(zip(sars_freq_nums, sars_labels), reverse = True)))
-    plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label('Number of certificates mentioning specific security ' + sec_component_label + ' component (' + shortcut + ')\nAll listed occured at least once', filter_label), 'cert_' + shortcut + '_frequency_sorted')
+    if len(sars_freq_nums) > 0 and len(sars_labels) > 0:
+        sars_freq_nums, sars_labels = (list(t) for t in zip(*sorted(zip(sars_freq_nums, sars_labels), reverse=True)))
+        plot_bar_graph(sars_freq_nums, sars_labels, 'Number of certificates', fig_label(
+            'Number of certificates mentioning specific security ' + sec_component_label + ' component (' + shortcut + ')\nAll listed occured at least once',
+            filter_label), 'cert_' + shortcut + '_frequency_sorted')
+    else:
+        print('ERROR: len(sars_freq_nums) < 1')
 
     # plot heatmap of SARs frequencies based on type (row) and level (column)
     sars_labels = sorted(sars_freq.keys())
@@ -766,8 +792,12 @@ def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
 
 
 def generate_dot_graphs(all_items_found, filter_label):
-    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True)
-    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False)
+    # with name of certified items
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certidname_graph.dot', True, True)
+    # without name of certified items
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True, False)
+    # link between device and its javacard version
+    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, True)
 
     #    print_dot_graph(['rules_security_level'], all_items_found, filter_label, 'cert_security_level_graph.dot', True)
     #    print_dot_graph(['rules_crypto_libs'], all_items_found, filter_label, 'cert_crypto_libs_graph.dot', False)
