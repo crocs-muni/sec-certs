@@ -3,6 +3,7 @@ from analyze_certificates import *
 
 import os
 import json
+from typing import List, Tuple, Optional, Dict
 
 
 def do_all_analysis(all_cert_items, filter_label):
@@ -33,15 +34,26 @@ def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
     do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
 
 
-def do_analysis_only_smartcards(all_cert_items, current_dir):
-    target_folder = current_dir + '\\results_sc_only\\'
+def do_analysis_only_filtered(all_cert_items, current_dir, filter_key, filter_value):
+    target_folder = current_dir + '\\{}={}\\'.format(filter_key, filter_value)
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
-    sc_category = 'ICs, Smart Cards and Smart Card-Related Devices and Systems'
-    sc_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_category']) and all_cert_items[x]['csv_scan']['cc_category'] == sc_category}
-    print(len(sc_cert_items))
-    do_all_analysis(sc_cert_items, 'sc_category={}'.format(sc_category))
+    cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', filter_key]) and all_cert_items[x]['csv_scan'][filter_key] == filter_value}
+    print(len(cert_items))
+    do_all_analysis(cert_items, '{}={}'.format(filter_key, filter_value))
+
+
+def do_analysis_only_category(all_cert_items, current_dir, category):
+    do_analysis_only_filtered(all_cert_items, current_dir, 'cc_category', category)
+
+
+def do_analysis_only_smartcards(all_cert_items, current_dir):
+    do_analysis_only_filtered(all_cert_items, current_dir, 'cc_category', 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+
+
+def do_analysis_only_operatingsystems(all_cert_items, current_dir):
+    do_analysis_only_category(all_cert_items, current_dir, 'cc_category', 'Operating Systems')
 
 
 def load_json_files(files_list):
@@ -93,20 +105,20 @@ def main():
     paths_20200225['fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs_txt_fragments\\'
     paths_20200225['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp_txt_fragments\\'
 
-    # Paths for certificates downloaded on 20200717
-    paths_20200717 = {}
-    paths_20200717['id'] = '20200717'
-    paths_20200717['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200717\\web\\'
-    paths_20200717['walk_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_certs\\'
-    #paths_20200717['walk_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_certs_test\\'
-    paths_20200717['pp_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_pp\\'
-    paths_20200717['fragments_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_certs_txt_fragments\\'
-    paths_20200717['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200717\\cc_pp_txt_fragments\\'
+    # Paths for certificates downloaded on 20200904
+    paths_20200904 = {}
+    paths_20200904['id'] = '20200904'
+    paths_20200904['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200904\\web\\'
+    paths_20200904['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs\\'
+    #paths_20200904['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_test\\'
+    paths_20200904['pp_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_pp\\'
+    paths_20200904['fragments_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_txt_fragments\\'
+    paths_20200904['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_pp_txt_fragments\\'
 
     # initialize paths based on the profile used
     #paths_used = paths_20191208
     #paths_used = paths_20200225
-    paths_used = paths_20200717
+    paths_used = paths_20200904
     #paths_used['id'] = 'temp' # change id for temporary debugging
 
     cc_html_files_dir = paths_used['cc_html_files_dir']
@@ -137,10 +149,10 @@ def main():
     #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
     do_complete_extraction = False
-    do_extraction = True
-    do_extraction_pp = True
-    do_pairing = True
-    do_processing = True
+    do_extraction = False
+    do_extraction_pp = False
+    do_pairing = False
+    do_processing = False
     do_analysis = True
 
     # with open('certificate_data_complete_processed.json') as json_file:
@@ -268,7 +280,14 @@ def main():
         # archived on 09/01/2019
         do_analysis_09_01_2019_archival(all_cert_items, results_folder)
         # analyze only smartcards
-        do_analysis_only_smartcards(all_cert_items, results_folder)
+        do_analysis_only_filtered(all_cert_items, results_folder,
+                                  'cc_category', 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+        # analyze only operating systems
+        do_analysis_only_category(all_cert_items, results_folder,
+                                  'cc_category', 'Operating Systems')
+        # analyze only Red Hat certificates
+        do_analysis_only_filtered(all_cert_items, results_folder,
+                                  'cc_manufacturer', 'Red Hat, Inc')
 
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
@@ -278,6 +297,7 @@ def main():
 
 
     # TODO
+    # add saving of logs into file
     # include parsing from protection profiles repo
     # add differential partial download of new files only + processing + combine
       # generate download script only for new files (need to have previous version of files stored)
@@ -317,6 +337,8 @@ def main():
     # use pdf2text -raw switch to preserve better tables (needs to be checked wrt existing regexes)
     # add tool for language detection, and if required, use automatic translation into english (https://pypi.org/project/googletrans/)
     # analyze technical decisions: https://www.niap-ccevs.org/Documents_and_Guidance/view_tds.cfm
+    # extract names of IC (or other devices) from certificates => results in the list of certified chips in smartcards etc.
+    # analyze SARs and SFRs in correlation with specific company (what level of SAR/SFR can company achieve?)
 
 if __name__ == "__main__":
     main()
