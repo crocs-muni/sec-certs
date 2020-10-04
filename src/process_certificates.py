@@ -3,17 +3,16 @@ from analyze_certificates import *
 
 import os
 import json
-from typing import List, Tuple, Optional, Dict
 
 
 def do_all_analysis(all_cert_items, filter_label):
+    generate_dot_graphs(all_cert_items, filter_label)
     analyze_cert_years_frequency(all_cert_items, filter_label)
     analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
     analyze_eal_frequency(all_cert_items, filter_label)
     analyze_security_assurance_component_frequency(all_cert_items, filter_label)
     analyze_security_functional_component_frequency(all_cert_items, filter_label)
     analyze_pdfmeta(all_cert_items, filter_label)
-    generate_dot_graphs(all_cert_items, filter_label)
     plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
 
 
@@ -34,26 +33,56 @@ def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
     do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
 
 
-def do_analysis_only_filtered(all_cert_items, current_dir, filter_key, filter_value):
-    target_folder = current_dir + '\\{}={}\\'.format(filter_key, filter_value)
+def do_analysis_manufacturers(all_cert_items, current_dir):
+    # analyze only Infineon certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                              ['processed', 'cc_manufacturer_simple'], 'Infineon Technologies AG')
+    # analyze only NXP certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                          ['processed', 'cc_manufacturer_simple'], 'NXP Semiconductors')
+    # analyze only Red Hat certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                              ['processed', 'cc_manufacturer_simple'], 'Red Hat, Inc')
+    # analyze only Suse certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                              ['processed', 'cc_manufacturer_simple'], 'SUSE Linux Products Gmbh')
+
+
+def do_analysis_only_filtered(all_cert_items, current_dir, filter_path, filter_value):
+    filter_string = ''
+    for item in filter_path:
+        if len(filter_string) > 0:
+            filter_string = filter_string + '__'
+        filter_string = filter_string + item
+    target_folder = current_dir + '\\{}={}\\'.format(filter_string, filter_value)
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
-    cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', filter_key]) and all_cert_items[x]['csv_scan'][filter_key] == filter_value}
+
+    cert_items = {}
+    for cert_item_key in all_cert_items.keys():
+        item = get_item_from_dict(all_cert_items[cert_item_key], filter_path)
+        if item is not None:
+            if item == filter_value:
+                # Match found, include
+                cert_items[cert_item_key] = all_cert_items[cert_item_key]
+
+    #cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', filter_key]) and all_cert_items[x]['csv_scan'][filter_key] == filter_value}
+
     print(len(cert_items))
-    do_all_analysis(cert_items, '{}={}'.format(filter_key, filter_value))
+    do_all_analysis(cert_items, '{}={}'.format(filter_string, filter_value))
 
 
 def do_analysis_only_category(all_cert_items, current_dir, category):
-    do_analysis_only_filtered(all_cert_items, current_dir, 'cc_category', category)
+    do_analysis_only_filtered(all_cert_items, current_dir, ['csv_scan', 'cc_category'], category)
 
 
 def do_analysis_only_smartcards(all_cert_items, current_dir):
-    do_analysis_only_filtered(all_cert_items, current_dir, 'cc_category', 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+    do_analysis_only_filtered(all_cert_items, current_dir, ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
 
 
 def do_analysis_only_operatingsystems(all_cert_items, current_dir):
-    do_analysis_only_category(all_cert_items, current_dir, 'cc_category', 'Operating Systems')
+    do_analysis_only_category(all_cert_items, current_dir, ['csv_scan', 'cc_category'], 'Operating Systems')
 
 
 def load_json_files(files_list):
@@ -275,19 +304,21 @@ def main():
         with open('certificate_data_complete_processed.json') as json_file:
             all_cert_items = json.load(json_file)
 
-        # analyze all certificates together
-        do_analysis_everything(all_cert_items, results_folder)
-        # archived on 09/01/2019
-        do_analysis_09_01_2019_archival(all_cert_items, results_folder)
         # analyze only smartcards
         do_analysis_only_filtered(all_cert_items, results_folder,
-                                  'cc_category', 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+                                  ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
         # analyze only operating systems
-        do_analysis_only_category(all_cert_items, results_folder,
-                                  'cc_category', 'Operating Systems')
-        # analyze only Red Hat certificates
         do_analysis_only_filtered(all_cert_items, results_folder,
-                                  'cc_manufacturer', 'Red Hat, Inc')
+                                  ['csv_scan', 'cc_category'], 'Operating Systems')
+
+        # analyze separate manufacturers
+        do_analysis_manufacturers(all_cert_items, results_folder)
+
+        # analyze all certificates together
+        do_analysis_everything(all_cert_items, results_folder)
+
+        # archived on 09/01/2019
+        do_analysis_09_01_2019_archival(all_cert_items, results_folder)
 
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
