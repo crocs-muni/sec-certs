@@ -1,0 +1,147 @@
+{% macro cryptography_keywords(keyword_scan, id_prefix) -%}
+		{% if keyword_scan["rules_crypto_algs"] or keyword_scan["rules_crypto_engines"] or keyword_scan["rules_crypto_libs"] or keyword_scan["rules_ecc_curves"] %}
+	  		<div class="card mt-1">
+				<div class="card-header" id="{{ id_prefix }}-crypto-head">
+				<h4 class="mb-0">
+					<button class="btn btn-link" data-toggle="collapse" data-target="#{{ id_prefix }}-crypto-card" aria-expanded="false" aria-controls="{{ id_prefix }}-crypto-card">
+					Cryptography
+					</button>
+				</h4>
+				</div>
+
+				<div id="{{ id_prefix }}-crypto-card" class="collapse" aria-labelledby="{{ id_prefix }}-crypto-head">
+				<div class="card-body">
+					{% if keyword_scan["rules_crypto_algs"] %}
+						<h5 class="mt-2">Algorithms</h5>
+						{{ double_join(keyword_scan["rules_crypto_algs"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_crypto_engines"] %}
+						<h5 class="mt-2">Engines</h5>
+						{{ double_join(keyword_scan["rules_crypto_engines"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_crypto_libs"] %}
+						<h5 class="mt-2">Libraries</h5>
+						{{ double_join(keyword_scan["rules_crypto_libs"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_ecc_curves"] %}
+						<h5 class="mt-2">Elliptic Curves</h5>
+						{{ double_join(keyword_scan["rules_ecc_curves"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_defenses"] %}
+						<h5 class="mt-2">Defenses</h5>
+						{{ double_join(keyword_scan["rules_defenses"]) }}
+					{% endif %}
+					
+				</div>
+				</div>
+			</div>
+		{% endif %}
+{%- endmacro %}
+
+{% macro device_keywords(keyword_scan, id_prefix) -%}
+		{% if keyword_scan["rules_cplc"] or keyword_scan["rules_device_id"] or keyword_scan["rules_javacard"] or keyword_scan["rules_os"] %}
+	  		<div class="card mt-1">
+				<div class="card-header" id="{{ id_prefix }}-device-head">
+				<h4 class="mb-0">
+					<button class="btn btn-link" data-toggle="collapse" data-target="#{{ id_prefix }}-device-card" aria-expanded="false" aria-controls="{{ id_prefix }}-device-card">
+					Device
+					</button>
+				</h4>
+				</div>
+
+				<div id="{{ id_prefix }}-device-card" class="collapse" aria-labelledby="{{ id_prefix }}-device-head">
+				<div class="card-body">
+					{% if keyword_scan["rules_device_id"] %}
+						<h5 class="mt-2">Device ID</h5>
+						{{ double_join(keyword_scan["rules_device_id"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_javacard"] %}
+						<h5 class="mt-2">JavaCard</h5>
+						{{ double_join(keyword_scan["rules_javacard"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_os"] %}
+						<h5 class="mt-2">OS</h5>
+						{{ double_join(keyword_scan["rules_os"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_cplc"] %}
+						<h5 class="mt-2">CPLC</h5>
+						{{ double_join(keyword_scan["rules_cplc"]) }}
+					{% endif %}
+
+				</div>
+				</div>
+			</div>
+		{% endif %}
+{%- endmacro %}
+
+{% macro security_keywords(keyword_scan, id_prefix) -%}
+		{% if keyword_scan["rules_protection_profiles"] or keyword_scan["rules_security_assurance_components"] or keyword_scan["rules_security_functional_components"] or keyword_scan["rules_security_level"] %}
+	  		<div class="card mt-1">
+				<div class="card-header" id="{{ id_prefix }}-security-head">
+				<h4 class="mb-0">
+					<button class="btn btn-link" data-toggle="collapse" data-target="#{{ id_prefix }}-security-card" aria-expanded="false" aria-controls="{{ id_prefix }}-security-card">
+					Security
+					</button>
+				</h4>
+				</div>
+
+				<div id="{{ id_prefix }}-security-card" class="collapse" aria-labelledby="{{ id_prefix }}-security-head">
+				<div class="card-body">
+					{% if keyword_scan["rules_protection_profiles"] %}
+						<h5 class="mt-2">Protection profiles</h5>
+						{{ double_join(keyword_scan["rules_protection_profiles"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_security_assurance_components"] %}
+						<h5 class="mt-2">Security Assurance Requirements (SAR)</h5>
+						{{ double_join(keyword_scan["rules_security_assurance_components"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_security_functional_components"] %}
+						<h5 class="mt-2">Security Functional Requirements (SFR)</h5>
+						{{ double_join(keyword_scan["rules_security_functional_components"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_security_level"] %}
+						<h5 class="mt-2">Security level</h5>
+						{{ double_join(keyword_scan["rules_security_level"]) }}
+					{% endif %}
+
+				</div>
+				</div>
+			</div>
+		{% endif %}
+{%- endmacro %}
+
+{% macro other_keywords(keyword_scan, id_prefix) -%}
+		{% if keyword_scan["rules_standard_id"] or keyword_scan["rules_technical_reports"] %}
+	  		<div class="card mt-1">
+				<div class="card-header" id="{{ id_prefix }}-other-head">
+				<h4 class="mb-0">
+					<button class="btn btn-link" data-toggle="collapse" data-target="#{{ id_prefix }}-other-card" aria-expanded="false" aria-controls="{{ id_prefix }}-other-card">
+					Other
+					</button>
+				</h4>
+				</div>
+
+				<div id="{{ id_prefix }}-other-card" class="collapse" aria-labelledby="{{ id_prefix }}-other-head">
+				<div class="card-body">
+					{% if keyword_scan["rules_standard_id"] %}
+						<h5 class="mt-2">Standards</h5>
+						{{ double_join(keyword_scan["rules_standard_id"]) }}
+					{% endif %}
+					{% if keyword_scan["rules_technical_reports"] %}
+						<h5 class="mt-2">Technical reports</h5>
+						{{ double_join(keyword_scan["rules_technical_reports"]) }}
+					{% endif %}
+
+				</div>
+				</div>
+			</div>
+		{% endif %}
+{%- endmacro %}
+
+
+{% macro double_join(rule_dict, separator=", ") %}
+	{% for value in rule_dict.values() %}
+		{{ value|join(separator) }}
+		{%- if not loop.last -%}{{ separator }}{%- endif -%}
+	{% endfor %}
+{%- endmacro %}

@@ -1,0 +1,5 @@
+/instance/
+/virt/
+
+__pycache__/
+*.pyc

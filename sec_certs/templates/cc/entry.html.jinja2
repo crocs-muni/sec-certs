@@ -1,0 +1,124 @@
+{% extends "base.html.jinja2" %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
+{% block content %}
+	<h1>{{ cert["csv_scan"]["cert_item_name"]|default("") }}</h1>
+
+	
+	{% if "csv_scan" in cert %}
+		<h2 class="mt-5">CSV information 
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the CSV certificate database provided by the Common Criteria portal.">?</span></h2>
+		<b>Status:</b>
+		{% if cert["csv_scan"]["cert_status"] == "active" %}
+		<span class="text-success"><i class="fas fa-check-square"></i> active</span>
+		{% elif cert["csv_scan"]["cert_status"] == "archived" %}
+		<span class="text-warning"><i class="fas fa-times-circle"></i> archived</span>
+		{% else %}
+		<span>{{ cert["csv_scan"]["cert_status"] }}</span>
+		{% endif %} <br/>
+
+		<b>Certification date:</b>
+		{{ cert["csv_scan"]["cc_certification_date"] }}
+		<br/>
+		{% if cert["csv_scan"]["cc_archived_date"] %}
+		<b>Archived date:</b>
+		{{ cert["csv_scan"]["cc_archived_date"] }}
+		<br/>
+		{% endif %}
+		<b>Scheme:</b>
+		<span title="{{ cert['csv_scan']['cc_scheme'] }}">{{ country_to_flag(cert["csv_scan"]["cc_scheme"]) }}</span>
+		<br/>
+		<b>Manufacturer:</b>
+		{{ cert["csv_scan"]["cc_manufacturer"] }}
+		<br/>
+		<b>Category:</b>
+		{{ cert["csv_scan"]["cc_category"] }}
+		<br/>
+		<b>Security level:</b>
+		{{ cert["csv_scan"]["cc_security_level"] }}
+		<br/>
+		{% if cert["csv_scan"]["cc_protection_profiles"] %}
+		<b>Protection profiles:</b>
+		{{ cert["csv_scan"]["cc_protection_profiles"] }}
+		<br/>
+		{% endif %}
+		{# TODO: Parse maintenance reports! #}	
+
+		<div class="mt-2 mb-2">
+			<a class="btn btn-primary" role="button" href="{{ cert['csv_scan']['link_cert_report'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['csv_scan']['link_cert_report_file_name'] }}"><i class="fas fa-file"></i> Certification report</a>
+			<a class="btn btn-primary" role="button" href="{{ cert['csv_scan']['link_security_target'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['csv_scan']['link_security_target_file_name'] }}"><i class="fas fa-file"></i> Security target</a>
+		</div>
+	{% endif %}
+
+	{% if "frontpage_scan" in cert %}
+		<h2 class="mt-5">Frontpage information 
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the frontpage of the certificate document.">?</span></h2>
+		
+		{% if "cert_id" in cert["frontpage_scan"] %}
+		<b>Certificate ID:</b>
+		{{ cert["frontpage_scan"]["cert_id"] }}
+		<br/>
+		{% endif %}
+		{% if "cert_item" in cert["frontpage_scan"] %}
+		<b>Certified item:</b>
+		{{ cert["frontpage_scan"]["cert_item"] }}
+		<br/>
+		{% endif %}
+		{% if "cert_item_version" in cert["frontpage_scan"] %}
+		<b>Certified version:</b>
+		{{ cert["frontpage_scan"]["cert_item_version"] }}
+		<br/>
+		{% endif %}
+		{% if "cert_lab" in cert["frontpage_scan"] %}
+		<b>Certification lab:</b>
+		{{ cert["frontpage_scan"]["cert_lab"] }}
+		<br/>
+		{% endif %}
+		{% if "developer" in cert["frontpage_scan"] %}
+		<b>Developer:</b>
+		{{ cert["frontpage_scan"]["developer"] }}
+		<br/>
+		{% endif %}
+		{% if "cc_security_level" in cert["frontpage_scan"] %}
+		<b>Security level:</b>
+		{{ cert["frontpage_scan"]["cc_security_level"] }}
+		<br/>
+		{% endif %}
+	{% endif %}
+
+
+	{% if "keywords_scan" in cert or "st_keywords_scan" in cert or "processed" in cert %}
+		<h2 class="mt-5">Document information 
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the certificate and security target documents.">?</span></h2>
+		{% if "processed" in cert %}
+			{% if "cert_id" in cert["processed"] %}
+				<b>Certificate ID:</b>
+				{{ cert["processed"]["cert_id"] }}
+				<br/>
+			{% endif %}
+		{% endif %}
+
+		{% if "keywords_scan" in cert %}
+			<h3 class="mt-4">Certificate</h3>
+			{{ cryptography_keywords(cert["keywords_scan"], "cert") }}
+			{{ device_keywords(cert["keywords_scan"], "cert") }}
+			{{ security_keywords(cert["keywords_scan"], "cert") }}
+			{{ other_keywords(cert["keywords_scan"], "cert") }}
+		{% endif %}
+
+		{% if "st_keywords_scan" in cert %}
+			<h3 class="mt-4">Security target</h3>
+			{{ cryptography_keywords(cert["st_keywords_scan"], "target") }}
+			{{ device_keywords(cert["st_keywords_scan"], "target") }}
+			{{ security_keywords(cert["st_keywords_scan"], "target") }}
+			{{ other_keywords(cert["st_keywords_scan"], "target") }}
+		{% endif %}
+	{% endif %}
+	<div class="mb-5"></div>
+	{# 
+	<pre>
+	<code>
+	{{ cert|tojson(indent=2) }}
+	</code>
+	</pre>
+	#}
+{% endblock %}
