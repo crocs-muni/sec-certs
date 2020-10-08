@@ -1,5 +1,10 @@
 /instance/
 /virt/
+.idea/
+.vscode/
 
 __pycache__/
 *.pyc
+
+sec_certs/build/
+certificate_data_complete.json

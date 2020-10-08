@@ -2,8 +2,8 @@
 {% block content %}
 	<h1>Common Criteria</h1>
 	<ul>
-	{% for cert_name in certs %}
-		<li><a href="{{ url_for('cc', path=cert_name) }}">{{ cert_name }}</a></li>
+	{% for hashid, name in certs.items() %}
+		<li><a href="{{ url_for('cc', hashid=hashid) }}">{{ name }}</a></li>
 	{% endfor %}
 	</ul>
 {% endblock %}
