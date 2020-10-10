@@ -46,3 +46,22 @@
 #content {
   padding: 1em;
 }
+
+#logo {
+  margin-top: calc(100vh - 20rem);
+  padding-left: 2rem;
+  padding-right: 2rem;
+  width: 15rem;
+  position: fixed;
+}
+
+#logo img {
+  width: 100%;
+}
+
+#content .listing {
+  padding: 1em;
+  border-radius: 0.5em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: rgba(0,0,0,.03)
+}

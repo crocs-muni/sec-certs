@@ -1,3 +1,4 @@
 flask
 Frozen-Flask
+flask-paginate
 emoji-country-flag
