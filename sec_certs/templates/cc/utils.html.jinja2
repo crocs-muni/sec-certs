@@ -71,3 +71,39 @@
 	<span>{{ status }}</span>
 	{% endif %}
 {%- endmacro %}
+
+{% macro render_category(category) %}
+<span title="{{ category }}">
+{% if category == "Access Control Devices and Systems" %}
+	<i class="fas fa-fw fa-id-card-alt"></i>
+{% elif category == "Biometric Systems and Devices" %}
+	<i class="fas fa-fw fa-fingerprint"></i>
+{% elif category == "Boundary Protection Devices and Systems" %}
+	<i class="fas fa-fw fa-door-closed"></i>
+{% elif category == "Databases" %}
+	<i class="fas fa-fw fa-database"></i>
+{% elif category == "Data Protection" %}
+	<i class="fas fa-fw fa-shield-alt"></i>
+{% elif category == "Detection Devices and Systems" %}
+	<i class="fas fa-fw fa-eye"></i>
+{% elif category == "ICs, Smart Cards and Smart Card-Related Devices and Systems" %}
+	<i class="fas fa-fw fa-credit-card"></i>
+{% elif category == "Key Management Systems" %}
+	<i class="fas fa-fw fa-key"></i>
+{% elif category == "Mobility" %}
+	<i class="fas fa-fw fa-car"></i>
+{% elif category == "Multi-Function Devices" %}
+	<i class="fas fa-fw fa-server"></i>
+{% elif category == "Network and Network-Related Devices and Systems" %}
+	<i class="fas fa-fw fa-network-wired"></i>
+{% elif category == "Operating Systems" %}
+	<i class="fas fa-fw fa-desktop"></i>
+{% elif category == "Other Devices and Systems" %}
+	<i class="fas fa-fw fa-square"></i>
+{% elif category == "Products for Digital Signatures" %}
+	<i class="fas fa-fw fa-signature"></i>
+{% elif category == "Trusted Computing" %}
+	<i class="fas fa-fw fa-microchip"></i>
+{% endif %}
+</span>
+{%- endmacro %}

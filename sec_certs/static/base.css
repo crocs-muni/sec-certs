@@ -16,6 +16,10 @@
   font-size: 1.2rem;
 }
 
+#sidebar-wrapper .sidebar-heading img {
+  width: 12rem;
+}
+
 #sidebar-wrapper .list-group {
   width: 15rem;
 }
@@ -48,7 +52,7 @@
 }
 
 #logo {
-  margin-top: calc(100vh - 20rem);
+  margin-top: calc(100vh - 22rem);
   padding-left: 2rem;
   padding-right: 2rem;
   width: 15rem;

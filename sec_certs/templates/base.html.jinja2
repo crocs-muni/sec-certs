@@ -6,7 +6,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="application-name" content="sec_certs" />
-	<title>{{ title|default("sec_certs")}}</title>
+	<title>{{ title|default("seccerts.org")}}</title>
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='fontawesome.min.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
@@ -19,7 +20,7 @@
 <body>
 	<div class="d-flex" id="wrapper">
 		<div class="bg-light border-right" id="sidebar-wrapper">
-			<div class="sidebar-heading">Security Certifications</div>
+			<div class="sidebar-heading"><img src="{{ url_for('static', filename='logo.svg') }}" alt="seccerts"/></div>
 			<div class="list-group list-group-flush">
 				<a href="{{ url_for('index') }}" class="list-group-item list-group-item-action bg-light">Index</a>
 				<a href="{{ url_for('cc.index') }}" class="list-group-item list-group-item-action bg-light">Common Criteria</a>

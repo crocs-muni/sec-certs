@@ -16,7 +16,7 @@ def load_cc_data():
     with open("certificate_data_complete.json") as f:
         loaded_cc_data = json.load(f)
         cc_data = {blake2b(key.encode(), digest_size=20).hexdigest() : value for key, value in loaded_cc_data.items()}
-        cc_names = list(sorted((value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"], value["csv_scan"]["cc_certification_date"], value["csv_scan"]["cc_archived_date"]) for key, value in cc_data.items()))
+        cc_names = list(sorted((value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"], value["csv_scan"]["cc_certification_date"], value["csv_scan"]["cc_archived_date"], value["csv_scan"]["cc_category"]) for key, value in cc_data.items()))
         cc_references = {}
         for hashid, cert in cc_data.items():
             if "processed" in cert and "cert_id" in cert["processed"] and cert["processed"]["cert_id"] != "":
@@ -56,13 +56,13 @@ def load_cc_data():
 def index(page=1):
     per_page = 40
     pagination = Pagination(page=page, per_page=per_page, total=len(cc_names), href=url_for(".index") + "{0}", css_framework="bootstrap4", alignment="center")
-    return render_template("cc/index.html.jinja2", certs=cc_names[(page-1)*per_page:page*per_page], pagination=pagination)
+    return render_template("cc/index.html.jinja2", certs=cc_names[(page-1)*per_page:page*per_page], pagination=pagination, title="Common Criteria | seccerts.org")
 
-@cc.route("/network")
+@cc.route("/network/")
 def network():
     return render_template("cc/network.html.jinja2", network=cc_network)
 
-@cc.route("/search")
+@cc.route("/search/")
 def search():
     return render_template("cc/network.html.jinja2", network=cc_network)
 
