@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 	<script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='d3.min.js') }}"></script>
 	{% endblock %}
 </head>
 
@@ -21,8 +22,13 @@
 			<div class="sidebar-heading">Security Certifications</div>
 			<div class="list-group list-group-flush">
 				<a href="{{ url_for('index') }}" class="list-group-item list-group-item-action bg-light">Index</a>
-				<a href="{{ url_for('cc', path=None) }}" class="list-group-item list-group-item-action bg-light">Common Criteria</a>
-				<a href="#" class="list-group-item list-group-item-action bg-light">FIPS 140</a>
+				<a href="{{ url_for('cc_index') }}" class="list-group-item list-group-item-action bg-light">Common Criteria</a>
+				<a href="{{ url_for('fips_index') }}" class="list-group-item list-group-item-action bg-light">FIPS 140</a>
+			</div>
+			<div id="logo">
+			<a href="https://crocs.fi.muni.cz">
+				<img src="{{ url_for('static', filename='crocs_claim.svg') }}" alt="Centre for Research on Cryptography and Security"/>
+			</a>
 			</div>
 		</div>
 		<div id="page-content-wrapper">

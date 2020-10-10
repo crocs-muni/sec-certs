@@ -88,7 +88,7 @@
 
 	{% if "keywords_scan" in cert or "st_keywords_scan" in cert or "processed" in cert %}
 		<h2 class="mt-5">Document information 
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the certificate and security target documents.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
 		{% if "processed" in cert %}
 			{% if "cert_id" in cert["processed"] %}
 				<b>Certificate ID:</b>
@@ -101,7 +101,7 @@
 			<h3 class="mt-4">Certificate</h3>
 			{{ cryptography_keywords(cert["keywords_scan"], "cert") }}
 			{{ device_keywords(cert["keywords_scan"], "cert") }}
-			{{ security_keywords(cert["keywords_scan"], "cert") }}
+			{{ security_keywords(cert["keywords_scan"], "cert", hidden=["rules_security_level"]) }}
 			{{ other_keywords(cert["keywords_scan"], "cert") }}
 		{% endif %}
 
@@ -113,12 +113,18 @@
 			{{ other_keywords(cert["st_keywords_scan"], "target") }}
 		{% endif %}
 	{% endif %}
-	<div class="mb-5"></div>
-	{# 
-	<pre>
-	<code>
-	{{ cert|tojson(indent=2) }}
-	</code>
-	</pre>
-	#}
+	
+	<div class="mt-5 mb-5">
+		<h2>Raw data 
+		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button></h2>
+		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
+	</div>
+	<script>
+		$('#raw-data').on('show.bs.collapse', function () {
+			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
+		});
+		$('#raw-data').on('hide.bs.collapse', function () {
+			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
+		});
+	</script>
 {% endblock %}
