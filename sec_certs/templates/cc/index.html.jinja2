@@ -1,9 +1,34 @@
 {% extends "base.html.jinja2" %}
+{% from "cc/utils.html.jinja2" import render_status %}
 {% block content %}
 	<h1>Common Criteria</h1>
-	<ul>
-	{% for name, hashid in certs %}
-		<li><a href="{{ url_for('cc', hashid=hashid) }}">{{ name }}</a></li>
+	{{ pagination.info }}
+	<div class="mt-4 mb-4">
+		{{ pagination.links }}
+	</div>
+	<table class="border mb-4">
+		<col style="width:70%">
+		<col style="width:10%">
+		<col style="width:10%">
+		<col style="width:10%">
+		<thead>
+			<tr class="border-bottom">
+				<th class="pl-1">Name</th>
+				<th>Status</th>
+				<th>Certification date</th>
+				<th>Archive date</th>
+			</tr>
+		</thead>
+	{% for name, hashid, status, cert_date, archive_date in certs %}
+		<tr>
+		<td class="pl-1"><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
+		<td>{{ render_status(status) }}</td>
+		<td>{{ cert_date }}</td>
+		<td>{{ archive_date }}</td>
+		</tr>
 	{% endfor %}
-	</ul>
+	</table>
+	<div class="mb-4">
+		{{ pagination.links }}
+	</div>
 {% endblock %}
