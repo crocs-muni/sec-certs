@@ -1,5 +1,5 @@
 {% extends "base.html.jinja2" %}
-{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs %}
 {% block content %}
 	<h1>{{ cert["csv_scan"]["cert_item_name"]|default("") }}</h1>
 
@@ -99,7 +99,8 @@
 			<h3 class="mt-4">Certificate</h3>
 			{{ cryptography_keywords(cert["keywords_scan"], "cert") }}
 			{{ device_keywords(cert["keywords_scan"], "cert") }}
-			{{ security_keywords(cert["keywords_scan"], "cert", hidden=["rules_security_level"]) }}
+			{{ security_keywords(cert["keywords_scan"], "cert", hidden=["rules_security_level"], map_funcs={"rules_security_assurance_components": render_sars,
+							 																				"rules_security_functional_components": render_sfrs}) }}
 			{{ other_keywords(cert["keywords_scan"], "cert") }}
 		{% endif %}
 
@@ -107,7 +108,8 @@
 			<h3 class="mt-4">Security target</h3>
 			{{ cryptography_keywords(cert["st_keywords_scan"], "target") }}
 			{{ device_keywords(cert["st_keywords_scan"], "target") }}
-			{{ security_keywords(cert["st_keywords_scan"], "target") }}
+			{{ security_keywords(cert["st_keywords_scan"], "target", map_funcs={"rules_security_assurance_components": render_sars,
+									 											"rules_security_functional_components": render_sfrs}) }}
 			{{ other_keywords(cert["st_keywords_scan"], "target") }}
 		{% endif %}
 		</div>

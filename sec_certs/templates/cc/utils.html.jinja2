@@ -1,4 +1,4 @@
-{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden) %}
+{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
 	{% set ns = namespace(render=False) %}
 	{% for heading, keyword in keyword_sources.items() %}
 		{% if keyword not in hidden and keyword_scan[keyword] %}
@@ -20,7 +20,7 @@
 				{% for heading, keyword in keyword_sources.items() %}
 					{% if keyword not in hidden and keyword_scan[keyword] %}
 						<h5 class="mt-2">{{ heading }}</h5>
-						{{ double_join(keyword_scan[keyword]) }}
+						{{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
 					{% endif %}
 				{% endfor %}
 			</div>
@@ -29,35 +29,42 @@
 	{% endif %}
 {% endmacro %}
 
-{% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[]) -%}
+{% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
 	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Algorithms": "rules_crypto_algs",
 																		  "Engines": "rules_crypto_engines",
 																		  "Libraries": "rules_crypto_libraries",
-																		  "Elliptic Curves": "rules_ecc_curves"}, hidden) }}
+																		  "Elliptic Curves": "rules_ecc_curves"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro device_keywords(keyword_scan, doc_prefix, hidden=[]) -%}
+{% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
 	{{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
 																	"JavaCard": "rules_javacard",
 																	"OS": "rules_os",
-																	"CPLC": "rules_cplc"}, hidden) }}
+																	"CPLC": "rules_cplc"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro security_keywords(keyword_scan, doc_prefix, hidden=[]) -%}
+{% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
 	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Protection profiles": "rules_protection_profiles",
 																		"Security Assurance Requirements (SAR)": "rules_security_assurance_components",
 																		"Security Functional Requirements (SFR)": "rules_security_functional_components",
-																		"Security level": "rules_security_level"}, hidden) }}
+																		"Security level": "rules_security_level"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro other_keywords(keyword_scan, doc_prefix, hidden=[]) -%}
+{% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
 	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
-																  "Technical reports": "rules_technical_reports"}, hidden) }}
+																  "Technical reports": "rules_technical_reports"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro double_join(rule_dict, separator=", ") %}
+{% macro double_join(rule_dict, separator=", ", map_func=None) %}
 	{% for value in rule_dict.values() %}
-		{{ value|join(separator) }}
+		{% for inside in value.keys() %}
+			{% if map_func %}
+				{{ map_func(inside) }}
+			{% else %}
+				{{ inside }}
+			{% endif %}
+			{%- if not loop.last -%}{{ separator }}{%- endif -%}
+		{% endfor %}
 		{%- if not loop.last -%}{{ separator }}{%- endif -%}
 	{% endfor %}
 {%- endmacro %}
@@ -106,4 +113,20 @@
 	<i class="fas fa-fw fa-microchip"></i>
 {% endif %}
 </span>
+{%- endmacro %}
+
+{% macro render_sfrs(sfr) %}
+	{% if get_cc_sfr(sfr) %}
+		<abbr title="{{ get_cc_sfr(sfr) }}">{{ sfr }}</abbr>
+	{% else %}
+		{{ sfr }}
+	{% endif %}
+{%- endmacro %}
+
+{% macro render_sars(sar) %}
+	{% if get_cc_sar(sar) %}
+		<abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
+	{% else %}
+		{{ sar }}
+	{% endif %}
 {%- endmacro %}
