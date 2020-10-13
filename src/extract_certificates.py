@@ -1,3 +1,5 @@
+from PyPDF2 import PdfFileReader
+from tags_constants import *
 import re
 import os
 import operator
@@ -9,10 +11,9 @@ import string
 from analyze_certificates import is_in_dict
 from cert_rules import rules
 from enum import Enum
-import matplotlib.pyplot as plt; plt.rcdefaults()
-from tags_constants import *
+import matplotlib.pyplot as plt
+plt.rcdefaults()
 
-from PyPDF2 import PdfFileReader
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
@@ -27,9 +28,10 @@ PDF2TEXT_CONVERT = 'pdftotext -raw'
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
-#LINE_SEPARATOR = ''  # if newline is not replaced with space, long string included in matches are found
+# LINE_SEPARATOR = ''  # if newline is not replaced with space, long string included in matches are found
 
 printable = set(string.printable)
+
 
 def search_files(folder):
     for root, dirs, files in os.walk(folder):
@@ -47,7 +49,6 @@ def get_line_number(lines, line_length_compensation, match_start_index):
         line_number += 1
     # not found
     return -1
-
 
 
 def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
@@ -76,7 +77,8 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
     whole_text_with_newlines = ''
     # we will estimate the line for searched matches
     # => we need to known how much lines were modified (removal of eoln..)
-    line_length_compensation = 1 - len(LINE_SEPARATOR)  # for removed newline and for any added separator
+    # for removed newline and for any added separator
+    line_length_compensation = 1 - len(LINE_SEPARATOR)
     lines_included = 0
     for line in lines:
         if limit_max_lines != -1 and lines_included >= limit_max_lines:
@@ -131,12 +133,15 @@ def set_match_string(items, key_name, new_value):
     else:
         old_value = items[key_name]
         if old_value != new_value:
-            print('  WARNING: values mismatch, key=\'{}\', old=\'{}\', new=\'{}\''.format(key_name, old_value, new_value))
+            print('  WARNING: values mismatch, key=\'{}\', old=\'{}\', new=\'{}\''.format(
+                key_name, old_value, new_value))
 
 
-def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name, limit_max_lines, line_separator)
+def parse_cert_file(file_name, search_rules, fips_items=None, limit_max_lines=-1, line_separator=LINE_SEPARATOR, should_censure_right_away=False):
+    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        file_name, limit_max_lines, line_separator)
 
+    file_name = os.path.splitext(os.path.splitext(os.path.basename(file_name))[0])[0]
     # apply all rules
     items_found_all = {}
     for rule_group in search_rules.keys():
@@ -146,15 +151,31 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
         items_found = items_found_all[rule_group]
 
         for rule in search_rules[rule_group]:
+
             rule_and_sep = rule + REGEXEC_SEP
 
-            for m in re.finditer(rule_and_sep, whole_text):
+            for m in re.finditer(rule_and_sep, whole_text_with_newlines):
                 # insert rule if at least one match for it was found
                 if rule not in items_found:
                     items_found[rule] = {}
 
                 match = m.group()
                 match = normalize_match_string(match)
+                is_algorithm = False
+                if fips_items and match != '':
+                    certs = [x['Certificate']
+                             for x in fips_items[file_name]['fips_algorithms']]
+
+                    match_cert_id = ''.join(filter(str.isdigit, match))
+#                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':
+
+                    for fips_cert in certs:
+                        for actual_cert in fips_cert:
+                            if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
+                                is_algorithm = True
+
+                if is_algorithm:
+                    continue
 
                 if match not in items_found[rule]:
                     items_found[rule][match] = {}
@@ -171,26 +192,35 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 # start index, end index, line number
                 #items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
                 if APPEND_DETAILED_MATCH_MATCHES:
-                    items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
+                    items_found[rule][match][TAG_MATCH_MATCHES].append(
+                        [match_span[0], match_span[1]])
+                if should_censure_right_away:
+                    whole_text_with_newlines = whole_text_with_newlines.replace(
+                        match, 'x' * len(match))
 
     # highlight all found strings from the input text and store the rest
-    for rule_group in items_found_all.keys():
-        items_found = items_found_all[rule_group]
-        for rule in items_found.keys():
-            for match in items_found[rule]:
-                whole_text_with_newlines = whole_text_with_newlines.replace(match, 'x' * len(match)) # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
+    if not should_censure_right_away:
+        for rule_group in items_found_all.keys():
+            items_found = items_found_all[rule_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
+                    whole_text_with_newlines = whole_text_with_newlines.replace(
+                        match, 'x' * len(match))
 
     return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
 
 
 def print_total_matches_in_files(all_items_found_count):
-    sorted_all_items_found_count = sorted(all_items_found_count.items(), key=operator.itemgetter(1))
+    sorted_all_items_found_count = sorted(
+        all_items_found_count.items(), key=operator.itemgetter(1))
     for file_name_count in sorted_all_items_found_count:
         print('{:03d}: {}'.format(file_name_count[1], file_name_count[0]))
 
 
 def print_total_found_cert_ids(all_items_found_certid_count):
-    sorted_certid_count = sorted(all_items_found_certid_count.items(), key=operator.itemgetter(1), reverse=True)
+    sorted_certid_count = sorted(
+        all_items_found_certid_count.items(), key=operator.itemgetter(1), reverse=True)
     for file_name_count in sorted_certid_count:
         print('{:03d}: {}'.format(file_name_count[1], file_name_count[0]))
 
@@ -247,13 +277,15 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
                     keywords_cert_id = match
                 num_items_found_certid_group += num_occurences
         if VERBOSE:
-            print('  -> most frequent cert id: {}, {}x'.format(keywords_cert_id, num_items_found_certid_group))
+            print('  -> most frequent cert id: {}, {}x'.format(keywords_cert_id,
+                                                               num_items_found_certid_group))
 
     # try to search for certificate id directly in file name - if found, higher priority
     filename_cert_id = ''
     if file_name != None:
         file_name_no_suff = file_name[:file_name.rfind('.')]
-        file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind('\\') + 1:]
+        file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind(
+            '\\') + 1:]
         for rule in rules['rules_cert_id']:
             file_name_no_suff += ' '
             matches = re.findall(rule, file_name_no_suff)
@@ -302,9 +334,11 @@ def print_specified_property_sorted(section_name, item_name, items_found_all):
     for file_name in items_found_all.keys():
         if section_name in items_found_all[file_name].keys():
             if item_name in items_found_all[file_name][section_name].keys():
-                specific_item_values.append(items_found_all[file_name][item_name])
+                specific_item_values.append(
+                    items_found_all[file_name][item_name])
             else:
-                print('WARNING: Item {} not found in file {}'.format(item_name, file_name))
+                print('WARNING: Item {} not found in file {}'.format(
+                    item_name, file_name))
 
     print('*** Occurrences of *{}* item'.format(item_name))
     sorted_items = sorted(specific_item_values)
@@ -314,16 +348,18 @@ def print_specified_property_sorted(section_name, item_name, items_found_all):
 
 def print_found_properties(items_found_all):
     print_specified_property_sorted(TAG_CERT_ID, items_found_all)
-    print_specified_property_sorted(TAG_CERT_ITEM , items_found_all)
+    print_specified_property_sorted(TAG_CERT_ITEM, items_found_all)
     print_specified_property_sorted(TAG_CERT_ITEM_VERSION, items_found_all)
-    print_specified_property_sorted(TAG_REFERENCED_PROTECTION_PROFILES, items_found_all)
-    print_specified_property_sorted(TAG_CC_VERSION , items_found_all)
+    print_specified_property_sorted(
+        TAG_REFERENCED_PROTECTION_PROFILES, items_found_all)
+    print_specified_property_sorted(TAG_CC_VERSION, items_found_all)
     print_specified_property_sorted(TAG_CC_SECURITY_LEVEL, items_found_all)
-    print_specified_property_sorted(TAG_DEVELOPER , items_found_all)
+    print_specified_property_sorted(TAG_DEVELOPER, items_found_all)
     print_specified_property_sorted(TAG_CERT_LAB, items_found_all)
 
 
 def search_only_headers_bsi(walk_dir):
+    print('BSI HEADER SEARCH')
     LINE_SEPARATOR_STRICT = ' '
     NUM_LINES_TO_INVESTIGATE = 15
     rules_certificate_preface = [
@@ -340,13 +376,14 @@ def search_only_headers_bsi(walk_dir):
         file_ext = file_name[file_name.rfind('.'):]
         if file_ext != '.txt':
             continue
-        print('*** {} ***'.format(file_name))
+#        print('*** {} ***'.format(file_name))
 
         no_match_yet = True
         #
         # Process front page with info: cert_id, certified_item and developer
         #
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            file_name, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
 
         for rule in rules_certificate_preface:
             rule_and_sep = rule + REGEXEC_SEP
@@ -372,9 +409,12 @@ def search_only_headers_bsi(walk_dir):
                 for from_keyword in FROM_KEYWORD_LIST:
                     from_keyword_len = len(from_keyword)
                     if certified_item.find(from_keyword) != -1:
-                        print('string **{}** detected in certified item - shall not be here, fixing...'.format(from_keyword))
-                        certified_item_first = certified_item[:certified_item.find(from_keyword)]
-                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
+                        print(
+                            'string **{}** detected in certified item - shall not be here, fixing...'.format(from_keyword))
+                        certified_item_first = certified_item[:certified_item.find(
+                            from_keyword)]
+                        developer = certified_item[certified_item.find(
+                            from_keyword) + from_keyword_len:]
                         certified_item = certified_item_first
                         continue
 
@@ -387,7 +427,8 @@ def search_only_headers_bsi(walk_dir):
                     developer = developer[:end_pos]
 
                 items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
-                items_found[TAG_CERT_ITEM] = normalize_match_string(certified_item)
+                items_found[TAG_CERT_ITEM] = normalize_match_string(
+                    certified_item)
                 items_found[TAG_DEVELOPER] = normalize_match_string(developer)
                 items_found[TAG_CERT_LAB] = 'BSI'
 
@@ -398,7 +439,8 @@ def search_only_headers_bsi(walk_dir):
             'PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified',
         ]
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            file_name)
 
         for rule in rules_certificate_third:
             rule_and_sep = rule + REGEXEC_SEP
@@ -413,9 +455,12 @@ def search_only_headers_bsi(walk_dir):
                 cc_version = match_groups[1]
                 cc_security_level = match_groups[2]
 
-                items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(ref_protection_profiles)
-                items_found[TAG_CC_VERSION] = normalize_match_string(cc_version)
-                items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(cc_security_level)
+                items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
+                    ref_protection_profiles)
+                items_found[TAG_CC_VERSION] = normalize_match_string(
+                    cc_version)
+                items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(
+                    cc_security_level)
 
         if no_match_yet:
             files_without_match.append(file_name)
@@ -501,6 +546,7 @@ def search_only_headers_anssi(walk_dir):
     for rule in rules_certificate_preface:
         num_rules_hits[rule[1]] = 0
 
+    print('***ANSSI HEADER SEARCH***')
     items_found_all = {}
     files_without_match = []
     for file_name in search_files(walk_dir):
@@ -509,9 +555,10 @@ def search_only_headers_anssi(walk_dir):
         file_ext = file_name[file_name.rfind('.'):]
         if file_ext != '.txt':
             continue
-        print('*** {} ***'.format(file_name))
+#        print('*** {} ***'.format(file_name))
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            file_name)
 
         # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
         pos = whole_text.find('')
@@ -544,7 +591,8 @@ def search_only_headers_anssi(walk_dir):
                     other_rule_already_match = True
                     other_rule = rule
                 else:
-                    print('WARNING: multiple rules are matching same certification document: ' + file_name)
+                    print(
+                        'WARNING: multiple rules are matching same certification document: ' + file_name)
 
                 num_rules_hits[rule[1]] += 1  # add hit to this rule
 
@@ -552,34 +600,42 @@ def search_only_headers_anssi(walk_dir):
 
                 index_next_item = 0
 
-                items_found[TAG_CERT_ID] = normalize_match_string(match_groups[index_next_item])
+                items_found[TAG_CERT_ID] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[TAG_CERT_ITEM] = normalize_match_string(match_groups[index_next_item])
+                items_found[TAG_CERT_ITEM] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
 
                 if rule[0] == HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION:
                     items_found[TAG_CERT_ITEM_VERSION] = ''
                 else:
-                    items_found[TAG_CERT_ITEM_VERSION] = normalize_match_string(match_groups[index_next_item])
+                    items_found[TAG_CERT_ITEM_VERSION] = normalize_match_string(
+                        match_groups[index_next_item])
                     index_next_item += 1
 
                 if rule[0] == HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES:
                     items_found[TAG_REFERENCED_PROTECTION_PROFILES] = ''
                 else:
-                    items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(match_groups[index_next_item])
+                    items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
+                        match_groups[index_next_item])
                     index_next_item += 1
 
-                items_found[TAG_CC_VERSION] = normalize_match_string(match_groups[index_next_item])
+                items_found[TAG_CC_VERSION] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index_next_item])
+                items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[TAG_DEVELOPER] = normalize_match_string(match_groups[index_next_item])
+                items_found[TAG_DEVELOPER] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[TAG_CERT_LAB] = normalize_match_string(match_groups[index_next_item])
+                items_found[TAG_CERT_LAB] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
 
         if no_match_yet:
@@ -600,7 +656,8 @@ def search_only_headers_anssi(walk_dir):
 
     if True:
         print('# hits for rule')
-        sorted_rules = sorted(num_rules_hits.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_rules = sorted(num_rules_hits.items(),
+                              key=operator.itemgetter(1), reverse=True)
         used_rules = []
         for rule in sorted_rules:
             print('{:4d} : {}'.format(rule[1], rule[0]))
@@ -610,12 +667,15 @@ def search_only_headers_anssi(walk_dir):
     return items_found_all, files_without_match
 
 
-def extract_certificates_frontpage(walk_dir, write_output_file = True):
-    anssi_items_found, anssi_files_without_match = search_only_headers_anssi(walk_dir)
-    bsi_items_found, bsi_files_without_match = search_only_headers_bsi(walk_dir)
+def extract_certificates_frontpage(walk_dir, write_output_file=True):
+    anssi_items_found, anssi_files_without_match = search_only_headers_anssi(
+        walk_dir)
+    bsi_items_found, bsi_files_without_match = search_only_headers_bsi(
+        walk_dir)
 
     print('*** Files without detected header')
-    files_without_match = list(set(anssi_files_without_match) & set(bsi_files_without_match))
+    files_without_match = list(
+        set(anssi_files_without_match) & set(bsi_files_without_match))
     for file_name in files_without_match:
         print(file_name)
     print('Total no hits files: {}'.format(len(files_without_match)))
@@ -625,7 +685,8 @@ def extract_certificates_frontpage(walk_dir, write_output_file = True):
 
     if write_output_file:
         with open("certificate_data_frontpage_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
@@ -654,7 +715,6 @@ def search_pp_only_headers(walk_dir):
         ANSSI_TYPE2 = 42
         ANSSI_TYPE3 = 43
 
-
     rules_pp_third = [
         (HEADER_TYPE.BSI_TYPE1,
          'PP Reference .+?Title (.+)?CC Version (.+)?Assurance Level (.+)?General Status (.+)?Version Number (.+)?Registration (.+)?Keywords (.+)?TOE Overview'),
@@ -672,18 +732,19 @@ def search_pp_only_headers(walk_dir):
          'Protection profile reference[ ]*Title: (.+)?Author: (.+)?Version: (.+)?Context'),
         (HEADER_TYPE.FRONT_DCSSI_TYPE3,
          'Direction centrale de la sécurité des systèmes d\’information(.+)?(?:Creation date|Date)[ ]*[:]*(.+)?Reference[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
-#        (HEADER_TYPE.FRONT_DCSSI_TYPE4,
-#         'Direction centrale de la sécurité des systèmes d\’information(.+)?Date[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
+        #        (HEADER_TYPE.FRONT_DCSSI_TYPE4,
+        #         'Direction centrale de la sécurité des systèmes d\’information(.+)?Date[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
         (HEADER_TYPE.FRONT_DCSSI_TYPE4,
          'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information (.+)?(?:Creation date|Date)[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
-         #'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information  Time-stamping System Protection Profile  Date  : July 18, 2008  Reference  : PP-SH-CCv3.1  Version  : 1.7  Courtesy Translation  Courtesy translation of the protection profile registered and certified by the French Certification Body under the reference DCSSI-PP-2008/07.  Page'
+        #'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information  Time-stamping System Protection Profile  Date  : July 18, 2008  Reference  : PP-SH-CCv3.1  Version  : 1.7  Courtesy Translation  Courtesy translation of the protection profile registered and certified by the French Certification Body under the reference DCSSI-PP-2008/07.  Page'
         (HEADER_TYPE.DCSSI_TYPE5,
          'Protection Profile identification[ ]*Title[ ]*[:]*(.+)?Author[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?,(.+)?Sponsor[ ]*[:]*(.+)?CC version[ ]*[:]*(.+)?(?:Context|Protection Profile introduction)'),
         (HEADER_TYPE.DCSSI_TYPE6,
          'PP reference.+?Title[ ]*:(.+)?Author[ ]*:(.+)?Version[ ]*:(.+)?Date[ ]*:(.+)?Sponsor[ ]*:(.+)?CC version[ ]*:(.+)?This protection profile.+?The evaluation assurance level required by this protection profile is (.+)?specified by the DCSSI qualification process'),
-#        (HEADER_TYPE.DCSSI_TYPE7,
-#         'Protection Profile identification.+?Title[ ]*[:]*(.+)?Author[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?,(.+)?Sponsor[ ]*[:]*(.+)?CC version[ ]*[:]*(.+)?Protection Profile introduction')
+        #        (HEADER_TYPE.DCSSI_TYPE7,
+        #         'Protection Profile identification.+?Title[ ]*[:]*(.+)?Author[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?,(.+)?Sponsor[ ]*[:]*(.+)?CC version[ ]*[:]*(.+)?Protection Profile introduction')
     ]
+    print("***PP HEADER SEARCH***")
     items_found_all = {}
     files_without_match = []
     for file_name in search_files(walk_dir):
@@ -692,13 +753,14 @@ def search_pp_only_headers(walk_dir):
         file_ext = file_name[file_name.rfind('.'):]
         if file_ext != '.txt':
             continue
-        print('*** {} ***'.format(file_name))
+#        print('*** {} ***'.format(file_name))
 
         #
         # Process page with more detailed protection profile info
         # PP Reference
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            file_name)
 
         no_match_yet = True
         for rule in rules_pp_third:
@@ -720,180 +782,253 @@ def search_pp_only_headers(walk_dir):
                 index = 0
 
                 if rule[0] == HEADER_TYPE.BSI_TYPE1:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_VERSION,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_GENERAL_STATUS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_GENERAL_STATUS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_ID,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     keywords = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(keywords[0:keywords.find('  ')]))
+                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(
+                        keywords[0:keywords.find('  ')]))
                     index += 1
                     set_match_string(items_found, TAG_PP_AUTHORS, 'BSI')
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
 
                 if rule[0] == HEADER_TYPE.BSI_TYPE2:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_AUTHORS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_REGISTRATOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_ID,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_VERSION,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     keywords = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(keywords[0:keywords.find('  ')]))
+                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(
+                        keywords[0:keywords.find('  ')]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
 
                 if rule[0] == HEADER_TYPE.ANSSI_TYPE1:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_REGISTRATOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_SPONSOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_EDITOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_EDITOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_REVIEWER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_REVIEWER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_VERSION,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     level = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(level[0:level.find('  ')]))
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(
+                        level[0:level.find('  ')]))
                     index += 1
 
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
                 if rule[0] == HEADER_TYPE.ANSSI_TYPE2:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_AUTHORS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_REGISTRATOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_VERSION,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_KEYWORDS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
 
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
                 if rule[0] == HEADER_TYPE.ANSSI_TYPE3:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     # todo: parse if multiple pp ids are present
-                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_ID,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_EDITOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_EDITOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_SPONSOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     ccversion = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(ccversion[0:ccversion.find('  ')]))
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(
+                        ccversion[0:ccversion.find('  ')]))
                     index += 1
 
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
                 if rule[0] == HEADER_TYPE.DCSSI_TYPE1:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_ID,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     author = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(author[0:author.find('  ')]))
+                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(
+                        author[0:author.find('  ')]))
                     index += 1
 
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
                 if rule[0] == HEADER_TYPE.DCSSI_TYPE2:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_AUTHORS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     version = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(version[0:version.find('  ')]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(
+                        version[0:version.find('  ')]))
                     index += 1
 
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
                 if rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE3 or rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE4:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_ID, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_ID,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_ID_REGISTRATOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_ID_REGISTRATOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
 
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
                 if rule[0] == HEADER_TYPE.DCSSI_TYPE5:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_AUTHORS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_SPONSOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
                     ccversion = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(ccversion[0:ccversion.find('  ')]))
+                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(
+                        ccversion[0:ccversion.find('  ')]))
                     index += 1
 
                 if rule[0] == HEADER_TYPE.DCSSI_TYPE6:
-                    set_match_string(items_found, TAG_PP_TITLE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_TITLE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_AUTHORS,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_DATE, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_DATE,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_PP_SPONSOR,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_VERSION,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(match_groups[index]))
+                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                     normalize_match_string(match_groups[index]))
                     index += 1
 
-
-                    set_match_string(items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    set_match_string(
+                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
         if no_match_yet:
             files_without_match.append(file_name)
@@ -913,7 +1048,7 @@ def search_pp_only_headers(walk_dir):
     return items_found_all, files_without_match
 
 
-def extract_protectionprofiles_frontpage(walk_dir, write_output_file = True):
+def extract_protectionprofiles_frontpage(walk_dir, write_output_file=True):
     pp_items_found, pp_files_without_match = search_pp_only_headers(walk_dir)
 
     print('*** Files without detected protection profiles header')
@@ -924,16 +1059,17 @@ def extract_protectionprofiles_frontpage(walk_dir, write_output_file = True):
     # store results into file with fixed name and also with time appendix
     if write_output_file:
         with open("pp_data_frontpage_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(pp_items_found, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                pp_items_found, indent=4, sort_keys=True))
 
     return pp_items_found
 
 
-def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_output_file = True):
+def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, fips_items=None, write_output_file=True, should_censure_right_away=False):
     # ensure existence of fragments folder
     if not os.path.exists(fragments_dir):
         os.makedirs(fragments_dir)
-
+    print("***EXTRACT KEYWORDS***")
     all_items_found = {}
     cert_id = {}
     for file_name in search_files(walk_dir):
@@ -943,24 +1079,30 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
         if file_ext != '.txt':
             continue
 
-        print('*** {} ***'.format(file_name))
+#        print('*** {} ***'.format(file_name))
 
+        file_cert_name = os.path.splitext(
+            os.path.splitext(os.path.basename(file_name))[0])[0]
         # parse certificate, return all matches
-        all_items_found[file_name], modified_cert_file = parse_cert_file(file_name, rules, -1)
+        all_items_found[file_cert_name], modified_cert_file = parse_cert_file(
+            file_name, rules, fips_items, -1, should_censure_right_away=should_censure_right_away)
 
         # try to establish the certificate id of the current certificate
-        cert_id[file_name] = estimate_cert_id(None, all_items_found[file_name], file_name)
+        cert_id[file_cert_name] = estimate_cert_id(
+            None, all_items_found[file_cert_name], file_name)
 
         # save report text with highlighted/replaced matches into \\fragments\\ directory
-        base_path = file_name[:file_name.rfind('\\')]
-        file_name_short = file_name[file_name.rfind('\\') + 1:]
-        target_file = '{}\\{}'.format(fragments_dir, file_name_short)
-        save_modified_cert_file(target_file, modified_cert_file[0], modified_cert_file[1])
+        base_path = file_name[:file_name.rfind('/')]
+        file_name_short = file_name[file_name.rfind('/') + 1:]
+        target_file = '{}/{}'.format(fragments_dir, file_name_short)
+        save_modified_cert_file(
+            target_file, modified_cert_file[0], modified_cert_file[1])
 
     # store results into file with fixed name and also with time appendix
     if write_output_file:
         with open("{}_data_keywords_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                all_items_found, indent=4, sort_keys=True))
 
     print('\nTotal matches found in separate files:')
     # print_total_matches_in_files(all_items_found_count)
@@ -978,16 +1120,18 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
     if PRINT_MATCHES:
         all_matches = []
         for file_name in all_items_found:
+            print('*' * 10, "FILENAME:", file_name, '*' * 10)
             for rule_group in all_items_found[file_name].keys():
                 items_found = all_items_found[file_name][rule_group]
                 for rule in items_found.keys():
                     for match in items_found[rule]:
                         if match not in all_matches:
-                            all_matches.append(match)
+                            print(match)
+#                            all_matches.append(match)
 
         sorted_all_matches = sorted(all_matches)
-        for match in sorted_all_matches:
-            print(match)
+#        for match in sorted_all_matches:
+#            print(match)
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
@@ -995,8 +1139,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
     return all_items_found
 
 
-
-def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file = True):
+def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file=True):
     all_items_found = {}
     counter = 0
     for file_name in search_files(walk_dir):
@@ -1006,7 +1149,8 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file = True
         if file_ext != '.pdf':
             continue
 
-        print('*** {} ***'.format(file_name))
+        print("***EXTRACT PDFMETA***")
+#        print('*** {} ***'.format(file_name))
 
         item = {}
         item['pdf_file_size_bytes'] = os.path.getsize(file_name)
@@ -1037,14 +1181,15 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file = True
         if counter % 100 == 0:
             # store results into file with fixed name
             with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-                write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+                write_file.write(json.dumps(
+                    all_items_found, indent=4, sort_keys=True))
         counter += 1
-
 
     # store allresults into file with fixed name
     if write_output_file:
         with open("{}_data_pdfmeta_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(all_items_found, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                all_items_found, indent=4, sort_keys=True))
 
     return all_items_found
 
@@ -1059,10 +1204,10 @@ def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
 
     rule_with_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
-           '.*?\<a href="(.+?)" title="Maintenance Report' \
-           '.*?\<a href="(.+?)" title="Maintenance ST'
+        '.*?\<a href="(.+?)" title="Maintenance Report' \
+        '.*?\<a href="(.+?)" title="Maintenance ST'
     rule_without_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
-           '.*?\<a href="(.+?)" title="Maintenance Report'\
+        '.*?\<a href="(.+?)" title="Maintenance Report'\
 
     if updates_chunk.find('Maintenance Report(s)') != -1:
         start_pos = updates_chunk.find('Maintenance Report(s)</div>')
@@ -1083,24 +1228,31 @@ def parse_product_updates(updates_chunk, link_files_updates):
             for m in re.finditer(rule, report_chunk):
                 match_groups = m.groups()
                 index_next_item = 0
-                items_found['maintenance_date'] = normalize_match_string(match_groups[index_next_item])
+                items_found['maintenance_date'] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
-                items_found['maintenance_item_name'] = normalize_match_string(match_groups[index_next_item])
+                items_found['maintenance_item_name'] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
-                items_found['maintenance_link_cert_report'] = normalize_match_string(match_groups[index_next_item])
+                items_found['maintenance_link_cert_report'] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
                 if len(match_groups) > index_next_item:
-                    items_found['maintenance_link_security_target'] = normalize_match_string(match_groups[index_next_item])
+                    items_found['maintenance_link_security_target'] = normalize_match_string(
+                        match_groups[index_next_item])
                     index_next_item += 1
                 else:
                     items_found['maintenance_link_security_target'] = ""
 
-                cert_file_name = extract_file_name_from_url(items_found['maintenance_link_cert_report'])
+                cert_file_name = extract_file_name_from_url(
+                    items_found['maintenance_link_cert_report'])
                 items_found['link_cert_report_file_name'] = cert_file_name
-                st_file_name = extract_file_name_from_url(items_found['maintenance_link_security_target'])
+                st_file_name = extract_file_name_from_url(
+                    items_found['maintenance_link_security_target'])
                 items_found['link_security_target_file_name'] = st_file_name
 
-                link_files_updates.append((items_found['maintenance_link_cert_report'], cert_file_name, items_found['maintenance_link_security_target'], st_file_name))
+                link_files_updates.append(
+                    (items_found['maintenance_link_cert_report'], cert_file_name, items_found['maintenance_link_security_target'], st_file_name))
 
             maintenance_reports.append(items_found)
 
@@ -1116,7 +1268,8 @@ def parse_security_level(security_level):
         # some augmented items found
         augm_chunk = security_level[start_pos:]
         augm_chunk += ' '
-        rule = '\<br\>(.+?) '       # items are in form of <br>AVA_VLA.4 <br>AVA_MSU.3 ...
+        # items are in form of <br>AVA_VLA.4 <br>AVA_MSU.3 ...
+        rule = '\<br\>(.+?) '
 
         for m in re.finditer(rule, augm_chunk):
             match_groups = m.groups()
@@ -1126,10 +1279,12 @@ def parse_security_level(security_level):
 
 
 def extract_certificates_metadata_html(file_name):
+    print("***HTML METADATA***")
+    print(file_name)
     items_found_all = {}
     download_files_certs = []
     download_files_updates = []
-    print('*** {} ***'.format(file_name))
+#    print('*** {} ***'.format(file_name))
 
     whole_text = load_cert_html_file(file_name)
 
@@ -1167,24 +1322,24 @@ def extract_certificates_metadata_html(file_name):
         # IMPORTANT: order regexes based on their specificity - the most specific goes first
         rules_cc_html = [
             (HEADER_TYPE.HEADER_FULL, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
-            '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
-            '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
-            '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
-            '(.+?)<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
-            '.+?\<!--end-product-cell--\>'
-            '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
-            '.+?\<td style="text-align:center"\>(.*?)\</td\>'
-            '[ ]+?\<td>(.+?)\</td\>'),
+             '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
+             '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
+             '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
+             '(.+?)<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
+             '.+?\<!--end-product-cell--\>'
+             '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
+             '.+?\<td style="text-align:center"\>(.*?)\</td\>'
+             '[ ]+?\<td>(.+?)\</td\>'),
 
-            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB,'\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?'
-            '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
-            '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
-            '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
-            '(.+?)<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
-            '.+?\<!--end-product-cell--\>'
-            '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
-            '.+?\<td style="text-align:center"\>(.*?)\</td\>'
-            '[ ]+?\<td>(.+?)\</td\>'),
+            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?'
+             '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
+             '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
+             '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
+             '(.+?)<!-- ------ ------ ------ END Product Updates ------ ------ ------ --\>'
+             '.+?\<!--end-product-cell--\>'
+             '.+?\<td style="text-align:center"\>\<span title=".+?"\>(.+?)\</span\>\</td\>'
+             '.+?\<td style="text-align:center"\>(.*?)\</td\>'
+             '[ ]+?\<td>(.+?)\</td\>'),
         ]
 
         no_match_yet = True
@@ -1198,50 +1353,65 @@ def extract_certificates_metadata_html(file_name):
                 if no_match_yet:
                     chunks_matched += 1
                     items_found = {}
-                    #items_found_all.append(items_found)
+                    # items_found_all.append(items_found)
                     items_found[TAG_HEADER_MATCH_RULES] = []
                     no_match_yet = False
 
                 # insert rule if at least one match for it was found
-                #if rule not in items_found[TAG_HEADER_MATCH_RULES]:
+                # if rule not in items_found[TAG_HEADER_MATCH_RULES]:
                     # items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
 
                 match_groups = m.groups()
 
                 index_next_item = 0
-                items_found['cert_item_name'] = normalize_match_string(match_groups[index_next_item])
+                items_found['cert_item_name'] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
-                items_found['cc_cert_item_html_id'] = normalize_match_string(match_groups[index_next_item])
+                items_found['cc_cert_item_html_id'] = normalize_match_string(
+                    match_groups[index_next_item])
                 cert_item_id = items_found['cc_cert_item_html_id']
                 index_next_item += 1
                 if not rule[0] == HEADER_TYPE.HEADER_MISSING_VENDOR_WEB:
-                    items_found['company_site'] = normalize_match_string(match_groups[index_next_item])
+                    items_found['company_site'] = normalize_match_string(
+                        match_groups[index_next_item])
                     index_next_item += 1
-                    items_found['company_name'] = normalize_match_string(match_groups[index_next_item])
+                    items_found['company_name'] = normalize_match_string(
+                        match_groups[index_next_item])
                     index_next_item += 1
-                items_found['link_cert_report'] = normalize_match_string(match_groups[index_next_item])
-                cert_file_name = extract_file_name_from_url(items_found['link_cert_report'])
+                items_found['link_cert_report'] = normalize_match_string(
+                    match_groups[index_next_item])
+                cert_file_name = extract_file_name_from_url(
+                    items_found['link_cert_report'])
                 items_found['link_cert_report_file_name'] = cert_file_name
                 index_next_item += 1
-                items_found['link_security_target'] = normalize_match_string(match_groups[index_next_item])
-                st_file_name = extract_file_name_from_url(items_found['link_security_target'])
+                items_found['link_security_target'] = normalize_match_string(
+                    match_groups[index_next_item])
+                st_file_name = extract_file_name_from_url(
+                    items_found['link_security_target'])
                 items_found['link_security_target_file_name'] = st_file_name
-                download_files_certs.append((items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
+                download_files_certs.append(
+                    (items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
                 index_next_item += 1
 
-                items_found['maintainance_updates'] = parse_product_updates(match_groups[index_next_item], download_files_updates)
+                items_found['maintainance_updates'] = parse_product_updates(
+                    match_groups[index_next_item], download_files_updates)
                 index_next_item += 1
 
-                items_found['date_cert_issued'] = normalize_match_string(match_groups[index_next_item])
+                items_found['date_cert_issued'] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
-                items_found['date_cert_expiration'] = normalize_match_string(match_groups[index_next_item])
+                items_found['date_cert_expiration'] = normalize_match_string(
+                    match_groups[index_next_item])
                 index_next_item += 1
-                cc_security_level = normalize_match_string(match_groups[index_next_item])
-                items_found['cc_security_level'], items_found['cc_security_level_augmented'] = parse_security_level(cc_security_level)
+                cc_security_level = normalize_match_string(
+                    match_groups[index_next_item])
+                items_found['cc_security_level'], items_found['cc_security_level_augmented'] = parse_security_level(
+                    cc_security_level)
                 index_next_item += 1
 
                 # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
-                item_unique_name = '{}__{}'.format(cert_file_name, cert_item_id)
+                item_unique_name = '{}__{}'.format(
+                    cert_file_name, cert_item_id)
                 if item_unique_name not in items_found_all.keys():
                     items_found_all[item_unique_name] = {}
                     items_found_all[item_unique_name]['html_scan'] = items_found
@@ -1253,7 +1423,8 @@ def extract_certificates_metadata_html(file_name):
         if no_match_yet:
             print('No match found in block #{}'.format(chunks_found))
 
-    print('Chunks found: {}, Chunks matched: {}'.format(chunks_found, chunks_matched))
+    print('Chunks found: {}, Chunks matched: {}'.format(
+        chunks_found, chunks_matched))
     if chunks_found != chunks_matched:
         print('WARNING: not all chunks found were matched')
 
@@ -1264,14 +1435,17 @@ def check_if_new_or_same(target_dict, target_key, new_value):
     if target_key in target_dict.keys():
         if target_dict[target_key] != new_value:
             if STOP_ON_UNEXPECTED_NUMS:
-                raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+                raise ValueError(
+                    'ERROR: Stopping on unexpected intermediate numbers')
 
 
 def extract_certificates_metadata_csv(file_name):
+    print("***CSV METADATA***")
+    print(file_name)
     items_found_all = {}
     expected_columns = -1
     with open(file_name, errors=FILE_ERRORS_STRATEGY) as csv_file:
-        print('*** {} ***'.format(file_name))
+        #        print('*** {} ***'.format(file_name))
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         no_further_maintainance = True
@@ -1286,12 +1460,13 @@ def extract_certificates_metadata_csv(file_name):
                 if len(row) == 0:
                     break
                 if len(row) != expected_columns:
-                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(line_count))
+                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(
+                        line_count))
                     # trying to fix
                     if row[4].find('EAL') == -1:
-                        row[1] = row[1] + row[2] # fix name
-                        row.remove(row[2]) # remove second part of name
-                    if len(row[11]) > 0: # test if reassesment is filled
+                        row[1] = row[1] + row[2]  # fix name
+                        row.remove(row[2])  # remove second part of name
+                    if len(row[11]) > 0:  # test if reassesment is filled
                         if row[13].find('http://') != -1:
                             # name
                             row[11] = row[11] + row[12]
@@ -1306,42 +1481,65 @@ def extract_certificates_metadata_csv(file_name):
                 items_found['raw_csv_line'] = str(row)
 
                 index_next_item = 0
-                check_if_new_or_same(items_found, 'cc_category', normalize_match_string(row[index_next_item]))
-                items_found['cc_category'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_category', normalize_match_string(row[index_next_item]))
+                items_found['cc_category'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cert_item_name', normalize_match_string(row[index_next_item]))
-                items_found['cert_item_name'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cert_item_name', normalize_match_string(row[index_next_item]))
+                items_found['cert_item_name'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_manufacturer', normalize_match_string(row[index_next_item]))
-                items_found['cc_manufacturer'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_manufacturer', normalize_match_string(row[index_next_item]))
+                items_found['cc_manufacturer'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_scheme', normalize_match_string(row[index_next_item]))
-                items_found['cc_scheme'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_scheme', normalize_match_string(row[index_next_item]))
+                items_found['cc_scheme'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_security_level', normalize_match_string(row[index_next_item]))
-                items_found['cc_security_level'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_security_level', normalize_match_string(row[index_next_item]))
+                items_found['cc_security_level'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_protection_profiles', normalize_match_string(row[index_next_item]))
-                items_found['cc_protection_profiles'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_protection_profiles', normalize_match_string(row[index_next_item]))
+                items_found['cc_protection_profiles'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_certification_date', normalize_match_string(row[index_next_item]))
-                items_found['cc_certification_date'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_certification_date', normalize_match_string(row[index_next_item]))
+                items_found['cc_certification_date'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_archived_date', normalize_match_string(row[index_next_item]))
-                items_found['cc_archived_date'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_archived_date', normalize_match_string(row[index_next_item]))
+                items_found['cc_archived_date'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'link_cert_report', normalize_match_string(row[index_next_item]))
-                items_found['link_cert_report'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'link_cert_report', normalize_match_string(row[index_next_item]))
+                items_found['link_cert_report'] = normalize_match_string(
+                    row[index_next_item])
                 link_cert_report = items_found['link_cert_report']
 
-                cert_file_name = extract_file_name_from_url(items_found['link_cert_report'])
-                check_if_new_or_same(items_found, 'link_cert_report_file_name', cert_file_name)
+                cert_file_name = extract_file_name_from_url(
+                    items_found['link_cert_report'])
+                check_if_new_or_same(
+                    items_found, 'link_cert_report_file_name', cert_file_name)
                 items_found['link_cert_report_file_name'] = cert_file_name
                 cert_file_name = items_found['link_cert_report_file_name']
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'link_security_target', normalize_match_string(row[index_next_item]))
-                items_found['link_security_target'] = normalize_match_string(row[index_next_item])
-                st_file_name = extract_file_name_from_url(items_found['link_security_target'])
+                check_if_new_or_same(
+                    items_found, 'link_security_target', normalize_match_string(row[index_next_item]))
+                items_found['link_security_target'] = normalize_match_string(
+                    row[index_next_item])
+                st_file_name = extract_file_name_from_url(
+                    items_found['link_security_target'])
                 items_found['link_security_target_file_name'] = st_file_name
                 index_next_item += 1
 
@@ -1349,13 +1547,17 @@ def extract_certificates_metadata_csv(file_name):
                     items_found['maintainance_updates'] = []
 
                 maintainance = {}
-                maintainance['cc_maintainance_date'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_maintainance_date'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                maintainance['cc_maintainance_title'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_maintainance_title'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                maintainance['cc_maintainance_report_link'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_maintainance_report_link'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                maintainance['cc_maintainance_st_link'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_maintainance_st_link'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
                 # add this maintainance to parent item only when not empty
                 if len(maintainance['cc_maintainance_title']) > 0:
@@ -1365,14 +1567,16 @@ def extract_certificates_metadata_csv(file_name):
                     # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
                     cert_file_name = cert_file_name.replace('%20', ' ')
                     item_unique_name = cert_file_name
-                    item_unique_name = '{}__{}'.format(cert_file_name, line_count)
+                    item_unique_name = '{}__{}'.format(
+                        cert_file_name, line_count)
                     if item_unique_name not in items_found_all.keys():
                         items_found_all[item_unique_name] = {}
                         items_found_all[item_unique_name]['csv_scan'] = items_found
                     else:
                         print('  ERROR: {} already in'.format(cert_file_name))
                         if STOP_ON_UNEXPECTED_NUMS:
-                            raise ValueError('ERROR: Stopping as value is not unique')
+                            raise ValueError(
+                                'ERROR: Stopping as value is not unique')
 
                 line_count += 1
 
@@ -1380,7 +1584,8 @@ def extract_certificates_metadata_csv(file_name):
 
 
 def fix_pp_url(original_url):
-    if original_url.find('/epfiles/') != -1:  # links to pp are incorrect - epfiles instead ppfiles
+    # links to pp are incorrect - epfiles instead ppfiles
+    if original_url.find('/epfiles/') != -1:
         original_url = original_url.replace('/epfiles/', '/ppfiles/')
     original_url = original_url.replace('http://', 'https://')
     original_url = original_url.replace(':443', '')
@@ -1406,7 +1611,8 @@ def extract_pp_metadata_csv(file_name):
                 if len(row) == 0:
                     break
                 if len(row) != expected_columns:
-                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(line_count))
+                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(
+                        line_count))
                     # trying to fix
                     if len(row) == expected_columns + 2:
                         row[9] = row[9] + row[10] + row[11]
@@ -1425,45 +1631,69 @@ def extract_pp_metadata_csv(file_name):
                 items_found['raw_csv_line'] = str(row)
 
                 index_next_item = 0
-                check_if_new_or_same(items_found, 'cc_category', normalize_match_string(row[index_next_item]))
-                items_found['cc_category'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_category', normalize_match_string(row[index_next_item]))
+                items_found['cc_category'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_pp_name', normalize_match_string(row[index_next_item]))
-                items_found['cc_pp_name'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_pp_name', normalize_match_string(row[index_next_item]))
+                items_found['cc_pp_name'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_pp_version', normalize_match_string(row[index_next_item]))
-                items_found['cc_pp_version'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_pp_version', normalize_match_string(row[index_next_item]))
+                items_found['cc_pp_version'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_security_level', normalize_match_string(row[index_next_item]))
-                items_found['cc_security_level'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_security_level', normalize_match_string(row[index_next_item]))
+                items_found['cc_security_level'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_certification_date', normalize_match_string(row[index_next_item]))
-                items_found['cc_certification_date'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_certification_date', normalize_match_string(row[index_next_item]))
+                items_found['cc_certification_date'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'cc_archived_date', normalize_match_string(row[index_next_item]))
-                items_found['cc_archived_date'] = normalize_match_string(row[index_next_item])
+                check_if_new_or_same(
+                    items_found, 'cc_archived_date', normalize_match_string(row[index_next_item]))
+                items_found['cc_archived_date'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                check_if_new_or_same(items_found, 'link_pp_report', normalize_match_string(row[index_next_item]))
-                items_found['link_pp_report'] = normalize_match_string(row[index_next_item])
-                items_found['link_pp_report'] = fix_pp_url(items_found['link_pp_report'])
+                check_if_new_or_same(
+                    items_found, 'link_pp_report', normalize_match_string(row[index_next_item]))
+                items_found['link_pp_report'] = normalize_match_string(
+                    row[index_next_item])
+                items_found['link_pp_report'] = fix_pp_url(
+                    items_found['link_pp_report'])
                 index_next_item += 1
-                pp_report_file_name = extract_file_name_from_url(items_found['link_pp_report'])
-                check_if_new_or_same(items_found, 'link_pp_document', normalize_match_string(row[index_next_item]))
-                items_found['link_pp_document'] = normalize_match_string(row[index_next_item])
-                items_found['link_pp_document'] = fix_pp_url(items_found['link_pp_document'])
+                pp_report_file_name = extract_file_name_from_url(
+                    items_found['link_pp_report'])
+                check_if_new_or_same(
+                    items_found, 'link_pp_document', normalize_match_string(row[index_next_item]))
+                items_found['link_pp_document'] = normalize_match_string(
+                    row[index_next_item])
+                items_found['link_pp_document'] = fix_pp_url(
+                    items_found['link_pp_document'])
                 index_next_item += 1
-                pp_document_file_name = extract_file_name_from_url(items_found['link_pp_document'])
+                pp_document_file_name = extract_file_name_from_url(
+                    items_found['link_pp_document'])
 
                 if 'maintainance_updates' not in items_found:
                     items_found['maintainance_updates'] = []
 
                 maintainance = {}
-                maintainance['cc_pp_maintainance_date'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_pp_maintainance_date'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                maintainance['cc_pp_maintainance_title'] = normalize_match_string(row[index_next_item])
+                maintainance['cc_pp_maintainance_title'] = normalize_match_string(
+                    row[index_next_item])
                 index_next_item += 1
-                maintainance['cc_maintainance_report_link'] = normalize_match_string(row[index_next_item])
-                maintainance['cc_maintainance_report_link'] = fix_pp_url(maintainance['cc_maintainance_report_link'])
+                maintainance['cc_maintainance_report_link'] = normalize_match_string(
+                    row[index_next_item])
+                maintainance['cc_maintainance_report_link'] = fix_pp_url(
+                    maintainance['cc_maintainance_report_link'])
                 index_next_item += 1
 
                 # add this maintainance to parent item only when not empty
@@ -1472,16 +1702,20 @@ def extract_pp_metadata_csv(file_name):
 
                 if no_further_maintainance:
                     # prepare unique name for dictionary (file name is not enough as multiple records reference same cert)
-                    pp_document_file_name = pp_document_file_name.replace('%20', ' ')
+                    pp_document_file_name = pp_document_file_name.replace(
+                        '%20', ' ')
                     item_unique_name = pp_document_file_name
-                    item_unique_name = '{}__{}'.format(pp_document_file_name, line_count)
+                    item_unique_name = '{}__{}'.format(
+                        pp_document_file_name, line_count)
                     if item_unique_name not in items_found_all.keys():
                         items_found_all[item_unique_name] = {}
                         items_found_all[item_unique_name]['csv_scan'] = items_found
                     else:
-                        print('  ERROR: {} already in'.format(pp_document_file_name))
+                        print('  ERROR: {} already in'.format(
+                            pp_document_file_name))
                         if STOP_ON_UNEXPECTED_NUMS:
-                            raise ValueError('ERROR: Stopping as value is not unique')
+                            raise ValueError(
+                                'ERROR: Stopping as value is not unique')
 
                     # save download links for basic protection profile
                     download_files_certs.append((items_found['link_pp_report'], pp_report_file_name,
@@ -1489,8 +1723,10 @@ def extract_pp_metadata_csv(file_name):
                     # save download links for maintainance updates protection profile
                     for item in items_found['maintainance_updates']:
                         if item['cc_maintainance_report_link'] != "":
-                            pp_maintainainace_file_name = extract_file_name_from_url(item['cc_maintainance_report_link'])
-                            download_files_maintainance.append((item['cc_maintainance_report_link'], pp_maintainainace_file_name))
+                            pp_maintainainace_file_name = extract_file_name_from_url(
+                                item['cc_maintainance_report_link'])
+                            download_files_maintainance.append(
+                                (item['cc_maintainance_report_link'], pp_maintainainace_file_name))
 
                 line_count += 1
 
@@ -1509,10 +1745,12 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
 
             if file_name_short_web.find(base_url) != -1:
                 # base url already included
-                write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[1]))
+                write_file.write(
+                    'curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[1]))
             else:
                 # insert base url
-                write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
+                write_file.write(
+                    'curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
             write_file.write('{} \"{}\"\n\n'.format(PDF2TEXT_CONVERT, cert[1]))
 
         if len(download_files_certs) > 0 and len(cert) > 2:
@@ -1526,48 +1764,60 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
                 file_name_short_web = cert[2].replace(' ', '%%20')
                 if file_name_short_web.find(base_url) != -1:
                     # base url already included
-                    write_file.write('curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[3]))
+                    write_file.write(
+                        'curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[3]))
                 else:
                     # insert base url
-                    write_file.write('curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
-                write_file.write('{} \"{}\"\n\n'.format(PDF2TEXT_CONVERT, cert[3]))
+                    write_file.write(
+                        'curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
+                write_file.write('{} \"{}\"\n\n'.format(
+                    PDF2TEXT_CONVERT, cert[3]))
 
 
-def extract_certificates_html(base_dir, write_output_file = True):
+def extract_certificates_html(base_dir, write_output_file=True):
     file_name = '{}cc_products_active.html'.format(base_dir)
-    items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
+    items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(
+        file_name)
     for item in items_found_all_active.keys():
         items_found_all_active[item]['html_scan']['cert_status'] = 'active'
 
     if write_output_file:
         with open("certificate_data_html_active.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(items_found_all_active, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                items_found_all_active, indent=4, sort_keys=True))
 
-    generate_download_script('download_active_certs.bat', 'certs', 'targets', CC_WEB_URL, download_files_certs)
-    generate_download_script('download_active_updates.bat', 'certs', 'targets', CC_WEB_URL, download_files_updates)
+    generate_download_script('download_active_certs.bat',
+                             'certs', 'targets', CC_WEB_URL, download_files_certs)
+    generate_download_script('download_active_updates.bat',
+                             'certs', 'targets', CC_WEB_URL, download_files_updates)
 
     file_name = '{}cc_products_archived.html'.format(base_dir)
-    items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(file_name)
+    items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(
+        file_name)
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['html_scan']['cert_status'] = 'archived'
 
     if write_output_file:
         with open("certificate_data_html_archived.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(items_found_all_archived, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                items_found_all_archived, indent=4, sort_keys=True))
 
-    generate_download_script('download_archived_certs.bat', 'certs', 'targets', CC_WEB_URL, download_files_certs)
-    generate_download_script('download_archived_updates.bat', 'certs', 'targets', CC_WEB_URL, download_files_updates)
+    generate_download_script('download_archived_certs.bat',
+                             'certs', 'targets', CC_WEB_URL, download_files_certs)
+    generate_download_script('download_archived_updates.bat',
+                             'certs', 'targets', CC_WEB_URL, download_files_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
 
     if write_output_file:
         with open("certificate_data_html_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
 
-def extract_certificates_csv(base_dir, write_output_file = True):
+def extract_certificates_csv(base_dir, write_output_file=True):
     file_name = '{}cc_products_active.csv'.format(base_dir)
     items_found_all_active = extract_certificates_metadata_csv(file_name)
     for item in items_found_all_active.keys():
@@ -1582,34 +1832,41 @@ def extract_certificates_csv(base_dir, write_output_file = True):
 
     if write_output_file:
         with open("certificate_data_csv_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
 
-def extract_protectionprofiles_csv(base_dir, write_output_file = True):
+def extract_protectionprofiles_csv(base_dir, write_output_file=True):
     file_name = '{}cc_pp_active.csv'.format(base_dir)
-    items_found_all_active, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(file_name)
+    items_found_all_active, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(
+        file_name)
     for item in items_found_all_active.keys():
         items_found_all_active[item]['csv_scan']['cert_status'] = 'active'
 
-    generate_download_script('download_active_pp.bat', 'pp_report', 'pp', CC_WEB_URL, download_files_pp)
-    generate_download_script('download_active_pp_updates.bat', 'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
-
+    generate_download_script('download_active_pp.bat',
+                             'pp_report', 'pp', CC_WEB_URL, download_files_pp)
+    generate_download_script('download_active_pp_updates.bat',
+                             'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
     file_name = '{}cc_pp_archived.csv'.format(base_dir)
-    items_found_all_archived, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(file_name)
+    items_found_all_archived, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(
+        file_name)
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['csv_scan']['cert_status'] = 'archived'
 
-    generate_download_script('download_archived_pp.bat', 'pp_report', 'pp', CC_WEB_URL, download_files_pp)
-    generate_download_script('download_archived_pp_updates.bat', 'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
+    generate_download_script('download_archived_pp.bat',
+                             'pp_report', 'pp', CC_WEB_URL, download_files_pp)
+    generate_download_script('download_archived_pp_updates.bat',
+                             'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
 
     if write_output_file:
         with open("pp_data_csv_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+            write_file.write(json.dumps(
+                items_found_all, indent=4, sort_keys=True))
 
     return items_found_all
 
@@ -1621,9 +1878,11 @@ def check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_
     MIN_ITEMS_FOUND_CSV = 4105
     num_items = len(all_csv)
     if MIN_ITEMS_FOUND_CSV != num_items:
-        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_CSV))
+        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(
+            num_items, MIN_ITEMS_FOUND_CSV))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # HTML
@@ -1631,9 +1890,11 @@ def check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_
     MIN_ITEMS_FOUND_HTML = 4103
     num_items = len(all_html)
     if MIN_ITEMS_FOUND_HTML != num_items:
-        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_HTML))
+        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(
+            num_items, MIN_ITEMS_FOUND_HTML))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # FRONTPAGE
@@ -1641,9 +1902,11 @@ def check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_
     MIN_ITEMS_FOUND_FRONTPAGE = 1369
     num_items = len(all_front)
     if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
-        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_FRONTPAGE))
+        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(
+            num_items, MIN_ITEMS_FOUND_FRONTPAGE))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # KEYWORDS
@@ -1653,9 +1916,11 @@ def check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_
     for file_name in all_keywords.keys():
         total_items_found += count_num_items_found(all_keywords[file_name])
     if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
-        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
+        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(
+            total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
 
 def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
@@ -1665,9 +1930,11 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
     MIN_ITEMS_FOUND_CSV = 4105
     num_items = len(all_csv)
     if MIN_ITEMS_FOUND_CSV != num_items:
-        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_CSV))
+        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(
+            num_items, MIN_ITEMS_FOUND_CSV))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # HTML
@@ -1675,9 +1942,11 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
     MIN_ITEMS_FOUND_HTML = 4103
     num_items = len(all_html)
     if MIN_ITEMS_FOUND_HTML != num_items:
-        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_HTML))
+        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(
+            num_items, MIN_ITEMS_FOUND_HTML))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # FRONTPAGE
@@ -1685,9 +1954,11 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
     MIN_ITEMS_FOUND_FRONTPAGE = 1369
     num_items = len(all_front)
     if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
-        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(num_items, MIN_ITEMS_FOUND_FRONTPAGE))
+        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(
+            num_items, MIN_ITEMS_FOUND_FRONTPAGE))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # KEYWORDS
@@ -1697,10 +1968,11 @@ def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
     for file_name in all_keywords.keys():
         total_items_found += count_num_items_found(all_keywords[file_name])
     if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
-        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
+        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(
+            total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
         if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
-
+            raise ValueError(
+                'ERROR: Stopping on unexpected intermediate numbers')
 
 
 def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pdf_meta, file_name_key):
@@ -1722,15 +1994,15 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
     for long_file_name in all_keywords.keys():
         short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
         if short_file_name != '':
-            file_name_to_keywords_name_mapping[short_file_name] = [long_file_name, 0]
+            file_name_to_keywords_name_mapping[short_file_name] = [
+                long_file_name, 0]
 
     file_name_to_pdfmeta_name_mapping = {}
     for long_file_name in all_pdf_meta.keys():
         short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
         if short_file_name != '':
-            file_name_to_pdfmeta_name_mapping[short_file_name] = [long_file_name, 0]
-
-
+            file_name_to_pdfmeta_name_mapping[short_file_name] = [
+                long_file_name, 0]
 
     all_cert_items = all_csv
     # pair html data, csv data, front pages and keywords
@@ -1741,7 +2013,8 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
         file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
         #file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
         if is_in_dict(all_csv, [file_name, 'csv_scan', 'link_security_target']):
-            file_name_st = extract_file_name_from_url(all_csv[file_name]['csv_scan']['link_security_target'])
+            file_name_st = extract_file_name_from_url(
+                all_csv[file_name]['csv_scan']['link_security_target'])
             file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
         else:
             file_name_st_txt = 'security_target_which_doesnt_exists'
@@ -1757,25 +2030,30 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
 
         if file_name_txt in file_name_to_html_name_mapping.keys():
             all_cert_items[file_name]['html_scan'] = all_html[file_name_to_html_name_mapping[file_name_txt][0]]
-            file_name_to_html_name_mapping[file_name_txt][1] = 1 # was paired
+            file_name_to_html_name_mapping[file_name_txt][1] = 1  # was paired
         else:
-            print('WARNING: Corresponding HTML report not found for CSV item {}'.format(file_name))
+            print('WARNING: Corresponding HTML report not found for CSV item {}'.format(
+                file_name))
         if file_name_txt in file_name_to_front_name_mapping.keys():
             all_cert_items[file_name]['frontpage_scan'] = all_front[file_name_to_front_name_mapping[file_name_txt]]
             frontpage_scan = all_front[file_name_to_front_name_mapping[file_name_txt]]
         if file_name_txt in file_name_to_keywords_name_mapping.keys():
             all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
-            file_name_to_keywords_name_mapping[file_name_txt][1] = 1 # was paired
+            # was paired
+            file_name_to_keywords_name_mapping[file_name_txt][1] = 1
             keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
         if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
             all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
-            file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
+            # was paired
+            file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1
         if file_name_pdf in file_name_to_pdfmeta_name_mapping.keys():
             all_cert_items[file_name]['pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_pdf][0]]
-            file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1 # was paired
+            # was paired
+            file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1
         else:
             print('ERROR: File {} not found in pdfmeta scan'.format(file_name_pdf))
-        all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(frontpage_scan, keywords_scan, file_name)
+        all_cert_items[file_name]['processed']['cert_id'] = estimate_cert_id(
+            frontpage_scan, keywords_scan, file_name)
 
     # pair pairing in maintainance updates
     for file_name in all_csv.keys():
@@ -1784,66 +2062,80 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
         # process all maintainance updates
         for update in all_cert_items[file_name]['csv_scan']['maintainance_updates']:
 
-            file_name_pdf = extract_file_name_from_url(update['cc_maintainance_report_link'])
+            file_name_pdf = extract_file_name_from_url(
+                update['cc_maintainance_report_link'])
             file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
 
             if is_in_dict(update, ['cc_maintainance_st_link']):
-                file_name_st = extract_file_name_from_url(update['cc_maintainance_st_link'])
+                file_name_st = extract_file_name_from_url(
+                    update['cc_maintainance_st_link'])
                 file_name_st_pdf = file_name_st
                 file_name_st_txt = ''
                 if len(file_name_st) > 0:
-                    file_name_st_txt = file_name_st[:file_name_st.rfind('.')] + '.txt'
+                    file_name_st_txt = file_name_st[:file_name_st.rfind(
+                        '.')] + '.txt'
             else:
                 file_name_st_pdf = 'file_name_which_doesnt_exists'
                 file_name_st_txt = 'file_name_which_doesnt_exists'
 
             for file_and_id in all_keywords.keys():
-                file_name_keyword_txt = file_and_id[file_and_id.rfind('\\') + 1:]
+                file_name_keyword_txt = file_and_id[file_and_id.rfind(
+                    '\\') + 1:]
                 # in items extracted from html, names are in form of 'file_name.pdf__number'
                 if file_name_keyword_txt == file_name_txt:
                     pairing_found = True
                     if file_name_txt in file_name_to_keywords_name_mapping.keys():
                         update['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
                         if file_name_to_keywords_name_mapping[file_name_txt][1] == 1:
-                            print('WARNING: {} already paired'.format(file_name_to_keywords_name_mapping[file_name_txt][0]))
-                        file_name_to_keywords_name_mapping[file_name_txt][1] = 1 # was paired
+                            print('WARNING: {} already paired'.format(
+                                file_name_to_keywords_name_mapping[file_name_txt][0]))
+                        # was paired
+                        file_name_to_keywords_name_mapping[file_name_txt][1] = 1
 
                 if file_name_keyword_txt == file_name_st_txt:
                     if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
                         update['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
                         if file_name_to_keywords_name_mapping[file_name_st_txt][1] == 1:
-                            print('WARNING: {} already paired'.format(file_name_to_keywords_name_mapping[file_name_st_txt][0]))
-                        file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1 # was paired
+                            print('WARNING: {} already paired'.format(
+                                file_name_to_keywords_name_mapping[file_name_st_txt][0]))
+                        # was paired
+                        file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1
 
             if not pairing_found:
-                print('WARNING: Corresponding keywords pairing not found for maintaince item {}'.format(file_name))
+                print('WARNING: Corresponding keywords pairing not found for maintaince item {}'.format(
+                    file_name))
 
             for file_and_id in file_name_to_pdfmeta_name_mapping.keys():
                 file_name_pdf = file_and_id[file_and_id.rfind('\\') + 1:]
-                file_name_pdfmeta_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
+                file_name_pdfmeta_txt = file_name_pdf[:file_name_pdf.rfind(
+                    '.')] + '.txt'
                 # in items extracted from html, names are in form of 'file_name.pdf__number'
                 if file_name_pdfmeta_txt == file_name_txt:
                     pairing_found = True
                     if file_name_pdf in file_name_to_pdfmeta_name_mapping.keys():
                         update['pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_pdf][0]]
                         if file_name_to_pdfmeta_name_mapping[file_name_pdf][1] == 1:
-                            print('WARNING: {} already paired'.format(file_name_to_pdfmeta_name_mapping[file_name_pdf][0]))
-                        file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1 # was paired
+                            print('WARNING: {} already paired'.format(
+                                file_name_to_pdfmeta_name_mapping[file_name_pdf][0]))
+                        # was paired
+                        file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1
 
                 if file_name_pdfmeta_txt == file_name_st_txt:
                     if file_name_st_pdf in file_name_to_pdfmeta_name_mapping.keys():
                         update['st_pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_st_pdf][0]]
                         if file_name_to_pdfmeta_name_mapping[file_name_st_pdf][1] == 1:
-                            print('WARNING: {} already paired'.format(file_name_to_pdfmeta_name_mapping[file_name_st_pdf][0]))
-                        file_name_to_pdfmeta_name_mapping[file_name_st_pdf][1] = 1 # was paired
+                            print('WARNING: {} already paired'.format(
+                                file_name_to_pdfmeta_name_mapping[file_name_st_pdf][0]))
+                        # was paired
+                        file_name_to_pdfmeta_name_mapping[file_name_st_pdf][1] = 1
 
             if not pairing_found:
-                print('WARNING: Corresponding pdfmeta pairing not found for maintaince item {}'.format(file_name))
-
+                print('WARNING: Corresponding pdfmeta pairing not found for maintaince item {}'.format(
+                    file_name))
 
     print('*** Files with keywords extracted, which were NOT matched to any CSV item:')
     for item in file_name_to_keywords_name_mapping:
-        if file_name_to_keywords_name_mapping[item][1] == 0: # not paired
+        if file_name_to_keywords_name_mapping[item][1] == 0:  # not paired
             print('  {}'.format(file_name_to_keywords_name_mapping[item][0]))
 
     # display all record which were not paired
@@ -1871,7 +2163,8 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
             print('WARNING: {} no pdfmeta scan detected'.format(item))
             num_pdfmeta_missing += 1
 
-    print('Records without frontpage: {}\nRecords without keywords: {}\nRecords without pdfmeta: {}'.format(num_frontpage_missing, num_keywords_missing, num_pdfmeta_missing))
+    print('Records without frontpage: {}\nRecords without keywords: {}\nRecords without pdfmeta: {}'.format(
+        num_frontpage_missing, num_keywords_missing, num_pdfmeta_missing))
 
     return all_cert_items
 
@@ -1914,7 +2207,7 @@ def process_certificates_data(all_cert_items, all_pp_items):
         # Manufacturer can be single, multiple, separated by - / and ,
         # heuristics: if separated candidate manufacturer can be found in original list (
         # => is sole manufacturer on another certificate => assumption of correct separation)
-        separators = [',', '/'] # , '/', ',', 'and']
+        separators = [',', '/']  # , '/', ',', 'and']
         multiple_manuf_detected = False
         for sep in separators:
             list_manuf = manuf.split(sep)
@@ -1945,25 +2238,27 @@ def process_certificates_data(all_cert_items, all_pp_items):
 
     manuf_starts = {}
     already_reduced = {}
-    for manuf1 in sorted_manufacturers: # we are processing from the shorter to longer
+    for manuf1 in sorted_manufacturers:  # we are processing from the shorter to longer
         if manuf1 == '':
             continue
         for manuf2 in sorted_manufacturers:
             if manuf1 != manuf2:
                 if manuf2.startswith(manuf1):
-                    print('Potential consolidation of manufacturers: {} vs. {}'.format(manuf1, manuf2))
+                    print('Potential consolidation of manufacturers: {} vs. {}'.format(
+                        manuf1, manuf2))
                     if manuf1 not in manuf_starts:
                         manuf_starts[manuf1] = set()
                     manuf_starts[manuf1].add(manuf2)
                     if manuf2 not in already_reduced:
                         already_reduced[manuf2] = manuf1
                     else:
-                        print('  Warning: \'{}\' prefixed by \'{}\' already reduced to \'{}\''.format(manuf2, manuf1, already_reduced[manuf2]))
-
+                        print('  Warning: \'{}\' prefixed by \'{}\' already reduced to \'{}\''.format(
+                            manuf2, manuf1, already_reduced[manuf2]))
 
     # try to find manufacturers with multiple names and draw the map
     dot = Digraph(comment='Manufacturers naming simplifications')
-    dot.attr('graph', label='Manufacturers naming simplifications', labelloc='t', fontsize='30')
+    dot.attr('graph', label='Manufacturers naming simplifications',
+             labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
     already_inserted_edges = []
     for file_name in all_cert_items.keys():
@@ -1972,18 +2267,19 @@ def process_certificates_data(all_cert_items, all_pp_items):
             joint_manufacturer = cert['csv_scan']['cc_manufacturer']
             if joint_manufacturer != '':
                 for manuf in mapping_csvmanuf_separated[joint_manufacturer]:
-                    simple_manuf = get_manufacturer_simple_name(manuf, already_reduced)
+                    simple_manuf = get_manufacturer_simple_name(
+                        manuf, already_reduced)
                     if simple_manuf != manuf:
                         edge_name = '{}<->{}'.format(simple_manuf, manuf)
                         if edge_name not in already_inserted_edges:
-                            dot.edge(simple_manuf, manuf, color='orange', style='solid')
+                            dot.edge(simple_manuf, manuf,
+                                     color='orange', style='solid')
                             already_inserted_edges.append(edge_name)
 
     # plot naming hierarchies
     file_name = 'manufacturer_naming_dependency.dot'
     dot.render(file_name, view=False)
     print('{} pdf rendered'.format(file_name))
-
 
     # update dist with processed list of manufactures
     all_cert_items_keys = list(all_cert_items.keys())
@@ -2003,10 +2299,12 @@ def process_certificates_data(all_cert_items, all_pp_items):
                 # insert extracted manufacturers by simplified name
                 simple_manufacturers = []
                 for manuf in mapping_csvmanuf_separated[manufacturer]:
-                    simple_manufacturers.append(get_manufacturer_simple_name(manuf, already_reduced))
+                    simple_manufacturers.append(
+                        get_manufacturer_simple_name(manuf, already_reduced))
 
                 cert['processed']['cc_manufacturer_simple_list'] = simple_manufacturers
-                cert['processed']['cc_manufacturer_simple'] = get_manufacturer_simple_name(manufacturer, already_reduced)
+                cert['processed']['cc_manufacturer_simple'] = get_manufacturer_simple_name(
+                    manufacturer, already_reduced)
 
         # extract certification lab
         if is_in_dict(cert, ['frontpage_scan', 'cert_lab']):
@@ -2035,20 +2333,30 @@ def process_certificates_data(all_cert_items, all_pp_items):
 
 def generate_basic_download_script():
     with open('download_cc_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
-        file.write('curl \"https://www.commoncriteriaportal.org/products/\" -o cc_products_active.html\n')
-        file.write('curl \"https://www.commoncriteriaportal.org/products/index.cfm?archived=1\" -o cc_products_archived.html\n\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/products/\" -o cc_products_active.html\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/products/index.cfm?archived=1\" -o cc_products_archived.html\n\n')
 
-        file.write('curl \"https://www.commoncriteriaportal.org/labs/\" -o cc_labs.html\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/labs/\" -o cc_labs.html\n')
 
-        file.write('curl \"https://www.commoncriteriaportal.org/products/certified_products.csv\" -o cc_products_active.csv\n')
-        file.write('curl \"https://www.commoncriteriaportal.org/products/certified_products-archived.csv\" -o cc_products_archived.csv\n\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/products/certified_products.csv\" -o cc_products_active.csv\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/products/certified_products-archived.csv\" -o cc_products_archived.csv\n\n')
 
-        file.write('curl \"https://www.commoncriteriaportal.org/pps/\" -o cc_pp_active.html\n')
-        file.write('curl \"https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1\" -o cc_pp_collaborative.html\n')
-        file.write('curl \"https://www.commoncriteriaportal.org/pps/index.cfm?archived=1\" -o cc_pp_archived.html\n\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/pps/\" -o cc_pp_active.html\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1\" -o cc_pp_collaborative.html\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/pps/index.cfm?archived=1\" -o cc_pp_archived.html\n\n')
 
-        file.write('curl \"https://www.commoncriteriaportal.org/pps/pps.csv\" -o cc_pp_active.csv\n')
-        file.write('curl \"https://www.commoncriteriaportal.org/pps/pps-archived.csv\" -o cc_pp_archived.csv\n\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/pps/pps.csv\" -o cc_pp_active.csv\n')
+        file.write(
+            'curl \"https://www.commoncriteriaportal.org/pps/pps-archived.csv\" -o cc_pp_archived.csv\n\n')
 
 
 def generate_failed_download_script(base_dir):
@@ -2085,6 +2393,7 @@ def generate_failed_download_script(base_dir):
                 download_link = '/files/epfiles/{}'.format(file_name_short_web)
                 download_again.append((download_link, file_name))
 
-    generate_download_script('download_failed_certs.bat', '', '', CC_WEB_URL, download_again)
-    print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format('download_failed_certs.bat', len(download_again)))
-
+    generate_download_script('download_failed_certs.bat',
+                             '', '', CC_WEB_URL, download_again)
+    print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format(
+        'download_failed_certs.bat', len(download_again)))
