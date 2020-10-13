@@ -1,8 +1,6 @@
 import json
 import os
 import re
-import subprocess
-import threading
 
 from graphviz import Digraph
 from PyPDF2 import PdfFileReader
@@ -11,70 +9,19 @@ from tabula import read_pdf
 
 import extract_certificates
 from process_certificates import load_json_files
+from cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
 
 import time
 
 FILE_ERRORS_STRATEGY = extract_certificates.FILE_ERRORS_STRATEGY
-RE_LINK_TO_HTML = r'<a href=\"(\/projects.*?)\".*?>(\d+)<\/a>'
-RE_FIPS_HTMLS = [
-    r"module-name\">\s*(?P<fips_module_name>[^<]*)",
-    r"module-standard\">\s*(?P<fips_standard>[^<]*)",
-    r"Status[\s\S]*?\">\s*(?P<fips_status>[^<]*)",
-    r"Sunset Date[\s\S]*?\">\s*(?P<fips_date_sunset>[^<]*)",
-    r"Validation Dates[\s\S]*?\">\s*(?P<fips_date_validation>[^<]*)",
-    r"Overall Level[\s\S]*?\">\s*(?P<fips_level>[^<]*)",
-    r"Caveat[\s\S]*?\">\s*(?P<fips_caveat>[^<]*)",
-    r"Security Level Exceptions[\s\S]*?\">\s*(?P<fips_exceptions><ul.*</ul>)",
-    r"Module Type[\s\S]*?\">\s*(?P<fips_type>[^<]*)",
-    r"Embodiment[\s\S]*?\">\s*(?P<fips_embodiment>[^<]*)",
-    r"Tested Configuration[\s\S]*?\">\s*(?P<fips_tested_conf><ul.*</ul>)",
-    r"FIPS Algorithms[\s\S]*?\">\s*(?P<fips_algorithms><tbody>[\s\S]*</tbody>)",
-    r"Allowed Algorithms[\s\S]*?\">\s*(?P<fips_allowed_algorithms>[^<]*)",
-    r"Software Versions[\s\S]*?\">\s*(?P<fips_software>[^<]*)",
-    r"Product URL[\s\S]*?\">\s*<a href=\"(?P<fips_url>.*)\"",
-    r"Vendor<\/h4>[\s\S]*?href=\".*?\">(?P<fips_vendor>.*?)<\/a>"
-]
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
-FIPS_RESULTS_DIR = '/home/stan/sec-certs-master/fips_results/'
-SECURITY_POLICIES_DIR = '/home/stan/sec-certs-master/files/fips/security_policies/'
+FIPS_RESULTS_DIR = '/home/stan/sec-certs/fips_results/'
+SECURITY_POLICIES_DIR = '/home/stan/sec-certs/files/fips/security_policies/'
 
 
 def extract_filename(file):
     return os.path.splitext(os.path.basename(file))[0]
-
-
-def generate_fips_basic_download_script():
-    with open('download_fips_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
-        file.write(
-            'curl "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search'
-            '/all" -o fips_modules_validated.html\n')
-
-
-def generate_fips_download_script(file_name, fips_dir):
-    """generate_fips_download_script.
-
-    :param file_name: name of the download file
-    :param fips_dir: directory for saved files
-    """
-    html_dir = fips_dir + '/html/'
-    sp_dir = fips_dir + '/security_policies/'
-
-    with open(file_name, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
-        # make directories for both html and security policies, scraping in one go
-        write_file.write('mkdir {}\n'.format(html_dir))
-        write_file.write('mkdir {}\n\n'.format(sp_dir))
-
-        for cert_id in range(1, 4001):
-            write_file.write(
-                'curl "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{}" -o {}{}.html\n'.format(
-                    cert_id, html_dir, cert_id))
-            write_file.write(
-                'curl "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents'
-                '/security-policies/140sp{}.pdf" -o {}{}.pdf\n'.format(
-                    cert_id, sp_dir, cert_id))
-            write_file.write("{} {}{}.pdf\n".format(
-                extract_certificates.PDF2TEXT_CONVERT, sp_dir, cert_id))
 
 
 def parse_ul(text):
@@ -125,13 +72,13 @@ def parse_caveat(text):
     return items_found
 
 
-def initialize_entry(dict):
-    dict['fips_exceptions'] = []
-    dict['fips_tested_conf'] = []
+def initialize_entry(input_dictionary):
+    input_dictionary['fips_exceptions'] = []
+    input_dictionary['fips_tested_conf'] = []
 
-    dict['fips_algorithms'] = []
-    dict['fips_caveat'] = []
-    dict['tables_done'] = False
+    input_dictionary['fips_algorithms'] = []
+    input_dictionary['fips_caveat'] = []
+    input_dictionary['tables_done'] = False
 
 
 def fips_search_html(base_dir, output_file, dump_to_file=False):
@@ -158,41 +105,41 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
                 # print("ERROR: For rule {} nothing found in file {}.".format(rule, file))
                 continue
 
-            gdict = m.groupdict()
-            key = list(gdict)
+            group_dict = m.groupdict()
+            key = list(group_dict)
 
             # <ul>
             if key[0] == 'fips_exceptions' or key[0] == 'fips_tested_conf':
-                items_found[key[0]] = parse_ul(gdict[key[0]])
+                items_found[key[0]] = parse_ul(group_dict[key[0]])
 
             # <table>
             elif key[0] == 'fips_algorithms':
                 if 'fips_algorithms' not in items_found:
-                    items_found['fips_algorithms'] = parse_table(gdict[key[0]])
+                    items_found['fips_algorithms'] = parse_table(group_dict[key[0]])
                 else:
                     items_found['fips_algorithms'] += parse_table(
-                        gdict[key[0]])
+                        group_dict[key[0]])
 
             # allowed algorithms
             elif key[0] == 'fips_allowed_algorithms':
                 if 'fips_algorithms' not in items_found:
                     items_found['fips_algorithms'] = parse_algorithms(
-                        gdict[key[0]])
+                        group_dict[key[0]])
                 else:
                     items_found['fips_algorithms'] += parse_algorithms(
-                        gdict[key[0]])
+                        group_dict[key[0]])
 
             # certificates in Caveat
             elif key[0] == 'fips_caveat':
-                items_found['fips_mentioned_certs'] = parse_caveat(gdict[key[0]])
+                items_found['fips_mentioned_certs'] = parse_caveat(group_dict[key[0]])
 
             # there are usually multiple dates separated by ";"
             elif 'date' in key[0]:
-                items_found[key[0]] = gdict[key[0]].replace('\n', '').replace(
+                items_found[key[0]] = group_dict[key[0]].replace('\n', '').replace(
                     '\t', '').replace('  ', ' ').strip().split(';')
 
             else:
-                items_found[key[0]] = gdict[key[0]].replace(
+                items_found[key[0]] = group_dict[key[0]].replace(
                     '\n', '').replace('\t', '').replace('  ', ' ').strip()
 
     if dump_to_file:
@@ -211,6 +158,27 @@ def get_dot_graph(found_items, output_file_name):
     dot.attr('graph', label='Dependencies', labelloc='t', fontsize='30')
     dot.attr('node', style='filled')
 
+    def found_interesting_cert(current_key):
+        if found_items[current_key]['fips_vendor'] == highlighted_vendor:
+            dot.attr('node', color='red')
+            if found_items[current_key]['fips_status'] == 'Revoked':
+                dot.attr('node', color='grey32')
+            if found_items[current_key]['fips_status'] == 'Historical':
+                dot.attr('node', color='gold3')
+        if found_items[current_key]['fips_vendor'] == "SUSE, LLC":
+            dot.attr('node', color='lightblue')
+
+    def color_check(current_key):
+        dot.attr('node', color='lightgreen')
+        if found_items[current_key]['fips_status'] == 'Revoked':
+            dot.attr('node', color='lightgrey')
+        if found_items[current_key]['fips_status'] == 'Historical':
+            dot.attr('node', color='gold')
+        found_interesting_cert(current_key)
+        dot.node(current_key, label=current_key + '\n' + found_items[current_key]['fips_vendor'] +
+                                    ('\n' + found_items[current_key]['fips_module_name']
+                                     if 'fips_module_name' in found_items[current_key] else ''))
+
     keys = 0
     edges = 0
 
@@ -218,60 +186,18 @@ def get_dot_graph(found_items, output_file_name):
     for key in found_items:
         if key != 'Not found' and found_items[key]['file_status']:
             if found_items[key]['Connections']:
-                dot.attr('node', color='lightgreen')
-                if found_items[key]['fips_status'] == 'Revoked':
-                    dot.attr('node', color='lightgrey')
-                if found_items[key]['fips_status'] == 'Historical':
-                    dot.attr('node', color='gold')
-
-                if found_items[key]['fips_vendor'] == highlighted_vendor:
-                    dot.attr('node', color='red')
-                    if found_items[key]['fips_status'] == 'Revoked':
-                        dot.attr('node', color='grey32')
-                    if found_items[key]['fips_status'] == 'Historical':
-                        dot.attr('node', color='gold3')
-
-                if found_items[key]['fips_vendor'] == "SUSE, LLC":
-                    dot.attr('node', color='lightblue')
-                dot.node(key, label=key + '\n' + found_items[key]['fips_vendor'] + ('\n' + found_items[key][
-                    'fips_module_name'] if 'fips_module_name' in found_items[key] else ''))
+                color_check(key)
                 keys += 1
             else:
                 single_dot.attr('node', color='lightblue')
-
-                if found_items[key]['fips_vendor'] == highlighted_vendor:
-                    single_dot.attr('node', color='red')
-
-                    if found_items[key]['fips_status'] == 'Revoked':
-                        dot.attr('node', color='grey32')
-                    if found_items[key]['fips_status'] == 'Historical':
-                        dot.attr('node', color='gold3')
-
-                if found_items[key]['fips_vendor'] == "SUSE, LLC":
-                    dot.attr('node', color='blue')
+                found_interesting_cert(key)
                 single_dot.node(key, label=key + '\n' + found_items[key]['fips_vendor'] + ('\n' + found_items[key][
                     'fips_module_name'] if 'fips_module_name' in found_items[key] else ''))
 
     for key in found_items:
         if key != 'Not found' and found_items[key]['file_status']:
             for conn in found_items[key]['Connections']:
-                dot.attr('node', color='lightgreen')
-                if found_items[conn]['fips_status'] == 'Revoked':
-                    dot.attr('node', color='lightgrey')
-                if found_items[conn]['fips_status'] == 'Historical':
-                    dot.attr('node', color='gold')
-
-                if found_items[conn]['fips_vendor'] == highlighted_vendor:
-                    dot.attr('node', color='red')
-                    if found_items[conn]['fips_status'] == 'Revoked':
-                        dot.attr('node', color='grey32')
-                    if found_items[conn]['fips_status'] == 'Historical':
-                        dot.attr('node', color='gold3')
-
-                if found_items[conn]['fips_vendor'] == "SUSE, LLC":
-                    dot.attr('node', color='lightblue')
-                dot.node(conn, label=conn + '\n' + found_items[conn]['fips_vendor'] + ('\n' + found_items[conn][
-                    'fips_module_name'] if 'fips_module_name' in found_items[conn] else ''))
+                color_check(conn)
                 dot.edge(key, conn)
                 edges += 1
 
@@ -306,8 +232,6 @@ def remove_algorithms_from_extracted_data(items, html):
 
 
 def validate_results(items, html):
-    count = 0
-    print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
     broken_files = set()
     for file_name in items:
         for rule in items[file_name]['rules_cert_id']:
@@ -318,9 +242,9 @@ def validate_results(items, html):
                     broken_files.add(file_name)
                     items[file_name]['file_status'] = False
                     html[file_name]['file_status'] = False
-                    count += 1
                     break
 
+    print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
     print(*sorted(list(broken_files)), sep='\n')
     print("... skipping these...")
     print("Total non-analyzable files:", len(broken_files))
@@ -336,41 +260,6 @@ def validate_results(items, html):
                 cert_id = ''.join(filter(str.isdigit, cert))
                 if cert_id not in html[file_name]['Connections']:
                     html[file_name]['Connections'].append(cert_id)
-
-
-def main():
-    files_to_load = [
-        FIPS_RESULTS_DIR + 'fips_data_keywords_all.json',
-        FIPS_RESULTS_DIR + 'fips_html_all.json'
-    ]
-
-    for file in files_to_load:
-        if not os.path.isfile(file):
-            fips_items = fips_search_html('/home/stan/sec-certs-master/files/fips/html/',
-                                          FIPS_RESULTS_DIR + 'fips_html_all.json', True)
-            items = extract_certificates.extract_certificates_keywords(
-                '/home/stan/sec-certs-master/files/fips/security_policies/',
-                '/home/stan/sec-certs-master/files/fips/fragments/', 'fips', fips_items=fips_items,
-                should_censure_right_away=True, write_output_file=True)
-            with open(FIPS_RESULTS_DIR + 'fips_data_keywords_all.json', 'w') as f:
-                f.write(json.dumps(items, indent=4, sort_keys=True))
-            break
-
-    print("EXTRACTION DONE")
-    (items, html) = load_json_files(files_to_load)
-
-    print("FINDING TABLES")
-    f_thread(extract_certificates.search_files(SECURITY_POLICIES_DIR), html)
-
-    print("REMOVING ALGORITHMS")
-    remove_algorithms_from_extracted_data(items, html)
-
-    print("VALIDATING RESULTS")
-    validate_results(items, html)
-    with open(FIPS_RESULTS_DIR + 'fips_html_all.json', 'w') as f:
-        f.write(json.dumps(html, indent=4, sort_keys=True))
-    print("PLOTTING GRAPH")
-    get_dot_graph(html, 'output')
 
 
 count = 0
@@ -441,7 +330,7 @@ def find_tables(txt, file_name, num_pages):
     #     return footers
 
 
-def f_thread(list_of_files, html_items):
+def extract_certs_from_tables(list_of_files, html_items):
     global count
     # list_of_files = ['/home/stan/sec-certs-master/files/fips/security_policies/3245.pdf.txt']
     for REDHAT_FILE in list_of_files:
@@ -473,10 +362,44 @@ def f_thread(list_of_files, html_items):
         html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done'] = True
 
 
+def main():
+    files_to_load = [
+        FIPS_RESULTS_DIR + 'fips_data_keywords_all.json',
+        FIPS_RESULTS_DIR + 'fips_html_all.json'
+    ]
+
+    for file in files_to_load:
+        if not os.path.isfile(file):
+            fips_items = fips_search_html('/home/stan/sec-certs-master/files/fips/html/',
+                                          FIPS_RESULTS_DIR + 'fips_html_all.json', True)
+            items = extract_certificates.extract_certificates_keywords(
+                '/home/stan/sec-certs-master/files/fips/security_policies/',
+                '/home/stan/sec-certs-master/files/fips/fragments/', 'fips', fips_items=fips_items,
+                should_censure_right_away=True, write_output_file=True)
+            with open(FIPS_RESULTS_DIR + 'fips_data_keywords_all.json', 'w') as f:
+                f.write(json.dumps(items, indent=4, sort_keys=True))
+            break
+
+    print("EXTRACTION DONE")
+    (items, html) = load_json_files(files_to_load)
+
+    print("FINDING TABLES")
+    extract_certs_from_tables(extract_certificates.search_files(SECURITY_POLICIES_DIR), html)
+
+    print("REMOVING ALGORITHMS")
+    remove_algorithms_from_extracted_data(items, html)
+
+    print("VALIDATING RESULTS")
+    validate_results(items, html)
+    with open(FIPS_RESULTS_DIR + 'fips_html_all.json', 'w') as f:
+        f.write(json.dumps(html, indent=4, sort_keys=True))
+    print("PLOTTING GRAPH")
+    get_dot_graph(html, 'output')
+
+
 if __name__ == '__main__':
     start = time.time()
     main()
-    # f_thread(SECURITY_POLICIES_DIR, [])
     end = time.time()
     print("TIME:", end - start)
     print("COUNT:", count)

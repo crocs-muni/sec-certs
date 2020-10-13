@@ -286,6 +286,25 @@ rules_fips_security_level = [
     r"[lL]evel (\d)"
 ]
 
+rules_fips_htmls = [
+    r"module-name\">\s*(?P<fips_module_name>[^<]*)",
+    r"module-standard\">\s*(?P<fips_standard>[^<]*)",
+    r"Status[\s\S]*?\">\s*(?P<fips_status>[^<]*)",
+    r"Sunset Date[\s\S]*?\">\s*(?P<fips_date_sunset>[^<]*)",
+    r"Validation Dates[\s\S]*?\">\s*(?P<fips_date_validation>[^<]*)",
+    r"Overall Level[\s\S]*?\">\s*(?P<fips_level>[^<]*)",
+    r"Caveat[\s\S]*?\">\s*(?P<fips_caveat>[^<]*)",
+    r"Security Level Exceptions[\s\S]*?\">\s*(?P<fips_exceptions><ul.*</ul>)",
+    r"Module Type[\s\S]*?\">\s*(?P<fips_type>[^<]*)",
+    r"Embodiment[\s\S]*?\">\s*(?P<fips_embodiment>[^<]*)",
+    r"Tested Configuration[\s\S]*?\">\s*(?P<fips_tested_conf><ul.*</ul>)",
+    r"FIPS Algorithms[\s\S]*?\">\s*(?P<fips_algorithms><tbody>[\s\S]*</tbody>)",
+    r"Allowed Algorithms[\s\S]*?\">\s*(?P<fips_allowed_algorithms>[^<]*)",
+    r"Software Versions[\s\S]*?\">\s*(?P<fips_software>[^<]*)",
+    r"Product URL[\s\S]*?\">\s*<a href=\"(?P<fips_url>.*)\"",
+    r"Vendor<\/h4>[\s\S]*?href=\".*?\">(?P<fips_vendor>.*?)<\/a>"
+]
+
 # rules_security_target_class
 rules = {}
 rules['rules_vendor'] = rules_vendor
