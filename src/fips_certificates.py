@@ -58,6 +58,9 @@ def parse_table(text):
 
 
 def parse_algorithms(text, in_table=False):
+    # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    # print()
+    # print(text)
     items_found = []
     for m in re.finditer(r"(?:#{}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)".format('?' if in_table else ''), text):
         items_found.append({'Certificate': m.group()})
@@ -286,13 +289,19 @@ def extract_page_number(txt):
     :param txt: input chunk
     :return: page number
     """
-    print(txt)
+    # Page # of #
     m = re.findall(r"(?P<pattern>(?:[Pp]age) (?P<page_num>\d+)(?: of \d+))", txt)
     if m:
         return m[-1][-1]
+    # Page #
     m = re.findall(r"(?P<pattern>(?:[Pp]age) (?P<page_num>\d+)(?: of \d+)?)", txt)
     if m:
         return m[-1][-1]
+    # # of #
+    m = re.findall(r"(?P<pattern>(?:[Pp]age)? ?(?P<page_num>\d+)(?: of \d+))", txt)
+    if m:
+        return m[-1][-1]
+    # number alone
     m = re.findall(r"(?P<pattern>(?:[Pp]age)? ?(?P<page_num>\d+)(?: of \d+)?)", txt)
     return m[-1][-1] if m else None
 
@@ -312,21 +321,24 @@ def find_tables(txt, file_name, num_pages):
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
     print("~" * 20, file_name, '~' * 20)
-    footer_regex = re.compile(r"(?:Table[^\f]*)(?P<first>(\f[ \t\S]+)$)(?P<second>\n^[ \t\S]+?$)?", re.MULTILINE)
+    footer_regex = re.compile(r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
+                              re.MULTILINE)
 
     # We have 2 groups, one is optional - trying to parse 2 lines (just in case)
     footer1 = [m.group('first') for m in footer_regex.finditer(txt)]
     footer2 = [m.group('second') for m in footer_regex.finditer(txt)]
+    footer3 = [m.group('third') for m in footer_regex.finditer(txt)]
 
-    if len(footer2) < len(footer1):
-        footer2 += [''] * (len(footer1) - len(footer2))
+    # if len(footer2) < len(footer1):
+    #     footer2 += [''] * (len(footer1) - len(footer2))
 
     # zipping them together
-    footer_complete = [m[0] + m[1] for m in zip(footer1, footer2) if m[0] is not None and m[1] is not None]
+    footer_complete = [m[0] + m[1] + m[2] for m in zip(footer1, footer2, footer3) if m[0] is not None and m[1] is not None and m[2] is not None]
 
     # removing None and duplicates
     footers = [extract_page_number(x) for x in footer_complete]
     footers = list(dict.fromkeys([x for x in footers if x is not None and 0 < int(x) < num_pages]))
+    print(footers)
     if footers:
         return footers
 
@@ -339,14 +351,14 @@ def repair_pdf_page_count(file):
 
 def extract_certs_from_tables(list_of_files, html_items):
     global count
-    # list_of_files = ['/home/stan/sec-certs/files/fips/security_policies/419.pdf.txt']
+    list_of_files = json.loads(open(FIPS_RESULTS_DIR + 'bakup/broken_files.json').read())
     not_decoded = []
     for REDHAT_FILE in list_of_files:
         if '.txt' not in REDHAT_FILE:
             continue
-
-        if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
-            continue
+        #
+        # if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
+        #     continue
 
         with open(REDHAT_FILE, 'r') as f:
             try:
@@ -362,15 +374,18 @@ def extract_certs_from_tables(list_of_files, html_items):
             print("~~~~~~~~~~~~~~~", REDHAT_FILE, "~~~~~~~~~~~~~~~~~~~~~~~")
 
             try:
-                data = read_pdf(REDHAT_FILE[:-4], pages=[12], silent=True)
+                data = read_pdf(REDHAT_FILE[:-4], pages=tables, silent=True)
             except Exception:
                 not_decoded.append(REDHAT_FILE)
                 continue
+
             # find columns with cert numbers
             for df in data:
                 for col in range(len(df.columns)):
                     if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
                         lst += parse_algorithms(df.iloc[:, col].to_string(index=False), True)
+
+                # Parse again if someone picks not so descriptive column names
                 lst += parse_algorithms(df.to_string(index=False))
             if lst:
                 if 'fips_algorithms' not in html_items[extract_filename(REDHAT_FILE[:-8])]:
