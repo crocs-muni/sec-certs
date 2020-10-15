@@ -139,15 +139,18 @@ def main():
     paths_20200904['id'] = '20200904'
     paths_20200904['cc_html_files_dir'] = 'c:\\Certs\\cc_certs_20200904\\web\\'
     paths_20200904['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs\\'
-    #paths_20200904['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_test\\'
     paths_20200904['pp_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_pp\\'
     paths_20200904['fragments_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_txt_fragments\\'
     paths_20200904['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_pp_txt_fragments\\'
 
+    paths_20200904_test = paths_20200904
+    paths_20200904_test['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_test\\'
+
     # initialize paths based on the profile used
     #paths_used = paths_20191208
     #paths_used = paths_20200225
-    paths_used = paths_20200904
+    #paths_used = paths_20200904
+    paths_used = paths_20200904_test
     #paths_used['id'] = 'temp' # change id for temporary debugging
 
     cc_html_files_dir = paths_used['cc_html_files_dir']
@@ -177,12 +180,13 @@ def main():
     # with open("pp_data_complete.json", "w") as write_file:
     #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
 
-    do_complete_extraction = False
-    do_extraction = False
-    do_extraction_pp = False
-    do_pairing = False
-    do_processing = False
+    do_complete_extraction = True
+    do_extraction = True
+    do_extraction_pp = True
+    do_pairing = True
+    do_processing = True
     do_analysis = True
+    do_analysis_filtered = False
 
     # with open('certificate_data_complete_processed.json') as json_file:
     #     all_cert_items = json.load(json_file)
@@ -304,21 +308,24 @@ def main():
         with open('certificate_data_complete_processed.json') as json_file:
             all_cert_items = json.load(json_file)
 
-        # analyze only smartcards
-        do_analysis_only_filtered(all_cert_items, results_folder,
-                                  ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
-        # analyze only operating systems
-        do_analysis_only_filtered(all_cert_items, results_folder,
-                                  ['csv_scan', 'cc_category'], 'Operating Systems')
+        if do_analysis_filtered:
+            # analyze only smartcards
+            do_analysis_only_filtered(all_cert_items, results_folder,
+                                      ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+            # analyze only operating systems
+            do_analysis_only_filtered(all_cert_items, results_folder,
+                                      ['csv_scan', 'cc_category'], 'Operating Systems')
 
-        # analyze separate manufacturers
-        do_analysis_manufacturers(all_cert_items, results_folder)
+            # analyze separate manufacturers
+            do_analysis_manufacturers(all_cert_items, results_folder)
+
+            # archived on 09/01/2019
+            do_analysis_09_01_2019_archival(all_cert_items, results_folder)
+
 
         # analyze all certificates together
         do_analysis_everything(all_cert_items, results_folder)
 
-        # archived on 09/01/2019
-        do_analysis_09_01_2019_archival(all_cert_items, results_folder)
 
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
@@ -328,7 +335,6 @@ def main():
 
 
     # TODO
-    # use os.sep to support properly Linux&Windows path separation
     # add saving of logs into file
     # include parsing from protection profiles repo
     # add differential partial download of new files only + processing + combine
