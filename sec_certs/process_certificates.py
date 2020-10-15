@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import os
 import json
+from pathlib import Path
+
+import click
 
 from extract_certificates import *
 from analyze_certificates import *
@@ -101,69 +104,45 @@ def sanitize_all_strings(data):
 
     if isinstance(data, dict):
         for k, v in data.items():
-            if isinstance(v, dict) or isinstance(v, list) or isinstance(v, tuple):
+            if isinstance(v, (dict, list, tuple)):
                 sanitize_all_strings(v)
             elif isinstance(v, str):
                 sanitized = ''.join(filter(lambda x: x in printable, v))
                 data[k] = ''.join(filter(lambda x: x in printable, v))
 
-    if isinstance(data, list) or isinstance(data, tuple):
+    if isinstance(data, (list, tuple)):
         for v in data:
-            if isinstance(v, dict) or isinstance(v, list) or isinstance(v, tuple):
+            if isinstance(v, (dict, list, tuple)):
                 sanitize_all_strings(v)
             elif isinstance(v, str):
                 sanitized = ''.join(filter(lambda x: x in printable, v))
                 v = ''.join(filter(lambda x: x in printable, v))
 
 
-def main():
-    # Paths for certificates downloaded on 20191208
-    paths_20191208 = {}
-    paths_20191208['id'] = '20191208'
-    paths_20191208['cc_web_files_dir'] = 'c:\\Certs\\cc_certs_20191208\\web\\'
-    paths_20191208['walk_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs\\'
-    #paths_20191208['walk_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs_test1\\'
-    paths_20191208['pp_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp\\'
-    #paths_20191208['pp_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp_test1\\'
-    paths_20191208['fragments_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_certs_txt_fragments\\'
-    paths_20191208['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20191208\\cc_pp_txt_fragments\\'
+@click.command()
+@click.option("-d", "--dir", "directory", type=str, help="The directory to use.", required=True)
+@click.option("--fresh", "do_complete_extraction", is_flag=True, help="Whether to extract from a fresh state.")
+@click.option("--do-download", "do_download_certs", is_flag=True, help="Whether to download certificate pages.")
+@click.option("--do-extraction", "do_extraction", is_flag=True, help="Whether to extract information from the certs.")
+@click.option("--do-pairing", "do_pairing", is_flag=True, help="Whether to pair PP stuff.")
+@click.option("--do-processing", "do_processing", is_flag=True, help="Whether to process certificates.")
+@click.option("--do-anaysis", "do_analysis", is_flag=True, help="Whether to analyse certificates.")
+def main(directory, do_complete_extraction, do_download_certs, do_extraction, do_pairing, do_processing, do_analysis):
+    directory = Path(directory)
 
-    # Paths for certificates downloaded on 20200225
-    paths_20200225 = {}
-    paths_20200225['id'] = '20200225'
-    paths_20200225['cc_web_files_dir'] = 'c:\\Certs\\cc_certs_20200225\\web\\'
-    paths_20200225['walk_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs\\'
-    paths_20200225['pp_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp\\'
-    paths_20200225['fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_certs_txt_fragments\\'
-    paths_20200225['pp_fragments_dir'] = 'c:\\Certs\\cc_certs_20200225\\cc_pp_txt_fragments\\'
+    web_dir = directory / "web"
+    walk_dir = directory / "certs"
+    pp_dir = directory / "pp"
+    fragments_dir = directory / "cert_fragments"
+    pp_fragments_dir = directory / "pp_fragments"
+    results_folder = directory / "results"
 
-    # Paths for certificates downloaded on 20200904
-    paths_20200904 = {}
-    paths_20200904['id'] = '20200904'
-    paths_20200904['cc_web_files_dir'] = 'c:\\Certs\\cc_certs_20200904\\web\\'
-    paths_20200904['cc_pp_web_files_dir'] = 'c:\\Certs\\certs_pp_20201008\\pp_web\\'
-    paths_20200904['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs\\'
-    paths_20200904['pp_dir'] = 'c:\\Certs\\certs_pp_20201008\\cc_pp\\'
-    paths_20200904['fragments_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_txt_fragments\\'
-    paths_20200904['pp_fragments_dir'] = 'c:\\Certs\\certs_pp_20201008\\cc_pp_txt_fragments\\'
-
-    # initialize paths based on the profile used
-    #paths_used = paths_20191208
-    #paths_used = paths_20200225
-    paths_used = paths_20200904
-    #paths_used['id'] = 'temp' # change id for temporary debugging
-
-    cc_web_files_dir = paths_used['cc_web_files_dir']
-    walk_dir = paths_used['walk_dir']
-    fragments_dir = paths_used['fragments_dir']
-
-    # results folder includes unique identification of input dataset
-    results_folder = '{}\\..\\results_{}\\'.format(os.getcwd(), paths_used['id'])
-    # ensure existence of results folder
-    if not os.path.exists(results_folder):
-        os.makedirs(results_folder)
-    # change current directory to store results into results file
-    os.chdir(results_folder)
+    web_dir.mkdir(parents=True, exist_ok=True)
+    walk_dir.mkdir(parents=True, exist_ok=True)
+    pp_dir.mkdir(parents=True, exist_ok=True)
+    fragments_dir.mkdir(parents=True, exist_ok=True)
+    pp_fragments_dir.mkdir(parents=True, exist_ok=True)
+    results_folder.mkdir(parents=True, exist_ok=True)
 
     # 1. generate_basic_download_script
     # 2. run and download basic cc files from webpage (no certs yet)
@@ -171,16 +150,16 @@ def main():
     #
     # Start processing
     #
-    generate_basic_download_script()
+    generate_basic_download_script(web_dir)
     generate_failed_download_script(walk_dir)
 
-    do_complete_extraction = True
-    do_download_certs = True
-    do_extraction = True
-    do_pairing = True
-    do_processing = True
-    do_analysis = True
-    do_analysis_filtered = True
+    #do_complete_extraction = True
+    #do_download_certs = True
+    #do_extraction = True
+    #do_pairing = True
+    #do_processing = True
+    #do_analysis = True
+    do_analysis_filtered = False
 
     if do_complete_extraction:
         # analyze all files from scratch, set 'previous' state to empty dict
@@ -198,7 +177,7 @@ def main():
     if do_download_certs:
         # extract_certificates_html() will generate download scripts for cert documents
         # NOTE: download scripts must be run manually now
-        current_html = extract_certificates_html(cc_web_files_dir, False)
+        current_html = extract_certificates_html(web_dir, False)
 
         # NOTE: Code below is preparation for differetian download of only new certificates
         # - unfinished now
@@ -227,8 +206,8 @@ def main():
         # print('*** New items detected: {}'.format(len(new_items)))
 
     if do_extraction:
-        all_csv = extract_certificates_csv(cc_web_files_dir, False)
-        all_html = extract_certificates_html(cc_web_files_dir, False)
+        all_csv = extract_certificates_csv(web_dir, False)
+        all_html = extract_certificates_html(web_dir, False)
         all_front = extract_certificates_frontpage(walk_dir, False)
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate', False)
         all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', False)

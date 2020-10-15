@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='sec-certs',
     author='Petr Svenda',
-    author_email='',
+    author_email='svenda@fi.muni.cz',
     version='0.0.0',
-    packages=['sec_certs'],
+    packages=find_packages(),
     license='MIT',
     description="Tool for analysis of security certificates",
     long_description=open("README.md").read(),
@@ -27,6 +27,7 @@ setup(
         "numpy",
         "tabulate",
         "tabula-py",
-        "pikepdf"
+        "pikepdf",
+        "Click"
     ]
 )

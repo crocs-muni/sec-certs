@@ -6,6 +6,7 @@ import operator
 import string
 
 from enum import Enum
+from pathlib import Path
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileReader
 from graphviz import Digraph
@@ -359,7 +360,7 @@ def print_found_properties(items_found_all):
     print_specified_property_sorted(TAG_CERT_LAB, items_found_all)
 
 
-def search_only_headers_bsi(walk_dir):
+def search_only_headers_bsi(walk_dir: Path):
     print('BSI HEADER SEARCH')
     LINE_SEPARATOR_STRICT = ' '
     NUM_LINES_TO_INVESTIGATE = 15
@@ -482,7 +483,7 @@ def search_only_headers_bsi(walk_dir):
     return items_found_all, files_without_match
 
 
-def search_only_headers_anssi(walk_dir):
+def search_only_headers_anssi(walk_dir: Path):
     class HEADER_TYPE(Enum):
         HEADER_FULL = 1
         HEADER_MISSING_CERT_ITEM_VERSION = 2
@@ -709,7 +710,7 @@ def search_only_headers_anssi(walk_dir):
     return items_found_all, files_without_match
 
 
-def extract_certificates_frontpage(walk_dir, write_output_file=True):
+def extract_certificates_frontpage(walk_dir: Path, write_output_file=True):
     anssi_items_found, anssi_files_without_match = search_only_headers_anssi(
         walk_dir)
     bsi_items_found, bsi_files_without_match = search_only_headers_bsi(
@@ -733,7 +734,7 @@ def extract_certificates_frontpage(walk_dir, write_output_file=True):
     return items_found_all
 
 
-def search_pp_only_headers(walk_dir):
+def search_pp_only_headers(walk_dir: Path):
     # LINE_SEPARATOR_STRICT = ' '
     # NUM_LINES_TO_INVESTIGATE = 15
     # rules_certificate_preface = [
@@ -1090,7 +1091,7 @@ def search_pp_only_headers(walk_dir):
     return items_found_all, files_without_match
 
 
-def extract_protectionprofiles_frontpage(walk_dir, write_output_file=True):
+def extract_protectionprofiles_frontpage(walk_dir: Path, write_output_file=True):
     pp_items_found, pp_files_without_match = search_pp_only_headers(walk_dir)
 
     print('*** Files without detected protection profiles header')
@@ -1107,7 +1108,7 @@ def extract_protectionprofiles_frontpage(walk_dir, write_output_file=True):
     return pp_items_found
 
 
-def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_output_file=True,
+def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix, write_output_file=True,
                                   should_censure_right_away=False, fips_items=None):
     # ensure existence of fragments folder
     if not os.path.exists(fragments_dir):
@@ -1183,7 +1184,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
     return all_items_found
 
 
-def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file=True):
+def extract_certificates_pdfmeta(walk_dir: Path, file_prefix, write_output_file=True):
     all_items_found = {}
     counter = 0
     for file_name in search_files(walk_dir):
@@ -1825,8 +1826,8 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
                     PDF2TEXT_CONVERT, cert[3]))
 
 
-def extract_certificates_html(base_dir, write_output_file=True):
-    file_name = '{}cc_products_active.html'.format(base_dir)
+def extract_certificates_html(base_dir: Path, write_output_file: bool = True):
+    file_name = base_dir / 'cc_products_active.html'
     items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(
         file_name)
     for item in items_found_all_active.keys():
@@ -1842,7 +1843,7 @@ def extract_certificates_html(base_dir, write_output_file=True):
     generate_download_script('download_active_updates.bat',
                              'certs', 'targets', CC_WEB_URL, download_files_updates)
 
-    file_name = '{}cc_products_archived.html'.format(base_dir)
+    file_name = base_dir / 'cc_products_archived.html'
     items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(
         file_name)
     for item in items_found_all_archived.keys():
@@ -1868,13 +1869,13 @@ def extract_certificates_html(base_dir, write_output_file=True):
     return items_found_all
 
 
-def extract_certificates_csv(base_dir, write_output_file=True):
-    file_name = '{}cc_products_active.csv'.format(base_dir)
+def extract_certificates_csv(base_dir: Path, write_output_file: bool = True):
+    file_name = base_dir / 'cc_products_active.csv'
     items_found_all_active = extract_certificates_metadata_csv(file_name)
     for item in items_found_all_active.keys():
         items_found_all_active[item]['csv_scan']['cert_status'] = 'active'
 
-    file_name = '{}cc_products_archived.csv'.format(base_dir)
+    file_name =  base_dir / 'cc_products_archived.csv'
     items_found_all_archived = extract_certificates_metadata_csv(file_name)
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['csv_scan']['cert_status'] = 'archived'
@@ -1889,8 +1890,8 @@ def extract_certificates_csv(base_dir, write_output_file=True):
     return items_found_all
 
 
-def extract_protectionprofiles_csv(base_dir, write_output_file=True):
-    file_name = '{}cc_pp_active.csv'.format(base_dir)
+def extract_protectionprofiles_csv(base_dir: Path, write_output_file: bool = True):
+    file_name = base_dir / 'cc_pp_active.csv'
     items_found_all_active, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(
         file_name)
     for item in items_found_all_active.keys():
@@ -1901,7 +1902,7 @@ def extract_protectionprofiles_csv(base_dir, write_output_file=True):
     generate_download_script('download_active_pp_updates.bat',
                              'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
-    file_name = '{}cc_pp_archived.csv'.format(base_dir)
+    file_name = base_dir / 'cc_pp_archived.csv'
     items_found_all_archived, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(
         file_name)
     for item in items_found_all_archived.keys():
@@ -2366,8 +2367,8 @@ def process_certificates_data(all_cert_items, all_pp_items):
     return all_cert_items
 
 
-def generate_basic_download_script():
-    with open('download_cc_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
+def generate_basic_download_script(web_dir: Path):
+    with open(web_dir / 'download_cc_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
         file.write(
             'curl \"https://www.commoncriteriaportal.org/products/\" -o cc_products_active.html\n')
         file.write(
@@ -2394,7 +2395,7 @@ def generate_basic_download_script():
             'curl \"https://www.commoncriteriaportal.org/pps/pps-archived.csv\" -o cc_pp_archived.csv\n\n')
 
 
-def generate_failed_download_script(base_dir):
+def generate_failed_download_script(base_dir: Path):
     # obtain list of all downloaded pdf files and their size
     # check for pdf files with too small length
     # generate download script again (single one)
@@ -2407,7 +2408,7 @@ def generate_failed_download_script(base_dir):
     MIN_CORRECT_CERT_SIZE = 5000
     download_again = []
     for sub_folder in sub_folders:
-        target_dir = os.path.join(base_dir, sub_folder)
+        target_dir = base_dir / sub_folder
         # obtain list of all downloaded pdf files and their size
         files = search_files(target_dir)
         for file_name in files:
