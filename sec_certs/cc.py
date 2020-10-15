@@ -75,11 +75,11 @@ def ger_cc_sfr(sfr):
 def index(page=1):
     per_page = 40
     pagination = Pagination(page=page, per_page=per_page, total=len(cc_names), href=url_for(".index") + "{0}/", css_framework="bootstrap4", alignment="center")
-    return render_template("cc/index.html.jinja2", certs=cc_names[(page-1)*per_page:page*per_page], pagination=pagination, title="Common Criteria | seccerts.org")
+    return render_template("cc/index.html.jinja2", certs=cc_names[(page-1)*per_page:page*per_page], pagination=pagination, title=f"Common Criteria ({page}) | seccerts.org")
 
 @cc.route("/network/")
 def network():
-    return render_template("cc/network.html.jinja2", network=cc_network)
+    return render_template("cc/network.html.jinja2", network=cc_network, title="Common Criteria network | seccerts.org")
 
 @cc.route("/search/")
 def search():
@@ -89,7 +89,7 @@ def search():
 def entry(hashid):
     if hashid in cc_data.keys():
         cert = cc_data[hashid]
-        return render_template("cc/entry.html.jinja2", cert=cert, hashid=hashid)
+        return render_template("cc/entry.html.jinja2", cert=cert, hashid=hashid, title=cert["csv_scan"]["cert_item_name"] + " | seccerts.org")
     else:
         return abort(404)
 

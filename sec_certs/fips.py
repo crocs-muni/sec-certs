@@ -4,7 +4,7 @@ fips = Blueprint("fips", __name__, url_prefix="/fips")
 
 @fips.route("/")
 def index():
-	return render_template("fips/index.html.jinja2")
+	return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org")
 
 @fips.route("/<string(length=40):hashid>/")
 def entry(hashid):
