@@ -1,7 +1,11 @@
 import operator
 from graphviz import Digraph
 from tabulate import tabulate
-import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt;
+
+import sanity
+
+plt.rcdefaults()
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
@@ -354,12 +358,8 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     bins = [1, 2, 3, 4, 5] + list(range(6, max_refs + 1, step))
     compute_and_plot_hist(direct_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of direct references', filter_label), 'cert_direct_refs_frequency.png')
 
+    sanity.check_certs_referenced_once(len(sorted_ref_direct))
 
-    EXPECTED_CERTS_REFERENCED_ONCE = 942
-    if EXPECTED_CERTS_REFERENCED_ONCE != len(sorted_ref_direct):
-        print('  ERROR: Different than expected num certificates referenced at least once: {} vs. {}'.format(EXPECTED_CERTS_REFERENCED_ONCE, len(sorted_ref_direct)))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError('ERROR: Stopping on unexpected intermediate numbers')
 
     #
     # compute indirect num of references

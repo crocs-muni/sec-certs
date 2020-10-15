@@ -1,4 +1,6 @@
 from PyPDF2 import PdfFileReader
+
+import sanity
 from tags_constants import *
 import re
 import os
@@ -17,7 +19,6 @@ plt.rcdefaults()
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
-STOP_ON_UNEXPECTED_NUMS = False
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 FILE_ERRORS_STRATEGY = 'surrogateescape'
@@ -1483,7 +1484,7 @@ def extract_certificates_metadata_html(file_name):
 def check_if_new_or_same(target_dict, target_key, new_value):
     if target_key in target_dict.keys():
         if target_dict[target_key] != new_value:
-            if STOP_ON_UNEXPECTED_NUMS:
+            if sanity.STOP_ON_UNEXPECTED_NUMS:
                 raise ValueError(
                     'ERROR: Stopping on unexpected intermediate numbers')
 
@@ -1624,7 +1625,7 @@ def extract_certificates_metadata_csv(file_name):
                         items_found_all[item_unique_name]['csv_scan'] = items_found
                     else:
                         print('  ERROR: {} already in'.format(cert_file_name))
-                        if STOP_ON_UNEXPECTED_NUMS:
+                        if sanity.STOP_ON_UNEXPECTED_NUMS:
                             raise ValueError(
                                 'ERROR: Stopping as value is not unique')
 
@@ -1764,7 +1765,7 @@ def extract_pp_metadata_csv(file_name):
                     else:
                         print('  ERROR: {} already in'.format(
                             pp_document_file_name))
-                        if STOP_ON_UNEXPECTED_NUMS:
+                        if sanity.STOP_ON_UNEXPECTED_NUMS:
                             raise ValueError(
                                 'ERROR: Stopping as value is not unique')
 
@@ -1923,107 +1924,31 @@ def extract_protectionprofiles_csv(base_dir, write_output_file=True):
 
 
 def check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_pdf_meta):
-    #
     # CSV
-    #
-    MIN_ITEMS_FOUND_CSV = 4105
-    num_items = len(all_csv)
-    if MIN_ITEMS_FOUND_CSV != num_items:
-        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(
-            num_items, MIN_ITEMS_FOUND_CSV))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
-
-    #
+    sanity.check_certs_min_items_found_csv(len(all_csv))
     # HTML
-    #
-    MIN_ITEMS_FOUND_HTML = 4103
-    num_items = len(all_html)
-    if MIN_ITEMS_FOUND_HTML != num_items:
-        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(
-            num_items, MIN_ITEMS_FOUND_HTML))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
-
-    #
+    sanity.check_certs_min_items_found_html(len(all_html))
     # FRONTPAGE
-    #
-    MIN_ITEMS_FOUND_FRONTPAGE = 1369
-    num_items = len(all_front)
-    if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
-        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(
-            num_items, MIN_ITEMS_FOUND_FRONTPAGE))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
-
-    #
+    sanity.check_certs_min_items_found_frontpage(len(all_front))
     # KEYWORDS
-    #
-    MIN_ITEMS_FOUND_KEYWORDS = 129181
     total_items_found = 0
     for file_name in all_keywords.keys():
         total_items_found += count_num_items_found(all_keywords[file_name])
-    if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
-        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(
-            total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
+    sanity.check_certs_min_items_found_keywords(total_items_found)
 
 
 def check_expected_pp_results(all_html, all_csv, all_front, all_keywords):
-    #
     # CSV
-    #
-    MIN_ITEMS_FOUND_CSV = 4105
-    num_items = len(all_csv)
-    if MIN_ITEMS_FOUND_CSV != num_items:
-        print('SANITY: different than expected number of CSV records found! ({} vs. {} expected)'.format(
-            num_items, MIN_ITEMS_FOUND_CSV))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
-
-    #
+    sanity.check_pp_min_items_found_csv(len(all_csv))
     # HTML
-    #
-    MIN_ITEMS_FOUND_HTML = 4103
-    num_items = len(all_html)
-    if MIN_ITEMS_FOUND_HTML != num_items:
-        print('SANITY: different than expected number of HTML records found! ({} vs. {} expected)'.format(
-            num_items, MIN_ITEMS_FOUND_HTML))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
-
-    #
+    sanity.check_pp_min_items_found_html(len(all_html))
     # FRONTPAGE
-    #
-    MIN_ITEMS_FOUND_FRONTPAGE = 1369
-    num_items = len(all_front)
-    if MIN_ITEMS_FOUND_FRONTPAGE != num_items:
-        print('SANITY: different than expected number of frontpage records found! ({} vs. {} expected)'.format(
-            num_items, MIN_ITEMS_FOUND_FRONTPAGE))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
-
-    #
+    sanity.check_pp_min_items_found_frontpage(len(all_front))
     # KEYWORDS
-    #
-    MIN_ITEMS_FOUND_KEYWORDS = 129181
     total_items_found = 0
     for file_name in all_keywords.keys():
         total_items_found += count_num_items_found(all_keywords[file_name])
-    if MIN_ITEMS_FOUND_KEYWORDS != total_items_found:
-        print('SANITY: different than expected number of keywords found! ({} vs. {} expected)'.format(
-            total_items_found, MIN_ITEMS_FOUND_KEYWORDS))
-        if STOP_ON_UNEXPECTED_NUMS:
-            raise ValueError(
-                'ERROR: Stopping on unexpected intermediate numbers')
+    sanity.check_pp_min_items_found_keywords(total_items_found)
 
 
 def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pdf_meta, file_name_key):
