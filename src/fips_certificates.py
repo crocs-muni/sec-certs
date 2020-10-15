@@ -317,15 +317,16 @@ def find_tables(txt, file_name, num_pages):
     # We have 2 groups, one is optional - trying to parse 2 lines (just in case)
     footer1 = [m.group('first') for m in footer_regex.finditer(txt)]
     footer2 = [m.group('second') for m in footer_regex.finditer(txt)]
+
     if len(footer2) < len(footer1):
         footer2 += [''] * (len(footer1) - len(footer2))
 
     # zipping them together
-    footer_complete = [m[0] + m[1] for m in zip(footer1, footer2)]
+    footer_complete = [m[0] + m[1] for m in zip(footer1, footer2) if m[0] is not None and m[1] is not None]
 
     # removing None and duplicates
     footers = [extract_page_number(x) for x in footer_complete]
-    footers = list(dict.fromkeys([x for x in footers if x is not None and int(x) < num_pages]))
+    footers = list(dict.fromkeys([x for x in footers if x is not None and 0 < int(x) < num_pages]))
 
     print(footers)
     if footers:
@@ -340,14 +341,14 @@ def repair_pdf_page_count(file):
 
 def extract_certs_from_tables(list_of_files, html_items):
     global count
-    # list_of_files = ['/home/stan/sec-certs/files/fips/security_policies/2441.pdf.txt']
+    # list_of_files = ['/home/stan/sec-certs/files/fips/security_policies/419.pdf.txt']
     not_decoded = []
     for REDHAT_FILE in list_of_files:
         if '.txt' not in REDHAT_FILE:
             continue
 
-        # if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
-        #     continue
+        if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
+            continue
 
         with open(REDHAT_FILE, 'r') as f:
             try:
@@ -362,7 +363,7 @@ def extract_certs_from_tables(list_of_files, html_items):
             lst = []
             print("~~~~~~~~~~~~~~~", REDHAT_FILE, "~~~~~~~~~~~~~~~~~~~~~~~")
 
-            data = read_pdf(REDHAT_FILE[:-4], pages=tables)
+            data = read_pdf(REDHAT_FILE[:-4], pages=[12], silent=True)
             # find columns with cert numbers
             for df in data:
                 for col in range(len(df.columns)):

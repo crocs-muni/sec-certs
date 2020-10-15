@@ -9,7 +9,7 @@ import csv
 import string
 
 from analyze_certificates import is_in_dict
-from cert_rules import rules
+from cert_rules import rules, fips_rules
 from enum import Enum
 import matplotlib.pyplot as plt
 
@@ -1128,7 +1128,8 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
             os.path.splitext(os.path.basename(file_name))[0])[0]
         # parse certificate, return all matches
         all_items_found[file_cert_name], modified_cert_file = parse_cert_file(
-            file_name, rules, -1, should_censure_right_away=should_censure_right_away, fips_items=fips_items)
+            file_name, fips_rules if fips_items else rules, -1, should_censure_right_away=should_censure_right_away,
+            fips_items=fips_items)
 
         # try to establish the certificate id of the current certificate
         # cert_id[file_cert_name] = estimate_cert_id(
@@ -1437,7 +1438,8 @@ def extract_certificates_metadata_html(file_name):
                 items_found['link_security_target_file_name'] = st_file_name
                 download_files_certs.append(
                     (
-                    items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
+                        items_found['link_cert_report'], cert_file_name, items_found['link_security_target'],
+                        st_file_name))
                 index_next_item += 1
 
                 items_found['maintainance_updates'] = parse_product_updates(
