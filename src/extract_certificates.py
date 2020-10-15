@@ -12,8 +12,8 @@ from analyze_certificates import is_in_dict
 from cert_rules import rules
 from enum import Enum
 import matplotlib.pyplot as plt
-plt.rcdefaults()
 
+plt.rcdefaults()
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
@@ -22,7 +22,7 @@ APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 FILE_ERRORS_STRATEGY = 'surrogateescape'
 'replace'
-#FILE_ERRORS_STRATEGY = 'strict'
+# FILE_ERRORS_STRATEGY = 'strict'
 CC_WEB_URL = 'https://www.commoncriteriaportal.org'
 PDF2TEXT_CONVERT = 'pdftotext -raw'
 
@@ -137,7 +137,8 @@ def set_match_string(items, key_name, new_value):
                 key_name, old_value, new_value))
 
 
-def parse_cert_file(file_name, search_rules, fips_items=None, limit_max_lines=-1, line_separator=LINE_SEPARATOR, should_censure_right_away=False):
+def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR,
+                    should_censure_right_away=False, fips_items=None, ):
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
         file_name, limit_max_lines, line_separator)
 
@@ -167,7 +168,7 @@ def parse_cert_file(file_name, search_rules, fips_items=None, limit_max_lines=-1
                              for x in fips_items[file_name]['fips_algorithms']]
 
                     match_cert_id = ''.join(filter(str.isdigit, match))
-#                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':
+                    #                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':
 
                     for fips_cert in certs:
                         for actual_cert in fips_cert:
@@ -190,7 +191,7 @@ def parse_cert_file(file_name, search_rules, fips_items=None, limit_max_lines=-1
                 # estimate line in original text file
                 # line_number = get_line_number(lines, line_length_compensation, match_span[0])
                 # start index, end index, line number
-                #items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
+                # items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
                 if APPEND_DETAILED_MATCH_MATCHES:
                     items_found[rule][match][TAG_MATCH_MATCHES].append(
                         [match_span[0], match_span[1]])
@@ -291,7 +292,7 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
             matches = re.findall(rule, file_name_no_suff)
             if len(matches) > 0:
                 # we found cert id directly in name
-                #print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
+                # print('  -> cert id found directly in certificate name: {}'.format(matches[0]))
                 filename_cert_id = matches[0]
 
     if VERBOSE:
@@ -376,7 +377,7 @@ def search_only_headers_bsi(walk_dir):
         file_ext = file_name[file_name.rfind('.'):]
         if file_ext != '.txt':
             continue
-#        print('*** {} ***'.format(file_name))
+        #        print('*** {} ***'.format(file_name))
 
         no_match_yet = True
         #
@@ -410,7 +411,8 @@ def search_only_headers_bsi(walk_dir):
                     from_keyword_len = len(from_keyword)
                     if certified_item.find(from_keyword) != -1:
                         print(
-                            'string **{}** detected in certified item - shall not be here, fixing...'.format(from_keyword))
+                            'string **{}** detected in certified item - shall not be here, fixing...'.format(
+                                from_keyword))
                         certified_item_first = certified_item[:certified_item.find(
                             from_keyword)]
                         developer = certified_item[certified_item.find(
@@ -488,58 +490,98 @@ def search_only_headers_anssi(walk_dir):
         HEADER_DUPLICITIES = 4
 
     rules_certificate_preface = [
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)()Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur\(s\)(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur (.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à des profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit \(référence/version\)(.+)Nom de la TOE \(référence/version\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur\(s\)(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit \(référence/version\)(.+)Nom de la TOE \(référence/version\)(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)()Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur\(s\)(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom des produits(.+)Référence/version des produits(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur (.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à des profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit \(référence/version\)(.+)Nom de la TOE \(référence/version\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur\(s\)(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur\(s\)(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit \(référence/version\)(.+)Nom de la TOE \(référence/version\)(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
 
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  des profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit \(rÃ©fÃ©rence/version\)(.+)Nom de la TOE \(rÃ©fÃ©rence/version\)(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification Report(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profisl de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centres dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Versions du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Recognition arrangements'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Mutual Recognition Agreements'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer\(s\)(.+)Evaluation facility(.+)Recognition arrangements'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)Products names(.+)Products references(.+)protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)Product name \(reference / version\)(.+)TOE name \(reference / version\)(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements'),
-        (HEADER_TYPE.HEADER_FULL, 'Certification report reference(.+)TOE name(.+)Product\'s reference/ version(.+)TOE\'s reference/ version(.+)Conformité à un profil de protection(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Recognition arrangements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  des profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit \(rÃ©fÃ©rence/version\)(.+)Nom de la TOE \(rÃ©fÃ©rence/version\)(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification Report(.+)Nom du produit(.+)Référence/version du produit(.*)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profisl de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centres dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Version du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence/version du produit(.+)ConformitÃ© aux profils de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur\(s\)(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)Versions du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeur (.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'RÃ©fÃ©rence du rapport de certification(.+)Nom du produit(.+)RÃ©fÃ©rence du produit(.+)ConformitÃ© Ã  un profil de protection(.+)CritÃ¨res dâ€™Ã©valuation et version(.+)Niveau dâ€™Ã©valuation(.+)DÃ©veloppeurs(.+)Centre dâ€™Ã©valuation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Recognition arrangements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Mutual Recognition Agreements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)Product name(.+)Product reference(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer\(s\)(.+)Evaluation facility(.+)Recognition arrangements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)Products names(.+)Products references(.+)protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)Product name \(reference / version\)(.+)TOE name \(reference / version\)(.+)Protection profile conformity(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developers(.+)Evaluation facility(.+)Recognition arrangements'),
+        (HEADER_TYPE.HEADER_FULL,
+         'Certification report reference(.+)TOE name(.+)Product\'s reference/ version(.+)TOE\'s reference/ version(.+)Conformité à un profil de protection(.+)Evaluation criteria and version(.+)Evaluation level(.+)Developer (.+)Evaluation facility(.+)Recognition arrangements'),
 
         # corrupted text (duplicities)
-        (HEADER_TYPE.HEADER_DUPLICITIES, 'RÃ©fÃ©rencce du rapport de d certification n(.+)Nom du p produit(.+)RÃ©fÃ©rencce/version du produit(.+)ConformiitÃ© Ã  un profil de d protection(.+)CritÃ¨res d dâ€™Ã©valuation ett version(.+)Niveau dâ€™â€™Ã©valuation(.+)DÃ©velopp peurs(.+)Centre dâ€™â€™Ã©valuation(.+)Accords d de reconnaisssance applicab bles'),
+        (HEADER_TYPE.HEADER_DUPLICITIES,
+         'RÃ©fÃ©rencce du rapport de d certification n(.+)Nom du p produit(.+)RÃ©fÃ©rencce/version du produit(.+)ConformiitÃ© Ã  un profil de d protection(.+)CritÃ¨res d dâ€™Ã©valuation ett version(.+)Niveau dâ€™â€™Ã©valuation(.+)DÃ©velopp peurs(.+)Centre dâ€™â€™Ã©valuation(.+)Accords d de reconnaisssance applicab bles'),
 
         # rules without product version
-        (HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION, 'Référence du rapport de certification(.+)Nom et version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION, 'Référence du rapport de certification(.+)Nom et version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
-        (HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION, 'Référence du rapport de certification(.+)Nom du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION,
+         'Référence du rapport de certification(.+)Nom et version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION,
+         'Référence du rapport de certification(.+)Nom et version du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeur (.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Conformité à un profil de protection(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
 
         # rules without protection profile
-        (HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES, 'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
+        (HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES,
+         'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
     ]
 
-#    rules_certificate_preface = [
-#        (HEADER_TYPE.HEADER_FULL, 'ddddd'),
-#    ]
+    #    rules_certificate_preface = [
+    #        (HEADER_TYPE.HEADER_FULL, 'ddddd'),
+    #    ]
 
     # statistics about rules success rate
     num_rules_hits = {}
@@ -555,7 +597,7 @@ def search_only_headers_anssi(walk_dir):
         file_ext = file_name[file_name.rfind('.'):]
         if file_ext != '.txt':
             continue
-#        print('*** {} ***'.format(file_name))
+        #        print('*** {} ***'.format(file_name))
 
         whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
             file_name)
@@ -736,7 +778,7 @@ def search_pp_only_headers(walk_dir):
         #         'Direction centrale de la sécurité des systèmes d\’information(.+)?Date[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
         (HEADER_TYPE.FRONT_DCSSI_TYPE4,
          'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information (.+)?(?:Creation date|Date)[ ]*:(.+)?Reference[ ]*:(.+)?Version[ ]*:(.+)?Courtesy Translation[ ]*Courtesy translation.+?under the reference (DCSSI-PP-[0-9/]+)?\.[ ]*Page'),
-        #'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information  Time-stamping System Protection Profile  Date  : July 18, 2008  Reference  : PP-SH-CCv3.1  Version  : 1.7  Courtesy Translation  Courtesy translation of the protection profile registered and certified by the French Certification Body under the reference DCSSI-PP-2008/07.  Page'
+        # 'Direction centrale de la sÃ©curitÃ© des systÃ¨mes dâ€™information  Time-stamping System Protection Profile  Date  : July 18, 2008  Reference  : PP-SH-CCv3.1  Version  : 1.7  Courtesy Translation  Courtesy translation of the protection profile registered and certified by the French Certification Body under the reference DCSSI-PP-2008/07.  Page'
         (HEADER_TYPE.DCSSI_TYPE5,
          'Protection Profile identification[ ]*Title[ ]*[:]*(.+)?Author[ ]*[:]*(.+)?Version[ ]*[:]*(.+)?,(.+)?Sponsor[ ]*[:]*(.+)?CC version[ ]*[:]*(.+)?(?:Context|Protection Profile introduction)'),
         (HEADER_TYPE.DCSSI_TYPE6,
@@ -753,7 +795,7 @@ def search_pp_only_headers(walk_dir):
         file_ext = file_name[file_name.rfind('.'):]
         if file_ext != '.txt':
             continue
-#        print('*** {} ***'.format(file_name))
+        #        print('*** {} ***'.format(file_name))
 
         #
         # Process page with more detailed protection profile info
@@ -1065,13 +1107,14 @@ def extract_protectionprofiles_frontpage(walk_dir, write_output_file=True):
     return pp_items_found
 
 
-def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, fips_items=None, write_output_file=True, should_censure_right_away=False):
+def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_output_file=True,
+                                  should_censure_right_away=False, fips_items=None):
     # ensure existence of fragments folder
     if not os.path.exists(fragments_dir):
         os.makedirs(fragments_dir)
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
-    cert_id = {}
+    # cert_id = {}
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
@@ -1079,17 +1122,17 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, fips_ite
         if file_ext != '.txt':
             continue
 
-#        print('*** {} ***'.format(file_name))
+        #        print('*** {} ***'.format(file_name))
 
         file_cert_name = os.path.splitext(
             os.path.splitext(os.path.basename(file_name))[0])[0]
         # parse certificate, return all matches
         all_items_found[file_cert_name], modified_cert_file = parse_cert_file(
-            file_name, rules, fips_items, -1, should_censure_right_away=should_censure_right_away)
+            file_name, rules, -1, should_censure_right_away=should_censure_right_away, fips_items=fips_items)
 
         # try to establish the certificate id of the current certificate
-        cert_id[file_cert_name] = estimate_cert_id(
-            None, all_items_found[file_cert_name], file_name)
+        # cert_id[file_cert_name] = estimate_cert_id(
+        #     None, all_items_found[file_cert_name], file_name)
 
         # save report text with highlighted/replaced matches into \\fragments\\ directory
         base_path = file_name[:file_name.rfind('/')]
@@ -1104,13 +1147,13 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, fips_ite
             write_file.write(json.dumps(
                 all_items_found, indent=4, sort_keys=True))
 
-    print('\nTotal matches found in separate files:')
+    # print('\nTotal matches found in separate files:')
     # print_total_matches_in_files(all_items_found_count)
 
-    print('\nFile name and estimated certificate ID:')
+    # print('\nFile name and estimated certificate ID:')
     # print_guessed_cert_id(cert_id)
 
-    #depricated_print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
+    # depricated_print_dot_graph_keywordsonly(['rules_cert_id'], all_items_found, cert_id, walk_dir, 'certid_graph_from_keywords.dot', True)
 
     total_items_found = 0
     for file_name in all_items_found:
@@ -1127,11 +1170,11 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, fips_ite
                     for match in items_found[rule]:
                         if match not in all_matches:
                             print(match)
-#                            all_matches.append(match)
+        #                            all_matches.append(match)
 
         sorted_all_matches = sorted(all_matches)
-#        for match in sorted_all_matches:
-#            print(match)
+    #        for match in sorted_all_matches:
+    #            print(match)
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
@@ -1150,7 +1193,7 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file=True):
             continue
 
         print("***EXTRACT PDFMETA***")
-#        print('*** {} ***'.format(file_name))
+        #        print('*** {} ***'.format(file_name))
 
         item = {}
         item['pdf_file_size_bytes'] = os.path.getsize(file_name)
@@ -1180,7 +1223,8 @@ def extract_certificates_pdfmeta(walk_dir, file_prefix, write_output_file=True):
 
         if counter % 100 == 0:
             # store results into file with fixed name
-            with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
+            with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w",
+                      errors=FILE_ERRORS_STRATEGY) as write_file:
                 write_file.write(json.dumps(
                     all_items_found, indent=4, sort_keys=True))
         counter += 1
@@ -1204,11 +1248,10 @@ def parse_product_updates(updates_chunk, link_files_updates):
     maintenance_reports = []
 
     rule_with_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
-        '.*?\<a href="(.+?)" title="Maintenance Report' \
-        '.*?\<a href="(.+?)" title="Maintenance ST'
+                                '.*?\<a href="(.+?)" title="Maintenance Report' \
+                                '.*?\<a href="(.+?)" title="Maintenance ST'
     rule_without_maintainance_ST = '.*?([0-9]+?-[0-9]+?-[0-9]+?) (.+?)\<br style=' \
-        '.*?\<a href="(.+?)" title="Maintenance Report'\
-
+                                   '.*?\<a href="(.+?)" title="Maintenance Report'
     if updates_chunk.find('Maintenance Report(s)') != -1:
         start_pos = updates_chunk.find('Maintenance Report(s)</div>')
         start_pos = updates_chunk.find('<li>', start_pos)
@@ -1252,7 +1295,8 @@ def parse_product_updates(updates_chunk, link_files_updates):
                 items_found['link_security_target_file_name'] = st_file_name
 
                 link_files_updates.append(
-                    (items_found['maintenance_link_cert_report'], cert_file_name, items_found['maintenance_link_security_target'], st_file_name))
+                    (items_found['maintenance_link_cert_report'], cert_file_name,
+                     items_found['maintenance_link_security_target'], st_file_name))
 
             maintenance_reports.append(items_found)
 
@@ -1284,7 +1328,7 @@ def extract_certificates_metadata_html(file_name):
     items_found_all = {}
     download_files_certs = []
     download_files_updates = []
-#    print('*** {} ***'.format(file_name))
+    #    print('*** {} ***'.format(file_name))
 
     whole_text = load_cert_html_file(file_name)
 
@@ -1321,7 +1365,8 @@ def extract_certificates_metadata_html(file_name):
 
         # IMPORTANT: order regexes based on their specificity - the most specific goes first
         rules_cc_html = [
-            (HEADER_TYPE.HEADER_FULL, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
+            (HEADER_TYPE.HEADER_FULL,
+             '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?\<!-- \<a href="(.+?)" title="Vendor\'s web site" target="_blank"\>(.+?)</a> -->'
              '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
              '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
              '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
@@ -1331,7 +1376,8 @@ def extract_certificates_metadata_html(file_name):
              '.+?\<td style="text-align:center"\>(.*?)\</td\>'
              '[ ]+?\<td>(.+?)\</td\>'),
 
-            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB, '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?'
+            (HEADER_TYPE.HEADER_MISSING_VENDOR_WEB,
+             '\<tr class=(?:""|"even")\>[ ]+\<td class="b"\>(.+?)\<a name="(.+?)" style=.+?'
              '.+?\<a href="(.+?)" title="Certification Report:.+?" target="_blank" class="button2"\>Certification Report\</a\>'
              '.+?\<a href="(.+?)" title="Security Target:.+?" target="_blank" class="button2">Security Target</a>'
              '.+?\<!-- ------ ------ ------ Product Updates ------ ------ ------ --\>'
@@ -1345,7 +1391,7 @@ def extract_certificates_metadata_html(file_name):
         no_match_yet = True
         for rule in rules_cc_html:
             if not no_match_yet:
-                continue    # search only the first match
+                continue  # search only the first match
 
             rule_and_sep = rule[1]
 
@@ -1359,7 +1405,7 @@ def extract_certificates_metadata_html(file_name):
 
                 # insert rule if at least one match for it was found
                 # if rule not in items_found[TAG_HEADER_MATCH_RULES]:
-                    # items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
+                # items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
 
                 match_groups = m.groups()
 
@@ -1390,7 +1436,8 @@ def extract_certificates_metadata_html(file_name):
                     items_found['link_security_target'])
                 items_found['link_security_target_file_name'] = st_file_name
                 download_files_certs.append(
-                    (items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
+                    (
+                    items_found['link_cert_report'], cert_file_name, items_found['link_security_target'], st_file_name))
                 index_next_item += 1
 
                 items_found['maintainance_updates'] = parse_product_updates(
@@ -1452,7 +1499,7 @@ def extract_certificates_metadata_csv(file_name):
         for row in csv_reader:
             if line_count == 0:
                 expected_columns = len(row)
-                #print(f'Column names are {", ".join(row)}')
+                # print(f'Column names are {", ".join(row)}')
                 line_count += 1
             else:
                 if no_further_maintainance:
@@ -1460,8 +1507,9 @@ def extract_certificates_metadata_csv(file_name):
                 if len(row) == 0:
                     break
                 if len(row) != expected_columns:
-                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(
-                        line_count))
+                    print(
+                        'WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(
+                            line_count))
                     # trying to fix
                     if row[4].find('EAL') == -1:
                         row[1] = row[1] + row[2]  # fix name
@@ -1611,8 +1659,9 @@ def extract_pp_metadata_csv(file_name):
                 if len(row) == 0:
                     break
                 if len(row) != expected_columns:
-                    print('WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(
-                        line_count))
+                    print(
+                        'WARNING: Incorrect number of columns in row {} (likely separator , in item name), going to fix...'.format(
+                            line_count))
                     # trying to fix
                     if len(row) == expected_columns + 2:
                         row[9] = row[9] + row[10] + row[11]
@@ -2011,7 +2060,7 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
 
         file_name_pdf = file_name[:file_name.rfind('__')]
         file_name_txt = file_name_pdf[:file_name_pdf.rfind('.')] + '.txt'
-        #file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
+        # file_name_st = all_csv[file_name]['csv_scan']['link_security_target_file_name']
         if is_in_dict(all_csv, [file_name, 'csv_scan', 'link_security_target']):
             file_name_st = extract_file_name_from_url(
                 all_csv[file_name]['csv_scan']['link_security_target'])
@@ -2038,16 +2087,19 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
             all_cert_items[file_name]['frontpage_scan'] = all_front[file_name_to_front_name_mapping[file_name_txt]]
             frontpage_scan = all_front[file_name_to_front_name_mapping[file_name_txt]]
         if file_name_txt in file_name_to_keywords_name_mapping.keys():
-            all_cert_items[file_name]['keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
+            all_cert_items[file_name]['keywords_scan'] = all_keywords[
+                file_name_to_keywords_name_mapping[file_name_txt][0]]
             # was paired
             file_name_to_keywords_name_mapping[file_name_txt][1] = 1
             keywords_scan = all_keywords[file_name_to_keywords_name_mapping[file_name_txt][0]]
         if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
-            all_cert_items[file_name]['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
+            all_cert_items[file_name]['st_keywords_scan'] = all_keywords[
+                file_name_to_keywords_name_mapping[file_name_st_txt][0]]
             # was paired
             file_name_to_keywords_name_mapping[file_name_st_txt][1] = 1
         if file_name_pdf in file_name_to_pdfmeta_name_mapping.keys():
-            all_cert_items[file_name]['pdfmeta_scan'] = all_pdf_meta[file_name_to_pdfmeta_name_mapping[file_name_pdf][0]]
+            all_cert_items[file_name]['pdfmeta_scan'] = all_pdf_meta[
+                file_name_to_pdfmeta_name_mapping[file_name_pdf][0]]
             # was paired
             file_name_to_pdfmeta_name_mapping[file_name_pdf][1] = 1
         else:
@@ -2094,7 +2146,8 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
 
                 if file_name_keyword_txt == file_name_st_txt:
                     if file_name_st_txt in file_name_to_keywords_name_mapping.keys():
-                        update['st_keywords_scan'] = all_keywords[file_name_to_keywords_name_mapping[file_name_st_txt][0]]
+                        update['st_keywords_scan'] = all_keywords[
+                            file_name_to_keywords_name_mapping[file_name_st_txt][0]]
                         if file_name_to_keywords_name_mapping[file_name_st_txt][1] == 1:
                             print('WARNING: {} already paired'.format(
                                 file_name_to_keywords_name_mapping[file_name_st_txt][0]))
