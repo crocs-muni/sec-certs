@@ -6,7 +6,7 @@ setup(
     author='Petr Svenda',
     author_email='',
     version='0.0.0',
-    packages='sec-certs',
+    packages=['sec_certs'],
     license='MIT',
     description="Tool for analysis of security certificates",
     long_description=open("README.md").read(),
@@ -25,6 +25,8 @@ setup(
         "matplotlib",
         "graphviz",
         "numpy",
-        "tabulate"
+        "tabulate",
+        "tabula-py",
+        "pikepdf"
     ]
 )
