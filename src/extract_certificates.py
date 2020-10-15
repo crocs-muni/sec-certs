@@ -111,7 +111,7 @@ def normalize_match_string(match):
     # normalize match
     match = match.strip()
     match = match.rstrip(']')
-    match = match.rstrip('/')
+    match = match.rstrip(os.sep)
     match = match.rstrip(';')
     match = match.rstrip('.')
     match = match.rstrip('”')
@@ -230,8 +230,8 @@ def print_guessed_cert_id(cert_id):
     sorted_cert_id = sorted(cert_id.items(), key=operator.itemgetter(1))
     for double in sorted_cert_id:
         just_file_name = double[0]
-        if just_file_name.rfind('\\') != -1:
-            just_file_name = just_file_name[just_file_name.rfind('\\') + 1:]
+        if just_file_name.rfind(os.sep) != -1:
+            just_file_name = just_file_name[just_file_name.rfind(os.sep) + 1:]
         print('{:30s}: {}'.format(double[1], just_file_name))
 
 
@@ -286,7 +286,7 @@ def estimate_cert_id(frontpage_scan, keywords_scan, file_name):
     if file_name != None:
         file_name_no_suff = file_name[:file_name.rfind('.')]
         file_name_no_suff = file_name_no_suff[file_name_no_suff.rfind(
-            '\\') + 1:]
+            os.sep) + 1:]
         for rule in rules['rules_cert_id']:
             file_name_no_suff += ' '
             matches = re.findall(rule, file_name_no_suff)
@@ -1135,9 +1135,9 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
         #     None, all_items_found[file_cert_name], file_name)
 
         # save report text with highlighted/replaced matches into \\fragments\\ directory
-        base_path = file_name[:file_name.rfind('/')]
-        file_name_short = file_name[file_name.rfind('/') + 1:]
-        target_file = '{}/{}'.format(fragments_dir, file_name_short)
+        base_path = file_name[:file_name.rfind(os.sep)]
+        file_name_short = file_name[file_name.rfind(os.sep) + 1:]
+        target_file = '{}{}{}'.format(fragments_dir, os.sep, file_name_short)
         save_modified_cert_file(
             target_file, modified_cert_file[0], modified_cert_file[1])
 
@@ -2029,26 +2029,26 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
 
     file_name_to_html_name_mapping = {}
     for long_file_name in all_html.keys():
-        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        short_file_name = long_file_name[long_file_name.rfind(os.sep) + 1:]
         if short_file_name != '':
             file_name_to_html_name_mapping[short_file_name] = long_file_name
 
     file_name_to_front_name_mapping = {}
     for long_file_name in all_front.keys():
-        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        short_file_name = long_file_name[long_file_name.rfind(os.sep) + 1:]
         if short_file_name != '':
             file_name_to_front_name_mapping[short_file_name] = long_file_name
 
     file_name_to_keywords_name_mapping = {}
     for long_file_name in all_keywords.keys():
-        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        short_file_name = long_file_name[long_file_name.rfind(os.sep) + 1:]
         if short_file_name != '':
             file_name_to_keywords_name_mapping[short_file_name] = [
                 long_file_name, 0]
 
     file_name_to_pdfmeta_name_mapping = {}
     for long_file_name in all_pdf_meta.keys():
-        short_file_name = long_file_name[long_file_name.rfind('\\') + 1:]
+        short_file_name = long_file_name[long_file_name.rfind(os.sep) + 1:]
         if short_file_name != '':
             file_name_to_pdfmeta_name_mapping[short_file_name] = [
                 long_file_name, 0]
@@ -2132,7 +2132,7 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
 
             for file_and_id in all_keywords.keys():
                 file_name_keyword_txt = file_and_id[file_and_id.rfind(
-                    '\\') + 1:]
+                    os.sep) + 1:]
                 # in items extracted from html, names are in form of 'file_name.pdf__number'
                 if file_name_keyword_txt == file_name_txt:
                     pairing_found = True
@@ -2159,7 +2159,7 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
                     file_name))
 
             for file_and_id in file_name_to_pdfmeta_name_mapping.keys():
-                file_name_pdf = file_and_id[file_and_id.rfind('\\') + 1:]
+                file_name_pdf = file_and_id[file_and_id.rfind(os.sep) + 1:]
                 file_name_pdfmeta_txt = file_name_pdf[:file_name_pdf.rfind(
                     '.')] + '.txt'
                 # in items extracted from html, names are in form of 'file_name.pdf__number'
@@ -2425,7 +2425,7 @@ def generate_failed_download_script(base_dir):
     MIN_CORRECT_CERT_SIZE = 5000
     download_again = []
     for sub_folder in sub_folders:
-        target_dir = '{}\\{}'.format(base_dir, sub_folder)
+        target_dir = '{}{}{}'.format(base_dir, os.sep, sub_folder)
         # obtain list of all downloaded pdf files and their size
         files = search_files(target_dir)
         for file_name in files:
@@ -2440,7 +2440,7 @@ def generate_failed_download_script(base_dir):
             file_size = os.path.getsize(file_name)
             if file_size < MIN_CORRECT_CERT_SIZE:
                 # too small file, likely failed download - retry
-                file_name_short = file_name[file_name.rfind('\\') + 1:]
+                file_name_short = file_name[file_name.rfind(os.sep) + 1:]
                 # double %% is necessary to prevent replacement of %2 within script (second argument of script)
                 file_name_short_web = file_name_short.replace(' ', '%%20')
                 download_link = '/files/epfiles/{}'.format(file_name_short_web)

@@ -9,6 +9,7 @@ from dateutil import parser
 import datetime
 from tags_constants import *
 import string
+import os
 
 STOP_ON_UNEXPECTED_NUMS = False
 
@@ -57,10 +58,14 @@ def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
     plt.axis((x1, x2, y1 - 1, y2))
     plt.savefig(file_name + '.png', bbox_inches='tight')
     plt.savefig(file_name + '.pdf', bbox_inches='tight')
+    plt.close()
 
 
 def plot_heatmap_graph(data_matrix, x_data_ticks, y_data_ticks, x_label, y_label, title, file_name):
-    plt.figure(figsize=(round(len(x_data_ticks) / 2), 8), dpi=200, facecolor='w', edgecolor='k')
+    fig_size = round(len(x_data_ticks) / 2)
+    if fig_size == 0:
+        fig_size = 8
+    plt.figure(figsize=(fig_size, 8), dpi=200, facecolor='w', edgecolor='k')
     #color_map = 'BuGn'
     color_map = 'Purples'
     plt.imshow(data_matrix, cmap=color_map, interpolation='none', aspect='auto')
@@ -76,8 +81,15 @@ def plot_heatmap_graph(data_matrix, x_data_ticks, y_data_ticks, x_label, y_label
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.savefig(file_name + '.png', bbox_inches='tight')
-    plt.savefig(file_name + '.pdf', bbox_inches='tight')
+    try:
+        plt.savefig(file_name + '.png', bbox_inches='tight')
+    except RuntimeError as e:
+        print('RuntimeError while writing {} file as png'.format(file_name + '.png'))
+    try:
+        plt.savefig(file_name + '.pdf', bbox_inches='tight')
+    except RuntimeError as e:
+        print('RuntimeError while writing {} file as pdf'.format(file_name + '.pdf'))
+    plt.close()
 
 
 def compute_and_plot_hist(data, bins, y_label, title, file_name):
@@ -109,8 +121,8 @@ def depricated_print_dot_graph_keywordsonly(filter_rules_group, all_items_found,
         just_file_name = file_name
         this_cert_id = cert_id[file_name]
 
-        if file_name.rfind('\\') != -1:
-            just_file_name = file_name[file_name.rfind('\\') + 1:]
+        if file_name.rfind(os.sep) != -1:
+            just_file_name = file_name[file_name.rfind(os.sep) + 1:]
 
         # insert file name and identified probable certification id
         if this_cert_id != "":
@@ -254,6 +266,7 @@ def plot_certid_to_item_graph(item_path, all_items_found, filter_label, out_dot_
     # Generate dot graph using GraphViz into pdf
     dot.render(out_dot_name, view=False)
     print('{} pdf rendered'.format(out_dot_name))
+
 
 def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     # build cert_id to item name mapping
@@ -430,6 +443,7 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
     plt.title(title)
     plt.savefig(file_name + '.png', bbox_inches='tight')
     plt.savefig(file_name + '.pdf', bbox_inches='tight')
+    plt.close()
 
 
 def analyze_cert_years_frequency(all_cert_items, filter_label):
