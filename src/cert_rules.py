@@ -77,8 +77,9 @@ rules_os = [
     ]
 
 rules_standard_id = [
-    'FIPS[0-9]+-[0-9]+?',
-    'FIPS[0-9]+?',
+    'FIPS ?(?:PUB )?[0-9]+-[0-9]+?',
+    'FIPS ?(?:PUB )?[0-9]+?',
+    'NIST SP [0-9]+-[0-9]+?[a-zA-Z]?',
     'PKCS[ #]*[1-9]+',
     'TLS[ ]*v[0-9\.]+',
     'TLS[ ]*v[0-9\.]+',
@@ -90,6 +91,7 @@ rules_standard_id = [
     'ISO/IEC[ ]*[0-9]+',
     'ICAO(?:-SAC|)',
     '[Xx]\.509',
+    'RFC [0-9]+'
     ]
 
 rules_security_level = [
@@ -151,8 +153,14 @@ rules_crypto_algs = [
     'ECC',
     'DTRNG',
     'TRNG',
-    'RNG',
+    'RN[GD]',
+    'RBG',
     ]
+
+rules_block_cipher_modes = [
+    'ECB',
+    'CBC'
+]
 
 rules_ecc_curves = [
     'P-(?:192|224|256|384|521)',
@@ -184,9 +192,20 @@ rules_crypto_libs = [
     'v1.02.013' # Infineon's ROCA-vulnerable library
     ]
 
-
+rules_IC_data_groups = [
+    'EF\.DG[1-9][0-6]?',
+    'EF\.COM',
+    'EF\.CardAccess',
+    'EF\.SOD',
+    'EF\.ChipSecurity'
+]
 
 rules_defenses = [
+    '[Mm]alfunction',
+    'Leak-Inherent',
+    '[Pp]hysical [Pp]robing',
+    '[pP]hysical [tT]ampering',
+    '[Ss]ide.channels?',
     'SPA',
     'DPA',
     'DFA',
@@ -227,10 +246,12 @@ rules['rules_security_assurance_components'] = rules_security_assurance_componen
 rules['rules_security_functional_components'] = rules_security_functional_components
 rules['rules_javacard'] = rules_javacard
 rules['rules_crypto_algs'] = rules_crypto_algs
+rules['block_cipher_modes'] = rules_block_cipher_modes
 rules['rules_ecc_curves'] = rules_ecc_curves
 rules['rules_cplc'] = rules_cplc
 rules['rules_crypto_engines'] = rules_crypto_engines
 rules['rules_crypto_libs'] = rules_crypto_libs
+rules['rules_IC_data_groups'] = rules_IC_data_groups
 rules['rules_defenses'] = rules_defenses
 rules['rules_certification_process'] = rules_certification_process
 rules['rules_vulnerabilities'] = rules_vulnerabilities
