@@ -351,14 +351,14 @@ def repair_pdf_page_count(file):
 
 def extract_certs_from_tables(list_of_files, html_items):
     global count
-    list_of_files = json.loads(open(FIPS_RESULTS_DIR + 'bakup/broken_files.json').read())
+
     not_decoded = []
     for REDHAT_FILE in list_of_files:
         if '.txt' not in REDHAT_FILE:
             continue
-        #
-        # if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
-        #     continue
+
+        if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
+            continue
 
         with open(REDHAT_FILE, 'r') as f:
             try:
@@ -392,7 +392,7 @@ def extract_certs_from_tables(list_of_files, html_items):
                     html_items[extract_filename(REDHAT_FILE[:-8])]['fips_algorithms'] = lst
                 else:
                     html_items[extract_filename(REDHAT_FILE[:-8])]['fips_algorithms'] += lst
-            print(lst)
+
         html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done'] = True
     return not_decoded
 
