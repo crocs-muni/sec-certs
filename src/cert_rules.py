@@ -282,6 +282,8 @@ rules_fips_cert = [
     r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{2})",
     r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{1})"
 ]
+
+#  rule still too "general"
 rules_fips_security_level = [
     r"[lL]evel (\d)"
 ]
@@ -331,26 +333,9 @@ rules['rules_vulnerabilities'] = rules_vulnerabilities
 rules['rules_other'] = rules_other
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
-# rules['rules_vendor'] = rules_vendor
-# rules['rules_cert_id'] = rules_cert_id
-# rules['rules_protection_profiles'] = rules_protection_profiles
-# rules['rules_technical_reports'] = rules_technical_reports
-# rules['rules_device_id'] = rules_device_id
-# rules['rules_os'] = rules_os
-# rules['rules_standard_id'] = rules_standard_id
-# rules['rules_security_level'] = rules_security_level
-rules['rules_security_level'] = rules_fips_security_level
-# rules['rules_security_assurance_components'] = rules_security_assurance_components
-# rules['rules_security_functional_components'] = rules_security_functional_components
-# rules['rules_javacard'] = rules_javacard
-# rules['rules_crypto_algs'] = rules_crypto_algs
-# rules['rules_ecc_curves'] = rules_ecc_curves
-# rules['rules_cplc'] = rules_cplc
-# rules['rules_crypto_engines'] = rules_crypto_engines
-# rules['rules_crypto_libs'] = rules_crypto_libs
-# rules['rules_defenses'] = rules_defenses
-# rules['rules_certification_process'] = rules_certification_process
-# rules['rules_vulnerabilities'] = rules_vulnerabilities
-# rules['rules_other'] = rules_other
-rules['rules_cert_id'] = rules_fips_cert
+#                           For FIPS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fips_rules = {}
+fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
+fips_rules['rules_security_level'] = rules_fips_security_level
+fips_rules['rules_cert_id'] = rules_fips_cert
