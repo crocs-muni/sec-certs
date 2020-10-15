@@ -327,8 +327,6 @@ def find_tables(txt, file_name, num_pages):
     # removing None and duplicates
     footers = [extract_page_number(x) for x in footer_complete]
     footers = list(dict.fromkeys([x for x in footers if x is not None and 0 < int(x) < num_pages]))
-
-    print(footers)
     if footers:
         return footers
 
@@ -363,7 +361,11 @@ def extract_certs_from_tables(list_of_files, html_items):
             lst = []
             print("~~~~~~~~~~~~~~~", REDHAT_FILE, "~~~~~~~~~~~~~~~~~~~~~~~")
 
-            data = read_pdf(REDHAT_FILE[:-4], pages=[12], silent=True)
+            try:
+                data = read_pdf(REDHAT_FILE[:-4], pages=[12], silent=True)
+            except Exception:
+                not_decoded.append(REDHAT_FILE)
+                continue
             # find columns with cert numbers
             for df in data:
                 for col in range(len(df.columns)):
