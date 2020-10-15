@@ -328,6 +328,7 @@ def main():
 
 
     # TODO
+    # use os.sep to support properly Linux&Windows path separation
     # add saving of logs into file
     # include parsing from protection profiles repo
     # add differential partial download of new files only + processing + combine
