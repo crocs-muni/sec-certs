@@ -3,7 +3,8 @@ import os
 import re
 
 from graphviz import Digraph
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfFileReader, utils
+import pikepdf
 # from camelot import read_pdf
 from tabula import read_pdf
 
@@ -17,6 +18,7 @@ FILE_ERRORS_STRATEGY = extract_certificates.FILE_ERRORS_STRATEGY
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 FIPS_RESULTS_DIR = '/home/stan/sec-certs/fips_results/'
+FIPS_BASE_DIR = '/home/stan/sec-certs/files/fips/'
 SECURITY_POLICIES_DIR = '/home/stan/sec-certs/files/fips/security_policies/'
 
 
@@ -309,57 +311,72 @@ def find_tables(txt, file_name, num_pages):
         return None
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    # print("~" * 20, file_name, '~' * 20)
-    # footer_regex = re.compile(r"(?:Table[^\f]*)(?P<first>(\f[ \t\S]+)$)(?P<second>\n^[ \t\S]+?$)?", re.MULTILINE)
-    #
-    # # We have 2 groups, one is optional - trying to parse 2 lines (just in case)
-    # footer1 = [m.group('first') for m in footer_regex.finditer(txt)]
-    # footer2 = [m.group('second') for m in footer_regex.finditer(txt)]
-    # if len(footer2) < len(footer1):
-    #     footer2 += [''] * (len(footer1) - len(footer2))
-    #
-    # # zipping them together
-    # footer_complete = [m[0] + m[1] for m in zip(footer1, footer2)]
-    #
-    # # removing None and duplicates
-    # footers = [extract_page_number(x) for x in footer_complete]
-    # footers = list(dict.fromkeys([x for x in footers if x is not None and int(x) < num_pages]))
-    #
-    # print(footers)
-    # if footers:
-    #     return footers
+    print("~" * 20, file_name, '~' * 20)
+    footer_regex = re.compile(r"(?:Table[^\f]*)(?P<first>(\f[ \t\S]+)$)(?P<second>\n^[ \t\S]+?$)?", re.MULTILINE)
+
+    # We have 2 groups, one is optional - trying to parse 2 lines (just in case)
+    footer1 = [m.group('first') for m in footer_regex.finditer(txt)]
+    footer2 = [m.group('second') for m in footer_regex.finditer(txt)]
+    if len(footer2) < len(footer1):
+        footer2 += [''] * (len(footer1) - len(footer2))
+
+    # zipping them together
+    footer_complete = [m[0] + m[1] for m in zip(footer1, footer2)]
+
+    # removing None and duplicates
+    footers = [extract_page_number(x) for x in footer_complete]
+    footers = list(dict.fromkeys([x for x in footers if x is not None and int(x) < num_pages]))
+
+    print(footers)
+    if footers:
+        return footers
+
+
+def repair_pdf_page_count(file):
+    pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
+    pdf.save(file)
+    return len(pdf.pages)
 
 
 def extract_certs_from_tables(list_of_files, html_items):
     global count
-    # list_of_files = ['/home/stan/sec-certs-master/files/fips/security_policies/3245.pdf.txt']
+    # list_of_files = ['/home/stan/sec-certs/files/fips/security_policies/2441.pdf.txt']
+    not_decoded = []
     for REDHAT_FILE in list_of_files:
-        if 'txt' not in REDHAT_FILE:
+        if '.txt' not in REDHAT_FILE:
             continue
 
-        if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
-            continue
+        # if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
+        #     continue
 
         with open(REDHAT_FILE, 'r') as f:
-            tables = find_tables(f.read(), REDHAT_FILE, PdfFileReader(open(REDHAT_FILE[:-4], 'rb')).getNumPages())
+            try:
+                pages = repair_pdf_page_count(REDHAT_FILE[:-4])
+            except pikepdf._qpdf.PdfError:
+                not_decoded.append(REDHAT_FILE)
+                continue
+            tables = find_tables(f.read(), REDHAT_FILE, pages)
 
         # If we find any tables with page numbers, we process them
         if tables:
             lst = []
             print("~~~~~~~~~~~~~~~", REDHAT_FILE, "~~~~~~~~~~~~~~~~~~~~~~~")
-            data = read_pdf(REDHAT_FILE[:-4], pages=tables)
 
+            data = read_pdf(REDHAT_FILE[:-4], pages=tables)
             # find columns with cert numbers
             for df in data:
                 for col in range(len(df.columns)):
                     if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
                         lst += parse_algorithms(df.iloc[:, col].to_string(index=False), True)
+                lst += parse_algorithms(df.to_string(index=False))
             if lst:
                 if 'fips_algorithms' not in html_items[extract_filename(REDHAT_FILE[:-8])]:
                     html_items[extract_filename(REDHAT_FILE[:-8])]['fips_algorithms'] = lst
                 else:
                     html_items[extract_filename(REDHAT_FILE[:-8])]['fips_algorithms'] += lst
+            print(lst)
         html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done'] = True
+    return not_decoded
 
 
 def main():
@@ -370,11 +387,11 @@ def main():
 
     for file in files_to_load:
         if not os.path.isfile(file):
-            fips_items = fips_search_html('/home/stan/sec-certs-master/files/fips/html/',
+            fips_items = fips_search_html(FIPS_BASE_DIR + 'html/',
                                           FIPS_RESULTS_DIR + 'fips_html_all.json', True)
             items = extract_certificates.extract_certificates_keywords(
-                '/home/stan/sec-certs-master/files/fips/security_policies/',
-                '/home/stan/sec-certs-master/files/fips/fragments/', 'fips', fips_items=fips_items,
+                FIPS_BASE_DIR + 'security_policies/',
+                FIPS_BASE_DIR + 'fragments/', 'fips', fips_items=fips_items,
                 should_censure_right_away=True, write_output_file=True)
             with open(FIPS_RESULTS_DIR + 'fips_data_keywords_all.json', 'w') as f:
                 f.write(json.dumps(items, indent=4, sort_keys=True))
@@ -384,7 +401,11 @@ def main():
     (items, html) = load_json_files(files_to_load)
 
     print("FINDING TABLES")
-    extract_certs_from_tables(extract_certificates.search_files(SECURITY_POLICIES_DIR), html)
+    not_decoded = extract_certs_from_tables(extract_certificates.search_files(SECURITY_POLICIES_DIR), html)
+
+    print("NOT DECODED:", not_decoded)
+    with open(FIPS_RESULTS_DIR + 'broken_files.json', 'w') as f:
+        f.write(json.dumps(not_decoded))
 
     print("REMOVING ALGORITHMS")
     remove_algorithms_from_extracted_data(items, html)
