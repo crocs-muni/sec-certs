@@ -1,0 +1,10 @@
+os: linux
+language: python
+dist: xenial
+python: "3.8"
+
+install:
+  - pip install .
+
+script:
+  - echo "Test here"
