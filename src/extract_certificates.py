@@ -2156,6 +2156,18 @@ def get_manufacturer_simple_name(long_manufacturer, reduction_list):
         return long_manufacturer
 
 
+def build_pp_id_mapping(all_pp_items):
+    # read mapping between protection profile id as used in CSV and
+    # key used in pp_data_complete_processed.json
+    pp_id_mapping = {}
+    for pp in all_pp_items:
+        if is_in_dict(all_pp_items[pp], ['pp_analysis', 'separate_profiles']):
+            for profile in all_pp_items[pp]['pp_analysis']['separate_profiles']:
+                pp_id_mapping[profile['pp_id_csv']] = pp
+
+    return pp_id_mapping
+
+
 def process_certificates_data(all_cert_items, all_pp_items):
     print('\n\nExtracting useful info from collated files ***')
 
@@ -2261,6 +2273,8 @@ def process_certificates_data(all_cert_items, all_pp_items):
     dot.render(file_name, view=False)
     print('{} pdf rendered'.format(file_name))
 
+    pp_id_mapping = build_pp_id_mapping(all_pp_items)
+
     # update dist with processed list of manufactures
     all_cert_items_keys = list(all_cert_items.keys())
     for file_name in all_cert_items_keys:
@@ -2301,12 +2315,53 @@ def process_certificates_data(all_cert_items, all_pp_items):
                     cert['processed']['cert_lab'] = lab[:pos1]
                 else:
                     cert['processed']['cert_lab'] = lab
-    #
-    #
-    #
 
-    # TODO: pair certs and protection profiles : all_pp_items
-    all_pp_items
+        # extract security level EAL
+        if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
+            level = cert['csv_scan']['cc_security_level']
+            level_split = level.split(",")
+            if level_split[0] == 'None':
+                if len(level_split[0]) > 1:
+                    level_split[0] = 'EAL0+'
+            # REMOVE 20201016: security level from protection profiles done later
+            #if level.find(',') != -1:
+            #    level = level[:level.find(',')]  # trim list of augmented items
+            #level_out = level_split[0]
+            #if level == 'None':
+            #    if cert['csv_scan']['cc_protection_profiles'] != '':
+            #        level_out = 'Protection Profile'
+
+            cert['processed']['cc_security_level'] = level_split[0]
+            cert['processed']['cc_security_level_augments'] = level_split[1:]
+
+        # pair cert with its protection profile(s)
+        if is_in_dict(cert, ['csv_scan', 'cc_protection_profiles']):
+            pp_id_csv = cert['csv_scan']['cc_protection_profiles']
+            if pp_id_csv != '':
+                # find corresponding protection profile
+                if pp_id_csv in pp_id_mapping.keys() and \
+                        pp_id_mapping[pp_id_csv] in all_pp_items.keys():
+                    pp = all_pp_items[pp_id_mapping[pp_id_csv]]
+
+                    # security level of certificate will be equal to level of protection profile
+                    if is_in_dict(cert, ['processed', 'cc_security_level']):
+                        if cert['processed']['cc_security_level'] == 'None':
+                            cert['processed']['cc_security_level'] = pp['csv_scan']['cc_security_level']
+                    else:
+                        cert['processed']['cc_security_level'] = pp['csv_scan']['cc_security_level']
+                    if cert['processed']['cc_security_level'] != pp['csv_scan']['cc_security_level']:
+                        print('WARNING: {} cc_security_level level already set differently than inferred from PP: {} vs. {}'.format(file_name, cert['processed']['cc_security_level'], pp['csv_scan']['cc_security_level']))
+
+                    # there might be more protection profiles in single file - search the right one
+                    for sub_profile in pp['pp_analysis']['separate_profiles']:
+                        if sub_profile['pp_id_csv'] == pp_id_csv:
+                            cert['processed']['cc_pp_name'] = pp['csv_scan']['cc_pp_name']
+                            # set protection profile id as ID extracted from pp pdf (if not found csv is used)
+                            cert['processed']['cc_pp_id'] = pp_id_csv
+                            if sub_profile['pp_id_legacy'] != '':
+                                cert['processed']['cc_pp_id'] = sub_profile['pp_id_legacy']
+                            # set path to protection profile file
+                            cert['processed']['pp_filename'] = sub_profile['pp_filename']
 
     return all_cert_items
 
