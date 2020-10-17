@@ -450,6 +450,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
     scheme_date = {}
     level_date = {}
     category_date = {}
+    pp_date = {}
     labs_date = {}
     archive_date = {}
     validity_length = {}
@@ -484,18 +485,8 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
                     archived_year = parser.parse(cert_archive_date).year
 
             # extract EAL level
-            if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
-                level = cert['csv_scan']['cc_security_level']
-                level_split = level.split(",")
-                if level.find(',') != -1:
-                    level = level[:level.find(',')]  # trim list of augmented items
-                level_out = level_split[0]
-                if level == 'None':
-                    if cert['csv_scan']['cc_protection_profiles'] != '':
-                        level_out = 'Protection Profile'
-
-                cert['processed']['cc_security_level'] = level_split[0]
-                cert['processed']['cc_security_level_augments'] = level_split[1:]
+            if is_in_dict(cert, ['processed', 'cc_security_level']):
+                level_out = cert['processed']['cc_security_level']
 
                 if level_out not in level_date.keys():
                     level_date[level_out] = {}
@@ -512,6 +503,20 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
                     for year in range(START_YEAR, END_YEAR):
                         category_date[category][year] = []
                 category_date[category][cert_year].append(cert_long_id)
+
+            # extract conformance to protection profile
+            if is_in_dict(cert, ['csv_scan', 'cc_protection_profiles']):
+                pp_id = cert['csv_scan']['cc_protection_profiles']
+                if pp_id == '':
+                    pp_id = 'No Protection Profile'
+                else:
+                    pp_id = 'Protection Profile'
+                if category not in pp_date.keys():
+                    pp_date[pp_id] = {}
+                    for year in range(START_YEAR, END_YEAR):
+                        pp_date[pp_id][year] = []
+                pp_date[pp_id][cert_year].append(cert_long_id)
+
 
             # extract scheme
             if is_in_dict(cert, ['csv_scan', 'cc_scheme']):
@@ -591,6 +596,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
     plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
     plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
     plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
+    plot_schemes_multi_line_graph(years, pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates with/without conforming to Protection Profile', filter_label), 'num_certs_pp_in_years')
     plot_schemes_multi_line_graph(years, labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
     plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
     plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
@@ -628,9 +634,9 @@ def analyze_eal_frequency(all_cert_items, filter_label):
     for cert_long_id in all_cert_items.keys():
         cert = all_cert_items[cert_long_id]
         if is_in_dict(cert, ['csv_scan', 'cc_scheme']):
-            if is_in_dict(cert, ['csv_scan', 'cc_security_level']):
+            if is_in_dict(cert, ['processed', 'cc_security_level']):
                 cc_scheme = cert['csv_scan']['cc_scheme']
-                level = cert['csv_scan']['cc_security_level']
+                level = cert['processed']['cc_security_level']
                 if level.find(',') != -1:
                     level = level[:level.find(',')]  # trim list of augmented items
                 if cc_scheme not in scheme_level.keys():
@@ -646,7 +652,7 @@ def analyze_eal_frequency(all_cert_items, filter_label):
             print('  {:5}: {}x'.format(level, scheme_level[cc_scheme][level]))
 
     print('\n')
-    eal_headers = ['EAL1', 'EAL1+','EAL2', 'EAL2+','EAL3', 'EAL3+','EAL4', 'EAL4+','EAL5',
+    eal_headers = ['EAL0+', 'EAL1', 'EAL1+','EAL2', 'EAL2+','EAL3', 'EAL3+','EAL4', 'EAL4+','EAL5',
                  'EAL5+','EAL6', 'EAL6+','EAL7', 'EAL7+', 'None']
 
     total_eals = {}
