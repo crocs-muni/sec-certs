@@ -511,7 +511,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
                     pp_id = 'No Protection Profile'
                 else:
                     pp_id = 'Protection Profile'
-                if category not in pp_date.keys():
+                if pp_id not in pp_date.keys():
                     pp_date[pp_id] = {}
                     for year in range(START_YEAR, END_YEAR):
                         pp_date[pp_id][year] = []
