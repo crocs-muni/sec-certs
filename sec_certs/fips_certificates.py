@@ -3,9 +3,12 @@ import json
 import os
 import re
 import time
+from pathlib import Path
+from typing import Set, Optional
 
 from graphviz import Digraph
 from PyPDF2 import PdfFileReader, utils
+import click
 import pikepdf
 # from camelot import read_pdf
 from tabula import read_pdf
@@ -17,12 +20,9 @@ from cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
 FILE_ERRORS_STRATEGY = extract_certificates.FILE_ERRORS_STRATEGY
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
-FIPS_RESULTS_DIR = '/home/stan/sec-certs/fips_results/'
-FIPS_BASE_DIR = '/home/stan/sec-certs/files/fips/'
-SECURITY_POLICIES_DIR = '/home/stan/sec-certs/files/fips/security_policies/'
 
 
-def extract_filename(file):
+def extract_filename(file: str) -> str:
     return os.path.splitext(os.path.basename(file))[0]
 
 
@@ -269,11 +269,11 @@ def validate_results(items, html):
 count = 0
 
 
-def parse_list_of_tables(txt):
+def parse_list_of_tables(txt: str) -> Set[str]:
     """
     Parses list of tables from function find_tables(), finds ones that mention algorithms
     :param txt: chunk of text
-    :return: list of all pages mentioning algorithm table
+    :return: set of all pages mentioning algorithm table
     """
     rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
     pages = set()
@@ -282,7 +282,7 @@ def parse_list_of_tables(txt):
     return pages
 
 
-def extract_page_number(txt):
+def extract_page_number(txt: str) -> Optional[str]:
     """
     Parses chunks of text that are supposed to be mentioning table and having a footer
     :param txt: input chunk
@@ -342,40 +342,38 @@ def find_tables(txt, file_name, num_pages):
         return footers
 
 
-def repair_pdf_page_count(file):
+def repair_pdf_page_count(file: str) -> int:
     pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
     pdf.save(file)
     return len(pdf.pages)
 
 
 def extract_certs_from_tables(list_of_files, html_items):
-    global count
-
     not_decoded = []
-    for REDHAT_FILE in list_of_files:
-        if '.txt' not in REDHAT_FILE:
+    for cert_file in list_of_files:
+        if '.txt' not in cert_file:
             continue
 
-        if html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done']:
+        if html_items[extract_filename(cert_file[:-8])]['tables_done']:
             continue
 
-        with open(REDHAT_FILE, 'r') as f:
+        with open(cert_file, 'r') as f:
             try:
-                pages = repair_pdf_page_count(REDHAT_FILE[:-4])
+                pages = repair_pdf_page_count(cert_file[:-4])
             except pikepdf._qpdf.PdfError:
-                not_decoded.append(REDHAT_FILE)
+                not_decoded.append(cert_file)
                 continue
-            tables = find_tables(f.read(), REDHAT_FILE, pages)
+            tables = find_tables(f.read(), cert_file, pages)
 
         # If we find any tables with page numbers, we process them
         if tables:
             lst = []
-            print("~~~~~~~~~~~~~~~", REDHAT_FILE, "~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~", cert_file, "~~~~~~~~~~~~~~~~~~~~~~~")
 
             try:
-                data = read_pdf(REDHAT_FILE[:-4], pages=tables, silent=True)
+                data = read_pdf(cert_file[:-4], pages=tables, silent=True)
             except Exception:
-                not_decoded.append(REDHAT_FILE)
+                not_decoded.append(cert_file)
                 continue
 
             # find columns with cert numbers
@@ -387,41 +385,48 @@ def extract_certs_from_tables(list_of_files, html_items):
                 # Parse again if someone picks not so descriptive column names
                 lst += parse_algorithms(df.to_string(index=False))
             if lst:
-                if 'fips_algorithms' not in html_items[extract_filename(REDHAT_FILE[:-8])]:
-                    html_items[extract_filename(REDHAT_FILE[:-8])]['fips_algorithms'] = lst
+                if 'fips_algorithms' not in html_items[extract_filename(cert_file[:-8])]:
+                    html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] = lst
                 else:
-                    html_items[extract_filename(REDHAT_FILE[:-8])]['fips_algorithms'] += lst
+                    html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] += lst
 
-        html_items[extract_filename(REDHAT_FILE[:-8])]['tables_done'] = True
+        html_items[extract_filename(cert_file[:-8])]['tables_done'] = True
     return not_decoded
 
 
-def main():
+@click.command()
+@click.argument("directory", required=True, type=str, help="The directory to use.")
+def main(directory):
+    start = time.time()
+    directory = Path(directory)
+    results_dir = directory / "results"
+    policies_dir = directory / "security_policies"
+
     files_to_load = [
-        FIPS_RESULTS_DIR + 'fips_data_keywords_all.json',
-        FIPS_RESULTS_DIR + 'fips_html_all.json'
+        results_dir / 'fips_data_keywords_all.json',
+        results_dir / 'fips_html_all.json'
     ]
 
     for file in files_to_load:
         if not os.path.isfile(file):
-            fips_items = fips_search_html(os.path.join(FIPS_BASE_DIR, 'html'),
-                                          os.path.join(FIPS_RESULTS_DIR,'fips_html_all.json'), True)
+            fips_items = fips_search_html(directory / 'html',
+                                          results_dir / 'fips_html_all.json', True)
             items = extract_certificates.extract_certificates_keywords(
-                os.path.join(FIPS_BASE_DIR, 'security_policies'),
-                os.path.join(FIPS_BASE_DIR, 'fragments'), 'fips', fips_items=fips_items,
-                should_censure_right_away=True, write_output_file=True)
-            with open(FIPS_RESULTS_DIR + 'fips_data_keywords_all.json', 'w') as f:
+                directory / 'security_policies',
+                directory / 'fragments', 'fips', fips_items=fips_items,
+                should_censure_right_away=True)
+            with open(results_dir / 'fips_data_keywords_all.json', 'w') as f:
                 json.dump(items, f, indent=4, sort_keys=True)
             break
 
     print("EXTRACTION DONE")
-    (items, html) = load_json_files(files_to_load)
+    items, html = load_json_files(files_to_load)
 
     print("FINDING TABLES")
-    not_decoded = extract_certs_from_tables(extract_certificates.search_files(SECURITY_POLICIES_DIR), html)
+    not_decoded = extract_certs_from_tables(extract_certificates.search_files(policies_dir), html)
 
     print("NOT DECODED:", not_decoded)
-    with open(FIPS_RESULTS_DIR + 'broken_files.json', 'w') as f:
+    with open(results_dir / 'broken_files.json', 'w') as f:
         json.dump(not_decoded, f)
 
     print("REMOVING ALGORITHMS")
@@ -429,15 +434,14 @@ def main():
 
     print("VALIDATING RESULTS")
     validate_results(items, html)
-    with open(FIPS_RESULTS_DIR + 'fips_html_all.json', 'w') as f:
+    with open(results_dir / 'fips_html_all.json', 'w') as f:
         json.dump(html, f, indent=4, sort_keys=True)
     print("PLOTTING GRAPH")
     get_dot_graph(html, 'output')
-
-
-if __name__ == '__main__':
-    start = time.time()
-    main()
     end = time.time()
     print("TIME:", end - start)
     print("COUNT:", count)
+
+
+if __name__ == '__main__':
+    main()

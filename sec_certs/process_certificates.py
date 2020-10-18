@@ -20,14 +20,14 @@ def do_all_analysis(all_cert_items, filter_label):
     plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
 
 
-def do_analysis_everything(all_cert_items, current_dir):
+def do_analysis_everything(all_cert_items, current_dir: Path):
     if not os.path.exists(current_dir):
         os.makedirs(current_dir)
     os.chdir(current_dir)
     do_all_analysis(all_cert_items, '')
 
 
-def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
+def do_analysis_09_01_2019_archival(all_cert_items, current_dir: Path):
     target_folder = os.path.join(current_dir, 'results_archived01092019_only')
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
@@ -37,7 +37,7 @@ def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
     do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
 
 
-def do_analysis_manufacturers(all_cert_items, current_dir):
+def do_analysis_manufacturers(all_cert_items, current_dir: Path):
     # analyze only Infineon certificates
     do_analysis_only_filtered(all_cert_items, current_dir,
                               ['processed', 'cc_manufacturer_simple'], 'Infineon Technologies AG')
@@ -52,13 +52,13 @@ def do_analysis_manufacturers(all_cert_items, current_dir):
                               ['processed', 'cc_manufacturer_simple'], 'SUSE Linux Products Gmbh')
 
 
-def do_analysis_only_filtered(all_cert_items, current_dir, filter_path, filter_value):
+def do_analysis_only_filtered(all_cert_items, current_dir: Path, filter_path, filter_value):
     filter_string = ''
     for item in filter_path:
         if len(filter_string) > 0:
             filter_string = filter_string + '__'
         filter_string = filter_string + item
-    target_folder = current_dir + '\\{}={}\\'.format(filter_string, filter_value)
+    target_folder = current_dir / '{}={}'.format(filter_string, filter_value)
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
@@ -77,15 +77,15 @@ def do_analysis_only_filtered(all_cert_items, current_dir, filter_path, filter_v
     do_all_analysis(cert_items, '{}={}'.format(filter_string, filter_value))
 
 
-def do_analysis_only_category(all_cert_items, current_dir, category):
+def do_analysis_only_category(all_cert_items, current_dir: Path, category):
     do_analysis_only_filtered(all_cert_items, current_dir, ['csv_scan', 'cc_category'], category)
 
 
-def do_analysis_only_smartcards(all_cert_items, current_dir):
+def do_analysis_only_smartcards(all_cert_items, current_dir: Path):
     do_analysis_only_category(all_cert_items, current_dir, 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
 
 
-def do_analysis_only_operatingsystems(all_cert_items, current_dir):
+def do_analysis_only_operatingsystems(all_cert_items, current_dir: Path):
     do_analysis_only_category(all_cert_items, current_dir, 'Operating Systems')
 
 
@@ -99,35 +99,15 @@ def load_json_files(files_list):
     return tuple(loaded_jsons)
 
 
-def sanitize_all_strings(data):
-    printable = set(string.printable)
-
-    if isinstance(data, dict):
-        for k, v in data.items():
-            if isinstance(v, (dict, list, tuple)):
-                sanitize_all_strings(v)
-            elif isinstance(v, str):
-                sanitized = ''.join(filter(lambda x: x in printable, v))
-                data[k] = ''.join(filter(lambda x: x in printable, v))
-
-    if isinstance(data, (list, tuple)):
-        for v in data:
-            if isinstance(v, (dict, list, tuple)):
-                sanitize_all_strings(v)
-            elif isinstance(v, str):
-                sanitized = ''.join(filter(lambda x: x in printable, v))
-                v = ''.join(filter(lambda x: x in printable, v))
-
-
 @click.command()
-@click.option("-d", "--dir", "directory", type=str, help="The directory to use.", required=True)
+@click.argument("directory", required=True, type=str)
 @click.option("--fresh", "do_complete_extraction", is_flag=True, help="Whether to extract from a fresh state.")
 @click.option("--do-download", "do_download_certs", is_flag=True, help="Whether to download certificate pages.")
 @click.option("--do-extraction", "do_extraction", is_flag=True, help="Whether to extract information from the certs.")
 @click.option("--do-pairing", "do_pairing", is_flag=True, help="Whether to pair PP stuff.")
 @click.option("--do-processing", "do_processing", is_flag=True, help="Whether to process certificates.")
 @click.option("--do-anaysis", "do_analysis", is_flag=True, help="Whether to analyse certificates.")
-def main(directory, do_complete_extraction, do_download_certs, do_extraction, do_pairing, do_processing, do_analysis):
+def main(directory, do_complete_extraction: bool, do_download_certs: bool, do_extraction: bool, do_pairing: bool, do_processing: bool, do_analysis: bool):
     directory = Path(directory)
 
     web_dir = directory / "web"
@@ -135,14 +115,14 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
     pp_dir = directory / "pp"
     fragments_dir = directory / "cert_fragments"
     pp_fragments_dir = directory / "pp_fragments"
-    results_folder = directory / "results"
+    results_dir = directory / "results"
 
     web_dir.mkdir(parents=True, exist_ok=True)
     walk_dir.mkdir(parents=True, exist_ok=True)
     pp_dir.mkdir(parents=True, exist_ok=True)
     fragments_dir.mkdir(parents=True, exist_ok=True)
     pp_fragments_dir.mkdir(parents=True, exist_ok=True)
-    results_folder.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. generate_basic_download_script
     # 2. run and download basic cc files from webpage (no certs yet)
@@ -171,13 +151,13 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
     else:
         # load previously analyzed results
         prev_csv, prev_html, prev_front, prev_keywords, prev_pdf_meta = load_json_files(
-            ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
-             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json'])
+            map(lambda x: results_dir / x, ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
+             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json']))
 
     if do_download_certs:
         # extract_certificates_html() will generate download scripts for cert documents
         # NOTE: download scripts must be run manually now
-        current_html = extract_certificates_html(web_dir, False)
+        current_html = extract_certificates_html(web_dir)
 
         # NOTE: Code below is preparation for differetian download of only new certificates
         # - unfinished now
@@ -206,26 +186,26 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
         # print('*** New items detected: {}'.format(len(new_items)))
 
     if do_extraction:
-        all_csv = extract_certificates_csv(web_dir, False)
-        all_html = extract_certificates_html(web_dir, False)
-        all_front = extract_certificates_frontpage(walk_dir, False)
-        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate', False)
-        all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', False)
+        all_csv = extract_certificates_csv(web_dir)
+        all_html = extract_certificates_html(web_dir)
+        all_front = extract_certificates_frontpage(walk_dir)
+        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
+        all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', results_dir)
 
         # save joined results
-        with open("certificate_data_csv_all.json", "w") as write_file:
+        with open(results_dir / "certificate_data_csv_all.json", "w") as write_file:
             json.dump(all_csv, write_file, indent=4, sort_keys=True)
-        with open("certificate_data_html_all.json", "w") as write_file:
+        with open(results_dir / "certificate_data_html_all.json", "w") as write_file:
             json.dump(all_html,  write_file, indent=4, sort_keys=True)
-        with open("certificate_data_frontpage_all.json", "w") as write_file:
+        with open(results_dir / "certificate_data_frontpage_all.json", "w") as write_file:
             json.dump(all_front,  write_file, indent=4, sort_keys=True)
-        with open("certificate_data_keywords_all.json", "w") as write_file:
+        with open(results_dir / "certificate_data_keywords_all.json", "w") as write_file:
             json.dump(all_keywords,  write_file, indent=4, sort_keys=True)
-        with open("certificate_data_pdfmeta_all.json", "w") as write_file:
+        with open(results_dir / "certificate_data_pdfmeta_all.json", "w") as write_file:
             json.dump(all_pdf_meta,  write_file, indent=4, sort_keys=True)
 
     # if do_extraction_pp:
-    #     all_pp_csv = extract_protectionprofiles_csv(cc_pp_web_files_dir)
+    #     all_pp_csv = extract_protectionprofiles_csv(web_dir)
     #     all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
     #     all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
     #    all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
@@ -257,53 +237,53 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
         # CERTIFICATES
         # load results from previous step
         all_csv, all_html, all_front, all_keywords, all_pdf_meta = load_json_files(
-            ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
-             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json'])
+            map(lambda x: results_dir / x, ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
+             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json']))
         # check for unexpected results
         check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_pdf_meta)
         # collate all results into single file
         all_cert_items = collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pdf_meta, 'link_security_target')
 
         # write collated result
-        with open("certificate_data_complete.json", "w") as write_file:
-            json.dump(all_cert_items,  write_file, indent=4, sort_keys=True)
+        with open(results_dir / "certificate_data_complete.json", "w") as write_file:
+            json.dump(all_cert_items, write_file, indent=4, sort_keys=True)
 
     if do_processing:
         # load information about protection profiles as extracted by sec-certs-pp tool
-        with open('pp_data_complete_processed.json') as json_file:
+        with open(results_dir / 'pp_data_complete_processed.json') as json_file:
             all_pp_items = json.load(json_file)
 
-        with open('certificate_data_complete.json') as json_file:
+        with open(results_dir / 'certificate_data_complete.json') as json_file:
             all_cert_items = json.load(json_file)
 
         all_cert_items = process_certificates_data(all_cert_items, all_pp_items)
 
-        with open("certificate_data_complete_processed.json", "w") as write_file:
-            json.dump(all_cert_items,  write_file, indent=4, sort_keys=True)
+        with open(results_dir / "certificate_data_complete_processed.json", "w") as write_file:
+            json.dump(all_cert_items, write_file, indent=4, sort_keys=True)
 
     if do_analysis:
-        with open('certificate_data_complete_processed.json') as json_file:
+        with open(results_dir / 'certificate_data_complete_processed.json') as json_file:
             all_cert_items = json.load(json_file)
 
         if do_analysis_filtered:
             # analyze only smartcards
-            do_analysis_only_filtered(all_cert_items, results_folder,
+            do_analysis_only_filtered(all_cert_items, results_dir,
                                       ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
             # analyze only operating systems
-            do_analysis_only_filtered(all_cert_items, results_folder,
+            do_analysis_only_filtered(all_cert_items, results_dir,
                                       ['csv_scan', 'cc_category'], 'Operating Systems')
 
             # analyze separate manufacturers
-            do_analysis_manufacturers(all_cert_items, results_folder)
+            do_analysis_manufacturers(all_cert_items, results_dir)
 
             # archived on 09/01/2019
-            do_analysis_09_01_2019_archival(all_cert_items, results_folder)
+            do_analysis_09_01_2019_archival(all_cert_items, results_dir)
 
         # analyze all certificates together
-        do_analysis_everything(all_cert_items, results_folder)
+        do_analysis_everything(all_cert_items, results_dir)
 
-        with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
-            json.dump(all_cert_items,  write_file, indent=4, sort_keys=True)
+        with open(results_dir / "certificate_data_complete_processed_analyzed.json", "w") as write_file:
+            json.dump(all_cert_items, write_file, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":

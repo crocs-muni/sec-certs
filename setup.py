@@ -29,5 +29,10 @@ setup(
         "tabula-py",
         "pikepdf",
         "Click"
-    ]
+    ],
+    entry_points = """
+        [console_scripts]
+        process-certs=sec_certs.process_certificates:main
+        fips-certs=sec_certs.fips_certificates:main
+    """
 )
