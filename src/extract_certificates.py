@@ -1143,7 +1143,7 @@ def extract_certificates_keywords(walk_dir, fragments_dir, file_prefix, write_ou
         save_modified_cert_file(
             target_file, modified_cert_file[0], modified_cert_file[1])
 
-    # store results into file with fixed name and also with time appendix
+    # store results into file with fixed name
     if write_output_file:
         with open("{}_data_keywords_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
             write_file.write(json.dumps(
@@ -2090,6 +2090,7 @@ def collate_certificates_data(all_html, all_csv, all_front, all_keywords, all_pd
                 file_name_pdfmeta_txt = file_name_pdf[:file_name_pdf.rfind(
                     '.')] + '.txt'
                 # in items extracted from html, names are in form of 'file_name.pdf__number'
+                # BUGBUG: mismatch in character case will result in missing paiing (e.g., st_vid3014-vr.pdf)
                 if file_name_pdfmeta_txt == file_name_txt:
                     pairing_found = True
                     if file_name_pdf in file_name_to_pdfmeta_name_mapping.keys():

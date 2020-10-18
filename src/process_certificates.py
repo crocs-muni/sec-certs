@@ -1,3 +1,5 @@
+import sys
+
 from extract_certificates import *
 from analyze_certificates import *
 
@@ -89,7 +91,9 @@ def load_json_files(files_list):
     loaded_jsons = []
     for file_name in files_list:
         with open(file_name) as json_file:
-            loaded_jsons.append(json.load(json_file))
+            loaded_items = json.load(json_file)
+            loaded_jsons.append(loaded_items)
+            print('{} loaded, total items = {}'.format(file_name, len(loaded_items)))
     return tuple(loaded_jsons)
 
 
@@ -144,22 +148,15 @@ def main():
     paths_20200904['fragments_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_txt_fragments\\'
     paths_20200904['pp_fragments_dir'] = 'c:\\Certs\\certs_pp_20201008\\cc_pp_txt_fragments\\'
 
-    #paths_20200904_test = paths_20200904.copy()
-    #paths_20200904_test['walk_dir'] = 'c:\\Certs\\cc_certs_20200904\\cc_certs_test\\'
-
     # initialize paths based on the profile used
     #paths_used = paths_20191208
     #paths_used = paths_20200225
     paths_used = paths_20200904
-    #paths_used = paths_20200904_test
     #paths_used['id'] = 'temp' # change id for temporary debugging
 
     cc_web_files_dir = paths_used['cc_web_files_dir']
-    cc_pp_web_files_dir = paths_used['cc_pp_web_files_dir']
     walk_dir = paths_used['walk_dir']
-    pp_dir = paths_used['pp_dir']
     fragments_dir = paths_used['fragments_dir']
-    pp_fragments_dir = paths_used['pp_fragments_dir']
 
     # results folder includes unique identification of input dataset
     results_folder = '{}\\..\\results_{}\\'.format(os.getcwd(), paths_used['id'])
@@ -169,38 +166,25 @@ def main():
     # change current directory to store results into results file
     os.chdir(results_folder)
 
+    # 1. generate_basic_download_script
+    # 2. run and download basic cc files from webpage (no certs yet)
+
     #
     # Start processing
     #
     generate_basic_download_script()
     generate_failed_download_script(walk_dir)
 
-    # all_pp_csv = extract_protectionprofiles_csv(cc_web_files_dir)
-    # all_pp_keywords = extract_certificates_keywords(pp_dir, pp_fragments_dir, 'pp')
-    # check_expected_pp_results({}, all_pp_csv, {}, all_pp_keywords)
-    # all_pp_items = collate_certificates_data({}, all_pp_csv, {}, all_pp_keywords, 'link_pp_document')
-    # with open("pp_data_complete.json", "w") as write_file:
-    #     write_file.write(json.dumps(all_pp_items, indent=4, sort_keys=True))
-
     do_complete_extraction = True
+    do_download_certs = True
     do_extraction = True
-    do_extraction_pp = False
     do_pairing = True
     do_processing = True
     do_analysis = True
     do_analysis_filtered = True
 
-    # with open('certificate_data_complete_processed.json') as json_file:
-    #     all_cert_items = json.load(json_file)
-    # analyze_pdfmeta(all_cert_items, '')
-
-    #all_pp_front = extract_protectionprofiles_frontpage(pp_dir)
-    #all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate')
-    #all_pp_pdf_meta = extract_certificates_pdfmeta(pp_dir, 'pp')
-    #return
-
     if do_complete_extraction:
-        # set 'previous' state to empty dict
+        # analyze all files from scratch, set 'previous' state to empty dict
         prev_csv = {}
         prev_html = {}
         prev_front = {}
@@ -212,16 +196,18 @@ def main():
             ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
              'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json'])
 
-    if do_extraction:
-        # load info from html, check for new items only, do extraction only for these
-        #current_csv = extract_certificates_csv(cc_web_files_dir, False)
+    if do_download_certs:
+        # extract_certificates_html() will generate download scripts for cert documents
+        # NOTE: download scripts must be run manually now
         current_html = extract_certificates_html(cc_web_files_dir, False)
 
-        print('*** Items: {} vs. {}'.format(len(current_html.keys()), len(prev_html.keys())))
-        current_html_keys = sorted(current_html.keys())
-        prev_html_keys = sorted(prev_html.keys())
-        new_items = list(set(current_html.keys()) - set(prev_html.keys()))
-        print('*** New items detected: {}'.format(len(new_items)))
+        # NOTE: Code below is preparation for differetian download of only new certificates
+        # - unfinished now
+        # print('*** Items: {} vs. {}'.format(len(current_html.keys()), len(prev_html.keys())))
+        # current_html_keys = sorted(current_html.keys())
+        # prev_html_keys = sorted(prev_html.keys())
+        # new_items = list(set(current_html.keys()) - set(prev_html.keys()))
+        # print('*** New items detected: {}'.format(len(new_items)))
         #
         # # find new items which are not yet processed based on the value of raw csv line
         # new_items = []
@@ -241,15 +227,12 @@ def main():
         #
         # print('*** New items detected: {}'.format(len(new_items)))
 
+    if do_extraction:
         all_csv = extract_certificates_csv(cc_web_files_dir, False)
         all_html = extract_certificates_html(cc_web_files_dir, False)
         all_front = extract_certificates_frontpage(walk_dir, False)
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate', False)
         all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', False)
-
-        # join previous and new results
-        # TODO
-        #return
 
         # save joined results
         with open("certificate_data_csv_all.json", "w") as write_file:
@@ -338,16 +321,15 @@ def main():
             # archived on 09/01/2019
             do_analysis_09_01_2019_archival(all_cert_items, results_folder)
 
-
         # analyze all certificates together
         do_analysis_everything(all_cert_items, results_folder)
-
 
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
             write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
 
-        #with open('pp_data_complete.json') as json_file:
-        #    all_pp_items = json.load(json_file)
+
+if __name__ == "__main__":
+    main()
 
 
     # TODO
@@ -393,6 +375,3 @@ def main():
     # analyze technical decisions: https://www.niap-ccevs.org/Documents_and_Guidance/view_tds.cfm
     # extract names of IC (or other devices) from certificates => results in the list of certified chips in smartcards etc.
     # analyze SARs and SFRs in correlation with specific company (what level of SAR/SFR can company achieve?)
-
-if __name__ == "__main__":
-    main()
