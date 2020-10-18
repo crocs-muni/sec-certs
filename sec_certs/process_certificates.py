@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-import sys
+import os
+import json
 
 from extract_certificates import *
 from analyze_certificates import *
-
-import os
-import json
 
 
 def do_all_analysis(all_cert_items, filter_label):
@@ -27,7 +25,7 @@ def do_analysis_everything(all_cert_items, current_dir):
 
 
 def do_analysis_09_01_2019_archival(all_cert_items, current_dir):
-    target_folder = current_dir + '\\results_archived01092019_only\\'
+    target_folder = os.path.join(current_dir, 'results_archived01092019_only')
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
@@ -81,11 +79,11 @@ def do_analysis_only_category(all_cert_items, current_dir, category):
 
 
 def do_analysis_only_smartcards(all_cert_items, current_dir):
-    do_analysis_only_filtered(all_cert_items, current_dir, ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+    do_analysis_only_category(all_cert_items, current_dir, 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
 
 
 def do_analysis_only_operatingsystems(all_cert_items, current_dir):
-    do_analysis_only_category(all_cert_items, current_dir, ['csv_scan', 'cc_category'], 'Operating Systems')
+    do_analysis_only_category(all_cert_items, current_dir, 'Operating Systems')
 
 
 def load_json_files(files_list):

@@ -2,6 +2,7 @@
 import json
 import os
 import re
+import time
 
 from graphviz import Digraph
 from PyPDF2 import PdfFileReader, utils
@@ -12,8 +13,6 @@ from tabula import read_pdf
 import extract_certificates
 from process_certificates import load_json_files
 from cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
-
-import time
 
 FILE_ERRORS_STRATEGY = extract_certificates.FILE_ERRORS_STRATEGY
 FIPS_BASE_URL = 'https://csrc.nist.gov'
@@ -406,11 +405,11 @@ def main():
 
     for file in files_to_load:
         if not os.path.isfile(file):
-            fips_items = fips_search_html(FIPS_BASE_DIR + 'html/',
-                                          FIPS_RESULTS_DIR + 'fips_html_all.json', True)
+            fips_items = fips_search_html(os.path.join(FIPS_BASE_DIR, 'html'),
+                                          os.path.join(FIPS_RESULTS_DIR,'fips_html_all.json'), True)
             items = extract_certificates.extract_certificates_keywords(
-                FIPS_BASE_DIR + 'security_policies/',
-                FIPS_BASE_DIR + 'fragments/', 'fips', fips_items=fips_items,
+                os.path.join(FIPS_BASE_DIR, 'security_policies'),
+                os.path.join(FIPS_BASE_DIR, 'fragments'), 'fips', fips_items=fips_items,
                 should_censure_right_away=True, write_output_file=True)
             with open(FIPS_RESULTS_DIR + 'fips_data_keywords_all.json', 'w') as f:
                 f.write(json.dumps(items, indent=4, sort_keys=True))

@@ -1,19 +1,20 @@
 import operator
-from graphviz import Digraph
-from tabulate import tabulate
-import matplotlib.pyplot as plt;
-
-import sanity
-
-plt.rcdefaults()
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
-from dateutil import parser
-import datetime
-from tags_constants import *
 import string
 import os
+import datetime
+import numpy as np
+import matplotlib.pyplot as plt
+
+from matplotlib.pyplot import figure
+from dateutil import parser
+from graphviz import Digraph
+from tabulate import tabulate
+
+import sanity
+from tags_constants import *
+
+
+plt.rcdefaults()
 
 STOP_ON_UNEXPECTED_NUMS = False
 
