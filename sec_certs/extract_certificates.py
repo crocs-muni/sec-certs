@@ -472,7 +472,7 @@ def search_only_headers_bsi(walk_dir: Path):
         print_found_properties(items_found_all)
 
     with open("certificate_data_bsiheader.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+        json.dump(items_found_all, write_file, indent=4, sort_keys=True)
 
     print('\n*** Certificates without detected preface:')
     for file_name in files_without_match:
@@ -689,7 +689,7 @@ def search_only_headers_anssi(walk_dir: Path):
 
     # store results into file with fixed name and also with time appendix
     with open("certificate_data_anssiheader.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+        json.dump(items_found_all, write_file, indent=4, sort_keys=True)
 
     print('\n*** Certificates without detected preface:')
     for file_name in files_without_match:
@@ -728,8 +728,7 @@ def extract_certificates_frontpage(walk_dir: Path, write_output_file=True):
 
     if write_output_file:
         with open("certificate_data_frontpage_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                items_found_all, indent=4, sort_keys=True))
+            json.dump(items_found_all, write_file, indent=4, sort_keys=True)
 
     return items_found_all
 
@@ -1080,7 +1079,7 @@ def search_pp_only_headers(walk_dir: Path):
         print_found_properties(items_found_all)
 
     with open("pp_data_header.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-        write_file.write(json.dumps(items_found_all, indent=4, sort_keys=True))
+        json.dump(items_found_all, write_file, indent=4, sort_keys=True)
 
     print('\n*** Protection profiles without detected header:')
     for file_name in files_without_match:
@@ -1102,8 +1101,7 @@ def extract_protectionprofiles_frontpage(walk_dir: Path, write_output_file=True)
     # store results into file with fixed name and also with time appendix
     if write_output_file:
         with open("pp_data_frontpage_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                pp_items_found, indent=4, sort_keys=True))
+            json.dump(pp_items_found, write_file, indent=4, sort_keys=True)
 
     return pp_items_found
 
@@ -1139,15 +1137,14 @@ def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_pref
         # save report text with highlighted/replaced matches into \\fragments\\ directory
         base_path = file_name[:file_name.rfind(os.sep)]
         file_name_short = file_name[file_name.rfind(os.sep) + 1:]
-        target_file = '{}{}{}'.format(fragments_dir, os.sep, file_name_short)
+        target_file = fragments_dir / file_name_short
         save_modified_cert_file(
             target_file, modified_cert_file[0], modified_cert_file[1])
 
     # store results into file with fixed name
     if write_output_file:
         with open("{}_data_keywords_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                all_items_found, indent=4, sort_keys=True))
+            json.dump(all_items_found, write_file, indent=4, sort_keys=True)
 
     # print('\nTotal matches found in separate files:')
     # print_total_matches_in_files(all_items_found_count)
@@ -1227,15 +1224,13 @@ def extract_certificates_pdfmeta(walk_dir: Path, file_prefix, write_output_file=
             # store results into file with fixed name
             with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w",
                       errors=FILE_ERRORS_STRATEGY) as write_file:
-                write_file.write(json.dumps(
-                    all_items_found, indent=4, sort_keys=True))
+                json.dump(all_items_found, write_file, indent=4, sort_keys=True)
         counter += 1
 
     # store allresults into file with fixed name
     if write_output_file:
         with open("{}_data_pdfmeta_all.json".format(file_prefix), "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                all_items_found, indent=4, sort_keys=True))
+            json.dump(all_items_found, write_file, indent=4, sort_keys=True)
 
     return all_items_found
 
@@ -1835,8 +1830,7 @@ def extract_certificates_html(base_dir: Path, write_output_file: bool = True):
 
     if write_output_file:
         with open("certificate_data_html_active.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                items_found_all_active, indent=4, sort_keys=True))
+            json.dump(items_found_all_active, write_file, indent=4, sort_keys=True)
 
     generate_download_script('download_active_certs.bat',
                              'certs', 'targets', CC_WEB_URL, download_files_certs)
@@ -1851,8 +1845,7 @@ def extract_certificates_html(base_dir: Path, write_output_file: bool = True):
 
     if write_output_file:
         with open("certificate_data_html_archived.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                items_found_all_archived, indent=4, sort_keys=True))
+            json.dump(items_found_all_archived, write_file, indent=4, sort_keys=True)
 
     generate_download_script('download_archived_certs.bat',
                              'certs', 'targets', CC_WEB_URL, download_files_certs)
@@ -1863,8 +1856,7 @@ def extract_certificates_html(base_dir: Path, write_output_file: bool = True):
 
     if write_output_file:
         with open("certificate_data_html_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                items_found_all, indent=4, sort_keys=True))
+            json.dump(items_found_all, write_file, indent=4, sort_keys=True)
 
     return items_found_all
 
@@ -1884,8 +1876,7 @@ def extract_certificates_csv(base_dir: Path, write_output_file: bool = True):
 
     if write_output_file:
         with open("certificate_data_csv_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                items_found_all, indent=4, sort_keys=True))
+            json.dump(items_found_all, write_file, ndent=4, sort_keys=True)
 
     return items_found_all
 
@@ -1917,8 +1908,7 @@ def extract_protectionprofiles_csv(base_dir: Path, write_output_file: bool = Tru
 
     if write_output_file:
         with open("pp_data_csv_all.json", "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                items_found_all, indent=4, sort_keys=True))
+            json.dump(items_found_all, write_file, indent=4, sort_keys=True)
 
     return items_found_all
 

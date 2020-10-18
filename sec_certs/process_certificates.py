@@ -214,15 +214,15 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
 
         # save joined results
         with open("certificate_data_csv_all.json", "w") as write_file:
-            write_file.write(json.dumps(all_csv, indent=4, sort_keys=True))
+            json.dump(all_csv, write_file, indent=4, sort_keys=True)
         with open("certificate_data_html_all.json", "w") as write_file:
-            write_file.write(json.dumps(all_html, indent=4, sort_keys=True))
+            json.dump(all_html,  write_file, indent=4, sort_keys=True)
         with open("certificate_data_frontpage_all.json", "w") as write_file:
-            write_file.write(json.dumps(all_front, indent=4, sort_keys=True))
+            json.dump(all_front,  write_file, indent=4, sort_keys=True)
         with open("certificate_data_keywords_all.json", "w") as write_file:
-            write_file.write(json.dumps(all_keywords, indent=4, sort_keys=True))
+            json.dump(all_keywords,  write_file, indent=4, sort_keys=True)
         with open("certificate_data_pdfmeta_all.json", "w") as write_file:
-            write_file.write(json.dumps(all_pdf_meta, indent=4, sort_keys=True))
+            json.dump(all_pdf_meta,  write_file, indent=4, sort_keys=True)
 
     # if do_extraction_pp:
     #     all_pp_csv = extract_protectionprofiles_csv(cc_pp_web_files_dir)
@@ -266,7 +266,7 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
 
         # write collated result
         with open("certificate_data_complete.json", "w") as write_file:
-            write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+            json.dump(all_cert_items,  write_file, indent=4, sort_keys=True)
 
     if do_processing:
         # load information about protection profiles as extracted by sec-certs-pp tool
@@ -279,7 +279,7 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
         all_cert_items = process_certificates_data(all_cert_items, all_pp_items)
 
         with open("certificate_data_complete_processed.json", "w") as write_file:
-            write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+            json.dump(all_cert_items,  write_file, indent=4, sort_keys=True)
 
     if do_analysis:
         with open('certificate_data_complete_processed.json') as json_file:
@@ -303,7 +303,7 @@ def main(directory, do_complete_extraction, do_download_certs, do_extraction, do
         do_analysis_everything(all_cert_items, results_folder)
 
         with open("certificate_data_complete_processed_analyzed.json", "w") as write_file:
-            write_file.write(json.dumps(all_cert_items, indent=4, sort_keys=True))
+            json.dump(all_cert_items,  write_file, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":

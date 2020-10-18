@@ -149,8 +149,7 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
 
     if dump_to_file:
         with open(output_file, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
-            write_file.write(json.dumps(
-                all_found_items, indent=4, sort_keys=True))
+            json.dump(all_found_items, write_file, indent=4, sort_keys=True)
 
     return all_found_items
 
@@ -412,7 +411,7 @@ def main():
                 os.path.join(FIPS_BASE_DIR, 'fragments'), 'fips', fips_items=fips_items,
                 should_censure_right_away=True, write_output_file=True)
             with open(FIPS_RESULTS_DIR + 'fips_data_keywords_all.json', 'w') as f:
-                f.write(json.dumps(items, indent=4, sort_keys=True))
+                json.dump(items, f, indent=4, sort_keys=True)
             break
 
     print("EXTRACTION DONE")
@@ -423,7 +422,7 @@ def main():
 
     print("NOT DECODED:", not_decoded)
     with open(FIPS_RESULTS_DIR + 'broken_files.json', 'w') as f:
-        f.write(json.dumps(not_decoded))
+        json.dump(not_decoded, f)
 
     print("REMOVING ALGORITHMS")
     remove_algorithms_from_extracted_data(items, html)
@@ -431,7 +430,7 @@ def main():
     print("VALIDATING RESULTS")
     validate_results(items, html)
     with open(FIPS_RESULTS_DIR + 'fips_html_all.json', 'w') as f:
-        f.write(json.dumps(html, indent=4, sort_keys=True))
+        json.dump(html, f, indent=4, sort_keys=True)
     print("PLOTTING GRAPH")
     get_dot_graph(html, 'output')
 
