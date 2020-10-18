@@ -22,15 +22,30 @@ FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validatio
 
 
 def extract_filename(file: str) -> str:
+    """
+    Extracts filename from path
+    @param file: UN*X path
+    @return: filename without last extension
+    """
     return os.path.splitext(os.path.basename(file))[0]
 
 
 def parse_ul(text):
+    """
+    Parses content between <ul> tags in FIPS .html CMVP page
+    @param text: text in <ul> tags
+    @return: all <li> elements
+    """
     p = re.compile(r"<li>(.*?)<\/li>")
     return p.findall(text)
 
 
 def parse_table(text):
+    """
+    Parses content of <table> tags in FIPS .html CMVP page
+    @param text: text in <table> tags
+    @return: list of all found algorithm IDs
+    """
     items_found_all = []
 
     # find <tr>, in that look for "text-nowrap" and look if there is a cert mentioned
@@ -56,18 +71,26 @@ def parse_table(text):
     return items_found_all
 
 
-def parse_algorithms(text, in_table=False):
-    # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    # print()
-    # print(text)
+def parse_algorithms(text, in_pdf=False):
+    """
+    Parses table of FIPS (non) allowed algorithms
+    @param text: Contents of the table
+    @param in_pdf: Specifies whether the table was found in a PDF security policies file
+    @return: list of all found algorithm IDs
+    """
     items_found = []
-    for m in re.finditer(r"(?:#{}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)".format('?' if in_table else ''), text):
+    for m in re.finditer(r"(?:#{}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)".format('?' if in_pdf else ''), text):
         items_found.append({'Certificate': m.group()})
 
     return items_found
 
 
 def parse_caveat(text):
+    """
+    Parses content of "Caveat" of FIPS CMVP .html file
+    @param text: text of "Caveat"
+    @return: list of all found algorithm IDs
+    """
     items_found = []
 
     for m in re.finditer(r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)", text):
@@ -77,6 +100,10 @@ def parse_caveat(text):
 
 
 def initialize_entry(input_dictionary):
+    """
+    Initialize input dictionary with elements that shuold be always processed
+    @param input_dictionary: dictionary used as "all_items"
+    """
     input_dictionary['fips_exceptions'] = []
     input_dictionary['fips_tested_conf'] = []
 
@@ -154,6 +181,13 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
 
 
 def get_dot_graph(found_items, output_file_name):
+    """
+    Function that plots .dot graph of dependencies between certificates
+    Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
+    certificates are displayed in {output_file_name}single.pdf
+    @param found_items: Dictionary of all found items generated in main()
+    @param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
+    """
     dot = Digraph(comment='Certificate ecosystem')
     single_dot = Digraph(comment='Modules with no dependencies')
     single_dot.attr('graph', label='Single nodes', labelloc='t', fontsize='30')
@@ -211,6 +245,11 @@ def get_dot_graph(found_items, output_file_name):
 
 
 def remove_algorithms_from_extracted_data(items, html):
+    """
+    Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
+    @param items: All keyword items found in pdf files
+    @param html: All items extracted from html files
+    """
     for file_name in items:
         items[file_name]['file_status'] = True
         html[file_name]['file_status'] = True
@@ -235,6 +274,11 @@ def remove_algorithms_from_extracted_data(items, html):
 
 
 def validate_results(items, html):
+    """
+    Function that validates results and finds the final connection output
+    @param items: All keyword items found in pdf files
+    @param html: All items extracted from html files - this is where we store connections
+    """
     broken_files = set()
     for file_name in items:
         for rule in items[file_name]['rules_cert_id']:
@@ -265,14 +309,11 @@ def validate_results(items, html):
                     html[file_name]['Connections'].append(cert_id)
 
 
-count = 0
-
-
 def parse_list_of_tables(txt: str) -> Set[str]:
     """
     Parses list of tables from function find_tables(), finds ones that mention algorithms
-    :param txt: chunk of text
-    :return: set of all pages mentioning algorithm table
+    @param txt: chunk of text
+    @return: set of all pages mentioning algorithm table
     """
     rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
     pages = set()
@@ -284,8 +325,8 @@ def parse_list_of_tables(txt: str) -> Set[str]:
 def extract_page_number(txt: str) -> Optional[str]:
     """
     Parses chunks of text that are supposed to be mentioning table and having a footer
-    :param txt: input chunk
-    :return: page number
+    @param txt: input chunk
+    @return: page number
     """
     # Page # of #
     m = re.findall(r"(?P<pattern>(?:[Pp]age) (?P<page_num>\d+)(?: of \d+))", txt)
@@ -305,13 +346,19 @@ def extract_page_number(txt: str) -> Optional[str]:
 
 
 def find_tables(txt, file_name, num_pages):
-    global count
-
+    """
+    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
+    algorithms
+    @param txt: file in .txt format (output of pdftotext)
+    @param file_name: name of the file
+    @param num_pages: number of pages in pdf
+    @return:    list of pages possibly containing a table
+                None if these cannot be found
+    """
     # Look for "List of Tables", where we can find exactly tables with page num
     tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
     table = tables_regex.search(txt)
     if table:
-        count += 1
         rb = parse_list_of_tables(table.group())
         if rb:
             return list(rb)
@@ -319,8 +366,9 @@ def find_tables(txt, file_name, num_pages):
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
     print("~" * 20, file_name, '~' * 20)
-    footer_regex = re.compile(r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
-                              re.MULTILINE)
+    footer_regex = re.compile(
+        r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
+        re.MULTILINE)
 
     # We have 2 groups, one is optional - trying to parse 2 lines (just in case)
     footer1 = [m.group('first') for m in footer_regex.finditer(txt)]
@@ -331,7 +379,8 @@ def find_tables(txt, file_name, num_pages):
     #     footer2 += [''] * (len(footer1) - len(footer2))
 
     # zipping them together
-    footer_complete = [m[0] + m[1] + m[2] for m in zip(footer1, footer2, footer3) if m[0] is not None and m[1] is not None and m[2] is not None]
+    footer_complete = [m[0] + m[1] + m[2] for m in zip(footer1, footer2, footer3) if
+                       m[0] is not None and m[1] is not None and m[2] is not None]
 
     # removing None and duplicates
     footers = [extract_page_number(x) for x in footer_complete]
@@ -342,12 +391,24 @@ def find_tables(txt, file_name, num_pages):
 
 
 def repair_pdf_page_count(file: str) -> int:
+    """
+    Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
+    By opening this file in a pdf reader, we can already extract number of pages
+    @param file: file name
+    @return: number of pages in pdf file
+    """
     pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
     pdf.save(file)
     return len(pdf.pages)
 
 
 def extract_certs_from_tables(list_of_files, html_items):
+    """
+    Function that extracts algorithm IDs from tables in security policies files.
+    @param list_of_files: iterable containing all files to parse
+    @param html_items: dictionary created by main() containing data extracted from html pages
+    @return: list of files that couldn't have been decoded
+    """
     not_decoded = []
     for cert_file in list_of_files:
         if '.txt' not in cert_file:
@@ -439,7 +500,6 @@ def main(directory):
     get_dot_graph(html, 'output')
     end = time.time()
     print("TIME:", end - start)
-    print("COUNT:", count)
 
 
 if __name__ == '__main__':
