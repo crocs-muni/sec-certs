@@ -1,19 +1,19 @@
-from PyPDF2 import PdfFileReader
-
-import sanity
-from tags_constants import *
+import csv
+import json
 import re
 import os
 import operator
-from graphviz import Digraph
-import json
-import csv
 import string
 
-from analyze_certificates import is_in_dict
-from cert_rules import rules, fips_rules
 from enum import Enum
 import matplotlib.pyplot as plt
+from PyPDF2 import PdfFileReader
+from graphviz import Digraph
+
+import sanity
+from analyze_certificates import is_in_dict
+from cert_rules import rules, fips_rules
+from tags_constants import *
 
 plt.rcdefaults()
 
@@ -321,10 +321,9 @@ def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_tex
     try:
         write_file.write(modified_cert_file_text)
     except UnicodeEncodeError as e:
-        write_file.close()
         print('UnicodeDecodeError while writing file fragments back')
-
-    write_file.close()
+    finally:
+        write_file.close()
 
 
 def process_raw_header(items_found):
@@ -2408,7 +2407,7 @@ def generate_failed_download_script(base_dir):
     MIN_CORRECT_CERT_SIZE = 5000
     download_again = []
     for sub_folder in sub_folders:
-        target_dir = '{}{}{}'.format(base_dir, os.sep, sub_folder)
+        target_dir = os.path.join(base_dir, sub_folder)
         # obtain list of all downloaded pdf files and their size
         files = search_files(target_dir)
         for file_name in files:

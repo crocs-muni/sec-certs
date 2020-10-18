@@ -1,5 +1,7 @@
 import extract_certificates
 
+import os
+
 FILE_ERRORS_STRATEGY = extract_certificates.FILE_ERRORS_STRATEGY
 
 
@@ -16,8 +18,8 @@ def generate_fips_download_script(file_name, fips_dir):
     :param file_name: name of the download file
     :param fips_dir: directory for saved files
     """
-    html_dir = fips_dir + '/html/'
-    sp_dir = fips_dir + '/security_policies/'
+    html_dir = os.path.join(fips_dir, 'html')
+    sp_dir = os.path.join(fips_dir, 'security_policies')
 
     with open(file_name, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
         # make directories for both html and security policies, scraping in one go
