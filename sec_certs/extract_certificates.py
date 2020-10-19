@@ -3,7 +3,6 @@ import json
 import re
 import os
 import operator
-import string
 
 from enum import Enum
 from pathlib import Path
@@ -11,10 +10,11 @@ import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileReader
 from graphviz import Digraph
 
-import sanity
-from analyze_certificates import is_in_dict
-from cert_rules import rules, fips_rules
-from tags_constants import *
+from . import sanity
+from .analyze_certificates import is_in_dict
+from .cert_rules import rules, fips_rules
+from .files import search_files, load_cert_html_file, FILE_ERRORS_STRATEGY
+from .tags_constants import *
 
 plt.rcdefaults()
 
@@ -22,20 +22,11 @@ plt.rcdefaults()
 # Used as sanity check during development to detect sudden drop in number of extracted features
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
-FILE_ERRORS_STRATEGY = 'surrogateescape'
-'replace'
-# FILE_ERRORS_STRATEGY = 'strict'
-CC_WEB_URL = 'https://www.commoncriteriaportal.org'
 PDF2TEXT_CONVERT = 'pdftotext -raw'
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
 # LINE_SEPARATOR = ''  # if newline is not replaced with space, long string included in matches are found
-
-
-def search_files(folder):
-    for root, dirs, files in os.walk(folder):
-        yield from [os.path.join(root, x) for x in files]
 
 
 def get_line_number(lines, line_length_compensation, match_start_index):
@@ -91,20 +82,6 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
         lines_included += 1
 
     return whole_text, whole_text_with_newlines, was_unicode_decode_error
-
-
-def load_cert_html_file(file_name):
-    with open(file_name, 'r', errors=FILE_ERRORS_STRATEGY) as f:
-        try:
-            whole_text = f.read()
-        except UnicodeDecodeError:
-            f.close()
-            with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
-                try:
-                    whole_text = f2.read()
-                except UnicodeDecodeError:
-                    print('### ERROR: failed to read file {}'.format(file_name))
-    return whole_text
 
 
 def normalize_match_string(match):
@@ -346,18 +323,6 @@ def print_specified_property_sorted(section_name, item_name, items_found_all):
         print(item)
 
 
-def print_found_properties(items_found_all):
-    print_specified_property_sorted(TAG_CERT_ID, items_found_all)
-    print_specified_property_sorted(TAG_CERT_ITEM, items_found_all)
-    print_specified_property_sorted(TAG_CERT_ITEM_VERSION, items_found_all)
-    print_specified_property_sorted(
-        TAG_REFERENCED_PROTECTION_PROFILES, items_found_all)
-    print_specified_property_sorted(TAG_CC_VERSION, items_found_all)
-    print_specified_property_sorted(TAG_CC_SECURITY_LEVEL, items_found_all)
-    print_specified_property_sorted(TAG_DEVELOPER, items_found_all)
-    print_specified_property_sorted(TAG_CERT_LAB, items_found_all)
-
-
 def search_only_headers_bsi(walk_dir: Path):
     print('BSI HEADER SEARCH')
     LINE_SEPARATOR_STRICT = ' '
@@ -465,9 +430,6 @@ def search_only_headers_bsi(walk_dir: Path):
 
         if no_match_yet:
             files_without_match.append(file_name)
-
-    if False:
-        print_found_properties(items_found_all)
 
     print('\n*** Certificates without detected preface:')
     for file_name in files_without_match:
@@ -678,9 +640,6 @@ def search_only_headers_anssi(walk_dir: Path):
 
         if no_match_yet:
             files_without_match.append(file_name)
-
-    if False:
-        print_found_properties(items_found_all)
 
     print('\n*** Certificates without detected preface:')
     for file_name in files_without_match:
@@ -1061,9 +1020,6 @@ def search_pp_only_headers(walk_dir: Path):
 
         if no_match_yet:
             files_without_match.append(file_name)
-
-    if False:
-        print_found_properties(items_found_all)
 
     print('\n*** Protection profiles without detected header:')
     for file_name in files_without_match:
@@ -1748,76 +1704,25 @@ def extract_pp_metadata_csv(file_name):
     return items_found_all, download_files_certs, download_files_maintainance
 
 
-def generate_download_script(file_name, certs_dir, targets_dir, base_url, download_files_certs):
-    with open(file_name, "w", errors=FILE_ERRORS_STRATEGY) as write_file:
-        # certs files
-        if certs_dir != '':
-            write_file.write('mkdir \"{}\"\n'.format(certs_dir))
-            write_file.write('cd \"{}\"\n\n'.format(certs_dir))
-        for cert in download_files_certs:
-            # double %% is necessary to prevent replacement of %2 within script (second argument of script)
-            file_name_short_web = cert[0].replace(' ', '%%20')
-
-            if file_name_short_web.find(base_url) != -1:
-                # base url already included
-                write_file.write(
-                    'curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[1]))
-            else:
-                # insert base url
-                write_file.write(
-                    'curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[1]))
-            write_file.write('{} \"{}\"\n\n'.format(PDF2TEXT_CONVERT, cert[1]))
-
-        if len(download_files_certs) > 0 and len(cert) > 2:
-            # security targets file
-            if targets_dir != '':
-                write_file.write('\n\ncd ..\n')
-                write_file.write('mkdir \"{}\"\n'.format(targets_dir))
-                write_file.write('cd \"{}\"\n\n'.format(targets_dir))
-            for cert in download_files_certs:
-                # double %% is necessary to prevent replacement of %2 within script (second argument of script)
-                file_name_short_web = cert[2].replace(' ', '%%20')
-                if file_name_short_web.find(base_url) != -1:
-                    # base url already included
-                    write_file.write(
-                        'curl \"{}\" -o \"{}\"\n'.format(file_name_short_web, cert[3]))
-                else:
-                    # insert base url
-                    write_file.write(
-                        'curl \"{}{}\" -o \"{}\"\n'.format(base_url, file_name_short_web, cert[3]))
-                write_file.write('{} \"{}\"\n\n'.format(
-                    PDF2TEXT_CONVERT, cert[3]))
-
-
 def extract_certificates_html(web_dir: Path):
     file_name = web_dir / 'cc_products_active.html'
-    items_found_all_active, download_files_certs, download_files_updates = extract_certificates_metadata_html(
+    items_found_all_active, certs_active, updates_active = extract_certificates_metadata_html(
         file_name)
     for item in items_found_all_active.keys():
         items_found_all_active[item]['html_scan']['cert_status'] = 'active'
 
-    generate_download_script('download_active_certs.bat',
-                             'certs', 'targets', CC_WEB_URL, download_files_certs)
-    generate_download_script('download_active_updates.bat',
-                             'certs', 'targets', CC_WEB_URL, download_files_updates)
-
     file_name = web_dir / 'cc_products_archived.html'
-    items_found_all_archived, download_files_certs, download_files_updates = extract_certificates_metadata_html(
+    items_found_all_archived, certs_archive, updates_archive = extract_certificates_metadata_html(
         file_name)
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['html_scan']['cert_status'] = 'archived'
 
-    generate_download_script('download_archived_certs.bat',
-                             'certs', 'targets', CC_WEB_URL, download_files_certs)
-    generate_download_script('download_archived_updates.bat',
-                             'certs', 'targets', CC_WEB_URL, download_files_updates)
-
     items_found_all = {**items_found_all_active, **items_found_all_archived}
 
-    return items_found_all
+    return items_found_all, certs_active + certs_archive, updates_active + updates_archive
 
 
-def extract_certificates_csv(web_dir: Path, results_dir: Path):
+def extract_certificates_csv(web_dir: Path):
     file_name = web_dir / 'cc_products_active.csv'
     items_found_all_active = extract_certificates_metadata_csv(file_name)
     for item in items_found_all_active.keys():
@@ -1840,21 +1745,12 @@ def extract_protectionprofiles_csv(base_dir: Path):
     for item in items_found_all_active.keys():
         items_found_all_active[item]['csv_scan']['cert_status'] = 'active'
 
-    generate_download_script('download_active_pp.bat',
-                             'pp_report', 'pp', CC_WEB_URL, download_files_pp)
-    generate_download_script('download_active_pp_updates.bat',
-                             'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
     file_name = base_dir / 'cc_pp_archived.csv'
     items_found_all_archived, download_files_pp, download_files_pp_updates = extract_pp_metadata_csv(
         file_name)
     for item in items_found_all_archived.keys():
         items_found_all_archived[item]['csv_scan']['cert_status'] = 'archived'
-
-    generate_download_script('download_archived_pp.bat',
-                             'pp_report', 'pp', CC_WEB_URL, download_files_pp)
-    generate_download_script('download_archived_pp_updates.bat',
-                             'pp_updates', '', CC_WEB_URL, download_files_pp_updates)
 
     items_found_all = {**items_found_all_active, **items_found_all_archived}
 
@@ -2303,71 +2199,3 @@ def process_certificates_data(all_cert_items, all_pp_items):
                             cert['processed']['pp_filename'] = sub_profile['pp_filename']
 
     return all_cert_items
-
-
-def generate_basic_download_script(web_dir: Path):
-    with open(web_dir / 'download_cc_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/products/\" -o cc_products_active.html\n')
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/products/index.cfm?archived=1\" -o cc_products_archived.html\n\n')
-
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/labs/\" -o cc_labs.html\n')
-
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/products/certified_products.csv\" -o cc_products_active.csv\n')
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/products/certified_products-archived.csv\" -o cc_products_archived.csv\n\n')
-
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/pps/\" -o cc_pp_active.html\n')
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1\" -o cc_pp_collaborative.html\n')
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/pps/index.cfm?archived=1\" -o cc_pp_archived.html\n\n')
-
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/pps/pps.csv\" -o cc_pp_active.csv\n')
-        file.write(
-            'curl \"https://www.commoncriteriaportal.org/pps/pps-archived.csv\" -o cc_pp_archived.csv\n\n')
-
-
-def generate_failed_download_script(base_dir: Path):
-    # obtain list of all downloaded pdf files and their size
-    # check for pdf files with too small length
-    # generate download script again (single one)
-
-    # visit all relevant subfolders
-    sub_folders = ['active/certs', 'active/targets', 'active_update/certs', 'active_update/targets',
-                   'archived/certs', 'archived/targets', 'archived_update/certs', 'archived_update/targets']
-
-    # the smallest correct certificate downloaded was 71kB, if server error occurred, it was only 1245 bytes
-    MIN_CORRECT_CERT_SIZE = 5000
-    download_again = []
-    for sub_folder in sub_folders:
-        target_dir = base_dir / sub_folder
-        # obtain list of all downloaded pdf files and their size
-        files = search_files(target_dir)
-        for file_name in files:
-            # process only .pdf files
-            if not os.path.isfile(file_name):
-                continue
-            file_ext = file_name[file_name.rfind('.'):].upper()
-            if file_ext != '.PDF' and file_ext != '.DOC' and file_ext != '.DOCX':
-                continue
-
-            # obtain size of file
-            file_size = os.path.getsize(file_name)
-            if file_size < MIN_CORRECT_CERT_SIZE:
-                # too small file, likely failed download - retry
-                file_name_short = file_name[file_name.rfind(os.sep) + 1:]
-                # double %% is necessary to prevent replacement of %2 within script (second argument of script)
-                file_name_short_web = file_name_short.replace(' ', '%%20')
-                download_link = '/files/epfiles/{}'.format(file_name_short_web)
-                download_again.append((download_link, file_name))
-
-    generate_download_script('download_failed_certs.bat',
-                             '', '', CC_WEB_URL, download_again)
-    print('*** Number of files to be re-downloaded again (inside \'{}\'): {}'.format(
-        'download_failed_certs.bat', len(download_again)))

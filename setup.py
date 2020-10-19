@@ -28,7 +28,8 @@ setup(
         "tabulate",
         "tabula-py",
         "pikepdf",
-        "Click"
+        "Click",
+        "requests"
     ],
     entry_points = """
         [console_scripts]
