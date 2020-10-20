@@ -4,6 +4,11 @@ import re
 import os
 import operator
 
+import subprocess
+from multiprocessing.pool import ThreadPool
+from typing import Sequence
+
+from tqdm import tqdm
 from enum import Enum
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -22,7 +27,6 @@ plt.rcdefaults()
 # Used as sanity check during development to detect sudden drop in number of extracted features
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
-PDF2TEXT_CONVERT = 'pdftotext -raw'
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
@@ -40,6 +44,25 @@ def get_line_number(lines, line_length_compensation, match_start_index):
         line_number += 1
     # not found
     return -1
+
+
+def convert_pdf_files(walk_dir: Path, num_threads: int, options: Sequence[str]) -> Sequence[subprocess.CompletedProcess]:
+    def convert_pdf_file(file_name: str):
+        return subprocess.run(["pdftotext", *options, file_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    items = []
+    for file_name in search_files(walk_dir):
+        if not os.path.isfile(file_name):
+            continue
+        file_ext = file_name[file_name.rfind('.'):]
+        if file_ext.lower() != '.pdf':
+            continue
+        items.append(file_name)
+    results = []
+    with tqdm(total=len(items)) as progress:
+        for result in ThreadPool(num_threads).imap(convert_pdf_file, items):
+            progress.update(1)
+            results.append(result)
+    return results
 
 
 def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
@@ -1042,9 +1065,6 @@ def extract_protectionprofiles_frontpage(walk_dir: Path):
 
 
 def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix, should_censure_right_away=False, fips_items=None):
-    # ensure existence of fragments folder
-    if not os.path.exists(fragments_dir):
-        os.makedirs(fragments_dir)
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
     # cert_id = {}
