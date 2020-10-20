@@ -2,6 +2,7 @@ import os
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from tqdm import tqdm
+from typing import Sequence, Tuple
 
 import requests
 
@@ -15,10 +16,16 @@ def download_file(url: str, output: Path) -> int:
     r = requests.get(url, allow_redirects=True)
     with output.open("wb") as f:
         f.write(r.content)
-        # for chunk in r.iter_content(chunk_size=1024):
-        #    if chunk:
-        #        f.write(chunk)
     return r.status_code
+
+
+def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[int]:
+    responses = []
+    with tqdm(total=len(items)) as progress:
+        for response in ThreadPool(num_threads).imap(download_file, items):
+            progress.update(1)
+            responses.append(response)
+    return responses
 
 
 def generate_download_script(file_name, certs_dir, targets_dir, base_url, download_files_certs):
@@ -61,38 +68,40 @@ def generate_download_script(file_name, certs_dir, targets_dir, base_url, downlo
                 write_file.write(f'{PDF2TEXT_CONVERT} \"{cert[3]}\"\n\n')
 
 
-def download_cc_web(web_dir: Path):
-    download_file("https://www.commoncriteriaportal.org/products/", web_dir / "cc_products_active.html")
-    download_file("https://www.commoncriteriaportal.org/products/index.cfm?archived=1",
-                  web_dir / "cc_products_archived.html")
-    download_file("https://www.commoncriteriaportal.org/labs/", web_dir / "cc_labs.html")
-    download_file("https://www.commoncriteriaportal.org/products/certified_products.csv",
-                  web_dir / "cc_products_active.csv")
-    download_file("https://www.commoncriteriaportal.org/products/certified_products-archived.csv",
-                  web_dir / "cc_products_archived.csv")
-    download_file("https://www.commoncriteriaportal.org/pps/", web_dir / "cc_pp_active.html")
-    download_file("https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1",
-                  web_dir / "cc_pp_collaborative.html")
-    download_file("https://www.commoncriteriaportal.org/pps/index.cfm?archived=1", web_dir / "cc_pp_archived.html")
-    download_file("https://www.commoncriteriaportal.org/pps/pps.csv", web_dir / "cc_pp_active.csv")
-    download_file("https://www.commoncriteriaportal.org/pps/pps-archived.csv", web_dir / "cc_pp_archived.csv")
+def download_cc_web(web_dir: Path, num_threads: int) -> Sequence[int]:
+    items = [
+        ("https://www.commoncriteriaportal.org/products/", web_dir / "cc_products_active.html"),
+        ("https://www.commoncriteriaportal.org/products/index.cfm?archived=1",
+            web_dir / "cc_products_archived.html"),
+        ("https://www.commoncriteriaportal.org/labs/", web_dir / "cc_labs.html"),
+        ("https://www.commoncriteriaportal.org/products/certified_products.csv",
+            web_dir / "cc_products_active.csv"),
+        ("https://www.commoncriteriaportal.org/products/certified_products-archived.csv",
+            web_dir / "cc_products_archived.csv"),
+        ("https://www.commoncriteriaportal.org/pps/", web_dir / "cc_pp_active.html"),
+        ("https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1",
+            web_dir / "cc_pp_collaborative.html"),
+        ("https://www.commoncriteriaportal.org/pps/index.cfm?archived=1",
+            web_dir / "cc_pp_archived.html"),
+        ("https://www.commoncriteriaportal.org/pps/pps.csv", web_dir / "cc_pp_active.csv"),
+        ("https://www.commoncriteriaportal.org/pps/pps-archived.csv",
+            web_dir / "cc_pp_archived.csv")]
+    return download_parallel(items, num_threads)
 
 
-def download_cc(walk_dir: Path, cert_list, num_threads):
-    def download_one(cert):
+def download_cc(walk_dir: Path, cert_list, num_threads: int) -> Sequence[int]:
+    items = []
+    for cert in cert_list:
         if cert[0].find(CC_WEB_URL) != -1:
-            download_file(cert[0], walk_dir / "certs" / cert[1])
+            items.append((cert[0], walk_dir / "certs" / cert[1]))
         else:
-            download_file(CC_WEB_URL + cert[0], walk_dir / "certs" / cert[1])
+            items.append((CC_WEB_URL + cert[0], walk_dir / "certs" / cert[1]))
         if len(cert) > 2:
             if cert[2].find(CC_WEB_URL) != -1:
-                download_file(cert[2], walk_dir / "targets" / cert[3])
+                items.append((cert[2], walk_dir / "targets" / cert[3]))
             else:
-                download_file(CC_WEB_URL + cert[2], walk_dir / "targets" / cert[3])
-
-    with tqdm(total=len(cert_list)) as pbar:
-        for response in ThreadPool(num_threads).imap(download_one, cert_list):
-            pbar.update(1)
+                items.append((CC_WEB_URL + cert[2], walk_dir / "targets" / cert[3]))
+    return download_parallel(items, num_threads)
 
 
 def generate_failed_download_script(base_dir: Path):
@@ -135,32 +144,16 @@ def generate_failed_download_script(base_dir: Path):
         f'*** Number of files to be re-downloaded again (inside \'{"download_failed_certs.bat"}\'): {len(download_again)}')
 
 
-def generate_fips_basic_download_script():
-    with open('download_fips_web.bat', 'w', errors=FILE_ERRORS_STRATEGY) as file:
-        file.write(
-            'curl "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search'
-            '/all" -o fips_modules_validated.html\n')
+def download_fips_web(web_dir: Path):
+    download_file("https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all",
+                  web_dir / "fips_modules_validated.html")
 
 
-def generate_fips_download_script(file_name, fips_dir):
-    """generate_fips_download_script.
-
-    :param file_name: name of the download file
-    :param fips_dir: directory for saved files
-    """
-    html_dir = os.path.join(fips_dir, 'html')
-    sp_dir = os.path.join(fips_dir, 'security_policies')
-
-    with open(file_name, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
-        # make directories for both html and security policies, scraping in one go
-        write_file.write(f'mkdir {html_dir}\n')
-        write_file.write(f'mkdir {sp_dir}\n\n')
-
-        # upper bound for max certs, in reality there is ~ 3730 certificates
-        for cert_id in range(1, 4001):
-            write_file.write(
-                f'curl "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}" -o {html_dir}{cert_id}.html\n')
-            write_file.write(
-                f'curl "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents'
-                '/security-policies/140sp{cert_id}.pdf" -o {sp_dir}{cert_id}.pdf\n')
-            write_file.write(f"{PDF2TEXT_CONVERT} {sp_dir}{cert_id}.pdf\n")
+def download_fips(web_dir: Path, policies_dir: Path, num_threads: int) -> Sequence[int]:
+    html_items = [
+        (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
+         web_dir / f"{cert_id}.html") for cert_id in range(1, 4001)]
+    sp_items = [
+        (f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
+         policies_dir / f"{cert_id}.pdf") for cert_id in range(1, 4001)]
+    return download_parallel(html_items + sp_items, num_threads)

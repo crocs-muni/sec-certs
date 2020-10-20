@@ -12,6 +12,7 @@ import pikepdf
 # from camelot import read_pdf
 from tabula import read_pdf
 
+from .download import download_fips_web, download_fips
 from . import extract_certificates
 from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
 from .cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
@@ -455,11 +456,29 @@ def extract_certs_from_tables(list_of_files, html_items):
 
 @click.command()
 @click.argument("directory", required=True, type=str, help="The directory to use.")
-def main(directory):
+@click.option("--do-download-meta", "do_download_meta", is_flag=True, help="Whether to download meta pages.")
+@click.option("--do-download-certs", "do_download_certs", is_flag=True, help="Whether to download certs.")
+@click.option("-t", "--threads", "threads", type=int, default=4, help="Amount of threads to use.")
+def main(directory, do_download_meta: bool, do_download_certs: bool, threads: int):
     start = time.time()
     directory = Path(directory)
+    web_dir = directory / "web"
+    fragments_dir = directory / "fragments"
     results_dir = directory / "results"
     policies_dir = directory / "security_policies"
+
+    directory.mkdir(parents=True, exist_ok=True)
+    web_dir.mkdir(parents=True, exist_ok=True)
+    fragments_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    policies_dir.mkdir(parents=True, exist_ok=True)
+
+    if do_download_meta:
+        download_fips_web(web_dir)
+
+    if do_download_certs:
+        download_fips(web_dir, policies_dir, threads)
+
 
     files_to_load = [
         results_dir / 'fips_data_keywords_all.json',
@@ -468,11 +487,11 @@ def main(directory):
 
     for file in files_to_load:
         if not os.path.isfile(file):
-            fips_items = fips_search_html(directory / 'html',
+            fips_items = fips_search_html(web_dir,
                                           results_dir / 'fips_html_all.json', True)
             items = extract_certificates.extract_certificates_keywords(
-                directory / 'security_policies',
-                directory / 'fragments', 'fips', fips_items=fips_items,
+                policies_dir,
+                fragments_dir, 'fips', fips_items=fips_items,
                 should_censure_right_away=True)
             with open(results_dir / 'fips_data_keywords_all.json', 'w') as f:
                 json.dump(items, f, indent=4, sort_keys=True)

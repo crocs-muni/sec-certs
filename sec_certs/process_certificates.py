@@ -66,7 +66,7 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
                                             'certificate_data_pdfmeta_all.json']))
 
     if do_download_meta:
-        download_cc_web(web_dir)
+        download_cc_web(web_dir, threads)
 
         # NOTE: Code below is preparation for differetian download of only new certificates
         # - unfinished now
