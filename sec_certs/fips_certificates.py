@@ -7,17 +7,16 @@ from pathlib import Path
 from typing import Set, Optional
 
 from graphviz import Digraph
-from PyPDF2 import PdfFileReader, utils
 import click
 import pikepdf
 # from camelot import read_pdf
 from tabula import read_pdf
 
-import extract_certificates
-from process_certificates import load_json_files
-from cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
+from . import extract_certificates
+from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
+from .cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
 
-FILE_ERRORS_STRATEGY = extract_certificates.FILE_ERRORS_STRATEGY
+
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
@@ -96,10 +95,10 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
 
     all_found_items = {}
 
-    for file in extract_certificates.search_files(base_dir):
+    for file in sec_certs.files.search_files(base_dir):
         items_found = {}
         initialize_entry(items_found)
-        text = extract_certificates.load_cert_html_file(file)
+        text = sec_certs.files.load_cert_html_file(file)
         filename = os.path.splitext(os.path.basename(file))[0]
         all_found_items[filename] = items_found
         items_found['cert_fips_id'] = filename
@@ -423,7 +422,7 @@ def main(directory):
     items, html = load_json_files(files_to_load)
 
     print("FINDING TABLES")
-    not_decoded = extract_certs_from_tables(extract_certificates.search_files(policies_dir), html)
+    not_decoded = extract_certs_from_tables(search_files(policies_dir), html)
 
     print("NOT DECODED:", not_decoded)
     with open(results_dir / 'broken_files.json', 'w') as f:

@@ -1,117 +1,33 @@
 #!/usr/bin/env python3
-import os
-import json
-from pathlib import Path
 
 import click
 
-from extract_certificates import *
-from analyze_certificates import *
-
-
-def do_all_analysis(all_cert_items, filter_label):
-    generate_dot_graphs(all_cert_items, filter_label)
-    analyze_cert_years_frequency(all_cert_items, filter_label)
-    analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
-    analyze_eal_frequency(all_cert_items, filter_label)
-    analyze_security_assurance_component_frequency(all_cert_items, filter_label)
-    analyze_security_functional_component_frequency(all_cert_items, filter_label)
-    analyze_pdfmeta(all_cert_items, filter_label)
-    plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
-
-
-def do_analysis_everything(all_cert_items, current_dir: Path):
-    if not os.path.exists(current_dir):
-        os.makedirs(current_dir)
-    os.chdir(current_dir)
-    do_all_analysis(all_cert_items, '')
-
-
-def do_analysis_09_01_2019_archival(all_cert_items, current_dir: Path):
-    target_folder = os.path.join(current_dir, 'results_archived01092019_only')
-    if not os.path.exists(target_folder):
-        os.makedirs(target_folder)
-    os.chdir(target_folder)
-    archived_date = '09/01/2019'
-    limited_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_archived_date']) and all_cert_items[x]['csv_scan']['cc_archived_date'] == archived_date}
-    do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
-
-
-def do_analysis_manufacturers(all_cert_items, current_dir: Path):
-    # analyze only Infineon certificates
-    do_analysis_only_filtered(all_cert_items, current_dir,
-                              ['processed', 'cc_manufacturer_simple'], 'Infineon Technologies AG')
-    # analyze only NXP certificates
-    do_analysis_only_filtered(all_cert_items, current_dir,
-                          ['processed', 'cc_manufacturer_simple'], 'NXP Semiconductors')
-    # analyze only Red Hat certificates
-    do_analysis_only_filtered(all_cert_items, current_dir,
-                              ['processed', 'cc_manufacturer_simple'], 'Red Hat, Inc')
-    # analyze only Suse certificates
-    do_analysis_only_filtered(all_cert_items, current_dir,
-                              ['processed', 'cc_manufacturer_simple'], 'SUSE Linux Products Gmbh')
-
-
-def do_analysis_only_filtered(all_cert_items, current_dir: Path, filter_path, filter_value):
-    filter_string = ''
-    for item in filter_path:
-        if len(filter_string) > 0:
-            filter_string = filter_string + '__'
-        filter_string = filter_string + item
-    target_folder = current_dir / '{}={}'.format(filter_string, filter_value)
-    if not os.path.exists(target_folder):
-        os.makedirs(target_folder)
-    os.chdir(target_folder)
-
-    cert_items = {}
-    for cert_item_key in all_cert_items.keys():
-        item = get_item_from_dict(all_cert_items[cert_item_key], filter_path)
-        if item is not None:
-            if item == filter_value:
-                # Match found, include
-                cert_items[cert_item_key] = all_cert_items[cert_item_key]
-
-    #cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', filter_key]) and all_cert_items[x]['csv_scan'][filter_key] == filter_value}
-
-    print(len(cert_items))
-    do_all_analysis(cert_items, '{}={}'.format(filter_string, filter_value))
-
-
-def do_analysis_only_category(all_cert_items, current_dir: Path, category):
-    do_analysis_only_filtered(all_cert_items, current_dir, ['csv_scan', 'cc_category'], category)
-
-
-def do_analysis_only_smartcards(all_cert_items, current_dir: Path):
-    do_analysis_only_category(all_cert_items, current_dir, 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
-
-
-def do_analysis_only_operatingsystems(all_cert_items, current_dir: Path):
-    do_analysis_only_category(all_cert_items, current_dir, 'Operating Systems')
-
-
-def load_json_files(files_list):
-    loaded_jsons = []
-    for file_name in files_list:
-        with open(file_name) as json_file:
-            loaded_items = json.load(json_file)
-            loaded_jsons.append(loaded_items)
-            print('{} loaded, total items = {}'.format(file_name, len(loaded_items)))
-    return tuple(loaded_jsons)
+from .files import load_json_files
+from .extract_certificates import *
+from .analyze_certificates import *
+from .download import download_cc_web, download_cc
 
 
 @click.command()
 @click.argument("directory", required=True, type=str)
 @click.option("--fresh", "do_complete_extraction", is_flag=True, help="Whether to extract from a fresh state.")
-@click.option("--do-download", "do_download_certs", is_flag=True, help="Whether to download certificate pages.")
-@click.option("--do-extraction", "do_extraction", is_flag=True, help="Whether to extract information from the certs.")
+@click.option("--do-download-meta", "do_download_meta", is_flag=True, help="Whether to download meta pages.")
+@click.option("--do-extraction-meta", "do_extraction_meta", is_flag=True, help="Whether to extract information from the meta pages.")
+@click.option("--do-download-certs", "do_download_certs", is_flag=True, help="Whether to download certs.")
+@click.option("--do-extraction", "do_extraction_certs", is_flag=True, help="Whether to extract information from the certs.")
 @click.option("--do-pairing", "do_pairing", is_flag=True, help="Whether to pair PP stuff.")
 @click.option("--do-processing", "do_processing", is_flag=True, help="Whether to process certificates.")
-@click.option("--do-anaysis", "do_analysis", is_flag=True, help="Whether to analyse certificates.")
-def main(directory, do_complete_extraction: bool, do_download_certs: bool, do_extraction: bool, do_pairing: bool, do_processing: bool, do_analysis: bool):
+@click.option("--do-analysis", "do_analysis", is_flag=True, help="Whether to analyse certificates.")
+@click.option("-t", "--threads", "threads", type=int, default=4, help="Amount of threads to use.")
+def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_extraction_meta: bool,
+         do_download_certs: bool, do_extraction_certs: bool,
+         do_pairing: bool, do_processing: bool, do_analysis: bool, threads: int):
     directory = Path(directory)
 
     web_dir = directory / "web"
     walk_dir = directory / "certs"
+    certs_dir = walk_dir / "certs"
+    targets_dir = walk_dir / "targets"
     pp_dir = directory / "pp"
     fragments_dir = directory / "cert_fragments"
     pp_fragments_dir = directory / "pp_fragments"
@@ -119,45 +35,38 @@ def main(directory, do_complete_extraction: bool, do_download_certs: bool, do_ex
 
     web_dir.mkdir(parents=True, exist_ok=True)
     walk_dir.mkdir(parents=True, exist_ok=True)
+    certs_dir.mkdir(parents=True, exist_ok=True)
+    targets_dir.mkdir(parents=True, exist_ok=True)
     pp_dir.mkdir(parents=True, exist_ok=True)
     fragments_dir.mkdir(parents=True, exist_ok=True)
     pp_fragments_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. generate_basic_download_script
-    # 2. run and download basic cc files from webpage (no certs yet)
-
     #
     # Start processing
     #
-    generate_basic_download_script(web_dir)
-    generate_failed_download_script(walk_dir)
-
-    #do_complete_extraction = True
-    #do_download_certs = True
-    #do_extraction = True
-    #do_pairing = True
-    #do_processing = True
-    #do_analysis = True
     do_analysis_filtered = False
 
     if do_complete_extraction:
         # analyze all files from scratch, set 'previous' state to empty dict
         prev_csv = {}
         prev_html = {}
+        prev_download = []
         prev_front = {}
         prev_keywords = {}
         prev_pdf_meta = {}
     else:
         # load previously analyzed results
-        prev_csv, prev_html, prev_front, prev_keywords, prev_pdf_meta = load_json_files(
-            map(lambda x: results_dir / x, ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
-             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json']))
+        prev_csv, prev_html, prev_download, prev_front, prev_keywords, prev_pdf_meta = load_json_files(
+            map(lambda x: results_dir / x, ['certificate_data_csv_all.json',
+                                            'certificate_data_html_all.json',
+                                            'certificate_data_download_all.json',
+                                            'certificate_data_frontpage_all.json',
+                                            'certificate_data_keywords_all.json',
+                                            'certificate_data_pdfmeta_all.json']))
 
-    if do_download_certs:
-        # extract_certificates_html() will generate download scripts for cert documents
-        # NOTE: download scripts must be run manually now
-        current_html = extract_certificates_html(web_dir)
+    if do_download_meta:
+        download_cc_web(web_dir)
 
         # NOTE: Code below is preparation for differetian download of only new certificates
         # - unfinished now
@@ -185,18 +94,27 @@ def main(directory, do_complete_extraction: bool, do_download_certs: bool, do_ex
         #
         # print('*** New items detected: {}'.format(len(new_items)))
 
-    if do_extraction:
+    if do_extraction_meta:
         all_csv = extract_certificates_csv(web_dir)
-        all_html = extract_certificates_html(web_dir)
+        all_html, certs, updates = extract_certificates_html(web_dir)
+
+        with open(results_dir / "certificate_data_csv_all.json", "w") as write_file:
+            json.dump(all_csv, write_file, indent=4, sort_keys=True)
+        with open(results_dir / "certificate_data_html_all.json", "w") as write_file:
+            json.dump(all_html, write_file, indent=4, sort_keys=True)
+        with open(results_dir / "certificate_data_download_all.json", "w") as write_file:
+            json.dump(certs + updates, write_file, indent=4, sort_keys=True)
+
+    if do_download_certs:
+        all_download = load_json_files([results_dir / "certificate_data_download_all.json"])
+        download_cc(walk_dir, all_download[0], threads)
+
+    if do_extraction_certs:
         all_front = extract_certificates_frontpage(walk_dir)
         all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
         all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', results_dir)
 
         # save joined results
-        with open(results_dir / "certificate_data_csv_all.json", "w") as write_file:
-            json.dump(all_csv, write_file, indent=4, sort_keys=True)
-        with open(results_dir / "certificate_data_html_all.json", "w") as write_file:
-            json.dump(all_html,  write_file, indent=4, sort_keys=True)
         with open(results_dir / "certificate_data_frontpage_all.json", "w") as write_file:
             json.dump(all_front,  write_file, indent=4, sort_keys=True)
         with open(results_dir / "certificate_data_keywords_all.json", "w") as write_file:
@@ -237,8 +155,11 @@ def main(directory, do_complete_extraction: bool, do_download_certs: bool, do_ex
         # CERTIFICATES
         # load results from previous step
         all_csv, all_html, all_front, all_keywords, all_pdf_meta = load_json_files(
-            map(lambda x: results_dir / x, ['certificate_data_csv_all.json', 'certificate_data_html_all.json', 'certificate_data_frontpage_all.json',
-             'certificate_data_keywords_all.json', 'certificate_data_pdfmeta_all.json']))
+            map(lambda x: results_dir / x, ['certificate_data_csv_all.json',
+                                            'certificate_data_html_all.json',
+                                            'certificate_data_frontpage_all.json',
+                                            'certificate_data_keywords_all.json',
+                                            'certificate_data_pdfmeta_all.json']))
         # check for unexpected results
         check_expected_cert_results(all_html, all_csv, all_front, all_keywords, all_pdf_meta)
         # collate all results into single file

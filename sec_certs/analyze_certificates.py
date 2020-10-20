@@ -2,6 +2,8 @@ import operator
 import string
 import os
 import datetime
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -10,8 +12,8 @@ from dateutil import parser
 from graphviz import Digraph
 from tabulate import tabulate
 
-import sanity
-from tags_constants import *
+from . import sanity
+from .tags_constants import *
 
 
 plt.rcdefaults()
@@ -827,3 +829,82 @@ def generate_dot_graphs(all_items_found, filter_label):
     #    print_dot_graph(['rules_protection_profiles'], all_items_found, filter_label, 'rules_protection_profiles.dot', False)
     #    print_dot_graph(['rules_defenses'], all_items_found, filter_label, 'rules_defenses.dot', False)
 
+
+def do_all_analysis(all_cert_items, filter_label):
+    generate_dot_graphs(all_cert_items, filter_label)
+    analyze_cert_years_frequency(all_cert_items, filter_label)
+    analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
+    analyze_eal_frequency(all_cert_items, filter_label)
+    analyze_security_assurance_component_frequency(all_cert_items, filter_label)
+    analyze_security_functional_component_frequency(all_cert_items, filter_label)
+    analyze_pdfmeta(all_cert_items, filter_label)
+    plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
+
+
+def do_analysis_everything(all_cert_items, current_dir: Path):
+    if not os.path.exists(current_dir):
+        os.makedirs(current_dir)
+    os.chdir(current_dir)
+    do_all_analysis(all_cert_items, '')
+
+
+def do_analysis_09_01_2019_archival(all_cert_items, current_dir: Path):
+    target_folder = os.path.join(current_dir, 'results_archived01092019_only')
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
+    archived_date = '09/01/2019'
+    limited_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_archived_date']) and all_cert_items[x]['csv_scan']['cc_archived_date'] == archived_date}
+    do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
+
+
+def do_analysis_manufacturers(all_cert_items, current_dir: Path):
+    # analyze only Infineon certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                              ['processed', 'cc_manufacturer_simple'], 'Infineon Technologies AG')
+    # analyze only NXP certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                          ['processed', 'cc_manufacturer_simple'], 'NXP Semiconductors')
+    # analyze only Red Hat certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                              ['processed', 'cc_manufacturer_simple'], 'Red Hat, Inc')
+    # analyze only Suse certificates
+    do_analysis_only_filtered(all_cert_items, current_dir,
+                              ['processed', 'cc_manufacturer_simple'], 'SUSE Linux Products Gmbh')
+
+
+def do_analysis_only_filtered(all_cert_items, current_dir: Path, filter_path, filter_value):
+    filter_string = ''
+    for item in filter_path:
+        if len(filter_string) > 0:
+            filter_string = filter_string + '__'
+        filter_string = filter_string + item
+    target_folder = current_dir / '{}={}'.format(filter_string, filter_value)
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
+
+    cert_items = {}
+    for cert_item_key in all_cert_items.keys():
+        item = get_item_from_dict(all_cert_items[cert_item_key], filter_path)
+        if item is not None:
+            if item == filter_value:
+                # Match found, include
+                cert_items[cert_item_key] = all_cert_items[cert_item_key]
+
+    #cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', filter_key]) and all_cert_items[x]['csv_scan'][filter_key] == filter_value}
+
+    print(len(cert_items))
+    do_all_analysis(cert_items, '{}={}'.format(filter_string, filter_value))
+
+
+def do_analysis_only_category(all_cert_items, current_dir: Path, category):
+    do_analysis_only_filtered(all_cert_items, current_dir, ['csv_scan', 'cc_category'], category)
+
+
+def do_analysis_only_smartcards(all_cert_items, current_dir: Path):
+    do_analysis_only_category(all_cert_items, current_dir, 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
+
+
+def do_analysis_only_operatingsystems(all_cert_items, current_dir: Path):
+    do_analysis_only_category(all_cert_items, current_dir, 'Operating Systems')
