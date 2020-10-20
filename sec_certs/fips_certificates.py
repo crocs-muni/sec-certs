@@ -79,7 +79,7 @@ def parse_algorithms(text, in_pdf=False):
     @return: list of all found algorithm IDs
     """
     items_found = []
-    for m in re.finditer(r"(?:#{}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)".format('?' if in_pdf else ''), text):
+    for m in re.finditer(rf"(?:#{'?' if in_pdf else ''}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
         items_found.append({'Certificate': m.group()})
 
     return items_found
@@ -115,9 +115,9 @@ def initialize_entry(input_dictionary):
 def fips_search_html(base_dir, output_file, dump_to_file=False):
     """fips_search_html.
 
-    :param base_dir: directory to search for html files
-    :param output_file: file to dump json to
-    :param dump_to_file: True/False
+    @param base_dir: directory to search for html files
+    @param output_file: file to dump json to
+    @param dump_to_file: True/False
     """
 
     all_found_items = {}
@@ -133,7 +133,6 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
         for rule in RE_FIPS_HTMLS:
             m = re.search(rule, text)
             if m is None:
-                # print("ERROR: For rule {} nothing found in file {}.".format(rule, file))
                 continue
 
             group_dict = m.groupdict()
@@ -238,7 +237,7 @@ def get_dot_graph(found_items, output_file_name):
                 dot.edge(key, conn)
                 edges += 1
 
-    print("rendering {} keys and {} edges".format(keys, edges))
+    print(f"rendering {keys} keys and {edges} edges")
 
     dot.render(output_file_name + 'connections', view=True)
     single_dot.render(output_file_name + 'single', view=True)
