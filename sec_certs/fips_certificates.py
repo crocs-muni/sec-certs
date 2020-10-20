@@ -25,7 +25,7 @@ def extract_filename(file: str) -> str:
     """
     Extracts filename from path
     @param file: UN*X path
-    @return: filename without last extension
+    :return: filename without last extension
     """
     return os.path.splitext(os.path.basename(file))[0]
 
@@ -33,8 +33,8 @@ def extract_filename(file: str) -> str:
 def parse_ul(text):
     """
     Parses content between <ul> tags in FIPS .html CMVP page
-    @param text: text in <ul> tags
-    @return: all <li> elements
+    :param text: text in <ul> tags
+    :return: all <li> elements
     """
     p = re.compile(r"<li>(.*?)<\/li>")
     return p.findall(text)
@@ -43,8 +43,8 @@ def parse_ul(text):
 def parse_table(text):
     """
     Parses content of <table> tags in FIPS .html CMVP page
-    @param text: text in <table> tags
-    @return: list of all found algorithm IDs
+    :param text: text in <table> tags
+    :return: list of all found algorithm IDs
     """
     items_found_all = []
 
@@ -74,9 +74,9 @@ def parse_table(text):
 def parse_algorithms(text, in_pdf=False):
     """
     Parses table of FIPS (non) allowed algorithms
-    @param text: Contents of the table
-    @param in_pdf: Specifies whether the table was found in a PDF security policies file
-    @return: list of all found algorithm IDs
+    :param text: Contents of the table
+    :param in_pdf: Specifies whether the table was found in a PDF security policies file
+    :return: list of all found algorithm IDs
     """
     items_found = []
     for m in re.finditer(rf"(?:#{'?' if in_pdf else ''}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
@@ -88,8 +88,8 @@ def parse_algorithms(text, in_pdf=False):
 def parse_caveat(text):
     """
     Parses content of "Caveat" of FIPS CMVP .html file
-    @param text: text of "Caveat"
-    @return: list of all found algorithm IDs
+    :param text: text of "Caveat"
+    :return: list of all found algorithm IDs
     """
     items_found = []
 
@@ -102,7 +102,7 @@ def parse_caveat(text):
 def initialize_entry(input_dictionary):
     """
     Initialize input dictionary with elements that shuold be always processed
-    @param input_dictionary: dictionary used as "all_items"
+    :param input_dictionary: dictionary used as "all_items"
     """
     input_dictionary['fips_exceptions'] = []
     input_dictionary['fips_tested_conf'] = []
@@ -115,9 +115,9 @@ def initialize_entry(input_dictionary):
 def fips_search_html(base_dir, output_file, dump_to_file=False):
     """fips_search_html.
 
-    @param base_dir: directory to search for html files
-    @param output_file: file to dump json to
-    @param dump_to_file: True/False
+    :param base_dir: directory to search for html files
+    :param output_file: file to dump json to
+    :param dump_to_file: True/False
     """
 
     all_found_items = {}
@@ -184,8 +184,8 @@ def get_dot_graph(found_items, output_file_name):
     Function that plots .dot graph of dependencies between certificates
     Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
     certificates are displayed in {output_file_name}single.pdf
-    @param found_items: Dictionary of all found items generated in main()
-    @param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
+    :param found_items: Dictionary of all found items generated in main()
+    :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
     """
     dot = Digraph(comment='Certificate ecosystem')
     single_dot = Digraph(comment='Modules with no dependencies')
@@ -246,8 +246,8 @@ def get_dot_graph(found_items, output_file_name):
 def remove_algorithms_from_extracted_data(items, html):
     """
     Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
-    @param items: All keyword items found in pdf files
-    @param html: All items extracted from html files
+    :param items: All keyword items found in pdf files
+    :param html: All items extracted from html files
     """
     for file_name in items:
         items[file_name]['file_status'] = True
@@ -275,8 +275,8 @@ def remove_algorithms_from_extracted_data(items, html):
 def validate_results(items, html):
     """
     Function that validates results and finds the final connection output
-    @param items: All keyword items found in pdf files
-    @param html: All items extracted from html files - this is where we store connections
+    :param items: All keyword items found in pdf files
+    :param html: All items extracted from html files - this is where we store connections
     """
     broken_files = set()
     for file_name in items:
@@ -311,8 +311,8 @@ def validate_results(items, html):
 def parse_list_of_tables(txt: str) -> Set[str]:
     """
     Parses list of tables from function find_tables(), finds ones that mention algorithms
-    @param txt: chunk of text
-    @return: set of all pages mentioning algorithm table
+    :param txt: chunk of text
+    :return: set of all pages mentioning algorithm table
     """
     rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
     pages = set()
@@ -324,8 +324,8 @@ def parse_list_of_tables(txt: str) -> Set[str]:
 def extract_page_number(txt: str) -> Optional[str]:
     """
     Parses chunks of text that are supposed to be mentioning table and having a footer
-    @param txt: input chunk
-    @return: page number
+    :param txt: input chunk
+    :return: page number
     """
     # Page # of #
     m = re.findall(r"(?P<pattern>(?:[Pp]age) (?P<page_num>\d+)(?: of \d+))", txt)
@@ -348,10 +348,10 @@ def find_tables(txt, file_name, num_pages):
     """
     Function that tries to pages in security policy pdf files, where it's possible to find a table containing
     algorithms
-    @param txt: file in .txt format (output of pdftotext)
-    @param file_name: name of the file
-    @param num_pages: number of pages in pdf
-    @return:    list of pages possibly containing a table
+    :param txt: file in .txt format (output of pdftotext)
+    :param file_name: name of the file
+    :param num_pages: number of pages in pdf
+    :return:    list of pages possibly containing a table
                 None if these cannot be found
     """
     # Look for "List of Tables", where we can find exactly tables with page num
@@ -393,8 +393,8 @@ def repair_pdf_page_count(file: str) -> int:
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
     By opening this file in a pdf reader, we can already extract number of pages
-    @param file: file name
-    @return: number of pages in pdf file
+    :param file: file name
+    :return: number of pages in pdf file
     """
     pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
     pdf.save(file)
@@ -404,9 +404,9 @@ def repair_pdf_page_count(file: str) -> int:
 def extract_certs_from_tables(list_of_files, html_items):
     """
     Function that extracts algorithm IDs from tables in security policies files.
-    @param list_of_files: iterable containing all files to parse
-    @param html_items: dictionary created by main() containing data extracted from html pages
-    @return: list of files that couldn't have been decoded
+    :param list_of_files: iterable containing all files to parse
+    :param html_items: dictionary created by main() containing data extracted from html pages
+    :return: list of files that couldn't have been decoded
     """
     not_decoded = []
     for cert_file in list_of_files:
