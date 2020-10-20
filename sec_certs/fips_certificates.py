@@ -122,10 +122,10 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
 
     all_found_items = {}
 
-    for file in sec_certs.files.search_files(base_dir):
+    for file in search_files(base_dir):
         items_found = {}
         initialize_entry(items_found)
-        text = sec_certs.files.load_cert_html_file(file)
+        text = extract_certificates.load_cert_html_file(file)
         filename = os.path.splitext(os.path.basename(file))[0]
         all_found_items[filename] = items_found
         items_found['cert_fips_id'] = filename
