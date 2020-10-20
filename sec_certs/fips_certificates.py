@@ -455,10 +455,10 @@ def extract_certs_from_tables(list_of_files, html_items):
 
 
 @click.command()
-@click.argument("directory", required=True, type=str, help="The directory to use.")
-@click.option("--do-download-meta", "do_download_meta", is_flag=True, help="Whether to download meta pages.")
-@click.option("--do-download-certs", "do_download_certs", is_flag=True, help="Whether to download certs.")
-@click.option("-t", "--threads", "threads", type=int, default=4, help="Amount of threads to use.")
+@click.argument("directory", required=True, type=str)
+@click.option("--do-download-meta", "do_download_meta", is_flag=True)
+@click.option("--do-download-certs", "do_download_certs", is_flag=True)
+@click.option("-t", "--threads", "threads", type=int, default=4)
 def main(directory, do_download_meta: bool, do_download_certs: bool, threads: int):
     start = time.time()
     directory = Path(directory)
