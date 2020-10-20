@@ -2,7 +2,7 @@
 
 import click
 
-from sec_certs.files import load_json_files
+from .files import load_json_files
 from .extract_certificates import *
 from .analyze_certificates import *
 from .download import download_cc_web, download_cc

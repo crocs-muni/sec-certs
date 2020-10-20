@@ -29,7 +29,8 @@ setup(
         "tabula-py",
         "pikepdf",
         "Click",
-        "requests"
+        "requests",
+        "tqdm"
     ],
     entry_points = """
         [console_scripts]

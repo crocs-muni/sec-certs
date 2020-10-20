@@ -7,19 +7,16 @@ from pathlib import Path
 from typing import Set, Optional
 
 from graphviz import Digraph
-from PyPDF2 import PdfFileReader, utils
 import click
 import pikepdf
 # from camelot import read_pdf
 from tabula import read_pdf
 
-import extract_certificates
-from process_certificates import load_json_files
-from cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
+from . import extract_certificates
+from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
+from .cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
 
-import sec_certs.files
 
-FILE_ERRORS_STRATEGY = sec_certs.files.FILE_ERRORS_STRATEGY
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
@@ -425,7 +422,7 @@ def main(directory):
     items, html = load_json_files(files_to_load)
 
     print("FINDING TABLES")
-    not_decoded = extract_certs_from_tables(sec_certs.files.search_files(policies_dir), html)
+    not_decoded = extract_certs_from_tables(search_files(policies_dir), html)
 
     print("NOT DECODED:", not_decoded)
     with open(results_dir / 'broken_files.json', 'w') as f:
