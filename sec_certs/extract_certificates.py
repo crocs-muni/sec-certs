@@ -1077,10 +1077,10 @@ def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_pref
 
         #        print('*** {} ***'.format(file_name))
 
-        file_cert_name = os.path.splitext(
+        fips_cert_name = os.path.splitext(
             os.path.splitext(os.path.basename(file_name))[0])[0]
         # parse certificate, return all matches
-        all_items_found[file_name], modified_cert_file = parse_cert_file(
+        all_items_found[fips_cert_name if fips_items else file_name], modified_cert_file = parse_cert_file(
             file_name, fips_rules if fips_items else rules, -1, should_censure_right_away=should_censure_right_away,
             fips_items=fips_items)
 

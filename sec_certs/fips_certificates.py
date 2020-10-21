@@ -4,7 +4,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Set, Optional
+from typing import Set, Optional, List
 
 from graphviz import Digraph
 import click
@@ -16,7 +16,6 @@ from .download import download_fips_web, download_fips
 from . import extract_certificates
 from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
 from .cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
-
 
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
@@ -111,6 +110,7 @@ def initialize_entry(input_dictionary):
     input_dictionary['fips_algorithms'] = []
     input_dictionary['fips_caveat'] = []
     input_dictionary['tables_done'] = False
+    input_dictionary['fips_module_name'] = 'Undefined'
 
 
 def fips_search_html(base_dir, output_file, dump_to_file=False):
@@ -286,15 +286,17 @@ def validate_results(items, html):
                 cert_id = ''.join(filter(str.isdigit, cert))
 
                 if cert_id == '' or cert_id not in html:
+                # TEST
+                # if cert_id == '' or int(cert_id) > 3730:
                     broken_files.add(file_name)
                     items[file_name]['file_status'] = False
                     html[file_name]['file_status'] = False
                     break
-
-    print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
-    print(*sorted(list(broken_files)), sep='\n')
-    print("... skipping these...")
-    print("Total non-analyzable files:", len(broken_files))
+    if broken_files:
+        print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
+        print(*sorted(list(broken_files)), sep='\n')
+        print("... skipping these...")
+        print("Total non-analyzable files:", len(broken_files))
 
     for file_name in items:
         html[file_name]['Connections'] = []
@@ -345,27 +347,21 @@ def extract_page_number(txt: str) -> Optional[str]:
     return m[-1][-1] if m else None
 
 
-def find_tables(txt, file_name, num_pages):
-    """
-    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
-    algorithms
-    :param txt: file in .txt format (output of pdftotext)
-    :param file_name: name of the file
-    :param num_pages: number of pages in pdf
-    :return:    list of pages possibly containing a table
-                None if these cannot be found
-    """
-    # Look for "List of Tables", where we can find exactly tables with page num
-    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
-    table = tables_regex.search(txt)
-    if table:
-        rb = parse_list_of_tables(table.group())
-        if rb:
-            return list(rb)
-        return None
+def find_tables_iterative(file_text: str) -> List[int]:
+    current_page = 1
+    pages = []
+    for line in file_text.split('\n'):
+        if '\f' in line:
+            current_page += 1
+        if line.startswith('Table') or line.startswith('Exhibit'):
+            print(line)
+            print(current_page)
+            pages.append(current_page)
 
-    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    print("~" * 20, file_name, '~' * 20)
+    return pages
+
+
+def find_footers(txt):
     footer_regex = re.compile(
         r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
         re.MULTILINE)
@@ -388,6 +384,31 @@ def find_tables(txt, file_name, num_pages):
     print(footers)
     if footers:
         return footers
+
+
+def find_tables(txt, file_name, num_pages):
+    """
+    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
+    algorithms
+    :param txt: file in .txt format (output of pdftotext)
+    :param file_name: name of the file
+    :param num_pages: number of pages in pdf
+    :return:    list of pages possibly containing a table
+                None if these cannot be found
+    """
+    # Look for "List of Tables", where we can find exactly tables with page num
+    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
+    table = tables_regex.search(txt)
+    if table:
+        rb = parse_list_of_tables(table.group())
+        if rb:
+            return list(rb)
+        return None
+
+    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
+    print("~" * 20, file_name, '~' * 20)
+    rb = find_tables_iterative(txt)
+    return rb if rb else None
 
 
 def repair_pdf_page_count(file: str) -> int:
@@ -479,7 +500,6 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     if do_download_certs:
         download_fips(web_dir, policies_dir, threads)
 
-
     files_to_load = [
         results_dir / 'fips_data_keywords_all.json',
         results_dir / 'fips_html_all.json'
@@ -514,8 +534,8 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     validate_results(items, html)
     with open(results_dir / 'fips_html_all.json', 'w') as f:
         json.dump(html, f, indent=4, sort_keys=True)
-    print("PLOTTING GRAPH")
-    get_dot_graph(html, 'output')
+    # print("PLOTTING GRAPH")
+    # get_dot_graph(html, 'output')
     end = time.time()
     print("TIME:", end - start)
 
