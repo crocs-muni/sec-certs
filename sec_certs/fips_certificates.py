@@ -129,7 +129,7 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
         soup = BeautifulSoup(text, 'html.parser')
         for div in soup.find_all('div', class_='row padrow'):
             title = div.find('div', class_='col-md-3').text.strip()
-            content = div.find('div', class_='col-md-9').text.strip()\
+            content = div.find('div', class_='col-md-9').text.strip() \
                 .replace('\n', '').replace('\t', '').replace('    ', ' ')
 
             if title in pairs:
@@ -156,16 +156,28 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
                 vendor_string = div.find('div', 'panel-body').find('a')
                 if not vendor_string:
                     vendor_string = list(div.find('div', 'panel-body').children)[0].strip()
+                    current_items_found['fips_vendor_www'] = ''
                 else:
-                    vendor_string = vendor_string.text
+                    current_items_found['fips_vendor_www'] = vendor_string.get('href')
+                    vendor_string = vendor_string.text.strip()
                 current_items_found['fips_vendor'] = vendor_string
                 if current_items_found['fips_vendor'] == '':
                     print("WARNING: NO VENDOR FOUND", file)
 
             if div.find('h4', class_='panel-title').text == 'Lab':
                 current_items_found['fips_lab'] = list(div.find('div', 'panel-body').children)[0].strip()
+                current_items_found['fips_nvlap_code'] = \
+                    list(div.find('div', 'panel-body').children)[2].strip().split('\n')[1].strip()
                 if current_items_found['fips_lab'] == '':
                     print("WARNING: NO LAB FOUND", file)
+                if current_items_found['fips_nvlap_code'] == '':
+                    print("WARNING: NO NVLAP CODE FOUND", file)
+
+            if div.find('h4', class_='panel-title').text == 'Related Files':
+                links = div.find_all('a')
+                current_items_found['fips_security_policy_www'] = FIPS_BASE_URL + links[0].get('href')
+                if len(links) == 2:
+                    current_items_found['fips_certificate_www'] = FIPS_BASE_URL + links[1].get('href')
 
     if dump_to_file:
         with open(output_file, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
@@ -457,10 +469,7 @@ def extract_certs_from_tables(list_of_files, html_items):
                 lst += parse_algorithms(df.to_string(index=False))
 
             if lst:
-                if 'fips_algorithms' not in html_items[extract_filename(cert_file[:-8])]:
-                    html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] = lst
-                else:
-                    html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] += lst
+                html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] += lst
 
         html_items[extract_filename(cert_file[:-8])]['tables_done'] = True
     return not_decoded
