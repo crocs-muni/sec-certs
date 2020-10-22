@@ -63,8 +63,8 @@ def parse_table(text):
         if cert_line is None:
             items_found['Certificate'] = ['Not found']
         else:
-            items_found['Certificate'] = ['#' + x.group('cert') for x in cert_pattern_localize.finditer(
-                cert_line.group())]
+            items_found['Certificate'] = list(set(['#' + x.group('cert') for x in cert_pattern_localize.finditer(
+                cert_line.group())]))
 
         items_found_all.append(items_found)
 
@@ -78,11 +78,12 @@ def parse_algorithms(text, in_pdf=False):
     :param in_pdf: Specifies whether the table was found in a PDF security policies file
     :return: list of all found algorithm IDs
     """
-    items_found = []
+    set_items = set()
     for m in re.finditer(rf"(?:#{'?' if in_pdf else ''}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
-        items_found.append({'Certificate': m.group()})
+        # items_found.append({'Certificate': m.group()})
+        set_items.add(m.group())
 
-    return items_found
+    return [{"Certificate": x} for x in set_items]
 
 
 def parse_caveat(text):
@@ -92,9 +93,12 @@ def parse_caveat(text):
     :return: list of all found algorithm IDs
     """
     items_found = []
-
-    for m in re.finditer(r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)", text):
-        items_found.append({r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
+    r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
+    for m in re.finditer(r_key, text):
+        if r_key in items_found and m.group() in items_found[0]:
+            items_found[0][m.group()]['count'] += 1
+        else:
+            items_found.append({r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
 
     return items_found
 
@@ -240,8 +244,8 @@ def get_dot_graph(found_items, output_file_name):
 
     print(f"rendering {keys} keys and {edges} edges")
 
-    dot.render(output_file_name + 'connections', view=True)
-    single_dot.render(output_file_name + 'single', view=True)
+    dot.render(str(output_file_name) + '_connections', view=True)
+    single_dot.render(str(output_file_name) + '_single', view=True)
 
 
 def remove_algorithms_from_extracted_data(items, html):
@@ -534,8 +538,8 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     validate_results(items, html)
     with open(results_dir / 'fips_html_all.json', 'w') as f:
         json.dump(html, f, indent=4, sort_keys=True)
-    # print("PLOTTING GRAPH")
-    # get_dot_graph(html, 'output')
+    print("PLOTTING GRAPH")
+    get_dot_graph(html, results_dir / 'output')
     end = time.time()
     print("TIME:", end - start)
 
