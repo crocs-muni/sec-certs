@@ -10,16 +10,25 @@ from bs4 import BeautifulSoup
 from graphviz import Digraph
 import click
 import pikepdf
-# from camelot import read_pdf
 from tabula import read_pdf
 
 from .download import download_fips_web, download_fips
 from . import extract_certificates
 from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
-from .cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
 
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+
+
+def find_empty_pdfs(base_dir: Path):
+    missing = []
+    not_available = []
+    for i in range(1, 3725):
+        if not os.path.exists(base_dir / f'{i}.pdf'):
+            missing.append(i)
+        elif os.path.getsize(base_dir / f'{i}.pdf') < 10000:
+            not_available.append(i)
+    return missing, not_available
 
 
 def extract_filename(file: str) -> str:
@@ -29,16 +38,6 @@ def extract_filename(file: str) -> str:
     :return: filename without last extension
     """
     return os.path.splitext(os.path.basename(file))[0]
-
-
-def parse_ul(text):
-    """
-    Parses content between <ul> tags in FIPS .html CMVP page
-    :param text: text in <ul> tags
-    :return: all <li> elements
-    """
-    p = re.compile(r"<li>(.*?)<\/li>")
-    return p.findall(text)
 
 
 def parse_table(text):
@@ -89,7 +88,7 @@ def parse_caveat(text):
 
 def initialize_entry(input_dictionary):
     """
-    Initialize input dictionary with elements that shuold be always processed
+    Initialize input dictionary with elements that should be always processed
     :param input_dictionary: dictionary used as "all_items"
     """
     input_dictionary['fips_exceptions'] = []
@@ -122,9 +121,8 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
     }
 
     for file in search_files(base_dir):
-        current_items_found = {}
+        current_items_found = {'cert_fips_id': extract_filename(file)}
         all_found_items[extract_filename(file)] = current_items_found
-        current_items_found['cert_fips_id'] = extract_filename(file)
         initialize_entry(current_items_found)
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
@@ -340,15 +338,14 @@ def find_tables_iterative(file_text: str) -> List[int]:
     for line in file_text.split('\n'):
         if '\f' in line:
             current_page += 1
-        if line.startswith('Table') or line.startswith('Exhibit'):
-            print(line)
-            print(current_page)
+        if line.startswith('Table ') or line.startswith('Exhibit'):
             pages.append(current_page)
-
+    if not pages:
+        print('~' * 20, 'No pages found', '~' * 20)
     return pages
 
 
-def find_footers(txt):
+def find_footers(txt, num_pages):
     footer_regex = re.compile(
         r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
         re.MULTILINE)
@@ -373,13 +370,12 @@ def find_footers(txt):
         return footers
 
 
-def find_tables(txt, file_name, num_pages):
+def find_tables(txt, file_name):
     """
     Function that tries to pages in security policy pdf files, where it's possible to find a table containing
     algorithms
     :param txt: file in .txt format (output of pdftotext)
     :param file_name: name of the file
-    :param num_pages: number of pages in pdf
     :return:    list of pages possibly containing a table
                 None if these cannot be found
     """
@@ -398,7 +394,7 @@ def find_tables(txt, file_name, num_pages):
     return rb if rb else None
 
 
-def repair_pdf_page_count(file: str) -> int:
+def repair_pdf_page_count(file: str):
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
     By opening this file in a pdf reader, we can already extract number of pages
@@ -407,7 +403,6 @@ def repair_pdf_page_count(file: str) -> int:
     """
     pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
     pdf.save(file)
-    return len(pdf.pages)
 
 
 def extract_certs_from_tables(list_of_files, html_items):
@@ -426,12 +421,7 @@ def extract_certs_from_tables(list_of_files, html_items):
             continue
 
         with open(cert_file, 'r') as f:
-            try:
-                pages = repair_pdf_page_count(cert_file[:-4])
-            except pikepdf._qpdf.PdfError:
-                not_decoded.append(cert_file)
-                continue
-            tables = find_tables(f.read(), cert_file, pages)
+            tables = find_tables(f.read(), cert_file)
 
         # If we find any tables with page numbers, we process them
         if tables:
@@ -441,8 +431,12 @@ def extract_certs_from_tables(list_of_files, html_items):
             try:
                 data = read_pdf(cert_file[:-4], pages=tables, silent=True)
             except Exception:
-                not_decoded.append(cert_file)
-                continue
+                try:
+                    repair_pdf_page_count(cert_file[:-4])
+                    data = read_pdf(cert_file[:-4], pages=tables, silent=True)
+                except pikepdf._qpdf.PdfError:
+                    not_decoded.append(cert_file)
+                    continue
 
             # find columns with cert numbers
             for df in data:
@@ -487,6 +481,9 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     if do_download_certs:
         download_fips(web_dir, policies_dir, threads)
 
+    missing, not_available = find_empty_pdfs(policies_dir)
+    print(f"Missing security policies: Total {len(missing)}")
+    print(f"Not available security policies: Total {len(not_available)}")
     files_to_load = [
         results_dir / 'fips_data_keywords_all.json',
         results_dir / 'fips_html_all.json'
