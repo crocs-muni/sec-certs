@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sec-certs',
-    author='Petr Svenda',
+    author='Petr Svenda, Stanislav Bobon, Jan Jancar, Adam Janovsky',
     author_email='svenda@fi.muni.cz',
     version='0.0.0',
     packages=find_packages(),
@@ -20,6 +20,7 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research"
     ],
+    python_requires=">=3.8",
     install_requires=[
         "PyPDF2",
         "matplotlib",
