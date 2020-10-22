@@ -93,6 +93,16 @@
 				{{ cert["processed"]["cert_id"] }}
 				<br/>
 			{% endif %}
+			{% if "cert_lab" in cert["processed"] %}
+				<b>Evaluation lab:</b>
+				{{ cert["processed"]["cert_lab"] }}
+				<br/>
+			{% endif %}
+			{% if "cert_lifetime_length" in cert["processed"] %}
+				<b>Certificate lifetime (years):</b>
+				{{ cert["processed"]["cert_lifetime_length"] }}
+				<br/>
+			{% endif %}
 		{% endif %}
 
 		{% if "keywords_scan" in cert %}

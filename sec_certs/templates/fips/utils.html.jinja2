@@ -1,0 +1,93 @@
+{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
+	{% set ns = namespace(render=False) %}
+	{% for heading, keyword in keyword_sources.items() %}
+		{% if keyword not in hidden and keyword_scan[keyword] %}
+			{% set ns.render = True %}
+		{% endif %}
+	{% endfor %}
+	{% if ns.render %}
+		<div class="card mt-1">
+			<div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
+			<h4 class="mb-0">
+				<button class="btn btn-link" data-toggle="collapse" data-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false" aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
+				{{ card_name }}
+				</button>
+			</h4>
+			</div>
+
+			<div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse" aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
+			<div class="card-body">
+				{% for heading, keyword in keyword_sources.items() %}
+					{% if keyword not in hidden and keyword_scan[keyword] %}
+						<h5 class="mt-2">{{ heading }}</h5>
+						{{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
+					{% endif %}
+				{% endfor %}
+			</div>
+			</div>
+		</div>
+	{% endif %}
+{% endmacro %}
+
+{% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"FIPS algorithms": "rules_fips_algorithms"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+	{{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
+																	"JavaCard": "rules_javacard",
+																	"OS": "rules_os",
+																	"CPLC": "rules_cplc",
+																	"IC data groups": "rules_IC_data_groups",
+																	"Vendor": "rules_vendor"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "rules_security_level"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro double_join(rule_dict, separator=", ", map_func=None) %}
+	{% for value in rule_dict.values() %}
+		{% for inside in value.keys() %}
+			{% if map_func %}
+				{{ map_func(inside) }}
+			{% else %}
+				{{ inside }}
+			{% endif %}
+			{%- if not loop.last -%}{{ separator }}{%- endif -%}
+		{% endfor %}
+		{%- if not loop.last -%}{{ separator }}{%- endif -%}
+	{% endfor %}
+{%- endmacro %}
+
+{% macro render_status(status) %}
+	{% if status == "Active" %}
+	<span class="text-success"><i class="fas fa-check-square"></i> active</span>
+	{% elif status == "Historical" %}
+	<span class="text-warning"><i class="fas fa-times-circle"></i> historical</span>
+	{% elif status == "Revoked" %}
+	<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> revoked</span>
+	{% else %}
+	<span>{{ status }}</span>
+	{% endif %}
+{%- endmacro %}
+
+{% macro render_type(type) %}
+<span title="{{ type }}">
+{% if type == "Firmware" %}
+	<i class="fas fa-fw fa-stream"></i>
+{% elif type == "Firmware-Hybrid" %}
+	<i class="fas fa-fw fa-stream"></i>
+{% elif type == "Hardware" %}
+	<i class="fas fa-fw fa-microchip"></i>
+{% elif type == "Software" %}
+	<i class="fas fa-fw fa-code"></i>
+{% elif type == "Software-Hybrid" or type == "Software Hybrid" %}
+	<i class="fas fa-fw fa-code"></i>
+{% endif %}
+</span>
+{%- endmacro %}

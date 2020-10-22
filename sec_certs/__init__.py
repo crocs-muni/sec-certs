@@ -17,10 +17,13 @@ def create_app():
     def to_flag(code):
         return flag(code)
 
-    from .cc import cc
-    app.register_blueprint(cc)
-    from .fips import fips
-    app.register_blueprint(fips)
+    with app.app_context():
+        from .cc import cc
+        app.register_blueprint(cc)
+        from .pp import pp
+        app.register_blueprint(pp)
+        from .fips import fips
+        app.register_blueprint(fips)
 
     @app.route("/")
     def index():

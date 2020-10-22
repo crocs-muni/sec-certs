@@ -5,11 +5,35 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="188.78629mm"
    height="68.240051mm"
    viewBox="0 0 188.78628 68.240052"
    version="1.1"
-   id="svg8">
+   id="svg8"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1023"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="0.94040421"
+     inkscape:cx="281.07984"
+     inkscape:cy="161.94862"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
   <defs
      id="defs2" />
   <metadata
@@ -27,13 +51,11 @@
   <g
      id="layer1"
      transform="translate(-24.826912,-135.56049)">
-    <rect
-       style="opacity:0.998;fill:#000000;stroke:none;stroke-width:1.29835;stroke-linecap:square;paint-order:markers stroke fill"
+    <path
        id="rect903"
-       width="131.01257"
-       height="27.353489"
-       x="71.607399"
-       y="156.1619" />
+       style="opacity:0.998;fill:#000000;stroke:none;stroke-width:4.90715;stroke-linecap:square;paint-order:markers stroke fill"
+       d="M 176.80859 77.863281 L 176.80859 181.24609 L 669.28906 181.24609 L 627.54688 129.48242 L 669.43164 77.863281 L 176.80859 77.863281 z "
+       transform="matrix(0.26458333,0,0,0.26458333,24.826912,135.56049)" />
     <circle
        style="opacity:0.998;fill:#000000;stroke-width:0.81783;stroke-linecap:square;paint-order:markers stroke fill"
        id="path833-3"
@@ -55,9 +77,5 @@
          x="137.28783"
          y="176.96999"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:Metropolis;-inkscape-font-specification:Metropolis;fill:#ffffff;stroke-width:0.264583">seccerts</tspan></text>
-    <path
-       style="fill:#ffffff;stroke:none;stroke-width:0.393692px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 203.56545,185.56847 190.86544,169.8193 203.6132,154.10878 Z"
-       id="path913" />
   </g>
 </svg>

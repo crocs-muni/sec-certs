@@ -33,14 +33,17 @@
 	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Algorithms": "rules_crypto_algs",
 																		  "Engines": "rules_crypto_engines",
 																		  "Libraries": "rules_crypto_libraries",
-																		  "Elliptic Curves": "rules_ecc_curves"}, hidden, map_funcs) }}
+																		  "Elliptic Curves": "rules_ecc_curves",
+																		  "Block cipher modes": "rules_block_cipher_modes"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
 	{{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
 																	"JavaCard": "rules_javacard",
 																	"OS": "rules_os",
-																	"CPLC": "rules_cplc"}, hidden, map_funcs) }}
+																	"CPLC": "rules_cplc",
+																	"IC data groups": "rules_IC_data_groups",
+																	"Vendor": "rules_vendor"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}

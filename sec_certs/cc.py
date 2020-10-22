@@ -1,9 +1,11 @@
 import json
+import os.path
 from hashlib import blake2b
 
-from flask import Blueprint, render_template, abort, jsonify, url_for
+from flask import Blueprint, render_template, abort, jsonify, url_for, current_app
 from flask_paginate import Pagination
 from pkg_resources import resource_stream
+
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
 
@@ -13,10 +15,11 @@ cc_network = None
 cc_sfrs = None
 cc_sars = None
 
+
 @cc.before_app_first_request
 def load_cc_data():
     global cc_names, cc_data, cc_network, cc_sfrs, cc_sars
-    with open("certificate_data_complete.json") as f:
+    with open(os.path.join(current_app.instance_path, "cc.json")) as f:
         loaded_cc_data = json.load(f)
 
     cc_data = {blake2b(key.encode(), digest_size=20).hexdigest() : value for key, value in loaded_cc_data.items()}
@@ -62,13 +65,16 @@ def load_cc_data():
         cc_sars = json.load(f)
     print(" * Loaded CC SARs")
 
+
 @cc.app_template_global("get_cc_sar")
 def get_cc_sar(sar):
     return cc_sars.get(sar, None)
 
+
 @cc.app_template_global("get_cc_sfr")
 def ger_cc_sfr(sfr):
     return cc_sfrs.get(sfr, None)
+
 
 @cc.route("/")
 @cc.route("/<int:page>/")
@@ -77,13 +83,16 @@ def index(page=1):
     pagination = Pagination(page=page, per_page=per_page, total=len(cc_names), href=url_for(".index") + "{0}/", css_framework="bootstrap4", alignment="center")
     return render_template("cc/index.html.jinja2", certs=cc_names[(page-1)*per_page:page*per_page], pagination=pagination, title=f"Common Criteria ({page}) | seccerts.org")
 
+
 @cc.route("/network/")
 def network():
     return render_template("cc/network.html.jinja2", network=cc_network, title="Common Criteria network | seccerts.org")
 
+
 @cc.route("/search/")
 def search():
     return render_template("cc/network.html.jinja2", network=cc_network)
+
 
 @cc.route("/<string(length=40):hashid>/")
 def entry(hashid):
@@ -92,6 +101,7 @@ def entry(hashid):
         return render_template("cc/entry.html.jinja2", cert=cert, hashid=hashid, title=cert["csv_scan"]["cert_item_name"] + " | seccerts.org")
     else:
         return abort(404)
+
 
 @cc.route("/<string(length=40):hashid>/cert.json")
 def entry_json(hashid):
