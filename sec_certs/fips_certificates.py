@@ -143,7 +143,7 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
                     current_items_found['fips_algorithms'] += parse_table(div.find('div', class_='col-md-9'))
 
                 elif 'Algorithms' in title:
-                    current_items_found['fips_algorithms'] += parse_algorithms(content)
+                    current_items_found['fips_algorithms'] += [{'Certificate': x} for x in parse_algorithms(content)]
 
                 elif 'tested_conf' in pairs[title]:
                     current_items_found[pairs[title]] = [x.text for x in
@@ -343,15 +343,15 @@ def extract_page_number(txt: str) -> Optional[str]:
 
 def find_tables_iterative(file_text: str) -> List[int]:
     current_page = 1
-    pages = []
+    pages = set()
     for line in file_text.split('\n'):
         if '\f' in line:
             current_page += 1
         if line.startswith('Table ') or line.startswith('Exhibit'):
-            pages.append(current_page)
+            pages.add(current_page)
     if not pages:
         print('~' * 20, 'No pages found', '~' * 20)
-    return pages
+    return list(pages)
 
 
 def find_footers(txt, num_pages):
@@ -403,7 +403,7 @@ def find_tables(txt, file_name):
     return rb if rb else None
 
 
-def repair_pdf_page_count(file: str):
+def repair_pdf(file: str):
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
     By opening this file in a pdf reader, we can already extract number of pages
@@ -436,14 +436,14 @@ def extract_certs_from_tables(list_of_files, html_items):
         if tables:
             lst = []
             print("~~~~~~~~~~~~~~~", cert_file, "~~~~~~~~~~~~~~~~~~~~~~~")
-
             try:
                 data = read_pdf(cert_file[:-4], pages=tables, silent=True)
             except Exception:
                 try:
-                    repair_pdf_page_count(cert_file[:-4])
+                    repair_pdf(cert_file[:-4])
                     data = read_pdf(cert_file[:-4], pages=tables, silent=True)
-                except pikepdf._qpdf.PdfError:
+
+                except Exception:
                     not_decoded.append(cert_file)
                     continue
 
@@ -455,6 +455,7 @@ def extract_certs_from_tables(list_of_files, html_items):
 
                 # Parse again if someone picks not so descriptive column names
                 lst += parse_algorithms(df.to_string(index=False))
+
             if lst:
                 if 'fips_algorithms' not in html_items[extract_filename(cert_file[:-8])]:
                     html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] = lst
