@@ -5,6 +5,7 @@ import re
 import time
 from pathlib import Path
 from typing import Set, Optional, List
+from bs4 import BeautifulSoup
 
 from graphviz import Digraph
 import click
@@ -46,29 +47,13 @@ def parse_table(text):
     :param text: text in <table> tags
     :return: list of all found algorithm IDs
     """
-    items_found_all = []
+    found_items = []
+    lines = iter([line for line in text.split('\n') if line])
+    if len(text.split('\n')) > 1:
+        for line in lines:
+            found_items.append({'Name': line, 'Certificate': parse_algorithms(next(lines))})
 
-    # find <tr>, in that look for "text-nowrap" and look if there is a cert mentioned
-    tr_pattern = re.compile(r"<tr>([\s\S]*?)<\/tr>")
-    name_pattern = re.compile(r"wrap\">(?P<name>[\s\S]*?)<\/td>")
-    cert_pattern_found = re.compile(r"<td>[ \S]*?#[ \S]*?\d+[ \S]*?<\/td>")
-    cert_pattern_localize = re.compile(r"#?[ \S]*?(?P<cert>\d+)")
-
-    for tr_match in tr_pattern.finditer(text):
-        items_found = {}
-        current_tr = tr_match.group()
-        items_found['Name'] = name_pattern.search(current_tr).group('name')
-        cert_line = cert_pattern_found.search(current_tr)
-
-        if cert_line is None:
-            items_found['Certificate'] = ['Not found']
-        else:
-            items_found['Certificate'] = list(set(['#' + x.group('cert') for x in cert_pattern_localize.finditer(
-                cert_line.group())]))
-
-        items_found_all.append(items_found)
-
-    return items_found_all
+    return found_items
 
 
 def parse_algorithms(text, in_pdf=False):
@@ -79,11 +64,10 @@ def parse_algorithms(text, in_pdf=False):
     :return: list of all found algorithm IDs
     """
     set_items = set()
-    for m in re.finditer(rf"(?:#{'?' if in_pdf else ''}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
-        # items_found.append({'Certificate': m.group()})
+    for m in re.finditer(rf"(?:#{'?' if in_pdf else 'C?'}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
         set_items.add(m.group())
 
-    return [{"Certificate": x} for x in set_items]
+    return list(set_items)
 
 
 def parse_caveat(text):
@@ -110,6 +94,7 @@ def initialize_entry(input_dictionary):
     """
     input_dictionary['fips_exceptions'] = []
     input_dictionary['fips_tested_conf'] = []
+    input_dictionary['fips_mentioned_certs'] = []
 
     input_dictionary['fips_algorithms'] = []
     input_dictionary['fips_caveat'] = []
@@ -118,64 +103,62 @@ def initialize_entry(input_dictionary):
 
 
 def fips_search_html(base_dir, output_file, dump_to_file=False):
-    """fips_search_html.
-
-    :param base_dir: directory to search for html files
-    :param output_file: file to dump json to
-    :param dump_to_file: True/False
-    """
-
     all_found_items = {}
+    pairs = {
+        'Module Name': 'fips_module_name',
+        'Standard': 'fips_standard',
+        'Status': 'fips_status',
+        'Sunset Date': 'fips_date_sunset',
+        'Validation Dates': 'fips_date_validation',
+        'Overall Level': 'fips_level',
+        'Caveat': 'fips_caveat',
+        'Security Level Exceptions': 'fips_exceptions',
+        'Module Type': 'fips_type',
+        'Embodiment': 'fips_embodiment',
+        'FIPS Algorithms': 'fips_algorithms',
+        'Allowed Algorithms': 'fips_algorithms',
+        'Tested Configuration(s)': 'fips_tested_conf',
+        'Description': 'fips_description'
+    }
 
     for file in search_files(base_dir):
-        items_found = {}
-        initialize_entry(items_found)
+        current_items_found = {}
+        all_found_items[extract_filename(file)] = current_items_found
+        current_items_found['cert_fips_id'] = extract_filename(file)
+        initialize_entry(current_items_found)
         text = extract_certificates.load_cert_html_file(file)
-        filename = os.path.splitext(os.path.basename(file))[0]
-        all_found_items[filename] = items_found
-        items_found['cert_fips_id'] = filename
+        soup = BeautifulSoup(text, 'html.parser')
+        print(file)
+        for div in soup.find_all('div', class_='row padrow'):
+            title = div.find('div', class_='col-md-3').text.strip()
+            content = div.find('div', class_='col-md-9').text.strip()
 
-        for rule in RE_FIPS_HTMLS:
-            m = re.search(rule, text)
-            if m is None:
-                continue
-
-            group_dict = m.groupdict()
-            key = list(group_dict)
-
-            # <ul>
-            if key[0] == 'fips_exceptions' or key[0] == 'fips_tested_conf':
-                items_found[key[0]] = parse_ul(group_dict[key[0]])
-
-            # <table>
-            elif key[0] == 'fips_algorithms':
-                if 'fips_algorithms' not in items_found:
-                    items_found['fips_algorithms'] = parse_table(group_dict[key[0]])
+            if title in pairs:
+                if 'algorithms' not in pairs[title]:
+                    content = content.replace('\n', '').replace('\t', '').replace('    ', ' ')
+                if 'date' in pairs[title]:
+                    current_items_found[pairs[title]] = content.split(';')
+                elif 'caveat' in pairs[title]:
+                    current_items_found[pairs[title]] = content
+                    current_items_found['fips_mentioned_certs'] += parse_caveat(content)
+                elif 'algorithms' in pairs[title]:
+                    current_items_found['fips_algorithms'] += parse_table(content)
+                elif 'tested_conf' in pairs[title]:
+                    current_items_found[pairs[title]] = [x.text for x in
+                                                         div.find('div', class_='col-md-9').find_all('li')]
                 else:
-                    items_found['fips_algorithms'] += parse_table(
-                        group_dict[key[0]])
+                    current_items_found[pairs[title]] = content
 
-            # allowed algorithms
-            elif key[0] == 'fips_allowed_algorithms':
-                if 'fips_algorithms' not in items_found:
-                    items_found['fips_algorithms'] = parse_algorithms(
-                        group_dict[key[0]])
-                else:
-                    items_found['fips_algorithms'] += parse_algorithms(
-                        group_dict[key[0]])
+        for div in soup.find_all('div', class_='panel panel-default')[1:]:
+            if div.find('h4', class_='panel-title').text == 'Vendor':
+                current_items_found['fips_vendor'] = div.find('div', 'panel-body').find('a').text
+                if current_items_found['fips_vendor'] == '':
+                    print("WARNING: NO VENDOR FOUND", file)
 
-            # certificates in Caveat
-            elif key[0] == 'fips_caveat':
-                items_found['fips_mentioned_certs'] = parse_caveat(group_dict[key[0]])
-
-            # there are usually multiple dates separated by ";"
-            elif 'date' in key[0]:
-                items_found[key[0]] = group_dict[key[0]].replace('\n', '').replace(
-                    '\t', '').replace('  ', ' ').strip().split(';')
-
-            else:
-                items_found[key[0]] = group_dict[key[0]].replace(
-                    '\n', '').replace('\t', '').replace('  ', ' ').strip()
+            if div.find('h4', class_='panel-title').text == 'Lab':
+                current_items_found['fips_lab'] = list(div.find('div', 'panel-body').children)[0].strip()
+                if current_items_found['fips_lab'] == '':
+                    print("WARNING: NO LAB FOUND", file)
 
     if dump_to_file:
         with open(output_file, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
@@ -257,7 +240,7 @@ def remove_algorithms_from_extracted_data(items, html):
     for file_name in items:
         items[file_name]['file_status'] = True
         html[file_name]['file_status'] = True
-        if 'fips_mentioned_certs' in html[file_name]:
+        if html[file_name]['fips_mentioned_certs']:
             for item in html[file_name]['fips_mentioned_certs']:
                 items[file_name]['rules_cert_id'].update(item)
 
@@ -290,8 +273,8 @@ def validate_results(items, html):
                 cert_id = ''.join(filter(str.isdigit, cert))
 
                 if cert_id == '' or cert_id not in html:
-                # TEST
-                # if cert_id == '' or int(cert_id) > 3730:
+                    # TEST
+                    # if cert_id == '' or int(cert_id) > 3730:
                     broken_files.add(file_name)
                     items[file_name]['file_status'] = False
                     html[file_name]['file_status'] = False
