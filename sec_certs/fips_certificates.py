@@ -40,17 +40,17 @@ def extract_filename(file: str) -> str:
     return os.path.splitext(os.path.basename(file))[0]
 
 
-def parse_table(text):
+def parse_table(element: BeautifulSoup):
     """
     Parses content of <table> tags in FIPS .html CMVP page
-    :param text: text in <table> tags
+    :param element: text in <table> tags
     :return: list of all found algorithm IDs
     """
     found_items = []
-    lines = iter([line for line in text.split('\n') if line])
-    if len(text.split('\n')) > 1:
-        for line in lines:
-            found_items.append({'Name': line, 'Certificate': parse_algorithms(next(lines))})
+    trs = element.find_all('tr')
+    for tr in trs:
+        tds = tr.find_all('td')
+        found_items.append({'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
 
     return found_items
 
@@ -116,6 +116,7 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
         'Embodiment': 'fips_embodiment',
         'FIPS Algorithms': 'fips_algorithms',
         'Allowed Algorithms': 'fips_algorithms',
+        'Other Algorithms': 'fips_algorithms',
         'Tested Configuration(s)': 'fips_tested_conf',
         'Description': 'fips_description'
     }
@@ -126,21 +127,24 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
         initialize_entry(current_items_found)
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
-        print(file)
         for div in soup.find_all('div', class_='row padrow'):
             title = div.find('div', class_='col-md-3').text.strip()
-            content = div.find('div', class_='col-md-9').text.strip()
+            content = div.find('div', class_='col-md-9').text.strip()\
+                .replace('\n', '').replace('\t', '').replace('    ', ' ')
 
             if title in pairs:
-                if 'algorithms' not in pairs[title]:
-                    content = content.replace('\n', '').replace('\t', '').replace('    ', ' ')
                 if 'date' in pairs[title]:
                     current_items_found[pairs[title]] = content.split(';')
                 elif 'caveat' in pairs[title]:
                     current_items_found[pairs[title]] = content
                     current_items_found['fips_mentioned_certs'] += parse_caveat(content)
-                elif 'algorithms' in pairs[title]:
-                    current_items_found['fips_algorithms'] += parse_table(content)
+
+                elif 'FIPS Algorithms' in title:
+                    current_items_found['fips_algorithms'] += parse_table(div.find('div', class_='col-md-9'))
+
+                elif 'Algorithms' in title:
+                    current_items_found['fips_algorithms'] += parse_algorithms(content)
+
                 elif 'tested_conf' in pairs[title]:
                     current_items_found[pairs[title]] = [x.text for x in
                                                          div.find('div', class_='col-md-9').find_all('li')]
@@ -149,7 +153,12 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
 
         for div in soup.find_all('div', class_='panel panel-default')[1:]:
             if div.find('h4', class_='panel-title').text == 'Vendor':
-                current_items_found['fips_vendor'] = div.find('div', 'panel-body').find('a').text
+                vendor_string = div.find('div', 'panel-body').find('a')
+                if not vendor_string:
+                    vendor_string = list(div.find('div', 'panel-body').children)[0].strip()
+                else:
+                    vendor_string = vendor_string.text
+                current_items_found['fips_vendor'] = vendor_string
                 if current_items_found['fips_vendor'] == '':
                     print("WARNING: NO VENDOR FOUND", file)
 
