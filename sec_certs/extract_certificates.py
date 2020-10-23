@@ -19,7 +19,7 @@ from . import sanity
 from .analyze_certificates import is_in_dict
 from .cert_rules import rules, fips_rules
 from .files import search_files, load_cert_html_file, FILE_ERRORS_STRATEGY
-from .tags_constants import *
+from .constants import *
 
 plt.rcdefaults()
 

@@ -1,3 +1,10 @@
+from enum import Enum
+
+
+class CertFramework(Enum):
+    CC = 'Common Criteria'
+    FIPS = 'FIPS'
+
 TAG_MATCH_COUNTER = 'count'
 TAG_MATCH_MATCHES = 'matches'
 
