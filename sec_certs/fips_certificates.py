@@ -4,22 +4,31 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Set, Optional
+from typing import Set, Optional, List, Dict
+from bs4 import BeautifulSoup
 
 from graphviz import Digraph
 import click
 import pikepdf
-# from camelot import read_pdf
 from tabula import read_pdf
 
 from .download import download_fips_web, download_fips
 from . import extract_certificates
 from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
-from .cert_rules import rules_fips_htmls as RE_FIPS_HTMLS
-
 
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+
+
+def find_empty_pdfs(base_dir: Path) -> (List, List):
+    missing = []
+    not_available = []
+    for i in range(1, 3725):
+        if not (base_dir / f'{i}.pdf').exists():
+            missing.append(i)
+        elif os.path.getsize(base_dir / f'{i}.pdf') < 10000:
+            not_available.append(i)
+    return missing, not_available
 
 
 def extract_filename(file: str) -> str:
@@ -31,147 +40,144 @@ def extract_filename(file: str) -> str:
     return os.path.splitext(os.path.basename(file))[0]
 
 
-def parse_ul(text):
-    """
-    Parses content between <ul> tags in FIPS .html CMVP page
-    :param text: text in <ul> tags
-    :return: all <li> elements
-    """
-    p = re.compile(r"<li>(.*?)<\/li>")
-    return p.findall(text)
-
-
-def parse_table(text):
+def parse_table(element: BeautifulSoup) -> List[Dict]:
     """
     Parses content of <table> tags in FIPS .html CMVP page
-    :param text: text in <table> tags
+    :param element: text in <table> tags
     :return: list of all found algorithm IDs
     """
-    items_found_all = []
+    found_items = []
+    trs = element.find_all('tr')
+    for tr in trs:
+        tds = tr.find_all('td')
+        found_items.append({'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
 
-    # find <tr>, in that look for "text-nowrap" and look if there is a cert mentioned
-    tr_pattern = re.compile(r"<tr>([\s\S]*?)<\/tr>")
-    name_pattern = re.compile(r"wrap\">(?P<name>[\s\S]*?)<\/td>")
-    cert_pattern_found = re.compile(r"<td>[ \S]*?#[ \S]*?\d+[ \S]*?<\/td>")
-    cert_pattern_localize = re.compile(r"#?[ \S]*?(?P<cert>\d+)")
-
-    for tr_match in tr_pattern.finditer(text):
-        items_found = {}
-        current_tr = tr_match.group()
-        items_found['Name'] = name_pattern.search(current_tr).group('name')
-        cert_line = cert_pattern_found.search(current_tr)
-
-        if cert_line is None:
-            items_found['Certificate'] = ['Not found']
-        else:
-            items_found['Certificate'] = ['#' + x.group('cert') for x in cert_pattern_localize.finditer(
-                cert_line.group())]
-
-        items_found_all.append(items_found)
-
-    return items_found_all
+    return found_items
 
 
-def parse_algorithms(text, in_pdf=False):
+def parse_algorithms(text: str, in_pdf: bool = False) -> List:
     """
     Parses table of FIPS (non) allowed algorithms
     :param text: Contents of the table
     :param in_pdf: Specifies whether the table was found in a PDF security policies file
     :return: list of all found algorithm IDs
     """
-    items_found = []
-    for m in re.finditer(rf"(?:#{'?' if in_pdf else ''}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
-        items_found.append({'Certificate': m.group()})
+    set_items = set()
+    for m in re.finditer(rf"(?:#{'?' if in_pdf else 'C?'}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
+        set_items.add(m.group())
 
-    return items_found
+    return list(set_items)
 
 
-def parse_caveat(text):
+def parse_caveat(text: str) -> List:
     """
     Parses content of "Caveat" of FIPS CMVP .html file
     :param text: text of "Caveat"
     :return: list of all found algorithm IDs
     """
     items_found = []
-
-    for m in re.finditer(r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)", text):
-        items_found.append({r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
+    r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
+    for m in re.finditer(r_key, text):
+        if r_key in items_found and m.group() in items_found[0]:
+            items_found[0][m.group()]['count'] += 1
+        else:
+            items_found.append({r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
 
     return items_found
 
 
-def initialize_entry(input_dictionary):
+def initialize_entry(input_dictionary: Dict):
     """
-    Initialize input dictionary with elements that shuold be always processed
-    :param input_dictionary: dictionary used as "all_items"
+    Initialize input dictionary with elements that should be always processed
+    :param input_dictionary: empty dictionary used as "all_items"
     """
     input_dictionary['fips_exceptions'] = []
     input_dictionary['fips_tested_conf'] = []
+    input_dictionary['fips_mentioned_certs'] = []
 
     input_dictionary['fips_algorithms'] = []
     input_dictionary['fips_caveat'] = []
     input_dictionary['tables_done'] = False
+    input_dictionary['fips_module_name'] = ''
 
 
-def fips_search_html(base_dir, output_file, dump_to_file=False):
-    """fips_search_html.
-
-    :param base_dir: directory to search for html files
-    :param output_file: file to dump json to
-    :param dump_to_file: True/False
-    """
-
+def fips_search_html(base_dir: Path, output_file: str, dump_to_file: bool = False) -> Dict:
     all_found_items = {}
+    pairs = {
+        'Module Name': 'fips_module_name',
+        'Standard': 'fips_standard',
+        'Status': 'fips_status',
+        'Sunset Date': 'fips_date_sunset',
+        'Validation Dates': 'fips_date_validation',
+        'Overall Level': 'fips_level',
+        'Caveat': 'fips_caveat',
+        'Security Level Exceptions': 'fips_exceptions',
+        'Module Type': 'fips_type',
+        'Embodiment': 'fips_embodiment',
+        'FIPS Algorithms': 'fips_algorithms',
+        'Allowed Algorithms': 'fips_algorithms',
+        'Other Algorithms': 'fips_algorithms',
+        'Tested Configuration(s)': 'fips_tested_conf',
+        'Description': 'fips_description'
+    }
 
     for file in search_files(base_dir):
-        items_found = {}
-        initialize_entry(items_found)
+        current_items_found = {'cert_fips_id': extract_filename(file)}
+        all_found_items[extract_filename(file)] = current_items_found
+        initialize_entry(current_items_found)
         text = extract_certificates.load_cert_html_file(file)
-        filename = os.path.splitext(os.path.basename(file))[0]
-        all_found_items[filename] = items_found
-        items_found['cert_fips_id'] = filename
+        soup = BeautifulSoup(text, 'html.parser')
+        for div in soup.find_all('div', class_='row padrow'):
+            title = div.find('div', class_='col-md-3').text.strip()
+            content = div.find('div', class_='col-md-9').text.strip() \
+                .replace('\n', '').replace('\t', '').replace('    ', ' ')
 
-        for rule in RE_FIPS_HTMLS:
-            m = re.search(rule, text)
-            if m is None:
-                continue
+            if title in pairs:
+                if 'date' in pairs[title]:
+                    current_items_found[pairs[title]] = content.split(';')
+                elif 'caveat' in pairs[title]:
+                    current_items_found[pairs[title]] = content
+                    current_items_found['fips_mentioned_certs'] += parse_caveat(content)
 
-            group_dict = m.groupdict()
-            key = list(group_dict)
+                elif 'FIPS Algorithms' in title:
+                    current_items_found['fips_algorithms'] += parse_table(div.find('div', class_='col-md-9'))
 
-            # <ul>
-            if key[0] == 'fips_exceptions' or key[0] == 'fips_tested_conf':
-                items_found[key[0]] = parse_ul(group_dict[key[0]])
+                elif 'Algorithms' in title:
+                    current_items_found['fips_algorithms'] += [{'Certificate': x} for x in parse_algorithms(content)]
 
-            # <table>
-            elif key[0] == 'fips_algorithms':
-                if 'fips_algorithms' not in items_found:
-                    items_found['fips_algorithms'] = parse_table(group_dict[key[0]])
+                elif 'tested_conf' in pairs[title]:
+                    current_items_found[pairs[title]] = [x.text for x in
+                                                         div.find('div', class_='col-md-9').find_all('li')]
                 else:
-                    items_found['fips_algorithms'] += parse_table(
-                        group_dict[key[0]])
+                    current_items_found[pairs[title]] = content
 
-            # allowed algorithms
-            elif key[0] == 'fips_allowed_algorithms':
-                if 'fips_algorithms' not in items_found:
-                    items_found['fips_algorithms'] = parse_algorithms(
-                        group_dict[key[0]])
+        for div in soup.find_all('div', class_='panel panel-default')[1:]:
+            if div.find('h4', class_='panel-title').text == 'Vendor':
+                vendor_string = div.find('div', 'panel-body').find('a')
+                if not vendor_string:
+                    vendor_string = list(div.find('div', 'panel-body').children)[0].strip()
+                    current_items_found['fips_vendor_www'] = ''
                 else:
-                    items_found['fips_algorithms'] += parse_algorithms(
-                        group_dict[key[0]])
+                    current_items_found['fips_vendor_www'] = vendor_string.get('href')
+                    vendor_string = vendor_string.text.strip()
+                current_items_found['fips_vendor'] = vendor_string
+                if current_items_found['fips_vendor'] == '':
+                    print("WARNING: NO VENDOR FOUND", file)
 
-            # certificates in Caveat
-            elif key[0] == 'fips_caveat':
-                items_found['fips_mentioned_certs'] = parse_caveat(group_dict[key[0]])
+            if div.find('h4', class_='panel-title').text == 'Lab':
+                current_items_found['fips_lab'] = list(div.find('div', 'panel-body').children)[0].strip()
+                current_items_found['fips_nvlap_code'] = \
+                    list(div.find('div', 'panel-body').children)[2].strip().split('\n')[1].strip()
+                if current_items_found['fips_lab'] == '':
+                    print("WARNING: NO LAB FOUND", file)
+                if current_items_found['fips_nvlap_code'] == '':
+                    print("WARNING: NO NVLAP CODE FOUND", file)
 
-            # there are usually multiple dates separated by ";"
-            elif 'date' in key[0]:
-                items_found[key[0]] = group_dict[key[0]].replace('\n', '').replace(
-                    '\t', '').replace('  ', ' ').strip().split(';')
-
-            else:
-                items_found[key[0]] = group_dict[key[0]].replace(
-                    '\n', '').replace('\t', '').replace('  ', ' ').strip()
+            if div.find('h4', class_='panel-title').text == 'Related Files':
+                links = div.find_all('a')
+                current_items_found['fips_security_policy_www'] = FIPS_BASE_URL + links[0].get('href')
+                if len(links) == 2:
+                    current_items_found['fips_certificate_www'] = FIPS_BASE_URL + links[1].get('href')
 
     if dump_to_file:
         with open(output_file, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
@@ -180,7 +186,7 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
     return all_found_items
 
 
-def get_dot_graph(found_items, output_file_name):
+def get_dot_graph(found_items: Dict, output_file_name: str):
     """
     Function that plots .dot graph of dependencies between certificates
     Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
@@ -240,8 +246,8 @@ def get_dot_graph(found_items, output_file_name):
 
     print(f"rendering {keys} keys and {edges} edges")
 
-    dot.render(output_file_name + 'connections', view=True)
-    single_dot.render(output_file_name + 'single', view=True)
+    dot.render(str(output_file_name) + '_connections', view=True)
+    single_dot.render(str(output_file_name) + '_single', view=True)
 
 
 def remove_algorithms_from_extracted_data(items, html):
@@ -253,7 +259,7 @@ def remove_algorithms_from_extracted_data(items, html):
     for file_name in items:
         items[file_name]['file_status'] = True
         html[file_name]['file_status'] = True
-        if 'fips_mentioned_certs' in html[file_name]:
+        if html[file_name]['fips_mentioned_certs']:
             for item in html[file_name]['fips_mentioned_certs']:
                 items[file_name]['rules_cert_id'].update(item)
 
@@ -273,7 +279,7 @@ def remove_algorithms_from_extracted_data(items, html):
                 html[file_name]['cert_fips_id'], None)
 
 
-def validate_results(items, html):
+def validate_results(items: Dict, html: Dict):
     """
     Function that validates results and finds the final connection output
     :param items: All keyword items found in pdf files
@@ -286,15 +292,17 @@ def validate_results(items, html):
                 cert_id = ''.join(filter(str.isdigit, cert))
 
                 if cert_id == '' or cert_id not in html:
+                    # TEST
+                    # if cert_id == '' or int(cert_id) > 3730:
                     broken_files.add(file_name)
                     items[file_name]['file_status'] = False
                     html[file_name]['file_status'] = False
                     break
-
-    print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
-    print(*sorted(list(broken_files)), sep='\n')
-    print("... skipping these...")
-    print("Total non-analyzable files:", len(broken_files))
+    if broken_files:
+        print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
+        print(*sorted(list(broken_files)), sep='\n')
+        print("... skipping these...")
+        print("Total non-analyzable files:", len(broken_files))
 
     for file_name in items:
         html[file_name]['Connections'] = []
@@ -345,27 +353,20 @@ def extract_page_number(txt: str) -> Optional[str]:
     return m[-1][-1] if m else None
 
 
-def find_tables(txt, file_name, num_pages):
-    """
-    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
-    algorithms
-    :param txt: file in .txt format (output of pdftotext)
-    :param file_name: name of the file
-    :param num_pages: number of pages in pdf
-    :return:    list of pages possibly containing a table
-                None if these cannot be found
-    """
-    # Look for "List of Tables", where we can find exactly tables with page num
-    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
-    table = tables_regex.search(txt)
-    if table:
-        rb = parse_list_of_tables(table.group())
-        if rb:
-            return list(rb)
-        return None
+def find_tables_iterative(file_text: str) -> List[int]:
+    current_page = 1
+    pages = set()
+    for line in file_text.split('\n'):
+        if '\f' in line:
+            current_page += 1
+        if line.startswith('Table ') or line.startswith('Exhibit'):
+            pages.add(current_page)
+    if not pages:
+        print('~' * 20, 'No pages found', '~' * 20)
+    return list(pages)
 
-    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    print("~" * 20, file_name, '~' * 20)
+
+def find_footers(txt: str, num_pages: int) -> Optional[List]:
     footer_regex = re.compile(
         r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
         re.MULTILINE)
@@ -390,7 +391,31 @@ def find_tables(txt, file_name, num_pages):
         return footers
 
 
-def repair_pdf_page_count(file: str) -> int:
+def find_tables(txt: str, file_name: Path) -> Optional[List]:
+    """
+    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
+    algorithms
+    :param txt: file in .txt format (output of pdftotext)
+    :param file_name: name of the file
+    :return:    list of pages possibly containing a table
+                None if these cannot be found
+    """
+    # Look for "List of Tables", where we can find exactly tables with page num
+    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
+    table = tables_regex.search(txt)
+    if table:
+        rb = parse_list_of_tables(table.group())
+        if rb:
+            return list(rb)
+        return None
+
+    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
+    print("~" * 20, file_name, '~' * 20)
+    rb = find_tables_iterative(txt)
+    return rb if rb else None
+
+
+def repair_pdf(file: Path):
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
     By opening this file in a pdf reader, we can already extract number of pages
@@ -399,10 +424,9 @@ def repair_pdf_page_count(file: str) -> int:
     """
     pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
     pdf.save(file)
-    return len(pdf.pages)
 
 
-def extract_certs_from_tables(list_of_files, html_items):
+def extract_certs_from_tables(list_of_files: List, html_items: Dict) -> List[Path]:
     """
     Function that extracts algorithm IDs from tables in security policies files.
     :param list_of_files: iterable containing all files to parse
@@ -418,23 +442,22 @@ def extract_certs_from_tables(list_of_files, html_items):
             continue
 
         with open(cert_file, 'r') as f:
-            try:
-                pages = repair_pdf_page_count(cert_file[:-4])
-            except pikepdf._qpdf.PdfError:
-                not_decoded.append(cert_file)
-                continue
-            tables = find_tables(f.read(), cert_file, pages)
+            tables = find_tables(f.read(), cert_file)
 
         # If we find any tables with page numbers, we process them
         if tables:
             lst = []
             print("~~~~~~~~~~~~~~~", cert_file, "~~~~~~~~~~~~~~~~~~~~~~~")
-
             try:
                 data = read_pdf(cert_file[:-4], pages=tables, silent=True)
             except Exception:
-                not_decoded.append(cert_file)
-                continue
+                try:
+                    repair_pdf(cert_file[:-4])
+                    data = read_pdf(cert_file[:-4], pages=tables, silent=True)
+
+                except Exception:
+                    not_decoded.append(cert_file)
+                    continue
 
             # find columns with cert numbers
             for df in data:
@@ -444,11 +467,9 @@ def extract_certs_from_tables(list_of_files, html_items):
 
                 # Parse again if someone picks not so descriptive column names
                 lst += parse_algorithms(df.to_string(index=False))
+
             if lst:
-                if 'fips_algorithms' not in html_items[extract_filename(cert_file[:-8])]:
-                    html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] = lst
-                else:
-                    html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] += lst
+                html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] += lst
 
         html_items[extract_filename(cert_file[:-8])]['tables_done'] = True
     return not_decoded
@@ -479,7 +500,9 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     if do_download_certs:
         download_fips(web_dir, policies_dir, threads)
 
-
+    missing, not_available = find_empty_pdfs(policies_dir)
+    print(f"Missing security policies: Total {len(missing)}")
+    print(f"Not available security policies: Total {len(not_available)}")
     files_to_load = [
         results_dir / 'fips_data_keywords_all.json',
         results_dir / 'fips_html_all.json'
@@ -515,7 +538,7 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     with open(results_dir / 'fips_html_all.json', 'w') as f:
         json.dump(html, f, indent=4, sort_keys=True)
     print("PLOTTING GRAPH")
-    get_dot_graph(html, 'output')
+    get_dot_graph(html, results_dir / 'output')
     end = time.time()
     print("TIME:", end - start)
 
