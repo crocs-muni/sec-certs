@@ -24,7 +24,7 @@ def find_empty_pdfs(base_dir: Path) -> (List, List):
     missing = []
     not_available = []
     for i in range(1, 3725):
-        if not os.path.exists(base_dir / f'{i}.pdf'):
+        if not (base_dir / f'{i}.pdf').exists():
             missing.append(i)
         elif os.path.getsize(base_dir / f'{i}.pdf') < 10000:
             not_available.append(i)
@@ -98,7 +98,7 @@ def initialize_entry(input_dictionary: Dict):
     input_dictionary['fips_algorithms'] = []
     input_dictionary['fips_caveat'] = []
     input_dictionary['tables_done'] = False
-    input_dictionary['fips_module_name'] = 'Undefined'
+    input_dictionary['fips_module_name'] = ''
 
 
 def fips_search_html(base_dir: Path, output_file: str, dump_to_file: bool = False) -> Dict:

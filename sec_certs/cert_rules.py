@@ -323,6 +323,33 @@ rules_fips_htmls = [
     r"Vendor<\/h4>[\s\S]*?href=\".*?\">(?P<fips_vendor>.*?)<\/a>"
 ]
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                            Common rules
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+common_rules = {}
+common_rules['rules_os'] = rules_os
+common_rules['rules_standard_id'] = rules_standard_id
+common_rules['rules_security_level'] = rules_security_level
+common_rules['rules_security_assurance_components'] = rules_security_assurance_components
+common_rules['rules_security_functional_components'] = rules_security_functional_components
+common_rules['rules_javacard'] = rules_javacard
+common_rules['rules_crypto_algs'] = rules_crypto_algs
+common_rules['rules_block_cipher_modes'] = rules_block_cipher_modes
+common_rules['rules_ecc_curves'] = rules_ecc_curves
+common_rules['rules_cplc'] = rules_cplc
+common_rules['rules_crypto_engines'] = rules_crypto_engines
+common_rules['rules_crypto_libs'] = rules_crypto_libs
+common_rules['rules_IC_data_groups'] = rules_IC_data_groups
+common_rules['rules_defenses'] = rules_defenses
+common_rules['rules_certification_process'] = rules_certification_process
+common_rules['rules_vulnerabilities'] = rules_vulnerabilities
+common_rules['rules_other'] = rules_other
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                               For CC
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # rules_security_target_class
 rules = {}
 rules['rules_vendor'] = rules_vendor
@@ -330,44 +357,13 @@ rules['rules_cert_id'] = rules_cert_id
 rules['rules_protection_profiles'] = rules_protection_profiles
 rules['rules_technical_reports'] = rules_technical_reports
 rules['rules_device_id'] = rules_device_id
-rules['rules_os'] = rules_os
-rules['rules_standard_id'] = rules_standard_id
-rules['rules_security_level'] = rules_security_level
-rules['rules_security_assurance_components'] = rules_security_assurance_components
-rules['rules_security_functional_components'] = rules_security_functional_components
-rules['rules_javacard'] = rules_javacard
-rules['rules_crypto_algs'] = rules_crypto_algs
-rules['rules_block_cipher_modes'] = rules_block_cipher_modes
-rules['rules_ecc_curves'] = rules_ecc_curves
-rules['rules_cplc'] = rules_cplc
-rules['rules_crypto_engines'] = rules_crypto_engines
-rules['rules_crypto_libs'] = rules_crypto_libs
-rules['rules_IC_data_groups'] = rules_IC_data_groups
-rules['rules_defenses'] = rules_defenses
-rules['rules_certification_process'] = rules_certification_process
-rules['rules_vulnerabilities'] = rules_vulnerabilities
-rules['rules_other'] = rules_other
+rules.update(common_rules)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                           For FIPS
+#                            For FIPS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fips_rules = {}
 fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
-fips_rules['rules_os'] = rules_os
-fips_rules['rules_standard_id'] = rules_standard_id
-fips_rules['rules_security_level'] = rules_security_level
-fips_rules['rules_security_assurance_components'] = rules_security_assurance_components
-fips_rules['rules_security_functional_components'] = rules_security_functional_components
-fips_rules['rules_javacard'] = rules_javacard
-fips_rules['rules_crypto_algs'] = rules_crypto_algs
-fips_rules['rules_block_cipher_modes'] = rules_block_cipher_modes
-fips_rules['rules_ecc_curves'] = rules_ecc_curves
-fips_rules['rules_cplc'] = rules_cplc
-fips_rules['rules_crypto_engines'] = rules_crypto_engines
-fips_rules['rules_crypto_libs'] = rules_crypto_libs
-fips_rules['rules_IC_data_groups'] = rules_IC_data_groups
-fips_rules['rules_defenses'] = rules_defenses
-fips_rules['rules_certification_process'] = rules_certification_process
-fips_rules['rules_vulnerabilities'] = rules_vulnerabilities
+fips_rules.update(common_rules)
