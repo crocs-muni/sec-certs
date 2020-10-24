@@ -4,7 +4,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Set, Optional, List
+from typing import Set, Optional, List, Dict
 from bs4 import BeautifulSoup
 
 from graphviz import Digraph
@@ -20,7 +20,7 @@ FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
 
-def find_empty_pdfs(base_dir: Path):
+def find_empty_pdfs(base_dir: Path) -> (List, List):
     missing = []
     not_available = []
     for i in range(1, 3725):
@@ -40,7 +40,7 @@ def extract_filename(file: str) -> str:
     return os.path.splitext(os.path.basename(file))[0]
 
 
-def parse_table(element: BeautifulSoup):
+def parse_table(element: BeautifulSoup) -> List[Dict]:
     """
     Parses content of <table> tags in FIPS .html CMVP page
     :param element: text in <table> tags
@@ -55,7 +55,7 @@ def parse_table(element: BeautifulSoup):
     return found_items
 
 
-def parse_algorithms(text, in_pdf=False):
+def parse_algorithms(text: str, in_pdf: bool = False) -> List:
     """
     Parses table of FIPS (non) allowed algorithms
     :param text: Contents of the table
@@ -69,7 +69,7 @@ def parse_algorithms(text, in_pdf=False):
     return list(set_items)
 
 
-def parse_caveat(text):
+def parse_caveat(text: str) -> List:
     """
     Parses content of "Caveat" of FIPS CMVP .html file
     :param text: text of "Caveat"
@@ -86,10 +86,10 @@ def parse_caveat(text):
     return items_found
 
 
-def initialize_entry(input_dictionary):
+def initialize_entry(input_dictionary: Dict):
     """
     Initialize input dictionary with elements that should be always processed
-    :param input_dictionary: dictionary used as "all_items"
+    :param input_dictionary: empty dictionary used as "all_items"
     """
     input_dictionary['fips_exceptions'] = []
     input_dictionary['fips_tested_conf'] = []
@@ -101,7 +101,7 @@ def initialize_entry(input_dictionary):
     input_dictionary['fips_module_name'] = 'Undefined'
 
 
-def fips_search_html(base_dir, output_file, dump_to_file=False):
+def fips_search_html(base_dir: Path, output_file: str, dump_to_file: bool = False) -> Dict:
     all_found_items = {}
     pairs = {
         'Module Name': 'fips_module_name',
@@ -186,7 +186,7 @@ def fips_search_html(base_dir, output_file, dump_to_file=False):
     return all_found_items
 
 
-def get_dot_graph(found_items, output_file_name):
+def get_dot_graph(found_items: Dict, output_file_name: str):
     """
     Function that plots .dot graph of dependencies between certificates
     Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
@@ -279,7 +279,7 @@ def remove_algorithms_from_extracted_data(items, html):
                 html[file_name]['cert_fips_id'], None)
 
 
-def validate_results(items, html):
+def validate_results(items: Dict, html: Dict):
     """
     Function that validates results and finds the final connection output
     :param items: All keyword items found in pdf files
@@ -366,7 +366,7 @@ def find_tables_iterative(file_text: str) -> List[int]:
     return list(pages)
 
 
-def find_footers(txt, num_pages):
+def find_footers(txt: str, num_pages: int) -> Optional[List]:
     footer_regex = re.compile(
         r"(?:Table[^\f]*)(?P<first>^[\S\t ]*$)\n(?P<second>(\f[ \t\S]+)$)(?P<third>\n^[ \t\S]+?$)?",
         re.MULTILINE)
@@ -391,7 +391,7 @@ def find_footers(txt, num_pages):
         return footers
 
 
-def find_tables(txt, file_name):
+def find_tables(txt: str, file_name: Path) -> Optional[List]:
     """
     Function that tries to pages in security policy pdf files, where it's possible to find a table containing
     algorithms
@@ -415,7 +415,7 @@ def find_tables(txt, file_name):
     return rb if rb else None
 
 
-def repair_pdf(file: str):
+def repair_pdf(file: Path):
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
     By opening this file in a pdf reader, we can already extract number of pages
@@ -426,7 +426,7 @@ def repair_pdf(file: str):
     pdf.save(file)
 
 
-def extract_certs_from_tables(list_of_files, html_items):
+def extract_certs_from_tables(list_of_files: List, html_items: Dict) -> List[Path]:
     """
     Function that extracts algorithm IDs from tables in security policies files.
     :param list_of_files: iterable containing all files to parse
