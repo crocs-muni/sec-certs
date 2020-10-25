@@ -29,3 +29,19 @@ class Certificate:
 
     def __eq__(self, other: 'Certificate') -> bool:
         return self.sha256 == other.sha256
+
+    @classmethod
+    def from_dict(cls, dct):
+        raise NotImplementedError('Mot meant to be implemented')
+
+
+class CommonCriteriaCert(Certificate):
+    @classmethod
+    def from_dict(cls, dct):
+        return CommonCriteriaCert()
+
+
+class FIPSCertificate(Certificate):
+    @classmethod
+    def from_dict(cls, dct):
+        return FIPSCertificate()
