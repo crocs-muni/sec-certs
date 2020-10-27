@@ -17,7 +17,7 @@ pip install -e .
 The following steps will do a full extraction and analysis of CC certificates:
 
  1. Make a directory in which the certificates will be downloaded and processing will take place.
-    The contents of the directory are under control of the tool, and **may be overwritten**!
+    The contents of the directory are under the control of the tool, and **may be overwritten**!
  2. Run `process-certs --fresh --do-download-meta <dir>` to download certificate metadata from the Common Criteria portal.
  3. Run `process-certs --fresh --do-extraction-meta <dir>` to extract metadata from the downloaded Common Criteria pages.
  4. Run `process-certs --fresh --do-download-certs <dir>` to download the certificate and security target PDF files. This
@@ -37,5 +37,5 @@ The following steps will do a full extraction and analysis of CC certificates:
 
 The analysis can be extended in several ways:
  1. Additional keywords can be extracted from PDF files (modify `cert_rules.py`)
- 2. Data from `certificate_data_complete.json` can be analyzed in a novel way - this is why this project was concieved in the first place.
+ 2. Data from `certificate_data_complete.json` can be analyzed in a novel way - this is why this project was concieved at the first place.
  3. Help to fix problems in data extraction - some PDF files are corrupted, there are many typos even in certificate IDs...
