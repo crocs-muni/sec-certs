@@ -4,7 +4,7 @@ dist: xenial
 python: "3.8"
 
 install:
-  - pip install .
+  - pip install ".[dev,test]"
 
 script:
-  - echo "Test here"
+  - pytest test

@@ -31,8 +31,13 @@ setup(
         "pikepdf",
         "Click",
         "requests",
-        "tqdm"
+        "tqdm",
+        "beautifulsoup4"
     ],
+    extras_require={
+        "dev": ["mypy", "flake8"],
+        "test": ["pytest", "coverage"]
+    },
     entry_points = """
         [console_scripts]
         process-certs=sec_certs.process_certificates:main

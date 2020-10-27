@@ -22,11 +22,14 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
     def download(url_output):
         url, output = url_output
         return url, download_file(url, output)
+    pool = ThreadPool(num_threads)
     responses = []
     with tqdm(total=len(items)) as progress:
-        for response in ThreadPool(num_threads).imap(download, items):
+        for response in pool.imap(download, items):
             progress.update(1)
             responses.append(response)
+    pool.close()
+    pool.join()
     return responses
 
 
