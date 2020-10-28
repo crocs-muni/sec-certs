@@ -1,5 +1,6 @@
 from typing import Type
 import json
+
 from abc import ABC, abstractmethod
 from . import constants as constants
 
