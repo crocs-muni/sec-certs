@@ -1,47 +1,52 @@
 from typing import Type
 import json
+from abc import ABC, abstractmethod
+from . import constants as constants
 
 
-# TODO: Move me to appropriate place. I'm here just to demonstrate how we're going to serialize to json
 class CertificateJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Certificate):
-            return obj.asdict()
+            return obj.to_dict()
         return super().default(obj)
 
 
-class Certificate:
+class Certificate(ABC):
     def __init__(self):
         self.sha256 = None
-        self.framework = None  # CC or FIPS or PP or whatever
-        self.product_name = None
-        self.vendor_name = None
-        self.pdf_path = None
 
     def __repr__(self):
-        return str(self.asdict())
+        return str(self.to_dict())
 
     def __str__(self):
-        return 'Not implemented'  # TODO: Introduce some meaningful representation of the certificate
+        return 'Not implemented'
 
-    def asdict(self):
-        return {'not': 'implemented'}  # TODO: Implement me, I'll be used for json serialization!
+    @abstractmethod
+    def to_dict(self):
+        raise NotImplementedError('Not meant to be implemented')
 
     def __eq__(self, other: 'Certificate') -> bool:
         return self.sha256 == other.sha256
 
     @classmethod
+    @abstractmethod
     def from_dict(cls, dct):
         raise NotImplementedError('Mot meant to be implemented')
 
 
 class CommonCriteriaCert(Certificate):
+    def to_dict(self):
+        pass
+
     @classmethod
     def from_dict(cls, dct):
         return CommonCriteriaCert()
 
 
 class FIPSCertificate(Certificate):
+    def to_dict(self):
+        pass
+
     @classmethod
     def from_dict(cls, dct):
         return FIPSCertificate()
