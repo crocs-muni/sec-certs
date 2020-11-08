@@ -2,7 +2,7 @@ import os
 
 from flag import flag
 from flask import Flask, render_template
-
+from flask_debugtoolbar import DebugToolbarExtension
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -12,6 +12,8 @@ def create_app():
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    DebugToolbarExtension(app)
 
     @app.template_global("country_to_flag")
     def to_flag(code):
