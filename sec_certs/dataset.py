@@ -133,6 +133,7 @@ class CCDataset(Dataset):
         """
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
+        logging.info('Downloading required csv and html files.')
         html_items = [(x, self.web_dir / y) for y, x in self.html_products.items()]
         csv_items = [(x, self.web_dir / y) for y, x in self.csv_products.items()]
         helpers.download_parallel(html_items, num_threads=8)
