@@ -32,13 +32,14 @@ setup(
         "Click",
         "requests",
         "tqdm",
-        "beautifulsoup4"
+        "beautifulsoup4",
+        "pandas"
     ],
     extras_require={
         "dev": ["mypy", "flake8"],
         "test": ["pytest", "coverage"]
     },
-    entry_points = """
+    entry_points="""
         [console_scripts]
         process-certs=sec_certs.process_certificates:main
         fips-certs=sec_certs.fips_certificates:main
