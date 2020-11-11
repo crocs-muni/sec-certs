@@ -1,7 +1,7 @@
 import os
 
 from flag import flag
-from flask import Flask, render_template
+from flask import Flask, render_template, current_app, request
 from flask_debugtoolbar import DebugToolbarExtension
 
 def create_app():
@@ -18,6 +18,10 @@ def create_app():
     @app.template_global("country_to_flag")
     def to_flag(code):
         return flag(code)
+
+    @app.template_global("blueprint_url_prefix")
+    def blueprint_prefix():
+        return current_app.blueprints[request.blueprint].url_prefix
 
     with app.app_context():
         from .cc import cc

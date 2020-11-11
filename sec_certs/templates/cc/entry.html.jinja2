@@ -1,5 +1,5 @@
 {% extends "base.html.jinja2" %}
-{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_network %}
 {% block content %}
 	<h1>{{ cert["csv_scan"]["cert_item_name"]|default("") }}</h1>
 
@@ -139,4 +139,7 @@
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
 	</script>
+    <div class="mt-5 mb-5">
+        {{ render_network(network, linkDistance=45, linkCharge=-80) }}
+    </div>
 {% endblock %}
