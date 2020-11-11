@@ -13,7 +13,7 @@ from graphviz import Digraph
 from tabulate import tabulate
 
 from . import sanity
-from .tags_constants import *
+from .constants import *
 
 
 plt.rcdefaults()
