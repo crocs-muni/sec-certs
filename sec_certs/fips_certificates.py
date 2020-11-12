@@ -40,144 +40,14 @@ def extract_filename(file: str) -> str:
     return os.path.splitext(os.path.basename(file))[0]
 
 
-def parse_table(element: BeautifulSoup) -> List[Dict]:
-    """
-    Parses content of <table> tags in FIPS .html CMVP page
-    :param element: text in <table> tags
-    :return: list of all found algorithm IDs
-    """
-    found_items = []
-    trs = element.find_all('tr')
-    for tr in trs:
-        tds = tr.find_all('td')
-        found_items.append({'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
-
-    return found_items
-
-
-def parse_algorithms(text: str, in_pdf: bool = False) -> List:
-    """
-    Parses table of FIPS (non) allowed algorithms
-    :param text: Contents of the table
-    :param in_pdf: Specifies whether the table was found in a PDF security policies file
-    :return: list of all found algorithm IDs
-    """
-    set_items = set()
-    for m in re.finditer(rf"(?:#{'?' if in_pdf else 'C?'}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)", text):
-        set_items.add(m.group())
-
-    return list(set_items)
-
-
-def parse_caveat(text: str) -> List:
-    """
-    Parses content of "Caveat" of FIPS CMVP .html file
-    :param text: text of "Caveat"
-    :return: list of all found algorithm IDs
-    """
-    items_found = []
-    r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
-    for m in re.finditer(r_key, text):
-        if r_key in items_found and m.group() in items_found[0]:
-            items_found[0][m.group()]['count'] += 1
-        else:
-            items_found.append({r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
-
-    return items_found
-
-
-def initialize_entry(input_dictionary: Dict):
-    """
-    Initialize input dictionary with elements that should be always processed
-    :param input_dictionary: empty dictionary used as "all_items"
-    """
-    input_dictionary['fips_exceptions'] = []
-    input_dictionary['fips_tested_conf'] = []
-    input_dictionary['fips_mentioned_certs'] = []
-
-    input_dictionary['fips_algorithms'] = []
-    input_dictionary['fips_caveat'] = []
-    input_dictionary['tables_done'] = False
-    input_dictionary['fips_module_name'] = ''
+def initialize_entry(current_items_found):
+    pass
 
 
 def fips_search_html(base_dir: Path, output_file: str, dump_to_file: bool = False) -> Dict:
     all_found_items = {}
-    pairs = {
-        'Module Name': 'fips_module_name',
-        'Standard': 'fips_standard',
-        'Status': 'fips_status',
-        'Sunset Date': 'fips_date_sunset',
-        'Validation Dates': 'fips_date_validation',
-        'Overall Level': 'fips_level',
-        'Caveat': 'fips_caveat',
-        'Security Level Exceptions': 'fips_exceptions',
-        'Module Type': 'fips_type',
-        'Embodiment': 'fips_embodiment',
-        'FIPS Algorithms': 'fips_algorithms',
-        'Allowed Algorithms': 'fips_algorithms',
-        'Other Algorithms': 'fips_algorithms',
-        'Tested Configuration(s)': 'fips_tested_conf',
-        'Description': 'fips_description'
-    }
 
-    for file in search_files(base_dir):
-        current_items_found = {'cert_fips_id': extract_filename(file)}
-        all_found_items[extract_filename(file)] = current_items_found
-        initialize_entry(current_items_found)
-        text = extract_certificates.load_cert_html_file(file)
-        soup = BeautifulSoup(text, 'html.parser')
-        for div in soup.find_all('div', class_='row padrow'):
-            title = div.find('div', class_='col-md-3').text.strip()
-            content = div.find('div', class_='col-md-9').text.strip() \
-                .replace('\n', '').replace('\t', '').replace('    ', ' ')
-
-            if title in pairs:
-                if 'date' in pairs[title]:
-                    current_items_found[pairs[title]] = content.split(';')
-                elif 'caveat' in pairs[title]:
-                    current_items_found[pairs[title]] = content
-                    current_items_found['fips_mentioned_certs'] += parse_caveat(content)
-
-                elif 'FIPS Algorithms' in title:
-                    current_items_found['fips_algorithms'] += parse_table(div.find('div', class_='col-md-9'))
-
-                elif 'Algorithms' in title:
-                    current_items_found['fips_algorithms'] += [{'Certificate': x} for x in parse_algorithms(content)]
-
-                elif 'tested_conf' in pairs[title]:
-                    current_items_found[pairs[title]] = [x.text for x in
-                                                         div.find('div', class_='col-md-9').find_all('li')]
-                else:
-                    current_items_found[pairs[title]] = content
-
-        for div in soup.find_all('div', class_='panel panel-default')[1:]:
-            if div.find('h4', class_='panel-title').text == 'Vendor':
-                vendor_string = div.find('div', 'panel-body').find('a')
-                if not vendor_string:
-                    vendor_string = list(div.find('div', 'panel-body').children)[0].strip()
-                    current_items_found['fips_vendor_www'] = ''
-                else:
-                    current_items_found['fips_vendor_www'] = vendor_string.get('href')
-                    vendor_string = vendor_string.text.strip()
-                current_items_found['fips_vendor'] = vendor_string
-                if current_items_found['fips_vendor'] == '':
-                    print("WARNING: NO VENDOR FOUND", file)
-
-            if div.find('h4', class_='panel-title').text == 'Lab':
-                current_items_found['fips_lab'] = list(div.find('div', 'panel-body').children)[0].strip()
-                current_items_found['fips_nvlap_code'] = \
-                    list(div.find('div', 'panel-body').children)[2].strip().split('\n')[1].strip()
-                if current_items_found['fips_lab'] == '':
-                    print("WARNING: NO LAB FOUND", file)
-                if current_items_found['fips_nvlap_code'] == '':
-                    print("WARNING: NO NVLAP CODE FOUND", file)
-
-            if div.find('h4', class_='panel-title').text == 'Related Files':
-                links = div.find_all('a')
-                current_items_found['fips_security_policy_www'] = FIPS_BASE_URL + links[0].get('href')
-                if len(links) == 2:
-                    current_items_found['fips_certificate_www'] = FIPS_BASE_URL + links[1].get('href')
+    # for file in search_files(base_dir):
 
     if dump_to_file:
         with open(output_file, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
@@ -413,6 +283,10 @@ def find_tables(txt: str, file_name: Path) -> Optional[List]:
     print("~" * 20, file_name, '~' * 20)
     rb = find_tables_iterative(txt)
     return rb if rb else None
+
+
+def parse_algorithms(a, b=False):
+    pass
 
 
 def repair_pdf(file: Path):

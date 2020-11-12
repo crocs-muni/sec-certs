@@ -1,10 +1,14 @@
+import re
 from datetime import datetime, date
 from dataclasses import dataclass
 import logging
-from . import helpers
+from pathlib import Path
+import os
+
+from . import helpers, extract_certificates
 from abc import ABC, abstractmethod
-from bs4 import Tag
-from typing import Union, Optional, List
+from bs4 import Tag, BeautifulSoup, NavigableString
+from typing import Union, Optional, List, Dict
 
 
 class Certificate(ABC):
@@ -46,42 +50,246 @@ class FIPSCertificate(Certificate):
     fips_base_url = 'https://csrc.nist.gov'
     fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
-    def __init__(self, fips_cert_id: str, fips_module_name: str, fips_standard: str, fips_status: str,
-                 fips_date_sunset: Optional[List[str]], fips_date_validation: Optional[List[str]], fips_level: str,
-                 fips_caveat: str, fips_exceptions: Optional[List[str]], fips_module_type: str, fips_embodiment: str,
-                 fips_algorithms: Optional[List[str]], fips_tested_conf: Optional[List[str]], fips_description: str,
-                 fips_mentioned_certs: Optional[List[str]]):
+    def __init__(self, cert_id: str, module_name: Optional[str], standard: Optional[str], status: Optional[str],
+                 date_sunset: Optional[List[str]], date_validation: Optional[List[str]], level: Optional[str],
+                 caveat: Optional[str], exceptions: Optional[List[str]], module_type: Optional[str],
+                 embodiment: Optional[str],
+                 algorithms: Optional[List[str]], tested_conf: Optional[List[str]], description: Optional[str],
+                 mentioned_certs: Optional[List[str]], vendor: Optional[str], vendor_www: Optional[str],
+                 lab: Optional[str], lab_nvlap: Optional[str],
+                 historical_reason: Optional[str], security_policy_www: Optional[str], certificate_www: Optional[str],
+                 hw_version: Optional[str], fw_version: Optional[str]):
         super().__init__()
-        self.fips_cert_id = fips_cert_id
+        self.cert_id = cert_id
 
-        self.fips_tested_conf = [] if not fips_tested_conf else fips_tested_conf
-        self.fips_algorithms = [] if not fips_algorithms else fips_algorithms
-        self.fips_exceptions = [] if not fips_exceptions else fips_exceptions
-        self.fips_mentioned_certs = [] if not fips_mentioned_certs else fips_mentioned_certs
+        self.module_name = module_name
+        self.standard = standard
+        self.status = status
+        self.date_sunset = date_sunset
+        self.date_validation = date_validation
+        self.level = level
+        self.caveat = caveat
+        self.exceptions = exceptions
+        self.type = module_type
+        self.embodiment = embodiment
+        self.tested_conf = tested_conf
+        self.description = description
+        self.vendor = vendor
+        self.vendor_www = vendor_www
+        self.lab = lab
+        self.lab_nvlap = lab_nvlap
+        self.historical_reason = historical_reason
+        self.security_policy_www = security_policy_www
+        self.certificate_www = certificate_www
+        self.hw_versions = hw_version
+        self.fw_versions = fw_version
+
+        self.tested_conf = tested_conf
+        self.algorithms = algorithms
+        self.exceptions = exceptions
+        self.mentioned_certs = mentioned_certs
         self.tables_done = False
-        self.fips_module_name = fips_module_name
-        self.fips_standard = fips_standard
-        self.fips_status = fips_status
-        self.fips_date_sunset = fips_date_sunset
-        self.fips_date_validation = fips_date_validation
-        self.fips_level = fips_level
-        self.fips_caveat = fips_caveat
-        self.fips_exceptions = fips_exceptions
-        self.fips_type = fips_module_type
-        self.fips_embodiment = fips_embodiment
-        self.fips_tested_conf = fips_tested_conf
-        self.fips_description = fips_description
 
     @property
     def dgst(self) -> str:
-        return self.fips_cert_id
+        return self.cert_id
 
     def to_dict(self) -> dict:
-        pass
+        return self.__dict__
 
     @classmethod
     def from_dict(cls, dct: dict) -> 'FIPSCertificate':
         return FIPSCertificate()
+
+    def merge(self, other: 'Certificate'):
+        raise NotImplementedError('Should not be called')
+
+    @staticmethod
+    def extract_filename(file: str) -> str:
+        """
+        Extracts filename from path
+        @param file: UN*X path
+        :return: filename without last extension
+        """
+        return os.path.splitext(os.path.basename(file))[0]
+
+    @classmethod
+    def html_from_file(cls, file: Path) -> 'FIPSCertificate':
+
+        def parse_caveat(current_text: str) -> List:
+            """
+            Parses content of "Caveat" of FIPS CMVP .html file
+            :param current_text: text of "Caveat"
+            :return: list of all found algorithm IDs
+            """
+            ids_found = []
+            r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
+            for m in re.finditer(r_key, current_text):
+                if r_key in ids_found and m.group() in ids_found[0]:
+                    ids_found[0][m.group()]['count'] += 1
+                else:
+                    ids_found.append(
+                        {r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
+
+            return ids_found
+
+        def parse_algorithms(current_text: str, in_pdf: bool = False) -> List:
+            """
+            Parses table of FIPS (non) allowed algorithms
+            :param current_text: Contents of the table
+            :param in_pdf: Specifies whether the table was found in a PDF security policies file
+            :return: list of all found algorithm IDs
+            """
+            set_items = set()
+            for m in re.finditer(rf"(?:#{'?' if in_pdf else 'C?'}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
+                                 current_text):
+                set_items.add(m.group())
+
+            return list(set_items)
+
+        def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
+            """
+            Parses content of <table> tags in FIPS .html CMVP page
+            :param element: text in <table> tags
+            :return: list of all found algorithm IDs
+            """
+            found_items = []
+            trs = element.find_all('tr')
+            for tr in trs:
+                tds = tr.find_all('td')
+                found_items.append({'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
+
+            return found_items
+
+        def parse_html_main(current_div: Tag, html_items_found: Dict):
+            title = current_div.find('div', class_='col-md-3').text.strip()
+            content = current_div.find('div', class_='col-md-9').text.strip() \
+                .replace('\n', '').replace('\t', '').replace('    ', ' ')
+
+            if title in pairs:
+                if 'date' in pairs[title]:
+                    html_items_found[pairs[title]] = content.split(';')
+                elif 'caveat' in pairs[title]:
+                    html_items_found[pairs[title]] = content
+                    html_items_found['fips_mentioned_certs'] += parse_caveat(content)
+
+                elif 'FIPS Algorithms' in title:
+                    html_items_found['fips_algorithms'] += parse_table(current_div.find('div', class_='col-md-9'))
+
+                elif 'Algorithms' in title:
+                    html_items_found['fips_algorithms'] += [{'Certificate': x} for x in parse_algorithms(content)]
+
+                elif 'tested_conf' in pairs[title]:
+                    html_items_found[pairs[title]] = [x.text for x in
+                                                      current_div.find('div', class_='col-md-9').find_all('li')]
+                else:
+                    html_items_found[pairs[title]] = content
+
+        def parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path):
+            vendor_string = current_div.find('div', 'panel-body').find('a')
+
+            if not vendor_string:
+                vendor_string = list(current_div.find('div', 'panel-body').children)[0].strip()
+                html_items_found['fips_vendor_www'] = ''
+            else:
+                html_items_found['fips_vendor_www'] = vendor_string.get('href')
+                vendor_string = vendor_string.text.strip()
+
+            html_items_found['fips_vendor'] = vendor_string
+            if html_items_found['fips_vendor'] == '':
+                print("WARNING: NO VENDOR FOUND", current_file)
+
+        def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
+            html_items_found['fips_lab'] = list(current_div.find('div', 'panel-body').children)[0].strip()
+            html_items_found['fips_nvlap_code'] = \
+                list(current_div.find('div', 'panel-body').children)[2].strip().split('\n')[1].strip()
+
+            if html_items_found['fips_lab'] == '':
+                print("WARNING: NO LAB FOUND", current_file)
+
+            if html_items_found['fips_nvlap_code'] == '':
+                print("WARNING: NO NVLAP CODE FOUND", current_file)
+
+        def parse_related_files(current_div: Tag, html_items_found: Dict):
+            links = current_div.find_all('a')
+            html_items_found['fips_security_policy_www'] = FIPSCertificate.fips_base_url + links[0].get('href')
+
+            if len(links) == 2:
+                html_items_found['fips_certificate_www'] = FIPSCertificate.fips_base_url + links[1].get('href')
+
+        def initialize_dictionary() -> Dict:
+            d = {'fips_module_name': None, 'fips_standard': None, 'fips_status': None, 'fips_date_sunset': None,
+                 'fips_date_validation': None, 'fips_level': None, 'fips_caveat': None, 'fips_exceptions': None,
+                 'fips_type': None, 'fips_embodiment': None, 'fips_tested_conf': None, 'fips_description': None,
+                 'fips_vendor': None, 'fips_vendor_www': None, 'fips_lab': None, 'fips_lab_nvlap': None,
+                 'fips_historical_reason': None, 'fips_algorithms': [], 'fips_mentioned_certs': [],
+                 'fips_tables_done': False, 'fips_security_policy_www': None, 'fips_certificate_www': None,
+                 'fips_hw_versions': None, 'fips_fw_versions': None}
+
+            return d
+
+        pairs = {
+            'Module Name': 'fips_module_name',
+            'Standard': 'fips_standard',
+            'Status': 'fips_status',
+            'Sunset Date': 'fips_date_sunset',
+            'Validation Dates': 'fips_date_validation',
+            'Overall Level': 'fips_level',
+            'Caveat': 'fips_caveat',
+            'Security Level Exceptions': 'fips_exceptions',
+            'Module Type': 'fips_type',
+            'Embodiment': 'fips_embodiment',
+            'FIPS Algorithms': 'fips_algorithms',
+            'Allowed Algorithms': 'fips_algorithms',
+            'Other Algorithms': 'fips_algorithms',
+            'Tested Configuration(s)': 'fips_tested_conf',
+            'Description': 'fips_description',
+            'Historical Reason': 'fips_historical_reason',
+            'Hardware Versions': 'fips_hw_versions',
+            'Firmware Versions': 'fips_fw_versions'
+        }
+        items_found = initialize_dictionary()
+        items_found['cert_fips_id'] = file.stem
+
+        text = extract_certificates.load_cert_html_file(file)
+        soup = BeautifulSoup(text, 'html.parser')
+        for div in soup.find_all('div', class_='row padrow'):
+            parse_html_main(div, items_found)
+
+        for div in soup.find_all('div', class_='panel panel-default')[1:]:
+            if div.find('h4', class_='panel-title').text == 'Vendor':
+                parse_vendor(div, items_found, file)
+
+            if div.find('h4', class_='panel-title').text == 'Lab':
+                parse_lab(div, items_found, file)
+
+            if div.find('h4', class_='panel-title').text == 'Related Files':
+                parse_related_files(div, items_found)
+
+        return FIPSCertificate(items_found['cert_fips_id'],
+                               items_found['fips_module_name'],
+                               items_found['fips_standard'],
+                               items_found['fips_status'],
+                               items_found['fips_date_sunset'],
+                               items_found['fips_date_validation'],
+                               items_found['fips_level'],
+                               items_found['fips_caveat'],
+                               items_found['fips_exceptions'],
+                               items_found['fips_type'],
+                               items_found['fips_embodiment'],
+                               items_found['fips_algorithms'],
+                               items_found['fips_tested_conf'],
+                               items_found['fips_description'],
+                               items_found['fips_mentioned_certs'],
+                               items_found['fips_vendor'],
+                               items_found['fips_vendor_www'],
+                               items_found['fips_lab'],
+                               items_found['fips_nvlap_code'],
+                               items_found['fips_historical_reason'],
+                               items_found['fips_security_policy_www'],
+                               items_found['fips_certificate_www'],
+                               items_found['fips_hw_versions'],
+                               items_found['fips_fw_versions'])
 
 
 class CommonCriteriaCert(Certificate):
@@ -172,7 +380,8 @@ class CommonCriteriaCert(Certificate):
         On other values (apart from maintainances, see TODO below) the sanity checks are made.
         """
         if self != other:
-            logging.warning(f'Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}')
+            logging.warning(
+                f'Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}')
 
         for att, val in vars(self).items():
             if not val:
@@ -186,7 +395,8 @@ class CommonCriteriaCert(Certificate):
                 pass  # This is expected
             else:
                 if getattr(self, att) != getattr(other, att):
-                    logging.warning(f'When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}')
+                    logging.warning(
+                        f'When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}')
         if self.src != other.src:
             self.src = self.src + ' + ' + other.src
 
@@ -232,7 +442,9 @@ class CommonCriteriaCert(Certificate):
             protection_profiles = set()
             for link in list(cell.find_all('a')):
                 if link.get('href') is not None and '/ppfiles/' in link.get('href'):
-                    protection_profiles.add(CommonCriteriaCert.ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get('href')))
+                    protection_profiles.add(CommonCriteriaCert.ProtectionProfile(str(link.contents[0]),
+                                                                                 CommonCriteriaCert.cc_url + link.get(
+                                                                                     'href')))
             return protection_profiles
 
         def get_date(cell: Tag) -> date:
@@ -279,7 +491,8 @@ class CommonCriteriaCert(Certificate):
                         main_st_link = CommonCriteriaCert.cc_url + l.get('href')
                     else:
                         logging.error('Unknown link in Maintenance part!')
-                maintainance_updates.add(CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
+                maintainance_updates.add(
+                    CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
             return maintainance_updates
 
         cells = list(row.find_all('td'))
