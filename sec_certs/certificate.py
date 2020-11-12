@@ -35,7 +35,7 @@ class Certificate(ABC):
         raise NotImplementedError('Mot meant to be implemented')
 
     @abstractmethod
-    def merge(self, other):
+    def merge(self, other: 'Certificate'):
         raise NotImplementedError('Not meant to be implemented')
 
 

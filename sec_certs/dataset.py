@@ -83,7 +83,7 @@ class Dataset(ABC):
     def get_certs_from_web(self):
         pass
 
-    def merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
+    def merge_certs(self, certs: Dict[str, 'Certificate']):
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
