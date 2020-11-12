@@ -1,13 +1,10 @@
-from typing import Type
 from datetime import datetime, date
 from dataclasses import dataclass
-import json
 import logging
 from . import helpers
-from typing import Union
 from abc import ABC, abstractmethod
 from bs4 import Tag
-from typing import Union
+from typing import Union, Optional
 
 
 class Certificate(ABC):
@@ -21,6 +18,11 @@ class Certificate(ABC):
         return 'Not implemented'
 
     @abstractmethod
+    @property
+    def dgst(self):
+        raise NotImplementedError('Not meant to be implemented')
+
+    @abstractmethod
     def to_dict(self) -> dict:
         raise NotImplementedError('Not meant to be implemented')
 
@@ -32,6 +34,10 @@ class Certificate(ABC):
     def from_dict(cls, dct: dict) -> 'Certificate':
         raise NotImplementedError('Mot meant to be implemented')
 
+    @abstractmethod
+    def merge(self, other):
+        raise NotImplementedError('Not meant to be implemented')
+
 
 class FIPSCertificate(Certificate):
     def to_dict(self) -> dict:
@@ -40,6 +46,10 @@ class FIPSCertificate(Certificate):
     @classmethod
     def from_dict(cls, dct: dict) -> 'FIPSCertificate':
         return FIPSCertificate()
+
+    @property
+    def dgst(self):
+        return None  # TODO: Implement me
 
 
 class CommonCriteriaCert(Certificate):
@@ -70,7 +80,7 @@ class CommonCriteriaCert(Certificate):
         Object for holding protection profiles.
         """
         name: str
-        link: Union[str, None]
+        link: Optional[str]
 
         def __post_init__(self):
             super().__setattr__('name', helpers.sanitize_string(self.name))
@@ -81,8 +91,8 @@ class CommonCriteriaCert(Certificate):
 
     def __init__(self, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
-                 not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Union[str, None],
-                 manufacturer_web: Union[str, None],
+                 not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
+                 manufacturer_web: Optional[str],
                  protection_profiles: set,
                  maintainance_updates: set):
         super().__init__()
@@ -151,7 +161,7 @@ class CommonCriteriaCert(Certificate):
         def get_name(cell: Tag) -> str:
             return list(cell.stripped_strings)[0]
 
-        def get_manufacturer(cell: Tag) -> Union[str, None]:
+        def get_manufacturer(cell: Tag) -> Optional[str]:
             if lst := list(cell.stripped_strings):
                 return lst[0]
             else:
@@ -163,7 +173,7 @@ class CommonCriteriaCert(Certificate):
         def get_security_level(cell: Tag) -> set:
             return set(cell.stripped_strings)
 
-        def get_manufacturer_web(cell: Tag) -> Union[str, None]:
+        def get_manufacturer_web(cell: Tag) -> Optional[str]:
             for link in cell.find_all('a'):
                 if link is not None and link.get('title') == 'Vendor\'s web site' and link.get('href') != 'http://':
                    return link.get('href')
@@ -192,11 +202,11 @@ class CommonCriteriaCert(Certificate):
 
             return report_link, security_target_link
 
-        def get_cert_link(cell: Tag) -> Union[str, None]:
+        def get_cert_link(cell: Tag) -> Optional[str]:
             links = cell.find_all('a')
             return CommonCriteriaCert.cc_url + links[0].get('href') if links else None
 
-        def get_maintainance_div(cell: Tag) -> Union[Tag, None]:
+        def get_maintainance_div(cell: Tag) -> Optional[Tag]:
             divs = cell.find_all('div')
             for d in divs:
                 if d.find('div') and d.stripped_strings and list(d.stripped_strings)[0] == 'Maintenance Report(s)':

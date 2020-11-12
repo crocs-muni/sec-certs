@@ -83,8 +83,21 @@ class Dataset(ABC):
     def get_certs_from_web(self):
         pass
 
-    def merge(self, certs: Dict[str, 'Certificate']):
-        pass
+    def merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
+        """
+        Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
+        """
+        will_be_added = {}
+        n_merged = 0
+        for crt in certs.values():
+            if crt not in self:
+                will_be_added[crt.dgst] = crt
+            else:
+                self[crt.dgst].merge(crt)
+                n_merged += 1
+
+        self.certs.update(will_be_added)
+        logging.info(f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
 
 class CCDataset(Dataset):
@@ -110,22 +123,6 @@ class CCDataset(Dataset):
         'cc_pp_active.csv': 'https://www.commoncriteriaportal.org/pps/pps.csv',
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
-
-    def merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
-        """
-        Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
-        """
-        will_be_added = {}
-        n_merged = 0
-        for crt in certs.values():
-            if crt not in self:
-                will_be_added[crt.dgst] = crt
-            else:
-                self[crt.dgst].merge(crt)
-                n_merged += 1
-
-        self.certs.update(will_be_added)
-        logging.info(f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     def get_certs_from_web(self, keep_metadata: bool = True):
         """
