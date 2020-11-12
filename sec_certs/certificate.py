@@ -4,7 +4,7 @@ import logging
 from . import helpers
 from abc import ABC, abstractmethod
 from bs4 import Tag
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 
 class Certificate(ABC):
@@ -20,6 +20,10 @@ class Certificate(ABC):
     @property
     @abstractmethod
     def dgst(self):
+        raise NotImplementedError('Not meant to be implemented')
+
+    @abstractmethod
+    def to_dict(self) -> dict:
         raise NotImplementedError('Not meant to be implemented')
 
     def __eq__(self, other: 'Certificate') -> bool:
@@ -39,13 +43,45 @@ class Certificate(ABC):
 
 
 class FIPSCertificate(Certificate):
+    fips_base_url = 'https://csrc.nist.gov'
+    fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+
+    def __init__(self, fips_cert_id: str, fips_module_name: str, fips_standard: str, fips_status: str,
+                 fips_date_sunset: Optional[List[str]], fips_date_validation: Optional[List[str]], fips_level: str,
+                 fips_caveat: str, fips_exceptions: Optional[List[str]], fips_module_type: str, fips_embodiment: str,
+                 fips_algorithms: Optional[List[str]], fips_tested_conf: Optional[List[str]], fips_description: str,
+                 fips_mentioned_certs: Optional[List[str]]):
+        super().__init__()
+        self.fips_cert_id = fips_cert_id
+
+        self.fips_tested_conf = [] if not fips_tested_conf else fips_tested_conf
+        self.fips_algorithms = [] if not fips_algorithms else fips_algorithms
+        self.fips_exceptions = [] if not fips_exceptions else fips_exceptions
+        self.fips_mentioned_certs = [] if not fips_mentioned_certs else fips_mentioned_certs
+        self.tables_done = False
+        self.fips_module_name = fips_module_name
+        self.fips_standard = fips_standard
+        self.fips_status = fips_status
+        self.fips_date_sunset = fips_date_sunset
+        self.fips_date_validation = fips_date_validation
+        self.fips_level = fips_level
+        self.fips_caveat = fips_caveat
+        self.fips_exceptions = fips_exceptions
+        self.fips_type = fips_module_type
+        self.fips_embodiment = fips_embodiment
+        self.fips_tested_conf = fips_tested_conf
+        self.fips_description = fips_description
+
+    @property
+    def dgst(self) -> str:
+        return self.fips_cert_id
+
+    def to_dict(self) -> dict:
+        pass
+
     @classmethod
     def from_dict(cls, dct: dict) -> 'FIPSCertificate':
         return FIPSCertificate()
-
-    @property
-    def dgst(self):
-        return None  # TODO: Implement me
 
 
 class CommonCriteriaCert(Certificate):
@@ -170,6 +206,7 @@ class CommonCriteriaCert(Certificate):
         """
         Creates a CC certificate from html row
         """
+
         def get_name(cell: Tag) -> str:
             return list(cell.stripped_strings)[0]
 
@@ -188,7 +225,7 @@ class CommonCriteriaCert(Certificate):
         def get_manufacturer_web(cell: Tag) -> Optional[str]:
             for link in cell.find_all('a'):
                 if link is not None and link.get('title') == 'Vendor\'s web site' and link.get('href') != 'http://':
-                   return link.get('href')
+                    return link.get('href')
             return None
 
         def get_protection_profiles(cell: Tag) -> set:
