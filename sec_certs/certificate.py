@@ -17,8 +17,8 @@ class Certificate(ABC):
     def __str__(self) -> str:
         return 'Not implemented'
 
-    @abstractmethod
     @property
+    @abstractmethod
     def dgst(self):
         raise NotImplementedError('Not meant to be implemented')
 
