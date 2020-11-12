@@ -125,13 +125,25 @@
 		</div>
 	{% endif %}
 	
-	<div class="mt-5 mb-5">
-		<h2>Raw data 
-		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+
+    <div class="mt-5 mb-5">
+        <h2>References
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
+        <div class="border">
+        {{ render_network(network, height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
+        </div>
+    </div>
+
+    <div class="mt-5 mb-5">
+		<h2>Raw data
+		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
 		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
 		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
+        $(function () {
+           $("#raw-data-button").tooltip();
+        });
 		$('#raw-data').on('show.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
@@ -139,7 +151,4 @@
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
 	</script>
-    <div class="mt-5 mb-5">
-        {{ render_network(network, linkDistance=45, linkCharge=-80) }}
-    </div>
 {% endblock %}

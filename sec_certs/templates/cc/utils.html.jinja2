@@ -134,7 +134,7 @@
 	{% endif %}
 {%- endmacro %}
 
-{% macro render_network(network, width=600, height=600, linkDistance=20, linkCharge=-70, forceCenter=False) %}
+{% macro render_network(network, width=600, height=600, linkDistance=20, linkCharge=-70, forceCenter=False, highlight=[]) %}
     <style>
         #network {
             width: 100%;
@@ -143,9 +143,16 @@
     </style>
 	<div id="network"></div>
 	<script>
-    function renderNetwork(data) {
+    function renderNetwork(data, highlighted) {
         let height = {{ height }};
         let width = {{ width }};
+        let color = d => {
+            if (highlighted.includes(d.id)) {
+                return "#d62728"
+            } else {
+                return "#1f77b4"
+            }
+        }
         let drag = simulation => {
             function dragstarted(event) {
                 if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -223,14 +230,21 @@
             .attr("r", 5)
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5)
-            .attr("fill", "#1f77b4");
+            .attr("fill", color);
 
-        node.append("text")
+        const text = node.append("text")
             .attr("x", 8)
             .attr("y", "0.31em")
-            .text(d => d.certid)
             .attr("fill", "#000")
             .attr("visibility", "hidden");
+
+        text.append("tspan")
+            .text(d => d.certid);
+
+        text.append("tspan")
+            .attr("x", 8)
+            .attr("y", "-0.6em")
+            .text(d => d.name);
 
         svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
 
@@ -238,21 +252,27 @@
             g.attr("transform", transform);
         }
 
+        let closest = null;
+
         svg.on("mousemove", event => {
             let transform = d3.zoomTransform(g.node());
             let ptr = d3.pointer(event, svg.node());
             ptr = transform.invert(ptr);
             let x = ptr[0];
             let y = ptr[1];
-            node.each(function(d, j, n) {
-                let dx = x - d.x;
-                let dy = y - d.y;
-                if ((Math.sqrt(dx*dx + dy*dy)) < 40) {
-                    d3.select(this).select("text").attr("visibility", null);
-                } else {
-                    d3.select(this).select("text").attr("visibility", "hidden");
-                }
-            });
+            let newClosest = simulation.find(x, y);
+            if (newClosest !== closest) {
+                node.each(function (d, i) {
+                    if (i === newClosest.index) {
+                        d3.select(this).select("text").attr("visibility", null);
+                        d3.select(this).select("circle").attr("stroke", "#000");
+                    } else if (closest !== null && i === closest.index) {
+                        d3.select(this).select("text").attr("visibility", "hidden");
+                        d3.select(this).select("circle").attr("stroke", "#fff");
+                    }
+                });
+                closest = newClosest;
+            }
         });
 
         simulation.on("tick", () => {
@@ -270,8 +290,45 @@
     }
 
 	let data = JSON.parse('{{ network|tojson }}');
+    let highlighted = {{ highlight }};
 	if (("nodes" in data) && ("links" in data)) {
-        renderNetwork(data);
+        renderNetwork(data, highlighted);
     }
 	</script>
+{%- endmacro %}
+
+{% macro render_pagination(pagination, certs, search=False) %}
+    <div id="pagination">
+    {% if search %}
+        {{ pagination.info }}
+    {% endif %}
+    <div class="mt-4 mb-4">
+		{{ pagination.links }}
+	</div>
+	<table class="border mb-4">
+		<col style="width:70%">
+		<col style="width:10%">
+		<col style="width:10%">
+		<col style="width:10%">
+		<thead>
+			<tr class="border-bottom">
+				<th class="pl-1">Name</th>
+				<th>Status</th>
+				<th>Certification date</th>
+				<th>Archive date</th>
+			</tr>
+		</thead>
+	{% for name, hashid, status, cert_date, archive_date, category in certs %}
+		<tr>
+		<td class="pl-1">{{ render_category(category) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
+		<td>{{ render_status(status) }}</td>
+		<td>{{ cert_date }}</td>
+		<td>{{ archive_date }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<div class="mb-4">
+		{{ pagination.links }}
+	</div>
+    </div>
 {%- endmacro %}

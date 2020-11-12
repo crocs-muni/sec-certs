@@ -1,0 +1,55 @@
+{% extends "base.html.jinja2" %}
+{% from "cc/utils.html.jinja2" import render_pagination %}
+{% block content %}
+    <h1>Common Criteria</h1>
+    <div>
+        <input id="search" value="{{ q|default('', true) }}"/>
+        <div id="search-categories">
+            {% for name, val in categories.items() %}
+                <span>
+                <label>
+                    <input type="checkbox" data-id="{{ val['id'] }}" {% if val["selected"] %}checked{% endif %}>
+                    <i class="fas fa-fw {{ val['icon'] }}"></i> {{ name }}
+                </label>
+            </span>
+            {% endfor %}
+        </div>
+        <button id="search-btn" class="btn btn-primary">Search</button>
+    </div>
+    <style>
+        #search-categories {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+    <script>
+        function searchParams() {
+            let categories = $.makeArray($("#search-categories input").filter(":checked").map((i, elem) => $(elem).data("id"))).join();
+            return $.param({q: $("#search").val(), cat: categories});
+        }
+        function fullSearch() {
+            location.href = "{{ url_for("cc.search") }}?" + searchParams();
+        }
+        function quickSearch() {
+            $.ajax({
+                url: "{{ url_for("cc.search_pagination") }}?" + searchParams()
+            }).done(function (data) {
+                $("#pagination").replaceWith(data);
+            });
+        }
+
+
+        $("#search-btn").click(fullSearch);
+        $("#search-categories input").change(function () {
+            quickSearch();
+        });
+        $("#search").keyup(function (e) {
+            if (e.keyCode === 13) {
+                fullSearch();
+            } else {
+                quickSearch();
+            }
+        });
+    </script>
+    {{ render_pagination(pagination, certs, search=True) }}
+{% endblock %}
