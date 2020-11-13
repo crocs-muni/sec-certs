@@ -252,6 +252,4 @@ class CommonCriteriaCert(Certificate):
         maintainance_div = get_maintainance_div(cells[0])
         maintainances = get_maintainance_updates(maintainance_div) if maintainance_div else set()
 
-        crt = CommonCriteriaCert(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link, st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances)
-
-        return crt
+        return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link, st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances)
