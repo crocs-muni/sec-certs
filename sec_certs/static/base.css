@@ -3,6 +3,7 @@
  }
 
 #sidebar-wrapper {
+  margin-top: 57px;
   min-height: 100vh;
   margin-left: -15rem;
   -webkit-transition: margin .25s ease-out;
@@ -24,8 +25,14 @@
   width: 15rem;
 }
 
+#sidebar-wrapper .item-active {
+  background-color: #dae0e5 !important;
+  font-weight: bolder;
+}
+
 #page-content-wrapper {
   min-width: 100vw;
+  margin-top: 57px;
 }
 
 #wrapper.toggled #sidebar-wrapper {
@@ -52,7 +59,7 @@
 }
 
 #logo {
-  margin-top: calc(100vh - 22rem);
+  margin-top: calc(100vh - 29rem);
   padding-left: 2rem;
   padding-right: 2rem;
   width: 15rem;
@@ -61,6 +68,11 @@
 
 #logo img {
   width: 100%;
+}
+
+.anchor {
+    padding-top: 57px;
+    margin-top: -57px;
 }
 
 #content .listing {

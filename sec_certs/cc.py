@@ -1,7 +1,9 @@
 import json
+from collections import namedtuple
 from sys import getsizeof
 import os.path
 import random
+from datetime import datetime
 from hashlib import blake2b
 
 import networkx as nx
@@ -10,7 +12,7 @@ from networkx.readwrite.json_graph import node_link_data
 from flask import Blueprint, render_template, abort, jsonify, url_for, current_app, request
 from pkg_resources import resource_stream
 
-from .utils import Pagination
+from .utils import Pagination, smallest
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
 
@@ -84,6 +86,8 @@ cc_categories = {
     }
 }
 
+CCEntry = namedtuple("CCEntry", ("name", "hashid", "status", "cert_date", "archived_date", "category", "search_name"))
+
 
 @cc.before_app_first_request
 def load_cc_data():
@@ -95,9 +99,11 @@ def load_cc_data():
 
     # Create ids
     cc_data = {blake2b(key.encode(), digest_size=20).hexdigest(): value for key, value in loaded_cc_data.items()}
-    cc_names = list(sorted((value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"],
-                            value["csv_scan"]["cc_certification_date"], value["csv_scan"]["cc_archived_date"],
-                            value["csv_scan"]["cc_category"]) for key, value in cc_data.items()))
+    cc_names = list(sorted(CCEntry(value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"],
+                                   datetime.strptime(value["csv_scan"]["cc_certification_date"], "%m/%d/%Y"),
+                                   datetime.strptime(value["csv_scan"]["cc_archived_date"], "%m/%d/%Y") if value["csv_scan"]["cc_archived_date"] else value["csv_scan"]["cc_archived_date"],
+                                   value["csv_scan"]["cc_category"], value["csv_scan"]["cert_item_name"].lower())
+                           for key, value in cc_data.items()))
 
     # Extract references
     cc_references = {}
@@ -111,10 +117,11 @@ def load_cc_data():
             "name": cert["csv_scan"]["cert_item_name"],
             "refs": []
         }
-        if "keywords_scan" in cert and cert["keywords_scan"]["rules_cert_id"]:
+
+        if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and "keywords_scan" in cert and cert["keywords_scan"]["rules_cert_id"]:
             items = sum(map(lambda x: list(x.keys()), cert["keywords_scan"]["rules_cert_id"].values()), [])
             reference["refs"].extend(items)
-        if "st_keywords_scan" in cert and cert["st_keywords_scan"]["rules_cert_id"]:
+        if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and "st_keywords_scan" in cert and cert["st_keywords_scan"]["rules_cert_id"]:
             items = sum(map(lambda x: list(x.keys()), cert["st_keywords_scan"]["rules_cert_id"].values()), [])
             reference["refs"].extend(items)
         cc_references[cert_id] = reference
@@ -187,34 +194,41 @@ def network():
 
 
 def process_search(request, callback=None):
-    if request.args:
-        page = int(request.args.get("page", 1))
-        q = request.args.get("q", None)
-        cat = request.args.get("cat", None)
-    else:
-        page = 1
-        q = None
-        cat = None
+    page = int(request.args.get("page", 1))
+    q = request.args.get("q", None)
+    cat = request.args.get("cat", None)
+    status = request.args.get("status", "any")
+    sort = request.args.get("sort", "name")
 
     categories = cc_categories.copy()
     names = cc_names
 
+    if q is not None:
+        ql = q.lower()
+        names = list(filter(lambda x: ql in x.search_name, names))
+
     if cat is not None:
-        ids = cat.split(",")
         for category in categories.values():
-            if category["id"] in ids:
+            if category["id"] in cat:
                 category["selected"] = True
             else:
                 category["selected"] = False
-        names = list(filter(lambda x: categories[x[5]]["selected"], names))
+        names = list(filter(lambda x: categories[x.category]["selected"], names))
     else:
         for category in categories.values():
             category["selected"] = True
 
-    if q is not None:
-        names = list(filter(lambda x: q.lower() in x[0].lower(), names))
+    if status is not None and status != "any":
+        names = list(filter(lambda x: status == x.status, names))
 
-    per_page = 40
+    if sort == "name":
+        pass
+    elif sort == "cert_date":
+        names = list(sorted(names, key=lambda x: x.cert_date if x.cert_date else smallest))
+    elif sort == "archive_date":
+        names = list(sorted(names, key=lambda x: x.archived_date if x.archived_date else smallest))
+
+    per_page = 20
     pagination = Pagination(page=page, per_page=per_page, search=True, found=len(names), total=len(cc_names),
                             css_framework="bootstrap4", alignment="center",
                             url_callback=callback)
@@ -223,7 +237,9 @@ def process_search(request, callback=None):
         "certs": names[(page - 1) * per_page:page * per_page],
         "categories": categories,
         "q": q,
-        "page": page
+        "page": page,
+        "status": status,
+        "sort": sort
     }
 
 

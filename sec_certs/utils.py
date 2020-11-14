@@ -1,4 +1,5 @@
 from flask_paginate import Pagination as FlaskPagination
+from functools import total_ordering
 
 
 class Pagination(FlaskPagination):
@@ -11,3 +12,33 @@ class Pagination(FlaskPagination):
             return super().page_href(page)
         else:
             return self.url_callback(page=page, **self.args)
+
+
+@total_ordering
+class Smallest(object):
+    def __lt__(self, other):
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, Smallest):
+            return True
+        else:
+            return False
+
+
+smallest = Smallest()
+
+
+@total_ordering
+class Biggest(object):
+    def __gt__(self, other):
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, Biggest):
+            return True
+        else:
+            return False
+
+
+biggest = Biggest()

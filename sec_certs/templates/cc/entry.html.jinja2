@@ -1,12 +1,37 @@
 {% extends "base.html.jinja2" %}
+{% set active_page = "cc" %}
 {% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_network %}
+{% block navbar %}
+    {{ super() }}
+    {% if "csv_scan" in cert %}
+        <li class="nav-item">
+            <a class="nav-link" href="#csv-info">CSV</a>
+        </li>
+    {% endif %}
+    {% if "frontpage_scan" in cert %}
+        <li class="nav-item">
+            <a class="nav-link" href="#frontpage-info">Frontpage</a>
+        </li>
+    {% endif %}
+    {% if "keywords_scan" in cert or "st_keywords_scan" in cert or "processed" in cert %}
+        <li class="nav-item">
+            <a class="nav-link" href="#doc-info">Document</a>
+        </li>
+    {% endif %}
+        <li class="nav-item">
+            <a class="nav-link" href="#reference-graph">References</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#raw-data">Raw data</a>
+        </li>
+{% endblock %}
 {% block content %}
+    <div>
 	<h1>{{ cert["csv_scan"]["cert_item_name"]|default("") }}</h1>
 
-	
 	{% if "csv_scan" in cert %}
-		<div>
-		<h2 class="mt-5">CSV information 
+		<div class="mt-5 mb-5">
+		<h2 class="anchor" id="csv-info">CSV information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the CSV certificate database provided by the Common Criteria portal.">?</span></h2>
 		<b>Status:</b>{{ render_status(cert["csv_scan"]["cert_status"]) }}<br/>
 
@@ -38,15 +63,15 @@
 		{# TODO: Parse maintenance reports! #}	
 
 		<div class="mt-2 mb-2">
-			<a class="btn btn-primary" role="button" href="{{ cert['csv_scan']['link_cert_report'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['csv_scan']['link_cert_report_file_name'] }}"><i class="fas fa-file"></i> Certification report</a>
-			<a class="btn btn-primary" role="button" href="{{ cert['csv_scan']['link_security_target'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['csv_scan']['link_security_target_file_name'] }}"><i class="fas fa-file"></i> Security target</a>
+			<a class="btn btn-primary" role="button" href="{{ cert['csv_scan']['link_cert_report'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['csv_scan']['link_cert_report_file_name'] }}"><i class="fas fa-file-contract"></i> Certification report</a>
+			<a class="btn btn-primary" role="button" href="{{ cert['csv_scan']['link_security_target'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['csv_scan']['link_security_target_file_name'] }}"><i class="fas fa-file-alt"></i> Security target</a>
 		</div>
 		</div>
 	{% endif %}
 
 	{% if "frontpage_scan" in cert %}
-		<div>
-		<h2 class="mt-5">Frontpage information 
+		<div class="mt-5 mb-5">
+		<h2 class="anchor" id="frontpage-info">Frontpage information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the frontpage of the certificate document.">?</span></h2>
 		
 		{% if "cert_id" in cert["frontpage_scan"] %}
@@ -84,8 +109,8 @@
 
 
 	{% if "keywords_scan" in cert or "st_keywords_scan" in cert or "processed" in cert %}
-		<div>
-		<h2 class="mt-5">Document information 
+		<div class="mt-5 mb-5">
+		<h2 class="anchor" id="doc-info">Document information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
 		{% if "processed" in cert %}
 			{% if "cert_id" in cert["processed"] %}
@@ -106,7 +131,8 @@
 		{% endif %}
 
 		{% if "keywords_scan" in cert %}
-			<h3 class="mt-4">Certificate</h3>
+			<h3 class="mt-4"><i class="fas fa-file-contract"></i> Certificate
+            <a role="button" href="{{ cert['csv_scan']['link_cert_report'] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h3>
 			{{ cryptography_keywords(cert["keywords_scan"], "cert") }}
 			{{ device_keywords(cert["keywords_scan"], "cert") }}
 			{{ security_keywords(cert["keywords_scan"], "cert", hidden=["rules_security_level"], map_funcs={"rules_security_assurance_components": render_sars,
@@ -115,7 +141,8 @@
 		{% endif %}
 
 		{% if "st_keywords_scan" in cert %}
-			<h3 class="mt-4">Security target</h3>
+			<h3 class="mt-4"><i class="fas fa-file-alt"></i> Security target
+             <a role="button" href="{{ cert['csv_scan']['link_security_target'] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h3>
 			{{ cryptography_keywords(cert["st_keywords_scan"], "target") }}
 			{{ device_keywords(cert["st_keywords_scan"], "target") }}
 			{{ security_keywords(cert["st_keywords_scan"], "target", map_funcs={"rules_security_assurance_components": render_sars,
@@ -127,7 +154,7 @@
 	
 
     <div class="mt-5 mb-5">
-        <h2>References
+        <h2 class="anchor" id="reference-graph">References
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
         <div class="border">
         {{ render_network(network, height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
@@ -135,20 +162,21 @@
     </div>
 
     <div class="mt-5 mb-5">
-		<h2>Raw data
-		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+		<h2 class="anchor" id="raw-data">Raw data
+		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data-code" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
 		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
+		<pre id="raw-data-code" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
         $(function () {
            $("#raw-data-button").tooltip();
         });
-		$('#raw-data').on('show.bs.collapse', function () {
+		$('#raw-data-code').on('show.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
-		$('#raw-data').on('hide.bs.collapse', function () {
+		$('#raw-data-code').on('hide.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
 	</script>
+    </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base.html.jinja2" %}
+{% set active_page = "fips" %}
 {% from "fips/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
 {% block content %}
 	<h1>{{ cert["fips_module_name"]|default("") }}</h1>

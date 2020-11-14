@@ -300,7 +300,7 @@
 {% macro render_pagination(pagination, certs, search=False) %}
     <div id="pagination">
     {% if search %}
-        {{ pagination.info }}
+        <span style="text-align: center">{{ pagination.info }}</span>
     {% endif %}
     <div class="mt-4 mb-4">
 		{{ pagination.links }}
@@ -318,12 +318,12 @@
 				<th>Archive date</th>
 			</tr>
 		</thead>
-	{% for name, hashid, status, cert_date, archive_date, category in certs %}
+	{% for name, hashid, status, cert_date, archive_date, category, search_name in certs %}
 		<tr>
 		<td class="pl-1">{{ render_category(category) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
 		<td>{{ render_status(status) }}</td>
-		<td>{{ cert_date }}</td>
-		<td>{{ archive_date }}</td>
+		<td>{{ cert_date.strftime("%d-%m-%Y") }}</td>
+		<td>{{ archive_date.strftime("%d-%m-%Y") if archive_date else "" }}</td>
 		</tr>
 	{% endfor %}
 	</table>

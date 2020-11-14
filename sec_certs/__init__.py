@@ -17,6 +17,8 @@ def create_app():
 
     @app.template_global("country_to_flag")
     def to_flag(code):
+        if code == "UK":
+            code = "GB"
         return flag(code)
 
     @app.template_global("blueprint_url_prefix")
@@ -34,5 +36,9 @@ def create_app():
     @app.route("/")
     def index():
         return render_template("index.html.jinja2")
+
+    @app.route("/methodology")
+    def methodology():
+        return render_template("methodology.html.jinja2")
 
     return app
