@@ -168,13 +168,8 @@ def ger_cc_sfr(sfr):
 
 
 @cc.route("/")
-@cc.route("/<int:page>/")
-def index(page=1):
-    per_page = 40
-    pagination = Pagination(page=page, per_page=per_page, total=len(cc_names), href=url_for(".index") + "{0}/",
-                            css_framework="bootstrap4", alignment="center")
-    return render_template("cc/index.html.jinja2", certs=cc_names[(page - 1) * per_page:page * per_page],
-                           pagination=pagination, title=f"Common Criteria ({page}) | seccerts.org")
+def index():
+    return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org")
 
 
 @cc.route("/network/")

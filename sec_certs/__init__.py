@@ -4,6 +4,7 @@ from flag import flag
 from flask import Flask, render_template, current_app, request
 from flask_debugtoolbar import DebugToolbarExtension
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile("config.py", silent=True)

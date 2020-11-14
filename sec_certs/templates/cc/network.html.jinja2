@@ -2,6 +2,8 @@
 {% set active_page = "cc" %}
 {% from "cc/utils.html.jinja2" import render_network %}
 {% block content %}
-    <h1 class="mb-2">Common Criteria</h1>
+    <h1 class="mb-4">Common Criteria</h1>
+    <div class="border">
     {{ render_network(network) }}
+    </div>
 {% endblock %}
