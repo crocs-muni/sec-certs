@@ -1,5 +1,7 @@
-from datetime import datetime
-from .certificate import CommonCriteriaCert, Certificate
+import os
+from datetime import datetime, date
+from .certificate import CommonCriteriaCert, Certificate, FIPSCertificate
+from .download import download_fips_web, download_fips
 from abc import ABC, abstractmethod
 from . import helpers as helpers
 from pathlib import Path
@@ -167,8 +169,8 @@ class CCDataset(Dataset):
             return prim_key
 
         csv_header = ['category', 'cert_name', 'manufacturer', 'scheme', 'security_level', 'protection_profiles',
-                       'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
-                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
+                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
+                      'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
 
         df = pd.read_csv(file, engine='python', encoding='windows-1250')
         df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
@@ -176,7 +178,8 @@ class CCDataset(Dataset):
         df['is_maintainance'] = ~df.maintainance_title.isnull()
         df = df.fillna(value='')
 
-        df[['not_valid_before', 'not_valid_after', 'maintainance_date']] = df[['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
+        df[['not_valid_before', 'not_valid_after', 'maintainance_date']] = df[
+            ['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
 
         df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(get_primary_key_str(row)), axis=1)
         df_base = df.loc[df.is_maintainance == False].copy()
@@ -190,12 +193,19 @@ class CCDataset(Dataset):
         df_base = df_base.drop_duplicates(subset=['dgst'])
         df_main = df_main.drop_duplicates()
 
-        profiles = {x.dgst: set([CommonCriteriaCert.ProtectionProfile(y, None) for y in helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in df_base.itertuples()}
+        profiles = {x.dgst: set([CommonCriteriaCert.ProtectionProfile(y, None) for y in
+                                 helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in
+                    df_base.itertuples()}
         updates = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
-            updates[x.dgst].add(CommonCriteriaCert.MaintainanceReport(x.maintainance_date.date(), x.maintainance_title, x.maintainance_report_link, x.maintainance_st_link))
+            updates[x.dgst].add(CommonCriteriaCert.MaintainanceReport(x.maintainance_date.date(), x.maintainance_title,
+                                                                      x.maintainance_report_link,
+                                                                      x.maintainance_st_link))
 
-        certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level, x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv', None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in df_base.itertuples()}
+        certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
+                                            x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
+                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in
+                 df_base.itertuples()}
         return certs
 
     def get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
@@ -218,6 +228,7 @@ class CCDataset(Dataset):
         """
         Prepares a dictionary of certificates from a single html file.
         """
+
         def get_timestamp_from_footer(footer):
             locale.setlocale(locale.LC_ALL, 'en_US')
             footer_text = list(footer.stripped_strings)[0]
@@ -275,3 +286,63 @@ class CCDataset(Dataset):
             certs.update(parse_table(soup, key, val))
 
         return certs
+
+
+class FIPSDataset(Dataset):
+    fips_base_url = 'https://csrc.nist.gov'
+    fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+
+    # self.certs = certs
+    # self.root_dir = root_dir
+    #
+    # self.timestamp = datetime.now()
+    # self.sha256_digest = 'not implemented'
+    # self.name = name
+    # self.description = description
+
+    @property
+    def web_dir(self) -> Path:
+        return self.root_dir / 'web'
+
+    @property
+    def results_dir(self) -> Path:
+        return self.root_dir / 'results'
+
+    @property
+    def policies_dir(self) -> Path:
+        return self.root_dir / 'security_policies'
+
+    def find_empty_pdfs(self) -> (List, List):
+        missing = []
+        not_available = []
+        for i in range(1, 3725):
+            if not (self.policies_dir / f'{i}.pdf').exists():
+                missing.append(i)
+            elif os.path.getsize(self.policies_dir / f'{i}.pdf') < 10000:
+                not_available.append(i)
+        return missing, not_available
+
+    def get_certs_from_web(self):
+        def get_certificates_from_html(html_file: Path) -> None:
+            logging.info(f'Getting certificate ids from {html_file}')
+            html = BeautifulSoup(open(html_file).read(), 'html.parser')
+
+            table = [x for x in html.find(id='searchResultsTable').tbody.contents if x != '\n']
+            for entry in table:
+                self.certs[entry.find('a').text] = {}
+
+        logging.info("Downloading required html files")
+
+        self.web_dir.mkdir(parents=True, exist_ok=True)
+
+        # Download files containing all available module certs (always)
+        download_fips_web(self.web_dir)
+        html_files = ['fips_modules_active.html', 'fips_modules_historical.html', 'fips_modules_revoked.html']
+
+        # Parse those files and get list of currently processable files (always)
+        for f in html_files:
+            get_certificates_from_html(self.web_dir / f)
+
+        logging.info('Downloading certficate html and security policies')
+
+        download_fips(self.web_dir, self.policies_dir, 8, list(self.certs.keys()))

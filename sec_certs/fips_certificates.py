@@ -19,18 +19,6 @@ from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
-
-def find_empty_pdfs(base_dir: Path) -> (List, List):
-    missing = []
-    not_available = []
-    for i in range(1, 3725):
-        if not (base_dir / f'{i}.pdf').exists():
-            missing.append(i)
-        elif os.path.getsize(base_dir / f'{i}.pdf') < 10000:
-            not_available.append(i)
-    return missing, not_available
-
-
 def extract_filename(file: str) -> str:
     """
     Extracts filename from path

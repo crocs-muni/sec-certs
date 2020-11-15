@@ -2,7 +2,7 @@ import os
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from tqdm import tqdm
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, List
 
 import requests
 
@@ -22,6 +22,7 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
     def download(url_output):
         url, output = url_output
         return url, download_file(url, output)
+
     pool = ThreadPool(num_threads)
     responses = []
     with tqdm(total=len(items)) as progress:
@@ -37,20 +38,20 @@ def download_cc_web(web_dir: Path, num_threads: int) -> Sequence[Tuple[str, int]
     items = [
         ("https://www.commoncriteriaportal.org/products/", web_dir / "cc_products_active.html"),
         ("https://www.commoncriteriaportal.org/products/index.cfm?archived=1",
-            web_dir / "cc_products_archived.html"),
+         web_dir / "cc_products_archived.html"),
         ("https://www.commoncriteriaportal.org/labs/", web_dir / "cc_labs.html"),
         ("https://www.commoncriteriaportal.org/products/certified_products.csv",
-            web_dir / "cc_products_active.csv"),
+         web_dir / "cc_products_active.csv"),
         ("https://www.commoncriteriaportal.org/products/certified_products-archived.csv",
-            web_dir / "cc_products_archived.csv"),
+         web_dir / "cc_products_archived.csv"),
         ("https://www.commoncriteriaportal.org/pps/", web_dir / "cc_pp_active.html"),
         ("https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1",
-            web_dir / "cc_pp_collaborative.html"),
+         web_dir / "cc_pp_collaborative.html"),
         ("https://www.commoncriteriaportal.org/pps/index.cfm?archived=1",
-            web_dir / "cc_pp_archived.html"),
+         web_dir / "cc_pp_archived.html"),
         ("https://www.commoncriteriaportal.org/pps/pps.csv", web_dir / "cc_pp_active.csv"),
         ("https://www.commoncriteriaportal.org/pps/pps-archived.csv",
-            web_dir / "cc_pp_archived.csv")]
+         web_dir / "cc_pp_archived.csv")]
     return download_parallel(items, num_threads)
 
 
@@ -102,15 +103,27 @@ def download_cc_failed(walk_dir: Path, num_threads: int) -> Sequence[Tuple[str, 
 
 
 def download_fips_web(web_dir: Path):
-    download_file("https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all",
-                  web_dir / "fips_modules_validated.html")
+    download_file(
+        "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+        web_dir / "fips_modules_active.html")
+    download_file(
+        "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+        web_dir / "fips_modules_historical.html")
+    download_file(
+        "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+        web_dir / "fips_modules_revoked.html")
 
 
-def download_fips(web_dir: Path, policies_dir: Path, num_threads: int) -> Sequence[Tuple[str, int]]:
+def download_fips(web_dir: Path, policies_dir: Path, num_threads: int, ids: List[str]) -> Sequence[Tuple[str, int]]:
+    web_dir.mkdir(exist_ok=True)
+    policies_dir.mkdir(exist_ok=True)
+
     html_items = [
         (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
-         web_dir / f"{cert_id}.html") for cert_id in range(1, 4001)]
+         web_dir / f"{cert_id}.html") for cert_id in ids if not (web_dir / f'{cert_id}.html').exists()]
     sp_items = [
-        (f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
-         policies_dir / f"{cert_id}.pdf") for cert_id in range(1, 4001)]
+        (
+            f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
+            policies_dir / f"{cert_id}.pdf") for cert_id in ids if not (policies_dir / f'{cert_id}.pdf').exists()
+    ]
     return download_parallel(html_items + sp_items, num_threads)
