@@ -292,14 +292,6 @@ class FIPSDataset(Dataset):
     fips_base_url = 'https://csrc.nist.gov'
     fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
-    # self.certs = certs
-    # self.root_dir = root_dir
-    #
-    # self.timestamp = datetime.now()
-    # self.sha256_digest = 'not implemented'
-    # self.name = name
-    # self.description = description
-
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -346,3 +338,6 @@ class FIPSDataset(Dataset):
         logging.info('Downloading certficate html and security policies')
 
         download_fips(self.web_dir, self.policies_dir, 8, list(self.certs.keys()))
+
+        for cert in self.certs:
+            self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
