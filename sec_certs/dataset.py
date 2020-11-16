@@ -124,25 +124,35 @@ class CCDataset(Dataset):
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
 
-    def get_certs_from_web(self, keep_metadata: bool = True):
+    def get_certs_from_web(self, to_download=True, keep_metadata: bool = True, get_active=True, get_archived=True):
         """
         Downloads all metadata about certificates from CSV and HTML sources
         """
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
-        logging.info('Downloading required csv and html files.')
         html_items = [(x, self.web_dir / y) for y, x in self.html_products.items()]
         csv_items = [(x, self.web_dir / y) for y, x in self.csv_products.items()]
-        helpers.download_parallel(html_items, num_threads=8)
-        helpers.download_parallel(csv_items, num_threads=8)
+
+        if not get_active:
+            html_items = [x for x in html_items if 'active' not in str(x[1])]
+            csv_items = [x for x in csv_items if 'active' not in str(x[1])]
+
+        if not get_archived:
+            html_items = [x for x in html_items if 'archived' not in str(x[1])]
+            csv_items = [x for x in csv_items if 'archived' not in str(x[1])]
+
+        if to_download is True:
+            logging.info('Downloading required csv and html files.')
+            helpers.download_parallel(html_items, num_threads=8)
+            helpers.download_parallel(csv_items, num_threads=8)
 
         logging.info('Adding CSV certificates to CommonCriteria dataset.')
-        csv_certs = self.get_all_certs_from_csv()
+        csv_certs = self.get_all_certs_from_csv(get_active, get_archived)
         self.merge_certs(csv_certs)
 
         # TODO: Someway along the way, 3 certificates get lost. Investigate and fix.
         logging.info('Adding HTML certificates to CommonCriteria dataset.')
-        html_certs = self.get_all_certs_from_html()
+        html_certs = self.get_all_certs_from_html(get_active, get_archived)
         self.merge_certs(html_certs)
 
         logging.info(f'The resulting dataset has {len(self)} certificates.')
@@ -150,12 +160,16 @@ class CCDataset(Dataset):
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-    def get_all_certs_from_csv(self) -> Dict[str, 'CommonCriteriaCert']:
+    def get_all_certs_from_csv(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
         """
         Creates dictionary of new certificates from csv sources.
         """
+        csv_sources = self.csv_products.keys()
+        csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
+        csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
+
         new_certs = {}
-        for file in self.csv_products:
+        for file in csv_sources:
             partial_certs = self.parse_single_csv(self.web_dir / file)
             logging.info(f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
@@ -201,12 +215,17 @@ class CCDataset(Dataset):
         certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level, x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv', None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in df_base.itertuples()}
         return certs
 
-    def get_all_certs_from_html(self) -> Dict[str, 'CommonCriteriaCert']:
+    def get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
         """
         Prepares dictionary of certificates from all html files.
         """
+        html_sources = self.html_products.keys()
+        html_sources = [x for x in html_sources if 'active' not in x or get_active]
+        html_sources = [x for x in html_sources if 'archived' not in x or get_archived]
+
+
         new_certs = {}
-        for file in self.html_products:
+        for file in html_sources:
             partial_certs = self.parse_single_html(self.web_dir / file)
             logging.info(f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
