@@ -241,7 +241,6 @@ class CCDataset(Dataset):
         html_sources = [x for x in html_sources if 'active' not in x or get_active]
         html_sources = [x for x in html_sources if 'archived' not in x or get_archived]
 
-
         new_certs = {}
         for file in html_sources:
             partial_certs = self.parse_single_html(self.web_dir / file)
@@ -264,7 +263,11 @@ class CCDataset(Dataset):
 
         def parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
-            assert len(tables) == 1
+            assert len(tables) <= 1
+
+            if not tables:
+                return {}
+
             table = tables[0]
             rows = list(table.find_all('tr'))
             header, footer, body = rows[0], rows[1], rows[2:]

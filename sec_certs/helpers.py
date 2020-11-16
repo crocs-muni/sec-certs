@@ -58,7 +58,9 @@ def sanitize_string(record: str) -> Union[str, None]:
         return None
     else:
         # TODO: There is a certificate with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
-        return html.unescape(html.unescape(record)).replace('\r\n', ' ').replace('\n', '')
+        string = html.unescape(html.unescape(record)).replace('\n', '')
+        return ' '.join(string.split())
+
 
 
 def sanitize_security_levels(record: Union[str, set]) -> set:
