@@ -1,6 +1,17 @@
 {% extends "base.html.jinja2" %}
 {% set active_page = "cc" %}
 {% from "cc/utils.html.jinja2" import render_pagination %}
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".network") }}">Graph</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
+    </li>
+{% endblock %}
 {% block content %}
     <h1>Common Criteria</h1>
     <div class="row">
@@ -21,8 +32,7 @@
                 <img class="card-img-top" src="{{ url_for('static', filename='cc_network.png') }}" alt="Graph">
                 <div class="card-body">
                     <h5 class="card-title">Graph</h5>
-                    <p class="card-text">View an interactive graph of how Common Criteria certificates reference each
-                        other.</p>
+                    <p class="card-text">View an interactive graph of references in Common Criteria certificates.</p>
                     <a href="{{ url_for(".network") }}" class="btn btn-primary"><i class="fas fa-project-diagram"></i> Go</a>
                 </div>
             </div>
@@ -34,6 +44,18 @@
                     <h5 class="card-title">Search</h5>
                     <p class="card-text">Search and browse through the certificates and our extracted metadata.</p>
                     <a href="{{ url_for(".search") }}" class="btn btn-primary"><i class="fas fa-search"></i> Go</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-5 mb-5">
+        <div class="col-sm-6">
+            <div class="card bg-light">
+                <img class="card-img-top" src="{{ url_for('static', filename='cc_analysis1.png') }}" alt="Graph">
+                <div class="card-body">
+                    <h5 class="card-title">Analysis</h5>
+                    <p class="card-text">View the results of our analysis of the Common Criteria certificate data.</p>
+                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i class="fas fa-chart-line"></i> Go</a>
                 </div>
             </div>
         </div>

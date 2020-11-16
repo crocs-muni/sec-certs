@@ -1,11 +1,25 @@
 {% extends "base.html.jinja2" %}
 {% set active_page = "fips" %}
 {% from "fips/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
+{% block navbar %}
+    {{ super() }}
+    <li class="nav-item">
+        <a class="nav-link" href="#web-info">Webpage</a>
+    </li>
+    {% if "keywords_scan" in cert %}
+        <li class="nav-item">
+            <a class="nav-link" href="#doc-info">Document</a>
+        </li>
+    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="#raw-data">Raw data</a>
+    </li>
+{% endblock %}
 {% block content %}
 	<h1>{{ cert["fips_module_name"]|default("") }}</h1>
 
 	<div>
-		<h2 class="mt-5">Webpage information</h2>
+		<h2 id="web-info" class="mt-5">Webpage information</h2>
 
 		<div class="mt-2 mb-2">
 			<a class="btn btn-primary" role="button" href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_fips_id'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['fips_module_name']|default('') }}"><i class="fas fa-external-link-alt"></i> Webpage</a>
@@ -14,7 +28,7 @@
 
 	{% if "keywords_scan" in cert %}
 	<div>
-		<h2 class="mt-5">Document information 
+		<h2 id="doc-info" class="mt-5">Document information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
 		
 		<h3 class="mt-4">Security policy</h3>
@@ -27,11 +41,14 @@
 
 	<div class="mt-5 mb-5">
 		<h2>Raw data 
-		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
 		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
 		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
+        $(function () {
+           $("#raw-data-button").tooltip();
+        });
 		$('#raw-data').on('show.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});

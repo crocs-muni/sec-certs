@@ -1,5 +1,5 @@
 import json
-import os.path
+from collections import namedtuple
 from sys import getsizeof
 from hashlib import blake2b
 
@@ -12,14 +12,19 @@ fips = Blueprint("fips", __name__, url_prefix="/fips")
 fips_data = {}
 fips_names = []
 
+FIPSEntry = namedtuple("FIPSEntry", ("id", "name", "hashid", "status", "level", "vendor", "type"))
+
+
 @fips.before_app_first_request
 def load_fips_data():
     global fips_names, fips_data
-    with open(os.path.join(current_app.instance_path, "fips.json")) as f:
+    with current_app.open_instance_resource("fips.json") as f:
         loaded_fips_data = json.load(f)
     fips_data = {blake2b(key.encode(), digest_size=20).hexdigest() : value for key, value in loaded_fips_data.items()}
-    fips_names = list(sorted((int(value["cert_fips_id"]), value["fips_module_name"], key, value["fips_status"], value["fips_level"], value["fips_vendor"], value["fips_type"]) for key, value in fips_data.items()))
+    fips_names = list(sorted(FIPSEntry(int(value["cert_fips_id"]), value["fips_module_name"], key, value["fips_status"],
+                              value["fips_level"], value["fips_vendor"], value["fips_type"]) for key, value in fips_data.items()))
     print(" * (FIPS) Loaded certs")
+    print(f" * (FIPS) Got {len(fips_data)} certificates")
     mem_taken = getsizeof(fips_data) + getsizeof(fips_names)
     print(f" * (FIPS) Size in memory: {mem_taken}B")
 

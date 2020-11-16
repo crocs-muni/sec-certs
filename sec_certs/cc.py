@@ -19,81 +19,20 @@ cc = Blueprint("cc", __name__, url_prefix="/cc")
 cc_names = []
 cc_data = {}
 cc_graphs = []
+cc_analysis = {}
 cc_map = {}
 cc_sfrs = {}
 cc_sars = {}
-
-cc_categories = {
-    'Access Control Devices and Systems': {
-        "id": "a",
-        "icon": "fa-id-card-alt"
-    },
-    'Boundary Protection Devices and Systems': {
-        "id": "b",
-        "icon": "fa-door-closed"
-    },
-    'Data Protection': {
-        "id": "c",
-        "icon": "fa-shield-alt"
-    },
-    'Databases': {
-        "id": "d",
-        "icon": "fa-database"
-    },
-    'Detection Devices and Systems': {
-        "id": "e",
-        "icon": "fa-eye"
-    },
-    'ICs, Smart Cards and Smart Card-Related Devices and Systems': {
-        "id": "f",
-        "icon": "fa-credit-card"
-    },
-    'Key Management Systems': {
-        "id": "g",
-        "icon": "fa-key"
-    },
-    'Mobility': {
-        "id": "h",
-        "icon": "fa-car"
-    },
-    'Multi-Function Devices': {
-        "id": "i",
-        "icon": "fa-server"
-    },
-    'Network and Network-Related Devices and Systems': {
-        "id": "j",
-        "icon": "fa-network-wired"
-    },
-    'Operating Systems': {
-        "id": "k",
-        "icon": "fa-desktop"
-    },
-    'Other Devices and Systems': {
-        "id": "l",
-        "icon": "fa-square"
-    },
-    'Products for Digital Signatures': {
-        "id": "m",
-        "icon": "fa-signature"
-    },
-    'Trusted Computing': {
-        "id": "o",
-        "icon": "fa-microchip"
-    },
-    'Biometric Systems and Devices': {
-        "id": "p",
-        "icon": "fa-fingerprint"
-    }
-}
+cc_categories = {}
 
 CCEntry = namedtuple("CCEntry", ("name", "hashid", "status", "cert_date", "archived_date", "category", "search_name"))
 
 
 @cc.before_app_first_request
 def load_cc_data():
-    global cc_names, cc_data, cc_graphs, cc_map, cc_sfrs, cc_sars
+    global cc_names, cc_data, cc_graphs, cc_map, cc_analysis, cc_sfrs, cc_sars, cc_categories
     # Load raw data
-    with open(os.path.join(current_app.instance_path, "cc.json")) as f:
+    with current_app.open_instance_resource( "cc.json") as f:
         loaded_cc_data = json.load(f)
     print(" * (CC) Loaded certs")
 
@@ -146,14 +85,48 @@ def load_cc_data():
     print(f" * (CC) Got {len(cc_graphs)} graph components")
     print(" * (CC) Made network")
 
+    cc_analysis["categories"] = {}
+    for cert in cc_names:
+        cc_analysis["categories"].setdefault(cert.category, 0)
+        cc_analysis["categories"][cert.category] += 1
+    cc_analysis["categories"] = [{"name": key, "value": value} for key, value in cc_analysis["categories"].items()]
+
+    cc_analysis["certified"] = {}
+    for cert in cc_names:
+        cert_month = cert.cert_date.replace(day=1).strftime("%Y-%m-%d")
+        cc_analysis["certified"].setdefault(cert.category, [])
+        months = cc_analysis["certified"][cert.category]
+        for month in months:
+            if month["date"] == cert_month:
+                month["value"] += 1
+                break
+        else:
+            months.append({"date": cert_month, "value": 1})
+    certified = {}
+    for category, months in cc_analysis["certified"].items():
+        for month in months:
+            if month["date"] in certified:
+                certified[month["date"]][category] = month["value"]
+            else:
+                certified[month["date"]] = {category: month["value"]}
+    certified = [{"date": key, **value} for key, value in certified.items()]
+    for category in cc_analysis["certified"].keys():
+        for month in certified:
+            if category not in month.keys():
+                month[category] = 0
+    cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
+    print(" * (CC) Performed analysis")
+
     with resource_stream("sec_certs", "cc_sfrs.json") as f:
         cc_sfrs = json.load(f)
     print(" * (CC) Loaded SFRs")
     with resource_stream("sec_certs", "cc_sars.json") as f:
         cc_sars = json.load(f)
     print(" * (CC) Loaded SARs")
-    mem_taken = getsizeof(cc_names) + getsizeof(cc_data) + getsizeof(cc_graphs) + getsizeof(cc_sfrs) + getsizeof(
-        cc_sars)
+    with resource_stream("sec_certs", "cc_categories.json") as f:
+        cc_categories = json.load(f)
+    print(" * (CC) Loaded categories")
+    mem_taken = sum(map(getsizeof, (cc_names, cc_data, cc_graphs, cc_sars, cc_sfrs, cc_categories, cc_analysis)))
     print(f" * (CC) Size in memory: {mem_taken}B")
 
 
@@ -244,13 +217,18 @@ def search():
     return render_template("cc/search.html.jinja2", **res, title=f"Common Criteria [{res['q']}] ({res['page']}) | seccerts.org")
 
 
-@cc.route("/search/pagination")
+@cc.route("/search/pagination/")
 def search_pagination():
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
     res = process_search(request, callback=callback)
     return render_template("cc/search_pagination.html.jinja2", **res)
+
+
+@cc.route("/analysis/")
+def analysis():
+    return render_template("cc/analysis.html.jinja2", analysis=cc_analysis)
 
 
 @cc.route("/<string(length=40):hashid>/")

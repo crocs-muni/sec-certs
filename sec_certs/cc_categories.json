@@ -1,0 +1,62 @@
+{
+    "Access Control Devices and Systems": {
+        "id": "a",
+        "icon": "fa-id-card-alt"
+    },
+    "Boundary Protection Devices and Systems": {
+        "id": "b",
+        "icon": "fa-door-closed"
+    },
+    "Data Protection": {
+        "id": "c",
+        "icon": "fa-shield-alt"
+    },
+    "Databases": {
+        "id": "d",
+        "icon": "fa-database"
+    },
+    "Detection Devices and Systems": {
+        "id": "e",
+        "icon": "fa-eye"
+    },
+    "ICs, Smart Cards and Smart Card-Related Devices and Systems": {
+        "id": "f",
+        "icon": "fa-credit-card"
+    },
+    "Key Management Systems": {
+        "id": "g",
+        "icon": "fa-key"
+    },
+    "Mobility": {
+        "id": "h",
+        "icon": "fa-car"
+    },
+    "Multi-Function Devices": {
+        "id": "i",
+        "icon": "fa-server"
+    },
+    "Network and Network-Related Devices and Systems": {
+        "id": "j",
+        "icon": "fa-network-wired"
+    },
+    "Operating Systems": {
+        "id": "k",
+        "icon": "fa-desktop"
+    },
+    "Other Devices and Systems": {
+        "id": "l",
+        "icon": "fa-square"
+    },
+    "Products for Digital Signatures": {
+        "id": "m",
+        "icon": "fa-signature"
+    },
+    "Trusted Computing": {
+        "id": "o",
+        "icon": "fa-microchip"
+    },
+    "Biometric Systems and Devices": {
+        "id": "p",
+        "icon": "fa-fingerprint"
+    }
+}

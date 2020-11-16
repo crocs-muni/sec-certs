@@ -26,7 +26,7 @@
 }
 
 #sidebar-wrapper .item-active {
-  background-color: #dae0e5 !important;
+  /*background-color: #dae0e5 !important;*/
   font-weight: bolder;
 }
 
@@ -73,6 +73,17 @@
 .anchor {
     padding-top: 57px;
     margin-top: -57px;
+}
+
+.name-list {
+  list-style: none;
+}
+
+.name-list li:before {
+    font-family: 'FontAwesome';
+    content: '\f007';
+    margin: 0 10px 0 -25px;
+    color: black;
 }
 
 #content .listing {
