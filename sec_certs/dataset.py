@@ -17,28 +17,44 @@ class DatasetJSONEncoder(json.JSONEncoder):
         if isinstance(obj, Certificate):
             return obj.to_dict()
         if isinstance(obj, set):
-            return list(obj)
+            return sorted(list(obj))
         if isinstance(obj, date):
+            return str(obj)
+        if isinstance(obj, Path):
             return str(obj)
         if isinstance(obj, CommonCriteriaCert.ProtectionProfile):
             return obj.to_dict()
         if isinstance(obj, CommonCriteriaCert.MaintainanceReport):
             return obj.to_dict()
         if isinstance(obj, Dataset):
-            return list(obj.certs.values())
+            return obj.to_dict()
 
         return super().default(obj)
 
 
+class DatasetJSONDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
+
+    def object_hook(self, obj):
+        if 'root_dir' in obj:  # TODO: This is a heavy simplification
+            return CCDataset.from_dict(obj)
+        if 'pp_name' in obj and 'pp_link' in obj:
+            return CommonCriteriaCert.ProtectionProfile.from_dict(obj)
+        if 'maintainance_date' in obj and 'maintainance_title' in obj and 'maintainance_report_link' in obj and 'maintainance_st_link':
+            return CommonCriteriaCert.MaintainanceReport.from_dict(obj)
+        if 'category' in obj:  # TODO: This is heavy simplification.
+            return CommonCriteriaCert.from_dict(obj)
+
+
 class Dataset(ABC):
     def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name', description: str = 'dataset_description'):
-        self.certs = certs
         self.root_dir = root_dir
-
         self.timestamp = datetime.now()
         self.sha256_digest = 'not implemented'
         self.name = name
         self.description = description
+        self.certs = certs
 
     def __iter__(self):
         for cert in self.certs.values():
@@ -59,18 +75,20 @@ class Dataset(ABC):
     def __str__(self) -> str:
         return 'Not implemented'
 
-    def to_json(self):
-        pass
-
     def to_csv(self):
         pass
 
     def to_dataframe(self):
         pass
 
+    def to_dict(self):
+        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest, 'name': self.name,
+                'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())}
+
     @classmethod
-    def from_json(cls):
-        pass
+    def from_dict(cls, dct: Dict):
+        certs = {x.dgst: x for x in dct['certs']}
+        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
 
     @classmethod
     def from_csv(cls):
@@ -124,25 +142,35 @@ class CCDataset(Dataset):
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
 
-    def get_certs_from_web(self, keep_metadata: bool = True):
+    def get_certs_from_web(self, to_download=True, keep_metadata: bool = True, get_active=True, get_archived=True):
         """
         Downloads all metadata about certificates from CSV and HTML sources
         """
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
-        logging.info('Downloading required csv and html files.')
         html_items = [(x, self.web_dir / y) for y, x in self.html_products.items()]
         csv_items = [(x, self.web_dir / y) for y, x in self.csv_products.items()]
-        helpers.download_parallel(html_items, num_threads=8)
-        helpers.download_parallel(csv_items, num_threads=8)
+
+        if not get_active:
+            html_items = [x for x in html_items if 'active' not in str(x[1])]
+            csv_items = [x for x in csv_items if 'active' not in str(x[1])]
+
+        if not get_archived:
+            html_items = [x for x in html_items if 'archived' not in str(x[1])]
+            csv_items = [x for x in csv_items if 'archived' not in str(x[1])]
+
+        if to_download is True:
+            logging.info('Downloading required csv and html files.')
+            helpers.download_parallel(html_items, num_threads=8)
+            helpers.download_parallel(csv_items, num_threads=8)
 
         logging.info('Adding CSV certificates to CommonCriteria dataset.')
-        csv_certs = self.get_all_certs_from_csv()
+        csv_certs = self.get_all_certs_from_csv(get_active, get_archived)
         self.merge_certs(csv_certs)
 
         # TODO: Someway along the way, 3 certificates get lost. Investigate and fix.
         logging.info('Adding HTML certificates to CommonCriteria dataset.')
-        html_certs = self.get_all_certs_from_html()
+        html_certs = self.get_all_certs_from_html(get_active, get_archived)
         self.merge_certs(html_certs)
 
         logging.info(f'The resulting dataset has {len(self)} certificates.')
@@ -150,12 +178,16 @@ class CCDataset(Dataset):
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-    def get_all_certs_from_csv(self) -> Dict[str, 'CommonCriteriaCert']:
+    def get_all_certs_from_csv(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
         """
         Creates dictionary of new certificates from csv sources.
         """
+        csv_sources = self.csv_products.keys()
+        csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
+        csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
+
         new_certs = {}
-        for file in self.csv_products:
+        for file in csv_sources:
             partial_certs = self.parse_single_csv(self.web_dir / file)
             logging.info(f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
@@ -201,12 +233,16 @@ class CCDataset(Dataset):
         certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level, x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv', None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in df_base.itertuples()}
         return certs
 
-    def get_all_certs_from_html(self) -> Dict[str, 'CommonCriteriaCert']:
+    def get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
         """
         Prepares dictionary of certificates from all html files.
         """
+        html_sources = self.html_products.keys()
+        html_sources = [x for x in html_sources if 'active' not in x or get_active]
+        html_sources = [x for x in html_sources if 'archived' not in x or get_archived]
+
         new_certs = {}
-        for file in self.html_products:
+        for file in html_sources:
             partial_certs = self.parse_single_html(self.web_dir / file)
             logging.info(f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
@@ -227,7 +263,11 @@ class CCDataset(Dataset):
 
         def parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
-            assert len(tables) == 1
+            assert len(tables) <= 1
+
+            if not tables:
+                return {}
+
             table = tables[0]
             rows = list(table.find_all('tr'))
             header, footer, body = rows[0], rows[1], rows[2:]
