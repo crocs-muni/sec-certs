@@ -32,18 +32,6 @@ def initialize_entry(current_items_found):
     pass
 
 
-def fips_search_html(base_dir: Path, output_file: str, dump_to_file: bool = False) -> Dict:
-    all_found_items = {}
-
-    # for file in search_files(base_dir):
-
-    if dump_to_file:
-        with open(output_file, 'w', errors=FILE_ERRORS_STRATEGY) as write_file:
-            json.dump(all_found_items, write_file, indent=4, sort_keys=True)
-
-    return all_found_items
-
-
 def get_dot_graph(found_items: Dict, output_file_name: str):
     """
     Function that plots .dot graph of dependencies between certificates
@@ -362,9 +350,8 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     if do_download_certs:
         download_fips(web_dir, policies_dir, threads)
 
-    missing, not_available = find_empty_pdfs(policies_dir)
-    print(f"Missing security policies: Total {len(missing)}")
-    print(f"Not available security policies: Total {len(not_available)}")
+    print(f"Missing security policies: Total {len([])}")
+    print(f"Not available security policies: Total {len([])}")
     files_to_load = [
         results_dir / 'fips_data_keywords_all.json',
         results_dir / 'fips_html_all.json'
@@ -372,11 +359,9 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
 
     for file in files_to_load:
         if not os.path.isfile(file):
-            fips_items = fips_search_html(web_dir,
-                                          results_dir / 'fips_html_all.json', True)
             items = extract_certificates.extract_certificates_keywords(
                 policies_dir,
-                fragments_dir, 'fips', fips_items=fips_items,
+                fragments_dir, 'fips', fips_items=None,
                 should_censure_right_away=True)
             with open(results_dir / 'fips_data_keywords_all.json', 'w') as f:
                 json.dump(items, f, indent=4, sort_keys=True)

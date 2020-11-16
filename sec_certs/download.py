@@ -114,7 +114,8 @@ def download_fips_web(web_dir: Path):
         web_dir / "fips_modules_revoked.html")
 
 
-def download_fips(web_dir: Path, policies_dir: Path, num_threads: int, ids: List[str]) -> Sequence[Tuple[str, int]]:
+def download_fips(web_dir: Path, policies_dir: Path, num_threads: int, ids: List[str]) \
+        -> Tuple[Sequence[Tuple[str, int]], int]:
     web_dir.mkdir(exist_ok=True)
     policies_dir.mkdir(exist_ok=True)
 
@@ -126,4 +127,4 @@ def download_fips(web_dir: Path, policies_dir: Path, num_threads: int, ids: List
             f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
             policies_dir / f"{cert_id}.pdf") for cert_id in ids if not (policies_dir / f'{cert_id}.pdf').exists()
     ]
-    return download_parallel(html_items + sp_items, num_threads)
+    return download_parallel(html_items + sp_items, num_threads), len(html_items) + len(sp_items)

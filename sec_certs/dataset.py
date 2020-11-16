@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, date
 from .certificate import CommonCriteriaCert, Certificate, FIPSCertificate
+from .extract_certificates import extract_certificates_keywords
 from .download import download_fips_web, download_fips
 from abc import ABC, abstractmethod
 from . import helpers as helpers
@@ -10,7 +11,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import locale
 import logging
-from typing import Dict
+from typing import Dict, List
 
 
 class Dataset(ABC):
@@ -292,6 +293,12 @@ class FIPSDataset(Dataset):
     fips_base_url = 'https://csrc.nist.gov'
     fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
+    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description'):
+        super().__init__(certs, root_dir, name, description)
+        self.keywords = {}
+        self.new_files = 0
+
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -304,16 +311,39 @@ class FIPSDataset(Dataset):
     def policies_dir(self) -> Path:
         return self.root_dir / 'security_policies'
 
+    @property
+    def fragments_dir(self) -> Path:
+        return self.root_dir / 'fragments'
+
     def find_empty_pdfs(self) -> (List, List):
         missing = []
         not_available = []
-        for i in range(1, 3725):
+        for i in self.certs:
             if not (self.policies_dir / f'{i}.pdf').exists():
                 missing.append(i)
             elif os.path.getsize(self.policies_dir / f'{i}.pdf') < 10000:
                 not_available.append(i)
         return missing, not_available
 
+    def extract_keywords(self):
+        self.fragments_dir.mkdir(parents=True, exist_ok=True)
+        if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
+            self.keywords = extract_certificates_keywords(
+                self.policies_dir,
+                self.fragments_dir, 'fips', fips_items=self.certs,
+                should_censure_right_away=True)
+        else:
+            self.keywords = json.loads(open(self.root_dir / 'fips_full_keywords.json').read())
+
+    def dump_to_json(self):
+        with open(self.root_dir / 'fips_full_dataset.json', 'w') as handle:
+            json.dump(self, handle, cls=DatasetJSONEncoder, indent=4)
+
+    def dump_keywords(self):
+        with open(self.root_dir / "fips_full_keywords.json", 'w') as f:
+            f.write(json.dumps(self.keywords, indent=4, sort_keys=True))
+
+    # TODO figure out whether the name of this method shuold not be "get_certs", because we don't download every time
     def get_certs_from_web(self):
         def get_certificates_from_html(html_file: Path) -> None:
             logging.info(f'Getting certificate ids from {html_file}')
@@ -337,7 +367,14 @@ class FIPSDataset(Dataset):
 
         logging.info('Downloading certficate html and security policies')
 
-        download_fips(self.web_dir, self.policies_dir, 8, list(self.certs.keys()))
+        _, self.new_files = download_fips(self.web_dir, self.policies_dir, 8, list(self.certs.keys()))
 
-        for cert in self.certs:
-            self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
+        logging.info(f"{self.new_files} needed to be downloaded")
+
+        if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
+            for cert in self.certs:
+                self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
+        else:
+            logging.info("Certs loaded from previous scanning")
+
+            self.certs = json.loads(open(self.root_dir / 'fips_full_dataset.json').read())
