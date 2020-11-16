@@ -17,7 +17,7 @@ class DatasetJSONEncoder(json.JSONEncoder):
         if isinstance(obj, Certificate):
             return obj.to_dict()
         if isinstance(obj, set):
-            return list(obj)
+            return sorted(list(obj))
         if isinstance(obj, date):
             return str(obj)
         if isinstance(obj, Path):
