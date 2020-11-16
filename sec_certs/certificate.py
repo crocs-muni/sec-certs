@@ -74,20 +74,28 @@ class CommonCriteriaCert(Certificate):
         def to_dict(self):
             return self.__dict__
 
+        @classmethod
+        def from_dict(cls, dct):
+            return cls(*tuple(dct.values()))
+
     @dataclass(eq=True, frozen=True)
     class ProtectionProfile:
         """
         Object for holding protection profiles.
         """
-        name: str
-        link: Optional[str]
+        pp_name: str
+        pp_link: Optional[str]
 
         def __post_init__(self):
-            super().__setattr__('name', helpers.sanitize_string(self.name))
-            super().__setattr__('link', helpers.sanitize_link(self.link))
+            super().__setattr__('pp_name', helpers.sanitize_string(self.pp_name))
+            super().__setattr__('pp_link', helpers.sanitize_link(self.pp_link))
 
         def to_dict(self):
             return self.__dict__
+
+        @classmethod
+        def from_dict(cls, dct):
+            return cls(*tuple(dct.values()))
 
     def __init__(self, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -110,7 +118,7 @@ class CommonCriteriaCert(Certificate):
         self.cert_link = helpers.sanitize_link(cert_link)
         self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
-        self.maintainances = maintainance_updates
+        self.maintainance_updates = maintainance_updates
 
     @property
     def dgst(self) -> str:
@@ -133,10 +141,9 @@ class CommonCriteriaCert(Certificate):
                 setattr(self, att, getattr(other, att))
             elif self.src == 'csv' and other.src == 'html' and att == 'protection_profiles':
                 setattr(self, att, getattr(other, att))
-            elif att == 'maintainances':
-                # TODO Fix me: This is a simplification. Basically take the longer list of maintainances as a ground truth.
-                if len(getattr(self, att)) < len(getattr(other, att)):
-                    setattr(self, att, getattr(other, att))
+            elif self.src == 'csv' and other.src == 'html' and att == 'maintainance_updates':
+                # TODO Fix me: This is a simplification. At the moment html contains more reliable info
+                setattr(self, att, getattr(other, att))
             elif att == 'src':
                 pass  # This is expected
             else:
@@ -150,8 +157,12 @@ class CommonCriteriaCert(Certificate):
 
     @classmethod
     def from_dict(cls, dct: dict) -> 'CommonCriteriaCert':
-        # TODO: Implement me
-        pass
+        dct['maintainance_updates'] = set(dct['maintainance_updates'])
+        dct['protection_profiles'] = set(dct['protection_profiles'])
+
+        args = tuple(dct.values())
+
+        return cls(*args)
 
     @classmethod
     def from_html_row(cls, row: Tag, category: str) -> 'CommonCriteriaCert':

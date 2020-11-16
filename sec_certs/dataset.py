@@ -20,25 +20,41 @@ class DatasetJSONEncoder(json.JSONEncoder):
             return list(obj)
         if isinstance(obj, date):
             return str(obj)
+        if isinstance(obj, Path):
+            return str(obj)
         if isinstance(obj, CommonCriteriaCert.ProtectionProfile):
             return obj.to_dict()
         if isinstance(obj, CommonCriteriaCert.MaintainanceReport):
             return obj.to_dict()
         if isinstance(obj, Dataset):
-            return list(obj.certs.values())
+            return obj.to_dict()
 
         return super().default(obj)
 
 
+class DatasetJSONDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
+
+    def object_hook(self, obj):
+        if 'root_dir' in obj:  # TODO: This is a heavy simplification
+            return CCDataset.from_dict(obj)
+        if 'pp_name' in obj and 'pp_link' in obj:
+            return CommonCriteriaCert.ProtectionProfile.from_dict(obj)
+        if 'maintainance_date' in obj and 'maintainance_title' in obj and 'maintainance_report_link' in obj and 'maintainance_st_link':
+            return CommonCriteriaCert.MaintainanceReport.from_dict(obj)
+        if 'category' in obj:  # TODO: This is heavy simplification.
+            return CommonCriteriaCert.from_dict(obj)
+
+
 class Dataset(ABC):
     def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name', description: str = 'dataset_description'):
-        self.certs = certs
         self.root_dir = root_dir
-
         self.timestamp = datetime.now()
         self.sha256_digest = 'not implemented'
         self.name = name
         self.description = description
+        self.certs = certs
 
     def __iter__(self):
         for cert in self.certs.values():
@@ -59,18 +75,20 @@ class Dataset(ABC):
     def __str__(self) -> str:
         return 'Not implemented'
 
-    def to_json(self):
-        pass
-
     def to_csv(self):
         pass
 
     def to_dataframe(self):
         pass
 
+    def to_dict(self):
+        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest, 'name': self.name,
+                'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())}
+
     @classmethod
-    def from_json(cls):
-        pass
+    def from_dict(cls, dct: Dict):
+        certs = {x.dgst: x for x in dct['certs']}
+        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
 
     @classmethod
     def from_csv(cls):
