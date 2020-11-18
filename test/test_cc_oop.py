@@ -7,7 +7,8 @@ import filecmp
 import shutil
 import os
 
-from sec_certs.dataset import CCDataset, DatasetJSONDecoder, DatasetJSONEncoder
+from sec_certs.dataset import CCDataset
+from sec_certs.serialization import CustomJSONEncoder, CustomJSONDecoder
 from sec_certs.certificate import CommonCriteriaCert
 
 
@@ -75,7 +76,7 @@ class TestCommonCriteriaOOP(TestCase):
         fd, path = mkstemp()
         try:
             with os.fdopen(fd, 'w') as handle:
-                json.dump(obj, handle, cls=DatasetJSONEncoder, indent=4)
+                json.dump(obj, handle, cls=CustomJSONEncoder, indent=4)
 
             return filecmp.cmp(referential_path, path)
         finally:
@@ -84,7 +85,7 @@ class TestCommonCriteriaOOP(TestCase):
     @staticmethod
     def equal_from_json(referential_path, obj):
         with open(referential_path, 'r') as handle:
-            new_obj = json.load(handle, cls=DatasetJSONDecoder)
+            new_obj = json.load(handle, cls=CustomJSONDecoder)
         return obj == new_obj
 
     def test_cert_to_json(self):

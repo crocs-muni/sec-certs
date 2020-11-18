@@ -1,4 +1,5 @@
-from sec_certs.dataset import CCDataset, DatasetJSONEncoder, DatasetJSONDecoder
+from sec_certs.dataset import CCDataset
+from sec_certs.serialization import CustomJSONEncoder, CustomJSONDecoder
 from pathlib import Path
 from datetime import datetime
 import logging
@@ -18,11 +19,11 @@ def main():
 
     # Dump dataset into JSON
     with open('./debug_dataset/cc_full_dataset.json', 'w') as handle:
-        json.dump(dset, handle, cls=DatasetJSONEncoder, indent=4)
+        json.dump(dset, handle, cls=CustomJSONEncoder, indent=4)
 
     # Load dataset from JSON
     with open('./debug_dataset/cc_full_dataset.json', 'r') as handle:
-        new_dset = json.load(handle, cls=DatasetJSONDecoder)
+        new_dset = json.load(handle, cls=CustomJSONDecoder)
 
     assert dset == new_dset
 
