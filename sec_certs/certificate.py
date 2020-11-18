@@ -22,12 +22,11 @@ class Certificate(ABC):
     def dgst(self):
         raise NotImplementedError('Not meant to be implemented')
 
-    @abstractmethod
-    def to_dict(self) -> dict:
-        raise NotImplementedError('Not meant to be implemented')
-
     def __eq__(self, other: 'Certificate') -> bool:
         return self.dgst == other.dgst
+
+    def to_dict(self):
+        return self.__dict__
 
     @classmethod
     @abstractmethod
@@ -40,9 +39,6 @@ class Certificate(ABC):
 
 
 class FIPSCertificate(Certificate):
-    def to_dict(self) -> dict:
-        pass
-
     @classmethod
     def from_dict(cls, dct: dict) -> 'FIPSCertificate':
         return FIPSCertificate()
@@ -78,6 +74,9 @@ class CommonCriteriaCert(Certificate):
         def from_dict(cls, dct):
             return cls(*tuple(dct.values()))
 
+        def __lt__(self, other):
+            return self.maintainance_date < other.maintainance_date
+
     @dataclass(eq=True, frozen=True)
     class ProtectionProfile:
         """
@@ -92,6 +91,9 @@ class CommonCriteriaCert(Certificate):
 
         def to_dict(self):
             return self.__dict__
+
+        def __lt__(self, other):
+            return self.pp_name < other.pp_name
 
         @classmethod
         def from_dict(cls, dct):
@@ -159,7 +161,6 @@ class CommonCriteriaCert(Certificate):
     def from_dict(cls, dct: dict) -> 'CommonCriteriaCert':
         dct['maintainance_updates'] = set(dct['maintainance_updates'])
         dct['protection_profiles'] = set(dct['protection_profiles'])
-
         args = tuple(dct.values())
 
         return cls(*args)

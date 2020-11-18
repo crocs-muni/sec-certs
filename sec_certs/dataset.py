@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 from .certificate import CommonCriteriaCert, Certificate
 from abc import ABC, abstractmethod
 from . import helpers as helpers
@@ -9,42 +9,6 @@ from bs4 import BeautifulSoup
 import locale
 import logging
 from typing import Dict
-import json
-
-
-class DatasetJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Certificate):
-            return obj.to_dict()
-        if isinstance(obj, set):
-            return sorted(list(obj))
-        if isinstance(obj, date):
-            return str(obj)
-        if isinstance(obj, Path):
-            return str(obj)
-        if isinstance(obj, CommonCriteriaCert.ProtectionProfile):
-            return obj.to_dict()
-        if isinstance(obj, CommonCriteriaCert.MaintainanceReport):
-            return obj.to_dict()
-        if isinstance(obj, Dataset):
-            return obj.to_dict()
-
-        return super().default(obj)
-
-
-class DatasetJSONDecoder(json.JSONDecoder):
-    def __init__(self, *args, **kwargs):
-        json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
-
-    def object_hook(self, obj):
-        if 'root_dir' in obj:  # TODO: This is a heavy simplification
-            return CCDataset.from_dict(obj)
-        if 'pp_name' in obj and 'pp_link' in obj:
-            return CommonCriteriaCert.ProtectionProfile.from_dict(obj)
-        if 'maintainance_date' in obj and 'maintainance_title' in obj and 'maintainance_report_link' in obj and 'maintainance_st_link':
-            return CommonCriteriaCert.MaintainanceReport.from_dict(obj)
-        if 'category' in obj:  # TODO: This is heavy simplification.
-            return CommonCriteriaCert.from_dict(obj)
 
 
 class Dataset(ABC):
@@ -220,7 +184,8 @@ class CCDataset(Dataset):
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=['dgst']))
-        logging.warning(f'The CSV {file} contains {n_all - n_deduplicated} duplicates by the primary key.')
+        if n_dup := n_all - n_deduplicated > 0:
+            logging.warning(f'The CSV {file} contains {n_dup} duplicates by the primary key.')
 
         df_base = df_base.drop_duplicates(subset=['dgst'])
         df_main = df_main.drop_duplicates()

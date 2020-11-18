@@ -1,4 +1,5 @@
 {
+    "_type": "CommonCriteriaCert",
     "category": "Sample category",
     "name": "Sample certificate name",
     "manufacturer": "Sample manufacturer",
@@ -15,12 +16,14 @@
     "manufacturer_web": "http://path.to/manufacturer/web",
     "protection_profiles": [
         {
+            "_type": "ProtectionProfile",
             "pp_name": "sample_pp",
             "pp_link": "http://sample.pp"
         }
     ],
     "maintainance_updates": [
         {
+            "_type": "MaintainanceReport",
             "maintainance_date": "1900-01-01",
             "maintainance_title": "Sample maintainance",
             "maintainance_report_link": "https://maintainance.up",

@@ -1,4 +1,5 @@
 {
+    "_type": "CCDataset",
     "root_dir": "/fictional/path/to/dataset",
     "timestamp": "2020-11-16 17:04:14.770153",
     "sha256_digest": "not implemented",
@@ -7,6 +8,7 @@
     "n_certs": 2,
     "certs": [
         {
+            "_type": "CommonCriteriaCert",
             "category": "Access Control Devices and Systems",
             "name": "NetIQ Identity Manager 4.7",
             "manufacturer": "NetIQ Corporation",
@@ -26,6 +28,7 @@
             "maintainance_updates": []
         },
         {
+            "_type": "CommonCriteriaCert",
             "category": "Access Control Devices and Systems",
             "name": "Magic SSO V4.0",
             "manufacturer": "Dreamsecurity Co., Ltd.",
@@ -40,6 +43,7 @@
             "manufacturer_web": "https://www.dreamsecurity.com/",
             "protection_profiles": [
                 {
+                    "_type": "ProtectionProfile",
                     "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
                     "pp_link": "http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf"
                 }
