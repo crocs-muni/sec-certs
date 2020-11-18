@@ -97,32 +97,7 @@ def get_dot_graph(found_items: Dict, output_file_name: str):
 
 
 def remove_algorithms_from_extracted_data(items, html):
-    """
-    Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
-    :param items: All keyword items found in pdf files
-    :param html: All items extracted from html files
-    """
-    for file_name in items:
-        items[file_name]['file_status'] = True
-        html[file_name]['file_status'] = True
-        if html[file_name]['fips_mentioned_certs']:
-            for item in html[file_name]['fips_mentioned_certs']:
-                items[file_name]['rules_cert_id'].update(item)
-
-        for rule in items[file_name]['rules_cert_id']:
-            to_pop = set()
-            rr = re.compile(rule)
-            for cert in items[file_name]['rules_cert_id'][rule]:
-                for alg in items[file_name]['rules_fips_algorithms']:
-                    for found in items[file_name]['rules_fips_algorithms'][alg]:
-                        if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
-                                cert).group('id'):
-                            to_pop.add(cert)
-            for r in to_pop:
-                items[file_name]['rules_cert_id'][rule].pop(r, None)
-
-            items[file_name]['rules_cert_id'][rule].pop(
-                html[file_name]['cert_fips_id'], None)
+    pass
 
 
 def validate_results(items: Dict, html: Dict):
@@ -164,16 +139,7 @@ def validate_results(items: Dict, html: Dict):
 
 
 def parse_list_of_tables(txt: str) -> Set[str]:
-    """
-    Parses list of tables from function find_tables(), finds ones that mention algorithms
-    :param txt: chunk of text
-    :return: set of all pages mentioning algorithm table
-    """
-    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
-    pages = set()
-    for m in rr.finditer(txt):
-        pages.add(m.group('page_num'))
-    return pages
+    pass
 
 
 def extract_page_number(txt: str) -> Optional[str]:
@@ -200,16 +166,7 @@ def extract_page_number(txt: str) -> Optional[str]:
 
 
 def find_tables_iterative(file_text: str) -> List[int]:
-    current_page = 1
-    pages = set()
-    for line in file_text.split('\n'):
-        if '\f' in line:
-            current_page += 1
-        if line.startswith('Table ') or line.startswith('Exhibit'):
-            pages.add(current_page)
-    if not pages:
-        print('~' * 20, 'No pages found', '~' * 20)
-    return list(pages)
+    pass
 
 
 def find_footers(txt: str, num_pages: int) -> Optional[List]:
@@ -238,91 +195,15 @@ def find_footers(txt: str, num_pages: int) -> Optional[List]:
 
 
 def find_tables(txt: str, file_name: Path) -> Optional[List]:
-    """
-    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
-    algorithms
-    :param txt: file in .txt format (output of pdftotext)
-    :param file_name: name of the file
-    :return:    list of pages possibly containing a table
-                None if these cannot be found
-    """
-    # Look for "List of Tables", where we can find exactly tables with page num
-    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
-    table = tables_regex.search(txt)
-    if table:
-        rb = parse_list_of_tables(table.group())
-        if rb:
-            return list(rb)
-        return None
-
-    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    print("~" * 20, file_name, '~' * 20)
-    rb = find_tables_iterative(txt)
-    return rb if rb else None
+    pass
 
 
 def parse_algorithms(a, b=False):
     pass
 
 
-def repair_pdf(file: Path):
-    """
-    Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
-    By opening this file in a pdf reader, we can already extract number of pages
-    :param file: file name
-    :return: number of pages in pdf file
-    """
-    pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
-    pdf.save(file)
-
-
 def extract_certs_from_tables(list_of_files: List, html_items: Dict) -> List[Path]:
-    """
-    Function that extracts algorithm IDs from tables in security policies files.
-    :param list_of_files: iterable containing all files to parse
-    :param html_items: dictionary created by main() containing data extracted from html pages
-    :return: list of files that couldn't have been decoded
-    """
-    not_decoded = []
-    for cert_file in list_of_files:
-        if '.txt' not in cert_file:
-            continue
-
-        if html_items[extract_filename(cert_file[:-8])]['tables_done']:
-            continue
-
-        with open(cert_file, 'r') as f:
-            tables = find_tables(f.read(), cert_file)
-
-        # If we find any tables with page numbers, we process them
-        if tables:
-            lst = []
-            print("~~~~~~~~~~~~~~~", cert_file, "~~~~~~~~~~~~~~~~~~~~~~~")
-            try:
-                data = read_pdf(cert_file[:-4], pages=tables, silent=True)
-            except Exception:
-                try:
-                    repair_pdf(cert_file[:-4])
-                    data = read_pdf(cert_file[:-4], pages=tables, silent=True)
-
-                except Exception:
-                    not_decoded.append(cert_file)
-                    continue
-
-            # find columns with cert numbers
-            for df in data:
-                for col in range(len(df.columns)):
-                    if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                        lst += parse_algorithms(df.iloc[:, col].to_string(index=False), True)
-
-                # Parse again if someone picks not so descriptive column names
-                lst += parse_algorithms(df.to_string(index=False))
-
-            if lst:
-                html_items[extract_filename(cert_file[:-8])]['fips_algorithms'] += lst
-
-        html_items[extract_filename(cert_file[:-8])]['tables_done'] = True
-    return not_decoded
+    pass
 
 
 @click.command()

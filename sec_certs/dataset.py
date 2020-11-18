@@ -1,5 +1,9 @@
 import os
+import re
 from datetime import datetime, date
+
+from tabula import read_pdf
+
 from .certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from .extract_certificates import extract_certificates_keywords
 from .download import download_fips_web, download_fips
@@ -11,7 +15,13 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import locale
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional, Set
+import json
+import pikepdf
+
+from .files import search_files
+from .fips_certificates import extract_filename
+from .helpers import find_tables, repair_pdf, parse_algorithms
 
 
 class Dataset(ABC):
@@ -165,6 +175,7 @@ class CCDataset(Dataset):
         """
         Using pandas, this parses a single CSV file.
         """
+
         def get_primary_key_str(row):
             prim_key = row['category'] + row['cert_name'] + row['report_link']
             return prim_key
@@ -378,3 +389,122 @@ class FIPSDataset(Dataset):
             logging.info("Certs loaded from previous scanning")
 
             self.certs = json.loads(open(self.root_dir / 'fips_full_dataset.json').read())
+
+    def extract_certs_from_tables(self) -> List[Path]:
+        """
+        Function that extracts algorithm IDs from tables in security policies files.
+        :param list_of_files: iterable containing all files to parse
+        :param html_items: dictionary created by main() containing data extracted from html pages
+        :return: list of files that couldn't have been decoded
+        """
+
+        list_of_files = search_files(self.policies_dir)
+        not_decoded = []
+        for cert_file in list_of_files:
+            if '.txt' not in cert_file:
+                continue
+
+            if self.certs[extract_filename(cert_file[:-8])].tables_done:
+                continue
+
+            with open(cert_file, 'r') as f:
+                tables = find_tables(f.read(), cert_file)
+
+            # If we find any tables with page numbers, we process them
+            if tables:
+                lst = []
+                print("~~~~~~~~~~~~~~~", cert_file, "~~~~~~~~~~~~~~~~~~~~~~~")
+                try:
+                    data = read_pdf(cert_file[:-4], pages=tables, silent=True)
+                except Exception:
+                    try:
+                        repair_pdf(cert_file[:-4])
+                        data = read_pdf(cert_file[:-4], pages=tables, silent=True)
+
+                    except Exception:
+                        not_decoded.append(cert_file)
+                        continue
+
+                # find columns with cert numbers
+                for df in data:
+                    for col in range(len(df.columns)):
+                        if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
+                            lst += parse_algorithms(df.iloc[:, col].to_string(index=False), True)
+
+                    # Parse again if someone picks not so descriptive column names
+                    lst += parse_algorithms(df.to_string(index=False))
+
+                if lst:
+                    self.certs[extract_filename(cert_file[:-8])].algorithms += lst
+
+            self.certs[extract_filename(cert_file[:-8])].tables_done = True
+        return not_decoded
+
+    def remove_algorithms_from_extracted_data(self):
+        """
+        Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
+        :param items: All keyword items found in pdf files
+        :param html: All items extracted from html files
+        """
+        for file_name in self.keywords:
+            self.keywords[file_name]['file_status'] = True
+            self.certs[file_name].file_status = True
+            if self.certs[file_name].mentioned_certs:
+                for item in self.certs[file_name].mentioned_certs:
+                    self.keywords[file_name]['rules_cert_id'].update(item)
+
+            for rule in self.keywords[file_name]['rules_cert_id']:
+                to_pop = set()
+                rr = re.compile(rule)
+                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+                    for alg in self.keywords[file_name]['rules_fips_algorithms']:
+                        for found in self.keywords[file_name]['rules_fips_algorithms'][alg]:
+                            if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
+                                    cert).group('id'):
+                                to_pop.add(cert)
+                for r in to_pop:
+                    self.keywords[file_name]['rules_cert_id'][rule].pop(r, None)
+
+                self.keywords[file_name]['rules_cert_id'][rule].pop(
+                    self.certs[file_name].cert_id, None)
+
+    def validate_results(self):
+        """
+        Function that validates results and finds the final connection output
+        :param items: All keyword items found in pdf files
+        :param html: All items extracted from html files - this is where we store connections
+        """
+        broken_files = set()
+        for file_name in self.keywords:
+            for rule in self.keywords[file_name]['rules_cert_id']:
+                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+                    cert_id = ''.join(filter(str.isdigit, cert))
+
+                    if cert_id == '' or cert_id not in self.certs:
+                        # TEST
+                        # if cert_id == '' or int(cert_id) > 3730:
+                        broken_files.add(file_name)
+                        self.keywords[file_name]['file_status'] = False
+                        self.certs[file_name].file_status = False
+                        break
+        if broken_files:
+            print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
+            print(*sorted(list(broken_files)), sep='\n')
+            print("... skipping these...")
+            print("Total non-analyzable files:", len(broken_files))
+
+        for file_name in self.keywords:
+            self.certs[file_name]['Connections'] = []
+            if not self.keywords[file_name]['file_status']:
+                continue
+            if self.keywords[file_name]['rules_cert_id'] == {}:
+                continue
+            for rule in self.keywords[file_name]['rules_cert_id']:
+                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+                    cert_id = ''.join(filter(str.isdigit, cert))
+                    if cert_id not in self.certs[file_name].connections:
+                        self.certs[file_name].connections.append(cert_id)
+
+    def finalize_results(self):
+        self.remove_algorithms_from_extracted_data()
+        self.validate_results()

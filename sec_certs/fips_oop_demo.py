@@ -28,6 +28,16 @@ def main():
     logging.info(f'Dumping keywords to {dset.root_dir}/fips_full_keywords.json')
     dset.dump_keywords()
 
+    # logging.info("Searching for tables in pdfs")
+
+    # not_decoded_files = dset.extract_certs_from_tables()
+
+    # logging.info(f"Done. Files not decoded: {not_decoded_files}")
+
+    logging.info("finalizing results.")
+
+    dset.finalize_results()
+
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 
