@@ -415,6 +415,7 @@ class FIPSDataset(Dataset):
         list_of_files = search_files(self.policies_dir)
         not_decoded = []
         for cert_file in list_of_files:
+            cert_file = Path(cert_file)
             if '.txt' not in cert_file.suffixes:
                 continue
             stem_name = Path(cert_file.stem).stem
