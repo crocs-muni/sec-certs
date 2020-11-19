@@ -6,7 +6,7 @@ from tabula import read_pdf
 
 from .certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from .extract_certificates import extract_certificates_keywords
-from .download import download_fips_web, download_fips
+from .constants import FIPS_NOT_AVAILABLE_CERT_SIZE
 from abc import ABC, abstractmethod
 from . import helpers as helpers
 from pathlib import Path
@@ -17,12 +17,10 @@ import locale
 import logging
 from typing import Dict, List, Optional, Set, ClassVar
 import json
-import pikepdf
 from importlib import import_module
 
 from .files import search_files
-from .fips_certificates import extract_filename
-from .helpers import find_tables, repair_pdf, parse_algorithms
+from .helpers import find_tables, repair_pdf
 
 
 class Dataset(ABC):
@@ -305,7 +303,8 @@ class CCDataset(Dataset):
 
 class FIPSDataset(Dataset):
     FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
-    FIPS_MODULE_URL: ClassVar[str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+    FIPS_MODULE_URL: ClassVar[
+        str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
     def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
@@ -346,7 +345,7 @@ class FIPSDataset(Dataset):
         for i in self.certs:
             if not (self.policies_dir / f'{i}.pdf').exists():
                 missing.append(i)
-            elif os.path.getsize(self.policies_dir / f'{i}.pdf') < 10000:
+            elif os.path.getsize(self.policies_dir / f'{i}.pdf') < FIPS_NOT_AVAILABLE_CERT_SIZE:
                 not_available.append(i)
         return missing, not_available
 
@@ -369,6 +368,7 @@ class FIPSDataset(Dataset):
             f.write(json.dumps(self.keywords, indent=4, sort_keys=True))
 
     # TODO figure out whether the name of this method shuold not be "get_certs", because we don't download every time
+
     def get_certs_from_web(self):
         def get_certificates_from_html(html_file: Path) -> None:
             logging.info(f'Getting certificate ids from {html_file}')
@@ -381,23 +381,40 @@ class FIPSDataset(Dataset):
         logging.info("Downloading required html files")
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
+        self.policies_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
-        download_fips_web(self.web_dir)
         html_files = ['fips_modules_active.html', 'fips_modules_historical.html', 'fips_modules_revoked.html']
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+            self.web_dir / "fips_modules_active.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+            self.web_dir / "fips_modules_historical.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+            self.web_dir / "fips_modules_revoked.html")
 
         # Parse those files and get list of currently processable files (always)
         for f in html_files:
             get_certificates_from_html(self.web_dir / f)
 
         logging.info('Downloading certficate html and security policies')
+        html_items = [
+            (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
+             self.web_dir / f"{cert_id}.html") for cert_id in list(self.certs.keys()) if
+            not (self.web_dir / f'{cert_id}.html').exists()]
+        sp_items = [(
+            f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
+            self.policies_dir / f"{cert_id}.pdf") for cert_id in list(self.certs.keys()) if
+            not (self.policies_dir / f'{cert_id}.pdf').exists()]
 
-        _, self.new_files = download_fips(self.web_dir, self.policies_dir, 8, list(self.certs.keys()))
+        _, self.new_files = helpers.download_parallel(html_items + sp_items, 8), len(html_items) + len(sp_items)
 
         logging.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
-        # if False:
+            # if False:
             for cert in self.certs:
                 self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
         else:
@@ -416,9 +433,12 @@ class FIPSDataset(Dataset):
         not_decoded = []
         for cert_file in list_of_files:
             cert_file = Path(cert_file)
+
             if '.txt' not in cert_file.suffixes:
                 continue
+
             stem_name = Path(cert_file.stem).stem
+
             if self.certs[stem_name].tables_done:
                 continue
 
@@ -429,11 +449,11 @@ class FIPSDataset(Dataset):
             if tables:
                 lst = []
                 try:
-                    data = read_pdf(cert_file[:-4], pages=tables, silent=True)
+                    data = read_pdf(cert_file.with_suffix(''), pages=tables, silent=True)
                 except Exception:
                     try:
-                        repair_pdf(cert_file[:-4])
-                        data = read_pdf(cert_file[:-4], pages=tables, silent=True)
+                        repair_pdf(cert_file.with_suffix(''))
+                        data = read_pdf(cert_file.with_suffix(''), pages=tables, silent=True)
 
                     except Exception:
                         not_decoded.append(cert_file)
@@ -443,10 +463,10 @@ class FIPSDataset(Dataset):
                 for df in data:
                     for col in range(len(df.columns)):
                         if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                            lst += parse_algorithms(df.iloc[:, col].to_string(index=False), True)
+                            lst += FIPSCertificate.parse_algorithms(df.iloc[:, col].to_string(index=False), True)
 
                     # Parse again if someone picks not so descriptive column names
-                    lst += parse_algorithms(df.to_string(index=False))
+                    lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
 
                 if lst:
                     self.certs[stem_name].algorithms += lst
