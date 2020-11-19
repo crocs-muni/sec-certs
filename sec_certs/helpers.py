@@ -250,10 +250,11 @@ def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
 
 def parse_related_files(current_div: Tag, html_items_found: Dict):
     links = current_div.find_all('a')
-    html_items_found['fips_security_policy_www'] = __import__('.certificate').FIPSCertificate.fips_base_url + links[0].get('href')
+    ## TODO: break out of circular imports hell
+    html_items_found['fips_security_policy_www'] = __import__('sec_certs').certificate.FIPSCertificate.fips_base_url + links[0].get('href')
 
     if len(links) == 2:
-        html_items_found['fips_certificate_www'] = __import__('.certificate').FIPSCertificate.fips_base_url + links[1].get('href')
+        html_items_found['fips_certificate_www'] = __import__('sec_certs').certificate.FIPSCertificate.fips_base_url + links[1].get('href')
 
 
 def initialize_dictionary() -> Dict:

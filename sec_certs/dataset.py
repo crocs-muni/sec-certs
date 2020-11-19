@@ -18,6 +18,7 @@ import logging
 from typing import Dict, List, Optional, Set
 import json
 import pikepdf
+from importlib import import_module
 
 from .files import search_files
 from .fips_certificates import extract_filename
@@ -25,7 +26,8 @@ from .helpers import find_tables, repair_pdf, parse_algorithms
 
 
 class Dataset(ABC):
-    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name', description: str = 'dataset_description'):
+    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description'):
         self.root_dir = root_dir
         self.timestamp = datetime.now()
         self.sha256_digest = 'not implemented'
@@ -59,7 +61,8 @@ class Dataset(ABC):
         pass
 
     def to_dict(self):
-        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest, 'name': self.name,
+        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+                'name': self.name,
                 'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())}
 
     @classmethod
@@ -326,6 +329,17 @@ class FIPSDataset(Dataset):
     def fragments_dir(self) -> Path:
         return self.root_dir / 'fragments'
 
+    def to_dict(self):
+        ## Different - we dont want list
+        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+                'name': self.name, 'description': self.description, 'n_certs': len(self),
+                'certs': list(self.certs.values())}
+
+    @classmethod
+    def from_dict(cls, dct: Dict):
+        certs = {x.dgst: x for x in dct['certs']}
+        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
+
     def find_empty_pdfs(self) -> (List, List):
         missing = []
         not_available = []
@@ -348,7 +362,7 @@ class FIPSDataset(Dataset):
 
     def dump_to_json(self):
         with open(self.root_dir / 'fips_full_dataset.json', 'w') as handle:
-            json.dump(self, handle, cls=DatasetJSONEncoder, indent=4)
+            json.dump(self, handle, cls=import_module('sec_certs.serialization').CustomJSONEncoder, indent=4)
 
     def dump_keywords(self):
         with open(self.root_dir / "fips_full_keywords.json", 'w') as f:
@@ -383,18 +397,18 @@ class FIPSDataset(Dataset):
         logging.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
+        # if False:
             for cert in self.certs:
                 self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
         else:
             logging.info("Certs loaded from previous scanning")
-
-            self.certs = json.loads(open(self.root_dir / 'fips_full_dataset.json').read())
+            dataset = json.loads(open(self.root_dir / 'fips_full_dataset.json').read(),
+                                 cls=import_module('sec_certs.serialization').CustomJSONDecoder)
+            self.certs = dataset.certs
 
     def extract_certs_from_tables(self) -> List[Path]:
         """
         Function that extracts algorithm IDs from tables in security policies files.
-        :param list_of_files: iterable containing all files to parse
-        :param html_items: dictionary created by main() containing data extracted from html pages
         :return: list of files that couldn't have been decoded
         """
 
@@ -443,8 +457,6 @@ class FIPSDataset(Dataset):
     def remove_algorithms_from_extracted_data(self):
         """
         Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
-        :param items: All keyword items found in pdf files
-        :param html: All items extracted from html files
         """
         for file_name in self.keywords:
             self.keywords[file_name]['file_status'] = True
@@ -471,8 +483,6 @@ class FIPSDataset(Dataset):
     def validate_results(self):
         """
         Function that validates results and finds the final connection output
-        :param items: All keyword items found in pdf files
-        :param html: All items extracted from html files - this is where we store connections
         """
         broken_files = set()
         for file_name in self.keywords:
@@ -494,7 +504,7 @@ class FIPSDataset(Dataset):
             print("Total non-analyzable files:", len(broken_files))
 
         for file_name in self.keywords:
-            self.certs[file_name]['Connections'] = []
+            self.certs[file_name].connections = []
             if not self.keywords[file_name]['file_status']:
                 continue
             if self.keywords[file_name]['rules_cert_id'] == {}:

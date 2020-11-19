@@ -28,10 +28,6 @@ class Certificate(ABC):
     def dgst(self):
         raise NotImplementedError('Not meant to be implemented')
 
-    @abstractmethod
-    def to_dict(self) -> dict:
-        raise NotImplementedError('Not meant to be implemented')
-
     def __eq__(self, other: 'Certificate') -> bool:
         return self.dgst == other.dgst
 
@@ -52,15 +48,33 @@ class FIPSCertificate(Certificate):
     fips_base_url = 'https://csrc.nist.gov'
     fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
-    def __init__(self, cert_id: str, module_name: Optional[str], standard: Optional[str], status: Optional[str],
-                 date_sunset: Optional[List[str]], date_validation: Optional[List[str]], level: Optional[str],
-                 caveat: Optional[str], exceptions: Optional[List[str]], module_type: Optional[str],
+    def __init__(self, cert_id: str,
+                 module_name: Optional[str],
+                 standard: Optional[str],
+                 status: Optional[str],
+                 date_sunset: Optional[List[str]],
+                 date_validation: Optional[List[str]],
+                 level: Optional[str],
+                 caveat: Optional[str],
+                 exceptions: Optional[List[str]],
+                 module_type: Optional[str],
                  embodiment: Optional[str],
-                 algorithms: Optional[List[str]], tested_conf: Optional[List[str]], description: Optional[str],
-                 mentioned_certs: Optional[List[str]], vendor: Optional[str], vendor_www: Optional[str],
-                 lab: Optional[str], lab_nvlap: Optional[str],
-                 historical_reason: Optional[str], security_policy_www: Optional[str], certificate_www: Optional[str],
-                 hw_version: Optional[str], fw_version: Optional[str]):
+                 algorithms: Optional[List[str]],
+                 tested_conf: Optional[List[str]],
+                 description: Optional[str],
+                 mentioned_certs: Optional[List[str]],
+                 vendor: Optional[str],
+                 vendor_www: Optional[str],
+                 lab: Optional[str],
+                 lab_nvlap: Optional[str],
+                 historical_reason: Optional[str],
+                 security_policy_www: Optional[str],
+                 certificate_www: Optional[str],
+                 hw_version: Optional[str],
+                 fw_version: Optional[str],
+                 tables: bool,
+                 file_status: Optional[bool],
+                 connections: List):
         super().__init__()
         self.cert_id = cert_id
 
@@ -74,36 +88,37 @@ class FIPSCertificate(Certificate):
         self.exceptions = exceptions
         self.type = module_type
         self.embodiment = embodiment
+
+        self.algorithms = algorithms
         self.tested_conf = tested_conf
         self.description = description
+        self.mentioned_certs = mentioned_certs
         self.vendor = vendor
         self.vendor_www = vendor_www
         self.lab = lab
         self.lab_nvlap = lab_nvlap
+
         self.historical_reason = historical_reason
         self.security_policy_www = security_policy_www
         self.certificate_www = certificate_www
         self.hw_versions = hw_version
         self.fw_versions = fw_version
 
-        self.tested_conf = tested_conf
-        self.algorithms = algorithms
-        self.exceptions = exceptions
-        self.mentioned_certs = mentioned_certs
-        self.tables_done = False
-        self.file_status = None
-        self.connections = []
+        self.tables_done = tables
+        self.file_status = file_status
+        self.connections = connections
+
+    def __str__(self) -> str:
+        return str(self.cert_id)
 
     @property
     def dgst(self) -> str:
         return self.cert_id
 
-    def to_dict(self) -> dict:
-        return self.__dict__
-
     @classmethod
     def from_dict(cls, dct: dict) -> 'FIPSCertificate':
-        return FIPSCertificate()
+        args = tuple(dct.values())
+        return FIPSCertificate(*args)
 
     def merge(self, other: 'Certificate'):
         raise NotImplementedError('Should not be called')
@@ -180,7 +195,10 @@ class FIPSCertificate(Certificate):
                                items_found['fips_security_policy_www'],
                                items_found['fips_certificate_www'],
                                items_found['fips_hw_versions'],
-                               items_found['fips_fw_versions'])
+                               items_found['fips_fw_versions'],
+                               False,
+                               None,
+                               [])
 
 
 class CommonCriteriaCert(Certificate):

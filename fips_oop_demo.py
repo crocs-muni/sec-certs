@@ -1,8 +1,7 @@
-from sec_certs.dataset import FIPSDataset, DatasetJSONEncoder
+from sec_certs.dataset import FIPSDataset
 from pathlib import Path
 from datetime import datetime
 import logging
-import json
 
 
 def main():
@@ -17,8 +16,8 @@ def main():
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
 
-    logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
     dset.dump_to_json()
+    logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
 
@@ -28,11 +27,11 @@ def main():
     logging.info(f'Dumping keywords to {dset.root_dir}/fips_full_keywords.json')
     dset.dump_keywords()
 
-    # logging.info("Searching for tables in pdfs")
+    logging.info("Searching for tables in pdfs")
 
-    # not_decoded_files = dset.extract_certs_from_tables()
+    not_decoded_files = dset.extract_certs_from_tables()
 
-    # logging.info(f"Done. Files not decoded: {not_decoded_files}")
+    logging.info(f"Done. Files not decoded: {not_decoded_files}")
 
     logging.info("finalizing results.")
 

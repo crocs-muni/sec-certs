@@ -1,10 +1,12 @@
 import json
 from datetime import date
 from pathlib import Path
-from .dataset import CCDataset
-from .certificate import CommonCriteriaCert
+from .dataset import CCDataset, FIPSDataset
+from .certificate import CommonCriteriaCert, FIPSCertificate
 
-serializable_complex_types = (CCDataset, CommonCriteriaCert, CommonCriteriaCert.MaintainanceReport, CommonCriteriaCert.ProtectionProfile)
+serializable_complex_types = (
+CCDataset, FIPSDataset, CommonCriteriaCert, CommonCriteriaCert.MaintainanceReport, CommonCriteriaCert.ProtectionProfile,
+FIPSCertificate)
 serializable_complex_types_dict = {x.__name__: x for x in serializable_complex_types}
 
 
@@ -29,3 +31,5 @@ class CustomJSONDecoder(json.JSONDecoder):
         if '_type' in obj and obj['_type'] in serializable_complex_types_dict.keys():
             complex_type = obj.pop('_type')
             return serializable_complex_types_dict[complex_type].from_dict(obj)
+
+        return obj
