@@ -1,6 +1,7 @@
 import re
 from typing import Sequence, Tuple, Optional, Set, List, Dict
 
+import logging
 import pikepdf
 import requests
 from multiprocessing.pool import ThreadPool
@@ -109,7 +110,7 @@ def find_tables_iterative(file_text: str) -> List[int]:
         if line.startswith('Table ') or line.startswith('Exhibit'):
             pages.add(current_page)
     if not pages:
-        print('~' * 20, 'No pages found', '~' * 20)
+        logging.warning('No pages found')
     return list(pages)
 
 
@@ -132,7 +133,7 @@ def find_tables(txt: str, file_name: Path) -> Optional[List]:
         return None
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    print("~" * 20, file_name, '~' * 20)
+    logging.info(f'parsing tables in {file_name}')
     rb = find_tables_iterative(txt)
     return rb if rb else None
 
@@ -233,7 +234,7 @@ def parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path):
 
     html_items_found['fips_vendor'] = vendor_string
     if html_items_found['fips_vendor'] == '':
-        print("WARNING: NO VENDOR FOUND", current_file)
+        logging.warning(f"WARNING: NO VENDOR FOUND{current_file}")
 
 
 def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -242,19 +243,19 @@ def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
         list(current_div.find('div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
     if html_items_found['fips_lab'] == '':
-        print("WARNING: NO LAB FOUND", current_file)
+        logging.warning(f"WARNING: NO LAB FOUND{current_file}")
 
     if html_items_found['fips_nvlap_code'] == '':
-        print("WARNING: NO NVLAP CODE FOUND", current_file)
+        logging.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
 
 
 def parse_related_files(current_div: Tag, html_items_found: Dict):
     links = current_div.find_all('a')
     ## TODO: break out of circular imports hell
-    html_items_found['fips_security_policy_www'] = __import__('sec_certs').certificate.FIPSCertificate.fips_base_url + links[0].get('href')
+    html_items_found['fips_security_policy_www'] = __import__('sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[0].get('href')
 
     if len(links) == 2:
-        html_items_found['fips_certificate_www'] = __import__('sec_certs').certificate.FIPSCertificate.fips_base_url + links[1].get('href')
+        html_items_found['fips_certificate_www'] = __import__('sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[1].get('href')
 
 
 def initialize_dictionary() -> Dict:

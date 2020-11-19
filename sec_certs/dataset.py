@@ -15,7 +15,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import locale
 import logging
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, ClassVar
 import json
 import pikepdf
 from importlib import import_module
@@ -304,8 +304,8 @@ class CCDataset(Dataset):
 
 
 class FIPSDataset(Dataset):
-    fips_base_url = 'https://csrc.nist.gov'
-    fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+    FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
+    FIPS_MODULE_URL: ClassVar[str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
     def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
@@ -427,7 +427,6 @@ class FIPSDataset(Dataset):
             # If we find any tables with page numbers, we process them
             if tables:
                 lst = []
-                print("~~~~~~~~~~~~~~~", cert_file, "~~~~~~~~~~~~~~~~~~~~~~~")
                 try:
                     data = read_pdf(cert_file[:-4], pages=tables, silent=True)
                 except Exception:
@@ -498,10 +497,10 @@ class FIPSDataset(Dataset):
                         self.certs[file_name].file_status = False
                         break
         if broken_files:
-            print("WARNING: CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
-            print(*sorted(list(broken_files)), sep='\n')
-            print("... skipping these...")
-            print("Total non-analyzable files:", len(broken_files))
+            logging.warning("CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
+            logging.warning(broken_files)
+            logging.warning("... skipping these...")
+            logging.warning(f"Total non-analyzable files:{len(broken_files)}")
 
         for file_name in self.keywords:
             self.certs[file_name].connections = []

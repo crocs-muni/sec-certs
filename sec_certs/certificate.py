@@ -8,7 +8,7 @@ import os
 from . import helpers, extract_certificates
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict
+from typing import Union, Optional, List, Dict, ClassVar
 
 from .helpers import initialize_dictionary, parse_html_main, parse_vendor, parse_lab, parse_related_files
 
@@ -45,8 +45,8 @@ class Certificate(ABC):
 
 
 class FIPSCertificate(Certificate):
-    fips_base_url = 'https://csrc.nist.gov'
-    fips_module_url = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+    FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
+    FIPS_MODULE_URL: ClassVar[str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
     def __init__(self, cert_id: str,
                  module_name: Optional[str],
