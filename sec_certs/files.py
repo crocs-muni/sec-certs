@@ -1,13 +1,17 @@
 import json
 import os
+from pathlib import Path
+from typing import Generator
 
 FILE_ERRORS_STRATEGY = 'surrogateescape'
 'replace'
+
+
 # FILE_ERRORS_STRATEGY = 'strict'
 
-def search_files(folder):
+def search_files(folder: Path) -> Generator[Path, None, None]:
     for root, dirs, files in os.walk(folder):
-        yield from [os.path.join(root, x) for x in files]
+        yield from [Path(os.path.join(root, x)) for x in files]
 
 
 def load_cert_html_file(file_name):
@@ -32,5 +36,3 @@ def load_json_files(files_list):
             loaded_jsons.append(loaded_items)
             print('{} loaded, total items = {}'.format(file_name, len(loaded_items)))
     return tuple(loaded_jsons)
-
-

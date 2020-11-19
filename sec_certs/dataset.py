@@ -415,10 +415,10 @@ class FIPSDataset(Dataset):
         list_of_files = search_files(self.policies_dir)
         not_decoded = []
         for cert_file in list_of_files:
-            if '.txt' not in cert_file:
+            if '.txt' not in cert_file.suffixes:
                 continue
-
-            if self.certs[extract_filename(cert_file[:-8])].tables_done:
+            stem_name = Path(cert_file.stem).stem
+            if self.certs[stem_name].tables_done:
                 continue
 
             with open(cert_file, 'r') as f:
@@ -448,9 +448,9 @@ class FIPSDataset(Dataset):
                     lst += parse_algorithms(df.to_string(index=False))
 
                 if lst:
-                    self.certs[extract_filename(cert_file[:-8])].algorithms += lst
+                    self.certs[stem_name].algorithms += lst
 
-            self.certs[extract_filename(cert_file[:-8])].tables_done = True
+            self.certs[stem_name].tables_done = True
         return not_decoded
 
     def remove_algorithms_from_extracted_data(self):

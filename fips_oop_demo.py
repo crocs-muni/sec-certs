@@ -29,9 +29,9 @@ def main():
 
     logging.info("Searching for tables in pdfs")
 
-    # not_decoded_files = dset.extract_certs_from_tables()
+    not_decoded_files = dset.extract_certs_from_tables()
 
-    # logging.info(f"Done. Files not decoded: {not_decoded_files}")
+    logging.info(f"Done. Files not decoded: {not_decoded_files}")
 
     logging.info("finalizing results.")
 
