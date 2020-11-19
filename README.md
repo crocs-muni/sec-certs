@@ -8,6 +8,12 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 
 The tool requires several Python packages as well as the `pdftotext` binary somewhere on the `PATH`.
 The easiest way to setup the tool is to install it in a virtual environment, e.g.:
+Install Python virtual environment (if not yet):
+```
+python3 -m pip install --upgrade pip
+pip install virtualenv  
+```
+Setup new local one named 'virt' :
 ```
 python3 -m venv virt
 . virt/bin/activate
