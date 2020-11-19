@@ -24,7 +24,9 @@ class BasicTests(TestCase):
         with TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)
             download_fips_web(tmp_path)
-            fips_files = {"fips_modules_validated.html"}
+            fips_files = {'fips_modules_active.html',
+                          'fips_modules_historical.html',
+                          'fips_modules_revoked.html'}
             actual = {path.name for path in tmp_path.iterdir()}
             self.assertEqual(fips_files, actual)
 
@@ -32,7 +34,7 @@ class BasicTests(TestCase):
         with open(self.test_data_dir / "certs.csv") as f:
             reader = csv.DictReader(f)
             certs = [(row["cert"], row["st"]) for row in reader]
-        cert_list = [( "/epfiles/" + cert, cert, "/epfiles/" + st, st) for cert, st in certs]
+        cert_list = [("/epfiles/" + cert, cert, "/epfiles/" + st, st) for cert, st in certs]
         with TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)
             (tmp_path / "certs").mkdir()
