@@ -1,5 +1,12 @@
-from datetime import datetime
-from .certificate import CommonCriteriaCert, Certificate
+import os
+import re
+from datetime import datetime, date
+
+from tabula import read_pdf
+
+from .certificate import CommonCriteriaCert, Certificate, FIPSCertificate
+from .extract_certificates import extract_certificates_keywords
+from .constants import FIPS_NOT_AVAILABLE_CERT_SIZE
 from abc import ABC, abstractmethod
 from . import helpers as helpers
 from pathlib import Path
@@ -8,11 +15,17 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import locale
 import logging
-from typing import Dict
+from typing import Dict, List, Optional, Set, ClassVar
+import json
+from importlib import import_module
+
+from .files import search_files
+from .helpers import find_tables, repair_pdf
 
 
 class Dataset(ABC):
-    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name', description: str = 'dataset_description'):
+    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description'):
         self.root_dir = root_dir
         self.timestamp = datetime.now()
         self.sha256_digest = 'not implemented'
@@ -46,7 +59,8 @@ class Dataset(ABC):
         pass
 
     def to_dict(self):
-        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest, 'name': self.name,
+        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+                'name': self.name,
                 'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())}
 
     @classmethod
@@ -162,13 +176,14 @@ class CCDataset(Dataset):
         """
         Using pandas, this parses a single CSV file.
         """
+
         def get_primary_key_str(row):
             prim_key = row['category'] + row['cert_name'] + row['report_link']
             return prim_key
 
         csv_header = ['category', 'cert_name', 'manufacturer', 'scheme', 'security_level', 'protection_profiles',
-                       'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
-                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
+                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
+                      'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
 
         df = pd.read_csv(file, engine='python', encoding='windows-1250')
         df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
@@ -176,7 +191,8 @@ class CCDataset(Dataset):
         df['is_maintainance'] = ~df.maintainance_title.isnull()
         df = df.fillna(value='')
 
-        df[['not_valid_before', 'not_valid_after', 'maintainance_date']] = df[['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
+        df[['not_valid_before', 'not_valid_after', 'maintainance_date']] = df[
+            ['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
 
         df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(get_primary_key_str(row)), axis=1)
         df_base = df.loc[df.is_maintainance == False].copy()
@@ -190,12 +206,19 @@ class CCDataset(Dataset):
         df_base = df_base.drop_duplicates(subset=['dgst'])
         df_main = df_main.drop_duplicates()
 
-        profiles = {x.dgst: set([CommonCriteriaCert.ProtectionProfile(y, None) for y in helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in df_base.itertuples()}
+        profiles = {x.dgst: set([CommonCriteriaCert.ProtectionProfile(y, None) for y in
+                                 helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in
+                    df_base.itertuples()}
         updates = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
-            updates[x.dgst].add(CommonCriteriaCert.MaintainanceReport(x.maintainance_date.date(), x.maintainance_title, x.maintainance_report_link, x.maintainance_st_link))
+            updates[x.dgst].add(CommonCriteriaCert.MaintainanceReport(x.maintainance_date.date(), x.maintainance_title,
+                                                                      x.maintainance_report_link,
+                                                                      x.maintainance_st_link))
 
-        certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level, x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv', None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in df_base.itertuples()}
+        certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
+                                            x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
+                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in
+                 df_base.itertuples()}
         return certs
 
     def get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
@@ -218,6 +241,7 @@ class CCDataset(Dataset):
         """
         Prepares a dictionary of certificates from a single html file.
         """
+
         def get_timestamp_from_footer(footer):
             locale.setlocale(locale.LC_ALL, 'en_US')
             footer_text = list(footer.stripped_strings)[0]
@@ -275,3 +299,242 @@ class CCDataset(Dataset):
             certs.update(parse_table(soup, key, val))
 
         return certs
+
+
+class FIPSDataset(Dataset):
+    FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
+    FIPS_MODULE_URL: ClassVar[
+        str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+
+    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description'):
+        super().__init__(certs, root_dir, name, description)
+        self.keywords = {}
+        self.new_files = 0
+
+    @property
+    def web_dir(self) -> Path:
+        return self.root_dir / 'web'
+
+    @property
+    def results_dir(self) -> Path:
+        return self.root_dir / 'results'
+
+    @property
+    def policies_dir(self) -> Path:
+        return self.root_dir / 'security_policies'
+
+    @property
+    def fragments_dir(self) -> Path:
+        return self.root_dir / 'fragments'
+
+    def to_dict(self):
+        ## Different - we dont want list
+        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+                'name': self.name, 'description': self.description, 'n_certs': len(self),
+                'certs': list(self.certs.values())}
+
+    @classmethod
+    def from_dict(cls, dct: Dict):
+        certs = {x.dgst: x for x in dct['certs']}
+        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
+
+    def find_empty_pdfs(self) -> (List, List):
+        missing = []
+        not_available = []
+        for i in self.certs:
+            if not (self.policies_dir / f'{i}.pdf').exists():
+                missing.append(i)
+            elif os.path.getsize(self.policies_dir / f'{i}.pdf') < FIPS_NOT_AVAILABLE_CERT_SIZE:
+                not_available.append(i)
+        return missing, not_available
+
+    def extract_keywords(self):
+        self.fragments_dir.mkdir(parents=True, exist_ok=True)
+        if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
+            self.keywords = extract_certificates_keywords(
+                self.policies_dir,
+                self.fragments_dir, 'fips', fips_items=self.certs,
+                should_censure_right_away=True)
+        else:
+            self.keywords = json.loads(open(self.root_dir / 'fips_full_keywords.json').read())
+
+    def dump_to_json(self):
+        with open(self.root_dir / 'fips_full_dataset.json', 'w') as handle:
+            json.dump(self, handle, cls=import_module('sec_certs.serialization').CustomJSONEncoder, indent=4)
+
+    def dump_keywords(self):
+        with open(self.root_dir / "fips_full_keywords.json", 'w') as f:
+            f.write(json.dumps(self.keywords, indent=4, sort_keys=True))
+
+    # TODO figure out whether the name of this method shuold not be "get_certs", because we don't download every time
+
+    def get_certs_from_web(self):
+        def get_certificates_from_html(html_file: Path) -> None:
+            logging.info(f'Getting certificate ids from {html_file}')
+            html = BeautifulSoup(open(html_file).read(), 'html.parser')
+
+            table = [x for x in html.find(id='searchResultsTable').tbody.contents if x != '\n']
+            for entry in table:
+                self.certs[entry.find('a').text] = {}
+
+        logging.info("Downloading required html files")
+
+        self.web_dir.mkdir(parents=True, exist_ok=True)
+        self.policies_dir.mkdir(exist_ok=True)
+
+        # Download files containing all available module certs (always)
+        html_files = ['fips_modules_active.html', 'fips_modules_historical.html', 'fips_modules_revoked.html']
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+            self.web_dir / "fips_modules_active.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+            self.web_dir / "fips_modules_historical.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+            self.web_dir / "fips_modules_revoked.html")
+
+        # Parse those files and get list of currently processable files (always)
+        for f in html_files:
+            get_certificates_from_html(self.web_dir / f)
+
+        logging.info('Downloading certficate html and security policies')
+        html_items = [
+            (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
+             self.web_dir / f"{cert_id}.html") for cert_id in list(self.certs.keys()) if
+            not (self.web_dir / f'{cert_id}.html').exists()]
+        sp_items = [(
+            f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
+            self.policies_dir / f"{cert_id}.pdf") for cert_id in list(self.certs.keys()) if
+            not (self.policies_dir / f'{cert_id}.pdf').exists()]
+
+        _, self.new_files = helpers.download_parallel(html_items + sp_items, 8), len(html_items) + len(sp_items)
+
+        logging.info(f"{self.new_files} needed to be downloaded")
+
+        if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
+            # if False:
+            for cert in self.certs:
+                self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
+        else:
+            logging.info("Certs loaded from previous scanning")
+            dataset = json.loads(open(self.root_dir / 'fips_full_dataset.json').read(),
+                                 cls=import_module('sec_certs.serialization').CustomJSONDecoder)
+            self.certs = dataset.certs
+
+    def extract_certs_from_tables(self) -> List[Path]:
+        """
+        Function that extracts algorithm IDs from tables in security policies files.
+        :return: list of files that couldn't have been decoded
+        """
+
+        list_of_files = search_files(self.policies_dir)
+        not_decoded = []
+        for cert_file in list_of_files:
+            cert_file = Path(cert_file)
+
+            if '.txt' not in cert_file.suffixes:
+                continue
+
+            stem_name = Path(cert_file.stem).stem
+
+            if self.certs[stem_name].tables_done:
+                continue
+
+            with open(cert_file, 'r') as f:
+                tables = find_tables(f.read(), cert_file)
+
+            # If we find any tables with page numbers, we process them
+            if tables:
+                lst = []
+                try:
+                    data = read_pdf(cert_file.with_suffix(''), pages=tables, silent=True)
+                except Exception:
+                    try:
+                        repair_pdf(cert_file.with_suffix(''))
+                        data = read_pdf(cert_file.with_suffix(''), pages=tables, silent=True)
+
+                    except Exception:
+                        not_decoded.append(cert_file)
+                        continue
+
+                # find columns with cert numbers
+                for df in data:
+                    for col in range(len(df.columns)):
+                        if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
+                            lst += FIPSCertificate.parse_algorithms(df.iloc[:, col].to_string(index=False), True)
+
+                    # Parse again if someone picks not so descriptive column names
+                    lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
+
+                if lst:
+                    self.certs[stem_name].algorithms += lst
+
+            self.certs[stem_name].tables_done = True
+        return not_decoded
+
+    def remove_algorithms_from_extracted_data(self):
+        """
+        Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
+        """
+        for file_name in self.keywords:
+            self.keywords[file_name]['file_status'] = True
+            self.certs[file_name].file_status = True
+            if self.certs[file_name].mentioned_certs:
+                for item in self.certs[file_name].mentioned_certs:
+                    self.keywords[file_name]['rules_cert_id'].update(item)
+
+            for rule in self.keywords[file_name]['rules_cert_id']:
+                to_pop = set()
+                rr = re.compile(rule)
+                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+                    for alg in self.keywords[file_name]['rules_fips_algorithms']:
+                        for found in self.keywords[file_name]['rules_fips_algorithms'][alg]:
+                            if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
+                                    cert).group('id'):
+                                to_pop.add(cert)
+                for r in to_pop:
+                    self.keywords[file_name]['rules_cert_id'][rule].pop(r, None)
+
+                self.keywords[file_name]['rules_cert_id'][rule].pop(
+                    self.certs[file_name].cert_id, None)
+
+    def validate_results(self):
+        """
+        Function that validates results and finds the final connection output
+        """
+        broken_files = set()
+        for file_name in self.keywords:
+            for rule in self.keywords[file_name]['rules_cert_id']:
+                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+                    cert_id = ''.join(filter(str.isdigit, cert))
+
+                    if cert_id == '' or cert_id not in self.certs:
+                        # TEST
+                        # if cert_id == '' or int(cert_id) > 3730:
+                        broken_files.add(file_name)
+                        self.keywords[file_name]['file_status'] = False
+                        self.certs[file_name].file_status = False
+                        break
+        if broken_files:
+            logging.warning("CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
+            logging.warning(broken_files)
+            logging.warning("... skipping these...")
+            logging.warning(f"Total non-analyzable files:{len(broken_files)}")
+
+        for file_name in self.keywords:
+            self.certs[file_name].connections = []
+            if not self.keywords[file_name]['file_status']:
+                continue
+            if self.keywords[file_name]['rules_cert_id'] == {}:
+                continue
+            for rule in self.keywords[file_name]['rules_cert_id']:
+                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+                    cert_id = ''.join(filter(str.isdigit, cert))
+                    if cert_id not in self.certs[file_name].connections:
+                        self.certs[file_name].connections.append(cert_id)
+
+    def finalize_results(self):
+        self.remove_algorithms_from_extracted_data()
+        self.validate_results()

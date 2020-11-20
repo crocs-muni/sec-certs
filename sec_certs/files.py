@@ -32,5 +32,3 @@ def load_json_files(files_list):
             loaded_jsons.append(loaded_items)
             print('{} loaded, total items = {}'.format(file_name, len(loaded_items)))
     return tuple(loaded_jsons)
-
-

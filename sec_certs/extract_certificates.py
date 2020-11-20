@@ -165,7 +165,7 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 is_algorithm = False
                 if fips_items and match != '':
                     certs = [x['Certificate']
-                             for x in fips_items[file_name]['fips_algorithms']]
+                             for x in fips_items[file_name].algorithms]
 
                     match_cert_id = ''.join(filter(str.isdigit, match))
                     #                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':

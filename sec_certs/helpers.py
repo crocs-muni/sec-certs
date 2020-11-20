@@ -1,4 +1,8 @@
-from typing import Sequence, Tuple
+import re
+from typing import Sequence, Tuple, Optional, Set, List, Dict
+
+import logging
+import pikepdf
 import requests
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
@@ -9,6 +13,8 @@ from typing import Union
 from datetime import date
 import numpy as np
 import pandas as pd
+from bs4 import Tag, NavigableString
+
 
 
 def download_file(url: str, output: Path) -> int:
@@ -62,7 +68,6 @@ def sanitize_string(record: str) -> Union[str, None]:
         return ' '.join(string.split())
 
 
-
 def sanitize_security_levels(record: Union[str, set]) -> set:
     if isinstance(record, str):
         record = set(record.split(','))
@@ -80,3 +85,71 @@ def sanitize_protection_profiles(record: str) -> list:
     if not record:
         return []
     return record.split(',')
+
+
+# TODO: realize whether this stays or goes somewhere else
+def parse_list_of_tables(txt: str) -> Set[str]:
+    """
+    Parses list of tables from function find_tables(), finds ones that mention algorithms
+    :param txt: chunk of text
+    :return: set of all pages mentioning algorithm table
+    """
+    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
+    pages = set()
+    for m in rr.finditer(txt):
+        pages.add(m.group('page_num'))
+    return pages
+
+
+def find_tables_iterative(file_text: str) -> List[int]:
+    current_page = 1
+    pages = set()
+    for line in file_text.split('\n'):
+        if '\f' in line:
+            current_page += 1
+        if line.startswith('Table ') or line.startswith('Exhibit'):
+            pages.add(current_page)
+    if not pages:
+        logging.warning('No pages found')
+    return list(pages)
+
+
+def find_tables(txt: str, file_name: Path) -> Optional[List]:
+    """
+    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
+    algorithms
+    :param txt: file in .txt format (output of pdftotext)
+    :param file_name: name of the file
+    :return:    list of pages possibly containing a table
+                None if these cannot be found
+    """
+    # Look for "List of Tables", where we can find exactly tables with page num
+    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
+    table = tables_regex.search(txt)
+    if table:
+        rb = parse_list_of_tables(table.group())
+        if rb:
+            return list(rb)
+        return None
+
+    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
+    logging.info(f'parsing tables in {file_name}')
+    rb = find_tables_iterative(txt)
+    return rb if rb else None
+
+
+def repair_pdf(file: Path):
+    """
+    Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
+    By opening this file in a pdf reader, we can already extract number of pages
+    :param file: file name
+    :return: number of pages in pdf file
+    """
+    pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
+    pdf.save(file)
+
+
+
+
+
+
