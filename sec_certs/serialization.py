@@ -1,8 +1,9 @@
 import json
 from datetime import date
 from pathlib import Path
-from .dataset import CCDataset, FIPSDataset
-from .certificate import CommonCriteriaCert, FIPSCertificate
+
+from sec_certs.dataset import CCDataset, FIPSDataset
+from sec_certs.certificate import CommonCriteriaCert, FIPSCertificate
 
 serializable_complex_types = (
 CCDataset, FIPSDataset, CommonCriteriaCert, CommonCriteriaCert.MaintainanceReport, CommonCriteriaCert.ProtectionProfile,

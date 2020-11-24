@@ -19,6 +19,7 @@ from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
+
 def extract_filename(file: str) -> str:
     """
     Extracts filename from path

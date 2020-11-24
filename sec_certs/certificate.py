@@ -4,11 +4,12 @@ from dataclasses import dataclass
 import logging
 from pathlib import Path
 import os
-
-from . import helpers, extract_certificates
-from abc import ABC, abstractmethod
-from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar
+from abc import ABC, abstractmethod
+
+from bs4 import Tag, BeautifulSoup, NavigableString
+
+from sec_certs import helpers, extract_certificates
 
 
 class Certificate(ABC):

@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
+import sys
+import os
+
+PACKAGE_PARENT = '..'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
+
 import click
 
-from .files import load_json_files
-from .extract_certificates import *
-from .analyze_certificates import *
-from .download import download_cc_web, download_cc
+from sec_certs.files import load_json_files
+from sec_certs.extract_certificates import *
+from sec_certs.analyze_certificates import *
+from sec_certs.download import download_cc_web, download_cc
 
 
 @click.command()
