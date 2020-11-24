@@ -1,5 +1,7 @@
 from enum import Enum
 
+N_THREADS = 8
+RESPONSE_OK = 200
 
 class CertFramework(Enum):
     CC = 'Common Criteria'

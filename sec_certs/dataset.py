@@ -9,6 +9,7 @@ from importlib import import_module
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
+from multiprocessing import Pool
 
 from tabula import read_pdf
 import pandas as pd
@@ -20,6 +21,8 @@ from sec_certs.helpers import find_tables, repair_pdf
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.extract_certificates import extract_certificates_keywords
 from sec_certs.constants import FIPS_NOT_AVAILABLE_CERT_SIZE
+import sec_certs.constants as constants
+import sec_certs.download as download
 
 
 class Dataset(ABC):
@@ -65,7 +68,7 @@ class Dataset(ABC):
     @classmethod
     def from_dict(cls, dct: Dict):
         certs = {x.dgst: x for x in dct['certs']}
-        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
+        return cls(certs, Path(dct['root_dir']), dct['name'], dct['description'])
 
     @classmethod
     def from_csv(cls):
@@ -99,6 +102,18 @@ class CCDataset(Dataset):
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
+
+    @property
+    def certs_dir(self) -> Path:
+        return self.root_dir / 'certs'
+
+    @property
+    def reports_dir(self) -> Path:
+        return self.certs_dir / 'reports'
+
+    @property
+    def targets_dir(self) -> Path:
+        return self.certs_dir / 'targets'
 
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
@@ -298,6 +313,28 @@ class CCDataset(Dataset):
             certs.update(parse_table(soup, key, val))
 
         return certs
+
+    def download_pdfs(self, urls, paths):
+        responses = download.download_parallel(list(zip(urls, paths)), constants.N_THREADS)
+        for r in responses:
+            if r[1] != constants.RESPONSE_OK:
+                logging.warning(f'Receieved response: {r[1]} when downloading {r[0]}')
+
+    def download_reports(self):
+        self.reports_dir.mkdir(parents=True, exist_ok=True)
+        reports_urls = [x.report_link for x in self]
+        paths = [self.reports_dir / (x.dgst + '.pdf') for x in self]
+        self.download_pdfs(reports_urls, paths)
+
+    def download_targets(self):
+        self.targets_dir.mkdir(parents=True, exist_ok=True)
+        target_urls = [x.st_link for x in self]
+        paths = [self.targets_dir / (x.dgst + '.pdf') for x in self]
+        self.download_pdfs(target_urls, paths)
+
+    def download_all_pdfs(self):
+        self.download_reports()
+        self.download_targets()
 
 
 class FIPSDataset(Dataset):
