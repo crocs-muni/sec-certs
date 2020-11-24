@@ -1,6 +1,7 @@
 import os
 import re
 from datetime import datetime, date
+import copy
 
 from tabula import read_pdf
 
@@ -59,9 +60,9 @@ class Dataset(ABC):
         pass
 
     def to_dict(self):
-        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+        return copy.deepcopy({'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
                 'name': self.name,
-                'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())}
+                'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())})
 
     @classmethod
     def from_dict(cls, dct: Dict):
@@ -200,7 +201,7 @@ class CCDataset(Dataset):
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=['dgst']))
-        if n_dup := n_all - n_deduplicated > 0:
+        if (n_dup := n_all - n_deduplicated) > 0:
             logging.warning(f'The CSV {file} contains {n_dup} duplicates by the primary key.')
 
         df_base = df_base.drop_duplicates(subset=['dgst'])
@@ -327,17 +328,6 @@ class FIPSDataset(Dataset):
     @property
     def fragments_dir(self) -> Path:
         return self.root_dir / 'fragments'
-
-    def to_dict(self):
-        ## Different - we dont want list
-        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
-                'name': self.name, 'description': self.description, 'n_certs': len(self),
-                'certs': list(self.certs.values())}
-
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        certs = {x.dgst: x for x in dct['certs']}
-        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
 
     def find_empty_pdfs(self) -> (List, List):
         missing = []

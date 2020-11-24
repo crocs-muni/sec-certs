@@ -4,15 +4,18 @@ from dataclasses import dataclass
 import logging
 from pathlib import Path
 import os
+import copy
 
 from . import helpers, extract_certificates
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict, ClassVar
+from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
 
 
 class Certificate(ABC):
-    def __init__(self):
+    T = TypeVar('T', bound='Certificate')
+
+    def __init__(self, *args, **kwargs):
         pass
 
     def __repr__(self) -> str:
@@ -30,12 +33,11 @@ class Certificate(ABC):
         return self.dgst == other.dgst
 
     def to_dict(self):
-        return self.__dict__
+        return copy.deepcopy(self.__dict__)
 
     @classmethod
-    @abstractmethod
-    def from_dict(cls, dct: dict) -> 'Certificate':
-        raise NotImplementedError('Mot meant to be implemented')
+    def from_dict(cls: Type[T], dct: dict) -> T:
+        return cls(*tuple(dct.values()))
 
 
 class FIPSCertificate(Certificate):
@@ -109,11 +111,6 @@ class FIPSCertificate(Certificate):
     @property
     def dgst(self) -> str:
         return self.cert_id
-
-    @classmethod
-    def from_dict(cls, dct: dict) -> 'FIPSCertificate':
-        args = tuple(dct.values())
-        return FIPSCertificate(*args)
 
     @staticmethod
     def extract_filename(file: str) -> str:
@@ -338,7 +335,7 @@ class CommonCriteriaCert(Certificate):
             super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
 
         def to_dict(self):
-            return self.__dict__
+            return copy.deepcopy(self.__dict__)
 
         @classmethod
         def from_dict(cls, dct):
@@ -360,7 +357,7 @@ class CommonCriteriaCert(Certificate):
             super().__setattr__('pp_link', helpers.sanitize_link(self.pp_link))
 
         def to_dict(self):
-            return self.__dict__
+            return copy.deepcopy(self.__dict__)
 
         def __lt__(self, other):
             return self.pp_name < other.pp_name
@@ -426,16 +423,11 @@ class CommonCriteriaCert(Certificate):
         if self.src != other.src:
             self.src = self.src + ' + ' + other.src
 
-    def to_dict(self) -> dict:
-        return self.__dict__
-
     @classmethod
     def from_dict(cls, dct: dict) -> 'CommonCriteriaCert':
         dct['maintainance_updates'] = set(dct['maintainance_updates'])
         dct['protection_profiles'] = set(dct['protection_profiles'])
-        args = tuple(dct.values())
-
-        return cls(*args)
+        return super(cls, CommonCriteriaCert).from_dict(dct)
 
     @classmethod
     def from_html_row(cls, row: Tag, category: str) -> 'CommonCriteriaCert':
