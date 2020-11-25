@@ -57,7 +57,7 @@ class Dataset(ABC):
         return self.certs == other.certs
 
     def __str__(self) -> str:
-        return 'Not implemented'
+        return str(type(self).__name__) + ':' + self.name + ', ' + str(len(self)) + ' certificates'
 
     def to_csv(self):
         pass
