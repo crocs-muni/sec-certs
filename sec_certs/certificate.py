@@ -489,7 +489,7 @@ class CommonCriteriaCert(Certificate):
 
             report_link = CommonCriteriaCert.cc_url + links[1].get('href')
             security_target_link = CommonCriteriaCert.cc_url + \
-                links[2].get('href')
+                                   links[2].get('href')
 
             return report_link, security_target_link
 
@@ -518,10 +518,10 @@ class CommonCriteriaCert(Certificate):
                 for l in links:
                     if l.get('title').startswith('Maintenance Report:'):
                         main_report_link = CommonCriteriaCert.cc_url + \
-                            l.get('href')
+                                           l.get('href')
                     elif l.get('title').startswith('Maintenance ST'):
                         main_st_link = CommonCriteriaCert.cc_url + \
-                            l.get('href')
+                                       l.get('href')
                     else:
                         logging.error('Unknown link in Maintenance part!')
                 maintainance_updates.add(
