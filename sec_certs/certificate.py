@@ -6,10 +6,11 @@ from pathlib import Path
 import os
 import copy
 
-from . import helpers, extract_certificates
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
+
+from sec_certs import helpers, extract_certificates
 
 
 class Certificate(ABC):
@@ -177,7 +178,8 @@ class FIPSCertificate(Certificate):
         trs = element.find_all('tr')
         for tr in trs:
             tds = tr.find_all('td')
-            found_items.append({'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
+            found_items.append(
+                {'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
 
         return found_items
 
@@ -192,7 +194,8 @@ class FIPSCertificate(Certificate):
                 html_items_found[pairs[title]] = content.split(';')
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['fips_mentioned_certs'] += FIPSCertificate.parse_caveat(content)
+                html_items_found['fips_mentioned_certs'] += FIPSCertificate.parse_caveat(
+                    content)
 
             elif 'FIPS Algorithms' in title:
                 html_items_found['fips_algorithms'] += FIPSCertificate.parse_table(
@@ -213,7 +216,8 @@ class FIPSCertificate(Certificate):
         vendor_string = current_div.find('div', 'panel-body').find('a')
 
         if not vendor_string:
-            vendor_string = list(current_div.find('div', 'panel-body').children)[0].strip()
+            vendor_string = list(current_div.find(
+                'div', 'panel-body').children)[0].strip()
             html_items_found['fips_vendor_www'] = ''
         else:
             html_items_found['fips_vendor_www'] = vendor_string.get('href')
@@ -225,9 +229,11 @@ class FIPSCertificate(Certificate):
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
-        html_items_found['fips_lab'] = list(current_div.find('div', 'panel-body').children)[0].strip()
+        html_items_found['fips_lab'] = list(
+            current_div.find('div', 'panel-body').children)[0].strip()
         html_items_found['fips_nvlap_code'] = \
-            list(current_div.find('div', 'panel-body').children)[2].strip().split('\n')[1].strip()
+            list(current_div.find(
+                'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['fips_lab'] == '':
             logging.warning(f"WARNING: NO LAB FOUND{current_file}")
@@ -238,7 +244,7 @@ class FIPSCertificate(Certificate):
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
         links = current_div.find_all('a')
-        ## TODO: break out of circular imports hell
+        # TODO: break out of circular imports hell
         html_items_found['fips_security_policy_www'] = __import__(
             'sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[0].get('href')
 
@@ -329,9 +335,12 @@ class CommonCriteriaCert(Certificate):
         maintainance_st_link: str
 
         def __post_init__(self):
-            super().__setattr__('maintainance_report_link', helpers.sanitize_link(self.maintainance_report_link))
-            super().__setattr__('maintainance_st_link', helpers.sanitize_link(self.maintainance_st_link))
-            super().__setattr__('maintainance_title', helpers.sanitize_string(self.maintainance_title))
+            super().__setattr__('maintainance_report_link',
+                                helpers.sanitize_link(self.maintainance_report_link))
+            super().__setattr__('maintainance_st_link',
+                                helpers.sanitize_link(self.maintainance_st_link))
+            super().__setattr__('maintainance_title',
+                                helpers.sanitize_string(self.maintainance_title))
             super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
 
         def to_dict(self):
@@ -467,7 +476,8 @@ class CommonCriteriaCert(Certificate):
 
         def get_date(cell: Tag) -> date:
             text = cell.get_text()
-            extracted_date = datetime.strptime(text, '%Y-%m-%d').date() if text else None
+            extracted_date = datetime.strptime(
+                text, '%Y-%m-%d').date() if text else None
             return extracted_date
 
         def get_report_st_links(cell: Tag) -> (str, str):
@@ -477,7 +487,8 @@ class CommonCriteriaCert(Certificate):
             assert links[2].get('title').startswith('Security Target')
 
             report_link = CommonCriteriaCert.cc_url + links[1].get('href')
-            security_target_link = CommonCriteriaCert.cc_url + links[2].get('href')
+            security_target_link = CommonCriteriaCert.cc_url + \
+                links[2].get('href')
 
             return report_link, security_target_link
 
@@ -497,16 +508,19 @@ class CommonCriteriaCert(Certificate):
             maintainance_updates = set()
             for u in possible_updates:
                 text = list(u.stripped_strings)[0]
-                main_date = datetime.strptime(text.split(' ')[0], '%Y-%m-%d').date() if text else None
+                main_date = datetime.strptime(text.split(
+                    ' ')[0], '%Y-%m-%d').date() if text else None
                 main_title = text.split('– ')[1]
                 main_report_link = None
                 main_st_link = None
                 links = u.find_all('a')
                 for l in links:
                     if l.get('title').startswith('Maintenance Report:'):
-                        main_report_link = CommonCriteriaCert.cc_url + l.get('href')
+                        main_report_link = CommonCriteriaCert.cc_url + \
+                            l.get('href')
                     elif l.get('title').startswith('Maintenance ST'):
-                        main_st_link = CommonCriteriaCert.cc_url + l.get('href')
+                        main_st_link = CommonCriteriaCert.cc_url + \
+                            l.get('href')
                     else:
                         logging.error('Unknown link in Maintenance part!')
                 maintainance_updates.add(
@@ -530,7 +544,8 @@ class CommonCriteriaCert(Certificate):
         cert_link = get_cert_link(cells[2])
 
         maintainance_div = get_maintainance_div(cells[0])
-        maintainances = get_maintainance_updates(maintainance_div) if maintainance_div else set()
+        maintainances = get_maintainance_updates(
+            maintainance_div) if maintainance_div else set()
 
         return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
                    st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances)

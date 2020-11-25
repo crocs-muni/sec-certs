@@ -12,12 +12,13 @@ import click
 import pikepdf
 from tabula import read_pdf
 
-from .download import download_fips_web, download_fips
-from . import extract_certificates
-from .files import load_json_files, FILE_ERRORS_STRATEGY, search_files
+from sec_certs.download import download_fips_web, download_fips
+from sec_certs import extract_certificates
+from sec_certs.files import load_json_files, FILE_ERRORS_STRATEGY, search_files
 
 FIPS_BASE_URL = 'https://csrc.nist.gov'
 FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
+
 
 def extract_filename(file: str) -> str:
     """
