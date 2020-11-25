@@ -1,9 +1,9 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, time
 import locale
 import logging
-from typing import Dict, List, ClassVar
+from typing import Dict, List, ClassVar, Collection
 import json
 from importlib import import_module
 
@@ -11,7 +11,10 @@ import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
-from multiprocessing import Pool
+from multiprocessing import Pool, pool
+import tqdm
+from functools import partial
+
 
 from tabula import read_pdf
 import pandas as pd
@@ -100,8 +103,25 @@ class Dataset(ABC):
         logging.info(
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
+    @staticmethod
+    def convert_pdfs_to_text(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
+        assert len(pdf_paths) == len(txt_paths)
+        results = []
+        partial_convert_pdf = partial(helpers.convert_pdf_file, options=['-raw'])
+        with tqdm.tqdm(total=len(pdf_paths)) as progress:
+            for result in pool.ThreadPool(constants.N_THREADS).imap(partial_convert_pdf, zip(pdf_paths, txt_paths)):
+                progress.update(1)
+                results.append(result)
+
+    @staticmethod
+    def get_corrupted_pdfs(pdf_paths):
+        return [p for p in pdf_paths if p.stat().st_size < constants.MIN_CORRECT_CERT_SIZE]
+
 
 class CCDataset(Dataset):
+    def __init__(self, certs, root_dir, name, description):
+        super().__init__(certs, root_dir, name, description)
+
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -115,8 +135,40 @@ class CCDataset(Dataset):
         return self.certs_dir / 'reports'
 
     @property
+    def reports_pdf_dir(self) -> Path:
+        return self.reports_dir / 'pdf'
+
+    @property
+    def reports_txt_dir(self) -> Path:
+        return self.reports_dir / 'txt'
+
+    @property
     def targets_dir(self) -> Path:
         return self.certs_dir / 'targets'
+
+    @property
+    def targets_pdf_dir(self) -> Path:
+        return self.targets_dir / 'pdf'
+
+    @property
+    def targets_txt_dir(self) -> Path:
+        return self.targets_dir / 'txt'
+
+    @property
+    def report_pdf_paths(self) -> Dict[str, Path]:
+        return {x: self.reports_pdf_dir / (self[x].dgst + '.pdf') for x in self.certs}
+
+    @property
+    def report_txt_paths(self) -> Dict[str, Path]:
+        return {x: self.reports_txt_dir / (self[x].dgst + '.txt') for x in self.certs}
+
+    @property
+    def target_pdf_paths(self) -> Dict[str, Path]:
+        return {x: self.targets_pdf_dir / (self[x].dgst + '.pdf') for x in self.certs}
+
+    @property
+    def target_txt_paths(self) -> Dict[str, Path]:
+        return {x: self.targets_txt_dir / (self[x].dgst + '.txt') for x in self.certs}
 
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
@@ -330,27 +382,42 @@ class CCDataset(Dataset):
 
         return certs
 
-    def download_pdfs(self, urls, paths):
-        responses = download.download_parallel(list(zip(urls, paths)), constants.N_THREADS)
-        for r in responses:
-            if r[1] != constants.RESPONSE_OK:
-                logging.warning(f'Receieved response: {r[1]} when downloading {r[0]}')
-
     def download_reports(self):
-        self.reports_dir.mkdir(parents=True, exist_ok=True)
+        self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         reports_urls = [x.report_link for x in self]
-        paths = [self.reports_dir / (x.dgst + '.pdf') for x in self]
-        self.download_pdfs(reports_urls, paths)
+        download.download_parallel(list(zip(reports_urls, self.report_pdf_paths.values())), constants.N_THREADS)
 
     def download_targets(self):
-        self.targets_dir.mkdir(parents=True, exist_ok=True)
+        self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         target_urls = [x.st_link for x in self]
-        paths = [self.targets_dir / (x.dgst + '.pdf') for x in self]
-        self.download_pdfs(target_urls, paths)
+        download.download_parallel(list(zip(target_urls, self.target_pdf_paths.values())), constants.N_THREADS)
 
     def download_all_pdfs(self):
+        logging.info('Downloading CC certificate reports')
         self.download_reports()
+
+        # TODO: Do checks below live when downloading and re-download straight away?
+        corrupted_reports = self.get_corrupted_pdfs(self.report_pdf_paths.values())
+        for r in corrupted_reports:
+            logging.error(f'Corrupted pdf file at: {r}')
+
+        logging.info('Downloading CC security targets')
         self.download_targets()
+
+        # TODO: Do checks below live when downloading and re-download straight away?
+        corrupted_targets = self.get_corrupted_pdfs(self.target_pdf_paths.values())
+        for t in corrupted_targets:
+            logging.error(f'Corrupted pdf file at: {t}')
+
+    def convert_all_pdfs(self):
+        # TODO: Get rid of the list() invocation here.
+        logging.info('Converting CC certificate reports to .txt')
+        self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.convert_pdfs_to_text(list(self.report_pdf_paths.values()), list(self.report_txt_paths.values()))
+
+        logging.info('Converting CC security targets to .txt')
+        self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.convert_pdfs_to_text(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
 
 
 class FIPSDataset(Dataset):

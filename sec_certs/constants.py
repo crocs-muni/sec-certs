@@ -2,6 +2,10 @@ from enum import Enum
 
 N_THREADS = 8
 RESPONSE_OK = 200
+RETURNCODE_OK = 0
+
+MIN_CORRECT_CERT_SIZE = 5000
+
 
 class CertFramework(Enum):
     CC = 'Common Criteria'

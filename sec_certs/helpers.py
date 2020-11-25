@@ -12,7 +12,10 @@ from typing import Union
 from datetime import date
 import numpy as np
 import pandas as pd
+import subprocess
 from bs4 import Tag, NavigableString
+
+import sec_certs.constants as constants
 
 
 def download_file(url: str, output: Path) -> int:
@@ -147,6 +150,12 @@ def repair_pdf(file: Path):
     pdf.save(file)
 
 
+def convert_pdf_file(filepaths: Tuple[Path, Path], options):
+    pdf_path, txt_path = filepaths[0], filepaths[1]
+    proc_result = subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if proc_result.returncode != constants.RETURNCODE_OK:
+        logging.error(f'Converting pdf {pdf_path} resulted into the following result: {proc_result}')
+    return proc_result
 
 
 

@@ -1,4 +1,5 @@
 import os
+import logging
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from tqdm import tqdm
@@ -7,6 +8,7 @@ from typing import Sequence, Tuple, List
 import requests
 
 from .files import search_files
+import sec_certs.constants as constants
 
 CC_WEB_URL = 'https://www.commoncriteriaportal.org'
 
@@ -29,6 +31,8 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
         for response in pool.imap(download, items):
             progress.update(1)
             responses.append(response)
+            if response[1] != constants.RESPONSE_OK:
+                logging.error(f'Request for url {response[0]} returned {response[1]}')
     pool.close()
     pool.join()
     return responses
