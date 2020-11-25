@@ -550,3 +550,18 @@ class CommonCriteriaCert(Certificate):
 
         return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
                    st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances)
+
+
+class FIPSAlgorithm(Certificate):
+    @property
+    def dgst(self):
+        # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
+        # for each id
+        return self.type
+
+    def __init__(self, vendor, implementation, alg_type, validation_date):
+        super().__init__()
+        self.vendor = vendor
+        self.implementation = implementation
+        self.type = alg_type
+        self.date = validation_date

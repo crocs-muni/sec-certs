@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Set
+from typing import Dict, List, ClassVar, Set, Tuple
 import json
 from importlib import import_module
 
@@ -344,6 +344,10 @@ class FIPSDataset(Dataset):
     def fragments_dir(self) -> Path:
         return self.root_dir / 'fragments'
 
+    @property
+    def algs_dir(self) -> Path:
+        return self.web_dir / 'algorithms'
+
     def find_empty_pdfs(self) -> (List, List):
         missing = []
         not_available = []
@@ -377,6 +381,32 @@ class FIPSDataset(Dataset):
     # TODO figure out whether the name of this method shuold not be "get_certs", because we don't download every time
 
     def get_certs_from_web(self):
+        def download_html_pages() -> Tuple[int, int]:
+            html_items = [
+                (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
+                 self.web_dir / f"{cert_id}.html") for cert_id in list(self.certs.keys()) if
+                not (self.web_dir / f'{cert_id}.html').exists()]
+            sp_items = [(
+                f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
+                self.policies_dir / f"{cert_id}.pdf") for cert_id in list(self.certs.keys()) if
+                not (self.policies_dir / f'{cert_id}.pdf').exists()]
+
+            logging.info(f"downloading {len(html_items) + len(sp_items)} module html and pdf files")
+            _, self.new_files = helpers.download_parallel(
+                html_items + sp_items, 8), len(html_items) + len(sp_items)
+
+            pages = [
+                (
+                    f'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page={i}',
+                    self.algs_dir / f'page{i}.html'
+                ) for i in range(1, 502) if not (self.algs_dir / f'page{i}.html').exists()
+            ]
+
+            logging.info(f"downloading {len(pages)} algorithm html files")
+            helpers.download_parallel(pages, 8)
+
+            return len(html_items) + len(sp_items), len(pages)
+
         def get_certificates_from_html(html_file: Path) -> None:
             logging.info(f'Getting certificate ids from {html_file}')
             html = BeautifulSoup(open(html_file).read(), 'html.parser')
@@ -394,32 +424,22 @@ class FIPSDataset(Dataset):
         # Download files containing all available module certs (always)
         html_files = ['fips_modules_active.html',
                       'fips_modules_historical.html', 'fips_modules_revoked.html']
-        helpers.download_file(
-            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
-            self.web_dir / "fips_modules_active.html")
-        helpers.download_file(
-            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
-            self.web_dir / "fips_modules_historical.html")
-        helpers.download_file(
-            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
-            self.web_dir / "fips_modules_revoked.html")
+        # helpers.download_file(
+        #     "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+        #     self.web_dir / "fips_modules_active.html")
+        # helpers.download_file(
+        #     "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+        #     self.web_dir / "fips_modules_historical.html")
+        # helpers.download_file(
+        #     "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+        #     self.web_dir / "fips_modules_revoked.html")
 
         # Parse those files and get list of currently processable files (always)
         for f in html_files:
             get_certificates_from_html(self.web_dir / f)
 
         logging.info('Downloading certficate html and security policies')
-        html_items = [
-            (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
-             self.web_dir / f"{cert_id}.html") for cert_id in list(self.certs.keys()) if
-            not (self.web_dir / f'{cert_id}.html').exists()]
-        sp_items = [(
-            f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf",
-            self.policies_dir / f"{cert_id}.pdf") for cert_id in list(self.certs.keys()) if
-            not (self.policies_dir / f'{cert_id}.pdf').exists()]
-
-        _, self.new_files = helpers.download_parallel(
-            html_items + sp_items, 8), len(html_items) + len(sp_items)
+        self.new_files, new_algs = download_html_pages()
 
         logging.info(f"{self.new_files} needed to be downloaded")
 
@@ -625,3 +645,13 @@ class FIPSDataset(Dataset):
 
         dot.render(str(output_file_name) + '_connections', view=True)
         single_dot.render(str(output_file_name) + '_single', view=True)
+
+
+class AlgorithmDataset(Dataset):
+
+    def get_certs_from_web(self):
+        pass
+
+    def parse_html(self):
+        for f in search_files(self.root_dir):
+            html_soup = BeautifulSoup(open(f).read(), 'html.parser')
