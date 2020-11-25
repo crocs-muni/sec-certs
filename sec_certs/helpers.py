@@ -45,6 +45,14 @@ def get_first_16_bytes_sha256(string: str) -> str:
     return hashlib.sha256(string.encode('utf-8')).hexdigest()[:16]
 
 
+def get_sha256_filepath(filepath):
+    hash_sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
+
+
 def sanitize_link(record: str) -> Union[str, None]:
     if not record:
         return None

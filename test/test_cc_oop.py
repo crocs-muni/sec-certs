@@ -10,6 +10,7 @@ import os
 from sec_certs.dataset import CCDataset
 from sec_certs.serialization import CustomJSONEncoder, CustomJSONDecoder
 from sec_certs.certificate import CommonCriteriaCert
+import sec_certs.helpers as helpers
 
 
 class TestCommonCriteriaOOP(TestCase):
@@ -66,6 +67,11 @@ class TestCommonCriteriaOOP(TestCase):
         self.template_dataset = CCDataset({self.crt_one.dgst: self.crt_one, self.crt_two.dgst: self.crt_two}, Path('/fictional/path/to/dataset'), 'toy dataset', 'toy dataset description')
         self.template_dataset.timestamp = datetime(2020, 11, 16, hour=17, minute=4, second=14, microsecond=770153)
 
+        self.template_report_pdf_hashes = {'869415cc4b91282e': '774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52',
+                                          '2d010ecfb604747a': '533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a'}
+        self.template_target_pdf_hashes = {'869415cc4b91282e': 'b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9',
+                                           '2d010ecfb604747a': '3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be'}
+
     def test_certificate_input_sanity(self):
         self.assertEqual(self.crt_one.report_link,
                          'http://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf',
@@ -87,6 +93,22 @@ class TestCommonCriteriaOOP(TestCase):
         with open(referential_path, 'r') as handle:
             new_obj = json.load(handle, cls=CustomJSONDecoder)
         return obj == new_obj
+
+    def test_download_pdfs(self):
+        with open(self.test_data_dir / 'toy_dataset.json', 'r') as handle:
+            dset = json.load(handle, cls=CustomJSONDecoder)
+
+        with TemporaryDirectory() as td:
+            dset.root_dir = Path(td)
+
+            dset.download_all_pdfs()
+            dset.convert_all_pdfs()
+
+            actual_report_pdf_hashes = {key: helpers.get_sha256_filepath(val) for key, val in dset.report_pdf_paths.items()}
+            actual_target_pdf_hashes = {key: helpers.get_sha256_filepath(val) for key, val in dset.target_pdf_paths.items()}
+
+            self.assertEqual(actual_report_pdf_hashes, self.template_report_pdf_hashes, 'Hashes of downloaded pdfs (certificate report) do not the template')
+            self.assertEqual(actual_target_pdf_hashes, self.template_target_pdf_hashes, 'Hashes of downloaded pdfs (security target) do not match the template')
 
     def test_cert_to_json(self):
         self.assertTrue(self.equal_to_json(self.test_data_dir / 'fictional_cert.json', self.fictional_cert),
