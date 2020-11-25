@@ -1,15 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
-import os
-
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-
-
 import click
-
 from sec_certs.files import load_json_files
 from sec_certs.extract_certificates import *
 from sec_certs.analyze_certificates import *
