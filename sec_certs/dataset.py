@@ -7,6 +7,7 @@ from typing import Dict, List, ClassVar
 import json
 from importlib import import_module
 
+import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
@@ -59,9 +60,9 @@ class Dataset(ABC):
         pass
 
     def to_dict(self):
-        return copy.deepcopy({'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
-                              'name': self.name,
-                              'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())})
+        return {'root_dir': copy.deepcopy(self.root_dir), 'timestamp': self.timestamp,
+                'sha256_digest': self.sha256_digest, 'name': self.name, 'description': self.description,
+                'n_certs': len(self), 'certs': list(self.certs.values())}
 
     @classmethod
     def from_dict(cls, dct: Dict):

@@ -434,9 +434,10 @@ class CommonCriteriaCert(Certificate):
 
     @classmethod
     def from_dict(cls, dct: dict) -> 'CommonCriteriaCert':
-        dct['maintainance_updates'] = set(dct['maintainance_updates'])
-        dct['protection_profiles'] = set(dct['protection_profiles'])
-        return super(cls, CommonCriteriaCert).from_dict(dct)
+        new_dct = dct.copy()
+        new_dct['maintainance_updates'] = set(dct['maintainance_updates'])
+        new_dct['protection_profiles'] = set(dct['protection_profiles'])
+        return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
     @classmethod
     def from_html_row(cls, row: Tag, category: str) -> 'CommonCriteriaCert':
