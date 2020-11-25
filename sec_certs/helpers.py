@@ -1,6 +1,5 @@
 import re
 from typing import Sequence, Tuple, Optional, Set, List, Dict
-
 import logging
 import pikepdf
 import requests
@@ -14,7 +13,6 @@ from datetime import date
 import numpy as np
 import pandas as pd
 from bs4 import Tag, NavigableString
-
 
 
 def download_file(url: str, output: Path) -> int:
