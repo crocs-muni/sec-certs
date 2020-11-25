@@ -73,7 +73,9 @@ class Dataset(ABC):
     @classmethod
     def from_dict(cls, dct: Dict):
         certs = {x.dgst: x for x in dct['certs']}
-        return cls(certs, Path(dct['root_dir']), dct['name'], dct['description'])
+        dset =  cls(certs, Path(dct['root_dir']), dct['name'], dct['description'])
+        assert len(dset) == dct['n_certs']
+        return dset
 
     @classmethod
     def from_csv(cls):
