@@ -553,3 +553,12 @@ class FIPSDataset(Dataset):
     def finalize_results(self):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
+
+    def present_algorithms(self) -> Set['str']:
+        found_algs = set()
+        for cert in self.certs.values():
+            for alg in cert.algorithms:
+                if 'Name' in alg:
+                    print(cert, alg['Name'])
+                    found_algs.add(alg['Name'])
+        return found_algs
