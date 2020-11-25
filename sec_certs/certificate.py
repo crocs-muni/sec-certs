@@ -179,7 +179,7 @@ class FIPSCertificate(Certificate):
         for tr in trs:
             tds = tr.find_all('td')
             found_items.append(
-                {'Name': tds[0].text, 'Certificate': parse_algorithms(tds[1].text)})
+                {'Name': tds[0].text, 'Certificate': FIPSCertificate.parse_algorithms(tds[1].text)})
 
         return found_items
 
