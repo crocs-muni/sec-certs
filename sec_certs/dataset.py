@@ -6,6 +6,8 @@ import logging
 from typing import Dict, List, ClassVar
 import json
 from importlib import import_module
+
+import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
@@ -58,9 +60,9 @@ class Dataset(ABC):
         pass
 
     def to_dict(self):
-        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
-                'name': self.name,
-                'description': self.description, 'n_certs': len(self), 'certs': list(self.certs.values())}
+        return {'root_dir': copy.deepcopy(self.root_dir), 'timestamp': self.timestamp,
+                'sha256_digest': self.sha256_digest, 'name': self.name, 'description': self.description,
+                'n_certs': len(self), 'certs': list(self.certs.values())}
 
     @classmethod
     def from_dict(cls, dct: Dict):
@@ -92,7 +94,8 @@ class Dataset(ABC):
                 n_merged += 1
 
         self.certs.update(will_be_added)
-        logging.info(f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
+        logging.info(
+            f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
 
 class CCDataset(Dataset):
@@ -125,8 +128,10 @@ class CCDataset(Dataset):
         """
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
-        html_items = [(x, self.web_dir / y) for y, x in self.html_products.items()]
-        csv_items = [(x, self.web_dir / y) for y, x in self.csv_products.items()]
+        html_items = [(x, self.web_dir / y)
+                      for y, x in self.html_products.items()]
+        csv_items = [(x, self.web_dir / y)
+                     for y, x in self.csv_products.items()]
 
         if not get_active:
             html_items = [x for x in html_items if 'active' not in str(x[1])]
@@ -160,13 +165,16 @@ class CCDataset(Dataset):
         Creates dictionary of new certificates from csv sources.
         """
         csv_sources = self.csv_products.keys()
-        csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
-        csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
+        csv_sources = [
+            x for x in csv_sources if 'active' not in x or get_active]
+        csv_sources = [
+            x for x in csv_sources if 'archived' not in x or get_archived]
 
         new_certs = {}
         for file in csv_sources:
             partial_certs = self.parse_single_csv(self.web_dir / file)
-            logging.info(f'Parsed {len(partial_certs)} certificates from: {file}')
+            logging.info(
+                f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
         return new_certs
 
@@ -185,7 +193,8 @@ class CCDataset(Dataset):
                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
 
         df = pd.read_csv(file, engine='python', encoding='windows-1250')
-        df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
+        df = df.rename(
+            columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
 
         df['is_maintainance'] = ~df.maintainance_title.isnull()
         df = df.fillna(value='')
@@ -193,14 +202,16 @@ class CCDataset(Dataset):
         df[['not_valid_before', 'not_valid_after', 'maintainance_date']] = df[
             ['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
 
-        df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(get_primary_key_str(row)), axis=1)
+        df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(
+            get_primary_key_str(row)), axis=1)
         df_base = df.loc[df.is_maintainance == False].copy()
         df_main = df.loc[df.is_maintainance == True].copy()
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=['dgst']))
-        if n_dup := n_all - n_deduplicated > 0:
-            logging.warning(f'The CSV {file} contains {n_dup} duplicates by the primary key.')
+        if (n_dup := n_all - n_deduplicated) > 0:
+            logging.warning(
+                f'The CSV {file} contains {n_dup} duplicates by the primary key.')
 
         df_base = df_base.drop_duplicates(subset=['dgst'])
         df_main = df_main.drop_duplicates()
@@ -225,13 +236,16 @@ class CCDataset(Dataset):
         Prepares dictionary of certificates from all html files.
         """
         html_sources = self.html_products.keys()
-        html_sources = [x for x in html_sources if 'active' not in x or get_active]
-        html_sources = [x for x in html_sources if 'archived' not in x or get_archived]
+        html_sources = [
+            x for x in html_sources if 'active' not in x or get_active]
+        html_sources = [
+            x for x in html_sources if 'archived' not in x or get_archived]
 
         new_certs = {}
         for file in html_sources:
             partial_certs = self.parse_single_html(self.web_dir / file)
-            logging.info(f'Parsed {len(partial_certs)} certificates from: {file}')
+            logging.info(
+                f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
         return new_certs
 
@@ -246,7 +260,8 @@ class CCDataset(Dataset):
             footer_text = list(footer.stripped_strings)[0]
             date_string = footer_text.split(',')[1:3]
             time_string = footer_text.split(',')[3].split(' at ')[1]
-            formatted_datetime = date_string[0] + date_string[1] + ' ' + time_string
+            formatted_datetime = date_string[0] + \
+                date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
         def parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
@@ -266,7 +281,8 @@ class CCDataset(Dataset):
             # TODO: Do we have use for number of expected certs? We get rid of duplicites, so no use for assert expected == actual
             # caption_str = str(table.findAll('caption'))
             # n_expected_certs = int(caption_str.split(category_string + ' – ')[1].split(' Certified Products')[0])
-            table_certs = {x.dgst: x for x in [CommonCriteriaCert.from_html_row(row, category_string) for row in body]}
+            table_certs = {x.dgst: x for x in [
+                CommonCriteriaCert.from_html_row(row, category_string) for row in body]}
 
             return table_certs
 
@@ -327,17 +343,6 @@ class FIPSDataset(Dataset):
     def fragments_dir(self) -> Path:
         return self.root_dir / 'fragments'
 
-    def to_dict(self):
-        ## Different - we dont want list
-        return {'root_dir': self.root_dir, 'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
-                'name': self.name, 'description': self.description, 'n_certs': len(self),
-                'certs': list(self.certs.values())}
-
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        certs = {x.dgst: x for x in dct['certs']}
-        return cls(certs, dct['root_dir'], dct['name'], dct['description'])
-
     def find_empty_pdfs(self) -> (List, List):
         missing = []
         not_available = []
@@ -356,11 +361,13 @@ class FIPSDataset(Dataset):
                 self.fragments_dir, 'fips', fips_items=self.certs,
                 should_censure_right_away=True)
         else:
-            self.keywords = json.loads(open(self.root_dir / 'fips_full_keywords.json').read())
+            self.keywords = json.loads(
+                open(self.root_dir / 'fips_full_keywords.json').read())
 
     def dump_to_json(self):
         with open(self.root_dir / 'fips_full_dataset.json', 'w') as handle:
-            json.dump(self, handle, cls=import_module('sec_certs.serialization').CustomJSONEncoder, indent=4)
+            json.dump(self, handle, cls=import_module(
+                'sec_certs.serialization').CustomJSONEncoder, indent=4)
 
     def dump_keywords(self):
         with open(self.root_dir / "fips_full_keywords.json", 'w') as f:
@@ -373,7 +380,8 @@ class FIPSDataset(Dataset):
             logging.info(f'Getting certificate ids from {html_file}')
             html = BeautifulSoup(open(html_file).read(), 'html.parser')
 
-            table = [x for x in html.find(id='searchResultsTable').tbody.contents if x != '\n']
+            table = [x for x in html.find(
+                id='searchResultsTable').tbody.contents if x != '\n']
             for entry in table:
                 self.certs[entry.find('a').text] = {}
 
@@ -383,7 +391,8 @@ class FIPSDataset(Dataset):
         self.policies_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
-        html_files = ['fips_modules_active.html', 'fips_modules_historical.html', 'fips_modules_revoked.html']
+        html_files = ['fips_modules_active.html',
+                      'fips_modules_historical.html', 'fips_modules_revoked.html']
         helpers.download_file(
             "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
             self.web_dir / "fips_modules_active.html")
@@ -408,14 +417,16 @@ class FIPSDataset(Dataset):
             self.policies_dir / f"{cert_id}.pdf") for cert_id in list(self.certs.keys()) if
             not (self.policies_dir / f'{cert_id}.pdf').exists()]
 
-        _, self.new_files = helpers.download_parallel(html_items + sp_items, 8), len(html_items) + len(sp_items)
+        _, self.new_files = helpers.download_parallel(
+            html_items + sp_items, 8), len(html_items) + len(sp_items)
 
         logging.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
             # if False:
             for cert in self.certs:
-                self.certs[cert] = FIPSCertificate.html_from_file(self.web_dir / f'{cert}.html')
+                self.certs[cert] = FIPSCertificate.html_from_file(
+                    self.web_dir / f'{cert}.html')
         else:
             logging.info("Certs loaded from previous scanning")
             dataset = json.loads(open(self.root_dir / 'fips_full_dataset.json').read(),
@@ -448,11 +459,13 @@ class FIPSDataset(Dataset):
             if tables:
                 lst = []
                 try:
-                    data = read_pdf(cert_file.with_suffix(''), pages=tables, silent=True)
+                    data = read_pdf(cert_file.with_suffix(''),
+                                    pages=tables, silent=True)
                 except Exception:
                     try:
                         repair_pdf(cert_file.with_suffix(''))
-                        data = read_pdf(cert_file.with_suffix(''), pages=tables, silent=True)
+                        data = read_pdf(cert_file.with_suffix(
+                            ''), pages=tables, silent=True)
 
                     except Exception:
                         not_decoded.append(cert_file)
@@ -462,10 +475,12 @@ class FIPSDataset(Dataset):
                 for df in data:
                     for col in range(len(df.columns)):
                         if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                            lst += FIPSCertificate.parse_algorithms(df.iloc[:, col].to_string(index=False), True)
+                            lst += FIPSCertificate.parse_algorithms(
+                                df.iloc[:, col].to_string(index=False), True)
 
                     # Parse again if someone picks not so descriptive column names
-                    lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
+                    lst += FIPSCertificate.parse_algorithms(
+                        df.to_string(index=False))
 
                 if lst:
                     self.certs[stem_name].algorithms += lst
@@ -494,7 +509,8 @@ class FIPSDataset(Dataset):
                                     cert).group('id'):
                                 to_pop.add(cert)
                 for r in to_pop:
-                    self.keywords[file_name]['rules_cert_id'][rule].pop(r, None)
+                    self.keywords[file_name]['rules_cert_id'][rule].pop(
+                        r, None)
 
                 self.keywords[file_name]['rules_cert_id'][rule].pop(
                     self.certs[file_name].cert_id, None)
