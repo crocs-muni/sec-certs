@@ -102,7 +102,6 @@ class TestCommonCriteriaOOP(TestCase):
             dset.root_dir = Path(td)
 
             dset.download_all_pdfs()
-            dset.convert_all_pdfs()
 
             actual_report_pdf_hashes = {key: helpers.get_sha256_filepath(val) for key, val in dset.report_pdf_paths.items()}
             actual_target_pdf_hashes = {key: helpers.get_sha256_filepath(val) for key, val in dset.target_pdf_paths.items()}
