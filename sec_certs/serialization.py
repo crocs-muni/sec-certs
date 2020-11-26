@@ -3,11 +3,12 @@ from datetime import date
 from pathlib import Path
 
 from sec_certs.dataset import CCDataset, FIPSDataset
-from sec_certs.certificate import CommonCriteriaCert, FIPSCertificate
+from sec_certs.certificate import CommonCriteriaCert, FIPSCertificate, FIPSAlgorithm
 
 serializable_complex_types = (
-CCDataset, FIPSDataset, CommonCriteriaCert, CommonCriteriaCert.MaintainanceReport, CommonCriteriaCert.ProtectionProfile,
-FIPSCertificate)
+    CCDataset, FIPSDataset, CommonCriteriaCert, CommonCriteriaCert.MaintainanceReport,
+    CommonCriteriaCert.ProtectionProfile,
+    FIPSCertificate, FIPSAlgorithm)
 serializable_complex_types_dict = {x.__name__: x for x in serializable_complex_types}
 
 

@@ -285,7 +285,7 @@ rules_fips_remove_algorithm_ids = [
     r"PAA[: #]*?\d{2}",
     r"PAA[: #]*?\d{1}",
     r"(?:#|Cert\.?|Certificate)[\s#]*?(\d+)?\s*?(?:AES|SHS|SHA|RSA|HMAC|Diffie-Hellman|DRBG|DES|CVL)",
-    r"PKCS[ ]?#?\d+",
+    r"PKCS[\s]?#?\d+",
     r"Survey #192"  # why would they get an address like this /o\ cert 2079
 ]
 rules_fips_cert = [

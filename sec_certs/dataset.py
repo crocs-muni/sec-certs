@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 from sec_certs.files import search_files
 from sec_certs import helpers as helpers
 from sec_certs.helpers import find_tables, repair_pdf
-from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
+from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate, FIPSAlgorithm
 from sec_certs.extract_certificates import extract_certificates_keywords
 from sec_certs.constants import FIPS_NOT_AVAILABLE_CERT_SIZE
 
@@ -326,6 +326,7 @@ class FIPSDataset(Dataset):
                  description: str = 'dataset_description'):
         super().__init__(certs, root_dir, name, description)
         self.keywords = {}
+        self.algorithms = None
         self.new_files = 0
 
     @property
@@ -424,15 +425,15 @@ class FIPSDataset(Dataset):
         # Download files containing all available module certs (always)
         html_files = ['fips_modules_active.html',
                       'fips_modules_historical.html', 'fips_modules_revoked.html']
-        # helpers.download_file(
-        #     "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
-        #     self.web_dir / "fips_modules_active.html")
-        # helpers.download_file(
-        #     "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
-        #     self.web_dir / "fips_modules_historical.html")
-        # helpers.download_file(
-        #     "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
-        #     self.web_dir / "fips_modules_revoked.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+            self.web_dir / "fips_modules_active.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+            self.web_dir / "fips_modules_historical.html")
+        helpers.download_file(
+            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+            self.web_dir / "fips_modules_revoked.html")
 
         # Parse those files and get list of currently processable files (always)
         for f in html_files:
@@ -444,7 +445,6 @@ class FIPSDataset(Dataset):
         logging.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
-            # if False:
             for cert in self.certs:
                 self.certs[cert] = FIPSCertificate.html_from_file(
                     self.web_dir / f'{cert}.html')
@@ -536,10 +536,40 @@ class FIPSDataset(Dataset):
                 self.keywords[file_name]['rules_cert_id'][rule].pop(
                     self.certs[file_name].cert_id, None)
 
+    def unify_algorithms(self):
+        for certificate in self.certs.values():
+            new_algorithms = []
+            for algorithm in certificate.algorithms:
+                if isinstance(algorithm, dict):
+                    new_algorithms.append(algorithm)
+                else:
+                    new_algorithms.append({'Certificate': algorithm})
+            certificate.algorithms = new_algorithms
+
     def validate_results(self):
         """
         Function that validates results and finds the final connection output
         """
+        def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
+            # TODO: do we do this? #1 is used a lot
+            if cert_candidate == '1':
+                return False
+            if cert_candidate not in self.algorithms.certs:
+                return True
+
+            for cert_alg in processed_cert.algorithms:
+                for certificate in cert_alg['Certificate']:
+                    print(certificate)
+                    curr_id = ''.join(filter(str.isdigit, certificate))
+                    if curr_id == cert_candidate:
+                        return False
+
+            algs = self.algorithms.certs[cert_candidate]
+            for current_alg in algs:
+                if processed_cert.vendor[:3] in current_alg.vendor:
+                    return False
+            return True
+
         broken_files = set()
         for file_name in self.keywords:
             for rule in self.keywords[file_name]['rules_cert_id']:
@@ -547,12 +577,11 @@ class FIPSDataset(Dataset):
                     cert_id = ''.join(filter(str.isdigit, cert))
 
                     if cert_id == '' or cert_id not in self.certs:
-                        # TEST
-                        # if cert_id == '' or int(cert_id) > 3730:
                         broken_files.add(file_name)
                         self.keywords[file_name]['file_status'] = False
                         self.certs[file_name].file_status = False
                         break
+
         if broken_files:
             logging.warning("CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
             logging.warning(broken_files)
@@ -568,21 +597,13 @@ class FIPSDataset(Dataset):
             for rule in self.keywords[file_name]['rules_cert_id']:
                 for cert in self.keywords[file_name]['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
-                    if cert_id not in self.certs[file_name].connections:
+                    if cert_id not in self.certs[file_name].connections and validate_id(self.certs[file_name], cert_id):
                         self.certs[file_name].connections.append(cert_id)
 
     def finalize_results(self):
+        self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
-
-    def present_algorithms(self) -> Set[str]:
-        found_algs = set()
-        for cert in self.certs.values():
-            for alg in cert.algorithms:
-                if 'Name' in alg:
-                    print(cert, alg['Name'])
-                    found_algs.add(alg['Name'])
-        return found_algs
 
     def get_dot_graph(self, output_file_name: str):
         """
@@ -641,7 +662,7 @@ class FIPSDataset(Dataset):
                     dot.edge(key, conn)
                     edges += 1
 
-        print(f"rendering {keys} keys and {edges} edges")
+        logging.info(f"rendering {keys} keys and {edges} edges")
 
         dot.render(str(output_file_name) + '_connections', view=True)
         single_dot.render(str(output_file_name) + '_single', view=True)
@@ -653,5 +674,24 @@ class AlgorithmDataset(Dataset):
         pass
 
     def parse_html(self):
+        def split_alg(alg_string):
+            cert_type = alg_string.rstrip('0123456789')
+            cert_id = alg_string[len(cert_type):]
+            return cert_type.strip(), cert_id.strip()
+
         for f in search_files(self.root_dir):
             html_soup = BeautifulSoup(open(f).read(), 'html.parser')
+            table = html_soup.find('table', class_='table table-condensed publications-table table-bordered')
+            spans = table.find_all('span')
+            for span in spans:
+                elements = span.find_all('td')
+                vendor, implementation = elements[0].text, elements[1].text
+                elements_sliced = elements[2:]
+                for i in range(0, len(elements_sliced), 2):
+                    alg_type, alg_id = split_alg(elements_sliced[i].text.strip())
+                    validation_date = elements_sliced[i + 1].text.strip()
+                    fips_alg = FIPSAlgorithm(alg_id, vendor, implementation, alg_type, validation_date)
+                    if alg_id not in self.certs:
+                        self.certs[alg_id] = []
+                    self.certs[alg_id].append(fips_alg)
+

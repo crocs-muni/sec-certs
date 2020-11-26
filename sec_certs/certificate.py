@@ -161,8 +161,9 @@ class FIPSCertificate(Certificate):
         :return: list of all found algorithm IDs
         """
         set_items = set()
-        for m in re.finditer(rf"(?:#{'?' if in_pdf else 'C?'}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
-                             current_text):
+        for m in re.finditer(
+                rf"(?:#{'?' if in_pdf else 'C?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
+                current_text):
             set_items.add(m.group())
 
         return list(set_items)
@@ -559,9 +560,21 @@ class FIPSAlgorithm(Certificate):
         # for each id
         return self.type
 
-    def __init__(self, vendor, implementation, alg_type, validation_date):
+    def __init__(self, cert_id, vendor, implementation, alg_type, validation_date):
         super().__init__()
+        self.cert_id = cert_id
         self.vendor = vendor
         self.implementation = implementation
         self.type = alg_type
         self.date = validation_date
+
+    def __repr__(self):
+        return self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor
+
+    def __str__(self):
+        return str(self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor)
+
+    @classmethod
+    def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
+        return FIPSAlgorithm(dct['cert_id'], dct['vendor'], dct['implementation'], dct['alg_type'],
+                             dct['validation_date'])
