@@ -1,7 +1,5 @@
 from tqdm import tqdm
 from multiprocessing.pool import Pool, ThreadPool
-import sec_certs.constants as constants
-import logging
 import time
 
 # TODO: Add timeout. Kinda meh with ThreadingTimeout, SignalTimeout does not work on Windows, stopit package.

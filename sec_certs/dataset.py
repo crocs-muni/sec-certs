@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection
+from typing import Dict, List, ClassVar, Collection, TypeVar, Type
 import json
 from importlib import import_module
 
@@ -15,10 +15,10 @@ import shutil
 from functools import partial
 import requests
 
-
 from tabula import read_pdf
 import pandas as pd
 from bs4 import BeautifulSoup
+
 
 from sec_certs.files import search_files
 from sec_certs import helpers as helpers
@@ -32,7 +32,7 @@ import sec_certs.cert_processing as cert_processing
 
 
 class Dataset(ABC):
-    def __init__(self, certs: dict, root_dir: Path, name: str = 'dataset name',
+    def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
         self.root_dir = root_dir
         self.timestamp = datetime.now()
@@ -89,23 +89,6 @@ class Dataset(ABC):
     def get_certs_from_web(self):
         pass
 
-    def merge_certs(self, certs: Dict[str, 'Certificate']):
-        """
-        Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
-        """
-        will_be_added = {}
-        n_merged = 0
-        for crt in certs.values():
-            if crt not in self:
-                will_be_added[crt.dgst] = crt
-            else:
-                self[crt.dgst].merge(crt)
-                n_merged += 1
-
-        self.certs.update(will_be_added)
-        logging.info(
-            f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
-
     @staticmethod
     def convert_pdfs_to_txt(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
         assert len(pdf_paths) == len(txt_paths)
@@ -113,7 +96,8 @@ class Dataset(ABC):
         partial_convert_pdf = partial(helpers.convert_pdf_file, options=['-raw'])
         exit_codes = cert_processing.process_parallel(partial_convert_pdf,
                                                       list(zip(pdf_paths, txt_paths)),
-                                                      constants.N_THREADS)
+                                                      constants.N_THREADS,
+                                                      use_threading=False)
 
         n_successful = len([e for e in exit_codes if e == constants.RETURNCODE_OK])
         logging.info(f'Successfully converted {n_successful} files pdf->txt, {len(exit_codes) - n_successful} failed.')
@@ -142,6 +126,10 @@ class Dataset(ABC):
 
 
 class CCDataset(Dataset):
+    def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description'):
+        super().__init__(certs, root_dir, name, description)
+
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -208,6 +196,23 @@ class CCDataset(Dataset):
         'cc_pp_active.csv': 'https://www.commoncriteriaportal.org/pps/pps.csv',
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
+
+    def merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
+        """
+        Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
+        """
+        will_be_added = {}
+        n_merged = 0
+        for crt in certs.values():
+            if crt not in self:
+                will_be_added[crt.dgst] = crt
+            else:
+                self[crt.dgst].merge(crt)
+                n_merged += 1
+
+        self.certs.update(will_be_added)
+        logging.info(
+            f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     def get_certs_from_web(self, to_download=True, keep_metadata: bool = True, get_active=True, get_archived=True):
         """
@@ -396,7 +401,7 @@ class CCDataset(Dataset):
                          ]
         cat_dict = {x: y for (x, y) in zip(cc_table_ids, cc_categories)}
 
-        with open(file, 'r') as handle:
+        with file.open('r') as handle:
             soup = BeautifulSoup(handle, 'html.parser')
 
         certs = {}
