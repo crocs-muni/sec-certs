@@ -323,6 +323,7 @@ class FIPSCertificate(Certificate):
 
 class CommonCriteriaCert(Certificate):
     cc_url = 'http://www.commoncriteriaportal.org'
+    empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
     class MaintainanceReport:
@@ -397,6 +398,9 @@ class CommonCriteriaCert(Certificate):
         self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintainance_updates = maintainance_updates
+
+        if self.st_link == self.empty_st_url:
+            self.st_link = None
 
     @property
     def dgst(self) -> str:
