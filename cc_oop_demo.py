@@ -27,6 +27,12 @@ def main():
 
     assert dset == new_dset
 
+    # Download pdfs
+    dset.download_all_pdfs()
+
+    # Convert pdfs to text
+    dset.convert_all_pdfs()
+
     end = datetime.now()
     logging.info(f'The computation took {(end-start)} seconds.')
 

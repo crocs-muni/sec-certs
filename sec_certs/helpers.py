@@ -13,16 +13,17 @@ from datetime import date
 import numpy as np
 import pandas as pd
 import subprocess
-from bs4 import Tag, NavigableString
-
-import sec_certs.constants as constants
 
 
 def download_file(url: str, output: Path) -> int:
-    r = requests.get(url, allow_redirects=True)
-    with output.open('wb') as f:
-        f.write(r.content)
-    return r.status_code
+    try:
+        r = requests.get(url, allow_redirects=True, timeout=5)
+        if r.status_code == requests.codes.ok:
+            with output.open("wb") as f:
+                f.write(r.content)
+        return r.status_code
+    except requests.exceptions.Timeout:
+        return requests.codes.timeout
 
 
 def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
@@ -158,12 +159,9 @@ def repair_pdf(file: Path):
     pdf.save(file)
 
 
-def convert_pdf_file(filepaths: Tuple[Path, Path], options):
-    pdf_path, txt_path = filepaths[0], filepaths[1]
-    proc_result = subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    if proc_result.returncode != constants.RETURNCODE_OK:
-        logging.error(f'Converting pdf {pdf_path} resulted into the following result: {proc_result}')
-    return proc_result
+def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
+    return subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+
 
 
 

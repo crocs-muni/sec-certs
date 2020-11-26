@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime, time
+from datetime import datetime
 import locale
 import logging
 from typing import Dict, List, ClassVar, Collection
@@ -11,9 +11,9 @@ import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
-from multiprocessing import Pool, pool
-import tqdm
+
 from functools import partial
+import requests
 
 
 from tabula import read_pdf
@@ -28,6 +28,7 @@ from sec_certs.extract_certificates import extract_certificates_keywords
 from sec_certs.constants import FIPS_NOT_AVAILABLE_CERT_SIZE
 import sec_certs.constants as constants
 import sec_certs.download as download
+import sec_certs.cert_processing as cert_processing
 
 
 class Dataset(ABC):
@@ -73,7 +74,7 @@ class Dataset(ABC):
     @classmethod
     def from_dict(cls, dct: Dict):
         certs = {x.dgst: x for x in dct['certs']}
-        dset =  cls(certs, Path(dct['root_dir']), dct['name'], dct['description'])
+        dset = cls(certs, Path(dct['root_dir']), dct['name'], dct['description'])
         assert len(dset) == dct['n_certs']
         return dset
 
@@ -106,24 +107,41 @@ class Dataset(ABC):
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     @staticmethod
-    def convert_pdfs_to_text(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
+    def convert_pdfs_to_txt(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
         assert len(pdf_paths) == len(txt_paths)
-        results = []
+
         partial_convert_pdf = partial(helpers.convert_pdf_file, options=['-raw'])
-        with tqdm.tqdm(total=len(pdf_paths)) as progress:
-            for result in pool.ThreadPool(constants.N_THREADS).imap(partial_convert_pdf, zip(pdf_paths, txt_paths)):
-                progress.update(1)
-                results.append(result)
+        exit_codes = cert_processing.process_parallel(partial_convert_pdf,
+                                                      list(zip(pdf_paths, txt_paths)),
+                                                      constants.N_THREADS)
+
+        n_successful = len([e for e in exit_codes if e == constants.RETURNCODE_OK])
+        logging.info(f'Successfully converted {n_successful} files pdf->txt, {len(exit_codes) - n_successful} failed.')
+
+        for path, e in zip(pdf_paths, exit_codes):
+            if e != constants.RETURNCODE_OK:
+                logging.info(f'Failed to convert {path}, exit code: {e}')
 
     @staticmethod
-    def get_corrupted_pdfs(pdf_paths):
-        return [p for p in pdf_paths if p.stat().st_size < constants.MIN_CORRECT_CERT_SIZE]
+    def download_parallel(urls, paths, prune_corrupted=True):
+        exit_codes = cert_processing.process_parallel(download.download_file,
+                                                      list(zip(urls, paths)),
+                                                      constants.N_THREADS)
+        n_successful = len([e for e in exit_codes if e == requests.codes.ok])
+        logging.info(f'Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.')
+
+        for url, e in zip(urls, exit_codes):
+            if e != requests.codes.ok:
+                logging.error(f'Failed to download {url}, exit code: {e}')
+
+        if prune_corrupted is True:
+            for p in paths:
+                if p.exists() and p.stat().st_size < constants.MIN_CORRECT_CERT_SIZE:
+                    logging.error(f'Corrupted file at: {p}')
+                    # TODO: Delete
 
 
 class CCDataset(Dataset):
-    def __init__(self, certs, root_dir, name, description):
-        super().__init__(certs, root_dir, name, description)
-
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -210,10 +228,13 @@ class CCDataset(Dataset):
             html_items = [x for x in html_items if 'archived' not in str(x[1])]
             csv_items = [x for x in csv_items if 'archived' not in str(x[1])]
 
+        html_urls, html_paths = [x[0] for x in html_items], [x[1] for x in html_items]
+        csv_urls, csv_paths = [x[0] for x in csv_items], [x[1] for x in csv_items]
+
         if to_download is True:
             logging.info('Downloading required csv and html files.')
-            helpers.download_parallel(html_items, num_threads=8)
-            helpers.download_parallel(csv_items, num_threads=8)
+            self.download_parallel(html_urls, html_paths)
+            self.download_parallel(csv_urls, csv_paths)
 
         logging.info('Adding CSV certificates to CommonCriteria dataset.')
         csv_certs = self.get_all_certs_from_csv(get_active, get_archived)
@@ -387,39 +408,36 @@ class CCDataset(Dataset):
     def download_reports(self):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         reports_urls = [x.report_link for x in self]
-        download.download_parallel(list(zip(reports_urls, self.report_pdf_paths.values())), constants.N_THREADS)
+        self.download_parallel(reports_urls, self.report_pdf_paths.values(), prune_corrupted=True)
 
     def download_targets(self):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         target_urls = [x.st_link for x in self]
-        download.download_parallel(list(zip(target_urls, self.target_pdf_paths.values())), constants.N_THREADS)
+        self.download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True)
 
     def download_all_pdfs(self):
         logging.info('Downloading CC certificate reports')
         self.download_reports()
 
-        # TODO: Do checks below live when downloading and re-download straight away?
-        corrupted_reports = self.get_corrupted_pdfs(self.report_pdf_paths.values())
-        for r in corrupted_reports:
-            logging.error(f'Corrupted pdf file at: {r}')
-
         logging.info('Downloading CC security targets')
         self.download_targets()
 
-        # TODO: Do checks below live when downloading and re-download straight away?
-        corrupted_targets = self.get_corrupted_pdfs(self.target_pdf_paths.values())
-        for t in corrupted_targets:
-            logging.error(f'Corrupted pdf file at: {t}')
+    def convert_reports_to_txt(self):
+        self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
+        # TODO: Get rid of the list() invocation here.
+        self.convert_pdfs_to_txt(list(self.report_pdf_paths.values()), list(self.report_txt_paths.values()))
+
+    def convert_targets_to_txt(self):
+        self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
+        # TODO: Get rid of the list() invocation here.
+        self.convert_pdfs_to_txt(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
 
     def convert_all_pdfs(self):
-        # TODO: Get rid of the list() invocation here.
         logging.info('Converting CC certificate reports to .txt')
-        self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
-        self.convert_pdfs_to_text(list(self.report_pdf_paths.values()), list(self.report_txt_paths.values()))
+        self.convert_reports_to_txt()
 
         logging.info('Converting CC security targets to .txt')
-        self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
-        self.convert_pdfs_to_text(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
+        self.convert_targets_to_txt()
 
 
 class FIPSDataset(Dataset):
