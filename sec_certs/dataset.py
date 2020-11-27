@@ -60,12 +60,6 @@ class Dataset(ABC):
     def __str__(self) -> str:
         return str(type(self).__name__) + ':' + self.name + ', ' + str(len(self)) + ' certificates'
 
-    def to_csv(self):
-        pass
-
-    def to_dataframe(self):
-        pass
-
     def to_dict(self):
         return {'root_dir': copy.deepcopy(self.root_dir), 'timestamp': self.timestamp,
                 'sha256_digest': self.sha256_digest, 'name': self.name, 'description': self.description,
@@ -78,19 +72,20 @@ class Dataset(ABC):
         assert len(dset) == dct['n_certs']
         return dset
 
-    @classmethod
-    def from_csv(cls):
-        pass
-
-    def dump_to_json(self):
-        pass
-
     @abstractmethod
     def get_certs_from_web(self):
-        pass
+        raise NotImplementedError('Not meant to be implemented by the base class.')
+
+    @abstractmethod
+    def convert_all_pdfs(self):
+        raise NotImplementedError('Not meant to be implemented by the base class.')
+
+    @abstractmethod
+    def download_all_pdfs(self):
+        raise NotImplementedError('Not meant to be implemented by the base class.')
 
     @staticmethod
-    def convert_pdfs_to_txt(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
+    def _convert_pdfs_to_txt(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
         assert len(pdf_paths) == len(txt_paths)
 
         partial_convert_pdf = partial(helpers.convert_pdf_file, options=['-raw'])
@@ -107,7 +102,7 @@ class Dataset(ABC):
                 logging.info(f'Failed to convert {path}, exit code: {e}')
 
     @staticmethod
-    def download_parallel(urls, paths, prune_corrupted=True):
+    def _download_parallel(urls, paths, prune_corrupted=True):
         exit_codes = cert_processing.process_parallel(download.download_file,
                                                       list(zip(urls, paths)),
                                                       constants.N_THREADS)
@@ -197,7 +192,7 @@ class CCDataset(Dataset):
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
 
-    def merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
+    def _merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
@@ -238,24 +233,24 @@ class CCDataset(Dataset):
 
         if to_download is True:
             logging.info('Downloading required csv and html files.')
-            self.download_parallel(html_urls, html_paths)
-            self.download_parallel(csv_urls, csv_paths)
+            self._download_parallel(html_urls, html_paths)
+            self._download_parallel(csv_urls, csv_paths)
 
         logging.info('Adding CSV certificates to CommonCriteria dataset.')
-        csv_certs = self.get_all_certs_from_csv(get_active, get_archived)
-        self.merge_certs(csv_certs)
+        csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
+        self._merge_certs(csv_certs)
 
         # TODO: Someway along the way, 3 certificates get lost. Investigate and fix.
         logging.info('Adding HTML certificates to CommonCriteria dataset.')
-        html_certs = self.get_all_certs_from_html(get_active, get_archived)
-        self.merge_certs(html_certs)
+        html_certs = self._get_all_certs_from_html(get_active, get_archived)
+        self._merge_certs(html_certs)
 
         logging.info(f'The resulting dataset has {len(self)} certificates.')
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-    def get_all_certs_from_csv(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
+    def _get_all_certs_from_csv(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
         """
         Creates dictionary of new certificates from csv sources.
         """
@@ -267,19 +262,19 @@ class CCDataset(Dataset):
 
         new_certs = {}
         for file in csv_sources:
-            partial_certs = self.parse_single_csv(self.web_dir / file)
+            partial_certs = self._parse_single_csv(self.web_dir / file)
             logging.info(
                 f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
         return new_certs
 
     @staticmethod
-    def parse_single_csv(file: Path) -> Dict[str, 'CommonCriteriaCert']:
+    def _parse_single_csv(file: Path) -> Dict[str, 'CommonCriteriaCert']:
         """
         Using pandas, this parses a single CSV file.
         """
 
-        def get_primary_key_str(row):
+        def _get_primary_key_str(row):
             prim_key = row['category'] + row['cert_name'] + row['report_link']
             return prim_key
 
@@ -298,7 +293,7 @@ class CCDataset(Dataset):
             ['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
 
         df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(
-            get_primary_key_str(row)), axis=1)
+            _get_primary_key_str(row)), axis=1)
         df_base = df.loc[df.is_maintainance == False].copy()
         df_main = df.loc[df.is_maintainance == True].copy()
 
@@ -326,7 +321,7 @@ class CCDataset(Dataset):
                  df_base.itertuples()}
         return certs
 
-    def get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
+    def _get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
         """
         Prepares dictionary of certificates from all html files.
         """
@@ -338,19 +333,19 @@ class CCDataset(Dataset):
 
         new_certs = {}
         for file in html_sources:
-            partial_certs = self.parse_single_html(self.web_dir / file)
+            partial_certs = self._parse_single_html(self.web_dir / file)
             logging.info(
                 f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
         return new_certs
 
     @staticmethod
-    def parse_single_html(file: Path) -> Dict[str, 'CommonCriteriaCert']:
+    def _parse_single_html(file: Path) -> Dict[str, 'CommonCriteriaCert']:
         """
         Prepares a dictionary of certificates from a single html file.
         """
 
-        def get_timestamp_from_footer(footer):
+        def _get_timestamp_from_footer(footer):
             locale.setlocale(locale.LC_ALL, 'en_US')
             footer_text = list(footer.stripped_strings)[0]
             date_string = footer_text.split(',')[1:3]
@@ -359,7 +354,7 @@ class CCDataset(Dataset):
                 date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
-        def parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
+        def _parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
             assert len(tables) <= 1
 
@@ -371,7 +366,7 @@ class CCDataset(Dataset):
             header, footer, body = rows[0], rows[1], rows[2:]
 
             # TODO: It's possible to obtain timestamp of the moment when the list was generated. It's identical for each table and should thus only be obtained once. Not necessarily in each table
-            # timestamp = get_timestamp_from_footer(footer)
+            # timestamp = _get_timestamp_from_footer(footer)
 
             # TODO: Do we have use for number of expected certs? We get rid of duplicites, so no use for assert expected == actual
             # caption_str = str(table.findAll('caption'))
@@ -406,43 +401,43 @@ class CCDataset(Dataset):
 
         certs = {}
         for key, val in cat_dict.items():
-            certs.update(parse_table(soup, key, val))
+            certs.update(_parse_table(soup, key, val))
 
         return certs
 
-    def download_reports(self):
+    def _download_reports(self):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         reports_urls = [x.report_link for x in self]
-        self.download_parallel(reports_urls, self.report_pdf_paths.values(), prune_corrupted=True)
+        self._download_parallel(reports_urls, self.report_pdf_paths.values(), prune_corrupted=True)
 
-    def download_targets(self):
+    def _download_targets(self):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         target_urls = [x.st_link for x in self]
-        self.download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True)
+        self._download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True)
 
     def download_all_pdfs(self):
         logging.info('Downloading CC certificate reports')
-        self.download_reports()
+        self._download_reports()
 
         logging.info('Downloading CC security targets')
-        self.download_targets()
+        self._download_targets()
 
-    def convert_reports_to_txt(self):
+    def _convert_reports_to_txt(self):
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
         # TODO: Get rid of the list() invocation here.
-        self.convert_pdfs_to_txt(list(self.report_pdf_paths.values()), list(self.report_txt_paths.values()))
+        self._convert_pdfs_to_txt(list(self.report_pdf_paths.values()), list(self.report_txt_paths.values()))
 
-    def convert_targets_to_txt(self):
+    def _convert_targets_to_txt(self):
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
         # TODO: Get rid of the list() invocation here.
-        self.convert_pdfs_to_txt(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
+        self._convert_pdfs_to_txt(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
 
     def convert_all_pdfs(self):
         logging.info('Converting CC certificate reports to .txt')
-        self.convert_reports_to_txt()
+        self._convert_reports_to_txt()
 
         logging.info('Converting CC security targets to .txt')
-        self.convert_targets_to_txt()
+        self._convert_targets_to_txt()
 
 
 class FIPSDataset(Dataset):
