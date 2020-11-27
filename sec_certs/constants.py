@@ -6,6 +6,7 @@ RETURNCODE_OK = 0
 
 MIN_CORRECT_CERT_SIZE = 5000
 
+LOGS_FILENAME = './cert_processing_log.txt'
 
 class CertFramework(Enum):
     CC = 'Common Criteria'

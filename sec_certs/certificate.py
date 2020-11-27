@@ -12,6 +12,8 @@ from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
 
 from sec_certs import helpers, extract_certificates
 
+logger = logging.getLogger(__name__)
+
 
 class Certificate(ABC):
     T = TypeVar('T', bound='Certificate')
@@ -225,7 +227,7 @@ class FIPSCertificate(Certificate):
 
         html_items_found['fips_vendor'] = vendor_string
         if html_items_found['fips_vendor'] == '':
-            logging.warning(f"WARNING: NO VENDOR FOUND{current_file}")
+            logger.warning(f"WARNING: NO VENDOR FOUND{current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -236,10 +238,10 @@ class FIPSCertificate(Certificate):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['fips_lab'] == '':
-            logging.warning(f"WARNING: NO LAB FOUND{current_file}")
+            loggerr.warning(f"WARNING: NO LAB FOUND{current_file}")
 
         if html_items_found['fips_nvlap_code'] == '':
-            logging.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
+            logger.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
@@ -416,7 +418,7 @@ class CommonCriteriaCert(Certificate):
         On other values (apart from maintainances, see TODO below) the sanity checks are made.
         """
         if self != other:
-            logging.warning(
+            logger.warning(
                 f'Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}')
 
         for att, val in vars(self).items():
@@ -431,7 +433,7 @@ class CommonCriteriaCert(Certificate):
                 pass  # This is expected
             else:
                 if getattr(self, att) != getattr(other, att):
-                    logging.warning(
+                    logger.warning(
                         f'When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}')
         if self.src != other.src:
             self.src = self.src + ' + ' + other.src
@@ -527,14 +529,14 @@ class CommonCriteriaCert(Certificate):
                         main_st_link = CommonCriteriaCert.cc_url + \
                             l.get('href')
                     else:
-                        logging.error('Unknown link in Maintenance part!')
+                        logger.error('Unknown link in Maintenance part!')
                 maintainance_updates.add(
                     CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
             return maintainance_updates
 
         cells = list(row.find_all('td'))
         if len(cells) != 7:
-            logging.error('Unexpected number of cells in CC html row.')
+            logger.error('Unexpected number of cells in CC html row.')
             raise
 
         name = _get_name(cells[0])

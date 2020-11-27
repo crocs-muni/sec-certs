@@ -30,6 +30,8 @@ import sec_certs.constants as constants
 import sec_certs.download as download
 import sec_certs.cert_processing as cert_processing
 
+logger = logging.getLogger(__name__)
+
 
 class Dataset(ABC):
     def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
@@ -95,11 +97,11 @@ class Dataset(ABC):
                                                       use_threading=False)
 
         n_successful = len([e for e in exit_codes if e == constants.RETURNCODE_OK])
-        logging.info(f'Successfully converted {n_successful} files pdf->txt, {len(exit_codes) - n_successful} failed.')
+        logger.info(f'Successfully converted {n_successful} files pdf->txt, {len(exit_codes) - n_successful} failed.')
 
         for path, e in zip(pdf_paths, exit_codes):
             if e != constants.RETURNCODE_OK:
-                logging.info(f'Failed to convert {path}, exit code: {e}')
+                logger.info(f'Failed to convert {path}, exit code: {e}')
 
     @staticmethod
     def _download_parallel(urls, paths, prune_corrupted=True):
@@ -107,16 +109,16 @@ class Dataset(ABC):
                                                       list(zip(urls, paths)),
                                                       constants.N_THREADS)
         n_successful = len([e for e in exit_codes if e == requests.codes.ok])
-        logging.info(f'Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.')
+        logger.info(f'Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.')
 
         for url, e in zip(urls, exit_codes):
             if e != requests.codes.ok:
-                logging.error(f'Failed to download {url}, exit code: {e}')
+                logger.error(f'Failed to download {url}, exit code: {e}')
 
         if prune_corrupted is True:
             for p in paths:
                 if p.exists() and p.stat().st_size < constants.MIN_CORRECT_CERT_SIZE:
-                    logging.error(f'Corrupted file at: {p}')
+                    logger.error(f'Corrupted file at: {p}')
                     # TODO: Delete
 
 
@@ -206,7 +208,7 @@ class CCDataset(Dataset):
                 n_merged += 1
 
         self.certs.update(will_be_added)
-        logging.info(
+        logger.info(
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     def get_certs_from_web(self, to_download=True, keep_metadata: bool = True, get_active=True, get_archived=True):
@@ -232,20 +234,20 @@ class CCDataset(Dataset):
         csv_urls, csv_paths = [x[0] for x in csv_items], [x[1] for x in csv_items]
 
         if to_download is True:
-            logging.info('Downloading required csv and html files.')
+            logger.info('Downloading required csv and html files.')
             self._download_parallel(html_urls, html_paths)
             self._download_parallel(csv_urls, csv_paths)
 
-        logging.info('Adding CSV certificates to CommonCriteria dataset.')
+        logger.info('Adding CSV certificates to CommonCriteria dataset.')
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
         self._merge_certs(csv_certs)
 
         # TODO: Someway along the way, 3 certificates get lost. Investigate and fix.
-        logging.info('Adding HTML certificates to CommonCriteria dataset.')
+        logger.info('Adding HTML certificates to CommonCriteria dataset.')
         html_certs = self._get_all_certs_from_html(get_active, get_archived)
         self._merge_certs(html_certs)
 
-        logging.info(f'The resulting dataset has {len(self)} certificates.')
+        logger.info(f'The resulting dataset has {len(self)} certificates.')
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
@@ -263,7 +265,7 @@ class CCDataset(Dataset):
         new_certs = {}
         for file in csv_sources:
             partial_certs = self._parse_single_csv(self.web_dir / file)
-            logging.info(
+            logger.info(
                 f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
         return new_certs
@@ -300,7 +302,7 @@ class CCDataset(Dataset):
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=['dgst']))
         if (n_dup := n_all - n_deduplicated) > 0:
-            logging.warning(
+            logger.warning(
                 f'The CSV {file} contains {n_dup} duplicates by the primary key.')
 
         df_base = df_base.drop_duplicates(subset=['dgst'])
@@ -334,7 +336,7 @@ class CCDataset(Dataset):
         new_certs = {}
         for file in html_sources:
             partial_certs = self._parse_single_html(self.web_dir / file)
-            logging.info(
+            logger.info(
                 f'Parsed {len(partial_certs)} certificates from: {file}')
             new_certs.update(partial_certs)
         return new_certs
@@ -416,10 +418,10 @@ class CCDataset(Dataset):
         self._download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True)
 
     def download_all_pdfs(self):
-        logging.info('Downloading CC certificate reports')
+        logger.info('Downloading CC certificate reports')
         self._download_reports()
 
-        logging.info('Downloading CC security targets')
+        logger.info('Downloading CC security targets')
         self._download_targets()
 
     def _convert_reports_to_txt(self):
@@ -433,10 +435,10 @@ class CCDataset(Dataset):
         self._convert_pdfs_to_txt(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
 
     def convert_all_pdfs(self):
-        logging.info('Converting CC certificate reports to .txt')
+        logger.info('Converting CC certificate reports to .txt')
         self._convert_reports_to_txt()
 
-        logging.info('Converting CC security targets to .txt')
+        logger.info('Converting CC security targets to .txt')
         self._convert_targets_to_txt()
 
 
@@ -501,7 +503,7 @@ class FIPSDataset(Dataset):
 
     def get_certs_from_web(self):
         def get_certificates_from_html(html_file: Path) -> None:
-            logging.info(f'Getting certificate ids from {html_file}')
+            logger.info(f'Getting certificate ids from {html_file}')
             html = BeautifulSoup(open(html_file).read(), 'html.parser')
 
             table = [x for x in html.find(
@@ -509,7 +511,7 @@ class FIPSDataset(Dataset):
             for entry in table:
                 self.certs[entry.find('a').text] = {}
 
-        logging.info("Downloading required html files")
+        logger.info("Downloading required html files")
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
         self.policies_dir.mkdir(exist_ok=True)
@@ -531,7 +533,7 @@ class FIPSDataset(Dataset):
         for f in html_files:
             get_certificates_from_html(self.web_dir / f)
 
-        logging.info('Downloading certficate html and security policies')
+        logger.info('Downloading certficate html and security policies')
         html_items = [
             (f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}",
              self.web_dir / f"{cert_id}.html") for cert_id in list(self.certs.keys()) if
@@ -544,7 +546,7 @@ class FIPSDataset(Dataset):
         _, self.new_files = helpers.download_parallel(
             html_items + sp_items, 8), len(html_items) + len(sp_items)
 
-        logging.info(f"{self.new_files} needed to be downloaded")
+        logger.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
             # if False:
@@ -552,7 +554,7 @@ class FIPSDataset(Dataset):
                 self.certs[cert] = FIPSCertificate.html_from_file(
                     self.web_dir / f'{cert}.html')
         else:
-            logging.info("Certs loaded from previous scanning")
+            logger.info("Certs loaded from previous scanning")
             dataset = json.loads(open(self.root_dir / 'fips_full_dataset.json').read(),
                                  cls=import_module('sec_certs.serialization').CustomJSONDecoder)
             self.certs = dataset.certs
@@ -657,10 +659,10 @@ class FIPSDataset(Dataset):
                         self.certs[file_name].file_status = False
                         break
         if broken_files:
-            logging.warning("CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
-            logging.warning(broken_files)
-            logging.warning("... skipping these...")
-            logging.warning(f"Total non-analyzable files:{len(broken_files)}")
+            logger.warning("CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
+            logger.warning(broken_files)
+            logger.warning("... skipping these...")
+            logger.warning(f"Total non-analyzable files:{len(broken_files)}")
 
         for file_name in self.keywords:
             self.certs[file_name].connections = []

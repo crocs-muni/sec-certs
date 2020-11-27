@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import subprocess
 
+logger = logging.getLogger(__name__)
 
 def download_file(url: str, output: Path) -> int:
     try:
@@ -120,7 +121,7 @@ def find_tables_iterative(file_text: str) -> List[int]:
         if line.startswith('Table ') or line.startswith('Exhibit'):
             pages.add(current_page)
     if not pages:
-        logging.warning('No pages found')
+        logger.warning('No pages found')
     return list(pages)
 
 
@@ -143,7 +144,7 @@ def find_tables(txt: str, file_name: Path) -> Optional[List]:
         return None
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    logging.info(f'parsing tables in {file_name}')
+    logger.info(f'parsing tables in {file_name}')
     rb = find_tables_iterative(txt)
     return rb if rb else None
 
