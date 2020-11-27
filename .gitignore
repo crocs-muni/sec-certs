@@ -111,4 +111,4 @@ venv.bak/
 .mypy_cache/
 
 # log
-./cert_processing_log.txt
+./cc_processing_log.txt

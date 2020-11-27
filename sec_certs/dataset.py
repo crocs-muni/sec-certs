@@ -420,7 +420,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _download_targets(self):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        target_urls = [x.st_link for x in self.certs]
+        target_urls = [x.st_link for x in self]
         # for noqa below, see: https://youtrack.jetbrains.com/issue/PY-41771
         self._download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True) # noqa
 
