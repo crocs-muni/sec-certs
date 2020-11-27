@@ -72,6 +72,9 @@ class TestCommonCriteriaOOP(TestCase):
         self.template_target_pdf_hashes = {'869415cc4b91282e': 'b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9',
                                            '2d010ecfb604747a': '3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be'}
 
+        self.template_report_txt_path = self.test_data_dir / 'report_869415cc4b91282e.txt'
+        self.template_target_txt_path = self.test_data_dir / 'target_869415cc4b91282e.txt'
+
     def test_certificate_input_sanity(self):
         self.assertEqual(self.crt_one.report_link,
                          'http://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf',
@@ -94,7 +97,7 @@ class TestCommonCriteriaOOP(TestCase):
             new_obj = json.load(handle, cls=CustomJSONDecoder)
         return obj == new_obj
 
-    def test_download_pdfs(self):
+    def test_download_and_convert_pdfs(self):
         with open(self.test_data_dir / 'toy_dataset.json', 'r') as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
 
@@ -102,12 +105,19 @@ class TestCommonCriteriaOOP(TestCase):
             dset.root_dir = Path(td)
 
             dset.download_all_pdfs()
+            dset.convert_all_pdfs()
 
             actual_report_pdf_hashes = {key: helpers.get_sha256_filepath(val) for key, val in dset.report_pdf_paths.items()}
             actual_target_pdf_hashes = {key: helpers.get_sha256_filepath(val) for key, val in dset.target_pdf_paths.items()}
 
             self.assertEqual(actual_report_pdf_hashes, self.template_report_pdf_hashes, 'Hashes of downloaded pdfs (certificate report) do not the template')
             self.assertEqual(actual_target_pdf_hashes, self.template_target_pdf_hashes, 'Hashes of downloaded pdfs (security target) do not match the template')
+
+            self.assertTrue(filecmp.cmp(dset.report_txt_paths['869415cc4b91282e'], self.template_report_txt_path),
+                            'The report of 869415cc4b91282e.pdf converted to txt does not match the template.')
+            self.assertTrue(filecmp.cmp(dset.target_txt_paths['869415cc4b91282e'], self.template_target_txt_path),
+                            'The target of 869415cc4b91282e.pdf converted to txt does not match the template.')
+
 
     def test_cert_to_json(self):
         self.assertTrue(self.equal_to_json(self.test_data_dir / 'fictional_cert.json', self.fictional_cert),
