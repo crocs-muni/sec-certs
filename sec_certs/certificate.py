@@ -382,12 +382,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def to_dict(self):
             return copy.deepcopy(self.__dict__)
 
-        def __lt__(self, other):
-            return self.pp_name < other.pp_name
-
         @classmethod
         def from_dict(cls, dct):
             return cls(*tuple(dct.values()))
+
+        def __lt__(self, other):
+            return self.pp_name < other.pp_name
 
     def __init__(self, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -450,7 +450,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.src = self.src + ' + ' + other.src
 
     @classmethod
-    def from_dict(cls, dct: dict) -> 'CommonCriteriaCert':
+    def from_dict(cls, dct: Dict) -> 'CommonCriteriaCert':
         new_dct = dct.copy()
         new_dct['maintainance_updates'] = set(dct['maintainance_updates'])
         new_dct['protection_profiles'] = set(dct['protection_profiles'])

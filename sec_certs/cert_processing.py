@@ -1,9 +1,11 @@
 from tqdm import tqdm
 from multiprocessing.pool import Pool, ThreadPool
+from typing import Callable, Iterable, Optional
 import time
 
-# TODO: Add timeout. Kinda meh with ThreadingTimeout, SignalTimeout does not work on Windows, stopit package.
-def process_parallel(func, items, max_workers, callback=None, use_threading=True, progress_bar=True):
+
+def process_parallel(func: Callable, items: Iterable, max_workers: int, callback: Optional[Callable] = None,
+                     use_threading: bool = True, progress_bar: bool = True):
     if use_threading is True:
         pool = ThreadPool(max_workers)
     else:

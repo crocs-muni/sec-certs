@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection, TypeVar, Type, Union
+from typing import Dict, List, ClassVar, Collection, TypeVar, Type, Union, Generic, Optional, Sequence
 import json
 from importlib import import_module
 
@@ -17,7 +17,7 @@ import requests
 
 from tabula import read_pdf
 import pandas as pd
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 
 from sec_certs.files import search_files
@@ -116,7 +116,7 @@ class Dataset(ABC):
                 logger.info(f'Failed to convert {path}, exit code: {e}')
 
     @staticmethod
-    def _download_parallel(urls, paths, prune_corrupted=True):
+    def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True):
         exit_codes = cert_processing.process_parallel(download.download_file,
                                                       list(zip(urls, paths)),
                                                       constants.N_THREADS)
@@ -135,10 +135,6 @@ class Dataset(ABC):
 
 
 class CCDataset(Dataset, ComplexSerializableType):
-    def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
-                 description: str = 'dataset_description'):
-        super().__init__(certs, root_dir, name, description)
-
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -223,7 +219,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         logger.info(
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
-    def get_certs_from_web(self, to_download=True, keep_metadata: bool = True, get_active=True, get_archived=True):
+    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
+                           get_archived: bool = True):
         """
         Downloads all metadata about certificates from CSV and HTML sources
         """
@@ -264,15 +261,13 @@ class CCDataset(Dataset, ComplexSerializableType):
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-    def _get_all_certs_from_csv(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
+    def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
         """
         Creates dictionary of new certificates from csv sources.
         """
         csv_sources = self.csv_products.keys()
-        csv_sources = [
-            x for x in csv_sources if 'active' not in x or get_active]
-        csv_sources = [
-            x for x in csv_sources if 'archived' not in x or get_archived]
+        csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
+        csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
 
         new_certs = {}
         for file in csv_sources:
@@ -288,7 +283,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         Using pandas, this parses a single CSV file.
         """
 
-        def _get_primary_key_str(row):
+        def _get_primary_key_str(row: Tag):
             prim_key = row['category'] + row['cert_name'] + row['report_link']
             return prim_key
 
@@ -335,15 +330,13 @@ class CCDataset(Dataset, ComplexSerializableType):
                  df_base.itertuples()}
         return certs
 
-    def _get_all_certs_from_html(self, get_active, get_archived) -> Dict[str, 'CommonCriteriaCert']:
+    def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
         """
         Prepares dictionary of certificates from all html files.
         """
         html_sources = self.html_products.keys()
-        html_sources = [
-            x for x in html_sources if 'active' not in x or get_active]
-        html_sources = [
-            x for x in html_sources if 'archived' not in x or get_archived]
+        html_sources = [x for x in html_sources if 'active' not in x or get_active]
+        html_sources = [x for x in html_sources if 'archived' not in x or get_archived]
 
         new_certs = {}
         for file in html_sources:
@@ -422,12 +415,14 @@ class CCDataset(Dataset, ComplexSerializableType):
     def _download_reports(self):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         reports_urls = [x.report_link for x in self]
-        self._download_parallel(reports_urls, self.report_pdf_paths.values(), prune_corrupted=True)
+        # for noqa below, see: https://youtrack.jetbrains.com/issue/PY-41771
+        self._download_parallel(reports_urls, self.report_pdf_paths.values(), prune_corrupted=True) # noqa
 
     def _download_targets(self):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        target_urls = [x.st_link for x in self]
-        self._download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True)
+        target_urls = [x.st_link for x in self.certs]
+        # for noqa below, see: https://youtrack.jetbrains.com/issue/PY-41771
+        self._download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True) # noqa
 
     def download_all_pdfs(self):
         logger.info('Downloading CC certificate reports')

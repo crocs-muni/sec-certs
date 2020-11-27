@@ -1,6 +1,7 @@
 import json
 from datetime import date
 from pathlib import Path
+from typing import Dict
 
 from abc import ABC, abstractmethod
 
@@ -13,7 +14,7 @@ class ComplexSerializableType(ABC):
 
     @classmethod
     @abstractmethod
-    def from_dict(cls):
+    def from_dict(cls, dct: Dict):
         raise NotImplementedError
 
 
