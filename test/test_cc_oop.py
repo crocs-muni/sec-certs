@@ -113,11 +113,12 @@ class TestCommonCriteriaOOP(TestCase):
             self.assertEqual(actual_report_pdf_hashes, self.template_report_pdf_hashes, 'Hashes of downloaded pdfs (certificate report) do not the template')
             self.assertEqual(actual_target_pdf_hashes, self.template_target_pdf_hashes, 'Hashes of downloaded pdfs (security target) do not match the template')
 
-            self.assertTrue(filecmp.cmp(dset.report_txt_paths['869415cc4b91282e'], self.template_report_txt_path),
-                            'The report of 869415cc4b91282e.pdf converted to txt does not match the template.')
-            self.assertTrue(filecmp.cmp(dset.target_txt_paths['869415cc4b91282e'], self.template_target_txt_path),
-                            'The target of 869415cc4b91282e.pdf converted to txt does not match the template.')
-
+            self.assertTrue(dset.report_txt_paths['869415cc4b91282e'].exists())
+            self.assertTrue(dset.target_txt_paths['869415cc4b91282e'].exists())
+            self.assertAlmostEqual(dset.target_txt_paths['869415cc4b91282e'].stat().st_size,
+                                   self.template_target_txt_path.stat().st_size, delta=1000)
+            self.assertAlmostEqual(dset.report_txt_paths['869415cc4b91282e'].stat().st_size,
+                                   self.template_report_txt_path.stat().st_size, delta=1000)
 
     def test_cert_to_json(self):
         self.assertTrue(self.equal_to_json(self.test_data_dir / 'fictional_cert.json', self.fictional_cert),
