@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection, TypeVar, Type
+from typing import Dict, List, ClassVar, Collection, TypeVar, Type, Union
 import json
 from importlib import import_module
 
@@ -29,6 +29,7 @@ from sec_certs.constants import FIPS_NOT_AVAILABLE_CERT_SIZE
 import sec_certs.constants as constants
 import sec_certs.download as download
 import sec_certs.cert_processing as cert_processing
+from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -63,15 +64,26 @@ class Dataset(ABC):
         return str(type(self).__name__) + ':' + self.name + ', ' + str(len(self)) + ' certificates'
 
     def to_dict(self):
-        return {'root_dir': copy.deepcopy(self.root_dir), 'timestamp': self.timestamp,
-                'sha256_digest': self.sha256_digest, 'name': self.name, 'description': self.description,
+        return {'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+                'name': self.name, 'description': self.description,
                 'n_certs': len(self), 'certs': list(self.certs.values())}
 
     @classmethod
     def from_dict(cls, dct: Dict):
         certs = {x.dgst: x for x in dct['certs']}
-        dset = cls(certs, Path(dct['root_dir']), dct['name'], dct['description'])
+        dset = cls(certs, Path('./'), dct['name'], dct['description'])
         assert len(dset) == dct['n_certs']
+        return dset
+
+    def to_json(self, output_path: Union[str, Path]):
+        with Path(output_path).open('w') as handle:
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        with Path(input_path).open('r') as handle:
+            dset = json.load(handle, cls=CustomJSONDecoder)
+        dset.root_path = input_path.parent
         return dset
 
     @abstractmethod
@@ -122,7 +134,7 @@ class Dataset(ABC):
                     # TODO: Delete
 
 
-class CCDataset(Dataset):
+class CCDataset(Dataset, ComplexSerializableType):
     def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
         super().__init__(certs, root_dir, name, description)
@@ -442,7 +454,7 @@ class CCDataset(Dataset):
         self._convert_targets_to_txt()
 
 
-class FIPSDataset(Dataset):
+class FIPSDataset(Dataset, ComplexSerializableType):
     FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
@@ -489,11 +501,6 @@ class FIPSDataset(Dataset):
         else:
             self.keywords = json.loads(
                 open(self.root_dir / 'fips_full_keywords.json').read())
-
-    def dump_to_json(self):
-        with open(self.root_dir / 'fips_full_dataset.json', 'w') as handle:
-            json.dump(self, handle, cls=import_module(
-                'sec_certs.serialization').CustomJSONEncoder, indent=4)
 
     def dump_keywords(self):
         with open(self.root_dir / "fips_full_keywords.json", 'w') as f:

@@ -1,6 +1,6 @@
 from unittest import TestCase
 from pathlib import Path
-from tempfile import TemporaryDirectory, mkstemp
+from tempfile import TemporaryDirectory, mkstemp, NamedTemporaryFile
 from datetime import date, datetime
 import json
 import filecmp
@@ -80,23 +80,6 @@ class TestCommonCriteriaOOP(TestCase):
                          'http://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf',
                          'Report link contains some improperly escaped characters.')
 
-    @staticmethod
-    def equal_to_json(referential_path, obj):
-        fd, path = mkstemp()
-        try:
-            with os.fdopen(fd, 'w') as handle:
-                json.dump(obj, handle, cls=CustomJSONEncoder, indent=4)
-
-            return filecmp.cmp(referential_path, path)
-        finally:
-            os.remove(path)
-
-    @staticmethod
-    def equal_from_json(referential_path, obj):
-        with open(referential_path, 'r') as handle:
-            new_obj = json.load(handle, cls=CustomJSONDecoder)
-        return obj == new_obj
-
     def test_download_and_convert_pdfs(self):
         with open(self.test_data_dir / 'toy_dataset.json', 'r') as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
@@ -121,20 +104,28 @@ class TestCommonCriteriaOOP(TestCase):
                                    self.template_report_txt_path.stat().st_size, delta=1000)
 
     def test_cert_to_json(self):
-        self.assertTrue(self.equal_to_json(self.test_data_dir / 'fictional_cert.json', self.fictional_cert),
-                        'The certificate serialized to json differs from a template.')
+        with NamedTemporaryFile('w') as tmp:
+            self.fictional_cert.to_json(tmp.name)
+            self.assertTrue(filecmp.cmp(self.test_data_dir / 'fictional_cert.json',
+                                        tmp.name),
+                            'The certificate serialized to json differs from a template.')
 
     def test_dataset_to_json(self):
-        self.assertTrue(self.equal_to_json(self.test_data_dir / 'toy_dataset.json', self.template_dataset),
-                        'The dataset serialized to json differs from a template.')
+        with NamedTemporaryFile('w') as tmp:
+            self.template_dataset.to_json(tmp.name)
+            self.assertTrue(filecmp.cmp(self.test_data_dir / 'toy_dataset.json',
+                                        tmp.name),
+                            'The dataset serialized to json differs from a template.')
 
     def test_cert_from_json(self):
-        self.assertTrue(self.equal_from_json(self.test_data_dir / 'fictional_cert.json',  self.fictional_cert),
-                        'The certificate serialized from json differs from a template.')
+        self.assertEqual(self.fictional_cert,
+                         CommonCriteriaCert.from_json(self.test_data_dir / 'fictional_cert.json'),
+                         'The certificate serialized from json differs from a template.')
 
     def test_dataset_from_json(self):
-        self.assertTrue(self.equal_from_json(self.test_data_dir / 'toy_dataset.json', self.template_dataset),
-                        'The dataset serialized from json differs from a template.')
+        self.assertEqual(self.template_dataset,
+                         CCDataset.from_json(self.test_data_dir / 'toy_dataset.json'),
+                         'The dataset serialized from json differs from a template.')
 
     def test_build_empty_dataset(self):
         with TemporaryDirectory() as tmp_dir:

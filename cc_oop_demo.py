@@ -26,13 +26,10 @@ def main():
     logger.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
 
     # Dump dataset into JSON
-    with open('./debug_dataset/cc_full_dataset.json', 'w') as handle:
-        json.dump(dset, handle, cls=CustomJSONEncoder, indent=4)
+    dset.to_json('./debug_dataset/cc_full_dataset.json')
 
     # Load dataset from JSON
-    with open('./debug_dataset/cc_full_dataset.json', 'r') as handle:
-        new_dset = json.load(handle, cls=CustomJSONDecoder)
-    new_dset.root_dir = Path('/Users/adam/phd/projects/certificates/sec-certs/debug_dataset')
+    new_dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
 
     assert dset == new_dset
 

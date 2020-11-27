@@ -5,12 +5,14 @@ import logging
 from pathlib import Path
 import os
 import copy
+import json
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
 
 from sec_certs import helpers, extract_certificates
+from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +44,17 @@ class Certificate(ABC):
     def from_dict(cls: Type[T], dct: dict) -> T:
         return cls(*tuple(dct.values()))
 
+    def to_json(self, output_path: Union[Path, str]):
+        with Path(output_path).open('w') as handle:
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
 
-class FIPSCertificate(Certificate):
+    @classmethod
+    def from_json(cls, input_path: Union[Path, str]):
+        with Path(input_path).open('r') as handle:
+            return json.load(handle, cls=CustomJSONDecoder)
+
+
+class FIPSCertificate(Certificate, ComplexSerializableType):
     FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
@@ -323,12 +334,12 @@ class FIPSCertificate(Certificate):
                                [])
 
 
-class CommonCriteriaCert(Certificate):
+class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
     empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
-    class MaintainanceReport:
+    class MaintainanceReport(ComplexSerializableType):
         """
         Object for holding maintainance reports.
         """
@@ -357,7 +368,7 @@ class CommonCriteriaCert(Certificate):
             return self.maintainance_date < other.maintainance_date
 
     @dataclass(eq=True, frozen=True)
-    class ProtectionProfile:
+    class ProtectionProfile(ComplexSerializableType):
         """
         Object for holding protection profiles.
         """

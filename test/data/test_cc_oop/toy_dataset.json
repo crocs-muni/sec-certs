@@ -1,6 +1,5 @@
 {
     "_type": "CCDataset",
-    "root_dir": "/fictional/path/to/dataset",
     "timestamp": "2020-11-16 17:04:14.770153",
     "sha256_digest": "not implemented",
     "name": "toy dataset",
