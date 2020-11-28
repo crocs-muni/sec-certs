@@ -632,7 +632,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return cert
 
     def path_is_corrupted(self, local_path):
-        return local_path.exists() and local_path.stat().st_size >= constants.MIN_CORRECT_CERT_SIZE
+        return not local_path.exists() or local_path.stat().st_size < constants.MIN_CORRECT_CERT_SIZE
 
     @staticmethod
     def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':

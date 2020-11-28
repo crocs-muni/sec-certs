@@ -13,14 +13,15 @@ from datetime import date
 import numpy as np
 import pandas as pd
 import subprocess
-import functools
+import sec_certs.constants as constants
+
 
 logger = logging.getLogger(__name__)
 
 
 def download_file(url: str, output: Path) -> int:
     try:
-        r = requests.get(url, allow_redirects=True, timeout=5)
+        r = requests.get(url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT)
         if r.status_code == requests.codes.ok:
             with output.open("wb") as f:
                 f.write(r.content)

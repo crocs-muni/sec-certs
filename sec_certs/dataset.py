@@ -3,33 +3,25 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection, TypeVar, Type, Union, Generic, Optional, Sequence, Tuple
+from typing import Dict, List, ClassVar, Collection,  Union
 import json
 from importlib import import_module
-
-import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
-
-from functools import partial
 import requests
-
 from tabula import read_pdf
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
 
-
-from sec_certs.files import search_files
-from sec_certs import helpers as helpers
-from sec_certs.helpers import find_tables, repair_pdf
-from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
-from sec_certs.extract_certificates import extract_certificates_keywords
-from sec_certs.constants import FIPS_NOT_AVAILABLE_CERT_SIZE
+import sec_certs.helpers as helpers
 import sec_certs.constants as constants
-import sec_certs.download as download
 import sec_certs.cert_processing as cert_processing
+import sec_certs.files as files
+
+from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.extract_certificates import extract_certificates_keywords
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +42,12 @@ class Dataset(ABC):
 
     @root_dir.setter
     def root_dir(self, new_dir: Union[str, Path]):
-        if not Path(new_dir).exists():
+        if not (new_path := Path(new_dir)).exists():
             raise FileNotFoundError('Root directory for Dataset does not exist')
-        self._root_dir = Path(new_dir)
+        self._root_dir = new_path
 
     def __iter__(self):
-        for cert in self.certs.values():
-            yield cert
+        yield from self.certs.values()
 
     def __getitem__(self, item: str) -> 'Certificate':
         return self.certs.__getitem__(item.lower())
@@ -82,7 +73,8 @@ class Dataset(ABC):
     def from_dict(cls, dct: Dict):
         certs = {x.dgst: x for x in dct['certs']}
         dset = cls(certs, Path('./'), dct['name'], dct['description'])
-        assert len(dset) == dct['n_certs']
+        if len(dset) != (claimed := dct['n_certs']):
+            logger.error(f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
         return dset
 
     def to_json(self, output_path: Union[str, Path]):
@@ -332,8 +324,10 @@ class CCDataset(Dataset, ComplexSerializableType):
         Prepares dictionary of certificates from all html files.
         """
         html_sources = self.html_products.keys()
-        html_sources = [x for x in html_sources if 'active' not in x or get_active]
-        html_sources = [x for x in html_sources if 'archived' not in x or get_archived]
+        if get_active is False:
+            html_sources = filter(lambda x: 'active' not in x, html_sources)
+        if get_archived is False:
+            html_sources = filter(lambda x: 'archived' not in x, html_sources)
 
         new_certs = {}
         for file in html_sources:
@@ -435,13 +429,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._download_targets(fresh)
 
         if fresh is True:
-            # Attempt to re-download once
-            # TODO: Re-write the list comprehensions with filter?
-            if [x for x in self.certs.values() if not x.state.report_link_ok]:
+            # Attempt to re-download once if some files are missing
+            if any(filter(lambda x: not x.state.report_link_ok, self.certs.values())):
                 logger.info('Attempting to re-download failed report links.')
                 self._download_reports(False)
 
-            if [x for x in self.certs.values() if not x.state.st_link_ok]:
+            if any(filter(lambda x: not x.state.st_link_ok, self.certs.values())):
                 logger.info('Attempting to re-download failed security target links.')
                 self._download_targets(False)
 
@@ -471,10 +464,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._convert_targets_to_txt(fresh)
 
         if fresh is True:
-            if [x for x in self.certs.values() if not x.state.report_convert_ok]:
+            # Attempt to re-convert once if some files failed
+            if any(filter(lambda x: not x.state.report_convert_ok, self.certs.values())):
                 logger.info('Attempting to re-convert failed report pdfs')
                 self._convert_reports_to_txt(False)
-            if [x for x in self.certs.values() if not x.state.st_convert_ok]:
+            if any(filter(lambda x: not x.state.st_convert_ok, self.certs.values())):
                 logger.info('Attempting to re-convert failed target pdfs')
                 self._convert_targets_to_txt(False)
 
@@ -512,7 +506,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for i in self.certs:
             if not (self.policies_dir / f'{i}.pdf').exists():
                 missing.append(i)
-            elif os.path.getsize(self.policies_dir / f'{i}.pdf') < FIPS_NOT_AVAILABLE_CERT_SIZE:
+            elif os.path.getsize(self.policies_dir / f'{i}.pdf') < constants.FIPS_NOT_AVAILABLE_CERT_SIZE:
                 not_available.append(i)
         return missing, not_available
 
@@ -597,7 +591,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         :return: list of files that couldn't have been decoded
         """
 
-        list_of_files = search_files(self.policies_dir)
+        list_of_files = files.search_files(self.policies_dir)
         not_decoded = []
         for cert_file in list_of_files:
             cert_file = Path(cert_file)
@@ -611,7 +605,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 continue
 
             with open(cert_file, 'r') as f:
-                tables = find_tables(f.read(), cert_file)
+                tables = helpers.find_tables(f.read(), cert_file)
 
             # If we find any tables with page numbers, we process them
             if tables:
@@ -621,7 +615,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                     pages=tables, silent=True)
                 except Exception:
                     try:
-                        repair_pdf(cert_file.with_suffix(''))
+                        helpers.repair_pdf(cert_file.with_suffix(''))
                         data = read_pdf(cert_file.with_suffix(
                             ''), pages=tables, silent=True)
 
