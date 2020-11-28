@@ -96,6 +96,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+virt/
 
 # Spyder project settings
 .spyderproject
@@ -109,3 +110,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# fips dataset
+fips_dataset/
