@@ -24,7 +24,14 @@
             "cert_link": "http://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
             "manufacturer_web": "https://www.netiq.com/",
             "protection_profiles": [],
-            "maintainance_updates": []
+            "maintainance_updates": [],
+            "state": {
+                "_type": "InternalState",
+                "st_link_ok": true,
+                "report_link_ok": true,
+                "st_convert_ok": true,
+                "report_convert_ok": true
+            }
         },
         {
             "_type": "CommonCriteriaCert",
@@ -47,7 +54,14 @@
                     "pp_link": "http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf"
                 }
             ],
-            "maintainance_updates": []
+            "maintainance_updates": [],
+            "state": {
+                "_type": "InternalState",
+                "st_link_ok": true,
+                "report_link_ok": true,
+                "st_convert_ok": true,
+                "report_convert_ok": true
+            }
         }
     ]
 }

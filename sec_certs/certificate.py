@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 import copy
 import json
+import requests
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
@@ -13,6 +14,7 @@ from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
 
 from sec_certs import helpers, extract_certificates
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+import sec_certs.constants as constants
 
 logger = logging.getLogger(__name__)
 
@@ -249,7 +251,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['fips_lab'] == '':
-            loggerr.warning(f"WARNING: NO LAB FOUND{current_file}")
+            logger.warning(f"WARNING: NO LAB FOUND{current_file}")
 
         if html_items_found['fips_nvlap_code'] == '':
             logger.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
@@ -389,12 +391,39 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def __lt__(self, other):
             return self.pp_name < other.pp_name
 
+    @dataclass(init=False)
+    class InternalState(ComplexSerializableType):
+        st_link_ok: bool
+        report_link_ok: bool
+        st_convert_ok: bool
+        report_convert_ok: bool
+        st_pdf_path: Path
+        report_pdf_path: Path
+        st_txt_path: Path
+        report_txt_path: Path
+
+        def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
+                     st_convert_ok: bool = True, report_convert_ok: bool = True):
+            self.st_link_ok = st_link_ok
+            self.report_link_ok = report_link_ok
+            self.st_convert_ok = st_convert_ok
+            self.report_convert_ok = report_convert_ok
+
+        def to_dict(self):
+            return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
+                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, bool]):
+            return cls(*tuple(dct.values()))
+
     def __init__(self, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: set,
-                 maintainance_updates: set):
+                 maintainance_updates: set,
+                 state: Optional[InternalState]):
         super().__init__()
 
         self.category = category
@@ -412,8 +441,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.protection_profiles = protection_profiles
         self.maintainance_updates = maintainance_updates
 
-        if self.st_link == self.empty_st_url:
-            self.st_link = None
+        if state is not None:
+            self.state = state
+        else:
+            self.state = self.InternalState()
 
     @property
     def dgst(self) -> str:
@@ -442,6 +473,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 setattr(self, att, getattr(other, att))
             elif att == 'src':
                 pass  # This is expected
+            elif att == 'state':
+                setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):
                     logger.warning(
@@ -566,4 +599,53 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             maintainance_div) if maintainance_div else set()
 
         return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None)
+
+    def set_local_paths(self,
+                        report_pdf_dir: Optional[Union[str, Path]],
+                        st_pdf_dir: Optional[Union[str, Path]],
+                        report_txt_dir: Optional[Union[str, Path]],
+                        st_txt_dir: Optional[Union[str, Path]]):
+        if report_pdf_dir is not None:
+            self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + '.pdf')
+        if st_pdf_dir is not None:
+            self.state.st_pdf_path = Path(st_pdf_dir) / (self.dgst + '.pdf')
+        if report_txt_dir is not None:
+            self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + '.txt')
+        if st_txt_dir is not None:
+            self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
+
+    @staticmethod
+    def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download report from {cert.report_link}, code: {exit_code}')
+            cert.state.report_link_ok = False
+        return cert
+
+    @staticmethod
+    def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Cert dgst: {cert.dgst} failed to download report from {cert.report_link}, code: {exit_code}')
+            cert.state.st_link_ok = False
+        return cert
+
+    def path_is_corrupted(self, local_path):
+        return local_path.exists() and local_path.stat().st_size >= constants.MIN_CORRECT_CERT_SIZE
+
+    @staticmethod
+    def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path, ['-raw'])
+        if exit_code != constants.RETURNCODE_OK:
+            logger.error(f'Cert dgst: {cert.dgst} failed to convert report pdf->txt')
+            cert.state.report_convert_ok = False
+        return cert
+
+    @staticmethod
+    def convert_target_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path, ['-raw'])
+        if exit_code != constants.RETURNCODE_OK:
+            logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
+            cert.state.st_convert_ok = False
+        return cert

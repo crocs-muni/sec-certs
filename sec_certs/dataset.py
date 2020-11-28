@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection, TypeVar, Type, Union, Generic, Optional, Sequence
+from typing import Dict, List, ClassVar, Collection, TypeVar, Type, Union, Generic, Optional, Sequence, Tuple
 import json
 from importlib import import_module
 
@@ -37,12 +37,22 @@ logger = logging.getLogger(__name__)
 class Dataset(ABC):
     def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
-        self.root_dir = root_dir
+        self._root_dir = root_dir
         self.timestamp = datetime.now()
         self.sha256_digest = 'not implemented'
         self.name = name
         self.description = description
         self.certs = certs
+
+    @property
+    def root_dir(self):
+        return self._root_dir
+
+    @root_dir.setter
+    def root_dir(self, new_dir: Union[str, Path]):
+        if not Path(new_dir).exists():
+            raise FileNotFoundError('Root directory for Dataset does not exist')
+        self._root_dir = Path(new_dir)
 
     def __iter__(self):
         for cert in self.certs.values():
@@ -81,9 +91,10 @@ class Dataset(ABC):
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
-        with Path(input_path).open('r') as handle:
+        input_path = Path(input_path)
+        with input_path.open('r') as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
-        dset.root_path = input_path.parent
+        dset.root_dir = input_path.parent.absolute()
         return dset
 
     @abstractmethod
@@ -99,25 +110,8 @@ class Dataset(ABC):
         raise NotImplementedError('Not meant to be implemented by the base class.')
 
     @staticmethod
-    def _convert_pdfs_to_txt(pdf_paths: Collection[Path], txt_paths: Collection[Path]):
-        assert len(pdf_paths) == len(txt_paths)
-
-        partial_convert_pdf = partial(helpers.convert_pdf_file, options=['-raw'])
-        exit_codes = cert_processing.process_parallel(partial_convert_pdf,
-                                                      list(zip(pdf_paths, txt_paths)),
-                                                      constants.N_THREADS,
-                                                      use_threading=False)
-
-        n_successful = len([e for e in exit_codes if e == constants.RETURNCODE_OK])
-        logger.info(f'Successfully converted {n_successful} files pdf->txt, {len(exit_codes) - n_successful} failed.')
-
-        for path, e in zip(pdf_paths, exit_codes):
-            if e != constants.RETURNCODE_OK:
-                logger.info(f'Failed to convert {path}, exit code: {e}')
-
-    @staticmethod
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True):
-        exit_codes = cert_processing.process_parallel(download.download_file,
+        exit_codes = cert_processing.process_parallel(helpers.download_file,
                                                       list(zip(urls, paths)),
                                                       constants.N_THREADS)
         n_successful = len([e for e in exit_codes if e == requests.codes.ok])
@@ -135,6 +129,13 @@ class Dataset(ABC):
 
 
 class CCDataset(Dataset, ComplexSerializableType):
+    # TODO: Make properties propagate to changing internal state of related certificates
+
+    @Dataset.root_dir.setter
+    def root_dir(self, new_dir: Union[str, Path]):
+        Dataset.root_dir.fset(self, new_dir)
+        self.set_local_paths()
+
     @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
@@ -167,22 +168,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     def targets_txt_dir(self) -> Path:
         return self.targets_dir / 'txt'
 
-    @property
-    def report_pdf_paths(self) -> Dict[str, Path]:
-        return {x: self.reports_pdf_dir / (self[x].dgst + '.pdf') for x in self.certs}
-
-    @property
-    def report_txt_paths(self) -> Dict[str, Path]:
-        return {x: self.reports_txt_dir / (self[x].dgst + '.txt') for x in self.certs}
-
-    @property
-    def target_pdf_paths(self) -> Dict[str, Path]:
-        return {x: self.targets_pdf_dir / (self[x].dgst + '.pdf') for x in self.certs}
-
-    @property
-    def target_txt_paths(self) -> Dict[str, Path]:
-        return {x: self.targets_txt_dir / (self[x].dgst + '.txt') for x in self.certs}
-
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
         'cc_products_archived.html': 'https://www.commoncriteriaportal.org/products/index.cfm?archived=1',
@@ -201,6 +186,16 @@ class CCDataset(Dataset, ComplexSerializableType):
         'cc_pp_active.csv': 'https://www.commoncriteriaportal.org/pps/pps.csv',
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        dset = super().from_json(input_path)
+        dset.set_local_paths()
+        return dset
+
+    def set_local_paths(self):
+        for cert in self:
+            cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
 
     def _merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
         """
@@ -260,6 +255,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
+
+        self.set_local_paths()
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
         """
@@ -326,7 +323,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
                                             x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
-                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None)) for x in
+                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None) for x in
                  df_base.itertuples()}
         return certs
 
@@ -412,41 +409,74 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         return certs
 
-    def _download_reports(self):
+    def _download_reports(self, fresh=True):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-        reports_urls = [x.report_link for x in self]
-        # for noqa below, see: https://youtrack.jetbrains.com/issue/PY-41771
-        self._download_parallel(reports_urls, self.report_pdf_paths.values(), prune_corrupted=True) # noqa
 
-    def _download_targets(self):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_link_ok]
+
+        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report, certs_to_process, constants.N_THREADS)
+
+    def _download_targets(self, fresh=True):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        target_urls = [x.st_link for x in self]
-        # for noqa below, see: https://youtrack.jetbrains.com/issue/PY-41771
-        self._download_parallel(target_urls, self.target_pdf_paths.values(), prune_corrupted=True) # noqa
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_link_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, constants.N_THREADS)
 
-    def download_all_pdfs(self):
+    def download_all_pdfs(self, fresh: bool = True):
         logger.info('Downloading CC certificate reports')
-        self._download_reports()
+        self._download_reports(fresh)
 
         logger.info('Downloading CC security targets')
-        self._download_targets()
+        self._download_targets(fresh)
 
-    def _convert_reports_to_txt(self):
+        if fresh is True:
+            # Attempt to re-download once
+            # TODO: Re-write the list comprehensions with filter?
+            if [x for x in self.certs.values() if not x.state.report_link_ok]:
+                logger.info('Attempting to re-download failed report links.')
+                self._download_reports(False)
+
+            if [x for x in self.certs.values() if not x.state.st_link_ok]:
+                logger.info('Attempting to re-download failed security target links.')
+                self._download_targets(False)
+
+    def _convert_reports_to_txt(self, fresh: bool = True):
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
-        # TODO: Get rid of the list() invocation here.
-        self._convert_pdfs_to_txt(list(self.report_pdf_paths.values()), list(self.report_txt_paths.values()))
 
-    def _convert_targets_to_txt(self):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_convert_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.convert_report_pdf, certs_to_process, constants.N_THREADS)
+
+    def _convert_targets_to_txt(self, fresh: bool = True):
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
-        # TODO: Get rid of the list() invocation here.
-        self._convert_pdfs_to_txt(list(self.target_pdf_paths.values()), list(self.target_txt_paths.values()))
 
-    def convert_all_pdfs(self):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_convert_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf, certs_to_process, constants.N_THREADS)
+
+    def convert_all_pdfs(self, fresh: bool = True):
         logger.info('Converting CC certificate reports to .txt')
-        self._convert_reports_to_txt()
+        self._convert_reports_to_txt(fresh)
 
         logger.info('Converting CC security targets to .txt')
-        self._convert_targets_to_txt()
+        self._convert_targets_to_txt(fresh)
+
+        if fresh is True:
+            if [x for x in self.certs.values() if not x.state.report_convert_ok]:
+                logger.info('Attempting to re-convert failed report pdfs')
+                self._convert_reports_to_txt(False)
+            if [x for x in self.certs.values() if not x.state.st_convert_ok]:
+                logger.info('Attempting to re-convert failed target pdfs')
+                self._convert_targets_to_txt(False)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

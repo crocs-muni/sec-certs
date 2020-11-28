@@ -25,11 +25,11 @@ def main():
     dset.get_certs_from_web()
     logger.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
 
-    # Dump dataset into JSON
+    # # Dump dataset into JSON
     dset.to_json('./debug_dataset/cc_full_dataset.json')
 
     # Load dataset from JSON
-    new_dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
+    new_dset = CCDataset.from_json('/Users/adam/phd/projects/certificates/sec-certs/debug_dataset/cc_full_dataset.json')
 
     assert dset == new_dset
 
@@ -37,7 +37,7 @@ def main():
     dset.download_all_pdfs()
 
     # Convert pdfs to text
-    new_dset.convert_all_pdfs()
+    dset.convert_all_pdfs()
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
