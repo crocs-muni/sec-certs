@@ -29,5 +29,12 @@
             "maintainance_report_link": "https://maintainance.up",
             "maintainance_st_link": "https://maintainance.up"
         }
-    ]
+    ],
+    "state": {
+        "_type": "InternalState",
+        "st_link_ok": true,
+        "report_link_ok": true,
+        "st_convert_ok": true,
+        "report_convert_ok": true
+    }
 }

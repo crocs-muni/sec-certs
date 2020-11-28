@@ -6,7 +6,7 @@ from typing import Sequence, Tuple, List
 
 import requests
 
-from .files import search_files
+from sec_certs.files import search_files
 
 CC_WEB_URL = 'https://www.commoncriteriaportal.org'
 
