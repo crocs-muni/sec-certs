@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection,  Union
+from typing import Dict, List, ClassVar, Collection,  Union, Tuple
 import json
 from importlib import import_module
 from abc import ABC, abstractmethod
@@ -21,7 +21,7 @@ import sec_certs.constants as constants
 import sec_certs.cert_processing as cert_processing
 import sec_certs.files as files
 
-from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
+from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate, FIPSAlgorithm
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.extract_certificates import extract_certificates_keywords
 
@@ -833,7 +833,7 @@ class AlgorithmDataset(Dataset):
             cert_id = alg_string[len(cert_type):]
             return cert_type.strip(), cert_id.strip()
 
-        for f in search_files(self.root_dir):
+        for f in files.search_files(self.root_dir):
             html_soup = BeautifulSoup(open(f).read(), 'html.parser')
             table = html_soup.find('table', class_='table table-condensed publications-table table-bordered')
             spans = table.find_all('span')
