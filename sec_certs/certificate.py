@@ -5,12 +5,18 @@ import logging
 from pathlib import Path
 import os
 import copy
+import json
+import requests
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
 
 from sec_certs import helpers, extract_certificates
+from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+import sec_certs.constants as constants
+
+logger = logging.getLogger(__name__)
 
 
 class Certificate(ABC):
@@ -40,8 +46,17 @@ class Certificate(ABC):
     def from_dict(cls: Type[T], dct: dict) -> T:
         return cls(*tuple(dct.values()))
 
+    def to_json(self, output_path: Union[Path, str]):
+        with Path(output_path).open('w') as handle:
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
 
-class FIPSCertificate(Certificate):
+    @classmethod
+    def from_json(cls, input_path: Union[Path, str]):
+        with Path(input_path).open('r') as handle:
+            return json.load(handle, cls=CustomJSONDecoder)
+
+
+class FIPSCertificate(Certificate, ComplexSerializableType):
     FIPS_BASE_URL: ClassVar[str] = 'https://csrc.nist.gov'
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
@@ -225,7 +240,7 @@ class FIPSCertificate(Certificate):
 
         html_items_found['fips_vendor'] = vendor_string
         if html_items_found['fips_vendor'] == '':
-            logging.warning(f"WARNING: NO VENDOR FOUND{current_file}")
+            logger.warning(f"WARNING: NO VENDOR FOUND{current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -236,10 +251,10 @@ class FIPSCertificate(Certificate):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['fips_lab'] == '':
-            logging.warning(f"WARNING: NO LAB FOUND{current_file}")
+            logger.warning(f"WARNING: NO LAB FOUND{current_file}")
 
         if html_items_found['fips_nvlap_code'] == '':
-            logging.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
+            logger.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
@@ -321,11 +336,12 @@ class FIPSCertificate(Certificate):
                                [])
 
 
-class CommonCriteriaCert(Certificate):
+class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
+    empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
-    class MaintainanceReport:
+    class MaintainanceReport(ComplexSerializableType):
         """
         Object for holding maintainance reports.
         """
@@ -354,7 +370,7 @@ class CommonCriteriaCert(Certificate):
             return self.maintainance_date < other.maintainance_date
 
     @dataclass(eq=True, frozen=True)
-    class ProtectionProfile:
+    class ProtectionProfile(ComplexSerializableType):
         """
         Object for holding protection profiles.
         """
@@ -368,11 +384,37 @@ class CommonCriteriaCert(Certificate):
         def to_dict(self):
             return copy.deepcopy(self.__dict__)
 
+        @classmethod
+        def from_dict(cls, dct):
+            return cls(*tuple(dct.values()))
+
         def __lt__(self, other):
             return self.pp_name < other.pp_name
 
+    @dataclass(init=False)
+    class InternalState(ComplexSerializableType):
+        st_link_ok: bool
+        report_link_ok: bool
+        st_convert_ok: bool
+        report_convert_ok: bool
+        st_pdf_path: Path
+        report_pdf_path: Path
+        st_txt_path: Path
+        report_txt_path: Path
+
+        def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
+                     st_convert_ok: bool = True, report_convert_ok: bool = True):
+            self.st_link_ok = st_link_ok
+            self.report_link_ok = report_link_ok
+            self.st_convert_ok = st_convert_ok
+            self.report_convert_ok = report_convert_ok
+
+        def to_dict(self):
+            return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
+                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok}
+
         @classmethod
-        def from_dict(cls, dct):
+        def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
     def __init__(self, category: str, name: str, manufacturer: str, scheme: str,
@@ -380,7 +422,8 @@ class CommonCriteriaCert(Certificate):
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: set,
-                 maintainance_updates: set):
+                 maintainance_updates: set,
+                 state: Optional[InternalState]):
         super().__init__()
 
         self.category = category
@@ -398,6 +441,11 @@ class CommonCriteriaCert(Certificate):
         self.protection_profiles = protection_profiles
         self.maintainance_updates = maintainance_updates
 
+        if state is not None:
+            self.state = state
+        else:
+            self.state = self.InternalState()
+
     @property
     def dgst(self) -> str:
         """
@@ -412,7 +460,7 @@ class CommonCriteriaCert(Certificate):
         On other values (apart from maintainances, see TODO below) the sanity checks are made.
         """
         if self != other:
-            logging.warning(
+            logger.warning(
                 f'Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}')
 
         for att, val in vars(self).items():
@@ -425,15 +473,17 @@ class CommonCriteriaCert(Certificate):
                 setattr(self, att, getattr(other, att))
             elif att == 'src':
                 pass  # This is expected
+            elif att == 'state':
+                setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):
-                    logging.warning(
+                    logger.warning(
                         f'When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}')
         if self.src != other.src:
             self.src = self.src + ' + ' + other.src
 
     @classmethod
-    def from_dict(cls, dct: dict) -> 'CommonCriteriaCert':
+    def from_dict(cls, dct: Dict) -> 'CommonCriteriaCert':
         new_dct = dct.copy()
         new_dct['maintainance_updates'] = set(dct['maintainance_updates'])
         new_dct['protection_profiles'] = set(dct['protection_profiles'])
@@ -445,28 +495,28 @@ class CommonCriteriaCert(Certificate):
         Creates a CC certificate from html row
         """
 
-        def get_name(cell: Tag) -> str:
+        def _get_name(cell: Tag) -> str:
             return list(cell.stripped_strings)[0]
 
-        def get_manufacturer(cell: Tag) -> Optional[str]:
+        def _get_manufacturer(cell: Tag) -> Optional[str]:
             if lst := list(cell.stripped_strings):
                 return lst[0]
             else:
                 return None
 
-        def get_scheme(cell: Tag) -> str:
+        def _get_scheme(cell: Tag) -> str:
             return list(cell.stripped_strings)[0]
 
-        def get_security_level(cell: Tag) -> set:
+        def _get_security_level(cell: Tag) -> set:
             return set(cell.stripped_strings)
 
-        def get_manufacturer_web(cell: Tag) -> Optional[str]:
+        def _get_manufacturer_web(cell: Tag) -> Optional[str]:
             for link in cell.find_all('a'):
                 if link is not None and link.get('title') == 'Vendor\'s web site' and link.get('href') != 'http://':
                     return link.get('href')
             return None
 
-        def get_protection_profiles(cell: Tag) -> set:
+        def _get_protection_profiles(cell: Tag) -> set:
             protection_profiles = set()
             for link in list(cell.find_all('a')):
                 if link.get('href') is not None and '/ppfiles/' in link.get('href'):
@@ -475,13 +525,13 @@ class CommonCriteriaCert(Certificate):
                                                                                      'href')))
             return protection_profiles
 
-        def get_date(cell: Tag) -> date:
+        def _get_date(cell: Tag) -> date:
             text = cell.get_text()
             extracted_date = datetime.strptime(
                 text, '%Y-%m-%d').date() if text else None
             return extracted_date
 
-        def get_report_st_links(cell: Tag) -> (str, str):
+        def _get_report_st_links(cell: Tag) -> (str, str):
             links = cell.find_all('a')
             # TODO: Exception checks
             assert links[1].get('title').startswith('Certification Report')
@@ -493,18 +543,18 @@ class CommonCriteriaCert(Certificate):
 
             return report_link, security_target_link
 
-        def get_cert_link(cell: Tag) -> Optional[str]:
+        def _get_cert_link(cell: Tag) -> Optional[str]:
             links = cell.find_all('a')
             return CommonCriteriaCert.cc_url + links[0].get('href') if links else None
 
-        def get_maintainance_div(cell: Tag) -> Optional[Tag]:
+        def _get_maintainance_div(cell: Tag) -> Optional[Tag]:
             divs = cell.find_all('div')
             for d in divs:
                 if d.find('div') and d.stripped_strings and list(d.stripped_strings)[0] == 'Maintenance Report(s)':
                     return d
             return None
 
-        def get_maintainance_updates(main_div: Tag) -> set:
+        def _get_maintainance_updates(main_div: Tag) -> set:
             possible_updates = list(main_div.find_all('li'))
             maintainance_updates = set()
             for u in possible_updates:
@@ -523,30 +573,79 @@ class CommonCriteriaCert(Certificate):
                         main_st_link = CommonCriteriaCert.cc_url + \
                                        l.get('href')
                     else:
-                        logging.error('Unknown link in Maintenance part!')
+                        logger.error('Unknown link in Maintenance part!')
                 maintainance_updates.add(
                     CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
             return maintainance_updates
 
         cells = list(row.find_all('td'))
         if len(cells) != 7:
-            logging.error('Unexpected number of cells in CC html row.')
+            logger.error('Unexpected number of cells in CC html row.')
             raise
 
-        name = get_name(cells[0])
-        manufacturer = get_manufacturer(cells[1])
-        manufacturer_web = get_manufacturer_web(cells[1])
-        scheme = get_scheme(cells[6])
-        security_level = get_security_level(cells[5])
-        protection_profiles = get_protection_profiles(cells[0])
-        not_valid_before = get_date(cells[3])
-        not_valid_after = get_date(cells[4])
-        report_link, st_link = get_report_st_links(cells[0])
-        cert_link = get_cert_link(cells[2])
+        name = _get_name(cells[0])
+        manufacturer = _get_manufacturer(cells[1])
+        manufacturer_web = _get_manufacturer_web(cells[1])
+        scheme = _get_scheme(cells[6])
+        security_level = _get_security_level(cells[5])
+        protection_profiles = _get_protection_profiles(cells[0])
+        not_valid_before = _get_date(cells[3])
+        not_valid_after = _get_date(cells[4])
+        report_link, st_link = _get_report_st_links(cells[0])
+        cert_link = _get_cert_link(cells[2])
 
-        maintainance_div = get_maintainance_div(cells[0])
-        maintainances = get_maintainance_updates(
+        maintainance_div = _get_maintainance_div(cells[0])
+        maintainances = _get_maintainance_updates(
             maintainance_div) if maintainance_div else set()
 
         return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None)
+
+    def set_local_paths(self,
+                        report_pdf_dir: Optional[Union[str, Path]],
+                        st_pdf_dir: Optional[Union[str, Path]],
+                        report_txt_dir: Optional[Union[str, Path]],
+                        st_txt_dir: Optional[Union[str, Path]]):
+        if report_pdf_dir is not None:
+            self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + '.pdf')
+        if st_pdf_dir is not None:
+            self.state.st_pdf_path = Path(st_pdf_dir) / (self.dgst + '.pdf')
+        if report_txt_dir is not None:
+            self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + '.txt')
+        if st_txt_dir is not None:
+            self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
+
+    @staticmethod
+    def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download report from {cert.report_link}, code: {exit_code}')
+            cert.state.report_link_ok = False
+        return cert
+
+    @staticmethod
+    def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Cert dgst: {cert.dgst} failed to download report from {cert.report_link}, code: {exit_code}')
+            cert.state.st_link_ok = False
+        return cert
+
+    def path_is_corrupted(self, local_path):
+        return not local_path.exists() or local_path.stat().st_size < constants.MIN_CORRECT_CERT_SIZE
+
+    @staticmethod
+    def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path, ['-raw'])
+        if exit_code != constants.RETURNCODE_OK:
+            logger.error(f'Cert dgst: {cert.dgst} failed to convert report pdf->txt')
+            cert.state.report_convert_ok = False
+        return cert
+
+    @staticmethod
+    def convert_target_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path, ['-raw'])
+        if exit_code != constants.RETURNCODE_OK:
+            logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
+            cert.state.st_convert_ok = False
+        return cert
