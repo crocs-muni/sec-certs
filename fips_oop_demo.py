@@ -24,6 +24,8 @@ def main():
 
     logging.info("Extracting keywords now.")
 
+    dset.convert_all_pdfs()
+
     dset.extract_keywords()
 
     logging.info(f'Finished extracting certificates for {len(dset.keywords)} items.')
@@ -47,7 +49,7 @@ def main():
     dset.finalize_results()
 
     logging.info('dump again')
-    dset.dump_to_json()
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     dset.get_dot_graph('different_new')
     end = datetime.now()

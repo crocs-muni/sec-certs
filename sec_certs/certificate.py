@@ -87,7 +87,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  fw_version: Optional[str],
                  tables: bool,
                  file_status: Optional[bool],
-                 connections: List):
+                 connections: List,
+                 txt_state: bool=True):
         super().__init__()
         self.cert_id = cert_id
 
@@ -120,6 +121,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.tables_done = tables
         self.file_status = file_status
         self.connections = connections
+        self.txt_state = txt_state
 
     def __str__(self) -> str:
         return str(self.cert_id)
@@ -335,6 +337,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                False,
                                None,
                                [])
+
+    @staticmethod
+    def convert_pdf_file(cert: 'FipsCertificate', ds: 'FIPSDataset') -> 'FIPSCertificate':
+        if not cert.txt_state:
+            exit_code = helpers.convert_pdf_file(ds.policies_dir / f'{cert.cert_id}.pdf', ds.policies_dir / f'{cert.cert_id}.pdf.txt', ['-layout'])
+            if exit_code != constants.RETURNCODE_OK:
+                logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
+                cert.txt_state = False
+        return cert
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
@@ -651,7 +662,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_convert_ok = False
         return cert
 
-class FIPSAlgorithm(Certificate):
+class FIPSAlgorithm(Certificate, ComplexSerializableType):
     @property
     def dgst(self):
         # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
@@ -674,5 +685,5 @@ class FIPSAlgorithm(Certificate):
 
     @classmethod
     def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
-        return FIPSAlgorithm(dct['cert_id'], dct['vendor'], dct['implementation'], dct['alg_type'],
-                             dct['validation_date'])
+        return FIPSAlgorithm(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
+                             dct['date'])
