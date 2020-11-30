@@ -33,70 +33,6 @@ def initialize_entry(current_items_found):
     pass
 
 
-def get_dot_graph(found_items: Dict, output_file_name: str):
-    """
-    Function that plots .dot graph of dependencies between certificates
-    Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
-    certificates are displayed in {output_file_name}single.pdf
-    :param found_items: Dictionary of all found items generated in main()
-    :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
-    """
-    dot = Digraph(comment='Certificate ecosystem')
-    single_dot = Digraph(comment='Modules with no dependencies')
-    single_dot.attr('graph', label='Single nodes', labelloc='t', fontsize='30')
-    single_dot.attr('node', style='filled')
-    dot.attr('graph', label='Dependencies', labelloc='t', fontsize='30')
-    dot.attr('node', style='filled')
-
-    def found_interesting_cert(current_key):
-        if found_items[current_key]['fips_vendor'] == highlighted_vendor:
-            dot.attr('node', color='red')
-            if found_items[current_key]['fips_status'] == 'Revoked':
-                dot.attr('node', color='grey32')
-            if found_items[current_key]['fips_status'] == 'Historical':
-                dot.attr('node', color='gold3')
-        if found_items[current_key]['fips_vendor'] == "SUSE, LLC":
-            dot.attr('node', color='lightblue')
-
-    def color_check(current_key):
-        dot.attr('node', color='lightgreen')
-        if found_items[current_key]['fips_status'] == 'Revoked':
-            dot.attr('node', color='lightgrey')
-        if found_items[current_key]['fips_status'] == 'Historical':
-            dot.attr('node', color='gold')
-        found_interesting_cert(current_key)
-        dot.node(current_key, label=current_key + '\n' + found_items[current_key]['fips_vendor'] +
-                                    ('\n' + found_items[current_key]['fips_module_name']
-                                     if 'fips_module_name' in found_items[current_key] else ''))
-
-    keys = 0
-    edges = 0
-
-    highlighted_vendor = 'Red Hat®, Inc.'
-    for key in found_items:
-        if key != 'Not found' and found_items[key]['file_status']:
-            if found_items[key]['Connections']:
-                color_check(key)
-                keys += 1
-            else:
-                single_dot.attr('node', color='lightblue')
-                found_interesting_cert(key)
-                single_dot.node(key, label=key + '\n' + found_items[key]['fips_vendor'] + ('\n' + found_items[key][
-                    'fips_module_name'] if 'fips_module_name' in found_items[key] else ''))
-
-    for key in found_items:
-        if key != 'Not found' and found_items[key]['file_status']:
-            for conn in found_items[key]['Connections']:
-                color_check(conn)
-                dot.edge(key, conn)
-                edges += 1
-
-    print(f"rendering {keys} keys and {edges} edges")
-
-    dot.render(str(output_file_name) + '_connections', view=True)
-    single_dot.render(str(output_file_name) + '_single', view=True)
-
-
 def remove_algorithms_from_extracted_data(items, html):
     pass
 
@@ -267,7 +203,7 @@ def main(directory, do_download_meta: bool, do_download_certs: bool, threads: in
     with open(results_dir / 'fips_html_all.json', 'w') as f:
         json.dump(html, f, indent=4, sort_keys=True)
     print("PLOTTING GRAPH")
-    get_dot_graph(html, results_dir / 'output')
+    # get_dot_graph(html, results_dir / 'output')
     end = time.time()
     print("TIME:", end - start)
 

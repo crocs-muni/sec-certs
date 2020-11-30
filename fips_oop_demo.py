@@ -2,6 +2,7 @@ from sec_certs.dataset import FIPSDataset
 from pathlib import Path
 from datetime import datetime
 import logging
+from sec_certs.helpers import download_parallel
 
 
 def main():
@@ -13,6 +14,7 @@ def main():
 
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web()
+
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
 
@@ -37,6 +39,10 @@ def main():
 
     dset.finalize_results()
 
+    logging.info('dump again')
+    dset.dump_to_json()
+
+    dset.get_dot_graph('new_oop')
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 

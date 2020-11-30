@@ -3,12 +3,15 @@ import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection,  Union
+from typing import Dict, List, ClassVar, Collection,  Union, Set
+
 import json
 from importlib import import_module
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
+
+from graphviz import Digraph
 import requests
 from tabula import read_pdf
 import pandas as pd
@@ -349,7 +352,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             date_string = footer_text.split(',')[1:3]
             time_string = footer_text.split(',')[3].split(' at ')[1]
             formatted_datetime = date_string[0] + \
-                date_string[1] + ' ' + time_string
+                                 date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
         def _parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
@@ -705,3 +708,74 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def finalize_results(self):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
+
+    def present_algorithms(self) -> Set[str]:
+        found_algs = set()
+        for cert in self.certs.values():
+            for alg in cert.algorithms:
+                if 'Name' in alg:
+                    print(cert, alg['Name'])
+                    found_algs.add(alg['Name'])
+        return found_algs
+
+    def get_dot_graph(self, output_file_name: str):
+        """
+        Function that plots .dot graph of dependencies between certificates
+        Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
+        certificates are displayed in {output_file_name}single.pdf
+        :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
+        """
+        dot = Digraph(comment='Certificate ecosystem')
+        single_dot = Digraph(comment='Modules with no dependencies')
+        single_dot.attr('graph', label='Single nodes', labelloc='t', fontsize='30')
+        single_dot.attr('node', style='filled')
+        dot.attr('graph', label='Dependencies', labelloc='t', fontsize='30')
+        dot.attr('node', style='filled')
+
+        def found_interesting_cert(current_key):
+            if self.certs[current_key].vendor == highlighted_vendor:
+                dot.attr('node', color='red')
+                if self.certs[current_key].status == 'Revoked':
+                    dot.attr('node', color='grey32')
+                if self.certs[current_key].status == 'Historical':
+                    dot.attr('node', color='gold3')
+            if self.certs[current_key].vendor == "SUSE, LLC":
+                dot.attr('node', color='lightblue')
+
+        def color_check(current_key):
+            dot.attr('node', color='lightgreen')
+            if self.certs[current_key].status == 'Revoked':
+                dot.attr('node', color='lightgrey')
+            if self.certs[current_key].status == 'Historical':
+                dot.attr('node', color='gold')
+            found_interesting_cert(current_key)
+            dot.node(current_key, label=current_key + '\n' + self.certs[current_key].vendor +
+                                        ('\n' + self.certs[current_key].module_name
+                                         if self.certs[current_key].module_name else ''))
+
+        keys = 0
+        edges = 0
+
+        highlighted_vendor = 'Red Hat®, Inc.'
+        for key in self.certs:
+            if key != 'Not found' and self.certs[key].file_status:
+                if self.certs[key].connections:
+                    color_check(key)
+                    keys += 1
+                else:
+                    single_dot.attr('node', color='lightblue')
+                    found_interesting_cert(key)
+                    single_dot.node(key, label=key + '\n' + self.certs[key].vendor + (
+                        '\n' + self.certs[key].module_name if self.certs[key].module_name else ''))
+
+        for key in self.certs:
+            if key != 'Not found' and self.certs[key].file_status:
+                for conn in self.certs[key].connections:
+                    color_check(conn)
+                    dot.edge(key, conn)
+                    edges += 1
+
+        print(f"rendering {keys} keys and {edges} edges")
+
+        dot.render(str(output_file_name) + '_connections', view=True)
+        single_dot.render(str(output_file_name) + '_single', view=True)
