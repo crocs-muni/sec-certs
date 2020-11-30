@@ -349,7 +349,7 @@ class FIPSDataset(Dataset):
     def algs_dir(self) -> Path:
         return self.web_dir / 'algorithms'
 
-    def find_empty_pdfs(self) -> (List, List):
+    def find_empty_pdfs(self) -> Tuple[List, List]:
         missing = []
         not_available = []
         for i in self.certs:
@@ -421,6 +421,7 @@ class FIPSDataset(Dataset):
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
         self.policies_dir.mkdir(exist_ok=True)
+        self.algs_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
         html_files = ['fips_modules_active.html',
