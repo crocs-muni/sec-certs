@@ -12,14 +12,22 @@ from typing import Union
 from datetime import date
 import numpy as np
 import pandas as pd
-from bs4 import Tag, NavigableString
+import subprocess
+import sec_certs.constants as constants
+
+
+logger = logging.getLogger(__name__)
 
 
 def download_file(url: str, output: Path) -> int:
-    r = requests.get(url, allow_redirects=True)
-    with output.open('wb') as f:
-        f.write(r.content)
-    return r.status_code
+    try:
+        r = requests.get(url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT)
+        if r.status_code == requests.codes.ok:
+            with output.open("wb") as f:
+                f.write(r.content)
+        return r.status_code
+    except requests.exceptions.Timeout:
+        return requests.codes.timeout
 
 
 def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
@@ -40,6 +48,14 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
 
 def get_first_16_bytes_sha256(string: str) -> str:
     return hashlib.sha256(string.encode('utf-8')).hexdigest()[:16]
+
+
+def get_sha256_filepath(filepath):
+    hash_sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
 
 def sanitize_link(record: str) -> Union[str, None]:
@@ -108,7 +124,7 @@ def find_tables_iterative(file_text: str) -> List[int]:
         if line.startswith('Table ') or line.startswith('Exhibit'):
             pages.add(current_page)
     if not pages:
-        logging.warning('No pages found')
+        logger.warning('No pages found')
     return list(pages)
 
 
@@ -131,7 +147,7 @@ def find_tables(txt: str, file_name: Path) -> Optional[List]:
         return None
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    logging.info(f'parsing tables in {file_name}')
+    logger.info(f'parsing tables in {file_name}')
     rb = find_tables_iterative(txt)
     return rb if rb else None
 
@@ -147,7 +163,5 @@ def repair_pdf(file: Path):
     pdf.save(file)
 
 
-
-
-
-
+def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
+    return subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60).returncode

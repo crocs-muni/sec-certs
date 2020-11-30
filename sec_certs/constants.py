@@ -1,5 +1,13 @@
 from enum import Enum
 
+N_THREADS = 8
+RESPONSE_OK = 200
+RETURNCODE_OK = 0
+REQUEST_TIMEOUT = 5
+
+MIN_CORRECT_CERT_SIZE = 5000
+
+LOGS_FILENAME = './cert_processing_log.txt'
 
 class CertFramework(Enum):
     CC = 'Common Criteria'

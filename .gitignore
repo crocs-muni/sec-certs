@@ -114,3 +114,5 @@ virt/
 # fips dataset
 fips_dataset/
 
+# log
+./cc_processing_log.txt
