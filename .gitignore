@@ -113,6 +113,12 @@ virt/
 
 # fips dataset
 fips_dataset/
+fips_test_dataset/
+
+# output pdfs
+*connections*
+*single*
 
 # log
+cert_processing_log.txt
 ./cc_processing_log.txt
