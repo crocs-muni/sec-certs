@@ -13,6 +13,9 @@ def main():
     # Create empty dataset
     dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
 
+    # this is for creating test dataset, usually with small number of pdfs
+    # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
+
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web()
 
