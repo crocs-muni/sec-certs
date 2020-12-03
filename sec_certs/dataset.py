@@ -518,6 +518,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 not_available.append(i)
         return missing, not_available
 
+# TODO: make this work for single certs object instead of the whole dataset, making it parallelizable
+# TODO: make this not create a whole new json - that way continuous processing can be done
     def extract_keywords(self):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
         if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():

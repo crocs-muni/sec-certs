@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
 
-from sec_certs import helpers, extract_certificates
+from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 import sec_certs.constants as constants
 
@@ -243,7 +243,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         html_items_found['fips_vendor'] = vendor_string
         if html_items_found['fips_vendor'] == '':
-            logger.warning(f"WARNING: NO VENDOR FOUND{current_file}")
+            logger.warning(f"WARNING: NO VENDOR FOUND {current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -254,21 +254,19 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['fips_lab'] == '':
-            logger.warning(f"WARNING: NO LAB FOUND{current_file}")
+            logger.warning(f"WARNING: NO LAB FOUND {current_file}")
 
         if html_items_found['fips_nvlap_code'] == '':
-            logger.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
+            logger.warning(f"WARNING: NO NVLAP CODE FOUND {current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
         links = current_div.find_all('a')
         # TODO: break out of circular imports hell
-        html_items_found['fips_security_policy_www'] = __import__(
-            'sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[0].get('href')
+        html_items_found['fips_security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
 
         if len(links) == 2:
-            html_items_found['fips_certificate_www'] = __import__(
-                'sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[1].get('href')
+            html_items_found['fips_certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
 
     @classmethod
     def html_from_file(cls, file: Path) -> 'FIPSCertificate':
