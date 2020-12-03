@@ -546,7 +546,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
 
         logging.info(f"downloading {len(sp_urls)} module pdf files")
-        Dataset._download_parallel(sp_urls, sp_paths)
+        cert_processing.process_parallel(FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)), constants.N_THREADS)
         self.new_files += len(sp_urls)
 
     def download_all_htmls(self):
@@ -559,7 +559,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 html_paths.append(self.web_dir / f"{cert_id}.html")
 
         logging.info(f"downloading {len(html_urls)} module html files")
-        Dataset._download_parallel(html_urls, html_paths)
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)), constants.N_THREADS)
         self.new_files += len(html_urls)
 
     def download_all_algs(self):
@@ -572,17 +572,19 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 algs_paths.append(self.algs_dir / f"page{i}.html")
 
         logging.info(f"downloading {len(algs_urls)} algs html files")
-        Dataset._download_parallel(algs_urls, algs_paths)
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)), constants.N_THREADS)
         self.new_files += len(algs_urls)
     
 
     def convert_all_pdfs(self):
-        logger.info('Converting CC certificate reports to .txt')
-        for cert in self.certs.values():
-            FIPSCertificate.convert_pdf_file(cert, self)
+        logger.info('Converting FIPS certificate reports to .txt')
+        tuples = [
+            (cert, self.policies_dir / f'{cert.cert_id}.pdf', self.policies_dir / f'{cert.cert_id}.pdf.txt')
+            for cert in self.certs.values() if not cert.txt_state
+        ]
+        cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
 
-    # TODO figure out whether the name of this method shuold not be "get_certs", because we don't download every time
     def get_certs_from_web(self):
         def download_html_pages() -> Tuple[int, int]:
             self.download_all_pdfs()
@@ -876,7 +878,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         return dset
 
 
-class AlgorithmDataset(Dataset, ComplexSerializableType):
+class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
     def get_certs_from_web(self):
         pass

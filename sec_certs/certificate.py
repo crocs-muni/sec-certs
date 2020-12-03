@@ -10,7 +10,7 @@ import requests
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
+from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple
 
 from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
@@ -88,7 +88,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  tables: bool,
                  file_status: Optional[bool],
                  connections: List,
-                 txt_state: bool=True):
+                 txt_state: bool=False):
         super().__init__()
         self.cert_id = cert_id
 
@@ -129,6 +129,20 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @property
     def dgst(self) -> str:
         return self.cert_id
+
+    @staticmethod
+    def download_security_policy(cert: Tuple[str, Path]) -> None:
+        exit_code = helpers.download_file(*cert)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
+        return cert
+
+    @staticmethod
+    def download_html_page(cert: Tuple[str, Path]) -> None:
+        exit_code = helpers.download_file(*cert)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download html page from {cert[0]}, code: {exit_code}')
+        return cert
 
     @staticmethod
     def extract_filename(file: str) -> str:
@@ -337,11 +351,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                [])
 
     @staticmethod
-    def convert_pdf_file(cert: 'FipsCertificate', ds: 'FIPSDataset') -> 'FIPSCertificate':
+    def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
+        cert, pdf_path, txt_path = tup
         if not cert.txt_state:
-            exit_code = helpers.convert_pdf_file(ds.policies_dir / f'{cert.cert_id}.pdf', ds.policies_dir / f'{cert.cert_id}.pdf.txt', ['-layout'])
+            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ['-layout'])
             if exit_code != constants.RETURNCODE_OK:
-                logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
+                logger.error(f'Cert dgst: {cert.dgst} failed to convert security policy pdf->txt')
                 cert.txt_state = False
         return cert
 

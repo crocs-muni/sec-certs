@@ -11,7 +11,7 @@ def process_parallel(func: Callable, items: Iterable, max_workers: int, callback
     else:
         pool = Pool(max_workers)
 
-    results = [pool.apply_async(func, (*i, ), callback=callback) for i in items]
+    results = [pool.apply_async(func, (i, ), callback=callback) for i in items]
 
     if progress_bar is True:
         bar = tqdm(total=len(results))

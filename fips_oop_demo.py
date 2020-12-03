@@ -1,4 +1,4 @@
-from sec_certs.dataset import FIPSDataset, AlgorithmDataset
+from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from pathlib import Path
 from datetime import datetime
 import logging
@@ -42,7 +42,7 @@ def main():
     logging.info(f"Done. Files not decoded: {not_decoded_files}")
 
     logging.info("Parsing algorithms")
-    aset = AlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
+    aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
     aset.parse_html()
 
     dset.algorithms = aset
