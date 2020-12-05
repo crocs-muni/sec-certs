@@ -1,4 +1,13 @@
-flask
-Frozen-Flask
-flask-paginate
-emoji-country-flag
+blinker==1.4
+click==7.1.2
+decorator==4.4.2
+emoji-country-flag==1.2.3
+Flask==1.1.2
+Flask-DebugToolbar==0.11.0
+flask-paginate==0.7.1
+Frozen-Flask==0.15
+itsdangerous==1.1.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+networkx==2.5
+Werkzeug==1.0.1
