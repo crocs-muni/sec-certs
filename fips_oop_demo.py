@@ -3,8 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import logging
 from sec_certs.helpers import download_parallel
-from sec_certs.serialization import CustomJSONEncoder, CustomJSONDecoder
-import json
+
 
 def main():
     logging.basicConfig(level=logging.INFO)
