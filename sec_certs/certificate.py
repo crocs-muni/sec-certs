@@ -10,9 +10,9 @@ import requests
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type
+from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple
 
-from sec_certs import helpers, extract_certificates
+from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 import sec_certs.constants as constants
 
@@ -61,6 +61,35 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
+    @dataclass(eq=True, frozen=True)
+    class Algorithm(ComplexSerializableType):
+        cert_id: str
+        vendor: str
+        implementation: str
+        type: str
+        date: str
+
+
+        @property
+        def dgst(self):
+            # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
+            # for each id
+            return self.type
+
+        def __repr__(self):
+            return self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor
+
+        def __str__(self):
+            return str(self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor)
+
+        def to_dict(self):
+            return copy.deepcopy(self.__dict__)
+
+        @classmethod
+        def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
+            return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
+                                dct['date'])
+
     def __init__(self, cert_id: str,
                  module_name: Optional[str],
                  standard: Optional[str],
@@ -87,7 +116,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  fw_version: Optional[str],
                  tables: bool,
                  file_status: Optional[bool],
-                 connections: List):
+                 connections: List,
+                 txt_state: bool=False):
         super().__init__()
         self.cert_id = cert_id
 
@@ -120,6 +150,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.tables_done = tables
         self.file_status = file_status
         self.connections = connections
+        self.txt_state = txt_state
 
     def __str__(self) -> str:
         return str(self.cert_id)
@@ -127,6 +158,20 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @property
     def dgst(self) -> str:
         return self.cert_id
+
+    @staticmethod
+    def download_security_policy(cert: Tuple[str, Path]) -> None:
+        exit_code = helpers.download_file(*cert)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
+        return cert
+
+    @staticmethod
+    def download_html_page(cert: Tuple[str, Path]) -> None:
+        exit_code = helpers.download_file(*cert)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download html page from {cert[0]}, code: {exit_code}')
+        return cert
 
     @staticmethod
     def extract_filename(file: str) -> str:
@@ -176,8 +221,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         :return: list of all found algorithm IDs
         """
         set_items = set()
-        for m in re.finditer(rf"(?:#{'?' if in_pdf else 'C?'}\s?|Cert\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
-                             current_text):
+        for m in re.finditer(
+                rf"(?:#{'?' if in_pdf else 'C?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
+                current_text):
             set_items.add(m.group())
 
         return list(set_items)
@@ -240,7 +286,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         html_items_found['fips_vendor'] = vendor_string
         if html_items_found['fips_vendor'] == '':
-            logger.warning(f"WARNING: NO VENDOR FOUND{current_file}")
+            logger.warning(f"WARNING: NO VENDOR FOUND {current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -251,21 +297,19 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['fips_lab'] == '':
-            logger.warning(f"WARNING: NO LAB FOUND{current_file}")
+            logger.warning(f"WARNING: NO LAB FOUND {current_file}")
 
         if html_items_found['fips_nvlap_code'] == '':
-            logger.warning(f"WARNING: NO NVLAP CODE FOUND{current_file}")
+            logger.warning(f"WARNING: NO NVLAP CODE FOUND {current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
         links = current_div.find_all('a')
         # TODO: break out of circular imports hell
-        html_items_found['fips_security_policy_www'] = __import__(
-            'sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[0].get('href')
+        html_items_found['fips_security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
 
         if len(links) == 2:
-            html_items_found['fips_certificate_www'] = __import__(
-                'sec_certs').certificate.FIPSCertificate.FIPS_BASE_URL + links[1].get('href')
+            html_items_found['fips_certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
 
     @classmethod
     def html_from_file(cls, file: Path) -> 'FIPSCertificate':
@@ -334,6 +378,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                False,
                                None,
                                [])
+
+    @staticmethod
+    def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
+        cert, pdf_path, txt_path = tup
+        if not cert.txt_state:
+            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ['-layout'])
+            if exit_code != constants.RETURNCODE_OK:
+                logger.error(f'Cert dgst: {cert.dgst} failed to convert security policy pdf->txt')
+                cert.txt_state = False
+        return cert
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
@@ -649,3 +703,5 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
             cert.state.st_convert_ok = False
         return cert
+
+

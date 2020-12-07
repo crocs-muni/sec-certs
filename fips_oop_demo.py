@@ -1,4 +1,4 @@
-from sec_certs.dataset import FIPSDataset
+from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from pathlib import Path
 from datetime import datetime
 import logging
@@ -12,6 +12,9 @@ def main():
     # Create empty dataset
     dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
 
+    # this is for creating test dataset, usually with small number of pdfs
+    # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
+
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web()
 
@@ -22,6 +25,8 @@ def main():
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
+
+    dset.convert_all_pdfs()
 
     dset.extract_keywords()
 
@@ -35,14 +40,20 @@ def main():
 
     logging.info(f"Done. Files not decoded: {not_decoded_files}")
 
+    logging.info("Parsing algorithms")
+    aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
+    aset.parse_html()
+
+    dset.algorithms = aset
+
     logging.info("finalizing results.")
 
     dset.finalize_results()
 
     logging.info('dump again')
-    dset.dump_to_json()
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
-    dset.get_dot_graph('new_oop')
+    dset.get_dot_graph('different_new')
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 
