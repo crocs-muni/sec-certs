@@ -22,7 +22,7 @@ import sec_certs.constants as constants
 import sec_certs.cert_processing as cert_processing
 import sec_certs.files as files
 
-from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate, FIPSAlgorithm
+from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.extract_certificates import extract_certificates_keywords
 
@@ -742,7 +742,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
             for cert_alg in processed_cert.algorithms:
                 for certificate in cert_alg['Certificate']:
-                    print(certificate)
                     curr_id = ''.join(filter(str.isdigit, certificate))
                     if curr_id == cert_candidate:
                         return False
@@ -900,7 +899,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                 for i in range(0, len(elements_sliced), 2):
                     alg_type, alg_id = split_alg(elements_sliced[i].text.strip())
                     validation_date = elements_sliced[i + 1].text.strip()
-                    fips_alg = FIPSAlgorithm(alg_id, vendor, implementation, alg_type, validation_date)
+                    fips_alg = FIPSCertificate.Algorithm(alg_id, vendor, implementation, alg_type, validation_date)
                     if alg_id not in self.certs:
                         self.certs[alg_id] = []
                     self.certs[alg_id].append(fips_alg)

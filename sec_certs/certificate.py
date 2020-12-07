@@ -61,6 +61,35 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
+    @dataclass(eq=True, frozen=True)
+    class Algorithm(ComplexSerializableType):
+        cert_id: str
+        vendor: str
+        implementation: str
+        type: str
+        date: str
+
+
+        @property
+        def dgst(self):
+            # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
+            # for each id
+            return self.type
+
+        def __repr__(self):
+            return self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor
+
+        def __str__(self):
+            return str(self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor)
+
+        def to_dict(self):
+            return copy.deepcopy(self.__dict__)
+
+        @classmethod
+        def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
+            return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
+                                dct['date'])
+
     def __init__(self, cert_id: str,
                  module_name: Optional[str],
                  standard: Optional[str],
@@ -675,28 +704,4 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_convert_ok = False
         return cert
 
-class FIPSAlgorithm(Certificate, ComplexSerializableType):
-    @property
-    def dgst(self):
-        # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
-        # for each id
-        return self.type
 
-    def __init__(self, cert_id, vendor, implementation, alg_type, validation_date):
-        super().__init__()
-        self.cert_id = cert_id
-        self.vendor = vendor
-        self.implementation = implementation
-        self.type = alg_type
-        self.date = validation_date
-
-    def __repr__(self):
-        return self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor
-
-    def __str__(self):
-        return str(self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor)
-
-    @classmethod
-    def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
-        return FIPSAlgorithm(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
-                             dct['date'])
