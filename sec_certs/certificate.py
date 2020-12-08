@@ -15,6 +15,8 @@ from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple
 from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 import sec_certs.constants as constants
+from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, LINE_SEPARATOR
+from sec_certs.cert_rules import fips_rules
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +119,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  tables: bool,
                  file_status: Optional[bool],
                  connections: List,
-                 txt_state: bool=False):
+                 txt_state: bool=False,
+                 keywords=[]):
         super().__init__()
         self.cert_id = cert_id
 
@@ -151,6 +154,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.file_status = file_status
         self.connections = connections
         self.txt_state = txt_state
+        self.keywords = keywords
 
     def __str__(self) -> str:
         return str(self.cert_id)
@@ -389,6 +393,59 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 cert.txt_state = False
         return cert
 
+    def parse_cert_file(self, file_name: Path):
+        _, whole_text_with_newlines, unicode_error = load_cert_file(file_name, -1, LINE_SEPARATOR)
+
+        target_name = file_name.with_suffix('').with_suffix('.txt')
+        file_name = file_name.with_suffix('').with_suffix('').stem
+        # apply all rules
+        items_found_all = {}
+        for rule_group in fips_rules.keys():
+            if rule_group not in items_found_all:
+                items_found_all[rule_group] = {}
+
+            items_found = items_found_all[rule_group]
+
+            for rule in fips_rules[rule_group]:
+
+                rule_and_sep = rule + REGEXEC_SEP
+
+                for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+                    # insert rule if at least one match for it was found
+                    if rule not in items_found:
+                        items_found[rule] = {}
+
+                    match = m.group()
+                    match = normalize_match_string(match)
+
+                    if match == '':
+                        continue 
+
+                    certs = [x['Certificate']
+                            for x in self.algorithms]
+
+                    match_cert_id = ''.join(filter(str.isdigit, match))
+                    #                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':
+
+                    for fips_cert in certs:
+                        for actual_cert in fips_cert:
+                            if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
+                                continue
+
+
+                    # TODO: figure out what this does
+                    if match not in items_found[rule]:
+                        items_found[rule][match] = {}
+                        items_found[rule][match][constants.TAG_MATCH_COUNTER] = 0
+
+
+                    items_found[rule][match][constants.TAG_MATCH_COUNTER] += 1
+
+                    whole_text_with_newlines = whole_text_with_newlines.replace(
+                        match, 'x' * len(match))
+        
+        save_modified_cert_file(target_name, whole_text_with_newlines, unicode_error)
+        self.keywords = items_found_all
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
