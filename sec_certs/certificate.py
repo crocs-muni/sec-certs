@@ -120,7 +120,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  file_status: Optional[bool],
                  connections: List,
                  txt_state: bool=False,
-                 keywords=[]):
+                 keywords: Dict =None):
         super().__init__()
         self.cert_id = cert_id
 
