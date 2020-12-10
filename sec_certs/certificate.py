@@ -391,6 +391,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             if exit_code != constants.RETURNCODE_OK:
                 logger.error(f'Cert dgst: {cert.dgst} failed to convert security policy pdf->txt')
                 cert.txt_state = False
+            else:
+                cert.txt_state = True
         return cert
 
     def parse_cert_file(self, file_name: Path):
