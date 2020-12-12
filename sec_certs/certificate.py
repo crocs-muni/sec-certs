@@ -12,10 +12,13 @@ from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple
 
+from tabula import read_pdf
+
 from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 import sec_certs.constants as constants
-from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, LINE_SEPARATOR
+from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, \
+    LINE_SEPARATOR
 from sec_certs.cert_rules import fips_rules
 
 logger = logging.getLogger(__name__)
@@ -63,6 +66,20 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
+    @dataclass(eq=True)
+    class State(ComplexSerializableType):
+
+        @classmethod
+        def from_dict(cls, dct: Dict):
+            return cls(Path(dct['sp_path']), Path(dct['html_path']), Path(dct['fragment_path']))
+
+        def to_dict(self):
+            return copy.deepcopy(self.__dict__)
+
+        sp_path: Path
+        html_path: Path
+        fragment_path: Path
+
     @dataclass(eq=True, frozen=True)
     class Algorithm(ComplexSerializableType):
         cert_id: str
@@ -70,7 +87,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         implementation: str
         type: str
         date: str
-
 
         @property
         def dgst(self):
@@ -90,7 +106,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         @classmethod
         def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
             return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
-                                dct['date'])
+                       dct['date'])
 
     def __init__(self, cert_id: str,
                  module_name: Optional[str],
@@ -119,8 +135,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  tables: bool,
                  file_status: Optional[bool],
                  connections: List,
-                 txt_state: bool=False,
-                 keywords: Dict =None):
+                 state: State,
+                 txt_state: bool = False,
+                 keywords: Dict = None):
         super().__init__()
         self.cert_id = cert_id
 
@@ -153,6 +170,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.tables_done = tables
         self.file_status = file_status
         self.connections = connections
+        self.state = state
         self.txt_state = txt_state
         self.keywords = keywords
 
@@ -168,14 +186,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         exit_code = helpers.download_file(*cert)
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
-        return cert
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> None:
         exit_code = helpers.download_file(*cert)
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download html page from {cert[0]}, code: {exit_code}')
-        return cert
 
     @staticmethod
     def extract_filename(file: str) -> str:
@@ -276,6 +292,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             else:
                 html_items_found[pairs[title]] = content
 
+    # TODO parse all the items
+
     @staticmethod
     def parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path):
         vendor_string = current_div.find('div', 'panel-body').find('a')
@@ -316,7 +334,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             html_items_found['fips_certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
 
     @classmethod
-    def html_from_file(cls, file: Path) -> 'FIPSCertificate':
+    def html_from_file(cls, file: Path, state: State) -> 'FIPSCertificate':
         pairs = {
             'Module Name': 'fips_module_name',
             'Standard': 'fips_standard',
@@ -381,7 +399,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                items_found['fips_fw_versions'],
                                False,
                                None,
-                               [])
+                               [],
+                               state)
 
     @staticmethod
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
@@ -395,11 +414,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 cert.txt_state = True
         return cert
 
-    def parse_cert_file(self, file_name: Path):
-        _, whole_text_with_newlines, unicode_error = load_cert_file(file_name, -1, LINE_SEPARATOR)
+    @staticmethod
+    def parse_cert_file(cert: 'FIPSCertificate'):
+        if not cert.txt_state:
+            return
 
-        target_name = file_name.with_suffix('').with_suffix('.txt')
-        file_name = file_name.with_suffix('').with_suffix('').stem
+        _, whole_text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'), -1,
+                                                                    LINE_SEPARATOR)
+
+        file_name = cert.state.sp_path.with_suffix('').with_suffix('').stem
         # apply all rules
         items_found_all = {}
         for rule_group in fips_rules.keys():
@@ -421,33 +444,69 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     match = normalize_match_string(match)
 
                     if match == '':
-                        continue 
+                        continue
 
-                    certs = [x['Certificate']
-                            for x in self.algorithms]
+                    certs = [x['Certificate'] for x in cert.algorithms]
 
                     match_cert_id = ''.join(filter(str.isdigit, match))
-                    #                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':
 
                     for fips_cert in certs:
                         for actual_cert in fips_cert:
                             if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
                                 continue
 
-
                     # TODO: figure out what this does
                     if match not in items_found[rule]:
                         items_found[rule][match] = {}
                         items_found[rule][match][constants.TAG_MATCH_COUNTER] = 0
 
-
                     items_found[rule][match][constants.TAG_MATCH_COUNTER] += 1
 
                     whole_text_with_newlines = whole_text_with_newlines.replace(
                         match, 'x' * len(match))
-        
-        save_modified_cert_file(target_name, whole_text_with_newlines, unicode_error)
-        self.keywords = items_found_all
+
+        save_modified_cert_file(cert.state.fragment_path, whole_text_with_newlines, unicode_error)
+        cert.keywords = items_found_all
+
+    @staticmethod
+    def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, Path]:
+        cert_file = cert.state.sp_path
+        txt_file = cert_file.with_suffix('.pdf.txt')
+        with open(txt_file, 'r') as f:
+            tables = helpers.find_tables(f.read(), txt_file)
+
+        # If we find any tables with page numbers, we process them
+        if tables:
+            lst = []
+            try:
+                data = read_pdf(cert_file,
+                                pages=tables, silent=True)
+            except Exception:
+                try:
+                    helpers.repair_pdf(cert_file)
+                    data = read_pdf(cert_file, pages=tables, silent=True)
+
+                except Exception:
+                    return False, cert_file
+
+            # find columns with cert numbers
+            for df in data:
+                for col in range(len(df.columns)):
+                    if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
+                        lst += FIPSCertificate.parse_algorithms(
+                            df.iloc[:, col].to_string(index=False), True)
+
+                # Parse again if someone picks not so descriptive column names
+                lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
+
+            lst += {"PLS": "DO I WORK MAKE ME WORK"}
+
+            if lst:
+                cert.algorithms += lst
+
+        cert.tables_done = True
+        return True, cert_file
+
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
@@ -762,5 +821,3 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
             cert.state.st_convert_ok = False
         return cert
-
-

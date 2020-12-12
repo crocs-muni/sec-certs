@@ -10,17 +10,16 @@ def main():
     start = datetime.now()
 
     # Create empty dataset
-    dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
+    # dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
 
     # this is for creating test dataset, usually with small number of pdfs
-    # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
+    dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web()
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
-
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
@@ -30,16 +29,16 @@ def main():
 
     dset.extract_keywords()
 
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+
     logging.info(f'Finished extracting certificates for {len(dset.keywords)} items.')
-    logging.info(f'Dumping keywords to {dset.root_dir}/fips_full_keywords.json')
-    dset.dump_keywords()
 
     logging.info("Searching for tables in pdfs")
 
     not_decoded_files = dset.extract_certs_from_tables()
 
     logging.info(f"Done. Files not decoded: {not_decoded_files}")
-
+    dset.to_json(dset.root_dir / 'fips_mentioned.json')
     logging.info("Parsing algorithms")
     aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
     aset.parse_html()

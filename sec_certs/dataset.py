@@ -525,10 +525,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def extract_keywords(self):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
         if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
-            self.keywords = extract_certificates_keywords(
-                self.policies_dir,
-                self.fragments_dir, 'fips', fips_items=self.certs,
-                should_censure_right_away=True)
+
+            cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
+                                             [cert for cert in self.certs.values() if not cert.keywords],
+                                             constants.N_THREADS,
+                                             use_threading=False)
         else:
             self.keywords = json.loads(
                 open(self.root_dir / 'fips_full_keywords.json').read())
@@ -636,7 +637,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
             for cert in self.certs:
                 self.certs[cert] = FIPSCertificate.html_from_file(
-                    self.web_dir / f'{cert}.html')
+                    self.web_dir / f'{cert}.html',
+                    FIPSCertificate.State((self.policies_dir / cert).with_suffix('.pdf'),
+                                          (self.web_dir / cert).with_suffix('.html'),
+                                          (self.fragments_dir / cert).with_suffix('.txt')))
         else:
             logger.info("Certs loaded from previous scanning")
             dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
@@ -647,55 +651,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
         """
-
-        list_of_files = files.search_files(self.policies_dir)
-        not_decoded = []
-        for cert_file in list_of_files:
-            cert_file = Path(cert_file)
-
-            if '.txt' not in cert_file.suffixes:
-                continue
-
-            stem_name = Path(cert_file.stem).stem
-
-            if self.certs[stem_name].tables_done:
-                continue
-
-            with open(cert_file, 'r') as f:
-                tables = helpers.find_tables(f.read(), cert_file)
-
-            # If we find any tables with page numbers, we process them
-            if tables:
-                lst = []
-                try:
-                    data = read_pdf(cert_file.with_suffix(''),
-                                    pages=tables, silent=True)
-                except Exception:
-                    try:
-                        helpers.repair_pdf(cert_file.with_suffix(''))
-                        data = read_pdf(cert_file.with_suffix(
-                            ''), pages=tables, silent=True)
-
-                    except Exception:
-                        not_decoded.append(cert_file)
-                        continue
-
-                # find columns with cert numbers
-                for df in data:
-                    for col in range(len(df.columns)):
-                        if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                            lst += FIPSCertificate.parse_algorithms(
-                                df.iloc[:, col].to_string(index=False), True)
-
-                    # Parse again if someone picks not so descriptive column names
-                    lst += FIPSCertificate.parse_algorithms(
-                        df.to_string(index=False))
-
-                if lst:
-                    self.certs[stem_name].algorithms += lst
-
-            self.certs[stem_name].tables_done = True
-        return not_decoded
+        not_decoded = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
+                                                       [cert for cert in self.certs.values() if
+                                                        not cert.tables_done and cert.txt_state],
+                                                       constants.N_THREADS,
+                                                       use_threading=False)
+        return list(map(lambda tup: tup[1], filter(lambda tup: tup[0] is False, not_decoded)))
 
     def remove_algorithms_from_extracted_data(self):
         """
@@ -760,6 +721,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         broken_files = set()
         for current_cert in self.certs.values():
+            if not current_cert.txt_state:
+                continue
             for rule in current_cert.keywords['rules_cert_id']:
                 for cert in current_cert.keywords['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
@@ -777,7 +740,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         for current_cert in self.certs.values():
             current_cert.connections = []
-            if not self.certs.file_status:
+            if not current_cert.file_status:
                 continue
             if current_cert.keywords['rules_cert_id'] == {}:
                 continue
