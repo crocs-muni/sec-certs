@@ -526,10 +526,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
         if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
 
-            cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
-                                             [cert for cert in self.certs.values() if not cert.keywords],
-                                             constants.N_THREADS,
-                                             use_threading=False)
+            keywords = cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
+                                                        [cert for cert in self.certs.values() if not cert.keywords],
+                                                        constants.N_THREADS,
+                                                        use_threading=False)
+            for keyword, cert in zip(keywords, self.certs.values()):
+                cert.keywords = keyword
         else:
             self.keywords = json.loads(
                 open(self.root_dir / 'fips_full_keywords.json').read())
@@ -587,13 +589,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info('Converting FIPS certificate reports to .txt')
         tuples = [
             (cert, self.policies_dir / f'{cert.cert_id}.pdf', self.policies_dir / f'{cert.cert_id}.pdf.txt')
-            for cert in self.certs.values() if not cert.txt_state
+            for cert in self.certs.values() if not cert.txt_state and (self.policies_dir / f'{cert.cert_id}.pdf').exists()
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
     def get_certs_from_web(self):
-        def download_html_pages() -> Tuple[int, int]:
-            # self.download_all_pdfs()
+# there was a Tuple[int, int] return - why?
+        def download_html_pages():
+            self.download_all_pdfs()
             self.download_all_htmls()
             self.download_all_algs()
 
@@ -651,39 +654,25 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
         """
-        not_decoded = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
-                                                       [cert for cert in self.certs.values() if
-                                                        not cert.tables_done and cert.txt_state],
-                                                       constants.N_THREADS,
-                                                       use_threading=False)
-        return list(map(lambda tup: tup[1], filter(lambda tup: tup[0] is False, not_decoded)))
+        result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
+                                                  [cert for cert in self.certs.values() if
+                                                   not cert.tables_done and cert.txt_state],
+                                                  constants.N_THREADS,
+                                                  use_threading=False)
+
+        not_decoded = list(map(lambda tup: tup[1].state.sp_path, filter(lambda tup: tup[0] is False, result)))
+        for state, cert, algorithms in result:
+            cert.tables_done = state
+            cert.algorithms += algorithms
+
+        return not_decoded
 
     def remove_algorithms_from_extracted_data(self):
         """
         Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
         """
-        for file_name in self.keywords:
-            self.keywords[file_name]['file_status'] = True
-            self.certs[file_name].file_status = True
-            if self.certs[file_name].mentioned_certs:
-                for item in self.certs[file_name].mentioned_certs:
-                    self.keywords[file_name]['rules_cert_id'].update(item)
-
-            for rule in self.keywords[file_name]['rules_cert_id']:
-                to_pop = set()
-                rr = re.compile(rule)
-                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
-                    for alg in self.keywords[file_name]['rules_fips_algorithms']:
-                        for found in self.keywords[file_name]['rules_fips_algorithms'][alg]:
-                            if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
-                                    cert).group('id'):
-                                to_pop.add(cert)
-                for r in to_pop:
-                    self.keywords[file_name]['rules_cert_id'][rule].pop(
-                        r, None)
-
-                self.keywords[file_name]['rules_cert_id'][rule].pop(
-                    self.certs[file_name].cert_id, None)
+        for cert in self.certs.values():
+            cert.remove_algorithms()
 
     def unify_algorithms(self):
         for certificate in self.certs.values():
@@ -740,7 +729,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         for current_cert in self.certs.values():
             current_cert.connections = []
-            if not current_cert.file_status:
+            if not current_cert.file_status or not current_cert.keywords:
                 continue
             if current_cert.keywords['rules_cert_id'] == {}:
                 continue

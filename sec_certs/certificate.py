@@ -406,7 +406,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
         cert, pdf_path, txt_path = tup
         if not cert.txt_state:
-            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ['-layout'])
+            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ['-raw'])
             if exit_code != constants.RETURNCODE_OK:
                 logger.error(f'Cert dgst: {cert.dgst} failed to convert security policy pdf->txt')
                 cert.txt_state = False
@@ -415,9 +415,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return cert
 
     @staticmethod
-    def parse_cert_file(cert: 'FIPSCertificate'):
+    def parse_cert_file(cert: 'FIPSCertificate') -> Optional[Dict]:
         if not cert.txt_state:
-            return
+            return None
 
         _, whole_text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'), -1,
                                                                     LINE_SEPARATOR)
@@ -466,28 +466,31 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                         match, 'x' * len(match))
 
         save_modified_cert_file(cert.state.fragment_path, whole_text_with_newlines, unicode_error)
-        cert.keywords = items_found_all
+        return items_found_all
 
     @staticmethod
-    def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, Path]:
+    def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
+        print(txt_file)
         with open(txt_file, 'r') as f:
             tables = helpers.find_tables(f.read(), txt_file)
 
         # If we find any tables with page numbers, we process them
+        lst = []
+        print(tables)
         if tables:
-            lst = []
             try:
-                data = read_pdf(cert_file,
-                                pages=tables, silent=True)
-            except Exception:
+                data = read_pdf(cert_file, pages=tables, silent=True)
+            except Exception as e:
                 try:
+                    logger.error(e)
                     helpers.repair_pdf(cert_file)
                     data = read_pdf(cert_file, pages=tables, silent=True)
 
-                except Exception:
-                    return False, cert_file
+                except Exception as ex:
+                    logger.error(ex)
+                    return False, cert, lst
 
             # find columns with cert numbers
             for df in data:
@@ -501,11 +504,30 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             lst += {"PLS": "DO I WORK MAKE ME WORK"}
 
-            if lst:
-                cert.algorithms += lst
+        return True, cert, lst
 
-        cert.tables_done = True
-        return True, cert_file
+    def remove_algorithms(self):
+        self.file_status = True
+        if not self.keywords:
+            return
+
+        if self.mentioned_certs:
+            for item in self.mentioned_certs:
+                self.keywords['rules_cert_id'].update(item)
+
+        for rule in self.keywords['rules_cert_id']:
+            to_pop = set()
+            rr = re.compile(rule)
+            for cert in self.keywords['rules_cert_id'][rule]:
+                for alg in self.keywords['rules_fips_algorithms']:
+                    for found in self.keywords['rules_fips_algorithms'][alg]:
+                        if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
+                                cert).group('id'):
+                            to_pop.add(cert)
+            for r in to_pop:
+                self.keywords['rules_cert_id'][rule].pop(r, None)
+
+            self.keywords['rules_cert_id'][rule].pop(self.cert_id, None)
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
