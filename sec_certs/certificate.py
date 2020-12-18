@@ -74,7 +74,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return cls(Path(dct['sp_path']), Path(dct['html_path']), Path(dct['fragment_path']))
 
         def to_dict(self):
-            return copy.deepcopy(self.__dict__)
+            return self.__dict__
 
         sp_path: Path
         html_path: Path
@@ -246,7 +246,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 current_text):
             set_items.add(m.group())
 
-        return list(set_items)
+        return [{"Certificate": [x]} for x in set_items]
 
     @staticmethod
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
@@ -415,9 +415,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return cert
 
     @staticmethod
-    def parse_cert_file(cert: 'FIPSCertificate') -> Optional[Dict]:
+    def parse_cert_file(cert: 'FIPSCertificate') -> Tuple[Optional[Dict], 'FIPSCertificate']:
         if not cert.txt_state:
-            return None
+            return None, cert
 
         _, whole_text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'), -1,
                                                                     LINE_SEPARATOR)
@@ -466,19 +466,17 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                         match, 'x' * len(match))
 
         save_modified_cert_file(cert.state.fragment_path, whole_text_with_newlines, unicode_error)
-        return items_found_all
+        return items_found_all, cert
 
     @staticmethod
     def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
-        print(txt_file)
         with open(txt_file, 'r') as f:
             tables = helpers.find_tables(f.read(), txt_file)
 
         # If we find any tables with page numbers, we process them
         lst = []
-        print(tables)
         if tables:
             try:
                 data = read_pdf(cert_file, pages=tables, silent=True)
@@ -502,7 +500,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 # Parse again if someone picks not so descriptive column names
                 lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
 
-            lst += {"PLS": "DO I WORK MAKE ME WORK"}
+            lst += [{"PLS": "DO I WORK MAKE ME WORK"}]
 
         return True, cert, lst
 

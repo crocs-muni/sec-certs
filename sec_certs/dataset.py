@@ -530,8 +530,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                                         [cert for cert in self.certs.values() if not cert.keywords],
                                                         constants.N_THREADS,
                                                         use_threading=False)
-            for keyword, cert in zip(keywords, self.certs.values()):
-                cert.keywords = keyword
+            for keyword, cert in keywords:
+                self.certs[cert.dgst].keywords = keyword
         else:
             self.keywords = json.loads(
                 open(self.root_dir / 'fips_full_keywords.json').read())
@@ -657,20 +657,17 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [cert for cert in self.certs.values() if
                                                    not cert.tables_done and cert.txt_state],
-                                                  constants.N_THREADS,
+                                                  4,
                                                   use_threading=False)
 
         not_decoded = list(map(lambda tup: tup[1].state.sp_path, filter(lambda tup: tup[0] is False, result)))
         for state, cert, algorithms in result:
-            cert.tables_done = state
-            cert.algorithms += algorithms
+            self.certs[cert.dgst].tables_done = state
+            self.certs[cert.dgst].algorithms += algorithms
 
         return not_decoded
 
     def remove_algorithms_from_extracted_data(self):
-        """
-        Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
-        """
         for cert in self.certs.values():
             cert.remove_algorithms()
 
@@ -679,9 +676,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             new_algorithms = []
             for algorithm in certificate.algorithms:
                 if isinstance(algorithm, dict):
-                    new_algorithms.append(algorithm)
+                    if "PLS" not in algorithm:
+                        new_algorithms.append(algorithm)
                 else:
-                    new_algorithms.append({'Certificate': algorithm})
+                    new_algorithms.append({'Certificate': [algorithm]})
             certificate.algorithms = new_algorithms
 
     def validate_results(self):
@@ -717,8 +715,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     cert_id = ''.join(filter(str.isdigit, cert))
 
                     if cert_id == '' or cert_id not in self.certs:
-                        broken_files.add(current_cert)
-                        self.certs[current_cert].file_status = False
+                        broken_files.add(current_cert.dgst)
+                        current_cert.file_status = False
                         break
 
         if broken_files:
