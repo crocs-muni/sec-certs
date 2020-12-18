@@ -16,7 +16,7 @@ def main():
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web()
+    dset.get_certs_from_web(False)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
@@ -28,7 +28,7 @@ def main():
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    dset.extract_keywords()
+    dset.extract_keywords(True)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")

@@ -522,12 +522,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     # TODO: make this work for single certs object instead of the whole dataset, making it parallelizable
     # TODO: make this not create a whole new json - that way continuous processing can be done
-    def extract_keywords(self):
+    def extract_keywords(self, redo):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
         if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
 
             keywords = cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
-                                                        [cert for cert in self.certs.values() if not cert.keywords],
+                                                        [cert for cert in self.certs.values() if not cert.keywords or redo],
                                                         constants.N_THREADS,
                                                         use_threading=False)
             for keyword, cert in keywords:
@@ -549,7 +549,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 sp_urls.append(
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf")
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
-
+        print(sp_urls)
         logging.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)),
                                          constants.N_THREADS)
@@ -593,7 +593,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
-    def get_certs_from_web(self):
+    def get_certs_from_web(self, redo=False):
 # there was a Tuple[int, int] return - why?
         def download_html_pages():
             self.download_all_pdfs()
@@ -638,16 +638,23 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
-            for cert in self.certs:
-                self.certs[cert] = FIPSCertificate.html_from_file(
-                    self.web_dir / f'{cert}.html',
-                    FIPSCertificate.State((self.policies_dir / cert).with_suffix('.pdf'),
-                                          (self.web_dir / cert).with_suffix('.html'),
-                                          (self.fragments_dir / cert).with_suffix('.txt')))
+            for cert_id in self.certs:
+                self.certs[cert_id] = FIPSCertificate.html_from_file(
+                    self.web_dir / f'{cert_id}.html',
+                    FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
+                                          (self.web_dir / cert_id).with_suffix('.html'),
+                                          (self.fragments_dir / cert_id).with_suffix('.txt')))
         else:
             logger.info("Certs loaded from previous scanning")
             dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
             self.certs = dataset.certs
+            if redo:
+                for cert_id, cert in self.certs.items():
+                    self.certs[cert_id] = FIPSCertificate.html_from_file(
+                        self.web_dir / f'{cert_id}.html',
+                        FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
+                                              (self.web_dir / cert_id).with_suffix('.html'),
+                                              (self.fragments_dir / cert_id).with_suffix('.txt')), cert)
 
     def extract_certs_from_tables(self) -> List[Path]:
         """
