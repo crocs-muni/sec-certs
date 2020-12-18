@@ -204,13 +204,13 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def initialize_dictionary() -> Dict:
-        d = {'fips_module_name': None, 'fips_standard': None, 'fips_status': None, 'fips_date_sunset': None,
-             'fips_date_validation': None, 'fips_level': None, 'fips_caveat': None, 'fips_exceptions': None,
-             'fips_type': None, 'fips_embodiment': None, 'fips_tested_conf': None, 'fips_description': None,
-             'fips_vendor': None, 'fips_vendor_www': None, 'fips_lab': None, 'fips_lab_nvlap': None,
-             'fips_historical_reason': None, 'fips_algorithms': [], 'fips_mentioned_certs': [],
-             'fips_tables_done': False, 'fips_security_policy_www': None, 'fips_certificate_www': None,
-             'fips_hw_versions': None, 'fips_fw_versions': None}
+        d = {'module_name': None, 'standard': None, 'status': None, 'date_sunset': None,
+             'date_validation': None, 'level': None, 'caveat': None, 'exceptions': None,
+             'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
+             'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
+             'historical_reason': None, 'algorithms': [], 'mentioned_certs': [],
+             'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
+             'hw_versions': None, 'fw_versions': None}
 
         return d
 
@@ -246,7 +246,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 current_text):
             set_items.add(m.group())
 
-        return [{"Certificate": [x]} for x in set_items]
+        return [{"Certificate": list(set_items)}]
 
     @staticmethod
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
@@ -260,7 +260,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for tr in trs:
             tds = tr.find_all('td')
             found_items.append(
-                {'Name': tds[0].text, 'Certificate': FIPSCertificate.parse_algorithms(tds[1].text)})
+                {'Name': tds[0].text, 'Certificate': FIPSCertificate.parse_algorithms(tds[1].text)[0]['Certificate']})
 
         return found_items
 
@@ -275,16 +275,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 html_items_found[pairs[title]] = content.split(';')
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['fips_mentioned_certs'] += FIPSCertificate.parse_caveat(
+                html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
                     content)
 
             elif 'FIPS Algorithms' in title:
-                html_items_found['fips_algorithms'] += FIPSCertificate.parse_table(
+                html_items_found['algorithms'] += FIPSCertificate.parse_table(
                     current_div.find('div', class_='col-md-9'))
 
-            elif 'Algorithms' in title:
-                html_items_found['fips_algorithms'] += [{'Certificate': x} for x in
-                                                        FIPSCertificate.parse_algorithms(content)]
+            elif 'Algorithms' in title or 'Description' in title:
+                html_items_found['algorithms'] += FIPSCertificate.parse_algorithms(content)
 
             elif 'tested_conf' in pairs[title]:
                 html_items_found[pairs[title]] = [x.text for x in
@@ -301,62 +300,66 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not vendor_string:
             vendor_string = list(current_div.find(
                 'div', 'panel-body').children)[0].strip()
-            html_items_found['fips_vendor_www'] = ''
+            html_items_found['vendor_www'] = ''
         else:
-            html_items_found['fips_vendor_www'] = vendor_string.get('href')
+            html_items_found['vendor_www'] = vendor_string.get('href')
             vendor_string = vendor_string.text.strip()
 
-        html_items_found['fips_vendor'] = vendor_string
-        if html_items_found['fips_vendor'] == '':
+        html_items_found['vendor'] = vendor_string
+        if html_items_found['vendor'] == '':
             logger.warning(f"WARNING: NO VENDOR FOUND {current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
-        html_items_found['fips_lab'] = list(
+        html_items_found['lab'] = list(
             current_div.find('div', 'panel-body').children)[0].strip()
-        html_items_found['fips_nvlap_code'] = \
+        html_items_found['nvlap_code'] = \
             list(current_div.find(
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
-        if html_items_found['fips_lab'] == '':
+        if html_items_found['lab'] == '':
             logger.warning(f"WARNING: NO LAB FOUND {current_file}")
 
-        if html_items_found['fips_nvlap_code'] == '':
+        if html_items_found['nvlap_code'] == '':
             logger.warning(f"WARNING: NO NVLAP CODE FOUND {current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
         links = current_div.find_all('a')
         # TODO: break out of circular imports hell
-        html_items_found['fips_security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
+        html_items_found['security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
 
         if len(links) == 2:
-            html_items_found['fips_certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
+            html_items_found['certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
 
     @classmethod
-    def html_from_file(cls, file: Path, state: State) -> 'FIPSCertificate':
+    def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None) -> 'FIPSCertificate':
         pairs = {
-            'Module Name': 'fips_module_name',
-            'Standard': 'fips_standard',
-            'Status': 'fips_status',
-            'Sunset Date': 'fips_date_sunset',
-            'Validation Dates': 'fips_date_validation',
-            'Overall Level': 'fips_level',
-            'Caveat': 'fips_caveat',
-            'Security Level Exceptions': 'fips_exceptions',
-            'Module Type': 'fips_type',
-            'Embodiment': 'fips_embodiment',
-            'FIPS Algorithms': 'fips_algorithms',
-            'Allowed Algorithms': 'fips_algorithms',
-            'Other Algorithms': 'fips_algorithms',
-            'Tested Configuration(s)': 'fips_tested_conf',
-            'Description': 'fips_description',
-            'Historical Reason': 'fips_historical_reason',
-            'Hardware Versions': 'fips_hw_versions',
-            'Firmware Versions': 'fips_fw_versions'
+            'Module Name': 'module_name',
+            'Standard': 'standard',
+            'Status': 'status',
+            'Sunset Date': 'date_sunset',
+            'Validation Dates': 'date_validation',
+            'Overall Level': 'level',
+            'Caveat': 'caveat',
+            'Security Level Exceptions': 'exceptions',
+            'Module Type': 'type',
+            'Embodiment': 'embodiment',
+            'FIPS Algorithms': 'algorithms',
+            'Allowed Algorithms': 'algorithms',
+            'Other Algorithms': 'algorithms',
+            'Tested Configuration(s)': 'tested_conf',
+            'Description': 'description',
+            'Historical Reason': 'historical_reason',
+            'Hardware Versions': 'hw_versions',
+            'Firmware Versions': 'fw_versions'
         }
-        items_found = FIPSCertificate.initialize_dictionary()
-        items_found['cert_fips_id'] = file.stem
+        if not initialized:
+            items_found = FIPSCertificate.initialize_dictionary()
+            items_found['cert_id'] = file.stem
+
+        else:
+            items_found = initialized.__dict__
 
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
@@ -372,35 +375,53 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             if div.find('h4', class_='panel-title').text == 'Related Files':
                 FIPSCertificate.parse_related_files(div, items_found)
+        if initialized:
+            new_algs = []
+            not_defined = set()
+            for i, alg in enumerate(items_found['algorithms']):
+                if 'Name' in alg:
+                    for pair in range(i + 1, len(items_found['algorithms'])):
+                        if 'Name' in items_found['algorithms'][pair] \
+                                and alg['Name'] == items_found['algorithms'][pair]['Name']:
+                            new_algs.append({'Name': alg['Name'], 'Certificate':
+                                list(set([x for x in alg['Certificate']]) | set(items_found['algorithms'][pair]['Certificate']))})
+                else:
+                    for cert_id in alg['Certificate']:
+                        not_defined.add(cert_id)
+            new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
 
-        return FIPSCertificate(items_found['cert_fips_id'],
-                               items_found['fips_module_name'],
-                               items_found['fips_standard'],
-                               items_found['fips_status'],
-                               items_found['fips_date_sunset'],
-                               items_found['fips_date_validation'],
-                               items_found['fips_level'],
-                               items_found['fips_caveat'],
-                               items_found['fips_exceptions'],
-                               items_found['fips_type'],
-                               items_found['fips_embodiment'],
-                               items_found['fips_algorithms'],
-                               items_found['fips_tested_conf'],
-                               items_found['fips_description'],
-                               items_found['fips_mentioned_certs'],
-                               items_found['fips_vendor'],
-                               items_found['fips_vendor_www'],
-                               items_found['fips_lab'],
-                               items_found['fips_nvlap_code'],
-                               items_found['fips_historical_reason'],
-                               items_found['fips_security_policy_www'],
-                               items_found['fips_certificate_www'],
-                               items_found['fips_hw_versions'],
-                               items_found['fips_fw_versions'],
-                               False,
+            items_found['algorithms'] = new_algs
+
+        return FIPSCertificate(items_found['cert_id'],
+                               items_found['module_name'],
+                               items_found['standard'],
+                               items_found['status'],
+                               items_found['date_sunset'],
+                               items_found['date_validation'],
+                               items_found['level'],
+                               items_found['caveat'],
+                               items_found['exceptions'],
+                               items_found['type'],
+                               items_found['embodiment'],
+                               items_found['algorithms'],
+                               items_found['tested_conf'],
+                               items_found['description'],
+                               items_found['mentioned_certs'],
+                               items_found['vendor'],
+                               items_found['vendor_www'],
+                               items_found['lab'],
+                               items_found['nvlap_code'],
+                               items_found['historical_reason'],
+                               items_found['security_policy_www'],
+                               items_found['certificate_www'],
+                               items_found['hw_versions'],
+                               items_found['fw_versions'],
+                               False if not initialized else items_found['tables_done'],
                                None,
                                [],
-                               state)
+                               state,
+                               txt_state=False if not initialized else items_found['txt_state'],
+                               keywords=None if not initialized else items_found['keywords'])
 
     @staticmethod
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
@@ -432,7 +453,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found = items_found_all[rule_group]
 
             for rule in fips_rules[rule_group]:
-
                 rule_and_sep = rule + REGEXEC_SEP
 
                 for m in re.finditer(rule_and_sep, whole_text_with_newlines):
@@ -499,9 +519,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
                 # Parse again if someone picks not so descriptive column names
                 lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
-
-            lst += [{"PLS": "DO I WORK MAKE ME WORK"}]
-
         return True, cert, lst
 
     def remove_algorithms(self):
