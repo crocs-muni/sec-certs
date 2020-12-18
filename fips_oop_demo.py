@@ -10,10 +10,10 @@ def main():
     start = datetime.now()
 
     # Create empty dataset
-    # dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
+    dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
 
     # this is for creating test dataset, usually with small number of pdfs
-    dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
+    # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web()
@@ -23,15 +23,16 @@ def main():
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
-    logging.info("Extracting keywords now.")
-
+    logging.info("Converting pdfs")
     dset.convert_all_pdfs()
-
-    dset.extract_keywords()
-
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
-    logging.info(f'Finished extracting certificates for {len(dset.keywords)} items.')
+    logging.info("Extracting keywords now.")
+    dset.extract_keywords()
+
+    logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
+    logging.info("Dumping dataset again...")
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Searching for tables in pdfs")
 
