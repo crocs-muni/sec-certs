@@ -263,10 +263,10 @@ rules_fips_remove_algorithm_ids = [
     r"SH[SA][-]*(?:160|224|256|384|512)?(?:[\s(\[]*?(?:KAT)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)(\d{1})(?:\)?\[#?\d+\])?",
 
 # --- RSA (bits) (method) ((cert #)) ---
-    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{4})",
-    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{3})",
-    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{2})",
-    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{1})",
+    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{4})",
+    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{3})",
+    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{2})",
+    r"RSA(?:[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?\s?(\d{1})",
 
 # --- RSA (SSA) (PKCS) (version) (#) ---
     r"(?:RSA)?[- ]?(?:SSA)?[- ]?PKCS\s?#?\d(?:-[Vv]1_5| [Vv]1[-_]5)?\s?(\d{4})?",
@@ -329,10 +329,16 @@ rules_fips_remove_algorithm_ids = [
 # --- random words found ---
     r"Survey #192",  # why would they get an address like this /o\ cert 2079
     r"[Ss]lot #\d",  # a card slot, #2069
-    r"[Ss]eals? ?(?#\d - #\d", #  #1232
+    r"[Ss]eals? ?\(?#\d - #\d", #  #1232
     r"\[#\d*\]", # some certs use this as references
     r"CSP ?#\d",  # #2795
     r"[Pp]ower [Ss]upply #\d", # #604
+    r"TEL #\d and #\d", # #3337
+    r"#\d+ - #\d+", # labels, seals... #1232
+    r"#\d+, ?#\d+",
+    r"#\d+ and #\d+",
+    r"label \(#\d+\)",
+    r"\(#\d\)"
 ]
 
 rules_fips_cert = [
