@@ -1,19 +1,16 @@
 import os
-import re
 from datetime import datetime
 import locale
 import logging
 from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple
 
 import json
-from importlib import import_module
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
 
 from graphviz import Digraph
 import requests
-from tabula import read_pdf
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
 
@@ -24,7 +21,6 @@ import sec_certs.files as files
 
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
-from sec_certs.extract_certificates import extract_certificates_keywords
 
 logger = logging.getLogger(__name__)
 
@@ -638,6 +634,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info(f"{self.new_files} needed to be downloaded")
 
         if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
+            logger.error('NEW FILES!!! CARE')
             for cert_id in self.certs:
                 self.certs[cert_id] = FIPSCertificate.html_from_file(
                     self.web_dir / f'{cert_id}.html',
@@ -696,7 +693,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
             # TODO: do we do this? #1 is used a lot
-            if cert_candidate == '1':
+            if cert_candidate.isdecimal() and int(cert_candidate) < 100 :
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True
