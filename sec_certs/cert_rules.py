@@ -336,7 +336,7 @@ rules_fips_remove_algorithm_ids = [
     r"TEL #\d and #\d", # #3337
     r"#\d+ - #\d+", # labels, seals... #1232
     r"#\d+, ?#\d+",
-    r"#\d+ and #\d+",
+    r"#?\d+ and #?\d+",
     r"label \(#\d+\)",
     r"\(#\d\)"
 ]
