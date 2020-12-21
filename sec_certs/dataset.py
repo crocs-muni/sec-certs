@@ -590,7 +590,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
     def get_certs_from_web(self, redo=False):
-# there was a Tuple[int, int] return - why?
         def download_html_pages():
             self.download_all_pdfs()
             self.download_all_htmls()
@@ -633,7 +632,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logger.info(f"{self.new_files} needed to be downloaded")
 
-        if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
+        if not (self.root_dir / 'fips_full_dataset.json').exists():
             logger.error('NEW FILES!!! CARE')
             for cert_id in self.certs:
                 self.certs[cert_id] = FIPSCertificate.html_from_file(
@@ -645,7 +644,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             logger.info("Certs loaded from previous scanning")
             dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
             self.certs = dataset.certs
-            if redo:
+            if redo or self.new_files > 0:
                 for cert_id, cert in self.certs.items():
                     self.certs[cert_id] = FIPSCertificate.html_from_file(
                         self.web_dir / f'{cert_id}.html',
@@ -680,8 +679,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             new_algorithms = []
             for algorithm in certificate.algorithms:
                 if isinstance(algorithm, dict):
-                    if "PLS" not in algorithm:
-                        new_algorithms.append(algorithm)
+                    new_algorithms.append(algorithm)
                 else:
                     new_algorithms.append({'Certificate': [algorithm]})
             certificate.algorithms = new_algorithms
@@ -692,8 +690,17 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         """
 
         def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
-            # TODO: do we do this? #1 is used a lot
-            if cert_candidate.isdecimal() and int(cert_candidate) < 100 :
+            # returns True if candidates should _not_ be matched
+            def compare_certs(current_certificate: 'FIPSCertificate', other_id: str):
+                cert_first = int(current_certificate.date_validation[0].split('/')[-1])
+                cert_last = int(current_certificate.date_validation[-1].split('/')[-1])
+                conn_first = int(self.certs[other_id].date_validation[0].split('/')[-1])
+                conn_last = int(self.certs[other_id].date_validation[-1].split('/')[-1])
+
+                return cert_first - conn_first > 5 and cert_last - conn_last > 5
+
+            # "< 105" still needs to be used, because of some old certs being revalidated
+            if cert_candidate.isdecimal() and (int(cert_candidate) < 105 or compare_certs(processed_cert, cert_candidate)):
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True
