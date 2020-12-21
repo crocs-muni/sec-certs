@@ -21,6 +21,8 @@ from sec_certs.extract_certificates import load_cert_file, normalize_match_strin
     LINE_SEPARATOR
 from sec_certs.cert_rules import fips_rules
 
+from iteration_utilities import unique_everseen
+
 logger = logging.getLogger(__name__)
 
 
@@ -108,6 +110,19 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
                        dct['date'])
 
+    def __str__(self) -> str:
+        return str(self.cert_id)
+
+    @property
+    def dgst(self) -> str:
+        return self.cert_id
+
+    @staticmethod
+    def download_security_policy(cert: Tuple[str, Path]) -> None:
+        exit_code = helpers.download_file(*cert)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
+
     def __init__(self, cert_id: str,
                  module_name: Optional[str],
                  standard: Optional[str],
@@ -136,8 +151,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  file_status: Optional[bool],
                  connections: List,
                  state: State,
-                 txt_state: bool = False,
-                 keywords: Dict = None):
+                 txt_state: bool,
+                 keywords: Dict,
+                 revoked_reason: Optional[str],
+                 revoked_link: Optional[str]):
         super().__init__()
         self.cert_id = cert_id
 
@@ -162,6 +179,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.lab_nvlap = lab_nvlap
 
         self.historical_reason = historical_reason
+
         self.security_policy_www = security_policy_www
         self.certificate_www = certificate_www
         self.hw_versions = hw_version
@@ -174,18 +192,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.txt_state = txt_state
         self.keywords = keywords
 
-    def __str__(self) -> str:
-        return str(self.cert_id)
-
-    @property
-    def dgst(self) -> str:
-        return self.cert_id
-
-    @staticmethod
-    def download_security_policy(cert: Tuple[str, Path]) -> None:
-        exit_code = helpers.download_file(*cert)
-        if exit_code != requests.codes.ok:
-            logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
+        self.revoked_reason = revoked_reason
+        self.revoked_link = revoked_link
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> None:
@@ -208,8 +216,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
              'date_validation': None, 'level': None, 'caveat': None, 'exceptions': None,
              'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
              'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
-             'historical_reason': None, 'algorithms': [], 'mentioned_certs': [],
-             'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
+             'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
+             'mentioned_certs': [], 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
              'hw_versions': None, 'fw_versions': None}
 
         return d
@@ -326,7 +334,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
         links = current_div.find_all('a')
-        # TODO: break out of circular imports hell
         html_items_found['security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
 
         if len(links) == 2:
@@ -352,7 +359,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             'Description': 'description',
             'Historical Reason': 'historical_reason',
             'Hardware Versions': 'hw_versions',
-            'Firmware Versions': 'fw_versions'
+            'Firmware Versions': 'fw_versions',
+            'Revoked Reason': 'revoked_reason',
+            'Revoked Link': 'revoked_link'
         }
         if not initialized:
             items_found = FIPSCertificate.initialize_dictionary()
@@ -360,6 +369,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         else:
             items_found = initialized.__dict__
+            items_found['revoked_reason'] = None
+            items_found['revoked_link'] = None
 
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
@@ -375,6 +386,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             if div.find('h4', class_='panel-title').text == 'Related Files':
                 FIPSCertificate.parse_related_files(div, items_found)
+
         if initialized:
             new_algs = []
             not_defined = set()
@@ -384,13 +396,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                         if 'Name' in items_found['algorithms'][pair] \
                                 and alg['Name'] == items_found['algorithms'][pair]['Name']:
                             new_algs.append({'Name': alg['Name'], 'Certificate':
-                                list(set([x for x in alg['Certificate']]) | set(items_found['algorithms'][pair]['Certificate']))})
+                                list(set([x for x in alg['Certificate']]) | set(
+                                    items_found['algorithms'][pair]['Certificate']))})
                 else:
                     for cert_id in alg['Certificate']:
                         not_defined.add(cert_id)
+
+
             new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
 
-            items_found['algorithms'] = new_algs
+            items_found['algorithms'] = list(unique_everseen(new_algs))
 
         return FIPSCertificate(items_found['cert_id'],
                                items_found['module_name'],
@@ -420,8 +435,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                None,
                                [],
                                state,
-                               txt_state=False if not initialized else items_found['txt_state'],
-                               keywords=None if not initialized else items_found['keywords'])
+                               False if not initialized else items_found['txt_state'],
+                               None if not initialized else items_found['keywords'],
+                               items_found['revoked_reason'],
+                               items_found['revoked_link'])
 
     @staticmethod
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
