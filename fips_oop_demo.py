@@ -2,7 +2,6 @@ from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from pathlib import Path
 from datetime import datetime
 import logging
-from sec_certs.helpers import download_parallel
 
 
 def main():
@@ -16,7 +15,7 @@ def main():
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web(False)
+    dset.get_certs_from_web()
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
@@ -28,7 +27,7 @@ def main():
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    dset.extract_keywords(True)
+    dset.extract_keywords()
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")
