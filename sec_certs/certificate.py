@@ -106,7 +106,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return copy.deepcopy(self.__dict__)
 
         @classmethod
-        def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
+        def from_dict(cls, dct: dict) -> 'FIPSCertificate.Algorithm':
             return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
                        dct['date'])
 
@@ -134,7 +134,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  exceptions: Optional[List[str]],
                  module_type: Optional[str],
                  embodiment: Optional[str],
-                 algorithms: Optional[List[str]],
+                 algorithms: Optional[List[dict[str, str]]],
                  tested_conf: Optional[List[str]],
                  description: Optional[str],
                  mentioned_certs: Optional[List[str]],
@@ -299,8 +299,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             else:
                 html_items_found[pairs[title]] = content
 
-    # TODO parse all the items
-
     @staticmethod
     def parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path):
         vendor_string = current_div.find('div', 'panel-body').find('a')
@@ -391,17 +389,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             new_algs = []
             not_defined = set()
             for i, alg in enumerate(items_found['algorithms']):
-                if 'Name' in alg:
-                    for pair in range(i + 1, len(items_found['algorithms'])):
-                        if 'Name' in items_found['algorithms'][pair] \
-                                and alg['Name'] == items_found['algorithms'][pair]['Name']:
-                            new_algs.append({'Name': alg['Name'], 'Certificate':
-                                list(set([x for x in alg['Certificate']]) | set(
-                                    items_found['algorithms'][pair]['Certificate']))})
-                else:
+                if 'Name' not in alg:
                     for cert_id in alg['Certificate']:
                         not_defined.add(cert_id)
-
+                    continue
+                for pair in range(i + 1, len(items_found['algorithms'])):
+                    if 'Name' in items_found['algorithms'][pair] \
+                            and alg['Name'] == items_found['algorithms'][pair]['Name']:
+                        new_algs.append({'Name': alg['Name'], 'Certificate':
+                            list(set([x for x in alg['Certificate']]) | set(
+                                items_found['algorithms'][pair]['Certificate']))})
 
             new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
 
@@ -460,7 +457,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         _, whole_text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'), -1,
                                                                     LINE_SEPARATOR)
 
-        file_name = cert.state.sp_path.with_suffix('').with_suffix('').stem
         # apply all rules
         items_found_all = {}
         for rule_group in fips_rules.keys():
@@ -512,7 +508,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         with open(txt_file, 'r') as f:
             tables = helpers.find_tables(f.read(), txt_file)
 
-        # If we find any tables with page numbers, we process them
         lst = []
         if tables:
             try:
@@ -553,8 +548,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for cert in self.keywords['rules_cert_id'][rule]:
                 for alg in self.keywords['rules_fips_algorithms']:
                     for found in self.keywords['rules_fips_algorithms'][alg]:
-                        if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
-                                cert).group('id'):
+                        if rr.search(found) \
+                                and rr.search(cert) \
+                                and rr.search(found).group('id') == rr.search(cert).group('id'):
                             to_pop.add(cert)
             for r in to_pop:
                 self.keywords['rules_cert_id'][rule].pop(r, None)
