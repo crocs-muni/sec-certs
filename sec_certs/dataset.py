@@ -657,7 +657,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [cert for cert in self.certs.values() if
                                                    not cert.tables_done and cert.txt_state],
-                                                  4,
+                                                  constants.N_THREADS // 4,  # tabula already process by parallel, so
+                                                                            # it's counterproductive to use all threads
                                                   use_threading=False)
 
         not_decoded = list(map(lambda tup: tup[1].state.sp_path, filter(lambda tup: tup[0] is False, result)))
