@@ -690,10 +690,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
             # returns True if candidates should _not_ be matched
             def compare_certs(current_certificate: 'FIPSCertificate', other_id: str):
-                cert_first = int(current_certificate.date_validation[0].split('/')[-1])
-                cert_last = int(current_certificate.date_validation[-1].split('/')[-1])
-                conn_first = int(self.certs[other_id].date_validation[0].split('/')[-1])
-                conn_last = int(self.certs[other_id].date_validation[-1].split('/')[-1])
+                cert_first = current_certificate.date_validation[0].year
+                cert_last = current_certificate.date_validation[-1].year
+                conn_first = self.certs[other_id].date_validation[0].year
+                conn_last = self.certs[other_id].date_validation[-1].year
 
                 return cert_first - conn_first > 5 and cert_last - conn_last > 5
 

@@ -7,6 +7,7 @@ import os
 import copy
 import json
 import requests
+from dateutil import parser
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
@@ -126,8 +127,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  module_name: Optional[str],
                  standard: Optional[str],
                  status: Optional[str],
-                 date_sunset: Optional[List[str]],
-                 date_validation: Optional[List[str]],
+                 date_sunset: Optional[List[date]],
+                 date_validation: Optional[List[date]],
                  level: Optional[str],
                  caveat: Optional[str],
                  exceptions: Optional[List[str]],
@@ -279,7 +280,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         if title in pairs:
             if 'date' in pairs[title]:
-                html_items_found[pairs[title]] = content.split(';')
+                html_items_found[pairs[title]] = [parser.parse(x) for x in content.split(';')]
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
                 html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
