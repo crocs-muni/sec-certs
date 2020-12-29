@@ -1,3 +1,7 @@
+import re
+
+REGEXEC_SEP = '[ ,;\]”)(]'
+
 rules_cert_id = [
     'BSI-DSZ-CC-[0-9]+?-[0-9]+',  # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+',  # German BSI
@@ -420,3 +424,7 @@ fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
 fips_rules.update(common_rules)
+
+for rule in fips_rules:
+    for current_rule in range(len(fips_rules[rule])):
+        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule] + REGEXEC_SEP)
