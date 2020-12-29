@@ -470,7 +470,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found = items_found_all[rule_group]
 
             for rule in fips_rules[rule_group]:
-                # rule_and_sep = rule + REGEXEC_SEP
                 for m in rule.finditer(whole_text_with_newlines):
                 # for m in re.finditer(rule, whole_text_with_newlines):
                     # insert rule if at least one match for it was found
