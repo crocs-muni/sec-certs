@@ -21,7 +21,6 @@ from sec_certs.extract_certificates import load_cert_file, normalize_match_strin
     LINE_SEPARATOR
 from sec_certs.cert_rules import fips_rules
 
-from iteration_utilities import unique_everseen
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +133,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  exceptions: Optional[List[str]],
                  module_type: Optional[str],
                  embodiment: Optional[str],
-                 algorithms: Optional[List[dict[str, str]]],
+                 algorithms: Optional[List[Dict[str, str]]],
                  tested_conf: Optional[List[str]],
                  description: Optional[str],
                  mentioned_certs: Optional[List[str]],
@@ -241,16 +240,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return ids_found
 
     @staticmethod
-    def parse_algorithms(current_text: str, in_pdf: bool = False) -> List:
+    def extract_algorithm_certificates(current_text: str, in_pdf: bool = False) -> List:
         """
         Parses table of FIPS (non) allowed algorithms
         :param current_text: Contents of the table
         :param in_pdf: Specifies whether the table was found in a PDF security policies file
-        :return: list of all found algorithm IDs
+        :return: List containing one element - dictionary with all parsed algorithm cert ids
         """
         set_items = set()
         for m in re.finditer(
-                rf"(?:#{'?' if in_pdf else 'C?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
+                rf"(?:#{'?' if in_pdf else '[CcAa]?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)",
                 current_text):
             set_items.add(m.group())
 
@@ -268,7 +267,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for tr in trs:
             tds = tr.find_all('td')
             found_items.append(
-                {'Name': tds[0].text, 'Certificate': FIPSCertificate.parse_algorithms(tds[1].text)[0]['Certificate']})
+                {'Name': tds[0].text, 'Certificate': FIPSCertificate.extract_algorithm_certificates(tds[1].text)[0]['Certificate']})
 
         return found_items
 
@@ -291,7 +290,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     current_div.find('div', class_='col-md-9'))
 
             elif 'Algorithms' in title or 'Description' in title:
-                html_items_found['algorithms'] += FIPSCertificate.parse_algorithms(content)
+                html_items_found['algorithms'] += FIPSCertificate.extract_algorithm_certificates(content)
 
             elif 'tested_conf' in pairs[title]:
                 html_items_found[pairs[title]] = [x.text for x in
@@ -396,13 +395,18 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 for pair in range(i + 1, len(items_found['algorithms'])):
                     if 'Name' in items_found['algorithms'][pair] \
                             and alg['Name'] == items_found['algorithms'][pair]['Name']:
-                        new_algs.append({'Name': alg['Name'], 'Certificate':
-                            list(set([x for x in alg['Certificate']]) | set(
-                                items_found['algorithms'][pair]['Certificate']))})
+                        entry = {'Name': alg['Name'], 'Certificate':
+                            list(set([x for x in alg['Certificate']]) | set(items_found['algorithms'][pair]['Certificate']))}
+                        if entry not in new_algs:
+                            new_algs.append(entry)
+            for entry in new_algs:
+                if entry['Name'] == 'Not Defined':
+                    entry['Certificate'] = list(set(entry['Certificate'] | not_defined))
+                    break
+            else:
+                new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
 
-            new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
-
-            items_found['algorithms'] = list(unique_everseen(new_algs))
+            items_found['algorithms'] = new_algs
 
         return FIPSCertificate(items_found['cert_id'],
                                items_found['module_name'],
@@ -466,12 +470,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found = items_found_all[rule_group]
 
             for rule in fips_rules[rule_group]:
-                rule_and_sep = rule + REGEXEC_SEP
-
-                for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+                # rule_and_sep = rule + REGEXEC_SEP
+                for m in rule.finditer(whole_text_with_newlines):
+                # for m in re.finditer(rule, whole_text_with_newlines):
                     # insert rule if at least one match for it was found
-                    if rule not in items_found:
-                        items_found[rule] = {}
+                    if rule.pattern not in items_found:
+                        items_found[rule.pattern] = {}
 
                     match = m.group()
                     match = normalize_match_string(match)
@@ -488,12 +492,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                             if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
                                 continue
 
-                    # TODO: figure out what this does
-                    if match not in items_found[rule]:
-                        items_found[rule][match] = {}
-                        items_found[rule][match][constants.TAG_MATCH_COUNTER] = 0
+                    if match not in items_found[rule.pattern]:
+                        items_found[rule.pattern][match] = {}
+                        items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] = 0
 
-                    items_found[rule][match][constants.TAG_MATCH_COUNTER] += 1
+                    items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] += 1
 
                     whole_text_with_newlines = whole_text_with_newlines.replace(
                         match, 'x' * len(match))
@@ -526,11 +529,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for df in data:
                 for col in range(len(df.columns)):
                     if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                        lst += FIPSCertificate.parse_algorithms(
+                        lst += FIPSCertificate.extract_algorithm_certificates(
                             df.iloc[:, col].to_string(index=False), True)
 
                 # Parse again if someone picks not so descriptive column names
-                lst += FIPSCertificate.parse_algorithms(df.to_string(index=False))
+                lst += FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
         return True, cert, lst
 
     def remove_algorithms(self):

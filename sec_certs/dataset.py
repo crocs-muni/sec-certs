@@ -630,7 +630,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info(f"{self.new_files} needed to be downloaded")
 
         if not (self.root_dir / 'fips_full_dataset.json').exists():
-            logger.error('NEW FILES!!! CARE')
             for cert_id in self.certs:
                 self.certs[cert_id] = FIPSCertificate.html_from_file(
                     self.web_dir / f'{cert_id}.html',
@@ -638,6 +637,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                           (self.web_dir / cert_id).with_suffix('.html'),
                                           (self.fragments_dir / cert_id).with_suffix('.txt')))
             return
+
         logger.info("Certs loaded from previous scanning")
         dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
         self.certs = dataset.certs
@@ -657,7 +657,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [cert for cert in self.certs.values() if
                                                    not cert.tables_done and cert.txt_state],
-                                                  constants.N_THREADS // 4,  # tabula already process by parallel, so
+                                                  constants.N_THREADS // 4,  # tabula already processes by parallel, so
                                                                             # it's counterproductive to use all threads
                                                   use_threading=False)
 
@@ -869,10 +869,10 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                     self.certs[alg_id].append(fips_alg)
 
     def convert_all_pdfs(self):
-        raise Exception('Not meant to be implemented')
+        raise NotImplementedError('Not meant to be implemented')
 
     def download_all_pdfs(self):
-        raise Exception('Not meant to be implemented')
+        raise NotImplementedError('Not meant to be implemented')
 
     def to_dict(self):
         return {"certs": self.certs}
