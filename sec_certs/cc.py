@@ -1,18 +1,13 @@
 import json
 from collections import namedtuple
 from sys import getsizeof
-import os.path
-import random
 from datetime import datetime
 from hashlib import blake2b
 
-import networkx as nx
-from networkx.algorithms.components import weakly_connected_components
-from networkx.readwrite.json_graph import node_link_data
-from flask import Blueprint, render_template, abort, jsonify, url_for, current_app, request
+from flask import Blueprint, render_template, url_for, current_app, request
 from pkg_resources import resource_stream
 
-from .utils import Pagination, smallest
+from .utils import Pagination, smallest, create_graph, entry_func, entry_json_func, entry_graph_json_func, network_graph_func
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
 
@@ -32,7 +27,7 @@ CCEntry = namedtuple("CCEntry", ("name", "hashid", "status", "cert_date", "archi
 def load_cc_data():
     global cc_names, cc_data, cc_graphs, cc_map, cc_analysis, cc_sfrs, cc_sars, cc_categories
     # Load raw data
-    with current_app.open_instance_resource( "cc.json") as f:
+    with current_app.open_instance_resource("cc.json") as f:
         loaded_cc_data = json.load(f)
     print(" * (CC) Loaded certs")
 
@@ -40,7 +35,8 @@ def load_cc_data():
     cc_data = {blake2b(key.encode(), digest_size=20).hexdigest(): value for key, value in loaded_cc_data.items()}
     cc_names = list(sorted(CCEntry(value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"],
                                    datetime.strptime(value["csv_scan"]["cc_certification_date"], "%m/%d/%Y"),
-                                   datetime.strptime(value["csv_scan"]["cc_archived_date"], "%m/%d/%Y") if value["csv_scan"]["cc_archived_date"] else value["csv_scan"]["cc_archived_date"],
+                                   datetime.strptime(value["csv_scan"]["cc_archived_date"], "%m/%d/%Y") if
+                                   value["csv_scan"]["cc_archived_date"] else value["csv_scan"]["cc_archived_date"],
                                    value["csv_scan"]["cc_category"], value["csv_scan"]["cert_item_name"].lower())
                            for key, value in cc_data.items()))
 
@@ -54,32 +50,21 @@ def load_cc_data():
         reference = {
             "hashid": hashid,
             "name": cert["csv_scan"]["cert_item_name"],
-            "refs": []
+            "refs": [],
+            "href": url_for("cc.entry", hashid=hashid)
         }
 
-        if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and "keywords_scan" in cert and cert["keywords_scan"]["rules_cert_id"]:
+        if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and "keywords_scan" in cert and \
+                cert["keywords_scan"]["rules_cert_id"]:
             items = sum(map(lambda x: list(x.keys()), cert["keywords_scan"]["rules_cert_id"].values()), [])
             reference["refs"].extend(items)
-        if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and "st_keywords_scan" in cert and cert["st_keywords_scan"]["rules_cert_id"]:
+        if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and "st_keywords_scan" in cert and \
+                cert["st_keywords_scan"]["rules_cert_id"]:
             items = sum(map(lambda x: list(x.keys()), cert["st_keywords_scan"]["rules_cert_id"].values()), [])
             reference["refs"].extend(items)
         cc_references[cert_id] = reference
 
-    # Create graph
-    cc_graph = nx.DiGraph()
-    for key, value in cc_references.items():
-        cc_graph.add_node(value["hashid"], certid=key, name=value["name"],
-                          href=url_for("cc.entry", hashid=value["hashid"]))
-    for cert_id, reference in cc_references.items():
-        for ref_id in set(reference["refs"]):
-            if ref_id in cc_references and ref_id != cert_id:
-                cc_graph.add_edge(reference["hashid"], cc_references[ref_id]["hashid"])
-    cc_graphs = []
-    for component in weakly_connected_components(cc_graph):
-        subgraph = cc_graph.subgraph(component)
-        cc_graphs.append(subgraph)
-        for node in subgraph:
-            cc_map[str(node)] = subgraph
+    cc_graph, cc_graphs, cc_map = create_graph(cc_references)
     print(f" * (CC) Got {len(cc_data)} certificates")
     print(f" * (CC) Got {len(cc_references)} certificates with IDs")
     print(f" * (CC) Got {len(cc_graphs)} graph components")
@@ -147,26 +132,21 @@ def index():
 
 @cc.route("/network/")
 def network():
-    nodes = []
-    edges = []
-    for graph in cc_graphs:
-        link_data = node_link_data(graph)
-        nodes.extend(link_data["nodes"])
-        edges.extend(link_data["links"])
-    random.shuffle(nodes)
-    network = {
-        "nodes": nodes,
-        "links": edges
-    }
-    return render_template("cc/network.html.jinja2", network=network, title="Common Criteria network | seccerts.org")
+    return render_template("cc/network.html.jinja2", url=url_for(".network_graph"),
+                           title="Common Criteria network | seccerts.org")
 
 
-def process_search(request, callback=None):
-    page = int(request.args.get("page", 1))
-    q = request.args.get("q", None)
-    cat = request.args.get("cat", None)
-    status = request.args.get("status", "any")
-    sort = request.args.get("sort", "name")
+@cc.route("/network/graph.json")
+def network_graph():
+    return network_graph_func(cc_graphs)
+
+
+def process_search(req, callback=None):
+    page = int(req.args.get("page", 1))
+    q = req.args.get("q", None)
+    cat = req.args.get("cat", None)
+    status = req.args.get("status", "any")
+    sort = req.args.get("sort", "name")
 
     categories = cc_categories.copy()
     names = cc_names
@@ -196,7 +176,7 @@ def process_search(request, callback=None):
     elif sort == "archive_date":
         names = list(sorted(names, key=lambda x: x.archived_date if x.archived_date else smallest))
 
-    per_page = 20
+    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
     pagination = Pagination(page=page, per_page=per_page, search=True, found=len(names), total=len(cc_names),
                             css_framework="bootstrap4", alignment="center",
                             url_callback=callback)
@@ -214,7 +194,8 @@ def process_search(request, callback=None):
 @cc.route("/search/")
 def search():
     res = process_search(request)
-    return render_template("cc/search.html.jinja2", **res, title=f"Common Criteria [{res['q']}] ({res['page']}) | seccerts.org")
+    return render_template("cc/search.html.jinja2", **res,
+                           title=f"Common Criteria [{res['q']}] ({res['page']}) | seccerts.org")
 
 
 @cc.route("/search/pagination/")
@@ -233,39 +214,14 @@ def analysis():
 
 @cc.route("/<string(length=40):hashid>/")
 def entry(hashid):
-    if hashid in cc_data.keys():
-        cert = cc_data[hashid]
-        if hashid in cc_map.keys():
-            graph = cc_map[hashid]
-            network = node_link_data(graph)
-        else:
-            network = {}
-        return render_template("cc/entry.html.jinja2", cert=cert, network=network, hashid=hashid,
-                               title=cert["csv_scan"]["cert_item_name"] + " | seccerts.org")
-    else:
-        return abort(404)
+    return entry_func(hashid, cc_data, "cc/entry.html.jinja2")
 
 
 @cc.route("/<string(length=40):hashid>/graph.json")
 def entry_graph_json(hashid):
-    if hashid in cc_data.keys():
-        if hashid in cc_map.keys():
-            graph = cc_map[hashid]
-            network = node_link_data(graph)
-        else:
-            network = {}
-        resp = jsonify(network)
-        resp.headers['Content-Disposition'] = 'attachment'
-        return resp
-    else:
-        return abort(404)
+    return entry_graph_json_func(hashid, cc_data, cc_map)
 
 
 @cc.route("/<string(length=40):hashid>/cert.json")
 def entry_json(hashid):
-    if hashid in cc_data.keys():
-        resp = jsonify(cc_data[hashid])
-        resp.headers['Content-Disposition'] = 'attachment'
-        return resp
-    else:
-        return abort(404)
+    return entry_json_func(hashid, cc_data)

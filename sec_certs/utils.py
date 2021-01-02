@@ -1,5 +1,11 @@
+import random
+
+from flask import render_template, abort, jsonify
 from flask_paginate import Pagination as FlaskPagination
 from functools import total_ordering
+import networkx as nx
+from networkx import node_link_data
+from networkx.algorithms.components import weakly_connected_components
 
 
 class Pagination(FlaskPagination):
@@ -42,3 +48,69 @@ class Biggest(object):
 
 
 biggest = Biggest()
+
+
+def create_graph(references):
+    graph = nx.DiGraph()
+    for key, value in references.items():
+        graph.add_node(value["hashid"], certid=key, name=value["name"], href=value["href"])
+    for cert_id, reference in references.items():
+        for ref_id in set(reference["refs"]):
+            if ref_id in references and ref_id != cert_id:
+                graph.add_edge(reference["hashid"], references[ref_id]["hashid"])
+    graphs = []
+    graph_map = {}
+    for component in weakly_connected_components(graph):
+        subgraph = graph.subgraph(component)
+        graphs.append(subgraph)
+        for node in subgraph:
+            graph_map[str(node)] = subgraph
+    return graph, graphs, graph_map
+
+
+def network_graph_func(graphs):
+    nodes = []
+    edges = []
+    for graph in graphs:
+        link_data = node_link_data(graph)
+        nodes.extend(link_data["nodes"])
+        edges.extend(link_data["links"])
+    random.shuffle(nodes)
+    network = {
+        "nodes": nodes,
+        "links": edges
+    }
+    resp = jsonify(network)
+    resp.headers['Content-Disposition'] = 'attachment'
+    return resp
+
+
+def entry_func(hashid, data, template_name):
+    if hashid in data.keys():
+        cert = data[hashid]
+        return render_template(template_name, cert=cert, hashid=hashid)
+    else:
+        return abort(404)
+
+
+def entry_json_func(hashid, data):
+    if hashid in data.keys():
+        resp = jsonify(data[hashid])
+        resp.headers['Content-Disposition'] = 'attachment'
+        return resp
+    else:
+        return abort(404)
+
+
+def entry_graph_json_func(hashid, data, graph_map):
+    if hashid in data.keys():
+        if hashid in graph_map.keys():
+            graph = graph_map[hashid]
+            network = node_link_data(graph)
+        else:
+            network = {}
+        resp = jsonify(network)
+        resp.headers['Content-Disposition'] = 'attachment'
+        return resp
+    else:
+        return abort(404)

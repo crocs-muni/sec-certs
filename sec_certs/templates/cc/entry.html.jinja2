@@ -1,6 +1,12 @@
 {% extends "base.html.jinja2" %}
 {% set active_page = "cc" %}
-{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_network %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs %}
+{% from "utils.html.jinja2" import render_network %}
+{% block title %}
+    <title>
+    {{ cert["csv_scan"]["cert_item_name"]|default("") + " | seccerts.org" }}
+    </title>
+{% endblock %}
 {% block navbar %}
     {{ super() }}
     {% if "csv_scan" in cert %}
@@ -157,7 +163,7 @@
         <h2 class="anchor" id="reference-graph">References
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
         <div class="border">
-        {{ render_network(network, height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
+        {{ render_network(url_for('.entry_graph_json', hashid=hashid), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
         </div>
     </div>
 
