@@ -52,14 +52,9 @@
 
 {% macro double_join(rule_dict, separator=", ", map_func=None) %}
 	{% for value in rule_dict.values() %}
-		{% for inside in value.keys() %}
-			{% if map_func %}
-				{{ map_func(inside) }}
-			{% else %}
-				{{ inside }}
-			{% endif %}
-			{%- if not loop.last -%}{{ separator }}{%- endif -%}
-		{% endfor %}
+		{%- for inside in value.keys() -%}
+			{%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
+		{%- endfor -%}
 		{%- if not loop.last -%}{{ separator }}{%- endif -%}
 	{% endfor %}
 {%- endmacro %}
@@ -76,20 +71,13 @@
 	{% endif %}
 {%- endmacro %}
 
-{% macro render_type(type) %}
-<span title="{{ type }}">
-{% if type == "Firmware" %}
-	<i class="fas fa-fw fa-stream"></i>
-{% elif type == "Firmware-Hybrid" %}
-	<i class="fas fa-fw fa-stream"></i>
-{% elif type == "Hardware" %}
-	<i class="fas fa-fw fa-microchip"></i>
-{% elif type == "Software" %}
-	<i class="fas fa-fw fa-code"></i>
-{% elif type == "Software-Hybrid" or type == "Software Hybrid" %}
-	<i class="fas fa-fw fa-code"></i>
-{% endif %}
-</span>
+{% macro render_type(name) %}
+    <span title="{{ name }}">
+        {% set ftype = get_fips_type(name) %}
+        {% if ftype %}
+            <i class="fas fa-fw {{ ftype['icon'] }}"></i>
+        {% endif %}
+    </span>
 {%- endmacro %}
 
 {% macro render_pagination(pagination, certs, search=False) %}

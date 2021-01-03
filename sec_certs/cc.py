@@ -7,7 +7,10 @@ from hashlib import blake2b
 from flask import Blueprint, render_template, url_for, current_app, request
 from pkg_resources import resource_stream
 
-from .utils import Pagination, smallest, create_graph, entry_func, entry_json_func, entry_graph_json_func, network_graph_func
+from networkx import info as graph_info
+
+from .utils import Pagination, smallest, create_graph, entry_func, entry_json_func, entry_graph_json_func, \
+    network_graph_func, send_json_attachment
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
 
@@ -30,9 +33,18 @@ def load_cc_data():
     with current_app.open_instance_resource("cc.json") as f:
         loaded_cc_data = json.load(f)
     print(" * (CC) Loaded certs")
+    with resource_stream("sec_certs", "cc_sfrs.json") as f:
+        cc_sfrs = json.load(f)
+    print(" * (CC) Loaded SFRs")
+    with resource_stream("sec_certs", "cc_sars.json") as f:
+        cc_sars = json.load(f)
+    print(" * (CC) Loaded SARs")
+    with resource_stream("sec_certs", "cc_categories.json") as f:
+        cc_categories = json.load(f)
+    print(" * (CC) Loaded categories")
 
     # Create ids
-    cc_data = {blake2b(key.encode(), digest_size=20).hexdigest(): value for key, value in loaded_cc_data.items()}
+    cc_data = {blake2b(key.encode(), digest_size=10).hexdigest(): value for key, value in loaded_cc_data.items()}
     cc_names = list(sorted(CCEntry(value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"],
                                    datetime.strptime(value["csv_scan"]["cc_certification_date"], "%m/%d/%Y"),
                                    datetime.strptime(value["csv_scan"]["cc_archived_date"], "%m/%d/%Y") if
@@ -51,7 +63,8 @@ def load_cc_data():
             "hashid": hashid,
             "name": cert["csv_scan"]["cert_item_name"],
             "refs": [],
-            "href": url_for("cc.entry", hashid=hashid)
+            "href": url_for("cc.entry", hashid=hashid),
+            "type": cc_categories[cert["csv_scan"]["cc_category"]]["id"]
         }
 
         if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and "keywords_scan" in cert and \
@@ -67,8 +80,9 @@ def load_cc_data():
     cc_graph, cc_graphs, cc_map = create_graph(cc_references)
     print(f" * (CC) Got {len(cc_data)} certificates")
     print(f" * (CC) Got {len(cc_references)} certificates with IDs")
-    print(f" * (CC) Got {len(cc_graphs)} graph components")
+    print(f" * (CC) Got graph:\n{graph_info(cc_graph)}")
     print(" * (CC) Made network")
+    del cc_graph
 
     cc_analysis["categories"] = {}
     for cert in cc_names:
@@ -102,16 +116,7 @@ def load_cc_data():
     cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
     print(" * (CC) Performed analysis")
 
-    with resource_stream("sec_certs", "cc_sfrs.json") as f:
-        cc_sfrs = json.load(f)
-    print(" * (CC) Loaded SFRs")
-    with resource_stream("sec_certs", "cc_sars.json") as f:
-        cc_sars = json.load(f)
-    print(" * (CC) Loaded SARs")
-    with resource_stream("sec_certs", "cc_categories.json") as f:
-        cc_categories = json.load(f)
-    print(" * (CC) Loaded categories")
-    mem_taken = sum(map(getsizeof, (cc_names, cc_data, cc_graphs, cc_sars, cc_sfrs, cc_categories, cc_analysis)))
+    mem_taken = sum(map(getsizeof, (cc_names, cc_data, cc_graphs, cc_map, cc_sars, cc_sfrs, cc_categories, cc_analysis)))
     print(f" * (CC) Size in memory: {mem_taken}B")
 
 
@@ -120,9 +125,29 @@ def get_cc_sar(sar):
     return cc_sars.get(sar, None)
 
 
+@cc.route("/sars.json")
+def sars():
+    return send_json_attachment(cc_sars)
+
+
 @cc.app_template_global("get_cc_sfr")
-def ger_cc_sfr(sfr):
+def get_cc_sfr(sfr):
     return cc_sfrs.get(sfr, None)
+
+
+@cc.route("/sfrs.json")
+def sfrs():
+    return send_json_attachment(cc_sfrs)
+
+
+@cc.app_template_global("get_cc_category")
+def get_cc_category(name):
+    return cc_categories.get(name, None)
+
+
+@cc.route("/categories.json")
+def categories():
+    return send_json_attachment(cc_categories)
 
 
 @cc.route("/")
@@ -212,16 +237,16 @@ def analysis():
     return render_template("cc/analysis.html.jinja2", analysis=cc_analysis)
 
 
-@cc.route("/<string(length=40):hashid>/")
+@cc.route("/<string(length=20):hashid>/")
 def entry(hashid):
     return entry_func(hashid, cc_data, "cc/entry.html.jinja2")
 
 
-@cc.route("/<string(length=40):hashid>/graph.json")
+@cc.route("/<string(length=20):hashid>/graph.json")
 def entry_graph_json(hashid):
     return entry_graph_json_func(hashid, cc_data, cc_map)
 
 
-@cc.route("/<string(length=40):hashid>/cert.json")
+@cc.route("/<string(length=20):hashid>/cert.json")
 def entry_json(hashid):
     return entry_json_func(hashid, cc_data)

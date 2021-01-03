@@ -50,10 +50,16 @@ class Biggest(object):
 biggest = Biggest()
 
 
+def send_json_attachment(data):
+    resp = jsonify(data)
+    resp.headers['Content-Disposition'] = 'attachment'
+    return resp
+
+
 def create_graph(references):
     graph = nx.DiGraph()
     for key, value in references.items():
-        graph.add_node(value["hashid"], certid=key, name=value["name"], href=value["href"])
+        graph.add_node(value["hashid"], certid=key, name=value["name"], href=value["href"], type=value["type"])
     for cert_id, reference in references.items():
         for ref_id in set(reference["refs"]):
             if ref_id in references and ref_id != cert_id:
@@ -80,9 +86,7 @@ def network_graph_func(graphs):
         "nodes": nodes,
         "links": edges
     }
-    resp = jsonify(network)
-    resp.headers['Content-Disposition'] = 'attachment'
-    return resp
+    return send_json_attachment(network)
 
 
 def entry_func(hashid, data, template_name):
@@ -95,9 +99,7 @@ def entry_func(hashid, data, template_name):
 
 def entry_json_func(hashid, data):
     if hashid in data.keys():
-        resp = jsonify(data[hashid])
-        resp.headers['Content-Disposition'] = 'attachment'
-        return resp
+        return send_json_attachment(data[hashid])
     else:
         return abort(404)
 
@@ -109,8 +111,6 @@ def entry_graph_json_func(hashid, data, graph_map):
             network = node_link_data(graph)
         else:
             network = {}
-        resp = jsonify(network)
-        resp.headers['Content-Disposition'] = 'attachment'
-        return resp
+        return send_json_attachment(network)
     else:
         return abort(404)

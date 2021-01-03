@@ -1,4 +1,4 @@
-{% macro render_network(url, width=600, height=600, linkDistance=20, linkCharge=-70, forceCenter=False, highlight=[]) %}
+{% macro render_network(net_url, type_url, width=600, height=600, linkDistance=30, linkCharge=-100, forceCenter=False, highlight=[]) %}
     <style>
         #network {
             width: 100%;
@@ -7,7 +7,7 @@
     </style>
 	<div id="network"></div>
 	<script>
-    function renderNetwork(data, highlighted) {
+    function renderNetwork(data, types, highlighted) {
         let height = {{ height }};
         let width = {{ width }};
         let color = d => {
@@ -56,7 +56,9 @@
             .attr("viewBox", [0, 0, width, height])
             .style("font", "12px");
 
-        svg.append("defs").selectAll("marker")
+        const defs = svg.append("defs");
+
+        defs.selectAll("marker")
             .data(["default"])
             .join("marker")
             .attr("id", d => d)
@@ -71,7 +73,29 @@
             .attr("fill-opacity", 0.6)
             .attr("d", "M0,-5L10,0L0,5");
 
+        let dTypes = Object.keys(types).map(type => types[type]);
+
+        defs.selectAll("g")
+            .data(dTypes)
+            .join("g")
+            .attr("id", d => d.id)
+            .attr("viewBox", "0 0 512 512")
+            .attr("transform", "translate(-12, -10) scale(0.05)")
+            .html(d => d.svg)
+
         const g = svg.append("g");
+
+        svg.append("text")
+            .attr("fill", "#000")
+            .attr("x", 5)
+            .attr("y", 15)
+            .text("Nodes: " + nodes.length);
+
+        svg.append("text")
+            .attr("fill", "#000")
+            .attr("x", 5)
+            .attr("y", 30)
+            .text("Edges: " + links.length);
 
         const link = g.append("g")
             .attr("stroke", "#999")
@@ -90,25 +114,23 @@
 
         node.append("a")
             .attr("href", d => d.href)
-            .append("circle")
-            .attr("r", 5)
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5)
+            .append("use")
+            .attr("xlink:href", d => "#" + d.type)
             .attr("fill", color);
 
         const text = node.append("text")
-            .attr("x", 8)
-            .attr("y", "0.31em")
             .attr("fill", "#000")
             .attr("visibility", "hidden");
 
         text.append("tspan")
-            .text(d => d.certid);
+            .text(d => d.certid)
+            .attr("x", 20)
+            .attr("y", "0.2em");
 
         text.append("tspan")
-            .attr("x", 8)
-            .attr("y", "-0.6em")
-            .text(d => d.name);
+            .text(d => d.name)
+            .attr("x", 20)
+            .attr("y", "1.2em");
 
         svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
 
@@ -129,10 +151,10 @@
                 node.each(function (d, i) {
                     if (i === newClosest.index) {
                         d3.select(this).select("text").attr("visibility", null);
-                        d3.select(this).select("circle").attr("stroke", "#000");
+                        d3.select(this).select("use").attr("fill", "#000");
                     } else if (closest !== null && i === closest.index) {
                         d3.select(this).select("text").attr("visibility", "hidden");
-                        d3.select(this).select("circle").attr("stroke", "#fff");
+                        d3.select(this).select("use").attr("fill", color);
                     }
                 });
                 closest = newClosest;
@@ -155,9 +177,11 @@
 
     let highlighted = {{ highlight }};
 
-	d3.json("{{ url }}").then(data => {
+	Promise.all([d3.json("{{ net_url }}"), d3.json("{{ type_url }}")]).then(values => {
+	    let data = values[0];
+	    let types = values[1];
         if (("nodes" in data) && ("links" in data)) {
-            renderNetwork(data, highlighted);
+            renderNetwork(data, types, highlighted);
         }
     });
 	</script>

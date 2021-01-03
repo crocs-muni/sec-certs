@@ -4,6 +4,6 @@
 {% block content %}
     <h1 class="mb-4">FIPS 140</h1>
     <div class="border">
-    {{ render_network(url) }}
+    {{ render_network(url, url_for(".types")) }}
     </div>
 {% endblock %}

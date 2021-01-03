@@ -1,6 +1,6 @@
 {% extends "base.html.jinja2" %}
 {% set active_page = "cc" %}
-{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category %}
 {% from "utils.html.jinja2" import render_network %}
 {% block title %}
     <title>
@@ -28,7 +28,7 @@
             <a class="nav-link" href="#reference-graph">References</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#raw-data">Raw data</a>
+            <a class="nav-link" href="#raw-data-head">Raw data</a>
         </li>
 {% endblock %}
 {% block content %}
@@ -56,7 +56,7 @@
 		{{ cert["csv_scan"]["cc_manufacturer"] }}
 		<br/>
 		<b>Category:</b>
-		{{ cert["csv_scan"]["cc_category"] }}
+		{{ render_category(cert["csv_scan"]["cc_category"]) }} {{ cert["csv_scan"]["cc_category"] }}
 		<br/>
 		<b>Security level:</b>
 		{{ cert["csv_scan"]["cc_security_level"] }}
@@ -163,24 +163,24 @@
         <h2 class="anchor" id="reference-graph">References
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
         <div class="border">
-        {{ render_network(url_for('.entry_graph_json', hashid=hashid), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
+        {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for('.categories'), height=400, linkDistance=45, linkCharge=-140, highlight=[hashid]) }}
         </div>
     </div>
 
     <div class="mt-5 mb-5">
-		<h2 class="anchor" id="raw-data">Raw data
-		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data-code" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+		<h2 class="anchor" id="raw-data-head">Raw data
+		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
 		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-		<pre id="raw-data-code" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
+		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
         $(function () {
            $("#raw-data-button").tooltip();
         });
-		$('#raw-data-code').on('show.bs.collapse', function () {
+		$('#raw-data').on('show.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
-		$('#raw-data-code').on('hide.bs.collapse', function () {
+		$('#raw-data').on('hide.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
 		});
 	</script>
