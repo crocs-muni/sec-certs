@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import gc
 from collections import namedtuple
 from sys import getsizeof
 from hashlib import blake2b
@@ -27,12 +28,15 @@ FIPSEntry = namedtuple("FIPSEntry", ("id", "name", "hashid", "status", "level", 
 def load_fips_data():
     global fips_names, fips_data, fips_graphs, fips_map, fips_types
     with current_app.open_instance_resource("fips.json") as f:
-        loaded_fips_data = json.load(f)
+        data = f.read()
+        loaded_fips_data = json.loads(data)
+        del data
     with resource_stream("sec_certs", "fips_types.json") as f:
         fips_types = json.load(f)
     print(" * (FIPS) Loaded types")
     fips_data = {blake2b(key.encode(), digest_size=10).hexdigest(): value for key, value in
                  loaded_fips_data["certs"].items()}
+    del loaded_fips_data
 
     def _parse_date(date):
         try:
@@ -64,6 +68,7 @@ def load_fips_data():
 
     mem_taken = sum(map(getsizeof, (fips_names, fips_data, fips_graphs, fips_map, fips_types)))
     print(f" * (FIPS) Size in memory: {mem_taken}B")
+    gc.collect()
 
 
 @fips.app_template_global("get_fips_type")

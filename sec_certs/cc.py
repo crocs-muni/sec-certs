@@ -1,4 +1,5 @@
 import json
+import gc
 from collections import namedtuple
 from sys import getsizeof
 from datetime import datetime
@@ -31,7 +32,9 @@ def load_cc_data():
     global cc_names, cc_data, cc_graphs, cc_map, cc_analysis, cc_sfrs, cc_sars, cc_categories
     # Load raw data
     with current_app.open_instance_resource("cc.json") as f:
-        loaded_cc_data = json.load(f)
+        data = f.read()
+        loaded_cc_data = json.loads(data)
+        del data
     print(" * (CC) Loaded certs")
     with resource_stream("sec_certs", "cc_sfrs.json") as f:
         cc_sfrs = json.load(f)
@@ -45,6 +48,7 @@ def load_cc_data():
 
     # Create ids
     cc_data = {blake2b(key.encode(), digest_size=10).hexdigest(): value for key, value in loaded_cc_data.items()}
+    del loaded_cc_data
     cc_names = list(sorted(CCEntry(value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"],
                                    datetime.strptime(value["csv_scan"]["cc_certification_date"], "%m/%d/%Y"),
                                    datetime.strptime(value["csv_scan"]["cc_archived_date"], "%m/%d/%Y") if
@@ -118,6 +122,7 @@ def load_cc_data():
 
     mem_taken = sum(map(getsizeof, (cc_names, cc_data, cc_graphs, cc_map, cc_sars, cc_sfrs, cc_categories, cc_analysis)))
     print(f" * (CC) Size in memory: {mem_taken}B")
+    gc.collect()
 
 
 @cc.app_template_global("get_cc_sar")
