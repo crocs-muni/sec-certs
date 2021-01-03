@@ -1,19 +1,16 @@
 import os
-import re
 from datetime import datetime
 import locale
 import logging
-from typing import Dict, List, ClassVar, Collection,  Union, Set, Tuple
+from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple
 
 import json
-from importlib import import_module
 from abc import ABC, abstractmethod
 from pathlib import Path
 import shutil
 
 from graphviz import Digraph
 import requests
-from tabula import read_pdf
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
 
@@ -24,7 +21,6 @@ import sec_certs.files as files
 
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
-from sec_certs.extract_certificates import extract_certificates_keywords
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +73,8 @@ class Dataset(ABC):
         certs = {x.dgst: x for x in dct['certs']}
         dset = cls(certs, Path('./'), dct['name'], dct['description'])
         if len(dset) != (claimed := dct['n_certs']):
-            logger.error(f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
+            logger.error(
+                f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
         return dset
 
     def to_json(self, output_path: Union[str, Path]):
@@ -318,7 +315,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
                                             x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
-                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None) for x in
+                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None) for
+                 x in
                  df_base.itertuples()}
         return certs
 
@@ -518,15 +516,16 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 not_available.append(i)
         return missing, not_available
 
-# TODO: make this work for single certs object instead of the whole dataset, making it parallelizable
-# TODO: make this not create a whole new json - that way continuous processing can be done
-    def extract_keywords(self):
+    def extract_keywords(self, redo=False):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
         if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
-            self.keywords = extract_certificates_keywords(
-                self.policies_dir,
-                self.fragments_dir, 'fips', fips_items=self.certs,
-                should_censure_right_away=True)
+
+            keywords = cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
+                                                        [cert for cert in self.certs.values() if not cert.keywords or redo],
+                                                        constants.N_THREADS,
+                                                        use_threading=False)
+            for keyword, cert in keywords:
+                self.certs[cert.dgst].keywords = keyword
         else:
             self.keywords = json.loads(
                 open(self.root_dir / 'fips_full_keywords.json').read())
@@ -535,18 +534,18 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         with open(self.root_dir / "fips_full_keywords.json", 'w') as f:
             f.write(json.dumps(self.keywords, indent=4, sort_keys=True))
 
-
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []
         self.policies_dir.mkdir(exist_ok=True)
 
         for cert_id in list(self.certs.keys()):
             if not (self.policies_dir / f'{cert_id}.pdf').exists():
-                sp_urls.append(f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf")
+                sp_urls.append(
+                    f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf")
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
-
         logging.info(f"downloading {len(sp_urls)} module pdf files")
-        cert_processing.process_parallel(FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)), constants.N_THREADS)
+        cert_processing.process_parallel(FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)),
+                                         constants.N_THREADS)
         self.new_files += len(sp_urls)
 
     def download_all_htmls(self):
@@ -555,11 +554,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.web_dir.mkdir(exist_ok=True)
         for cert_id in list(self.certs.keys()):
             if not (self.web_dir / f'{cert_id}.html').exists():
-                html_urls.append(f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}")
+                html_urls.append(
+                    f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}")
                 html_paths.append(self.web_dir / f"{cert_id}.html")
 
         logging.info(f"downloading {len(html_urls)} module html files")
-        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)), constants.N_THREADS)
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)),
+                                         constants.N_THREADS)
         self.new_files += len(html_urls)
 
     def download_all_algs(self):
@@ -568,25 +569,25 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.algs_dir.mkdir(exist_ok=True)
         for i in range(1, 502):
             if not (self.algs_dir / f'page{i}.html').exists():
-                algs_urls.append(f'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page={i}')
+                algs_urls.append(
+                    f'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page={i}')
                 algs_paths.append(self.algs_dir / f"page{i}.html")
 
         logging.info(f"downloading {len(algs_urls)} algs html files")
-        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)), constants.N_THREADS)
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
+                                         constants.N_THREADS)
         self.new_files += len(algs_urls)
-    
 
     def convert_all_pdfs(self):
         logger.info('Converting FIPS certificate reports to .txt')
         tuples = [
             (cert, self.policies_dir / f'{cert.cert_id}.pdf', self.policies_dir / f'{cert.cert_id}.pdf.txt')
-            for cert in self.certs.values() if not cert.txt_state
+            for cert in self.certs.values() if not cert.txt_state and (self.policies_dir / f'{cert.cert_id}.pdf').exists()
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
-
-    def get_certs_from_web(self):
-        def download_html_pages() -> Tuple[int, int]:
+    def get_certs_from_web(self, redo=False):
+        def download_html_pages():
             self.download_all_pdfs()
             self.download_all_htmls()
             self.download_all_algs()
@@ -628,96 +629,48 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logger.info(f"{self.new_files} needed to be downloaded")
 
-        if self.new_files > 0 or not (self.root_dir / 'fips_full_dataset.json').exists():
-            for cert in self.certs:
-                self.certs[cert] = FIPSCertificate.html_from_file(
-                    self.web_dir / f'{cert}.html')
-        else:
-            logger.info("Certs loaded from previous scanning")
-            dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
-            self.certs = dataset.certs
+        if not (self.root_dir / 'fips_full_dataset.json').exists():
+            for cert_id in self.certs:
+                self.certs[cert_id] = FIPSCertificate.html_from_file(
+                    self.web_dir / f'{cert_id}.html',
+                    FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
+                                          (self.web_dir / cert_id).with_suffix('.html'),
+                                          (self.fragments_dir / cert_id).with_suffix('.txt')))
+            return
+
+        logger.info("Certs loaded from previous scanning")
+        dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
+        self.certs = dataset.certs
+        if redo or self.new_files > 0:
+            for cert_id, cert in self.certs.items():
+                self.certs[cert_id] = FIPSCertificate.html_from_file(
+                    self.web_dir / f'{cert_id}.html',
+                    FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
+                                          (self.web_dir / cert_id).with_suffix('.html'),
+                                          (self.fragments_dir / cert_id).with_suffix('.txt')), cert)
 
     def extract_certs_from_tables(self) -> List[Path]:
         """
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
         """
+        result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
+                                                  [cert for cert in self.certs.values() if
+                                                   not cert.tables_done and cert.txt_state],
+                                                  constants.N_THREADS // 4,  # tabula already processes by parallel, so
+                                                                            # it's counterproductive to use all threads
+                                                  use_threading=False)
 
-        list_of_files = files.search_files(self.policies_dir)
-        not_decoded = []
-        for cert_file in list_of_files:
-            cert_file = Path(cert_file)
+        not_decoded = list(map(lambda tup: tup[1].state.sp_path, filter(lambda tup: tup[0] is False, result)))
+        for state, cert, algorithms in result:
+            self.certs[cert.dgst].tables_done = state
+            self.certs[cert.dgst].algorithms += algorithms
 
-            if '.txt' not in cert_file.suffixes:
-                continue
-
-            stem_name = Path(cert_file.stem).stem
-
-            if self.certs[stem_name].tables_done:
-                continue
-
-            with open(cert_file, 'r') as f:
-                tables = helpers.find_tables(f.read(), cert_file)
-
-            # If we find any tables with page numbers, we process them
-            if tables:
-                lst = []
-                try:
-                    data = read_pdf(cert_file.with_suffix(''),
-                                    pages=tables, silent=True)
-                except Exception:
-                    try:
-                        helpers.repair_pdf(cert_file.with_suffix(''))
-                        data = read_pdf(cert_file.with_suffix(
-                            ''), pages=tables, silent=True)
-
-                    except Exception:
-                        not_decoded.append(cert_file)
-                        continue
-
-                # find columns with cert numbers
-                for df in data:
-                    for col in range(len(df.columns)):
-                        if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                            lst += FIPSCertificate.parse_algorithms(
-                                df.iloc[:, col].to_string(index=False), True)
-
-                    # Parse again if someone picks not so descriptive column names
-                    lst += FIPSCertificate.parse_algorithms(
-                        df.to_string(index=False))
-
-                if lst:
-                    self.certs[stem_name].algorithms += lst
-
-            self.certs[stem_name].tables_done = True
         return not_decoded
 
     def remove_algorithms_from_extracted_data(self):
-        """
-        Function that removes all found certificate IDs that are matching any IDs labeled as algorithm IDs
-        """
-        for file_name in self.keywords:
-            self.keywords[file_name]['file_status'] = True
-            self.certs[file_name].file_status = True
-            if self.certs[file_name].mentioned_certs:
-                for item in self.certs[file_name].mentioned_certs:
-                    self.keywords[file_name]['rules_cert_id'].update(item)
-
-            for rule in self.keywords[file_name]['rules_cert_id']:
-                to_pop = set()
-                rr = re.compile(rule)
-                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
-                    for alg in self.keywords[file_name]['rules_fips_algorithms']:
-                        for found in self.keywords[file_name]['rules_fips_algorithms'][alg]:
-                            if rr.search(found) and rr.search(cert) and rr.search(found).group('id') == rr.search(
-                                    cert).group('id'):
-                                to_pop.add(cert)
-                for r in to_pop:
-                    self.keywords[file_name]['rules_cert_id'][rule].pop(
-                        r, None)
-
-                self.keywords[file_name]['rules_cert_id'][rule].pop(
-                    self.certs[file_name].cert_id, None)
+        for cert in self.certs.values():
+            cert.remove_algorithms()
 
     def unify_algorithms(self):
         for certificate in self.certs.values():
@@ -726,16 +679,26 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 if isinstance(algorithm, dict):
                     new_algorithms.append(algorithm)
                 else:
-                    new_algorithms.append({'Certificate': algorithm})
+                    new_algorithms.append({'Certificate': [algorithm]})
             certificate.algorithms = new_algorithms
 
     def validate_results(self):
         """
         Function that validates results and finds the final connection output
         """
+
         def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
-            # TODO: do we do this? #1 is used a lot
-            if cert_candidate == '1':
+            # returns True if candidates should _not_ be matched
+            def compare_certs(current_certificate: 'FIPSCertificate', other_id: str):
+                cert_first = current_certificate.date_validation[0].year
+                cert_last = current_certificate.date_validation[-1].year
+                conn_first = self.certs[other_id].date_validation[0].year
+                conn_last = self.certs[other_id].date_validation[-1].year
+
+                return cert_first - conn_first > 5 and cert_last - conn_last > 5
+
+            # "< 105" still needs to be used, because of some old certs being revalidated
+            if cert_candidate.isdecimal() and (int(cert_candidate) < 105 or compare_certs(processed_cert, cert_candidate)):
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True
@@ -753,15 +716,16 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             return True
 
         broken_files = set()
-        for file_name in self.keywords:
-            for rule in self.keywords[file_name]['rules_cert_id']:
-                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+        for current_cert in self.certs.values():
+            if not current_cert.txt_state:
+                continue
+            for rule in current_cert.keywords['rules_cert_id']:
+                for cert in current_cert.keywords['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
 
                     if cert_id == '' or cert_id not in self.certs:
-                        broken_files.add(file_name)
-                        self.keywords[file_name]['file_status'] = False
-                        self.certs[file_name].file_status = False
+                        broken_files.add(current_cert.dgst)
+                        current_cert.file_status = False
                         break
 
         if broken_files:
@@ -770,17 +734,17 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             logger.warning("... skipping these...")
             logger.warning(f"Total non-analyzable files:{len(broken_files)}")
 
-        for file_name in self.keywords:
-            self.certs[file_name].connections = []
-            if not self.keywords[file_name]['file_status']:
+        for current_cert in self.certs.values():
+            current_cert.connections = []
+            if not current_cert.file_status or not current_cert.keywords:
                 continue
-            if self.keywords[file_name]['rules_cert_id'] == {}:
+            if current_cert.keywords['rules_cert_id'] == {}:
                 continue
-            for rule in self.keywords[file_name]['rules_cert_id']:
-                for cert in self.keywords[file_name]['rules_cert_id'][rule]:
+            for rule in current_cert.keywords['rules_cert_id']:
+                for cert in current_cert.keywords['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
-                    if cert_id not in self.certs[file_name].connections and validate_id(self.certs[file_name], cert_id):
-                        self.certs[file_name].connections.append(cert_id)
+                    if cert_id not in current_cert.connections and validate_id(current_cert, cert_id):
+                        current_cert.connections.append(cert_id)
 
     def finalize_results(self):
         self.unify_algorithms()
@@ -849,7 +813,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         dot.render(str(output_file_name) + '_connections', view=True)
         single_dot.render(str(output_file_name) + '_single', view=True)
 
-
     def to_dict(self):
         return {'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
                 'name': self.name, 'description': self.description,
@@ -861,7 +824,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         dset = cls(certs, Path('./'), dct['name'], dct['description'])
         dset.algorithms = dct['algs']
         if len(dset) != (claimed := dct['n_certs']):
-            logger.error(f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
+            logger.error(
+                f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
         return dset
 
     def to_json(self, output_path: Union[str, Path]):
@@ -905,11 +869,10 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                     self.certs[alg_id].append(fips_alg)
 
     def convert_all_pdfs(self):
-        raise 'Not meant to be implemented'
+        raise NotImplementedError('Not meant to be implemented')
 
     def download_all_pdfs(self):
-        raise 'Not meant to be implemented'
-
+        raise NotImplementedError('Not meant to be implemented')
 
     def to_dict(self):
         return {"certs": self.certs}
@@ -931,4 +894,3 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         dset.root_dir = input_path.parent.absolute()
         return dset
-

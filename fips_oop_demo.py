@@ -2,7 +2,6 @@ from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from pathlib import Path
 from datetime import datetime
 import logging
-from sec_certs.helpers import download_parallel
 
 
 def main():
@@ -16,30 +15,30 @@ def main():
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web()
+    dset.get_certs_from_web(True)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
-
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
-    logging.info("Extracting keywords now.")
-
+    logging.info("Converting pdfs")
     dset.convert_all_pdfs()
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
+    logging.info("Extracting keywords now.")
     dset.extract_keywords()
 
-    logging.info(f'Finished extracting certificates for {len(dset.keywords)} items.')
-    logging.info(f'Dumping keywords to {dset.root_dir}/fips_full_keywords.json')
-    dset.dump_keywords()
+    logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
+    logging.info("Dumping dataset again...")
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Searching for tables in pdfs")
 
     not_decoded_files = dset.extract_certs_from_tables()
 
     logging.info(f"Done. Files not decoded: {not_decoded_files}")
-
+    dset.to_json(dset.root_dir / 'fips_mentioned.json')
     logging.info("Parsing algorithms")
     aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
     aset.parse_html()

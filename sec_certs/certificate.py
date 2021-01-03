@@ -7,14 +7,21 @@ import os
 import copy
 import json
 import requests
+from dateutil import parser
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
 from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple
 
+from tabula import read_pdf
+
 from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 import sec_certs.constants as constants
+from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, \
+    LINE_SEPARATOR
+from sec_certs.cert_rules import fips_rules
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +51,7 @@ class Certificate(ABC):
 
     @classmethod
     def from_dict(cls: Type[T], dct: dict) -> T:
-        return cls(*tuple(dct.values()))
+        return cls(*(tuple(dct.values())))
 
     def to_json(self, output_path: Union[Path, str]):
         with Path(output_path).open('w') as handle:
@@ -61,6 +68,20 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     FIPS_MODULE_URL: ClassVar[
         str] = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
+    @dataclass(eq=True)
+    class State(ComplexSerializableType):
+
+        @classmethod
+        def from_dict(cls, dct: Dict):
+            return cls(Path(dct['sp_path']), Path(dct['html_path']), Path(dct['fragment_path']))
+
+        def to_dict(self):
+            return self.__dict__
+
+        sp_path: Path
+        html_path: Path
+        fragment_path: Path
+
     @dataclass(eq=True, frozen=True)
     class Algorithm(ComplexSerializableType):
         cert_id: str
@@ -68,7 +89,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         implementation: str
         type: str
         date: str
-
 
         @property
         def dgst(self):
@@ -86,22 +106,35 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return copy.deepcopy(self.__dict__)
 
         @classmethod
-        def from_dict(cls, dct: dict) -> 'FIPSAlgorithm':
+        def from_dict(cls, dct: dict) -> 'FIPSCertificate.Algorithm':
             return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
-                                dct['date'])
+                       dct['date'])
+
+    def __str__(self) -> str:
+        return str(self.cert_id)
+
+    @property
+    def dgst(self) -> str:
+        return self.cert_id
+
+    @staticmethod
+    def download_security_policy(cert: Tuple[str, Path]) -> None:
+        exit_code = helpers.download_file(*cert)
+        if exit_code != requests.codes.ok:
+            logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
 
     def __init__(self, cert_id: str,
                  module_name: Optional[str],
                  standard: Optional[str],
                  status: Optional[str],
-                 date_sunset: Optional[List[str]],
-                 date_validation: Optional[List[str]],
+                 date_sunset: Optional[List[date]],
+                 date_validation: Optional[List[date]],
                  level: Optional[str],
                  caveat: Optional[str],
                  exceptions: Optional[List[str]],
                  module_type: Optional[str],
                  embodiment: Optional[str],
-                 algorithms: Optional[List[str]],
+                 algorithms: Optional[List[Dict[str, str]]],
                  tested_conf: Optional[List[str]],
                  description: Optional[str],
                  mentioned_certs: Optional[List[str]],
@@ -117,7 +150,13 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  tables: bool,
                  file_status: Optional[bool],
                  connections: List,
-                 txt_state: bool=False):
+                 state: State,
+                 txt_state: bool,
+                 keywords: Dict,
+                 revoked_reason: Optional[str],
+                 revoked_link: Optional[str],
+                 sw_versions: Optional[str],
+                 product_url: Optional[str]):
         super().__init__()
         self.cert_id = cert_id
 
@@ -142,6 +181,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.lab_nvlap = lab_nvlap
 
         self.historical_reason = historical_reason
+
         self.security_policy_www = security_policy_www
         self.certificate_www = certificate_www
         self.hw_versions = hw_version
@@ -150,28 +190,20 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.tables_done = tables
         self.file_status = file_status
         self.connections = connections
+        self.state = state
         self.txt_state = txt_state
+        self.keywords = keywords
 
-    def __str__(self) -> str:
-        return str(self.cert_id)
-
-    @property
-    def dgst(self) -> str:
-        return self.cert_id
-
-    @staticmethod
-    def download_security_policy(cert: Tuple[str, Path]) -> None:
-        exit_code = helpers.download_file(*cert)
-        if exit_code != requests.codes.ok:
-            logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
-        return cert
+        self.revoked_reason = revoked_reason
+        self.revoked_link = revoked_link
+        self.sw_versions = sw_versions
+        self.product_url = product_url
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> None:
         exit_code = helpers.download_file(*cert)
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download html page from {cert[0]}, code: {exit_code}')
-        return cert
 
     @staticmethod
     def extract_filename(file: str) -> str:
@@ -184,13 +216,13 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def initialize_dictionary() -> Dict:
-        d = {'fips_module_name': None, 'fips_standard': None, 'fips_status': None, 'fips_date_sunset': None,
-             'fips_date_validation': None, 'fips_level': None, 'fips_caveat': None, 'fips_exceptions': None,
-             'fips_type': None, 'fips_embodiment': None, 'fips_tested_conf': None, 'fips_description': None,
-             'fips_vendor': None, 'fips_vendor_www': None, 'fips_lab': None, 'fips_lab_nvlap': None,
-             'fips_historical_reason': None, 'fips_algorithms': [], 'fips_mentioned_certs': [],
-             'fips_tables_done': False, 'fips_security_policy_www': None, 'fips_certificate_www': None,
-             'fips_hw_versions': None, 'fips_fw_versions': None}
+        d = {'module_name': None, 'standard': None, 'status': None, 'date_sunset': None,
+             'date_validation': None, 'level': None, 'caveat': None, 'exceptions': None,
+             'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
+             'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
+             'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
+             'mentioned_certs': [], 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
+             'hw_versions': None, 'fw_versions': None, 'sw_versions': None, 'product_url': None}
 
         return d
 
@@ -213,20 +245,20 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return ids_found
 
     @staticmethod
-    def parse_algorithms(current_text: str, in_pdf: bool = False) -> List:
+    def extract_algorithm_certificates(current_text: str, in_pdf: bool = False) -> List:
         """
         Parses table of FIPS (non) allowed algorithms
         :param current_text: Contents of the table
         :param in_pdf: Specifies whether the table was found in a PDF security policies file
-        :return: list of all found algorithm IDs
+        :return: List containing one element - dictionary with all parsed algorithm cert ids
         """
         set_items = set()
         for m in re.finditer(
-                rf"(?:#{'?' if in_pdf else 'C?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[Cc]\s)?(?P<id>\d+)",
+                rf"(?:#{'?' if in_pdf else '[CcAa]?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)",
                 current_text):
             set_items.add(m.group())
 
-        return list(set_items)
+        return [{"Certificate": list(set_items)}]
 
     @staticmethod
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
@@ -240,7 +272,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for tr in trs:
             tds = tr.find_all('td')
             found_items.append(
-                {'Name': tds[0].text, 'Certificate': FIPSCertificate.parse_algorithms(tds[1].text)})
+                {'Name': tds[0].text, 'Certificate': FIPSCertificate.extract_algorithm_certificates(tds[1].text)[0]['Certificate']})
 
         return found_items
 
@@ -251,20 +283,25 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             .replace('\n', '').replace('\t', '').replace('    ', ' ')
 
         if title in pairs:
-            if 'date' in pairs[title]:
-                html_items_found[pairs[title]] = content.split(';')
+            if 'date_validation' == pairs[title]:
+                html_items_found[pairs[title]] = [parser.parse(x) for x in content.split(';')]
+
+            elif 'date_sunset' == pairs[title]:
+                html_items_found[pairs[title]] = parser.parse(content)
+
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['fips_mentioned_certs'] += FIPSCertificate.parse_caveat(
+                html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
                     content)
 
             elif 'FIPS Algorithms' in title:
-                html_items_found['fips_algorithms'] += FIPSCertificate.parse_table(
+                html_items_found['algorithms'] += FIPSCertificate.parse_table(
                     current_div.find('div', class_='col-md-9'))
 
-            elif 'Algorithms' in title:
-                html_items_found['fips_algorithms'] += [{'Certificate': x} for x in
-                                                        FIPSCertificate.parse_algorithms(content)]
+            elif 'Algorithms' in title or 'Description' in title:
+                html_items_found['algorithms'] += FIPSCertificate.extract_algorithm_certificates(content)
+                if 'Description' in title:
+                    html_items_found['description'] = content
 
             elif 'tested_conf' in pairs[title]:
                 html_items_found[pairs[title]] = [x.text for x in
@@ -279,62 +316,76 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not vendor_string:
             vendor_string = list(current_div.find(
                 'div', 'panel-body').children)[0].strip()
-            html_items_found['fips_vendor_www'] = ''
+            html_items_found['vendor_www'] = ''
         else:
-            html_items_found['fips_vendor_www'] = vendor_string.get('href')
+            html_items_found['vendor_www'] = vendor_string.get('href')
             vendor_string = vendor_string.text.strip()
 
-        html_items_found['fips_vendor'] = vendor_string
-        if html_items_found['fips_vendor'] == '':
+        html_items_found['vendor'] = vendor_string
+        if html_items_found['vendor'] == '':
             logger.warning(f"WARNING: NO VENDOR FOUND {current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
-        html_items_found['fips_lab'] = list(
+        html_items_found['lab'] = list(
             current_div.find('div', 'panel-body').children)[0].strip()
-        html_items_found['fips_nvlap_code'] = \
+        html_items_found['nvlap_code'] = \
             list(current_div.find(
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
-        if html_items_found['fips_lab'] == '':
+        if html_items_found['lab'] == '':
             logger.warning(f"WARNING: NO LAB FOUND {current_file}")
 
-        if html_items_found['fips_nvlap_code'] == '':
+        if html_items_found['nvlap_code'] == '':
             logger.warning(f"WARNING: NO NVLAP CODE FOUND {current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
         links = current_div.find_all('a')
-        # TODO: break out of circular imports hell
-        html_items_found['fips_security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
+        html_items_found['security_policy_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[0].get('href')
 
         if len(links) == 2:
-            html_items_found['fips_certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
+            html_items_found['certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
+
+    @staticmethod
+    def normalize(items: Dict):
+        items['type'] = items['type'].lower().replace('-', ' ').title()
+        items['embodiment'] = items['embodiment'].lower().replace('-', ' ').replace('stand alone', 'standalone').title()
 
     @classmethod
-    def html_from_file(cls, file: Path) -> 'FIPSCertificate':
+    def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None) -> 'FIPSCertificate':
         pairs = {
-            'Module Name': 'fips_module_name',
-            'Standard': 'fips_standard',
-            'Status': 'fips_status',
-            'Sunset Date': 'fips_date_sunset',
-            'Validation Dates': 'fips_date_validation',
-            'Overall Level': 'fips_level',
-            'Caveat': 'fips_caveat',
-            'Security Level Exceptions': 'fips_exceptions',
-            'Module Type': 'fips_type',
-            'Embodiment': 'fips_embodiment',
-            'FIPS Algorithms': 'fips_algorithms',
-            'Allowed Algorithms': 'fips_algorithms',
-            'Other Algorithms': 'fips_algorithms',
-            'Tested Configuration(s)': 'fips_tested_conf',
-            'Description': 'fips_description',
-            'Historical Reason': 'fips_historical_reason',
-            'Hardware Versions': 'fips_hw_versions',
-            'Firmware Versions': 'fips_fw_versions'
+            'Module Name': 'module_name',
+            'Standard': 'standard',
+            'Status': 'status',
+            'Sunset Date': 'date_sunset',
+            'Validation Dates': 'date_validation',
+            'Overall Level': 'level',
+            'Caveat': 'caveat',
+            'Security Level Exceptions': 'exceptions',
+            'Module Type': 'type',
+            'Embodiment': 'embodiment',
+            'FIPS Algorithms': 'algorithms',
+            'Allowed Algorithms': 'algorithms',
+            'Other Algorithms': 'algorithms',
+            'Tested Configuration(s)': 'tested_conf',
+            'Description': 'description',
+            'Historical Reason': 'historical_reason',
+            'Hardware Versions': 'hw_versions',
+            'Firmware Versions': 'fw_versions',
+            'Revoked Reason': 'revoked_reason',
+            'Revoked Link': 'revoked_link',
+            'Software Versions': 'sw_versions',
+            'Product URL': 'product_url'
         }
-        items_found = FIPSCertificate.initialize_dictionary()
-        items_found['cert_fips_id'] = file.stem
+        if not initialized:
+            items_found = FIPSCertificate.initialize_dictionary()
+            items_found['cert_id'] = file.stem
+
+        else:
+            items_found = initialized.__dict__
+            items_found['revoked_reason'] = None
+            items_found['revoked_link'] = None
 
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
@@ -351,43 +402,184 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             if div.find('h4', class_='panel-title').text == 'Related Files':
                 FIPSCertificate.parse_related_files(div, items_found)
 
-        return FIPSCertificate(items_found['cert_fips_id'],
-                               items_found['fips_module_name'],
-                               items_found['fips_standard'],
-                               items_found['fips_status'],
-                               items_found['fips_date_sunset'],
-                               items_found['fips_date_validation'],
-                               items_found['fips_level'],
-                               items_found['fips_caveat'],
-                               items_found['fips_exceptions'],
-                               items_found['fips_type'],
-                               items_found['fips_embodiment'],
-                               items_found['fips_algorithms'],
-                               items_found['fips_tested_conf'],
-                               items_found['fips_description'],
-                               items_found['fips_mentioned_certs'],
-                               items_found['fips_vendor'],
-                               items_found['fips_vendor_www'],
-                               items_found['fips_lab'],
-                               items_found['fips_nvlap_code'],
-                               items_found['fips_historical_reason'],
-                               items_found['fips_security_policy_www'],
-                               items_found['fips_certificate_www'],
-                               items_found['fips_hw_versions'],
-                               items_found['fips_fw_versions'],
-                               False,
+        if initialized:
+            new_algs = []
+            not_defined = set()
+            for i, alg in enumerate(items_found['algorithms']):
+                if 'Name' not in alg:
+                    for cert_id in alg['Certificate']:
+                        not_defined.add(cert_id)
+                    continue
+                for pair in range(i + 1, len(items_found['algorithms'])):
+                    if 'Name' in items_found['algorithms'][pair] \
+                            and alg['Name'] == items_found['algorithms'][pair]['Name']:
+                        entry = {'Name': alg['Name'], 'Certificate':
+                            list(set([x for x in alg['Certificate']]) | set(items_found['algorithms'][pair]['Certificate']))}
+                        if entry not in new_algs:
+                            new_algs.append(entry)
+            for entry in new_algs:
+                if entry['Name'] == 'Not Defined':
+                    entry['Certificate'] = list(set(entry['Certificate'] | not_defined))
+                    break
+            else:
+                new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
+
+            items_found['algorithms'] = new_algs
+
+        FIPSCertificate.normalize(items_found)
+
+        return FIPSCertificate(items_found['cert_id'],
+                               items_found['module_name'],
+                               items_found['standard'],
+                               items_found['status'],
+                               items_found['date_sunset'],
+                               items_found['date_validation'],
+                               items_found['level'],
+                               items_found['caveat'],
+                               items_found['exceptions'],
+                               items_found['type'],
+                               items_found['embodiment'],
+                               items_found['algorithms'],
+                               items_found['tested_conf'],
+                               items_found['description'],
+                               items_found['mentioned_certs'],
+                               items_found['vendor'],
+                               items_found['vendor_www'],
+                               items_found['lab'],
+                               items_found['nvlap_code'],
+                               items_found['historical_reason'],
+                               items_found['security_policy_www'],
+                               items_found['certificate_www'],
+                               items_found['hw_versions'],
+                               items_found['fw_versions'],
+                               False if not initialized else items_found['tables_done'],
                                None,
-                               [])
+                               [],
+                               state,
+                               False if not initialized else items_found['txt_state'],
+                               None if not initialized else items_found['keywords'],
+                               items_found['revoked_reason'],
+                               items_found['revoked_link'],
+                               items_found['sw_versions'],
+                               items_found['product_url'])
 
     @staticmethod
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
         cert, pdf_path, txt_path = tup
         if not cert.txt_state:
-            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ['-layout'])
+            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ['-raw'])
             if exit_code != constants.RETURNCODE_OK:
                 logger.error(f'Cert dgst: {cert.dgst} failed to convert security policy pdf->txt')
                 cert.txt_state = False
+            else:
+                cert.txt_state = True
         return cert
+
+    @staticmethod
+    def parse_cert_file(cert: 'FIPSCertificate') -> Tuple[Optional[Dict], 'FIPSCertificate']:
+        if not cert.txt_state:
+            return None, cert
+
+        _, whole_text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'), -1,
+                                                                    LINE_SEPARATOR)
+
+        # apply all rules
+        items_found_all = {}
+        for rule_group in fips_rules.keys():
+            if rule_group not in items_found_all:
+                items_found_all[rule_group] = {}
+
+            items_found = items_found_all[rule_group]
+
+            for rule in fips_rules[rule_group]:
+                for m in rule.finditer(whole_text_with_newlines):
+                # for m in re.finditer(rule, whole_text_with_newlines):
+                    # insert rule if at least one match for it was found
+                    if rule.pattern not in items_found:
+                        items_found[rule.pattern] = {}
+
+                    match = m.group()
+                    match = normalize_match_string(match)
+
+                    if match == '':
+                        continue
+
+                    certs = [x['Certificate'] for x in cert.algorithms]
+
+                    match_cert_id = ''.join(filter(str.isdigit, match))
+
+                    for fips_cert in certs:
+                        for actual_cert in fips_cert:
+                            if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
+                                continue
+
+                    if match not in items_found[rule.pattern]:
+                        items_found[rule.pattern][match] = {}
+                        items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] = 0
+
+                    items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] += 1
+
+                    whole_text_with_newlines = whole_text_with_newlines.replace(
+                        match, 'x' * len(match))
+
+        save_modified_cert_file(cert.state.fragment_path, whole_text_with_newlines, unicode_error)
+        return items_found_all, cert
+
+    @staticmethod
+    def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
+        cert_file = cert.state.sp_path
+        txt_file = cert_file.with_suffix('.pdf.txt')
+        with open(txt_file, 'r') as f:
+            tables = helpers.find_tables(f.read(), txt_file)
+
+        lst = []
+        if tables:
+            try:
+                data = read_pdf(cert_file, pages=tables, silent=True)
+            except Exception as e:
+                try:
+                    logger.error(e)
+                    helpers.repair_pdf(cert_file)
+                    data = read_pdf(cert_file, pages=tables, silent=True)
+
+                except Exception as ex:
+                    logger.error(ex)
+                    return False, cert, lst
+
+            # find columns with cert numbers
+            for df in data:
+                for col in range(len(df.columns)):
+                    if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
+                        lst += FIPSCertificate.extract_algorithm_certificates(
+                            df.iloc[:, col].to_string(index=False), True)
+
+                # Parse again if someone picks not so descriptive column names
+                lst += FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
+        return True, cert, lst
+
+    def remove_algorithms(self):
+        self.file_status = True
+        if not self.keywords:
+            return
+
+        if self.mentioned_certs:
+            for item in self.mentioned_certs:
+                self.keywords['rules_cert_id'].update(item)
+
+        for rule in self.keywords['rules_cert_id']:
+            to_pop = set()
+            rr = re.compile(rule)
+            for cert in self.keywords['rules_cert_id'][rule]:
+                for alg in self.keywords['rules_fips_algorithms']:
+                    for found in self.keywords['rules_fips_algorithms'][alg]:
+                        if rr.search(found) \
+                                and rr.search(cert) \
+                                and rr.search(found).group('id') == rr.search(cert).group('id'):
+                            to_pop.add(cert)
+            for r in to_pop:
+                self.keywords['rules_cert_id'][rule].pop(r, None)
+
+            self.keywords['rules_cert_id'][rule].pop(self.cert_id, None)
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
@@ -703,5 +895,3 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
             cert.state.st_convert_ok = False
         return cert
-
-
