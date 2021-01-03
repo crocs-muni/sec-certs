@@ -1,15 +1,16 @@
+from datetime import datetime
 import json
 from collections import namedtuple
 from sys import getsizeof
 from hashlib import blake2b
 
-from flask import Blueprint, render_template, current_app, url_for
-from flask_paginate import Pagination
+from flask import Blueprint, render_template, current_app, url_for, request
 from pkg_resources import resource_stream
 
 from networkx import info as graph_info
 
-from .utils import create_graph, send_json_attachment, entry_json_func, entry_graph_json_func, entry_func, network_graph_func
+from .utils import Pagination, create_graph, send_json_attachment, entry_json_func, entry_graph_json_func, entry_func, \
+    network_graph_func, smallest
 
 fips = Blueprint("fips", __name__, url_prefix="/fips")
 
@@ -19,7 +20,7 @@ fips_graphs = []
 fips_map = {}
 fips_types = {}
 
-FIPSEntry = namedtuple("FIPSEntry", ("id", "name", "hashid", "status", "level", "vendor", "type"))
+FIPSEntry = namedtuple("FIPSEntry", ("id", "name", "hashid", "status", "level", "vendor", "type", "cert_dates", "sunset_date", "search_name"))
 
 
 @fips.before_app_first_request
@@ -32,8 +33,17 @@ def load_fips_data():
     print(" * (FIPS) Loaded types")
     fips_data = {blake2b(key.encode(), digest_size=10).hexdigest(): value for key, value in
                  loaded_fips_data["certs"].items()}
+
+    def _parse_date(date):
+        try:
+            return datetime.strptime(date, "%m/%d/%Y")
+        except ValueError:
+            return datetime.strptime(date, "%m/%d/%y")
     fips_names = list(sorted(FIPSEntry(int(value["cert_id"]), value["module_name"], key, value["status"],
-                                       value["level"], value["vendor"], value["type"]) for key, value in
+                                       value["level"], value["vendor"], value["type"],
+                                       [_parse_date(date) for date in value["date_validation"]],
+                                       _parse_date(value["date_sunset"][0]) if value["date_sunset"] else None,
+                                       value["module_name"].lower() if value["module_name"] else "") for key, value in
                              fips_data.items()))
     print(" * (FIPS) Loaded certs")
 
@@ -87,9 +97,77 @@ def network_graph():
     return network_graph_func(fips_graphs)
 
 
+def select_certs(q, cat, status, sort):
+    categories = fips_types.copy()
+    names = fips_names
+
+    if q is not None:
+        ql = q.lower()
+        names = list(filter(lambda x: ql in x.search_name, names))
+
+    if cat is not None:
+        for category in categories.values():
+            if category["id"] in cat:
+                category["selected"] = True
+            else:
+                category["selected"] = False
+        names = list(filter(lambda x: categories[x.type]["selected"] if x.type in categories else False, names))
+    else:
+        for category in categories.values():
+            category["selected"] = True
+
+    if status is not None and status != "Any":
+        names = list(filter(lambda x: status == x.status, names))
+
+    if sort == "number":
+        pass
+    elif sort == "first_cert_date":
+        names = list(sorted(names, key=lambda x: x.cert_dates[0] if x.cert_dates else smallest))
+    elif sort == "last_cert_date":
+        names = list(sorted(names, key=lambda x: x.cert_dates[-1] if x.cert_dates else smallest))
+    elif sort == "sunset_date":
+        names = list(sorted(names, key=lambda x: x.sunset_date if x.sunset_date else smallest))
+    return names, categories
+
+
+def process_search(req, callback=None):
+    page = int(req.args.get("page", 1))
+    q = req.args.get("q", None)
+    cat = req.args.get("cat", None)
+    status = req.args.get("status", "Any")
+    sort = req.args.get("sort", "number")
+
+    names, categories = select_certs(q, cat, status, sort)
+
+    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+    pagination = Pagination(page=page, per_page=per_page, search=True, found=len(names), total=len(fips_names),
+                            css_framework="bootstrap4", alignment="center",
+                            url_callback=callback)
+    return {
+        "pagination": pagination,
+        "certs": names[(page - 1) * per_page:page * per_page],
+        "categories": categories,
+        "q": q,
+        "page": page,
+        "status": status,
+        "sort": sort
+    }
+
+
 @fips.route("/search/")
 def search():
-    pass
+    res = process_search(request)
+    return render_template("fips/search.html.jinja2", **res,
+                           title=f"FIPS 140 [{res['q']}] ({res['page']}) | seccerts.org")
+
+
+@fips.route("/search/pagination/")
+def search_pagination():
+    def callback(**kwargs):
+        return url_for(".search", **kwargs)
+
+    res = process_search(request, callback=callback)
+    return render_template("fips/search_pagination.html.jinja2", **res)
 
 
 @fips.route("/analysis/")

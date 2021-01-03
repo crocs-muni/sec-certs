@@ -33,7 +33,7 @@
         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
         <b>Status:</b> {{ render_status(cert["status"]) }}<br/>
         {% if cert["historical_reason"] %}
-            <b></b>
+            <b>Historical reason:</b> {{ cert["historical_reason"] }}<br/>
         {% endif %}
         <b>Validation dates:</b> {% for date in cert["date_validation"] %}{{ date }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
         {% if cert["date_sunset"] %}

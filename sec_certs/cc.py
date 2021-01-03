@@ -166,13 +166,7 @@ def network_graph():
     return network_graph_func(cc_graphs)
 
 
-def process_search(req, callback=None):
-    page = int(req.args.get("page", 1))
-    q = req.args.get("q", None)
-    cat = req.args.get("cat", None)
-    status = req.args.get("status", "any")
-    sort = req.args.get("sort", "name")
-
+def select_certs(q, cat, status, sort):
     categories = cc_categories.copy()
     names = cc_names
 
@@ -200,6 +194,18 @@ def process_search(req, callback=None):
         names = list(sorted(names, key=lambda x: x.cert_date if x.cert_date else smallest))
     elif sort == "archive_date":
         names = list(sorted(names, key=lambda x: x.archived_date if x.archived_date else smallest))
+
+    return names, categories
+
+
+def process_search(req, callback=None):
+    page = int(req.args.get("page", 1))
+    q = req.args.get("q", None)
+    cat = req.args.get("cat", None)
+    status = req.args.get("status", "any")
+    sort = req.args.get("sort", "name")
+
+    names, categories = select_certs(q, cat, status, sort)
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
     pagination = Pagination(page=page, per_page=per_page, search=True, found=len(names), total=len(cc_names),

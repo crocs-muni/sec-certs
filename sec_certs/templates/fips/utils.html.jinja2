@@ -90,10 +90,12 @@
 	</div>
 	<table class="border mb-4">
 		<col style="width: 3%">
-		<col style="width:67%">
+		<col style="width:45%">
 		<col style="width:10%">
 		<col style="width:5%">
 		<col style="width:15%">
+        <col style="width:12%">
+        <col style="width:10%">
 		<thead>
 			<tr class="border-bottom">
 				<th class="pl-1">ID</th>
@@ -101,15 +103,19 @@
 				<th>Status</th>
 				<th>Level</th>
 				<th>Vendor</th>
+                <th>Validation dates</th>
+                <th>Sunset date</th>
 			</tr>
 		</thead>
-	{% for id, name, hashid, status, level, vendor, type in certs %}
+	{% for id, name, hashid, status, level, vendor, type, cert_dates, sunset_date, search_name in certs %}
 		<tr>
 		<td class="pl-1">#{{ id }}</td>
 		<td>{{ render_type(type) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
 		<td>{{ render_status(status) }}</td>
 		<td>{{ level }}</td>
 		<td>{{ vendor }}</td>
+        <td>{% for date in cert_dates %}{{ date.strftime("%m/%d/%Y") }}<br/>{% endfor %}</td>
+        <td>{% if sunset_date %}{{ sunset_date.strftime("%m/%d/%Y") }}{% endif %}</td>
 		</tr>
 	{% endfor %}
 	</table>
