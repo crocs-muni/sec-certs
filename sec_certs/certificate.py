@@ -51,7 +51,7 @@ class Certificate(ABC):
 
     @classmethod
     def from_dict(cls: Type[T], dct: dict) -> T:
-        return cls(*tuple(dct.values()))
+        return cls(*(tuple(dct.values())))
 
     def to_json(self, output_path: Union[Path, str]):
         with Path(output_path).open('w') as handle:
@@ -154,7 +154,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  txt_state: bool,
                  keywords: Dict,
                  revoked_reason: Optional[str],
-                 revoked_link: Optional[str]):
+                 revoked_link: Optional[str],
+                 sw_versions: Optional[str],
+                 product_url: Optional[str]):
         super().__init__()
         self.cert_id = cert_id
 
@@ -194,6 +196,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         self.revoked_reason = revoked_reason
         self.revoked_link = revoked_link
+        self.sw_versions = sw_versions
+        self.product_url = product_url
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> None:
@@ -218,7 +222,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
              'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
              'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
              'mentioned_certs': [], 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
-             'hw_versions': None, 'fw_versions': None}
+             'hw_versions': None, 'fw_versions': None, 'sw_versions': None, 'product_url': None}
 
         return d
 
@@ -279,8 +283,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             .replace('\n', '').replace('\t', '').replace('    ', ' ')
 
         if title in pairs:
-            if 'date' in pairs[title]:
+            if 'date_validation' == pairs[title]:
                 html_items_found[pairs[title]] = [parser.parse(x) for x in content.split(';')]
+
+            elif 'date_sunset' == pairs[title]:
+                html_items_found[pairs[title]] = parser.parse(content)
+
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
                 html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
@@ -292,6 +300,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             elif 'Algorithms' in title or 'Description' in title:
                 html_items_found['algorithms'] += FIPSCertificate.extract_algorithm_certificates(content)
+                if 'Description' in title:
+                    html_items_found['description'] = content
 
             elif 'tested_conf' in pairs[title]:
                 html_items_found[pairs[title]] = [x.text for x in
@@ -337,6 +347,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if len(links) == 2:
             html_items_found['certificate_www'] = dataset.FIPSDataset.FIPS_BASE_URL + links[1].get('href')
 
+    @staticmethod
+    def normalize(items: Dict):
+        items['type'] = items['type'].lower().replace('-', ' ').title()
+        items['embodiment'] = items['embodiment'].lower().replace('-', ' ').replace('stand alone', 'standalone').title()
+
     @classmethod
     def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None) -> 'FIPSCertificate':
         pairs = {
@@ -359,7 +374,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             'Hardware Versions': 'hw_versions',
             'Firmware Versions': 'fw_versions',
             'Revoked Reason': 'revoked_reason',
-            'Revoked Link': 'revoked_link'
+            'Revoked Link': 'revoked_link',
+            'Software Versions': 'sw_versions',
+            'Product URL': 'product_url'
         }
         if not initialized:
             items_found = FIPSCertificate.initialize_dictionary()
@@ -409,6 +426,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             items_found['algorithms'] = new_algs
 
+        FIPSCertificate.normalize(items_found)
+
         return FIPSCertificate(items_found['cert_id'],
                                items_found['module_name'],
                                items_found['standard'],
@@ -440,7 +459,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                False if not initialized else items_found['txt_state'],
                                None if not initialized else items_found['keywords'],
                                items_found['revoked_reason'],
-                               items_found['revoked_link'])
+                               items_found['revoked_link'],
+                               items_found['sw_versions'],
+                               items_found['product_url'])
 
     @staticmethod
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
