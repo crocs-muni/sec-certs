@@ -163,8 +163,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.module_name = module_name
         self.standard = standard
         self.status = status
-        self.date_sunset = date_sunset
-        self.date_validation = date_validation
+        self.date_sunset = parser.parse(date_sunset) if date_sunset else date_sunset
+        self.date_validation = [parser.parse(x) for x in date_validation if x]
         self.level = level
         self.caveat = caveat
         self.exceptions = exceptions

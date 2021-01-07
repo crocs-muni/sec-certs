@@ -688,6 +688,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         """
 
         def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
+
             # returns True if candidates should _not_ be matched
             def compare_certs(current_certificate: 'FIPSCertificate', other_id: str):
                 cert_first = current_certificate.date_validation[0].year
@@ -698,7 +699,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 return cert_first - conn_first > 5 and cert_last - conn_last > 5
 
             # "< 105" still needs to be used, because of some old certs being revalidated
-            if cert_candidate.isdecimal() and (int(cert_candidate) < 105 or compare_certs(processed_cert, cert_candidate)):
+            if cert_candidate.isdecimal() and compare_certs(processed_cert, cert_candidate):
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True
