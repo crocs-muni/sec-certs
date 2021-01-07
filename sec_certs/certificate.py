@@ -529,7 +529,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
-        with open(txt_file, 'r') as f:
+        with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
 
         lst = []

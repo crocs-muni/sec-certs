@@ -21,6 +21,7 @@ import sec_certs.files as files
 
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.cert_rules import configuration
 
 logger = logging.getLogger(__name__)
 
@@ -518,21 +519,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def extract_keywords(self, redo=False):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
-        if self.new_files > 0 or not (self.root_dir / 'fips_full_keywords.json').exists():
 
-            keywords = cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
-                                                        [cert for cert in self.certs.values() if not cert.keywords or redo],
-                                                        constants.N_THREADS,
-                                                        use_threading=False)
-            for keyword, cert in keywords:
-                self.certs[cert.dgst].keywords = keyword
-        else:
-            self.keywords = json.loads(
-                open(self.root_dir / 'fips_full_keywords.json').read())
-
-    def dump_keywords(self):
-        with open(self.root_dir / "fips_full_keywords.json", 'w') as f:
-            f.write(json.dumps(self.keywords, indent=4, sort_keys=True))
+        keywords = cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
+                                                    [cert for cert in self.certs.values() if not cert.keywords or redo],
+                                                    constants.N_THREADS,
+                                                    use_threading=False)
+        for keyword, cert in keywords:
+            self.certs[cert.dgst].keywords = keyword
 
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []
@@ -582,7 +575,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info('Converting FIPS certificate reports to .txt')
         tuples = [
             (cert, self.policies_dir / f'{cert.cert_id}.pdf', self.policies_dir / f'{cert.cert_id}.pdf.txt')
-            for cert in self.certs.values() if not cert.txt_state and (self.policies_dir / f'{cert.cert_id}.pdf').exists()
+            for cert in self.certs.values() if
+            not cert.txt_state and (self.policies_dir / f'{cert.cert_id}.pdf').exists()
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
@@ -594,7 +588,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         def get_certificates_from_html(html_file: Path) -> None:
             logger.info(f'Getting certificate ids from {html_file}')
-            html = BeautifulSoup(open(html_file).read(), 'html.parser')
+            with open(html_file, 'r', encoding='utf-8') as handle:
+                html = BeautifulSoup(handle.read(), 'html.parser')
 
             table = [x for x in html.find(
                 id='searchResultsTable').tbody.contents if x != '\n']
@@ -624,7 +619,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for f in html_files:
             get_certificates_from_html(self.web_dir / f)
 
-        logger.info('Downloading certficate html and security policies')
+        logger.info('Downloading certificate html and security policies')
         download_html_pages()
 
         logger.info(f"{self.new_files} needed to be downloaded")
@@ -658,7 +653,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                                   [cert for cert in self.certs.values() if
                                                    not cert.tables_done and cert.txt_state],
                                                   constants.N_THREADS // 4,  # tabula already processes by parallel, so
-                                                                            # it's counterproductive to use all threads
+                                                  # it's counterproductive to use all threads
                                                   use_threading=False)
 
         not_decoded = list(map(lambda tup: tup[1].state.sp_path, filter(lambda tup: tup[0] is False, result)))
@@ -696,10 +691,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 conn_first = self.certs[other_id].date_validation[0].year
                 conn_last = self.certs[other_id].date_validation[-1].year
 
-                return cert_first - conn_first > 5 and cert_last - conn_last > 5
+                return cert_first - conn_first > configuration["year_difference_between_validations"]["value"] \
+                       and cert_last - conn_last > configuration["year_difference_between_validations"]["value"]
 
             # "< 105" still needs to be used, because of some old certs being revalidated
-            if cert_candidate.isdecimal() and compare_certs(processed_cert, cert_candidate):
+            if cert_candidate.isdecimal() \
+                    and int(cert_candidate) < configuration["smallest_certificate_id_to_connect"]["value"] or \
+                    compare_certs( processed_cert, cert_candidate):
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True
@@ -854,7 +852,9 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             return cert_type.strip(), cert_id.strip()
 
         for f in files.search_files(self.root_dir):
-            html_soup = BeautifulSoup(open(f).read(), 'html.parser')
+            with open(f, 'r', encoding='utf-8') as handle:
+                html_soup = BeautifulSoup(handle.read(), 'html.parser')
+
             table = html_soup.find('table', class_='table table-condensed publications-table table-bordered')
             spans = table.find_all('span')
             for span in spans:

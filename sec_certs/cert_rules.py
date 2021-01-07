@@ -1,4 +1,5 @@
 import re
+import json
 
 REGEXEC_SEP = '[ ,;\]”)(]'
 
@@ -428,3 +429,9 @@ fips_rules.update(common_rules)
 for rule in fips_rules:
     for current_rule in range(len(fips_rules[rule])):
         fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule] + REGEXEC_SEP)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                         JSON Settings
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+with open('./settings.json', 'r', encoding='utf-8') as f:
+    configuration = json.load(f)
