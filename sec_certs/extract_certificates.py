@@ -5,7 +5,10 @@ import os
 import operator
 
 import subprocess
+from multiprocessing import Pool, RLock
 from multiprocessing.pool import ThreadPool
+from multiprocessing.spawn import freeze_support
+from re import Pattern
 from typing import Sequence
 
 from tqdm import tqdm
@@ -46,17 +49,24 @@ def get_line_number(lines, line_length_compensation, match_start_index):
     return -1
 
 
-def convert_pdf_files(walk_dir: Path, num_threads: int, options: Sequence[str]) -> Sequence[subprocess.CompletedProcess]:
-    def convert_pdf_file(file_name: str):
-        return subprocess.run(["pdftotext", *options, file_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    items = []
+def get_files_to_process(walk_dir: Path, required_extension: str):
+    files_to_process = []
     for file_name in search_files(walk_dir):
         if not os.path.isfile(file_name):
             continue
         file_ext = file_name[file_name.rfind('.'):]
-        if file_ext.lower() != '.pdf':
+        if file_ext.lower() != required_extension:
             continue
-        items.append(file_name)
+        files_to_process.append(file_name)
+
+    return files_to_process
+
+
+def convert_pdf_files(walk_dir: Path, num_threads: int, options: Sequence[str]) -> Sequence[subprocess.CompletedProcess]:
+    def convert_pdf_file(file_name: str):
+        return subprocess.run(["pdftotext", *options, file_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    items = get_files_to_process(walk_dir, '.pdf')
+
     results = []
     with tqdm(total=len(items)) as progress:
         for result in ThreadPool(num_threads).imap(convert_pdf_file, items):
@@ -138,7 +148,7 @@ def set_match_string(items, key_name, new_value):
 
 
 def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR,
-                    should_censure_right_away=False, fips_items=None, ):
+                    should_censure_right_away=False, fips_items=None):
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
         file_name, limit_max_lines, line_separator)
 
@@ -152,13 +162,17 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
         items_found = items_found_all[rule_group]
 
         for rule in search_rules[rule_group]:
-
-            rule_and_sep = rule + REGEXEC_SEP
+            if type(rule) != str:
+                rule_str = rule.pattern
+                rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
+            else:
+                rule_str = rule
+                rule_and_sep = rule + REGEXEC_SEP
 
             for m in re.finditer(rule_and_sep, whole_text_with_newlines):
                 # insert rule if at least one match for it was found
                 if rule not in items_found:
-                    items_found[rule] = {}
+                    items_found[rule_str] = {}
 
                 match = m.group()
                 match = normalize_match_string(match)
@@ -178,22 +192,22 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 if is_algorithm:
                     continue
 
-                if match not in items_found[rule]:
-                    items_found[rule][match] = {}
-                    items_found[rule][match][TAG_MATCH_COUNTER] = 0
+                if match not in items_found[rule_str]:
+                    items_found[rule_str][match] = {}
+                    items_found[rule_str][match][TAG_MATCH_COUNTER] = 0
                     if APPEND_DETAILED_MATCH_MATCHES:
-                        items_found[rule][match][TAG_MATCH_MATCHES] = []
+                        items_found[rule_str][match][TAG_MATCH_MATCHES] = []
                     # else:
-                    #    items_found[rule][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
+                    #    items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
 
-                items_found[rule][match][TAG_MATCH_COUNTER] += 1
+                items_found[rule_str][match][TAG_MATCH_COUNTER] += 1
                 match_span = m.span()
                 # estimate line in original text file
                 # line_number = get_line_number(lines, line_length_compensation, match_span[0])
                 # start index, end index, line number
-                # items_found[rule][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
+                # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
                 if APPEND_DETAILED_MATCH_MATCHES:
-                    items_found[rule][match][TAG_MATCH_MATCHES].append(
+                    items_found[rule_str][match][TAG_MATCH_MATCHES].append(
                         [match_span[0], match_span[1]])
                 if should_censure_right_away:
                     whole_text_with_newlines = whole_text_with_newlines.replace(
@@ -358,101 +372,98 @@ def search_only_headers_bsi(walk_dir: Path):
     items_found_all = {}
     items_found = {}
     files_without_match = []
-    for file_name in search_files(walk_dir):
-        if not os.path.isfile(file_name):
-            continue
-        file_ext = file_name[file_name.rfind('.'):]
-        if file_ext != '.txt':
-            continue
-        #        print('*** {} ***'.format(file_name))
+    files_to_process = get_files_to_process(walk_dir, '.txt')
+    with tqdm(total=len(files_to_process)) as progress:
+        for file_name in files_to_process:
+            no_match_yet = True
+            #
+            # Process front page with info: cert_id, certified_item and developer
+            #
+            whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+                file_name, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
 
-        no_match_yet = True
-        #
-        # Process front page with info: cert_id, certified_item and developer
-        #
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
-            file_name, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
+            for rule in rules_certificate_preface:
+                rule_and_sep = rule + REGEXEC_SEP
 
-        for rule in rules_certificate_preface:
-            rule_and_sep = rule + REGEXEC_SEP
+                for m in re.finditer(rule_and_sep, whole_text):
+                    if no_match_yet:
+                        items_found_all[file_name] = {}
+                        items_found_all[file_name] = {}
+                        items_found = items_found_all[file_name]
+                        items_found[TAG_HEADER_MATCH_RULES] = []
+                        no_match_yet = False
 
-            for m in re.finditer(rule_and_sep, whole_text):
-                if no_match_yet:
-                    items_found_all[file_name] = {}
-                    items_found_all[file_name] = {}
-                    items_found = items_found_all[file_name]
-                    items_found[TAG_HEADER_MATCH_RULES] = []
-                    no_match_yet = False
+                    # insert rule if at least one match for it was found
+                    if rule not in items_found[TAG_HEADER_MATCH_RULES]:
+                        items_found[TAG_HEADER_MATCH_RULES].append(rule)
 
-                # insert rule if at least one match for it was found
-                if rule not in items_found[TAG_HEADER_MATCH_RULES]:
-                    items_found[TAG_HEADER_MATCH_RULES].append(rule)
+                    match_groups = m.groups()
+                    cert_id = match_groups[0]
+                    certified_item = match_groups[1]
+                    developer = match_groups[2]
 
-                match_groups = m.groups()
-                cert_id = match_groups[0]
-                certified_item = match_groups[1]
-                developer = match_groups[2]
+                    FROM_KEYWORD_LIST = [' from ', ' der ']
+                    for from_keyword in FROM_KEYWORD_LIST:
+                        from_keyword_len = len(from_keyword)
+                        if certified_item.find(from_keyword) != -1:
+                            print(
+                                'string **{}** detected in certified item - shall not be here, fixing...'.format(
+                                    from_keyword))
+                            certified_item_first = certified_item[:certified_item.find(
+                                from_keyword)]
+                            developer = certified_item[certified_item.find(
+                                from_keyword) + from_keyword_len:]
+                            certified_item = certified_item_first
+                            continue
 
-                FROM_KEYWORD_LIST = [' from ', ' der ']
-                for from_keyword in FROM_KEYWORD_LIST:
-                    from_keyword_len = len(from_keyword)
-                    if certified_item.find(from_keyword) != -1:
-                        print(
-                            'string **{}** detected in certified item - shall not be here, fixing...'.format(
-                                from_keyword))
-                        certified_item_first = certified_item[:certified_item.find(
-                            from_keyword)]
-                        developer = certified_item[certified_item.find(
-                            from_keyword) + from_keyword_len:]
-                        certified_item = certified_item_first
-                        continue
+                    end_pos = developer.find('\f-')
+                    if end_pos == -1:
+                        end_pos = developer.find('\fBSI')
+                    if end_pos == -1:
+                        end_pos = developer.find('Bundesamt')
+                    if end_pos != -1:
+                        developer = developer[:end_pos]
 
-                end_pos = developer.find('\f-')
-                if end_pos == -1:
-                    end_pos = developer.find('\fBSI')
-                if end_pos == -1:
-                    end_pos = developer.find('Bundesamt')
-                if end_pos != -1:
-                    developer = developer[:end_pos]
+                    items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
+                    items_found[TAG_CERT_ITEM] = normalize_match_string(
+                        certified_item)
+                    items_found[TAG_DEVELOPER] = normalize_match_string(developer)
+                    items_found[TAG_CERT_LAB] = 'BSI'
 
-                items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
-                items_found[TAG_CERT_ITEM] = normalize_match_string(
-                    certified_item)
-                items_found[TAG_DEVELOPER] = normalize_match_string(developer)
-                items_found[TAG_CERT_LAB] = 'BSI'
+            #
+            # Process page with more detailed certificate info
+            # PP Conformance, Functionality, Assurance
+            rules_certificate_third = [
+                'PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified',
+            ]
 
-        #
-        # Process page with more detailed certificate info
-        # PP Conformance, Functionality, Assurance
-        rules_certificate_third = [
-            'PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified',
-        ]
+            whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+                file_name)
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
-            file_name)
+            for rule in rules_certificate_third:
+                rule_and_sep = rule + REGEXEC_SEP
 
-        for rule in rules_certificate_third:
-            rule_and_sep = rule + REGEXEC_SEP
+                for m in re.finditer(rule_and_sep, whole_text):
+                    # check if previous rules had at least one match
+                    if not TAG_CERT_ID in items_found.keys():
+                        print('ERROR: front page not found for file: {}'.format(file_name))
 
-            for m in re.finditer(rule_and_sep, whole_text):
-                # check if previous rules had at least one match
-                if not TAG_CERT_ID in items_found.keys():
-                    print('ERROR: front page not found for file: {}'.format(file_name))
+                    match_groups = m.groups()
+                    ref_protection_profiles = match_groups[0]
+                    cc_version = match_groups[1]
+                    cc_security_level = match_groups[2]
 
-                match_groups = m.groups()
-                ref_protection_profiles = match_groups[0]
-                cc_version = match_groups[1]
-                cc_security_level = match_groups[2]
+                    items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
+                        ref_protection_profiles)
+                    items_found[TAG_CC_VERSION] = normalize_match_string(
+                        cc_version)
+                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(
+                        cc_security_level)
 
-                items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
-                    ref_protection_profiles)
-                items_found[TAG_CC_VERSION] = normalize_match_string(
-                    cc_version)
-                items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(
-                    cc_security_level)
+            if no_match_yet:
+                files_without_match.append(file_name)
 
-        if no_match_yet:
-            files_without_match.append(file_name)
+            progress.update(1)
 
     print('\n*** Certificates without detected preface:')
     for file_name in files_without_match:
@@ -572,97 +583,95 @@ def search_only_headers_anssi(walk_dir: Path):
     print('***ANSSI HEADER SEARCH***')
     items_found_all = {}
     files_without_match = []
-    for file_name in search_files(walk_dir):
-        if not os.path.isfile(file_name):
-            continue
-        file_ext = file_name[file_name.rfind('.'):]
-        if file_ext != '.txt':
-            continue
-        #        print('*** {} ***'.format(file_name))
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
-            file_name)
+    files_to_process = get_files_to_process(walk_dir, '.txt')
+    with tqdm(total=len(files_to_process)) as progress:
+        for file_name in files_to_process:
+            whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+                file_name)
 
-        # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
-        pos = whole_text.find('')
-        if pos != -1:
-            pos = whole_text.find('', pos)
+            # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
+            pos = whole_text.find('')
             if pos != -1:
-                whole_text = whole_text[pos:]
+                pos = whole_text.find('', pos)
+                if pos != -1:
+                    whole_text = whole_text[pos:]
 
-        no_match_yet = True
-        other_rule_already_match = False
-        other_rule = ''
-        rule_index = -1
-        for rule in rules_certificate_preface:
-            rule_index += 1
-            rule_and_sep = rule[1] + REGEXEC_SEP
+            no_match_yet = True
+            other_rule_already_match = False
+            other_rule = ''
+            rule_index = -1
+            for rule in rules_certificate_preface:
+                rule_index += 1
+                rule_and_sep = rule[1] + REGEXEC_SEP
 
-            for m in re.finditer(rule_and_sep, whole_text):
-                if no_match_yet:
-                    items_found_all[file_name] = {}
-                    items_found_all[file_name] = {}
-                    items_found = items_found_all[file_name]
-                    items_found[TAG_HEADER_MATCH_RULES] = []
-                    no_match_yet = False
+                for m in re.finditer(rule_and_sep, whole_text):
+                    if no_match_yet:
+                        items_found_all[file_name] = {}
+                        items_found_all[file_name] = {}
+                        items_found = items_found_all[file_name]
+                        items_found[TAG_HEADER_MATCH_RULES] = []
+                        no_match_yet = False
 
-                # insert rule if at least one match for it was found
-                if rule not in items_found[TAG_HEADER_MATCH_RULES]:
-                    items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
+                    # insert rule if at least one match for it was found
+                    if rule not in items_found[TAG_HEADER_MATCH_RULES]:
+                        items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
 
-                if not other_rule_already_match:
-                    other_rule_already_match = True
-                    other_rule = rule
-                else:
-                    print(
-                        'WARNING: multiple rules are matching same certification document: ' + file_name)
+                    if not other_rule_already_match:
+                        other_rule_already_match = True
+                        other_rule = rule
+                    else:
+                        print(
+                            'WARNING: multiple rules are matching same certification document: ' + file_name)
 
-                num_rules_hits[rule[1]] += 1  # add hit to this rule
+                    num_rules_hits[rule[1]] += 1  # add hit to this rule
 
-                match_groups = m.groups()
+                    match_groups = m.groups()
 
-                index_next_item = 0
+                    index_next_item = 0
 
-                items_found[TAG_CERT_ID] = normalize_match_string(
-                    match_groups[index_next_item])
-                index_next_item += 1
-
-                items_found[TAG_CERT_ITEM] = normalize_match_string(
-                    match_groups[index_next_item])
-                index_next_item += 1
-
-                if rule[0] == HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION:
-                    items_found[TAG_CERT_ITEM_VERSION] = ''
-                else:
-                    items_found[TAG_CERT_ITEM_VERSION] = normalize_match_string(
+                    items_found[TAG_CERT_ID] = normalize_match_string(
                         match_groups[index_next_item])
                     index_next_item += 1
 
-                if rule[0] == HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES:
-                    items_found[TAG_REFERENCED_PROTECTION_PROFILES] = ''
-                else:
-                    items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
+                    items_found[TAG_CERT_ITEM] = normalize_match_string(
                         match_groups[index_next_item])
                     index_next_item += 1
 
-                items_found[TAG_CC_VERSION] = normalize_match_string(
-                    match_groups[index_next_item])
-                index_next_item += 1
+                    if rule[0] == HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION:
+                        items_found[TAG_CERT_ITEM_VERSION] = ''
+                    else:
+                        items_found[TAG_CERT_ITEM_VERSION] = normalize_match_string(
+                            match_groups[index_next_item])
+                        index_next_item += 1
 
-                items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(
-                    match_groups[index_next_item])
-                index_next_item += 1
+                    if rule[0] == HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES:
+                        items_found[TAG_REFERENCED_PROTECTION_PROFILES] = ''
+                    else:
+                        items_found[TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
+                            match_groups[index_next_item])
+                        index_next_item += 1
 
-                items_found[TAG_DEVELOPER] = normalize_match_string(
-                    match_groups[index_next_item])
-                index_next_item += 1
+                    items_found[TAG_CC_VERSION] = normalize_match_string(
+                        match_groups[index_next_item])
+                    index_next_item += 1
 
-                items_found[TAG_CERT_LAB] = normalize_match_string(
-                    match_groups[index_next_item])
-                index_next_item += 1
+                    items_found[TAG_CC_SECURITY_LEVEL] = normalize_match_string(
+                        match_groups[index_next_item])
+                    index_next_item += 1
 
-        if no_match_yet:
-            files_without_match.append(file_name)
+                    items_found[TAG_DEVELOPER] = normalize_match_string(
+                        match_groups[index_next_item])
+                    index_next_item += 1
+
+                    items_found[TAG_CERT_LAB] = normalize_match_string(
+                        match_groups[index_next_item])
+                    index_next_item += 1
+
+            if no_match_yet:
+                files_without_match.append(file_name)
+
+            progress.update(1)
 
     print('\n*** Certificates without detected preface:')
     for file_name in files_without_match:
@@ -758,291 +767,288 @@ def search_pp_only_headers(walk_dir: Path):
     print("***PP HEADER SEARCH***")
     items_found_all = {}
     files_without_match = []
-    for file_name in search_files(walk_dir):
-        if not os.path.isfile(file_name):
-            continue
-        file_ext = file_name[file_name.rfind('.'):]
-        if file_ext != '.txt':
-            continue
-        #        print('*** {} ***'.format(file_name))
+    files_to_process = get_files_to_process(walk_dir, '.txt')
+    with tqdm(total=len(files_to_process)) as progress:
+        for file_name in files_to_process:
+            #
+            # Process page with more detailed protection profile info
+            # PP Reference
 
-        #
-        # Process page with more detailed protection profile info
-        # PP Reference
+            whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+                file_name)
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
-            file_name)
+            no_match_yet = True
+            for rule in rules_pp_third:
+                rule_and_sep = rule[1] + REGEXEC_SEP
 
-        no_match_yet = True
-        for rule in rules_pp_third:
-            rule_and_sep = rule[1] + REGEXEC_SEP
+                for m in re.finditer(rule_and_sep, whole_text):
+                    if no_match_yet:
+                        items_found_all[file_name] = {}
+                        items_found_all[file_name] = {}
+                        items_found = items_found_all[file_name]
+                        items_found[TAG_HEADER_MATCH_RULES] = []
+                        no_match_yet = False
 
-            for m in re.finditer(rule_and_sep, whole_text):
-                if no_match_yet:
-                    items_found_all[file_name] = {}
-                    items_found_all[file_name] = {}
-                    items_found = items_found_all[file_name]
-                    items_found[TAG_HEADER_MATCH_RULES] = []
-                    no_match_yet = False
+                    # insert rule if at least one match for it was found
+                    if rule[1] not in items_found[TAG_HEADER_MATCH_RULES]:
+                        items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
 
-                # insert rule if at least one match for it was found
-                if rule[1] not in items_found[TAG_HEADER_MATCH_RULES]:
-                    items_found[TAG_HEADER_MATCH_RULES].append(rule[1])
+                    match_groups = m.groups()
+                    index = 0
 
-                match_groups = m.groups()
-                index = 0
+                    if rule[0] == HEADER_TYPE.BSI_TYPE1:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_VERSION,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_GENERAL_STATUS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_ID,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        keywords = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(
+                            keywords[0:keywords.find('  ')]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_AUTHORS, 'BSI')
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
 
-                if rule[0] == HEADER_TYPE.BSI_TYPE1:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_VERSION,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_GENERAL_STATUS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_ID,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    keywords = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(
-                        keywords[0:keywords.find('  ')]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS, 'BSI')
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
+                    if rule[0] == HEADER_TYPE.BSI_TYPE2:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_AUTHORS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_REGISTRATOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_ID,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_VERSION,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        keywords = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(
+                            keywords[0:keywords.find('  ')]))
+                        index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
 
-                if rule[0] == HEADER_TYPE.BSI_TYPE2:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_ID,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_VERSION,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    keywords = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_KEYWORDS, normalize_match_string(
-                        keywords[0:keywords.find('  ')]))
-                    index += 1
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'BSI')
+                    if rule[0] == HEADER_TYPE.ANSSI_TYPE1:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_REGISTRATOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_SPONSOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_EDITOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_REVIEWER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_VERSION,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        level = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(
+                            level[0:level.find('  ')]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.ANSSI_TYPE1:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_EDITOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_REVIEWER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_VERSION,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    level = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL, normalize_match_string(
-                        level[0:level.find('  ')]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
+                    if rule[0] == HEADER_TYPE.ANSSI_TYPE2:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_AUTHORS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_REGISTRATOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_VERSION,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_KEYWORDS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.ANSSI_TYPE2:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_REGISTRATOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_VERSION,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_KEYWORDS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
+                    if rule[0] == HEADER_TYPE.ANSSI_TYPE3:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        # todo: parse if multiple pp ids are present
+                        set_match_string(items_found, TAG_PP_ID,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_EDITOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_SPONSOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        ccversion = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(
+                            ccversion[0:ccversion.find('  ')]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.ANSSI_TYPE3:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    # todo: parse if multiple pp ids are present
-                    set_match_string(items_found, TAG_PP_ID,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_EDITOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    ccversion = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(
-                        ccversion[0:ccversion.find('  ')]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'ANSSI')
+                    if rule[0] == HEADER_TYPE.DCSSI_TYPE1:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_ID,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        author = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(
+                            author[0:author.find('  ')]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.DCSSI_TYPE1:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_ID,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    author = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_PP_AUTHORS, normalize_match_string(
-                        author[0:author.find('  ')]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    if rule[0] == HEADER_TYPE.DCSSI_TYPE2:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_AUTHORS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        version = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(
+                            version[0:version.find('  ')]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.DCSSI_TYPE2:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    version = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER, normalize_match_string(
-                        version[0:version.find('  ')]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    if rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE3 or rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE4:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_ID,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_ID_REGISTRATOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE3 or rule[0] == HEADER_TYPE.FRONT_DCSSI_TYPE4:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_ID,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_ID_REGISTRATOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+                    if rule[0] == HEADER_TYPE.DCSSI_TYPE5:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_AUTHORS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_SPONSOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        ccversion = match_groups[index].lstrip('  ')
+                        set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(
+                            ccversion[0:ccversion.find('  ')]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.DCSSI_TYPE5:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    ccversion = match_groups[index].lstrip('  ')
-                    set_match_string(items_found, TAG_CC_VERSION, normalize_match_string(
-                        ccversion[0:ccversion.find('  ')]))
-                    index += 1
+                    if rule[0] == HEADER_TYPE.DCSSI_TYPE6:
+                        set_match_string(items_found, TAG_PP_TITLE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_AUTHORS,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_VERSION_NUMBER,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_DATE,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_PP_SPONSOR,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_VERSION,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
+                        set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
+                                         normalize_match_string(match_groups[index]))
+                        index += 1
 
-                if rule[0] == HEADER_TYPE.DCSSI_TYPE6:
-                    set_match_string(items_found, TAG_PP_TITLE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_AUTHORS,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_VERSION_NUMBER,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_DATE,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_PP_SPONSOR,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_VERSION,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
-                    set_match_string(items_found, TAG_CC_SECURITY_LEVEL,
-                                     normalize_match_string(match_groups[index]))
-                    index += 1
+                        set_match_string(
+                            items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
 
-                    set_match_string(
-                        items_found, TAG_PP_REGISTRATOR_SIMPLIFIED, 'DCSSI')
+            if no_match_yet:
+                files_without_match.append(file_name)
 
-        if no_match_yet:
-            files_without_match.append(file_name)
+            progress.update(1)
 
     print('\n*** Protection profiles without detected header:')
     for file_name in files_without_match:
@@ -1064,36 +1070,105 @@ def extract_protectionprofiles_frontpage(walk_dir: Path):
     return pp_items_found
 
 
-def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix, should_censure_right_away=False, fips_items=None):
-    print("***EXTRACT KEYWORDS***")
-    all_items_found = {}
-    # cert_id = {}
-    for file_name in search_files(walk_dir):
-        if not os.path.isfile(file_name):
-            continue
-        file_ext = file_name[file_name.rfind('.'):]
-        if file_ext != '.txt':
-            continue
+def extract_keywords(params):
+    file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items = params
+    result, modified_cert_file = parse_cert_file(
+        file_name, fips_rules if fips_items else rules, -1, LINE_SEPARATOR, should_censure_right_away, fips_items)
 
-        #        print('*** {} ***'.format(file_name))
-
-        fips_cert_name = os.path.splitext(
-            os.path.splitext(os.path.basename(file_name))[0])[0]
-        # parse certificate, return all matches
-        all_items_found[fips_cert_name if fips_items else file_name], modified_cert_file = parse_cert_file(
-            file_name, fips_rules if fips_items else rules, -1, should_censure_right_away=should_censure_right_away,
-            fips_items=fips_items)
-
-        # try to establish the certificate id of the current certificate
-        # cert_id[file_cert_name] = estimate_cert_id(
-        #     None, all_items_found[file_cert_name], file_name)
-
-        # save report text with highlighted/replaced matches into \\fragments\\ directory
+    # save report text with highlighted/replaced matches into \\fragments\\ directory
+    save_fragments = True
+    if save_fragments:
         base_path = file_name[:file_name.rfind(os.sep)]
         file_name_short = file_name[file_name.rfind(os.sep) + 1:]
         target_file = fragments_dir / file_name_short
         save_modified_cert_file(
             target_file, modified_cert_file[0], modified_cert_file[1])
+
+    return file_name, result
+
+
+def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, num_threads: int, should_censure_right_away=False, fips_items=None):
+    print("***EXTRACT KEYWORDS***")
+    all_items_found = {}
+
+    files_to_process = get_files_to_process(walk_dir, '.txt')
+    responses = []
+
+    with tqdm(total=len(files_to_process)) as progress:
+        with Pool(num_threads) as p:
+            batch_len = num_threads * 4
+            params = []
+            to_process = 0
+            for file_name in files_to_process:
+                to_process = to_process + 1
+                #params.append((file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items, progress))
+                params.append((file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items))
+
+                if len(params) == batch_len or to_process == len(files_to_process):
+                    results = p.map(extract_keywords, params)
+                    for response in results:
+                        file_name = response[0]
+                        fips_cert_name = os.path.splitext(
+                            os.path.splitext(os.path.basename(file_name))[0])[0]
+                        all_items_found[fips_cert_name if fips_items else file_name] = response[1]
+
+                    progress.update(batch_len)
+                    params = []
+
+    total_items_found = 0
+    for file_name in all_items_found:
+        total_items_found += count_num_items_found(all_items_found[file_name])
+
+    PRINT_MATCHES = True
+    if PRINT_MATCHES:
+        all_matches = []
+        for file_name in all_items_found:
+            print('*' * 10, "FILENAME:", file_name, '*' * 10)
+            for rule_group in all_items_found[file_name].keys():
+                items_found = all_items_found[file_name][rule_group]
+                for rule in items_found.keys():
+                    for match in items_found[rule]:
+                        if match not in all_matches:
+                            print(match)
+        #                            all_matches.append(match)
+
+        sorted_all_matches = sorted(all_matches)
+    #        for match in sorted_all_matches:
+    #            print(match)
+
+    # verify total matches found
+    print('\nTotal matches found: {}'.format(total_items_found))
+
+    return all_items_found
+
+
+def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix, should_censure_right_away=False, fips_items=None):
+    print("***EXTRACT KEYWORDS***")
+    all_items_found = {}
+    # cert_id = {}
+
+    files_to_process = get_files_to_process(walk_dir, '.txt')
+    with tqdm(total=len(files_to_process)) as progress:
+        for file_name in files_to_process:
+            fips_cert_name = os.path.splitext(
+                os.path.splitext(os.path.basename(file_name))[0])[0]
+            # parse certificate, return all matches
+            all_items_found[fips_cert_name if fips_items else file_name], modified_cert_file = parse_cert_file(
+                file_name, fips_rules if fips_items else rules, -1, LINE_SEPARATOR, should_censure_right_away=should_censure_right_away,
+                fips_items=fips_items)
+
+            # try to establish the certificate id of the current certificate
+            # cert_id[file_cert_name] = estimate_cert_id(
+            #     None, all_items_found[file_cert_name], file_name)
+
+            # save report text with highlighted/replaced matches into \\fragments\\ directory
+            base_path = file_name[:file_name.rfind(os.sep)]
+            file_name_short = file_name[file_name.rfind(os.sep) + 1:]
+            target_file = fragments_dir / file_name_short
+            save_modified_cert_file(
+                target_file, modified_cert_file[0], modified_cert_file[1])
+
+            progress.update(1)
 
     # print('\nTotal matches found in separate files:')
     # print_total_matches_in_files(all_items_found_count)
@@ -1130,51 +1205,112 @@ def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_pref
     return all_items_found
 
 
+def extract_pdf(params):
+    file_name = params
+
+    item = {}
+    item['pdf_file_size_bytes'] = os.path.getsize(file_name)
+    try:
+        with open(file_name, 'rb') as f:
+            pdf = PdfFileReader(f)
+            # store additional interesting info
+            item['pdf_is_encrypted'] = pdf.getIsEncrypted()
+            item['pdf_number_of_pages'] = pdf.getNumPages()
+
+            # extract pdf metadata (as dict) and save it
+            info = pdf.getDocumentInfo()
+            if info is not None:
+                for key in info:
+                    item[key] = str(info[key])
+    except Exception as e:
+        item['error'] = str(e)
+
+    return file_name, item
+
+
+def extract_certificates_pdfmeta_parallel(walk_dir: Path, file_prefix, num_threads: int):
+    all_items_found = {}
+    counter = 0
+
+    print("***EXTRACT PDFMETA***")
+    files_to_process = get_files_to_process(walk_dir, '.pdf')
+    with tqdm(total=len(files_to_process)) as progress:
+        with Pool(num_threads) as p:
+            batch_len = num_threads * 4
+            params = []
+            to_process = 0
+            for file_name in files_to_process:
+                to_process = to_process + 1
+
+                params.append((file_name))
+
+                if len(params) == batch_len or to_process == len(files_to_process):
+                    results = p.map(extract_pdf, params)
+                    for response in results:
+                        file_name = response[0]
+                        all_items_found[file_name] = response[1]
+
+                    progress.update(batch_len)
+                    params = []
+
+                write_intermediate = False
+                if write_intermediate:
+                    if counter % 100 == 0:
+                        # store results into file with fixed name
+                        with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w",
+                                  errors=FILE_ERRORS_STRATEGY) as write_file:
+                            json.dump(all_items_found, write_file, indent=4, sort_keys=True)
+                counter += 1
+
+    return all_items_found
+
+
 def extract_certificates_pdfmeta(walk_dir: Path, file_prefix, results_dir: Path):
     all_items_found = {}
     counter = 0
-    for file_name in search_files(walk_dir):
-        if not os.path.isfile(file_name):
-            continue
-        file_ext = file_name[file_name.rfind('.'):]
-        if file_ext != '.pdf':
-            continue
 
-        print("***EXTRACT PDFMETA***")
-        #        print('*** {} ***'.format(file_name))
+    print("***EXTRACT PDFMETA***")
+    files_to_process = get_files_to_process(walk_dir, '.pdf')
+    with tqdm(total=len(files_to_process)) as progress:
+        for file_name in files_to_process:
+            #        print('*** {} ***'.format(file_name))
 
-        item = {}
-        item['pdf_file_size_bytes'] = os.path.getsize(file_name)
-        try:
-            with open(file_name, 'rb') as f:
-                pdf = PdfFileReader(f)
-                # store additional interesting info
-                item['pdf_is_encrypted'] = pdf.getIsEncrypted()
-                item['pdf_number_of_pages'] = pdf.getNumPages()
+            item = {}
+            item['pdf_file_size_bytes'] = os.path.getsize(file_name)
+            try:
+                with open(file_name, 'rb') as f:
+                    pdf = PdfFileReader(f)
+                    # store additional interesting info
+                    item['pdf_is_encrypted'] = pdf.getIsEncrypted()
+                    item['pdf_number_of_pages'] = pdf.getNumPages()
 
-                # extract pdf metadata (as dict) and save it
-                info = pdf.getDocumentInfo()
-                if info is not None:
-                    for key in info:
-                        item[key] = str(info[key])
-        except Exception as e:
-            item['error'] = str(e)
+                    # extract pdf metadata (as dict) and save it
+                    info = pdf.getDocumentInfo()
+                    if info is not None:
+                        for key in info:
+                            item[key] = str(info[key])
+            except Exception as e:
+                item['error'] = str(e)
 
-        # test save of the data extracted to prevent error only very later
-        # try:
-        #     with open("{}_temp.json".format(file_prefix), "w") as write_file:
-        #         write_file.write(json.dumps(item, indent=4, sort_keys=True))
-        # except Exception:
-        #     print('  ERROR: invalid data from pdf')
+            # test save of the data extracted to prevent error only very later
+            # try:
+            #     with open("{}_temp.json".format(file_prefix), "w") as write_file:
+            #         write_file.write(json.dumps(item, indent=4, sort_keys=True))
+            # except Exception:
+            #     print('  ERROR: invalid data from pdf')
 
-        all_items_found[file_name] = item
+            all_items_found[file_name] = item
 
-        if counter % 100 == 0:
-            # store results into file with fixed name
-            with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w",
-                      errors=FILE_ERRORS_STRATEGY) as write_file:
-                json.dump(all_items_found, write_file, indent=4, sort_keys=True)
-        counter += 1
+            write_intermediate = False
+            if write_intermediate:
+                if counter % 100 == 0:
+                    # store results into file with fixed name
+                    with open("{}_data_pdfmeta_{}.json".format(file_prefix, counter), "w",
+                              errors=FILE_ERRORS_STRATEGY) as write_file:
+                        json.dump(all_items_found, write_file, indent=4, sort_keys=True)
+            counter += 1
+
+            progress.update(1)
 
     return all_items_found
 
