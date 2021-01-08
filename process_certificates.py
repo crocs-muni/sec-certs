@@ -113,9 +113,11 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
         convert_pdf_files(walk_dir, threads, ["-raw"])
 
     if do_extraction_certs:
+        all_keywords = extract_certificates_keywords_parallel(walk_dir, fragments_dir, 'certificate', threads)
+        #all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
         all_front = extract_certificates_frontpage(walk_dir)
-        all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
-        all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', results_dir)
+        all_pdf_meta = extract_certificates_pdfmeta_parallel(walk_dir, 'certificate', threads)
+        #all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', results_dir)
 
         # save joined results
         with open(results_dir / "certificate_data_frontpage_all.json", "w") as write_file:
@@ -174,6 +176,7 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
 
     if do_processing:
         # load information about protection profiles as extracted by sec-certs-pp tool
+        all_pp_items = {}
         with open(results_dir / 'pp_data_complete_processed.json') as json_file:
             all_pp_items = json.load(json_file)
 
