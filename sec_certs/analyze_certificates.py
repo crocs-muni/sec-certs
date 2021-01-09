@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 from matplotlib.pyplot import figure
 from dateutil import parser
@@ -432,7 +433,7 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
         if group in prominent_data:
             plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)], label=group, linewidth=3)
         else:
-            # plot minor suppliers dashed
+            # plot non-prominent data as dashed
             plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)], label=group, linewidth=2)
 
         # change line type to prevent color repetitions
@@ -449,7 +450,20 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
     plt.close()
 
 
-def analyze_cert_years_frequency(all_cert_items, filter_label):
+def filter_end_year(items: dict, end_year: int):
+    filtered_items = {}
+
+    for item in items.keys():
+        filtered_items[item] = {}
+        for year in items[item]:
+            # copy only years below end_year
+            if year <= end_year:
+                filtered_items[item][year] = copy.deepcopy(items[item][year])
+
+    return filtered_items
+
+
+def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_year=None):
     scheme_date = {}
     level_date = {}
     category_date = {}
@@ -583,6 +597,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
                         # certificate is valid in year
                         valid_in_years['active'][year].append(cert_long_id)
 
+
     # print manufacturers frequency
     sorted_by_occurence = sorted(manufacturer_items.items(), key=operator.itemgetter(1))
     print('\n### Frequency of certificates per company')
@@ -593,35 +608,48 @@ def analyze_cert_years_frequency(all_cert_items, filter_label):
     for manufacturer in sorted_by_occurence:
         print('  {}: {}x'.format(manufacturer[0], manufacturer[1]))
 
-    # plot graphs showing cert. scheme and EAL in years
-    years = np.arange(START_YEAR, END_YEAR)
-    years_extended = np.arange(START_YEAR, END_YEAR + ARCHIVE_OFFSET)
-    plot_schemes_multi_line_graph(years, scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
-    plot_schemes_multi_line_graph(years, level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
-    plot_schemes_multi_line_graph(years, category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
-    plot_schemes_multi_line_graph(years, pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates with/without conforming to Protection Profile', filter_label), 'num_certs_pp_in_years')
-    plot_schemes_multi_line_graph(years, labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
-    plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
-    plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
+    # plot only top manufacturers
+    top_manufacturers = dict(sorted_by_occurence[len(sorted_by_occurence) - 20:]).keys()  # top 20 manufacturers
+    top_manufacturers_date = {}
+    for manuf in manufacturer_date.keys():
+        if manuf in top_manufacturers:
+            top_manufacturers_date[manuf] = manufacturer_date[manuf]
+
+    # filter only subset of years if required
+    if force_plot_end_year:
+        years = np.arange(START_YEAR, force_plot_end_year + 1)
+        plot_scheme_date = filter_end_year(scheme_date, force_plot_end_year)
+        plot_level_date = filter_end_year(level_date, force_plot_end_year)
+        plot_category_date = filter_end_year(category_date, force_plot_end_year)
+        plot_pp_date = filter_end_year(pp_date, force_plot_end_year)
+        plot_labs_date = filter_end_year(labs_date, force_plot_end_year)
+        plot_top_manufacturers_date = filter_end_year(top_manufacturers_date, force_plot_end_year)
+    else:
+        # plot all
+        years = np.arange(START_YEAR, END_YEAR)
+        plot_scheme_date = scheme_date
+        plot_level_date = level_date
+        plot_category_date = category_date
+        plot_pp_date = pp_date
+        plot_labs_date = labs_date
+        plot_top_manufacturers_date = top_manufacturers_date
 
     sc_manufacturers = ['Gemalto', 'NXP Semiconductors', 'Samsung', 'STMicroelectronics', 'Oberthur Technologies',
                         'Infineon Technologies AG', 'G+D Mobile Security GmbH', 'ATMEL Smart Card ICs', 'Idemia',
                         'Athena Smartcard', 'Renesas', 'Philips Semiconductors GmbH', 'Oberthur Card Systems']
 
-    # plot only top manufacturers
-    top_manufacturers = dict(sorted_by_occurence[len(sorted_by_occurence) - 20:]).keys()  # top 20 manufacturers
-    plot_manufacturers_date = {}
-    for manuf in manufacturer_date.keys():
-        if manuf in top_manufacturers:
-            plot_manufacturers_date[manuf] = manufacturer_date[manuf]
-    plot_schemes_multi_line_graph(years, plot_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', fig_label('Top 20 manufacturers of certified items per year', filter_label), 'manufacturer_in_years')
+    # plot graphs showing cert. scheme and EAL in years
+    plot_schemes_multi_line_graph(years, plot_scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
+    plot_schemes_multi_line_graph(years, plot_level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
+    plot_schemes_multi_line_graph(years, plot_category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
+    plot_schemes_multi_line_graph(years, plot_pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates with/without conforming to Protection Profile', filter_label), 'num_certs_pp_in_years')
+    plot_schemes_multi_line_graph(years, plot_labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
+    plot_schemes_multi_line_graph(years, plot_top_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', fig_label('Top 20 manufacturers of certified items per year', filter_label), 'manufacturer_in_years')
 
-    # plot only smartcard manufacturers
-    plot_manufacturers_date = {}
-    for manuf in manufacturer_date.keys():
-        if manuf in sc_manufacturers:
-            plot_manufacturers_date[manuf] = manufacturer_date[manuf]
-    # plot_schemes_multi_line_graph(years, plot_manufacturers_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Smartcard-related manufacturers of certified items per year', filter_label), 'manufacturer_sc_in_years')
+    # plot stats with extended range
+    years_extended = np.arange(START_YEAR, END_YEAR + ARCHIVE_OFFSET)
+    plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
+    plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
 
     # plot certificate validity lengths
     print('### Certificates validity period lengths:')
@@ -857,6 +885,14 @@ def do_analysis_09_01_2019_archival(all_cert_items, current_dir: Path):
     limited_cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', 'cc_archived_date']) and all_cert_items[x]['csv_scan']['cc_archived_date'] == archived_date}
     do_all_analysis(limited_cert_items, 'cc_archived_date={}'.format(archived_date))
 
+
+def do_analysis_force_end_date(all_cert_items, current_dir: Path, force_end_date: int):
+    target_folder = os.path.join(current_dir, 'results_in_years_only_till_{}'.format(force_end_date))
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
+#    analyze_cert_years_frequency(all_cert_items, 'forced_end_date={}'.format(force_end_date), force_end_date)
+    analyze_cert_years_frequency(all_cert_items, '', force_end_date)
 
 def do_analysis_manufacturers(all_cert_items, current_dir: Path):
     # analyze only Infineon certificates

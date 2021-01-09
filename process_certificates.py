@@ -45,7 +45,7 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
     #
     # Start processing
     #
-    do_analysis_filtered = False
+    do_analysis_filtered = True
 
     if do_complete_extraction:
         # analyze all files from scratch, set 'previous' state to empty dict
@@ -193,6 +193,9 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
             all_cert_items = json.load(json_file)
 
         if do_analysis_filtered:
+            # plot only selected analysis up to date 2020
+            do_analysis_force_end_date(all_cert_items, results_dir, 2020)
+
             # analyze only smartcards
             do_analysis_only_filtered(all_cert_items, results_dir,
                                       ['csv_scan', 'cc_category'], 'ICs, Smart Cards and Smart Card-Related Devices and Systems')
