@@ -1,3 +1,4 @@
+import copy
 import re
 import json
 
@@ -140,6 +141,45 @@ rules_javacard = [
     r'(?:Java Card|JavaCard) \(version [2-3]\.[0-9](?:\.[0-9]|)\)',
     r'(?:Global Platform|GlobalPlatform) [2-3]\.[0-9]\.[0-9]',
     r'(?:Global Platform|GlobalPlatform) \(version [2-3]\.[0-9]\.[0-9]\)',
+    ]
+
+rules_javacard_api_consts = [
+    # javacard API constants
+    r'ALG_(?:PSEUDO_RANDOM|SECURE_RANDOM|TRNG|ALG_PRESEEDED_DRBG|FAST|KEYGENERATION)',
+    r'ALG_DES_[A-Z_0-9]+',  # may have false positives like XCP_CPB_ALG_EC_BPOOLCRV
+    r'ALG_RSA_[A-Z_0-9]+',
+    r'ALG_DSA_[A-Z_0-9]+',
+    r'ALG_ECDSA_[A-Z_0-9]+',
+    r'ALG_AES_[A-Z_0-9]+',
+    r'ALG_HMAC_[A-Z_0-9]+',
+    r'ALG_KOREAN_[A-Z_0-9]+',
+    r'ALG_EC_[A-Z_0-9]+',
+    r'ALG_SHA_[A-Z_0-9]+',
+    r'ALG_SHA3_[A-Z_0-9]+',
+    r'ALG_MD[A-Z_0-9]+',
+    r'ALG_RIPEMD[A-Z_0-9]+',
+    r'ALG_ISO3309_[A-Z_0-9]+',
+    r'ALG_XDH',
+    r'ALG_SM2',
+    r'ALG_SM3',
+    r'ALG_NULL',
+    r'ALG_TRNG',
+    r'ALG_NULL',
+    r'SIG_CIPHER_[A-Z_0-9]+',
+    r'CIPHER_[A-Z_0-9]+',
+    r'PAD_[A-Z_0-9]+',
+    r'TYPE_[A-Z_0-9]+',
+    r'LENGTH_[A-Z_0-9]+',
+    r'OWNER_PIN[A-Z_0-9]*',
+    # named curves
+    r'BRAINPOOLP[A-Z_0-9]+(?:R|T)1',
+    r'ED25519',
+    r'ED448',
+    r'FRP256V1',
+    r'SECP[0-9]*R1',
+    r'SM2',
+    r'X25519',
+    r'X448',
 ]
 
 rules_crypto_algs = [
@@ -392,6 +432,7 @@ common_rules['rules_security_level'] = rules_security_level
 common_rules['rules_security_assurance_components'] = rules_security_assurance_components
 common_rules['rules_security_functional_components'] = rules_security_functional_components
 common_rules['rules_javacard'] = rules_javacard
+common_rules['rules_javacard_api_consts'] = rules_javacard_api_consts
 common_rules['rules_crypto_algs'] = rules_crypto_algs
 common_rules['rules_block_cipher_modes'] = rules_block_cipher_modes
 common_rules['rules_ecc_curves'] = rules_ecc_curves
@@ -424,7 +465,8 @@ fips_rules = {}
 fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
-fips_rules.update(common_rules)
+fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
+fips_rules.update(fips_common_rules)
 
 for rule in fips_rules:
     for current_rule in range(len(fips_rules[rule])):
