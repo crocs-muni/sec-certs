@@ -114,18 +114,17 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
 
     if do_extraction_certs:
         all_keywords = extract_certificates_keywords_parallel(walk_dir, fragments_dir, 'certificate', threads)
-        #all_keywords = extract_certificates_keywords(walk_dir, fragments_dir, 'certificate')
-        all_front = extract_certificates_frontpage(walk_dir)
-        all_pdf_meta = extract_certificates_pdfmeta_parallel(walk_dir, 'certificate', threads)
-        #all_pdf_meta = extract_certificates_pdfmeta(walk_dir, 'certificate', results_dir)
-
-        # save joined results
-        with open(results_dir / "certificate_data_frontpage_all.json", "w") as write_file:
-            json.dump(all_front,  write_file, indent=4, sort_keys=True)
         with open(results_dir / "certificate_data_keywords_all.json", "w") as write_file:
             json.dump(all_keywords,  write_file, indent=4, sort_keys=True)
+
+        all_front = extract_certificates_frontpage(walk_dir)
+        with open(results_dir / "certificate_data_frontpage_all.json", "w") as write_file:
+            json.dump(all_front,  write_file, indent=4, sort_keys=True)
+
+        all_pdf_meta = extract_certificates_pdfmeta_parallel(walk_dir, 'certificate', threads)
         with open(results_dir / "certificate_data_pdfmeta_all.json", "w") as write_file:
             json.dump(all_pdf_meta,  write_file, indent=4, sort_keys=True)
+
 
     # if do_extraction_pp:
     #     all_pp_csv = extract_protectionprofiles_csv(web_dir)
