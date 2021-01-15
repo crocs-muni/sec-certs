@@ -834,7 +834,10 @@ def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
         if sar[0].find('.') != -1:
             name = sar[0][:sar[0].find('.')]
             name_index = sars_unique_names.index(name)
-            level = int(sar[0][sar[0].find('.') + 1:])
+            level_str = sar[0][sar[0].find('.') + 1:]
+            if level_str.find('.') != -1:   # level can have multiple subparts (e.g., ACE_ECD.1.1)
+                level_str = level_str[:level_str.find('.')]  # extract only the first one
+            level = int(level_str)
             sar_matrix[level - 1][name_index] = sar[1]
 
     # plot heatmap graph with frequency of SAR levels
