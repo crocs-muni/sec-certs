@@ -169,13 +169,17 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 rule_str = rule
                 rule_and_sep = rule + REGEXEC_SEP
 
-            for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+            #matches_with_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text_with_newlines))
+            #matches_without_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text))
+            #for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+            for m in re.finditer(rule_and_sep, whole_text):
                 # insert rule if at least one match for it was found
                 if rule not in items_found:
                     items_found[rule_str] = {}
 
                 match = m.group()
                 match = normalize_match_string(match)
+
                 is_algorithm = False
                 if fips_items and match != '':
                     certs = [x['Certificate']
