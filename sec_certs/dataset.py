@@ -520,7 +520,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def extract_keywords(self, redo=False):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
 
-        keywords = cert_processing.process_parallel(FIPSCertificate.parse_cert_file,
+        keywords = cert_processing.process_parallel(FIPSCertificate.find_keywords,
                                                     [cert for cert in self.certs.values() if not cert.keywords or redo],
                                                     constants.N_THREADS,
                                                     use_threading=False)

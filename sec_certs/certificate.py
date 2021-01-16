@@ -11,7 +11,7 @@ from dateutil import parser
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple
+from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple, Pattern
 
 from tabula import read_pdf
 
@@ -20,7 +20,7 @@ from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, 
 import sec_certs.constants as constants
 from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, \
     LINE_SEPARATOR
-from sec_certs.cert_rules import fips_rules
+from sec_certs.cert_rules import fips_rules, configuration
 
 
 logger = logging.getLogger(__name__)
@@ -113,6 +113,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def __str__(self) -> str:
         return str(self.cert_id)
 
+    def to_dict(self) -> Dict:
+        return self.__dict__
+
     @property
     def dgst(self) -> str:
         return self.cert_id
@@ -127,8 +130,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                  module_name: Optional[str],
                  standard: Optional[str],
                  status: Optional[str],
-                 date_sunset: Optional[List[date]],
-                 date_validation: Optional[List[date]],
+                 date_sunset: Optional[str],
+                 date_validation: Optional[List[str]],
                  level: Optional[str],
                  caveat: Optional[str],
                  exceptions: Optional[List[str]],
@@ -163,8 +166,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.module_name = module_name
         self.standard = standard
         self.status = status
-        self.date_sunset = parser.parse(date_sunset) if date_sunset else date_sunset
-        self.date_validation = [parser.parse(x) for x in date_validation if x]
+        self.date_sunset = parser.parse(date_sunset) if date_sunset else None
+        self.date_validation = [parser.parse(x) for x in date_validation] if date_validation else None
         self.level = level
         self.caveat = caveat
         self.exceptions = exceptions
@@ -272,7 +275,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for tr in trs:
             tds = tr.find_all('td')
             found_items.append(
-                {'Name': tds[0].text, 'Certificate': FIPSCertificate.extract_algorithm_certificates(tds[1].text)[0]['Certificate']})
+                {'Name': tds[0].text,
+                 'Certificate': FIPSCertificate.extract_algorithm_certificates(tds[1].text)[0]['Certificate'],
+                 'Links': [str(x) for x in tds[1].find_all('a')],
+                 'Raw': str(tr)})
 
         return found_items
 
@@ -284,10 +290,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         if title in pairs:
             if 'date_validation' == pairs[title]:
-                html_items_found[pairs[title]] = [parser.parse(x) for x in content.split(';')]
-
-            elif 'date_sunset' == pairs[title]:
-                html_items_found[pairs[title]] = parser.parse(content)
+                html_items_found[pairs[title]] = [x for x in content.split(';')]
 
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
@@ -303,7 +306,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 if 'Description' in title:
                     html_items_found['description'] = content
 
-            elif 'tested_conf' in pairs[title]:
+            elif 'tested_conf' in pairs[title] or 'exceptions' in pairs[title]:
                 html_items_found[pairs[title]] = [x.text for x in
                                                   current_div.find('div', class_='col-md-9').find_all('li')]
             else:
@@ -386,6 +389,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found = initialized.__dict__
             items_found['revoked_reason'] = None
             items_found['revoked_link'] = None
+            items_found['mentioned_certs'] = []
 
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
@@ -410,11 +414,13 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     for cert_id in alg['Certificate']:
                         not_defined.add(cert_id)
                     continue
+
                 for pair in range(i + 1, len(items_found['algorithms'])):
                     if 'Name' in items_found['algorithms'][pair] \
                             and alg['Name'] == items_found['algorithms'][pair]['Name']:
                         entry = {'Name': alg['Name'], 'Certificate':
-                            list(set([x for x in alg['Certificate']]) | set(items_found['algorithms'][pair]['Certificate']))}
+                                 list(set([x for x in alg['Certificate']])
+                                      | set(items_found['algorithms'][pair]['Certificate']))}
                         if entry not in new_algs:
                             new_algs.append(entry)
             for entry in new_algs:
@@ -457,7 +463,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                [],
                                state,
                                False if not initialized else items_found['txt_state'],
-                               None if not initialized else items_found['keywords'],
+                               {} if not initialized else items_found['keywords'],
                                items_found['revoked_reason'],
                                items_found['revoked_link'],
                                items_found['sw_versions'],
@@ -476,23 +482,33 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return cert
 
     @staticmethod
-    def parse_cert_file(cert: 'FIPSCertificate') -> Tuple[Optional[Dict], 'FIPSCertificate']:
+    def find_keywords(cert: 'FIPSCertificate') -> Tuple[Optional[Dict], 'FIPSCertificate']:
         if not cert.txt_state:
             return None, cert
 
-        _, whole_text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'), -1,
-                                                                    LINE_SEPARATOR)
+        text, text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'),
+                                                                 -1, LINE_SEPARATOR)
 
+        text_to_parse = text_with_newlines if configuration["use_text_with_newlines_during_parsing"] else text
+
+        items_found, text_to_parse = FIPSCertificate.parse_cert_file(text_to_parse, cert.algorithms)
+
+        save_modified_cert_file(cert.state.fragment_path, text_to_parse, unicode_error)
+
+        return items_found, cert
+
+    @staticmethod
+    def parse_cert_file(text_to_parse: str, algorithms: Dict) -> Tuple[Optional[Dict], str]:
         # apply all rules
-        items_found_all = {}
+        items_found_all: Dict = {}
         for rule_group in fips_rules.keys():
             if rule_group not in items_found_all:
                 items_found_all[rule_group] = {}
 
-            items_found = items_found_all[rule_group]
+            items_found: Dict[str, Dict] = items_found_all[rule_group]
 
             for rule in fips_rules[rule_group]:
-                for m in rule.finditer(whole_text_with_newlines):
+                for m in rule.finditer(text_to_parse):
                 # for m in re.finditer(rule, whole_text_with_newlines):
                     # insert rule if at least one match for it was found
                     if rule.pattern not in items_found:
@@ -504,7 +520,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     if match == '':
                         continue
 
-                    certs = [x['Certificate'] for x in cert.algorithms]
+                    certs = [x['Certificate'] for x in algorithms]
 
                     match_cert_id = ''.join(filter(str.isdigit, match))
 
@@ -519,11 +535,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
                     items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] += 1
 
-                    whole_text_with_newlines = whole_text_with_newlines.replace(
+                    text_to_parse = text_to_parse.replace(
                         match, 'x' * len(match))
 
-        save_modified_cert_file(cert.state.fragment_path, whole_text_with_newlines, unicode_error)
-        return items_found_all, cert
+        return items_found_all, text_to_parse
 
     @staticmethod
     def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
@@ -532,7 +547,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
 
-        lst = []
+        lst: List = []
         if tables:
             try:
                 data = read_pdf(cert_file, pages=tables, silent=True)
@@ -575,6 +590,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                         if rr.search(found) \
                                 and rr.search(cert) \
                                 and rr.search(found).group('id') == rr.search(cert).group('id'):
+                            to_pop.add(cert)
+
+                for alg_cert in self.algorithms:
+                    for cert_no in alg_cert['Certificate']:
+                        if int(''.join(filter(str.isdigit, cert_no))) == int(''.join(filter(str.isdigit, cert))):
                             to_pop.add(cert)
             for r in to_pop:
                 self.keywords['rules_cert_id'][rule].pop(r, None)
