@@ -169,13 +169,17 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 rule_str = rule
                 rule_and_sep = rule + REGEXEC_SEP
 
-            for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+            #matches_with_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text_with_newlines))
+            #matches_without_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text))
+            #for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+            for m in re.finditer(rule_and_sep, whole_text):
                 # insert rule if at least one match for it was found
                 if rule not in items_found:
                     items_found[rule_str] = {}
 
                 match = m.group()
                 match = normalize_match_string(match)
+
                 is_algorithm = False
                 if fips_items and match != '':
                     certs = [x['Certificate']
@@ -213,15 +217,23 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                     whole_text_with_newlines = whole_text_with_newlines.replace(
                         match, 'x' * len(match))
 
+
+
+    all_matches = []
     # highlight all found strings from the input text and store the rest
     if not should_censure_right_away:
         for rule_group in items_found_all.keys():
             items_found = items_found_all[rule_group]
             for rule in items_found.keys():
                 for match in items_found[rule]:
-                    # warning - if AES string is removed before AES-128, -128 will be left in text (does it matter?)
-                    whole_text_with_newlines = whole_text_with_newlines.replace(
-                        match, 'x' * len(match))
+                    all_matches.append(match)
+
+        # warning - if AES string is removed before AES-128, -128 would be left in text => sort by length first
+        # sort before replacement based on the length of match
+        all_matches.sort(key=len, reverse=True)
+        for match in all_matches:
+            whole_text_with_newlines = whole_text_with_newlines.replace(
+                match, 'x' * len(match))
 
     return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
 
