@@ -242,7 +242,8 @@ rules_block_cipher_modes = [
 rules_ecc_curves = [
     '(?:Curve |curve |)P-(192|224|256|384|521)',
     '(?:brainpool|BRAINPOOL)P[0-9]{3}[rkt][12]',
-    '(?:secp|SECP)[0-9]+?[rk][12]',
+    '(?:secp|sect|SECP|SECT)[0-9]+?[rk][12]',
+    '(?:ansit|ansip|ANSIP|ANSIT)[0-9]+?[rk][12]',
     '(?:anssi|ANSSI)[ ]*FRP[0-9]+?v1',
     'prime[0-9]{3}v[123]',
     'c2[pto]nb[0-9]{3}[vw][123]',
