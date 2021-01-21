@@ -20,7 +20,7 @@ from graphviz import Digraph
 
 from . import sanity
 from .analyze_certificates import is_in_dict
-from .cert_rules import rules, fips_rules
+from .cert_rules import rules, fips_rules, REGEXEC_SEP
 from .files import search_files, load_cert_html_file, FILE_ERRORS_STRATEGY
 from .constants import *
 
@@ -31,7 +31,6 @@ plt.rcdefaults()
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 
-REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
 # LINE_SEPARATOR = ''  # if newline is not replaced with space, long string included in matches are found
 
@@ -147,12 +146,10 @@ def set_match_string(items, key_name, new_value):
                 key_name, old_value, new_value))
 
 
-def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR,
-                    should_censure_right_away=False, fips_items=None):
+def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
         file_name, limit_max_lines, line_separator)
 
-    file_name = os.path.splitext(os.path.splitext(os.path.basename(file_name))[0])[0]
     # apply all rules
     items_found_all = {}
     for rule_group in search_rules.keys():
@@ -1083,9 +1080,9 @@ def extract_protectionprofiles_frontpage(walk_dir: Path):
 
 
 def extract_keywords(params):
-    file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items = params
+    file_name, fragments_dir, file_prefix, = params
     result, modified_cert_file = parse_cert_file(
-        file_name, fips_rules if fips_items else rules, -1, LINE_SEPARATOR, should_censure_right_away, fips_items)
+        file_name, rules, -1, LINE_SEPARATOR)
 
     # save report text with highlighted/replaced matches into \\fragments\\ directory
     save_fragments = True
@@ -1099,7 +1096,7 @@ def extract_keywords(params):
     return file_name, result
 
 
-def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, num_threads: int, should_censure_right_away=False, fips_items=None):
+def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, num_threads: int):
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
 
@@ -1113,8 +1110,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
             to_process = 0
             for file_name in files_to_process:
                 to_process = to_process + 1
-                #params.append((file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items, progress))
-                params.append((file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items))
+                params.append((file_name, fragments_dir, file_prefix))
 
                 if len(params) == batch_len or to_process == len(files_to_process):
                     results = p.map(extract_keywords, params)
@@ -1122,7 +1118,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
                         file_name = response[0]
                         fips_cert_name = os.path.splitext(
                             os.path.splitext(os.path.basename(file_name))[0])[0]
-                        all_items_found[fips_cert_name if fips_items else file_name] = response[1]
+                        all_items_found[file_name] = response[1]
 
                     progress.update(batch_len)
                     params = []
@@ -1154,7 +1150,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
     return all_items_found
 
 
-def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix, should_censure_right_away=False, fips_items=None):
+def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix):
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
     # cert_id = {}
@@ -1162,12 +1158,9 @@ def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_pref
     files_to_process = get_files_to_process(walk_dir, '.txt')
     with tqdm(total=len(files_to_process)) as progress:
         for file_name in files_to_process:
-            fips_cert_name = os.path.splitext(
-                os.path.splitext(os.path.basename(file_name))[0])[0]
             # parse certificate, return all matches
-            all_items_found[fips_cert_name if fips_items else file_name], modified_cert_file = parse_cert_file(
-                file_name, fips_rules if fips_items else rules, -1, LINE_SEPARATOR, should_censure_right_away=should_censure_right_away,
-                fips_items=fips_items)
+            all_items_found[file_name], modified_cert_file = parse_cert_file(
+                file_name, rules, -1, LINE_SEPARATOR)
 
             # try to establish the certificate id of the current certificate
             # cert_id[file_cert_name] = estimate_cert_id(
