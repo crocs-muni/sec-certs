@@ -559,8 +559,17 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def download_all_algs(self):
         algs_paths, algs_urls = [], []
 
+        # get first page to find out how many pages there are
+        helpers.download_file(
+            'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page=1',
+            self.algs_dir / "page1.html")
+
+        with open(self.algs_dir / "page1.html", "r") as alg_file:
+            soup = BeautifulSoup(alg_file.read(), 'html.parser')
+            num_pages = soup.select('span[data-total-pages]')[0].attrs
+
         self.algs_dir.mkdir(exist_ok=True)
-        for i in range(1, 502):
+        for i in range(1, int(num_pages['data-total-pages'])):
             if not (self.algs_dir / f'page{i}.html').exists():
                 algs_urls.append(
                     f'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page={i}')
