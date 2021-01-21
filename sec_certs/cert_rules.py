@@ -2,7 +2,7 @@ import copy
 import re
 import json
 
-REGEXEC_SEP = '[ ,;\]”)(]'
+REGEXEC_SEP = r'[ ,;\]”)(]'
 
 rules_cert_id = [
     'BSI-DSZ-CC-[0-9]+?-[0-9]+',  # German BSI
@@ -96,7 +96,8 @@ rules_standard_id = [
     'ISO/IEC[ ]*[0-9]+',
     'ICAO(?:-SAC|)',
     '[Xx]\\.509',
-    'RFC [0-9]+'
+    'RFC [0-9]+',
+    '(?:SCP|scp)[ \']*[0-9][0-9]',
 ]
 
 rules_security_level = [
@@ -106,33 +107,48 @@ rules_security_level = [
 ]
 
 rules_security_assurance_components = [
-    r'ACE_[A-Z]{3}(?:\.[0-9]|)',
-    r'ACM_[A-Z]{3}(?:\.[0-9]|)',
-    r'ACO_[A-Z]{3}(?:\.[0-9]|)',
-    r'ADO_[A-Z]{3}(?:\.[0-9]|)',
-    r'ADV_[A-Z]{3}(?:\.[0-9]|)',
-    r'AGD_[A-Z]{3}(?:\.[0-9]|)',
-    r'ALC_[A-Z]{3}(?:\.[0-9]|)',
-    r'ATE_[A-Z]{3}(?:\.[0-9]|)',
-    r'AVA_[A-Z]{3}(?:\.[0-9]|)',
-    r'AMA_[A-Z]{3}(?:\.[0-9]|)',
-    r'APE_[A-Z]{3}(?:\.[0-9]|)',
-    r'ASE_[A-Z]{3}(?:\.[0-9]|)'
+    r'ACE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ACM_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ACO_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ADO_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ADV_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'AGD_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ALC_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ATE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'AVA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'AMA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'APE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ASE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)'
 ]
 
 rules_security_functional_components = [
-    r'FAU_[A-Z]{3}(?:\.[0-9]|)',
-    r'FCO_[A-Z]{3}(?:\.[0-9]|)',
-    r'FCS_[A-Z]{3}(?:\.[0-9]|)',
-    r'FDP_[A-Z]{3}(?:\.[0-9]|)',
-    r'FIA_[A-Z]{3}(?:\.[0-9]|)',
-    r'FMT_[A-Z]{3}(?:\.[0-9]|)',
-    r'FPR_[A-Z]{3}(?:\.[0-9]|)',
-    r'FPT_[A-Z]{3}(?:\.[0-9]|)',
-    r'FRU_[A-Z]{3}(?:\.[0-9]|)',
-    r'FTA_[A-Z]{3}(?:\.[0-9]|)',
-    r'FTP_[A-Z]{3}(?:\.[0-9]|)'
+    r'FAU_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FCO_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FCS_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FDP_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FIA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FMT_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FPR_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FPT_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FRU_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FTA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FTP_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)'
 ]
+
+rules_cc_claims = [
+    r'D\.[\._\-A-Z]+?',     # user Data
+    r'O\.[\._\-A-Z]+?',     # Objectives
+    r'T\.[\._\-A-Z]+?',     # Threats
+    r'A\.[\._\-A-Z]+?',     # Assumptions
+    r'R\.[\._\-A-Z]+?',     # Requirements
+    r'OT\.[\._\-A-Z]+?',    # security objectives
+    r'OP\.[\._\-A-Z]+?',    # OPerations
+    r'OE\.[\._\-A-Z]+?',    # Objectives for the Environment
+    r'SA\.[\._\-A-Z]+?',    # Security Aspects
+    r'OSP\.[\._\-A-Z]+?',   # Organisational Security Policy
+]
+
+
 
 rules_javacard = [
     #'(?:Java Card|JavaCard)',
@@ -153,7 +169,7 @@ rules_javacard_api_consts = [
     r'ALG_AES_[A-Z_0-9]+',
     r'ALG_HMAC_[A-Z_0-9]+',
     r'ALG_KOREAN_[A-Z_0-9]+',
-    r'ALG_EC_[A-Z_0-9]+',
+    r'ALG_EC_[A-Z_0-9]+?',
     r'ALG_SHA_[A-Z_0-9]+',
     r'ALG_SHA3_[A-Z_0-9]+',
     r'ALG_MD[A-Z_0-9]+',
@@ -182,6 +198,17 @@ rules_javacard_api_consts = [
     r'X448',
 ]
 
+rules_javacard_packages = [
+    # javacard packages
+    r'java\.[a-z\.]+',
+    r'javacard\.[a-z\.]+',
+    r'javacardx\.[a-z\.]+',
+    r'org\.[0-9a-z\.]+',
+    r'uicc\.[a-z\.]+',
+    r'com\.[0-9a-z\.]+',
+    r'de\.bsi\.[a-z\.]+',
+]
+
 rules_crypto_algs = [
     'RSA[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)',
     'RSASSAPKCS1-[Vv]1_5',
@@ -195,12 +222,13 @@ rules_crypto_algs = [
     'ECDH',
     'ECDSA',
     'EdDSA',
-    '3?DES',
+    '[3T]?DES',
     'ECC',
     'DTRNG',
     'TRNG',
     'RN[GD]',
     'RBG',
+    'PACE'
 ]
 
 rules_block_cipher_modes = [
@@ -213,9 +241,11 @@ rules_block_cipher_modes = [
 ]
 
 rules_ecc_curves = [
-    'P-(192|224|256|384|521)',
-    'brainpoolP[0-9]{3}[rkt][12]',
-    '(sec|ansi)[pt].+?[rk][12]',
+    '(?:Curve |curve |)P-(192|224|256|384|521)',
+    '(?:brainpool|BRAINPOOL)P[0-9]{3}[rkt][12]',
+    '(?:secp|sect|SECP|SECT)[0-9]+?[rk][12]',
+    '(?:ansit|ansip|ANSIP|ANSIT)[0-9]+?[rk][12]',
+    '(?:anssi|ANSSI)[ ]*FRP[0-9]+?v1',
     'prime[0-9]{3}v[123]',
     'c2[pto]nb[0-9]{3}[vw][123]',
     'FRP256v1',
@@ -431,8 +461,10 @@ common_rules['rules_standard_id'] = rules_standard_id
 common_rules['rules_security_level'] = rules_security_level
 common_rules['rules_security_assurance_components'] = rules_security_assurance_components
 common_rules['rules_security_functional_components'] = rules_security_functional_components
+common_rules['rules_cc_claims'] = rules_cc_claims
 common_rules['rules_javacard'] = rules_javacard
 common_rules['rules_javacard_api_consts'] = rules_javacard_api_consts
+common_rules['rules_javacard_packages'] = rules_javacard_packages
 common_rules['rules_crypto_algs'] = rules_crypto_algs
 common_rules['rules_block_cipher_modes'] = rules_block_cipher_modes
 common_rules['rules_ecc_curves'] = rules_ecc_curves
