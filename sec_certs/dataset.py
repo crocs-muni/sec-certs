@@ -697,7 +697,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             # "< 105" still needs to be used, because of some old certs being revalidated
             if cert_candidate.isdecimal() \
                     and int(cert_candidate) < configuration["smallest_certificate_id_to_connect"]["value"] or \
-                    compare_certs( processed_cert, cert_candidate):
+                    compare_certs(processed_cert, cert_candidate):
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True

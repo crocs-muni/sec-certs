@@ -19,9 +19,8 @@ from sec_certs import helpers, extract_certificates, dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 import sec_certs.constants as constants
 from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, \
-    LINE_SEPARATOR
-from sec_certs.cert_rules import fips_rules, configuration
-
+    LINE_SEPARATOR, APPEND_DETAILED_MATCH_MATCHES
+from sec_certs.cert_rules import fips_rules, configuration, fips_common_rules
 
 logger = logging.getLogger(__name__)
 
@@ -419,8 +418,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     if 'Name' in items_found['algorithms'][pair] \
                             and alg['Name'] == items_found['algorithms'][pair]['Name']:
                         entry = {'Name': alg['Name'], 'Certificate':
-                                 list(set([x for x in alg['Certificate']])
-                                      | set(items_found['algorithms'][pair]['Certificate'])),
+                            list(set([x for x in alg['Certificate']])
+                                 | set(items_found['algorithms'][pair]['Certificate'])),
                                  'Raw': items_found['algorithms'][pair]['Raw'],
                                  'Links': items_found['algorithms'][pair]['Links']}
                         if entry not in new_algs:
@@ -496,14 +495,91 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         text_to_parse = text_with_newlines if configuration["use_text_with_newlines_during_parsing"] else text
 
-        items_found, text_to_parse = FIPSCertificate.parse_cert_file(text_to_parse, cert.algorithms)
+        items_found, fips_text = FIPSCertificate.parse_cert_file(text_to_parse, cert.algorithms)
 
-        save_modified_cert_file(cert.state.fragment_path, text_to_parse, unicode_error)
+        save_modified_cert_file(cert.state.fragment_path.with_suffix('.fips.txt'), fips_text, unicode_error)
+
+        common_items_found, common_text = FIPSCertificate.parse_cert_file_common(text_to_parse, text_with_newlines,
+                                                                                 fips_common_rules)
+
+        save_modified_cert_file(cert.state.fragment_path.with_suffix('.common.txt'), common_text, unicode_error)
+        items_found.update(common_items_found)
 
         return items_found, cert
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str, algorithms: Dict) -> Tuple[Optional[Dict], str]:
+    def parse_cert_file_common(text_to_parse: str, whole_text_with_newlines: str,
+                               search_rules: Dict) -> Tuple[Optional[Dict], str]:
+        # apply all rules
+        items_found_all = {}
+        for rule_group in search_rules.keys():
+            if rule_group not in items_found_all:
+                items_found_all[rule_group] = {}
+
+            items_found = items_found_all[rule_group]
+
+            for rule in search_rules[rule_group]:
+                if type(rule) != str:
+                    rule_str = rule.pattern
+                    rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
+                else:
+                    rule_str = rule
+                    rule_and_sep = rule + REGEXEC_SEP
+
+                # matches_with_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text_with_newlines))
+                # matches_without_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text))
+                # for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+                for m in re.finditer(rule_and_sep, text_to_parse):
+                    # insert rule if at least one match for it was found
+                    if rule not in items_found:
+                        items_found[rule_str] = {}
+
+                    match = m.group()
+                    match = normalize_match_string(match)
+
+                    MAX_ALLOWED_MATCH_LENGTH = 300
+                    match_len = len(match)
+                    if match_len > MAX_ALLOWED_MATCH_LENGTH:
+                        print('WARNING: Excessive match with length of {} detected for rule {}'.format(match_len, rule))
+
+                    if match not in items_found[rule_str]:
+                        items_found[rule_str][match] = {}
+                        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
+                        if extract_certificates.APPEND_DETAILED_MATCH_MATCHES:
+                            items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
+                        # else:
+                        #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
+
+                    items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
+                    match_span = m.span()
+                    # estimate line in original text file
+                    # line_number = get_line_number(lines, line_length_compensation, match_span[0])
+                    # start index, end index, line number
+                    # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
+                    if extract_certificates.APPEND_DETAILED_MATCH_MATCHES:
+                        items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append(
+                            [match_span[0], match_span[1]])
+
+        # highlight all found strings (by xxxxx) from the input text and store the rest
+        all_matches = []
+        for rule_group in items_found_all.keys():
+            items_found = items_found_all[rule_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    all_matches.append(match)
+
+            # if AES string is removed before AES-128, -128 would be left in text => sort by length first
+            # sort before replacement based on the length of match
+            all_matches.sort(key=len, reverse=True)
+            for match in all_matches:
+                whole_text_with_newlines = whole_text_with_newlines.replace(
+                    match, 'x' * len(match))
+
+        return items_found_all, whole_text_with_newlines
+
+    @staticmethod
+    def parse_cert_file(text_to_parse: str, algorithms: List[Dict]) \
+            -> Tuple[Optional[Dict], str]:
         # apply all rules
         items_found_all: Dict = {}
         for rule_group in fips_rules.keys():
@@ -514,7 +590,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             for rule in fips_rules[rule_group]:
                 for m in rule.finditer(text_to_parse):
-                # for m in re.finditer(rule, whole_text_with_newlines):
+                    # for m in re.finditer(rule, whole_text_with_newlines):
                     # insert rule if at least one match for it was found
                     if rule.pattern not in items_found:
                         items_found[rule.pattern] = {}
