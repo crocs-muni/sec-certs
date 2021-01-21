@@ -420,7 +420,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                             and alg['Name'] == items_found['algorithms'][pair]['Name']:
                         entry = {'Name': alg['Name'], 'Certificate':
                                  list(set([x for x in alg['Certificate']])
-                                      | set(items_found['algorithms'][pair]['Certificate']))}
+                                      | set(items_found['algorithms'][pair]['Certificate'])),
+                                 'Raw': items_found['algorithms'][pair]['Raw'],
+                                 'Links': items_found['algorithms'][pair]['Links']}
                         if entry not in new_algs:
                             new_algs.append(entry)
             for entry in new_algs:
@@ -429,6 +431,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     break
             else:
                 new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
+
+            if {'Certificate': []} in new_algs:
+                new_algs.remove({'Certificate': []})
 
             items_found['algorithms'] = new_algs
 
