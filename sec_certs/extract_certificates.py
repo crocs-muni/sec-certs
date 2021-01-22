@@ -20,7 +20,7 @@ from graphviz import Digraph
 
 from . import sanity
 from .analyze_certificates import is_in_dict
-from .cert_rules import rules, fips_rules
+from .cert_rules import rules, fips_rules, REGEXEC_SEP
 from .files import search_files, load_cert_html_file, FILE_ERRORS_STRATEGY
 from .constants import *
 
@@ -31,7 +31,6 @@ plt.rcdefaults()
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 
-REGEXEC_SEP = '[ ,;\]”)(]'
 LINE_SEPARATOR = ' '
 # LINE_SEPARATOR = ''  # if newline is not replaced with space, long string included in matches are found
 
@@ -147,12 +146,10 @@ def set_match_string(items, key_name, new_value):
                 key_name, old_value, new_value))
 
 
-def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR,
-                    should_censure_right_away=False, fips_items=None):
+def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
         file_name, limit_max_lines, line_separator)
 
-    file_name = os.path.splitext(os.path.splitext(os.path.basename(file_name))[0])[0]
     # apply all rules
     items_found_all = {}
     for rule_group in search_rules.keys():
@@ -180,21 +177,10 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 match = m.group()
                 match = normalize_match_string(match)
 
-                is_algorithm = False
-                if fips_items and match != '':
-                    certs = [x['Certificate']
-                             for x in fips_items[file_name].algorithms]
-
-                    match_cert_id = ''.join(filter(str.isdigit, match))
-                    #                    if file_name == '/home/stan/sec-certs-master/files/fips/security_policies/3676.html.txt':
-
-                    for fips_cert in certs:
-                        for actual_cert in fips_cert:
-                            if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
-                                is_algorithm = True
-
-                if is_algorithm:
-                    continue
+                MAX_ALLOWED_MATCH_LENGTH = 300
+                match_len = len(match)
+                if match_len > MAX_ALLOWED_MATCH_LENGTH:
+                    print('WARNING: Excessive match with length of {} detected for rule {}'.format(match_len, rule))
 
                 if match not in items_found[rule_str]:
                     items_found[rule_str][match] = {}
@@ -202,7 +188,7 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                     if APPEND_DETAILED_MATCH_MATCHES:
                         items_found[rule_str][match][TAG_MATCH_MATCHES] = []
                     # else:
-                    #    items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
+                    #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
 
                 items_found[rule_str][match][TAG_MATCH_COUNTER] += 1
                 match_span = m.span()
@@ -213,22 +199,16 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
                 if APPEND_DETAILED_MATCH_MATCHES:
                     items_found[rule_str][match][TAG_MATCH_MATCHES].append(
                         [match_span[0], match_span[1]])
-                if should_censure_right_away:
-                    whole_text_with_newlines = whole_text_with_newlines.replace(
-                        match, 'x' * len(match))
 
-
-
+    # highlight all found strings (by xxxxx) from the input text and store the rest
     all_matches = []
-    # highlight all found strings from the input text and store the rest
-    if not should_censure_right_away:
-        for rule_group in items_found_all.keys():
-            items_found = items_found_all[rule_group]
-            for rule in items_found.keys():
-                for match in items_found[rule]:
-                    all_matches.append(match)
+    for rule_group in items_found_all.keys():
+        items_found = items_found_all[rule_group]
+        for rule in items_found.keys():
+            for match in items_found[rule]:
+                all_matches.append(match)
 
-        # warning - if AES string is removed before AES-128, -128 would be left in text => sort by length first
+        # if AES string is removed before AES-128, -128 would be left in text => sort by length first
         # sort before replacement based on the length of match
         all_matches.sort(key=len, reverse=True)
         for match in all_matches:
@@ -1083,9 +1063,9 @@ def extract_protectionprofiles_frontpage(walk_dir: Path):
 
 
 def extract_keywords(params):
-    file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items = params
+    file_name, fragments_dir, file_prefix, = params
     result, modified_cert_file = parse_cert_file(
-        file_name, fips_rules if fips_items else rules, -1, LINE_SEPARATOR, should_censure_right_away, fips_items)
+        file_name, rules, -1, LINE_SEPARATOR)
 
     # save report text with highlighted/replaced matches into \\fragments\\ directory
     save_fragments = True
@@ -1099,7 +1079,7 @@ def extract_keywords(params):
     return file_name, result
 
 
-def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, num_threads: int, should_censure_right_away=False, fips_items=None):
+def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, num_threads: int):
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
 
@@ -1113,8 +1093,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
             to_process = 0
             for file_name in files_to_process:
                 to_process = to_process + 1
-                #params.append((file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items, progress))
-                params.append((file_name, fragments_dir, file_prefix, should_censure_right_away, fips_items))
+                params.append((file_name, fragments_dir, file_prefix))
 
                 if len(params) == batch_len or to_process == len(files_to_process):
                     results = p.map(extract_keywords, params)
@@ -1122,7 +1101,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
                         file_name = response[0]
                         fips_cert_name = os.path.splitext(
                             os.path.splitext(os.path.basename(file_name))[0])[0]
-                        all_items_found[fips_cert_name if fips_items else file_name] = response[1]
+                        all_items_found[file_name] = response[1]
 
                     progress.update(batch_len)
                     params = []
@@ -1131,7 +1110,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
     for file_name in all_items_found:
         total_items_found += count_num_items_found(all_items_found[file_name])
 
-    PRINT_MATCHES = True
+    PRINT_MATCHES = False
     if PRINT_MATCHES:
         all_matches = []
         for file_name in all_items_found:
@@ -1142,11 +1121,11 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
                     for match in items_found[rule]:
                         if match not in all_matches:
                             print(match)
-        #                            all_matches.append(match)
+                            all_matches.append(match)
 
         sorted_all_matches = sorted(all_matches)
-    #        for match in sorted_all_matches:
-    #            print(match)
+        #        for match in sorted_all_matches:
+        #            print(match)
 
     # verify total matches found
     print('\nTotal matches found: {}'.format(total_items_found))
@@ -1154,7 +1133,7 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
     return all_items_found
 
 
-def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix, should_censure_right_away=False, fips_items=None):
+def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_prefix):
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
     # cert_id = {}
@@ -1162,12 +1141,9 @@ def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_pref
     files_to_process = get_files_to_process(walk_dir, '.txt')
     with tqdm(total=len(files_to_process)) as progress:
         for file_name in files_to_process:
-            fips_cert_name = os.path.splitext(
-                os.path.splitext(os.path.basename(file_name))[0])[0]
             # parse certificate, return all matches
-            all_items_found[fips_cert_name if fips_items else file_name], modified_cert_file = parse_cert_file(
-                file_name, fips_rules if fips_items else rules, -1, LINE_SEPARATOR, should_censure_right_away=should_censure_right_away,
-                fips_items=fips_items)
+            all_items_found[file_name], modified_cert_file = parse_cert_file(
+                file_name, rules, -1, LINE_SEPARATOR)
 
             # try to establish the certificate id of the current certificate
             # cert_id[file_cert_name] = estimate_cert_id(
@@ -1205,9 +1181,9 @@ def extract_certificates_keywords(walk_dir: Path, fragments_dir: Path, file_pref
                     for match in items_found[rule]:
                         if match not in all_matches:
                             print(match)
-        #                            all_matches.append(match)
+                            all_matches.append(match)
 
-        sorted_all_matches = sorted(all_matches)
+    sorted_all_matches = sorted(all_matches)
     #        for match in sorted_all_matches:
     #            print(match)
 
