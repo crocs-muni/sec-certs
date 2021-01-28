@@ -1,3 +1,4 @@
+import json
 import operator
 import string
 import os
@@ -276,31 +277,7 @@ def plot_certid_to_item_graph(item_path, all_items_found, filter_label, out_dot_
     print('{} pdf rendered'.format(out_dot_name))
 
 
-def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
-    # build cert_id to item name mapping
-    certid_info = {}
-    for cert_long_id in all_items_found.keys():
-        cert = all_items_found[cert_long_id]
-        if is_in_dict(cert, ['processed', 'cert_id']):
-            if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
-                this_cert_id = cert['processed']['cert_id']
-                if this_cert_id not in certid_info.keys():
-
-                    certid_info[this_cert_id] = {}
-                certid_info[this_cert_id]['cert_item'] = cert['frontpage_scan']['cert_item']
-
-    # build cert_id to cert_long_id mapping
-    cert_id_to_long_id_mapping = {}
-    for cert_long_id in all_items_found.keys():
-        cert = all_items_found[cert_long_id]
-        if is_in_dict(cert, ['processed', 'cert_id']):
-            if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
-                this_cert_id = cert['processed']['cert_id']
-                if this_cert_id in cert_id_to_long_id_mapping.keys():
-                    print('ERROR: duplicate cert_id for multiple cert_long_id: {}, {} already used by {}'.format(this_cert_id, cert_long_id, cert_id_to_long_id_mapping[this_cert_id]))
-                else:
-                    cert_id_to_long_id_mapping[this_cert_id] = cert_long_id
-
+def build_cert_references(filter_rules_group, all_items_found):
     # build list of references
     referenced_by = {}
     for cert_long_id in all_items_found.keys():
@@ -330,6 +307,60 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
                                 referenced_by[match] = []
                             if this_cert_id not in referenced_by[match]:
                                 referenced_by[match].append(this_cert_id)
+
+    #
+    # compute indirect num of references
+    #
+    referenced_by_indirect = {}
+    for cert_id in referenced_by.keys():
+        referenced_by_indirect[cert_id] = set()
+        for item in referenced_by[cert_id]:
+            referenced_by_indirect[cert_id].add(item)
+
+    new_change_detected = True
+    while new_change_detected:
+        new_change_detected = False
+
+        certids_list = referenced_by.keys()
+        for cert_id in certids_list:
+            tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
+            for referencing in tmp_referenced_by_indirect_nums:
+                if referencing in referenced_by.keys():
+                    tmp_referencing = referenced_by_indirect[referencing].copy()
+                    for in_referencing in tmp_referencing:
+                        if in_referencing not in referenced_by_indirect[cert_id]:
+                            new_change_detected = True
+                            referenced_by_indirect[cert_id].add(in_referencing)
+
+    return referenced_by, referenced_by_indirect
+
+
+def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
+    # build cert_id to item name mapping
+    certid_info = {}
+    for cert_long_id in all_items_found.keys():
+        cert = all_items_found[cert_long_id]
+        if is_in_dict(cert, ['processed', 'cert_id']):
+            if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
+                this_cert_id = cert['processed']['cert_id']
+                if this_cert_id not in certid_info.keys():
+
+                    certid_info[this_cert_id] = {}
+                certid_info[this_cert_id]['cert_item'] = cert['frontpage_scan']['cert_item']
+
+    # build cert_id to cert_long_id mapping
+    cert_id_to_long_id_mapping = {}
+    for cert_long_id in all_items_found.keys():
+        cert = all_items_found[cert_long_id]
+        if is_in_dict(cert, ['processed', 'cert_id']):
+            if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
+                this_cert_id = cert['processed']['cert_id']
+                if this_cert_id in cert_id_to_long_id_mapping.keys():
+                    print('ERROR: duplicate cert_id for multiple cert_long_id: {}, {} already used by {}'.format(this_cert_id, cert_long_id, cert_id_to_long_id_mapping[this_cert_id]))
+                else:
+                    cert_id_to_long_id_mapping[this_cert_id] = cert_long_id
+
+    referenced_by, referenced_by_indirect = build_cert_references(filter_rules_group, all_items_found)
 
     #
     # process direct references
@@ -363,31 +394,6 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     compute_and_plot_hist(direct_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of direct references', filter_label), 'cert_direct_refs_frequency.png')
 
     sanity.check_certs_referenced_once(len(sorted_ref_direct))
-
-
-    #
-    # compute indirect num of references
-    #
-    referenced_by_indirect = {}
-    for cert_id in referenced_by.keys():
-        referenced_by_indirect[cert_id] = set()
-        for item in referenced_by[cert_id]:
-            referenced_by_indirect[cert_id].add(item)
-
-    new_change_detected = True
-    while new_change_detected:
-        new_change_detected = False
-
-        certids_list = referenced_by.keys()
-        for cert_id in certids_list:
-            tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
-            for referencing in tmp_referenced_by_indirect_nums:
-                if referencing in referenced_by.keys():
-                    tmp_referencing = referenced_by_indirect[referencing].copy()
-                    for in_referencing in tmp_referencing:
-                        if in_referencing not in referenced_by_indirect[cert_id]:
-                            new_change_detected = True
-                            referenced_by_indirect[cert_id].add(in_referencing)
 
     print('### Certificates sorted by number of other certificates indirectly referencing them:')
     referenced_by_indirect_nums = {}
@@ -894,8 +900,53 @@ def do_analysis_force_end_date(all_cert_items, current_dir: Path, force_end_date
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
-#    analyze_cert_years_frequency(all_cert_items, 'forced_end_date={}'.format(force_end_date), force_end_date)
     analyze_cert_years_frequency(all_cert_items, '', force_end_date)
+
+
+def do_analysis_affected(all_cert_items: dict, results_dir: Path, target_certs_id: list):
+    # build references graph
+    referenced_by_direct, referenced_by_indirect = build_cert_references(['rules_cert_id'], all_cert_items)
+
+    # extract only such references which are relevant to target_certs_id
+    filter_direct = set()
+    filter_indirect = set()
+    for target_cert_id in target_certs_id:
+        if target_cert_id in referenced_by_direct:
+            filter_direct.update(referenced_by_direct[target_cert_id])
+        if target_cert_id in referenced_by_indirect:
+            filter_indirect.update(referenced_by_indirect[target_cert_id])
+
+    # add also target_certs_id into list of certificates to analyze
+    filter_direct.update(target_certs_id)
+    filter_indirect.update(target_certs_id)
+
+    # concatenate all target ids into single string label
+    label = ''
+    for target_id in target_certs_id:
+        label = label + target_id + '__'
+
+    # find only direct and indirect references of target_certs_id, filter original dataset, run atop it
+    direct_referenced_cert_items = {x: all_cert_items[x] for x in all_cert_items if
+                                    is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
+                                    all_cert_items[x]['processed']['cert_id'] in filter_direct}
+    do_all_analysis_filtered(direct_referenced_cert_items, results_dir,
+                             'directly_referring_to_{}'.format(label))
+    direct_referenced_cert_items = {x: all_cert_items[x] for x in all_cert_items if
+                                    is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
+                                    all_cert_items[x]['processed']['cert_id'] in filter_indirect}
+    do_all_analysis_filtered(direct_referenced_cert_items, results_dir,
+                             'indirectly_referring_to_{}'.format(label))
+
+
+def do_all_analysis_filtered(limited_cert_items, current_dir: Path, filter_label: str):
+    target_folder = os.path.join(current_dir, filter_label)
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
+    with open(Path(target_folder) / "certificate_data_complete_processed_analyzed.json", "w") as write_file:
+        json.dump(limited_cert_items, write_file, indent=4, sort_keys=True)
+    do_all_analysis(limited_cert_items, filter_label)
+
 
 def do_analysis_manufacturers(all_cert_items, current_dir: Path):
     # analyze only Infineon certificates
@@ -930,8 +981,6 @@ def do_analysis_only_filtered(all_cert_items, current_dir: Path, filter_path, fi
             if item == filter_value:
                 # Match found, include
                 cert_items[cert_item_key] = all_cert_items[cert_item_key]
-
-    #cert_items = {x: all_cert_items[x] for x in all_cert_items if is_in_dict(all_cert_items[x], ['csv_scan', filter_key]) and all_cert_items[x]['csv_scan'][filter_key] == filter_value}
 
     print(len(cert_items))
     do_all_analysis(cert_items, '{}={}'.format(filter_string, filter_value))

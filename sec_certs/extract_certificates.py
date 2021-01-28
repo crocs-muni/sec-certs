@@ -416,11 +416,11 @@ def search_only_headers_bsi(walk_dir: Path):
                     if end_pos != -1:
                         developer = developer[:end_pos]
 
-                    items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
-                    items_found[TAG_CERT_ITEM] = normalize_match_string(
+                    items_found[const.TAG_CERT_ID] = normalize_match_string(cert_id)
+                    items_found[const.TAG_CERT_ITEM] = normalize_match_string(
                         certified_item)
-                    items_found[TAG_DEVELOPER] = normalize_match_string(developer)
-                    items_found[TAG_CERT_LAB] = 'BSI'
+                    items_found[const.TAG_DEVELOPER] = normalize_match_string(developer)
+                    items_found[const.TAG_CERT_LAB] = 'BSI'
 
             #
             # Process page with more detailed certificate info
@@ -1064,8 +1064,7 @@ def extract_protectionprofiles_frontpage(walk_dir: Path):
 
 def extract_keywords(params):
     file_name, fragments_dir, file_prefix, = params
-    result, modified_cert_file = parse_cert_file(
-        file_name, rules, -1, LINE_SEPARATOR)
+    result, modified_cert_file = parse_cert_file(file_name, rules, -1, LINE_SEPARATOR)
 
     # save report text with highlighted/replaced matches into \\fragments\\ directory
     save_fragments = True
