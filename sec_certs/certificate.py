@@ -682,6 +682,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             self.keywords['rules_cert_id'][rule].pop(self.cert_id, None)
 
+    @staticmethod
+    def get_compare(vendor: str):
+        vendor_split = vendor.replace(',', '')\
+            .replace('-', ' ').replace('+', ' ').replace('®', '').split()
+        return vendor_split[0] if len(vendor_split) > 0 else vendor
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'

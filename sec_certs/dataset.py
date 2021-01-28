@@ -3,6 +3,7 @@ from datetime import datetime
 import locale
 import logging
 from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple
+from itertools import groupby
 
 import json
 from abc import ABC, abstractmethod
@@ -719,7 +720,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
             algs = self.algorithms.certs[cert_candidate]
             for current_alg in algs:
-                if processed_cert.vendor[:3] in current_alg.vendor:
+                if FIPSCertificate.get_compare(processed_cert.vendor) == FIPSCertificate.get_compare(current_alg.vendor):
+                # if processed_cert.vendor[:3] in current_alg.vendor:
                     return False
             return True
 
@@ -847,6 +849,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         dset.root_dir = input_path.parent.absolute()
         return dset
+
+    def group_vendors(self):
+        vendors = {}
+        v = set([x.vendor.lower() for x in self.certs.values()])
+        v = sorted(v, key=FIPSCertificate.get_compare)
+        for prefix, a in groupby(v, key=FIPSCertificate.get_compare):
+            vendors[prefix] = list(a)
+        print(json.dumps(vendors, indent=4))
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
