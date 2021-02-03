@@ -154,6 +154,7 @@ rules_javacard = [
     #'(?:Java Card|JavaCard)',
     #'(?:Global Platform|GlobalPlatform)',
     r'(?:Java Card|JavaCard) [2-3]\.[0-9](?:\.[0-9]|)',
+    r'JC[2-3]\.[0-9](?:\.[0-9]|)',
     r'(?:Java Card|JavaCard) \(version [2-3]\.[0-9](?:\.[0-9]|)\)',
     r'(?:Global Platform|GlobalPlatform) [2-3]\.[0-9]\.[0-9]',
     r'(?:Global Platform|GlobalPlatform) \(version [2-3]\.[0-9]\.[0-9]\)',
@@ -162,14 +163,14 @@ rules_javacard = [
 rules_javacard_api_consts = [
     # javacard API constants
     r'ALG_(?:PSEUDO_RANDOM|SECURE_RANDOM|TRNG|ALG_PRESEEDED_DRBG|FAST|KEYGENERATION)',
-    r'ALG_DES_[A-Z_0-9]+',  # may have false positives like XCP_CPB_ALG_EC_BPOOLCRV
+    r'ALG_DES_[A-Z_0-9]+',
     r'ALG_RSA_[A-Z_0-9]+',
     r'ALG_DSA_[A-Z_0-9]+',
     r'ALG_ECDSA_[A-Z_0-9]+',
     r'ALG_AES_[A-Z_0-9]+',
     r'ALG_HMAC_[A-Z_0-9]+',
     r'ALG_KOREAN_[A-Z_0-9]+',
-    r'ALG_EC_[A-Z_0-9]+?',
+    r'ALG_EC_[A-Z_0-9]+?', # may have false positives like XCP_CPB_ALG_EC_BPOOLCRV
     r'ALG_SHA_[A-Z_0-9]+',
     r'ALG_SHA3_[A-Z_0-9]+',
     r'ALG_MD[A-Z_0-9]+',

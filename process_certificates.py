@@ -18,10 +18,11 @@ from sec_certs.download import download_cc_web, download_cc
 @click.option("--do-pairing", "do_pairing", is_flag=True, help="Whether to pair PP stuff.")
 @click.option("--do-processing", "do_processing", is_flag=True, help="Whether to process certificates.")
 @click.option("--do-analysis", "do_analysis", is_flag=True, help="Whether to analyse certificates.")
+@click.option("--do-find-affected", "do_find_affected", help="Find affected certs.", multiple=True, type=str, metavar="certifocate id")
 @click.option("-t", "--threads", "threads", type=int, default=4, help="Amount of threads to use.")
 def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_extraction_meta: bool,
          do_download_certs: bool, do_pdftotext: bool, do_extraction_certs: bool,
-         do_pairing: bool, do_processing: bool, do_analysis: bool, threads: int):
+         do_pairing: bool, do_processing: bool, do_analysis: bool, do_find_affected: list, threads: int):
     directory = Path(directory)
 
     web_dir = directory / "web"
@@ -213,6 +214,13 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
 
         with open(results_dir / "certificate_data_complete_processed_analyzed.json", "w") as write_file:
             json.dump(all_cert_items, write_file, indent=4, sort_keys=True)
+
+    # example: --do-find-affected BSI-DSZ-CC-0782-2012 --do-find-affected BSI-DSZ-CC-0640-2010
+    if len(do_find_affected) > 0:
+        with open(results_dir / 'certificate_data_complete_processed_analyzed.json') as json_file:
+            all_cert_items = json.load(json_file)
+
+        do_analysis_affected(all_cert_items, results_dir, do_find_affected)
 
 
 if __name__ == "__main__":
