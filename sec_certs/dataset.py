@@ -22,7 +22,6 @@ import sec_certs.files as files
 
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
-from sec_certs.cert_rules import configuration
 
 logger = logging.getLogger(__name__)
 
@@ -701,12 +700,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 conn_first = self.certs[other_id].date_validation[0].year
                 conn_last = self.certs[other_id].date_validation[-1].year
 
-                return cert_first - conn_first > configuration["year_difference_between_validations"]["value"] \
-                       and cert_last - conn_last > configuration["year_difference_between_validations"]["value"]
+                return cert_first - conn_first > constants.FIPS_YEAR_DIFFERENCE_BETWEEN_VALIDATION \
+                       and cert_last - conn_last > constants.FIPS_YEAR_DIFFERENCE_BETWEEN_VALIDATION
 
             # "< 105" still needs to be used, because of some old certs being revalidated
             if cert_candidate.isdecimal() \
-                    and int(cert_candidate) < configuration["smallest_certificate_id_to_connect"]["value"] or \
+                    and int(cert_candidate) < constants.FIPS_SMALLEST_CERT_ID_TO_CONNECT or \
                     compare_certs(processed_cert, cert_candidate):
                 return False
             if cert_candidate not in self.algorithms.certs:

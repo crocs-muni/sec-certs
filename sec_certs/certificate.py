@@ -20,7 +20,7 @@ from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, 
 import sec_certs.constants as constants
 from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, \
     LINE_SEPARATOR, APPEND_DETAILED_MATCH_MATCHES
-from sec_certs.cert_rules import fips_rules, configuration, fips_common_rules
+from sec_certs.cert_rules import fips_rules, fips_common_rules
 
 logger = logging.getLogger(__name__)
 
@@ -493,7 +493,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         text, text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'),
                                                                  -1, LINE_SEPARATOR)
 
-        text_to_parse = text_with_newlines if configuration["use_text_with_newlines_during_parsing"] else text
+        text_to_parse = text_with_newlines if constants.FIPS_USE_NEWLINES else text
 
         items_found, fips_text = FIPSCertificate.parse_cert_file(text_to_parse, cert.algorithms)
 
@@ -684,9 +684,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def get_compare(vendor: str):
-        vendor_split = vendor.replace(',', '')\
+        vendor_split = vendor.replace(',', '') \
             .replace('-', ' ').replace('+', ' ').replace('®', '').split()
         return vendor_split[0] if len(vendor_split) > 0 else vendor
+
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
