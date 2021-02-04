@@ -1,7 +1,7 @@
 {
   "smallest_certificate_id_to_connect": {
     "description": "During validation we don't connect certificates with number lower than _this_ to connections",
-    "value": 110
+    "value": 60
   },
   "year_difference_between_validations": {
     "description": "During validation we don't connect certificates with validation dates difference higher than _this_",
@@ -9,6 +9,6 @@
   },
   "use_text_with_newlines_during_parsing": {
     "description": "During keyword search, search in text with newlines",
-    "value": false 
+    "value": true
   }
 }

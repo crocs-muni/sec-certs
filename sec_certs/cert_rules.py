@@ -414,6 +414,7 @@ rules_fips_remove_algorithm_ids = [
     r"#\d+, ?#\d+",
     r"#?\d+ and #?\d+",
     r"label \(#\d+\)",
+    r"[Ll]abel #\d+",
     r"\(#\d\)",
     r"IETF[25\s]*RFC[26\s]*#\d+", # #3425
     r"Bendix Road North #760", # #3325
