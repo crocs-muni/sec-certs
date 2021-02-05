@@ -16,7 +16,6 @@ from tabulate import tabulate
 
 from . import sanity
 from .constants import *
-import seaborn as sns
 
 plt.rcdefaults()
 
@@ -483,8 +482,7 @@ def plot_schemes_stacked_graph(x_ticks, data, prominent_data, x_label, y_label, 
     if len(data_stacked) == 0:
         data_stacked = [0] * len(x_ticks)
 
-    pal = sns.color_palette("tab20")  # use palette with 20 different colors
-    plt.stackplot(x_ticks, data_stacked, colors=pal, labels=data_sorted)
+    plt.stackplot(x_ticks, data_stacked, colors=plt.cm.get_cmap('tab20').colors, labels=data_sorted)
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
