@@ -172,7 +172,7 @@ def get_cert_node_label(cert_item, print_item_name):
         return cert_item['processed']['cert_id']
 
 
-def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences, print_item_name):
+def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences, print_item_name, highlight_certs_ids: list):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
     dot.attr('graph', label='{}'.format(filter_label), labelloc='t', fontsize='30')
@@ -182,7 +182,12 @@ def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_n
     cert_id_to_long_id_map = {}
     for cert_long_id in all_items_found.keys():
         if is_in_dict(all_items_found[cert_long_id], ['processed', 'cert_id']):
-            dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
+            cert_id = all_items_found[cert_long_id]['processed']['cert_id']
+            if highlight_certs_ids is not None and cert_id in highlight_certs_ids:
+                dot.attr('node', color='red')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
+            else:
+                dot.attr('node', color='green')
+
             this_cert_node_label = get_cert_node_label(all_items_found[cert_long_id], print_item_name)
             # basic node id is cert id, but possibly add additional info
             dot.node(all_items_found[cert_long_id]['processed']['cert_id'], label=this_cert_node_label)
@@ -894,13 +899,13 @@ def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
     plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security ' + sec_component_label + ' component (' + shortcut + ') class', 'Security ' + sec_component_label + ' components (' + shortcut + ') level', fig_label('Frequency of achieved levels for Security ' + sec_component_label + ' component (' + shortcut + ') classes', filter_label), 'cert_' + shortcut + '_heatmap')
 
 
-def generate_dot_graphs(all_items_found, filter_label):
+def generate_dot_graphs(all_items_found, filter_label, highlight_certs_id=None):
     # with name of certified items
-    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certidname_graph.dot', True, True)
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certidname_graph.dot', True, True, highlight_certs_id)
     # without name of certified items
-    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True, False)
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True, False, highlight_certs_id)
     # link between device and its javacard version
-    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, True)
+    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, True, highlight_certs_id)
 
     #    print_dot_graph(['rules_security_level'], all_items_found, filter_label, 'cert_security_level_graph.dot', True)
     #    print_dot_graph(['rules_crypto_libs'], all_items_found, filter_label, 'cert_crypto_libs_graph.dot', False)
@@ -910,8 +915,8 @@ def generate_dot_graphs(all_items_found, filter_label):
     #    print_dot_graph(['rules_defenses'], all_items_found, filter_label, 'rules_defenses.dot', False)
 
 
-def do_all_analysis(all_cert_items, filter_label):
-    generate_dot_graphs(all_cert_items, filter_label)
+def do_all_analysis(all_cert_items, filter_label, highlight_certs_id = None):
+    generate_dot_graphs(all_cert_items, filter_label, highlight_certs_id)
     analyze_cert_years_frequency(all_cert_items, filter_label)
     analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
     analyze_eal_frequency(all_cert_items, filter_label)
