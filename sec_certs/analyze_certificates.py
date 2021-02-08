@@ -17,7 +17,6 @@ from tabulate import tabulate
 from . import sanity
 from .constants import *
 
-
 plt.rcdefaults()
 
 STOP_ON_UNEXPECTED_NUMS = False
@@ -423,8 +422,12 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     compute_and_plot_hist(indirect_refs, bins, 'Number of certificates', fig_label('# certificates with specific number of indirect references', filter_label), 'cert_indirect_refs_frequency.png')
 
 
-def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name):
+def plot_schemes_multi_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name):
+    plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name)
+    plot_schemes_stacked_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name + '_stacked')
 
+
+def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name):
     figure(num=None, figsize=(16, 8), dpi=200, facecolor='w', edgecolor='k')
 
     line_types = ['-', ':', '-.', '--']
@@ -444,6 +447,42 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 
         # change line type to prevent color repetitions
         num_lines_plotted += 1
+
+    plt.rcParams.update({'font.size': 16})
+    plt.legend(loc=2)
+    plt.xticks(x_ticks, rotation=45)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.savefig(file_name + '.png', bbox_inches='tight')
+    plt.savefig(file_name + '.pdf', bbox_inches='tight')
+    plt.close()
+
+
+def plot_schemes_stacked_graph(x_ticks, data, prominent_data, x_label, y_label, title, file_name):
+    figure(num=None, figsize=(16, 8), dpi=200, facecolor='w', edgecolor='k')
+
+    # x = range(1, 6)
+    # y = [[1, 4, 6, 8, 9], [2, 2, 7, 10, 12], [2, 8, 5, 10, 6]]
+    # plt.stackplot(x, y, labels=['A', 'B', 'C'])
+
+    data_stacked = []
+    line_types = ['-', ':', '-.', '--']
+    num_lines_plotted = 0
+    data_sorted = sorted(data.keys())
+    for group in data_sorted:
+        items_in_year = []
+        for item in sorted(data[group]):
+            num = len(data[group][item])
+            items_in_year.append(num)
+
+        data_stacked.append(items_in_year)
+
+    # if empty data, set as zero
+    if len(data_stacked) == 0:
+        data_stacked = [0] * len(x_ticks)
+
+    plt.stackplot(x_ticks, data_stacked, colors=plt.cm.get_cmap('tab20').colors, labels=data_sorted)
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
@@ -480,7 +519,8 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
     valid_in_years = {}
     manufacturer_date = {}
     manufacturer_items = {}
-    START_YEAR = 1997
+    # START_YEAR = 1997
+    START_YEAR = 1995
     END_YEAR = datetime.datetime.now().year + 1
     ARCHIVE_OFFSET = 10
 
@@ -498,13 +538,16 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
         if is_in_dict(cert, ['csv_scan', 'cc_certification_date']):
             # extract year of certification
             cert_date = cert['csv_scan']['cc_certification_date']
+            if cert_date is None or cert_date == '':
+                continue
+
             parsed_date = parser.parse(cert_date)
             cert_year = parsed_date.year
             # try to extract year of archivation (if provided)
             archived_year = None
             if is_in_dict(cert, ['csv_scan', 'cc_archived_date']):
                 cert_archive_date = cert['csv_scan']['cc_archived_date']
-                if cert_archive_date != '':
+                if cert_archive_date != '' and cert_archive_date is not None:
                     archived_year = parser.parse(cert_archive_date).year
 
             # extract EAL level
@@ -645,17 +688,17 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
                         'Athena Smartcard', 'Renesas', 'Philips Semiconductors GmbH', 'Oberthur Card Systems']
 
     # plot graphs showing cert. scheme and EAL in years
-    plot_schemes_multi_line_graph(years, plot_scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
-    plot_schemes_multi_line_graph(years, plot_level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per EAL and year', filter_label), 'num_certs_eal_in_years')
-    plot_schemes_multi_line_graph(years, plot_category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
-    plot_schemes_multi_line_graph(years, plot_pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates with/without conforming to Protection Profile', filter_label), 'num_certs_pp_in_years')
-    plot_schemes_multi_line_graph(years, plot_labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
-    plot_schemes_multi_line_graph(years, plot_top_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', fig_label('Top 20 manufacturers of certified items per year', filter_label), 'manufacturer_in_years')
+    plot_schemes_multi_graph(years, plot_scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
+    plot_schemes_multi_graph(years, plot_level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per level and year', filter_label), 'num_certs_level_in_years')
+    plot_schemes_multi_graph(years, plot_category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
+    plot_schemes_multi_graph(years, plot_pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates with/without conforming to Protection Profile', filter_label), 'num_certs_pp_in_years')
+    plot_schemes_multi_graph(years, plot_labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
+    plot_schemes_multi_graph(years, plot_top_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', fig_label('Top 20 manufacturers of certified items per year', filter_label), 'manufacturer_in_years')
 
     # plot stats with extended range
     years_extended = np.arange(START_YEAR, END_YEAR + ARCHIVE_OFFSET)
-    plot_schemes_multi_line_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
-    plot_schemes_multi_line_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
+    plot_schemes_multi_graph(years_extended, archive_date, [], 'Year of issuance', 'Number of certificates', fig_label('Number of certificates archived or planned for archival in a given year', filter_label), 'num_certs_archived_in_years')
+    plot_schemes_multi_graph(years_extended, valid_in_years, [], 'Year', 'Number of certificates', fig_label('Number of certificates active and archived in given year', filter_label), 'num_certs_active_archived_in_years')
 
     # plot certificate validity lengths
     print('### Certificates validity period lengths:')
@@ -996,3 +1039,71 @@ def do_analysis_only_smartcards(all_cert_items, current_dir: Path):
 
 def do_analysis_only_operatingsystems(all_cert_items, current_dir: Path):
     do_analysis_only_category(all_cert_items, current_dir, 'Operating Systems')
+
+
+def transform_fips_to_cc_dict(all_cert_items_fips):
+    all_cert_items_cc = {}
+
+    exceptions_items = {}
+    certs = all_cert_items_fips["certs"]
+    for cert_item_key in certs.keys():
+        fips_item = certs[cert_item_key]
+
+        cc_item = {}
+        cc_item["csv_scan"] = {}
+        cc_item["frontpage_scan"] = {}
+        cc_item["keywords_scan"] = {}
+        cc_item["pdfmeta_scan"] = {}
+        cc_item["processed"] = {}
+
+        cc_item["processed"]["cc_manufacturer_list"] = fips_item["vendor"]
+        cc_item['processed']['cc_manufacturer_simple_list'] = [fips_item["vendor"]]
+        cc_item["processed"]["cert_id"] = fips_item["cert_id"]
+        cc_item["processed"]["cert_lab"] = fips_item["lab"]
+        if fips_item["exceptions"] is None:
+            cc_item["processed"]["cc_security_level"] = 'Level ' + fips_item["level"]
+        else:
+            cc_item["processed"]["cc_security_level"] = 'Level ' + fips_item["level"] + '+'
+
+        cc_item['csv_scan']['cc_scheme'] = 'NIST'
+        cc_item["csv_scan"]["cc_certification_date"] = fips_item["date_validation"][0]
+        cc_item["csv_scan"]["cc_archived_date"] = fips_item["date_sunset"]
+        cc_item["csv_scan"]["cc_category"] = '{} {}'.format(fips_item["type"], fips_item["embodiment"])
+
+        cc_item["processed"]["cc_security_level_augments"] = []
+        if fips_item["exceptions"]:
+            for exception in fips_item["exceptions"]:
+                try:
+                    ex_name, ex_level = exception.split(':')
+                    ex_name = ex_name.strip()
+                    ex_level = ex_level.strip()
+
+                    # collect all items seen
+                    exceptions_items[ex_name] = exceptions_items.get(ex_name, [])
+                    exceptions_items[ex_name].append(ex_level)
+
+                    # save augments
+                    if ex_level.find("evel") != -1:
+                        cc_item["processed"]["cc_security_level_augments"].append('{}.{}'.format(ex_name, ex_level))
+
+                except ValueError as e:
+                    print(exception)
+
+        all_cert_items_cc[cert_item_key] = cc_item
+
+    return all_cert_items_cc
+
+
+def do_analysis_fips_certs(all_cert_items_fips, current_dir: Path):
+    all_cert_items = transform_fips_to_cc_dict(all_cert_items_fips)
+    with open(current_dir / "fips_transformed_cc.json", "w") as write_file:
+        json.dump(all_cert_items, write_file, indent=4, sort_keys=True)
+
+    target_folder = os.path.join(current_dir, 'fips')
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    os.chdir(target_folder)
+
+    #generate_dot_graphs(all_cert_items, '')
+    analyze_cert_years_frequency(all_cert_items, '')
+    do_analysis_force_end_date(all_cert_items, target_folder, 2020)
