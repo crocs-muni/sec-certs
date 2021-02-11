@@ -1,5 +1,6 @@
 import json
 import operator
+import random
 import string
 import os
 import datetime
@@ -172,7 +173,7 @@ def get_cert_node_label(cert_item, print_item_name):
         return cert_item['processed']['cert_id']
 
 
-def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences, print_item_name):
+def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_name, thick_as_occurences, print_item_name, highlight_certs_ids: list):
     # print dot
     dot = Digraph(comment='Certificate ecosystem: {}'.format(filter_rules_group))
     dot.attr('graph', label='{}'.format(filter_label), labelloc='t', fontsize='30')
@@ -182,7 +183,12 @@ def print_dot_graph(filter_rules_group, all_items_found, filter_label, out_dot_n
     cert_id_to_long_id_map = {}
     for cert_long_id in all_items_found.keys():
         if is_in_dict(all_items_found[cert_long_id], ['processed', 'cert_id']):
-            dot.attr('node', color='green')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
+            cert_id = all_items_found[cert_long_id]['processed']['cert_id']
+            if highlight_certs_ids is not None and cert_id in highlight_certs_ids:
+                dot.attr('node', color='red')  # URL='https://www.commoncriteriaportal.org/' doesn't work for pdf
+            else:
+                dot.attr('node', color='green')
+
             this_cert_node_label = get_cert_node_label(all_items_found[cert_long_id], print_item_name)
             # basic node id is cert id, but possibly add additional info
             dot.node(all_items_found[cert_long_id]['processed']['cert_id'], label=this_cert_node_label)
@@ -894,13 +900,13 @@ def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
     plot_heatmap_graph(sar_matrix, sars_unique_names, y_data_labels, 'Security ' + sec_component_label + ' component (' + shortcut + ') class', 'Security ' + sec_component_label + ' components (' + shortcut + ') level', fig_label('Frequency of achieved levels for Security ' + sec_component_label + ' component (' + shortcut + ') classes', filter_label), 'cert_' + shortcut + '_heatmap')
 
 
-def generate_dot_graphs(all_items_found, filter_label):
+def generate_dot_graphs(all_items_found, filter_label, highlight_certs_id=None):
     # with name of certified items
-    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certidname_graph.dot', True, True)
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certidname_graph.dot', True, True, highlight_certs_id)
     # without name of certified items
-    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True, False)
+    print_dot_graph(['rules_cert_id'], all_items_found, filter_label, 'certid_graph.dot', True, False, highlight_certs_id)
     # link between device and its javacard version
-    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, True)
+    print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, True, highlight_certs_id)
 
     #    print_dot_graph(['rules_security_level'], all_items_found, filter_label, 'cert_security_level_graph.dot', True)
     #    print_dot_graph(['rules_crypto_libs'], all_items_found, filter_label, 'cert_crypto_libs_graph.dot', False)
@@ -910,8 +916,8 @@ def generate_dot_graphs(all_items_found, filter_label):
     #    print_dot_graph(['rules_defenses'], all_items_found, filter_label, 'rules_defenses.dot', False)
 
 
-def do_all_analysis(all_cert_items, filter_label):
-    generate_dot_graphs(all_cert_items, filter_label)
+def do_all_analysis(all_cert_items, filter_label, highlight_certs_id = None):
+    generate_dot_graphs(all_cert_items, filter_label, highlight_certs_id)
     analyze_cert_years_frequency(all_cert_items, filter_label)
     analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
     analyze_eal_frequency(all_cert_items, filter_label)
@@ -946,7 +952,7 @@ def do_analysis_force_end_date(all_cert_items, current_dir: Path, force_end_date
     analyze_cert_years_frequency(all_cert_items, '', force_end_date)
 
 
-def do_analysis_affected(all_cert_items: dict, results_dir: Path, target_certs_id: list):
+def do_analysis_affected(all_cert_items: dict, results_dir: Path, target_certs_id: list, set_name_label: str):
     # build references graph
     referenced_by_direct, referenced_by_indirect = build_cert_references(['rules_cert_id'], all_cert_items)
 
@@ -966,29 +972,39 @@ def do_analysis_affected(all_cert_items: dict, results_dir: Path, target_certs_i
     # concatenate all target ids into single string label
     label = ''
     for target_id in target_certs_id:
-        label = label + target_id + '__'
+        target_id_sanitized = target_id.replace('\\', '')
+        target_id_sanitized = target_id.replace('/', '')
+        label = label + target_id_sanitized + '__'
+    MAX_LABEL_LENGTH = 100
+    if len(label) > MAX_LABEL_LENGTH:
+        label = label[:MAX_LABEL_LENGTH - 6] + '__more'
 
+    target_cert_items = {x: all_cert_items[x] for x in all_cert_items if
+                                    is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
+                                    all_cert_items[x]['processed']['cert_id'] in target_certs_id}
+    do_all_analysis_filtered(target_cert_items, results_dir,
+                             '{}_target_id_{}'.format(set_name_label, label), target_certs_id)
     # find only direct and indirect references of target_certs_id, filter original dataset, run atop it
     direct_referenced_cert_items = {x: all_cert_items[x] for x in all_cert_items if
                                     is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
                                     all_cert_items[x]['processed']['cert_id'] in filter_direct}
     do_all_analysis_filtered(direct_referenced_cert_items, results_dir,
-                             'directly_referring_to_{}'.format(label))
+                             '{}_directly_referring_to_{}'.format(set_name_label, label), target_certs_id)
     direct_referenced_cert_items = {x: all_cert_items[x] for x in all_cert_items if
                                     is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
                                     all_cert_items[x]['processed']['cert_id'] in filter_indirect}
     do_all_analysis_filtered(direct_referenced_cert_items, results_dir,
-                             'indirectly_referring_to_{}'.format(label))
+                             '{}_indirectly_referring_to_{}'.format(set_name_label, label), target_certs_id)
 
 
-def do_all_analysis_filtered(limited_cert_items, current_dir: Path, filter_label: str):
+def do_all_analysis_filtered(limited_cert_items, current_dir: Path, filter_label: str, highlight_certs_id: list):
     target_folder = os.path.join(current_dir, filter_label)
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     os.chdir(target_folder)
     with open(Path(target_folder) / "certificate_data_complete_processed_analyzed.json", "w") as write_file:
         json.dump(limited_cert_items, write_file, indent=4, sort_keys=True)
-    do_all_analysis(limited_cert_items, filter_label)
+    do_all_analysis(limited_cert_items, filter_label, highlight_certs_id)
 
 
 def do_analysis_manufacturers(all_cert_items, current_dir: Path):
@@ -1104,6 +1120,39 @@ def do_analysis_fips_certs(all_cert_items_fips, current_dir: Path):
         os.makedirs(target_folder)
     os.chdir(target_folder)
 
-    #generate_dot_graphs(all_cert_items, '')
     analyze_cert_years_frequency(all_cert_items, '')
     do_analysis_force_end_date(all_cert_items, target_folder, 2020)
+
+
+def get_name_for_keyword_search_results(do_find_affected_keywords: list):
+    # save list of found cert ids to separate json
+    first_keyword = (do_find_affected_keywords[0]).replace('\\', '')  # get first sanitized search keyword
+    file_name = "find_keyword__{}_{}__{}".format(
+        first_keyword,
+        '' if len(do_find_affected_keywords) == 1 else 'and_more_(len_{})'.format(len(do_find_affected_keywords)),
+        random.randint(0, 1000000))  # just for randomization of file name
+    return file_name
+
+
+def process_matched_keywords(all_cert_items: dict, all_keywords: dict, do_find_affected_keywords: list, results_dir: Path):
+    certs_with_keywords = {'keywords': do_find_affected_keywords, 'certs': {}}
+    for item in all_keywords.keys():
+        if len(all_keywords[item]['keyword']) > 0:
+            # this file contains required keyword
+
+            # extract cert name to search for
+            cert_file_name = item[item.rfind('\\') + 1:]
+            cert_file_name = cert_file_name[:cert_file_name.find('.')]
+            cert_file_name = cert_file_name + '.pdf__'  # make file name
+            # find this file in processed results
+            for cert_item_name in all_cert_items.keys():
+                if cert_item_name.find(cert_file_name) != -1:  # check if starts with provided file name
+                    if is_in_dict(all_cert_items[cert_item_name], ['processed', 'cert_id']):
+                        cert_id = all_cert_items[cert_item_name]['processed']['cert_id']
+                        certs_with_keywords['certs'][cert_id] = item
+                        # do_find_affected = do_find_affected + (cert_id,)
+
+    certs_with_keywords['total_match_files'] = len(certs_with_keywords['certs'])
+
+
+    return certs_with_keywords

@@ -1063,11 +1063,11 @@ def extract_protectionprofiles_frontpage(walk_dir: Path):
 
 
 def extract_keywords(params):
-    file_name, fragments_dir, file_prefix, = params
-    result, modified_cert_file = parse_cert_file(file_name, rules, -1, LINE_SEPARATOR)
+    file_name, fragments_dir, file_prefix, rules_to_search = params
+    result, modified_cert_file = parse_cert_file(file_name, rules_to_search, -1, LINE_SEPARATOR)
 
     # save report text with highlighted/replaced matches into \\fragments\\ directory
-    save_fragments = True
+    save_fragments = True if fragments_dir is not None else False
     if save_fragments:
         base_path = file_name[:file_name.rfind(os.sep)]
         file_name_short = file_name[file_name.rfind(os.sep) + 1:]
@@ -1078,7 +1078,7 @@ def extract_keywords(params):
     return file_name, result
 
 
-def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, num_threads: int):
+def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, rules_to_search, num_threads: int):
     print("***EXTRACT KEYWORDS***")
     all_items_found = {}
 
@@ -1092,14 +1092,12 @@ def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, 
             to_process = 0
             for file_name in files_to_process:
                 to_process = to_process + 1
-                params.append((file_name, fragments_dir, file_prefix))
+                params.append((file_name, fragments_dir, file_prefix, rules_to_search))
 
                 if len(params) == batch_len or to_process == len(files_to_process):
                     results = p.map(extract_keywords, params)
                     for response in results:
                         file_name = response[0]
-                        fips_cert_name = os.path.splitext(
-                            os.path.splitext(os.path.basename(file_name))[0])[0]
                         all_items_found[file_name] = response[1]
 
                     progress.update(batch_len)
