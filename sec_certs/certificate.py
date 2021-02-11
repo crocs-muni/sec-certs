@@ -542,7 +542,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         text_to_parse = text_with_newlines if constants.FIPS_USE_NEWLINES else text
 
-        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.find_platforms(text_to_parse),
+        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse),
                                                                  cert.web_scan.algorithms)
 
         save_modified_cert_file(cert.state.fragment_path.with_suffix('.fips.txt'), fips_text, unicode_error)
@@ -556,8 +556,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found, cert
 
     @staticmethod
-    def find_platforms(text_to_parse: str):
-        pat = re.compile(r"[Mm]odification [Hh]istory(?! \.*)+[\s\S]*?")
+    def remove_platforms(text_to_parse: str):
+        pat = re.compile(r"(?:modification|revision|change) history\n[\s\S]*?", re.IGNORECASE)
         for match in pat.finditer(text_to_parse):
             text_to_parse = text_to_parse.replace(
                 match.group(), 'x' * len(match.group()))
