@@ -864,13 +864,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         dset.root_dir = input_path.parent.absolute()
         return dset
 
-    def group_vendors(self):
+    def group_vendors(self) -> Dict:
         vendors = {}
-        v = set([x.vendor.lower() for x in self.certs.values()])
+        v = {x.vendor.lower() for x in self.certs.values()}
         v = sorted(v, key=FIPSCertificate.get_compare)
         for prefix, a in groupby(v, key=FIPSCertificate.get_compare):
             vendors[prefix] = list(a)
-        print(json.dumps(vendors, indent=4))
+
+        return vendors
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
