@@ -1,5 +1,4 @@
 from enum import Enum
-from .cert_rules import configuration
 
 N_THREADS = 8
 RESPONSE_OK = 200
@@ -43,6 +42,3 @@ TAG_PP_EDITOR = 'pp_editor'
 TAG_PP_REVIEWER = 'pp_reviewer'
 TAG_KEYWORDS = 'keywords'
 FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
-FIPS_SMALLEST_CERT_ID_TO_CONNECT = configuration['smallest_certificate_id_to_connect']['value']
-FIPS_YEAR_DIFFERENCE_BETWEEN_VALIDATION = configuration["year_difference_between_validations"]["value"]
-FIPS_USE_NEWLINES = configuration["use_text_with_newlines_during_parsing"]['value']

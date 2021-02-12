@@ -21,6 +21,7 @@ import sec_certs.constants as constants
 from sec_certs.extract_certificates import load_cert_file, normalize_match_string, save_modified_cert_file, REGEXEC_SEP, \
     LINE_SEPARATOR, APPEND_DETAILED_MATCH_MATCHES
 from sec_certs.cert_rules import fips_rules, fips_common_rules
+from sec_certs.configuration import config
 
 logger = logging.getLogger(__name__)
 
@@ -448,8 +449,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 FIPSCertificate.parse_related_files(div, items_found)
 
         if initialized:
-            if items_found['cert_id'].endswith('092'):
-                print('a')
             new_algs = []
             not_defined = set()
             for i, alg in enumerate(items_found['algorithms']):
@@ -540,7 +539,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         text, text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'),
                                                                  -1, LINE_SEPARATOR)
 
-        text_to_parse = text_with_newlines if constants.FIPS_USE_NEWLINES else text
+        text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing['value'] else text
 
         items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse),
                                                                  cert.web_scan.algorithms)

@@ -22,6 +22,7 @@ import sec_certs.files as files
 
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.configuration import config
 
 logger = logging.getLogger(__name__)
 
@@ -707,19 +708,18 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 conn_first = self.certs[other_id].web_scan.date_validation[0].year
                 conn_last = self.certs[other_id].web_scan.date_validation[-1].year
 
-                return cert_first - conn_first > constants.FIPS_YEAR_DIFFERENCE_BETWEEN_VALIDATION \
-                       and cert_last - conn_last > constants.FIPS_YEAR_DIFFERENCE_BETWEEN_VALIDATION
+                return cert_first - conn_first > config.year_difference_between_validations['value'] \
+                       and cert_last - conn_last > config.year_difference_between_validations['value']
 
             # "< 105" still needs to be used, because of some old certs being revalidated
             if cert_candidate.isdecimal() \
-                    and int(cert_candidate) < constants.FIPS_SMALLEST_CERT_ID_TO_CONNECT or \
+                    and int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
                     compare_certs(processed_cert, cert_candidate):
                 return False
             if cert_candidate not in self.algorithms.certs:
                 return True
 
             for cert_alg in processed_cert.processed.algorithms:
-                print(cert_alg)
                 for certificate in cert_alg['Certificate']:
                     curr_id = ''.join(filter(str.isdigit, certificate))
                     if curr_id == cert_candidate:

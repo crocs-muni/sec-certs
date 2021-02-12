@@ -1,12 +1,18 @@
-from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from pathlib import Path
 from datetime import datetime
 import logging
+import click
+from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
+from sec_certs.configuration import config
 
-
-def main():
+@click.command()
+@click.option('--config-file', help='Path to config file')
+def main(config_file):
     logging.basicConfig(level=logging.INFO)
     start = datetime.now()
+
+    # Load config
+    config.load(config_file)
 
     # Create empty dataset
     dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
