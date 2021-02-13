@@ -563,7 +563,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         # get first page to find out how many pages there are
         helpers.download_file(
-            'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page=1',
+            constants.FIPS_ALG_URL + '1',
             self.algs_dir / "page1.html")
 
         with open(self.algs_dir / "page1.html", "r") as alg_file:
@@ -574,7 +574,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for i in range(1, int(num_pages['data-total-pages'])):
             if not (self.algs_dir / f'page{i}.html').exists():
                 algs_urls.append(
-                    f'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page={i}')
+                    constants.FIPS_ALG_URL + str(i))
                 algs_paths.append(self.algs_dir / f"page{i}.html")
 
         logging.info(f"downloading {len(algs_urls)} algs html files")
@@ -667,7 +667,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                                   # it's counterproductive to use all threads
                                                   use_threading=False)
 
-        not_decoded = list(map(lambda tup: tup[1].state.sp_path, filter(lambda tup: tup[0] is False, result)))
+        not_decoded = [cert.state.sp_path for done, cert, _ in result if done is False]
         for state, cert, algorithms in result:
             self.certs[cert.dgst].state.tables_done = state
             self.certs[cert.dgst].pdf_scan.algorithms += algorithms
@@ -685,9 +685,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             united_algorithms = [x for x in (certificate.web_scan.algorithms + certificate.pdf_scan.algorithms) if
                                  x != {'Certificate': []}]
             for algorithm in united_algorithms:
-                if algorithm == {'Certificate': []}:
-                    continue
-
                 if isinstance(algorithm, dict):
                     new_algorithms.append(algorithm)
                 else:
