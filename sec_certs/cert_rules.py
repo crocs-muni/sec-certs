@@ -413,7 +413,13 @@ rules_fips_remove_algorithm_ids = [
     r"#\d+, ?#\d+",
     r"#?\d+ and #?\d+",
     r"label \(#\d+\)",
-    r"\(#\d\)"
+    r"[Ll]abel #\d+",
+    r"\(#\d\)",
+    r"IETF[25\s]*RFC[26\s]*#\d+", # #3425
+    r"Bendix Road North #760", # #3325
+    r"5080 Spectrum Drive, #1000E",
+    r"Document # 540-105000-A1",
+    r"Certificate #2287-1 from EMCE Engineering", # ???
 ]
 
 rules_fips_cert = [
@@ -421,10 +427,10 @@ rules_fips_cert = [
     #     r"(?:#\s?|Cert\.?[^. ]*?\s?)(?P<id>\d{3})",
     #     r"(?:#\s?|Cert\.?[^. ]*?\s?)(?P<id>\d{2})",
     #     r"(?:#\s?|Cert\.?[^. ]*?\s?)(?P<id>\d{1})
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{4})",
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{3})",
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{2})",
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{1})"
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{4}[^\d])",
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{3}[^\d])",
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{2}[^\d])",
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{1}[^\d])"
 ]
 
 #  rule still too "general"
@@ -498,8 +504,7 @@ fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
 fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
-fips_rules.update(fips_common_rules)
 
 for rule in fips_rules:
     for current_rule in range(len(fips_rules[rule])):
-        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule] + REGEXEC_SEP)
+        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule])

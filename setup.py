@@ -33,7 +33,8 @@ setup(
         "requests",
         "tqdm",
         "beautifulsoup4",
-        "pandas"
+        "pandas",
+        "pyyaml"
     ],
     extras_require={
         "dev": ["mypy", "flake8"],

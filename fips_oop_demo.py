@@ -1,12 +1,18 @@
-from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from pathlib import Path
 from datetime import datetime
 import logging
+import click
+from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
+from sec_certs.configuration import config
 
-
-def main():
+@click.command()
+@click.option('--config-file', help='Path to config file')
+def main(config_file):
     logging.basicConfig(level=logging.INFO)
     start = datetime.now()
+
+    # Load config
+    config.load(config_file)
 
     # Create empty dataset
     dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
@@ -15,7 +21,7 @@ def main():
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web(True)
+    dset.get_certs_from_web()
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
