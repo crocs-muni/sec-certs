@@ -72,6 +72,31 @@ def plot_bar_graph(data, x_data_labels, y_label, title, file_name):
     plt.close()
 
 
+def plot_bar_multi_graph(data, x_data_labels, y_label, title, file_name):
+    max_len = 0
+    for item in data:
+        if max_len < len(item):
+            max_len = len(item)
+
+    fig_width = round(max_len / 2)
+    if fig_width < 10:
+        fig_width = 10
+    figure(num=None, figsize=(fig_width, 8), dpi=200, facecolor='w', edgecolor='k')
+    y_pos = np.arange(len(x_data_labels))
+    BAR_WIDTH = 0.4
+    for i in range(0, len(data)):
+        plt.bar(y_pos + i * BAR_WIDTH, data[i], alpha=0.5, width=BAR_WIDTH)
+    plt.xticks(y_pos, x_data_labels)
+    plt.xticks(rotation=45)
+    plt.ylabel(y_label)
+    plt.title(title)
+    x1, x2, y1, y2 = plt.axis()
+    plt.axis((x1, x2, y1 - 1, y2))
+    plt.savefig(file_name + '.png', bbox_inches='tight')
+    plt.savefig(file_name + '.pdf', bbox_inches='tight')
+    plt.close()
+
+
 def plot_heatmap_graph(data_matrix, x_data_ticks, y_data_ticks, x_label, y_label, title, file_name):
     fig_size = round(len(x_data_ticks) / 2)
     if fig_size == 0:
@@ -703,7 +728,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
     plot_schemes_multi_graph(years, plot_scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')
     plot_schemes_multi_graph(years, plot_level_date, ['EAL4+', 'EAL5+','EAL2+', 'Protection Profile'], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates issuance frequency per level and year', filter_label), 'num_certs_level_in_years')
     plot_schemes_multi_graph(years, plot_category_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Category of certificates issued in given year', filter_label), 'num_certs_category_in_years')
-    plot_schemes_multi_graph(years, plot_pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates with/without conforming to Protection Profile', filter_label), 'num_certs_pp_in_years')
+    plot_schemes_multi_graph(years, plot_pp_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Certificates conforming to Protection Profile(s)', filter_label), 'num_certs_pp_in_years')
     plot_schemes_multi_graph(years, plot_labs_date, [], 'Year of issuance', 'Number of certificates issued', fig_label('Number of certificates certified by laboratory in given year', filter_label), 'num_certs_by_lab_in_years')
     plot_schemes_multi_graph(years, plot_top_manufacturers_date, sc_manufacturers, 'Year of issuance', 'Number of certificates issued', fig_label('Top 20 manufacturers of certified items per year', filter_label), 'manufacturer_in_years')
 
@@ -744,8 +769,8 @@ def analyze_eal_frequency(all_cert_items, filter_label):
             print('  {:5}: {}x'.format(level, scheme_level[cc_scheme][level]))
 
     print('\n')
-    eal_headers = ['EAL0+', 'EAL1', 'EAL1+','EAL2', 'EAL2+','EAL3', 'EAL3+','EAL4', 'EAL4+','EAL5',
-                 'EAL5+','EAL6', 'EAL6+','EAL7', 'EAL7+', 'None']
+    eal_headers = ['EAL0+', 'EAL1', 'EAL1+','EAL2', 'EAL2+', 'EAL3', 'EAL3+', 'EAL4', 'EAL4+', 'EAL5',
+                   'EAL5+', 'EAL6', 'EAL6+', 'EAL7', 'EAL7+', 'None']
 
     total_eals = {}
     for level in eal_headers:
@@ -923,7 +948,6 @@ def generate_dot_graphs(all_items_found, filter_label, highlight_certs_id=None):
 
 
 def do_all_analysis(all_cert_items, filter_label, highlight_certs_id = None):
-    generate_dot_graphs(all_cert_items, filter_label, highlight_certs_id)
     analyze_cert_years_frequency(all_cert_items, filter_label)
     analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
     analyze_eal_frequency(all_cert_items, filter_label)
@@ -931,6 +955,7 @@ def do_all_analysis(all_cert_items, filter_label, highlight_certs_id = None):
     analyze_security_functional_component_frequency(all_cert_items, filter_label)
     analyze_pdfmeta(all_cert_items, filter_label)
     plot_certid_to_item_graph(['keywords_scan', 'rules_protection_profiles'], all_cert_items, filter_label, 'certid_pp_graph.dot', False)
+    generate_dot_graphs(all_cert_items, filter_label, highlight_certs_id)
 
 
 def do_analysis_everything(all_cert_items, current_dir: Path):
