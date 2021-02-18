@@ -7,7 +7,6 @@ rules_cert_id = [
     'BSI-DSZ-CC-[0-9]+?-[0-9]+',  # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+',  # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+',  # German BSI
-    'BSI [0-9]+?',  # German BSI
     # 'CC-Zert-.+?',
     'ANSSI(?:-|-CC-)[0-9]+?/[0-9]+',  # French
     # 'ANSSI-CC-CER-F-.+?', # French
@@ -67,6 +66,7 @@ rules_protection_profiles = [
 
 rules_technical_reports = [
     'BSI[ ]*TR-[0-9]+?(?:-[0-9]+?|)',
+    'BSI [0-9]+?',  # German BSI document containing list of issued certificates in some period
 ]
 
 rules_device_id = [
