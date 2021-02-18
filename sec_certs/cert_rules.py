@@ -58,8 +58,7 @@ rules_protection_profiles = [
     'PP-SSCD.+?',
     'PP_DBMS_.+?'
     #    'Protection Profile',
-    'CCMB-20.+?',
-    'CCMB-20[0-9]+?-[0-9]+?-[0-9]+?',
+    #'CCMB-20.+?',
     'BSI-CCPP-.+?',
     'ANSSI-CC-PP.+?',
     'WBIS_V[0-9]\\.[0-9]',
@@ -97,6 +96,8 @@ rules_standard_id = [
     '[Xx]\\.509',
     'RFC [0-9]+',
     '(?:SCP|scp)[ \']*[0-9][0-9]',
+    'CC[I]*MB-20[0-9]+?-[0-9]+?-[0-9]+?',   # Common Criteria methodology
+    'CCIMB-9[0-9]-[0-9]+?'                  # Common Criteria methodology old
 ]
 
 rules_security_level = [
@@ -504,7 +505,8 @@ fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
 fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
+fips_rules.update(fips_common_rules)
 
 for rule in fips_rules:
     for current_rule in range(len(fips_rules[rule])):
-        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule])
+        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule] + REGEXEC_SEP)
