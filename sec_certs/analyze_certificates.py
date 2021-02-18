@@ -22,6 +22,8 @@ plt.rcdefaults()
 
 STOP_ON_UNEXPECTED_NUMS = False
 
+GRAPHS_COLOR_PALETTE = plt.cm.get_cmap('tab20').colors
+
 printable = set(string.printable)
 
 
@@ -439,6 +441,7 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
     line_types = ['-', ':', '-.', '--']
     num_lines_plotted = 0
     data_sorted = sorted(data.keys())
+    color_index = 0
     for group in data_sorted:
         items_in_year = []
         for item in sorted(data[group]):
@@ -446,13 +449,16 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
             items_in_year.append(num)
 
         if group in prominent_data:
-            plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)], label=group, linewidth=3)
+            plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)],
+                     label=group, linewidth=3, color=GRAPHS_COLOR_PALETTE[color_index])
         else:
             # plot non-prominent data as dashed
-            plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)], label=group, linewidth=2)
+            plt.plot(x_ticks, items_in_year, line_types[num_lines_plotted % len(line_types)],
+                     label=group, linewidth=2, color=GRAPHS_COLOR_PALETTE[color_index])
 
         # change line type to prevent color repetitions
         num_lines_plotted += 1
+        color_index += 1
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
@@ -488,7 +494,7 @@ def plot_schemes_stacked_graph(x_ticks, data, prominent_data, x_label, y_label, 
     if len(data_stacked) == 0:
         data_stacked = [0] * len(x_ticks)
 
-    plt.stackplot(x_ticks, data_stacked, colors=plt.cm.get_cmap('tab20').colors, labels=data_sorted)
+    plt.stackplot(x_ticks, data_stacked, colors=GRAPHS_COLOR_PALETTE, labels=data_sorted)
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
