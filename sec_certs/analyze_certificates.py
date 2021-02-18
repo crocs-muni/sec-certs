@@ -683,7 +683,6 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
                         # certificate is valid in year
                         valid_in_years['active'][year].append(cert_long_id)
 
-
     # print manufacturers frequency
     sorted_by_occurence = sorted(manufacturer_items.items(), key=operator.itemgetter(1))
     print('\n### Frequency of certificates per company')
@@ -871,7 +870,6 @@ def analyze_sc_frequency(all_cert_items, filter_label, sec_component_label):
                         sars_freq[sar_hit] = 0
                     sars_freq[sar_hit] += 1
 
-
     print('\n### CC security ' + sec_component_label + ' components frequency:')
     sars_labels = sorted(sars_freq.keys())
     sars_freq_nums = []
@@ -1000,32 +998,67 @@ def do_analysis_affected(all_cert_items: dict, results_dir: Path, target_certs_i
     filter_direct.update(target_certs_id)
     filter_indirect.update(target_certs_id)
 
+    label = get_label_from_certids(target_certs_id)
+    filter_and_do_all_analysis_filtered(all_cert_items, target_certs_id, target_certs_id, results_dir,
+                                        '{}_target_id_{}'.format(set_name_label, label))
+    filter_and_do_all_analysis_filtered(all_cert_items, filter_direct, target_certs_id, results_dir,
+                                        '{}_directly_referring_to_{}'.format(set_name_label, label))
+    filter_and_do_all_analysis_filtered(all_cert_items, filter_indirect, target_certs_id, results_dir,
+                                        '{}_indirectly_referring_to_{}'.format(set_name_label, label))
+
+
+def get_label_from_certids(target_certs_id: list):
     # concatenate all target ids into single string label
     label = ''
     for target_id in target_certs_id:
         target_id_sanitized = target_id.replace('\\', '')
-        target_id_sanitized = target_id.replace('/', '')
+        target_id_sanitized = target_id_sanitized.replace('/', '')
         label = label + target_id_sanitized + '__'
     MAX_LABEL_LENGTH = 100
     if len(label) > MAX_LABEL_LENGTH:
         label = label[:MAX_LABEL_LENGTH - 6] + '__more'
 
+    return label
+
+
+def filter_and_do_all_analysis_filtered(all_cert_items: dict, target_certs_id: list, highlight_certs_id: list,
+                                        results_dir: Path, label: str):
     target_cert_items = {x: all_cert_items[x] for x in all_cert_items if
                                     is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
                                     all_cert_items[x]['processed']['cert_id'] in target_certs_id}
-    do_all_analysis_filtered(target_cert_items, results_dir,
-                             '{}_target_id_{}'.format(set_name_label, label), target_certs_id)
-    # find only direct and indirect references of target_certs_id, filter original dataset, run atop it
-    direct_referenced_cert_items = {x: all_cert_items[x] for x in all_cert_items if
-                                    is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
-                                    all_cert_items[x]['processed']['cert_id'] in filter_direct}
-    do_all_analysis_filtered(direct_referenced_cert_items, results_dir,
-                             '{}_directly_referring_to_{}'.format(set_name_label, label), target_certs_id)
-    direct_referenced_cert_items = {x: all_cert_items[x] for x in all_cert_items if
-                                    is_in_dict(all_cert_items[x], ['processed', 'cert_id']) and
-                                    all_cert_items[x]['processed']['cert_id'] in filter_indirect}
-    do_all_analysis_filtered(direct_referenced_cert_items, results_dir,
-                             '{}_indirectly_referring_to_{}'.format(set_name_label, label), target_certs_id)
+    do_all_analysis_filtered(target_cert_items, results_dir, label, highlight_certs_id)
+
+
+def do_analysis_affecting(all_cert_items: dict, results_dir: Path, target_certs_id: list, set_name_label: str):
+    # build references graph
+    referenced_by_direct, referenced_by_indirect = build_cert_references(['rules_cert_id'], all_cert_items)
+
+    # extract only such references which are relevant to target_certs_id
+    # idea - loop over all cert ids, add to set when target id(s) is referenced
+    filter_direct = set()
+    filter_indirect = set()
+
+    for cert_id in referenced_by_direct.keys():
+        for target_cert_id in target_certs_id:
+            if target_cert_id in referenced_by_direct[cert_id]:
+                filter_direct.update([cert_id])
+
+    for cert_id in referenced_by_indirect.keys():
+        for target_cert_id in target_certs_id:
+            if target_cert_id in referenced_by_indirect[cert_id]:
+                filter_indirect.update([cert_id])
+
+    # add also target_certs_id into list of certificates to analyze
+    filter_direct.update(target_certs_id)
+    filter_indirect.update(target_certs_id)
+
+    label = get_label_from_certids(target_certs_id)
+    filter_and_do_all_analysis_filtered(all_cert_items, target_certs_id, target_certs_id, results_dir,
+                                        '{}_target_id_{}'.format(set_name_label, label))
+    filter_and_do_all_analysis_filtered(all_cert_items, filter_direct, target_certs_id, results_dir,
+                                        '{}_directly_referenced_by{}'.format(set_name_label, label))
+    filter_and_do_all_analysis_filtered(all_cert_items, filter_indirect, target_certs_id, results_dir,
+                                        '{}_indirectly_referenced_by_{}'.format(set_name_label, label))
 
 
 def do_all_analysis_filtered(limited_cert_items, current_dir: Path, filter_label: str, highlight_certs_id: list):
@@ -1064,13 +1097,7 @@ def do_analysis_only_filtered(all_cert_items, current_dir: Path, filter_path, fi
         os.makedirs(target_folder)
     os.chdir(target_folder)
 
-    cert_items = {}
-    for cert_item_key in all_cert_items.keys():
-        item = get_item_from_dict(all_cert_items[cert_item_key], filter_path)
-        if item is not None:
-            if item == filter_value:
-                # Match found, include
-                cert_items[cert_item_key] = all_cert_items[cert_item_key]
+    cert_items = filter_items(all_cert_items, filter_path, filter_value)
 
     print(len(cert_items))
     do_all_analysis(cert_items, '{}={}'.format(filter_string, filter_value))
@@ -1187,3 +1214,15 @@ def process_matched_keywords(all_cert_items: dict, all_keywords: dict, do_find_a
 
 
     return certs_with_keywords
+
+
+def filter_items(items: dict, filter_path: list, filter_value: str):
+    filtered_items = {}
+    for item_key in items.keys():
+        item = get_item_from_dict(items[item_key], filter_path)
+        if item is not None:
+            if item == filter_value:
+                # Match found, include
+                filtered_items[item_key] = items[item_key]
+
+    return filtered_items
