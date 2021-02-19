@@ -15,6 +15,8 @@ import pandas as pd
 import subprocess
 import sec_certs.constants as constants
 
+from PyPDF2 import PdfFileReader
+
 
 logger = logging.getLogger(__name__)
 
@@ -165,3 +167,23 @@ def repair_pdf(file: Path):
 
 def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
     return subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60).returncode
+
+
+def extract_pdf_metadata(filepath: Path):
+    metadata = dict()
+    metadata['pdf_file_size_bytes'] = filepath.stat().st_size
+
+    try:
+        with filepath.open('rb') as handle:
+            pdf = PdfFileReader(handle)
+
+            metadata['pdf_is_encrypted'] = pdf.getIsEncrypted()
+            metadata['pdf_number_of_pages'] = pdf.getNumPages()
+
+            for key, val in pdf.getDocumentInfo().items():
+                metadata[key] = str(val)
+
+    except Exception as e:
+        logger.error(f'Failed to read metadata of {filepath}, error: {e}')
+
+    return filepath, metadata
