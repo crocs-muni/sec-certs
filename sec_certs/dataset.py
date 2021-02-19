@@ -480,7 +480,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         if fresh is True:
             certs_to_process = self.certs.values()
         else:
-            certs_to_process = [x for x in self.certs.values() if not x.state.st_extract_ok]
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_extract_ok]
         cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process, constants.N_THREADS)
 
     def _extract_targets_metadata(self, fresh: bool = True):
@@ -495,15 +495,61 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._extract_report_metadata(fresh)
         self._extract_targets_metadata(fresh)
 
-    def extract_all_keywords(self, fresh: bool = True):
-        pass
+    def _extract_targets_frontpage(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process, constants.N_THREADS)
+
+    def _extract_report_frontpage(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process, constants.N_THREADS)
 
     def extract_pdf_frontpage(self, fresh: bool = True):
-        pass
+        logger.info('Extracting pdf frontpages from CC dataset.')
+        self._extract_report_frontpage(fresh)
+        self._extract_targets_frontpage(fresh)
 
-    def extract_data(self, fresh:bool = True):
-        # TODO: Extract metadata, keywords, frontpage, attempt to re-do once if fails
-        pass
+    def _extract_report_keywords(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process, constants.N_THREADS)
+
+    def _extract_targets_keywords(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process, constants.N_THREADS)
+
+    def extract_pdf_keywords(self, fresh: bool = True):
+        logger.info('Extracting pdf keywords from CC dataset.')
+        self._extract_report_keywords(fresh)
+        self._extract_targets_keywords(fresh)
+
+    def extract_data(self, fresh: bool = True):
+        logger.info('Extracting various stuff from converted txt filed from CC dataset.')
+        self.extract_pdf_metadata(fresh)
+        self.extract_pdf_frontpage(fresh)
+        self.extract_pdf_keywords(fresh)
+
+        if fresh is True:
+            if any(filter(lambda x: not x.state.report_extract_ok, self.certs.values())):
+                logger.info('Attempting to re-extract failed data from report txts')
+                self._extract_report_metadata(False)
+                self._extract_report_frontpage(False)
+                self._extract_report_keywords(False)
+            if any(filter(lambda x: not x.state.st_extract_ok, self.certs.values())):
+                logger.info('Attempting to re-extract failed data from ST txts')
+                self._extract_targets_metadata(False)
+                self._extract_targets_frontpage(False)
+                self._extract_targets_keywords(False)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

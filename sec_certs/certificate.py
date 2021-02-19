@@ -833,13 +833,24 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     class PdfData(ComplexSerializableType):
         report_metadata: Dict[str, str]
         st_metadata: Dict[str, str]
+        report_frontpage: Dict[str, str]
+        st_frontpage: Dict[str, str]
+        report_keywords: Dict[str, str]
+        st_keywords: Dict[str, str]
 
-        def __init__(self, report_metadata: Optional[Dict[str, str]] = None, st_metadata: Optional[Dict[str, str]] = None):
+        def __init__(self, report_metadata: Optional[Dict[str, str]] = None, st_metadata: Optional[Dict[str, str]] = None,
+                     report_frontpage: Optional[Dict[str, str]] = None, st_frontpage: Optional[Dict[str, str]] = None,
+                     report_keywords: Optional[Dict[str,str]] = None, st_keywords: Optional[Dict[str, str]] = None):
             self.report_metadata = report_metadata
             self.st_metadata = st_metadata
+            self.report_frontpage = report_frontpage
+            self.st_frontpage = st_frontpage
+            self.report_keywords = report_keywords
+            self.st_keywords = st_keywords
 
         def to_dict(self):
-            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata}
+            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata, 'report_frontpage': self.report_frontpage,
+                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords, 'st_keywords': self.st_keywords}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
@@ -1093,3 +1104,28 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def extract_report_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)[1]
         return cert
+
+    @staticmethod
+    def extract_st_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.st_frontpage = dict()
+        cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
+        cert.pdf_data.st_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.report_frontpage = dict()
+        cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
+        cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
+        return cert
+
+    @staticmethod
+    def extract_st_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
+        return cert
+

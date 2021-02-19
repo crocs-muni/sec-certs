@@ -5,6 +5,7 @@ from sec_certs.files import load_json_files
 from sec_certs.extract_certificates import *
 from sec_certs.analyze_certificates import *
 from sec_certs.download import download_cc_web, download_cc
+from sec_certs.cert_rules import rules as cc_search_rules
 
 
 @click.command()
@@ -118,7 +119,7 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
         convert_pdf_files(walk_dir, threads, ["-raw"])
 
     if do_extraction_certs:
-        all_keywords = extract_certificates_keywords_parallel(walk_dir, fragments_dir, 'certificate', threads)
+        all_keywords = extract_certificates_keywords_parallel(walk_dir, fragments_dir, 'certificate', cc_search_rules, threads)
         with open(results_dir / "certificate_data_keywords_all.json", "w") as write_file:
             json.dump(all_keywords,  write_file, indent=4, sort_keys=True)
 

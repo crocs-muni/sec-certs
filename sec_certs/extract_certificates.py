@@ -24,6 +24,10 @@ from .cert_rules import rules, fips_rules, REGEXEC_SEP
 from .files import search_files, load_cert_html_file, FILE_ERRORS_STRATEGY
 from .constants import *
 
+
+import sec_certs.constants as constants
+import sec_certs.helpers as helpers
+
 plt.rcdefaults()
 
 # if True, then exception is raised when unexpect intermediate number is obtained
@@ -416,11 +420,11 @@ def search_only_headers_bsi(walk_dir: Path):
                     if end_pos != -1:
                         developer = developer[:end_pos]
 
-                    items_found[const.TAG_CERT_ID] = normalize_match_string(cert_id)
-                    items_found[const.TAG_CERT_ITEM] = normalize_match_string(
+                    items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
+                    items_found[constants.TAG_CERT_ITEM] = normalize_match_string(
                         certified_item)
-                    items_found[const.TAG_DEVELOPER] = normalize_match_string(developer)
-                    items_found[const.TAG_CERT_LAB] = 'BSI'
+                    items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
+                    items_found[constants.TAG_CERT_LAB] = 'BSI'
 
             #
             # Process page with more detailed certificate info
