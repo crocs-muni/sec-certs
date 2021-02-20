@@ -74,6 +74,7 @@ class TestCommonCriteriaOOP(TestCase):
                                                  None)
         self.template_dataset = CCDataset({self.crt_one.dgst: self.crt_one, self.crt_two.dgst: self.crt_two}, Path('/fictional/path/to/dataset'), 'toy dataset', 'toy dataset description')
         self.template_dataset.timestamp = datetime(2020, 11, 16, hour=17, minute=4, second=14, microsecond=770153)
+        self.template_dataset.state.meta_sources_parsed = True
 
         self.template_report_pdf_hashes = {'7ef8227c1aed06bb': '774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52',
                                           '561a012d9a30e960': '533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a'}

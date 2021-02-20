@@ -1063,7 +1063,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
         if exit_code != requests.codes.ok:
-            logger.error(f'Failed to download report from {cert.report_link}, code: {exit_code}')
+            logger.error(f'Cert dgst: {cert.dgst} failed to download report from {cert.report_link}, code: {exit_code}')
             cert.state.report_link_ok = False
         return cert
 
@@ -1071,7 +1071,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
-            logger.error(f'Cert dgst: {cert.dgst} failed to download report from {cert.report_link}, code: {exit_code}')
+            logger.error(f'Cert dgst: {cert.dgst} failed to download ST from {cert.report_link}, code: {exit_code}')
             cert.state.st_link_ok = False
         return cert
 

@@ -1,5 +1,13 @@
 {
     "_type": "CCDataset",
+    "state": {
+        "_type": "DatasetInternalState",
+        "meta_sources_parsed": true,
+        "pdfs_downloaded": false,
+        "pdfs_converted": false,
+        "txt_data_extracted": false,
+        "certs_analyzed": false
+    },
     "timestamp": "2020-11-16 17:04:14.770153",
     "sha256_digest": "not implemented",
     "name": "toy dataset",
