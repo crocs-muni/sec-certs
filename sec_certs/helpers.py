@@ -190,8 +190,9 @@ def extract_pdf_metadata(filepath: Path):
 
     except Exception as e:
         logger.error(f'Failed to read metadata of {filepath}, error: {e}')
+        return constants.RETURNCODE_NOK, None
 
-    return filepath, metadata
+    return constants.RETURNCODE_OK, metadata
 
 
 # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
@@ -292,74 +293,80 @@ def search_only_headers_anssi(filepath: Path):
          'Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Critères d\'évaluation et version(.+)Niveau d\'évaluation(.+)Développeurs(.+)Centre d\'évaluation(.+)Accords de reconnaissance applicables'),
     ]
 
+
     # statistics about rules success rate
     num_rules_hits = {}
     for rule in rules_certificate_preface:
         num_rules_hits[rule[1]] = 0
 
     items_found = {}
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath)
 
-    # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
-    pos = whole_text.find('')
-    if pos != -1:
-        pos = whole_text.find('', pos)
+    try:
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath)
+
+        # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
+        pos = whole_text.find('')
         if pos != -1:
-            whole_text = whole_text[pos:]
+            pos = whole_text.find('', pos)
+            if pos != -1:
+                whole_text = whole_text[pos:]
 
-    no_match_yet = True
-    other_rule_already_match = False
-    rule_index = -1
-    for rule in rules_certificate_preface:
-        rule_index += 1
-        rule_and_sep = rule[1] + REGEXEC_SEP
+        no_match_yet = True
+        other_rule_already_match = False
+        rule_index = -1
+        for rule in rules_certificate_preface:
+            rule_index += 1
+            rule_and_sep = rule[1] + REGEXEC_SEP
 
-        for m in re.finditer(rule_and_sep, whole_text):
-            if no_match_yet:
-                items_found[constants.TAG_HEADER_MATCH_RULES] = []
-                no_match_yet = False
+            for m in re.finditer(rule_and_sep, whole_text):
+                if no_match_yet:
+                    items_found[constants.TAG_HEADER_MATCH_RULES] = []
+                    no_match_yet = False
 
-            # insert rule if at least one match for it was found
-            if rule not in items_found[constants.TAG_HEADER_MATCH_RULES]:
-                items_found[constants.TAG_HEADER_MATCH_RULES].append(rule[1])
+                # insert rule if at least one match for it was found
+                if rule not in items_found[constants.TAG_HEADER_MATCH_RULES]:
+                    items_found[constants.TAG_HEADER_MATCH_RULES].append(rule[1])
 
-            if not other_rule_already_match:
-                other_rule_already_match = True
-            else:
-                logger.warning(f'WARNING: multiple rules are matching same certification document: {filepath}')
+                if not other_rule_already_match:
+                    other_rule_already_match = True
+                else:
+                    logger.warning(f'WARNING: multiple rules are matching same certification document: {filepath}')
 
-            num_rules_hits[rule[1]] += 1  # add hit to this rule
-            match_groups = m.groups()
-            index_next_item = 0
-            items_found[constants.TAG_CERT_ID] = extract_certificates.normalize_match_string(match_groups[index_next_item])
-            index_next_item += 1
-
-            items_found[constants.TAG_CERT_ITEM] = extract_certificates.normalize_match_string(match_groups[index_next_item])
-            index_next_item += 1
-
-            if rule[0] == HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION:
-                items_found[constants.TAG_CERT_ITEM_VERSION] = ''
-            else:
-                items_found[constants.TAG_CERT_ITEM_VERSION] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                num_rules_hits[rule[1]] += 1  # add hit to this rule
+                match_groups = m.groups()
+                index_next_item = 0
+                items_found[constants.TAG_CERT_ID] = extract_certificates.normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-            if rule[0] == HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES:
-                items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = ''
-            else:
-                items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_CERT_ITEM] = extract_certificates.normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-            items_found[constants.TAG_CC_VERSION] = extract_certificates.normalize_match_string(match_groups[index_next_item])
-            index_next_item += 1
+                if rule[0] == HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION:
+                    items_found[constants.TAG_CERT_ITEM_VERSION] = ''
+                else:
+                    items_found[constants.TAG_CERT_ITEM_VERSION] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                    index_next_item += 1
 
-            items_found[constants.TAG_CC_SECURITY_LEVEL] = extract_certificates.normalize_match_string(match_groups[index_next_item])
-            index_next_item += 1
+                if rule[0] == HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES:
+                    items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = ''
+                else:
+                    items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                    index_next_item += 1
 
-            items_found[constants.TAG_DEVELOPER] = extract_certificates.normalize_match_string(match_groups[index_next_item])
-            index_next_item += 1
+                items_found[constants.TAG_CC_VERSION] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
 
-            items_found[constants.TAG_CERT_LAB] = extract_certificates.normalize_match_string(match_groups[index_next_item])
-            index_next_item += 1
+                items_found[constants.TAG_CC_SECURITY_LEVEL] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+
+                items_found[constants.TAG_DEVELOPER] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+
+                items_found[constants.TAG_CERT_LAB] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                index_next_item += 1
+    except Exception as e:
+        logger.error(f'Failed to parse ANSSI frontpage headers from {filepath}; {e}')
+        return constants.RETURNCODE_NOK, None
 
     # if True:
     #     print('# hits for rule')
@@ -371,7 +378,7 @@ def search_only_headers_anssi(filepath: Path):
     #         if rule[1] > 0:
     #             used_rules.append(rule[0])
 
-    return items_found
+    return constants.RETURNCODE_OK, items_found
 
 # TODO: Please refactor me. I need it so badlyyyyyy!!!
 def search_only_headers_bsi(filepath: Path):
@@ -384,81 +391,89 @@ def search_only_headers_bsi(filepath: Path):
 
     items_found = {}
     no_match_yet = True
-    #
-    # Process front page with info: cert_id, certified_item and developer
-    #
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
 
-    for rule in rules_certificate_preface:
-        rule_and_sep = rule + REGEXEC_SEP
+    try:
+        # Process front page with info: cert_id, certified_item and developer
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
 
-        for m in re.finditer(rule_and_sep, whole_text):
-            if no_match_yet:
-                items_found[constants.TAG_HEADER_MATCH_RULES] = []
-                no_match_yet = False
+        for rule in rules_certificate_preface:
+            rule_and_sep = rule + REGEXEC_SEP
 
-            # insert rule if at least one match for it was found
-            if rule not in items_found[constants.TAG_HEADER_MATCH_RULES]:
-                items_found[constants.TAG_HEADER_MATCH_RULES].append(rule)
+            for m in re.finditer(rule_and_sep, whole_text):
+                if no_match_yet:
+                    items_found[constants.TAG_HEADER_MATCH_RULES] = []
+                    no_match_yet = False
 
-            match_groups = m.groups()
-            cert_id = match_groups[0]
-            certified_item = match_groups[1]
-            developer = match_groups[2]
+                # insert rule if at least one match for it was found
+                if rule not in items_found[constants.TAG_HEADER_MATCH_RULES]:
+                    items_found[constants.TAG_HEADER_MATCH_RULES].append(rule)
 
-            FROM_KEYWORD_LIST = [' from ', ' der ']
-            for from_keyword in FROM_KEYWORD_LIST:
-                from_keyword_len = len(from_keyword)
-                if certified_item.find(from_keyword) != -1:
-                    logger.warning(f'string {from_keyword} detected in certified item - shall not be here, fixing...')
-                    certified_item_first = certified_item[:certified_item.find(from_keyword)]
-                    developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
-                    certified_item = certified_item_first
-                    continue
+                match_groups = m.groups()
+                cert_id = match_groups[0]
+                certified_item = match_groups[1]
+                developer = match_groups[2]
 
-            end_pos = developer.find('\f-')
-            if end_pos == -1:
-                end_pos = developer.find('\fBSI')
-            if end_pos == -1:
-                end_pos = developer.find('Bundesamt')
-            if end_pos != -1:
-                developer = developer[:end_pos]
+                FROM_KEYWORD_LIST = [' from ', ' der ']
+                for from_keyword in FROM_KEYWORD_LIST:
+                    from_keyword_len = len(from_keyword)
+                    if certified_item.find(from_keyword) != -1:
+                        logger.warning(f'string {from_keyword} detected in certified item - shall not be here, fixing...')
+                        certified_item_first = certified_item[:certified_item.find(from_keyword)]
+                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
+                        certified_item = certified_item_first
+                        continue
 
-            items_found[constants.TAG_CERT_ID] = extract_certificates.normalize_match_string(cert_id)
-            items_found[constants.TAG_CERT_ITEM] = extract_certificates.normalize_match_string(certified_item)
-            items_found[constants.TAG_DEVELOPER] = extract_certificates.normalize_match_string(developer)
-            items_found[constants.TAG_CERT_LAB] = 'BSI'
+                end_pos = developer.find('\f-')
+                if end_pos == -1:
+                    end_pos = developer.find('\fBSI')
+                if end_pos == -1:
+                    end_pos = developer.find('Bundesamt')
+                if end_pos != -1:
+                    developer = developer[:end_pos]
 
-    # Process page with more detailed certificate info
-    # PP Conformance, Functionality, Assurance
-    rules_certificate_third = ['PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified']
+                items_found[constants.TAG_CERT_ID] = extract_certificates.normalize_match_string(cert_id)
+                items_found[constants.TAG_CERT_ITEM] = extract_certificates.normalize_match_string(certified_item)
+                items_found[constants.TAG_DEVELOPER] = extract_certificates.normalize_match_string(developer)
+                items_found[constants.TAG_CERT_LAB] = 'BSI'
 
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath)
+        # Process page with more detailed certificate info
+        # PP Conformance, Functionality, Assurance
+        rules_certificate_third = ['PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified']
 
-    for rule in rules_certificate_third:
-        rule_and_sep = rule + REGEXEC_SEP
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath)
 
-        for m in re.finditer(rule_and_sep, whole_text):
-            # check if previous rules had at least one match
-            if not constants.TAG_CERT_ID in items_found.keys():
-                logger.error('ERROR: front page not found for file: {}'.format(filepath))
+        for rule in rules_certificate_third:
+            rule_and_sep = rule + REGEXEC_SEP
 
-            match_groups = m.groups()
-            ref_protection_profiles = match_groups[0]
-            cc_version = match_groups[1]
-            cc_security_level = match_groups[2]
+            for m in re.finditer(rule_and_sep, whole_text):
+                # check if previous rules had at least one match
+                if not constants.TAG_CERT_ID in items_found.keys():
+                    logger.error('ERROR: front page not found for file: {}'.format(filepath))
 
-            items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = extract_certificates.normalize_match_string(ref_protection_profiles)
-            items_found[constants.TAG_CC_VERSION] = extract_certificates.normalize_match_string(cc_version)
-            items_found[constants.TAG_CC_SECURITY_LEVEL] = extract_certificates.normalize_match_string(cc_security_level)
+                match_groups = m.groups()
+                ref_protection_profiles = match_groups[0]
+                cc_version = match_groups[1]
+                cc_security_level = match_groups[2]
 
-    # print('\n*** Certificates without detected preface:')
-    # for file_name in files_without_match:
-    #     print('No hits for {}'.format(file_name))
-    # print('Total no hits files: {}'.format(len(files_without_match)))
-    # print('\n**********************************')
+                items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = extract_certificates.normalize_match_string(ref_protection_profiles)
+                items_found[constants.TAG_CC_VERSION] = extract_certificates.normalize_match_string(cc_version)
+                items_found[constants.TAG_CC_SECURITY_LEVEL] = extract_certificates.normalize_match_string(cc_security_level)
 
-    return items_found
+        # print('\n*** Certificates without detected preface:')
+        # for file_name in files_without_match:
+        #     print('No hits for {}'.format(file_name))
+        # print('Total no hits files: {}'.format(len(files_without_match)))
+        # print('\n**********************************')
+    except Exception as e:
+        logger.error(f'Failed to parse BSI headers from frontpage: {filepath}; {e}')
+        return constants.RETURNCODE_NOK, None
 
-def extract_keywords(filepath: Path) -> Dict[str, str]:
-    return extract_certificates.parse_cert_file(filepath, cc_search_rules, -1, extract_certificates.LINE_SEPARATOR)[0]
+    return constants.RETURNCODE_OK, items_found
+
+def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
+    try:
+        result = extract_certificates.parse_cert_file(filepath, cc_search_rules, -1, extract_certificates.LINE_SEPARATOR)[0]
+    except Exception as e:
+        logger.error(f'Failed to parse keywords from: {filepath}; {e}')
+        return constants.RETURNCODE_NOK, None
+    return constants.RETURNCODE_OK, result
