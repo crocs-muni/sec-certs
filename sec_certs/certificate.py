@@ -1096,35 +1096,52 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @staticmethod
     def extract_st_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)[1]
+        response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
         return cert
 
     @staticmethod
     def extract_report_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)[1]
+        response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
         return cert
 
     @staticmethod
     def extract_st_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         cert.pdf_data.st_frontpage = dict()
-        cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
-        cert.pdf_data.st_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
+
+        response_bsi, cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
+        response_anssi, cert.pdf_data.st_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
+
+        if response_anssi != constants.RETURNCODE_OK or response_bsi != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+
         return cert
 
     @staticmethod
     def extract_report_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         cert.pdf_data.report_frontpage = dict()
-        cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
-        cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
+        response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
+        response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
+
+        if response_anssi != constants.RETURNCODE_OK or response_bsi != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+
         return cert
 
     @staticmethod
     def extract_report_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
+        response, cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
         return cert
 
     @staticmethod
     def extract_st_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
+        response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
         return cert
 
