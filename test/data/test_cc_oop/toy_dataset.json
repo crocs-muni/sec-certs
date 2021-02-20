@@ -8,6 +8,7 @@
     "certs": [
         {
             "_type": "CommonCriteriaCert",
+            "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "NetIQ Identity Manager 4.7",
             "manufacturer": "NetIQ Corporation",
@@ -46,6 +47,7 @@
         },
         {
             "_type": "CommonCriteriaCert",
+            "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "Magic SSO V4.0",
             "manufacturer": "Dreamsecurity Co., Ltd.",

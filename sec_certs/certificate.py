@@ -856,7 +856,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    def __init__(self, category: str, name: str, manufacturer: str, scheme: str,
+    def __init__(self, status:str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
@@ -866,6 +866,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  pdf_data: Optional[PdfData]):
         super().__init__()
 
+        self.status = status
         self.category = category
         self.name = helpers.sanitize_string(name)
         self.manufacturer = helpers.sanitize_string(manufacturer)
@@ -933,7 +934,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
     @classmethod
-    def from_html_row(cls, row: Tag, category: str) -> 'CommonCriteriaCert':
+    def from_html_row(cls, row: Tag, status: str, category: str) -> 'CommonCriteriaCert':
         """
         Creates a CC certificate from html row
         """
@@ -1041,7 +1042,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         maintainances = _get_maintainance_updates(
             maintainance_div) if maintainance_div else set()
 
-        return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
+        return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
                    st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None)
 
     def set_local_paths(self,

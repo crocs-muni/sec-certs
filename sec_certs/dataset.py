@@ -279,6 +279,11 @@ class CCDataset(Dataset, ComplexSerializableType):
             prim_key = row['category'] + row['cert_name'] + row['report_link']
             return prim_key
 
+        if 'active' in str(file):
+            cert_status = 'active'
+        else:
+            cert_status = 'archived'
+
         csv_header = ['category', 'cert_name', 'manufacturer', 'scheme', 'security_level', 'protection_profiles',
                       'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
@@ -316,7 +321,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                                                                       x.maintainance_report_link,
                                                                       x.maintainance_st_link))
 
-        certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
+        certs = {x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
                                             x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
                                             None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None) for
                  x in
@@ -356,7 +361,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                                  date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
-        def _parse_table(soup: BeautifulSoup, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
+        def _parse_table(soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
             assert len(tables) <= 1
 
@@ -374,9 +379,14 @@ class CCDataset(Dataset, ComplexSerializableType):
             # caption_str = str(table.findAll('caption'))
             # n_expected_certs = int(caption_str.split(category_string + ' – ')[1].split(' Certified Products')[0])
             table_certs = {x.dgst: x for x in [
-                CommonCriteriaCert.from_html_row(row, category_string) for row in body]}
+                CommonCriteriaCert.from_html_row(row, cert_status, category_string) for row in body]}
 
             return table_certs
+
+        if 'active' in str(file):
+            cert_status = 'active'
+        else:
+            cert_status = 'archived'
 
         cc_cat_abbreviations = ['AC', 'BP', 'DP', 'DB', 'DD', 'IC', 'KM',
                                 'MD', 'MF', 'NS', 'OS', 'OD', 'DG', 'TC']
@@ -403,7 +413,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         certs = {}
         for key, val in cat_dict.items():
-            certs.update(_parse_table(soup, key, val))
+            certs.update(_parse_table(soup, cert_status, key, val))
 
         return certs
 

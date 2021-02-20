@@ -15,7 +15,8 @@ import sec_certs.helpers as helpers
 class TestCommonCriteriaOOP(TestCase):
     def setUp(self):
         self.test_data_dir = Path(__file__).parent / 'data' / 'test_cc_oop'
-        self.crt_one = CommonCriteriaCert('Access Control Devices and Systems',
+        self.crt_one = CommonCriteriaCert('active',
+                                          'Access Control Devices and Systems',
                                           'NetIQ Identity Manager 4.7',
                                           'NetIQ Corporation',
                                           'SE',
@@ -33,7 +34,8 @@ class TestCommonCriteriaOOP(TestCase):
                                           None,
                                           None)
 
-        self.crt_two = CommonCriteriaCert('Access Control Devices and Systems',
+        self.crt_two = CommonCriteriaCert('active',
+                                          'Access Control Devices and Systems',
                                           'Magic SSO V4.0',
                                           'Dreamsecurity Co., Ltd.',
                                           'KR',
@@ -53,7 +55,8 @@ class TestCommonCriteriaOOP(TestCase):
 
         pp = CommonCriteriaCert.ProtectionProfile('sample_pp', 'http://sample.pp')
         update = CommonCriteriaCert.MaintainanceReport(date(1900, 1, 1), 'Sample maintainance', 'https://maintainance.up', 'https://maintainance.up')
-        self.fictional_cert = CommonCriteriaCert('Sample category',
+        self.fictional_cert = CommonCriteriaCert('archived',
+                                                 'Sample category',
                                                  'Sample certificate name',
                                                  'Sample manufacturer',
                                                  'Sample scheme',
