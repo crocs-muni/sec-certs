@@ -881,15 +881,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.protection_profiles = protection_profiles
         self.maintainance_updates = maintainance_updates
 
-        if state is not None:
-            self.state = state
-        else:
-            self.state = self.InternalState()
-
-        if pdf_data is not None:
-            self.pdf_data = pdf_data
-        else:
-            self.pdf_data = self.PdfData()
+        if state is None:
+            state = self.InternalState()
+        self.state = state
+        
+        if pdf_data is None:
+            pdf_data = self.PdfData()
+        self.pdf_data = pdf_data
 
     @property
     def dgst(self) -> str:
