@@ -1,5 +1,6 @@
 {
     "_type": "CommonCriteriaCert",
+    "status": "archived",
     "category": "Sample category",
     "name": "Sample certificate name",
     "manufacturer": "Sample manufacturer",
