@@ -107,7 +107,8 @@ class Dataset(ABC):
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True):
         exit_codes = cert_processing.process_parallel(helpers.download_file,
                                                       list(zip(urls, paths)),
-                                                      constants.N_THREADS)
+                                                      constants.N_THREADS,
+                                                      unpack=True)
         n_successful = len([e for e in exit_codes if e == requests.codes.ok])
         logger.info(f'Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.')
 
@@ -282,9 +283,9 @@ class CCDataset(Dataset, ComplexSerializableType):
                       'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
 
-        df = pd.read_csv(file, engine='python', encoding='windows-1250')
-        df = df.rename(
-            columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
+        # TODO: Now skipping bad lines, smarter heuristics to be built for dumb files
+        df = pd.read_csv(file, engine='python', encoding='windows-1250', error_bad_lines=False)
+        df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
 
         df['is_maintainance'] = ~df.maintainance_title.isnull()
         df = df.fillna(value='')
@@ -317,7 +318,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         certs = {x.dgst: CommonCriteriaCert(x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
                                             x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
-                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None) for
+                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None) for
                  x in
                  df_base.itertuples()}
         return certs
@@ -474,6 +475,81 @@ class CCDataset(Dataset, ComplexSerializableType):
             if any(filter(lambda x: not x.state.st_convert_ok, self.certs.values())):
                 logger.info('Attempting to re-convert failed target pdfs')
                 self._convert_targets_to_txt(False)
+
+    def _extract_report_metadata(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process, constants.N_THREADS)
+
+    def _extract_targets_metadata(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process, constants.N_THREADS)
+
+    def extract_pdf_metadata(self, fresh: bool = True):
+        logger.info('Extracting pdf metadata from CC dataset')
+        self._extract_report_metadata(fresh)
+        self._extract_targets_metadata(fresh)
+
+    def _extract_targets_frontpage(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process, constants.N_THREADS)
+
+    def _extract_report_frontpage(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process, constants.N_THREADS)
+
+    def extract_pdf_frontpage(self, fresh: bool = True):
+        logger.info('Extracting pdf frontpages from CC dataset.')
+        self._extract_report_frontpage(fresh)
+        self._extract_targets_frontpage(fresh)
+
+    def _extract_report_keywords(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process, constants.N_THREADS)
+
+    def _extract_targets_keywords(self, fresh: bool = True):
+        if fresh is True:
+            certs_to_process = self.certs.values()
+        else:
+            certs_to_process = [x for x in self.certs.values() if not x.state.st_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process, constants.N_THREADS)
+
+    def extract_pdf_keywords(self, fresh: bool = True):
+        logger.info('Extracting pdf keywords from CC dataset.')
+        self._extract_report_keywords(fresh)
+        self._extract_targets_keywords(fresh)
+
+    def extract_data(self, fresh: bool = True):
+        logger.info('Extracting various stuff from converted txt filed from CC dataset.')
+        self.extract_pdf_metadata(fresh)
+        self.extract_pdf_frontpage(fresh)
+        self.extract_pdf_keywords(fresh)
+
+        if fresh is True:
+            if any(filter(lambda x: not x.state.report_extract_ok, self.certs.values())):
+                logger.info('Attempting to re-extract failed data from report txts')
+                self._extract_report_metadata(False)
+                self._extract_report_frontpage(False)
+                self._extract_report_keywords(False)
+            if any(filter(lambda x: not x.state.st_extract_ok, self.certs.values())):
+                logger.info('Attempting to re-extract failed data from ST txts')
+                self._extract_targets_metadata(False)
+                self._extract_targets_frontpage(False)
+                self._extract_targets_keywords(False)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

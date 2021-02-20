@@ -18,10 +18,10 @@
             ],
             "not_valid_before": "2020-06-15",
             "not_valid_after": "2025-06-15",
-            "report_link": "http://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ\u00ae%20Identity%20Manager%204.7.pdf",
-            "st_link": "http://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
+            "report_link": "http://commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ\u00ae%20Identity%20Manager%204.7.pdf",
+            "st_link": "http://commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
             "src": "csv + html",
-            "cert_link": "http://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
+            "cert_link": "http://commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
             "manufacturer_web": "https://www.netiq.com/",
             "protection_profiles": [],
             "maintainance_updates": [],
@@ -30,7 +30,18 @@
                 "st_link_ok": true,
                 "report_link_ok": true,
                 "st_convert_ok": true,
-                "report_convert_ok": true
+                "report_convert_ok": true,
+                "st_extract_ok": true,
+                "report_extract_ok": true
+            },
+            "pdf_data": {
+                "_type": "PdfData",
+                "report_metadata": null,
+                "st_metadata": null,
+                "report_frontpage": null,
+                "st_frontpage": null,
+                "report_keywords": null,
+                "st_keywords": null
             }
         },
         {
@@ -42,8 +53,8 @@
             "security_level": [],
             "not_valid_before": "2019-11-15",
             "not_valid_after": "2024-11-15",
-            "report_link": "http://www.commoncriteriaportal.org/files/epfiles/KECS-CR-19-70%20Magic%20SSO%20V4.0(eng)%20V1.0.pdf",
-            "st_link": "http://www.commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf",
+            "report_link": "http://commoncriteriaportal.org/files/epfiles/KECS-CR-19-70%20Magic%20SSO%20V4.0(eng)%20V1.0.pdf",
+            "st_link": "http://commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf",
             "src": "csv + html",
             "cert_link": null,
             "manufacturer_web": "https://www.dreamsecurity.com/",
@@ -51,7 +62,7 @@
                 {
                     "_type": "ProtectionProfile",
                     "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
-                    "pp_link": "http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf"
+                    "pp_link": "http://commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf"
                 }
             ],
             "maintainance_updates": [],
@@ -60,7 +71,18 @@
                 "st_link_ok": true,
                 "report_link_ok": true,
                 "st_convert_ok": true,
-                "report_convert_ok": true
+                "report_convert_ok": true,
+                "st_extract_ok": true,
+                "report_extract_ok": true
+            },
+            "pdf_data": {
+                "_type": "PdfData",
+                "report_metadata": null,
+                "st_metadata": null,
+                "report_frontpage": null,
+                "st_frontpage": null,
+                "report_keywords": null,
+                "st_keywords": null
             }
         }
     ]

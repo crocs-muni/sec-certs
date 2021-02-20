@@ -743,8 +743,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
-    cc_url = 'http://www.commoncriteriaportal.org'
-    empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
+    cc_url = 'http://commoncriteriaportal.org'
+    empty_st_url = 'http://commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
     class MaintainanceReport(ComplexSerializableType):
@@ -803,21 +803,54 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_link_ok: bool
         st_convert_ok: bool
         report_convert_ok: bool
+        st_extract_ok: bool
+        report_extract_ok: bool
         st_pdf_path: Path
         report_pdf_path: Path
         st_txt_path: Path
         report_txt_path: Path
 
         def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
-                     st_convert_ok: bool = True, report_convert_ok: bool = True):
+                     st_convert_ok: bool = True, report_convert_ok: bool = True,
+                     st_extract_ok: bool = True, report_extract_ok: bool = True):
             self.st_link_ok = st_link_ok
             self.report_link_ok = report_link_ok
             self.st_convert_ok = st_convert_ok
             self.report_convert_ok = report_convert_ok
+            self.st_extract_ok = st_extract_ok
+            self.report_extract_ok = report_extract_ok
 
         def to_dict(self):
             return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
-                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok}
+                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok,
+                    'st_extract_ok': self.st_extract_ok, 'report_extract_ok': self.report_extract_ok}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, bool]):
+            return cls(*tuple(dct.values()))
+
+    @dataclass(init=False)
+    class PdfData(ComplexSerializableType):
+        report_metadata: Dict[str, str]
+        st_metadata: Dict[str, str]
+        report_frontpage: Dict[str, str]
+        st_frontpage: Dict[str, str]
+        report_keywords: Dict[str, str]
+        st_keywords: Dict[str, str]
+
+        def __init__(self, report_metadata: Optional[Dict[str, str]] = None, st_metadata: Optional[Dict[str, str]] = None,
+                     report_frontpage: Optional[Dict[str, str]] = None, st_frontpage: Optional[Dict[str, str]] = None,
+                     report_keywords: Optional[Dict[str,str]] = None, st_keywords: Optional[Dict[str, str]] = None):
+            self.report_metadata = report_metadata
+            self.st_metadata = st_metadata
+            self.report_frontpage = report_frontpage
+            self.st_frontpage = st_frontpage
+            self.report_keywords = report_keywords
+            self.st_keywords = st_keywords
+
+        def to_dict(self):
+            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata, 'report_frontpage': self.report_frontpage,
+                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords, 'st_keywords': self.st_keywords}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
@@ -829,7 +862,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  manufacturer_web: Optional[str],
                  protection_profiles: set,
                  maintainance_updates: set,
-                 state: Optional[InternalState]):
+                 state: Optional[InternalState],
+                 pdf_data: Optional[PdfData]):
         super().__init__()
 
         self.category = category
@@ -847,10 +881,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.protection_profiles = protection_profiles
         self.maintainance_updates = maintainance_updates
 
-        if state is not None:
-            self.state = state
-        else:
-            self.state = self.InternalState()
+        if state is None:
+            state = self.InternalState()
+        self.state = state
+        
+        if pdf_data is None:
+            pdf_data = self.PdfData()
+        self.pdf_data = pdf_data
 
     @property
     def dgst(self) -> str:
@@ -1005,7 +1042,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             maintainance_div) if maintainance_div else set()
 
         return cls(category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],
@@ -1055,3 +1092,38 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
             cert.state.st_convert_ok = False
         return cert
+
+    @staticmethod
+    def extract_st_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)[1]
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)[1]
+        return cert
+
+    @staticmethod
+    def extract_st_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.st_frontpage = dict()
+        cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
+        cert.pdf_data.st_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.report_frontpage = dict()
+        cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
+        cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
+        return cert
+
+    @staticmethod
+    def extract_st_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
+        return cert
+

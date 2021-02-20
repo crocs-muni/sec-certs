@@ -22,7 +22,7 @@ def main():
     dset = CCDataset({}, Path('./debug_dataset'), 'sample_dataset', 'sample dataset description')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web()
+    dset.get_certs_from_web(to_download=False)
     logger.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
 
     # # Dump dataset into JSON
@@ -38,6 +38,11 @@ def main():
 
     # Convert pdfs to text
     dset.convert_all_pdfs()
+
+    # Extract data from txt files
+    dset.extract_data()
+
+    dset.to_json('./debug_dataset/cc_full_dataset.json')
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
