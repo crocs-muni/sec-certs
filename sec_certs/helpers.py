@@ -34,6 +34,9 @@ def download_file(url: str, output: Path) -> int:
         return r.status_code
     except requests.exceptions.Timeout:
         return requests.codes.timeout
+    except Exception as e:
+        logger.error(f'Failed to download from {url}; {e}')
+        return constants.RETURNCODE_NOK
 
 
 def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
@@ -176,9 +179,9 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
 
 def extract_pdf_metadata(filepath: Path):
     metadata = dict()
-    metadata['pdf_file_size_bytes'] = filepath.stat().st_size
 
     try:
+        metadata['pdf_file_size_bytes'] = filepath.stat().st_size
         with filepath.open('rb') as handle:
             pdf = PdfFileReader(handle)
 
