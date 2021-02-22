@@ -13,8 +13,8 @@
     "name": "toy dataset",
     "description": "toy dataset description",
     "n_certs": 2,
-    "certs": [
-        {
+    "certs": {
+        "7ef8227c1aed06bb": {
             "_type": "CommonCriteriaCert",
             "status": "active",
             "category": "Access Control Devices and Systems",
@@ -53,7 +53,7 @@
                 "st_keywords": null
             }
         },
-        {
+        "561a012d9a30e960": {
             "_type": "CommonCriteriaCert",
             "status": "active",
             "category": "Access Control Devices and Systems",
@@ -95,5 +95,5 @@
                 "st_keywords": null
             }
         }
-    ]
+    }
 }
