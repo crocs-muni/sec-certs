@@ -1226,3 +1226,33 @@ def filter_items(items: dict, filter_path: list, filter_value: str):
                 filtered_items[item_key] = items[item_key]
 
     return filtered_items
+
+
+def do_analyze_cpe_certs(cpe_to_certs: dict, certs_to_cpe: dict, all_cpe_items: dict, all_cert_items: dict):
+    # analysis of cpe versions (all items)
+    cpe_versions_count = {}
+    for cpe_item_key in all_cpe_items.keys():
+        version = all_cpe_items[cpe_item_key]['version']
+        cpe_versions_count[version] = cpe_versions_count.get(version, 0) + 1
+
+    print('Top 20 most common CPE versions')
+    cpe_versions_sorted = sorted(
+        cpe_versions_count.items(), key=operator.itemgetter(1), reverse=True)
+    for version in cpe_versions_sorted[0:20]:
+        print('{}={}'.format(version[0], version[1]))
+
+    # analyze all vendors
+    vendors = {}
+    for item_id in all_cpe_items.keys():
+        vendors[all_cpe_items[item_id]['vendor']] = vendors.get(all_cpe_items[item_id]['vendor'], 0) + 1
+    vendors_sorted_count = sorted(vendors.items(), key=operator.itemgetter(1), reverse=True)
+    print('Top 20 most common CPE vendors')
+    for vendor_id in vendors_sorted_count[0:20]:
+        print(vendor_id)
+
+    #
+    # analyze paired cpe to certs
+    for cert_key in certs_to_cpe.keys():
+        cert = all_cert_items[cert_key]
+        for cpe_key in certs_to_cpe[cert_key]:
+            print('{}\t{} ==> {}\t{}'.format(cert_key, cert['csv_scan']['cert_item_name'], cpe_key, all_cpe_items[cpe_key]['title']))

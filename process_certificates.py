@@ -23,12 +23,13 @@ from sec_certs.cert_rules import rules as cc_search_rules
 @click.option("--do-find-affected", "do_find_affected", help="Find affected certs.", multiple=True, type=str, metavar="certificate id")
 @click.option("--do-find-affecting", "do_find_affecting", help="Find certificates affecting the provided one", multiple=True, type=str, metavar="certificate id")
 @click.option("--do-find-affected-keyword", "do_find_affected_keywords", help="Find certs referencing all certs with specific keyword.", multiple=True, type=str, metavar="keyword")
-@click.option("--analysis-label", "analysis_label", help="Optional custom label for analysis results", multiple=False, type=str, metavar="cutsom label")
+@click.option("--do-analyze-cpe", "do_analyze_cpe", is_flag=True, help="Match certificates with the Common Platform Enumeration (CPE) items")
+@click.option("--analysis-label", "analysis_label", help="Optional custom label for analysis results", multiple=False, type=str, metavar="custom label")
 @click.option("-t", "--threads", "threads", type=int, default=4, help="Amount of threads to use.")
 def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_extraction_meta: bool,
          do_download_certs: bool, do_pdftotext: bool, do_extraction_certs: bool,
          do_pairing: bool, do_processing: bool, do_analysis: bool, do_analysis_fips: bool, do_find_affected: list,
-         do_find_affected_keywords: list, do_find_affecting: list, analysis_label: str, threads: int):
+         do_find_affected_keywords: list, do_find_affecting: list, do_analyze_cpe: bool, analysis_label: str, threads: int):
 
     directory = Path(directory)
     web_dir = directory / "web"
@@ -283,12 +284,49 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
         # idea: transform into cc-like json then use same analysis functions
         do_analysis_fips_certs(all_cert_items, results_dir)
 
+    # matching to CPE and analysis
+    if do_analyze_cpe:
+        with open(results_dir / 'certificate_data_complete_processed_analyzed.json') as json_file:
+            all_cert_items = json.load(json_file)
+
+        # load cpe items if not already
+        if os.path.isfile(results_dir / 'cpe_processed.json'):
+            with open(results_dir / 'cpe_processed.json') as json_file:
+                all_cert_items = json.load(json_file)
+        else:
+            all_cpe_items = do_extract_cpe_items(results_dir)
+            print('Total CPE items found={}'.format(len(cpe_items)))
+            with open(results_dir / "cpe_processed.json", "w") as write_file:
+                json.dump(all_cpe_items, write_file, indent=4, sort_keys=True)
+
+        if os.path.isfile(results_dir / 'cpe_to_certs.json') and os.path.isfile(results_dir / 'certs_to_cpe.json'):
+            with open(results_dir / "cpe_to_certs.json") as json_file:
+                cpe_to_certs = json.load(json_file)
+            with open(results_dir / "certs_to_cpe.json") as json_file:
+                certs_to_cpe = json.load(json_file)
+        else:
+            # match cpe to certificates
+            certs_to_cpe, cpe_to_certs = do_process_cpe_to_certs((all_cpe_items, all_cert_items))
+            #certs_to_cpe, cpe_to_certs = do_process_cpe_to_certs_parallel(cpe_items, all_cert_items, threads)
+
+            print('Total CPEs with matching certificate(s) = {}'.format(len(cpe_to_certs)))
+            with open(results_dir / "cpe_to_certs.json", "w") as write_file:
+                json.dump(cpe_to_certs, write_file, indent=4, sort_keys=True)
+            print('Total certs with matching CPEs = {}'.format(len(certs_to_cpe)))
+            with open(results_dir / "certs_to_cpe.json", "w") as write_file:
+                json.dump(certs_to_cpe, write_file, indent=4, sort_keys=True)
+
+        do_analyze_cpe_certs(cpe_to_certs, certs_to_cpe, all_cpe_items, all_cert_items)
+
 
 if __name__ == "__main__":
     main()
 
 
     # TODO
+    # plot SFRs based on whole classes, not only all together
+    # for SARs, filter out values required by base EAL (so consider only augmented items)
+    # plot minimum required SAR levels for different EALs
     # add saving of logs into file
     # include parsing from protection profiles repo
     # add differential partial download of new files only + processing + combine
