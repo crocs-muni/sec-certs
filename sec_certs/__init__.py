@@ -1,13 +1,22 @@
-import os
-
 from flag import flag
 from flask import Flask, render_template, current_app, request
 from flask_debugtoolbar import DebugToolbarExtension
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile("config.py", silent=True)
+
+    sentry_sdk.init(
+        dsn=app.config["SENTRY_INGEST"],
+        integrations=[FlaskIntegration()],
+        environment=app.env,
+        debug=app.debug,
+        sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
+        traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"]
+    )
 
     DebugToolbarExtension(app)
 

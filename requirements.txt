@@ -5,9 +5,10 @@ emoji-country-flag==1.2.3
 Flask==1.1.2
 Flask-DebugToolbar==0.11.0
 flask-paginate==0.7.1
-Frozen-Flask==0.15
+Flask-PyMongo==2.3.0
 itsdangerous==1.1.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
 networkx==2.5
+pymongo==3.11.3
 Werkzeug==1.0.1
