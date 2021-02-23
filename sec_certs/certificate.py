@@ -47,10 +47,11 @@ class Certificate(ABC):
         return self.dgst == other.dgst
 
     def to_dict(self):
-        return copy.deepcopy(self.__dict__)
+        return {**{'dgst': self.dgst}, **copy.deepcopy(self.__dict__)}
 
     @classmethod
     def from_dict(cls: Type[T], dct: dict) -> T:
+        dct.pop('dgst')
         return cls(*(tuple(dct.values())))
 
     def to_json(self, output_path: Union[Path, str]):
@@ -809,7 +810,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_pdf_path: Path
         st_txt_path: Path
         report_txt_path: Path
-        errors: List[str]
 
         def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
                      st_convert_ok: bool = True, report_convert_ok: bool = True,
