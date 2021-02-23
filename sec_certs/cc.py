@@ -10,7 +10,7 @@ from pkg_resources import resource_stream
 
 from networkx import info as graph_info
 
-from .utils import Pagination, smallest, create_graph, entry_func, entry_json_func, entry_graph_json_func, \
+from sec_certs.utils import Pagination, smallest, create_graph, entry_func, entry_json_func, entry_graph_json_func, \
     network_graph_func, send_json_attachment
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")

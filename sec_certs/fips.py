@@ -10,7 +10,7 @@ from pkg_resources import resource_stream
 
 from networkx import info as graph_info
 
-from .utils import Pagination, create_graph, send_json_attachment, entry_json_func, entry_graph_json_func, entry_func, \
+from sec_certs.utils import Pagination, create_graph, send_json_attachment, entry_json_func, entry_graph_json_func, entry_func, \
     network_graph_func, smallest
 
 fips = Blueprint("fips", __name__, url_prefix="/fips")
