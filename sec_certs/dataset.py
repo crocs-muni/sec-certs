@@ -70,11 +70,11 @@ class Dataset(ABC):
     def to_dict(self):
         return {'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
                 'name': self.name, 'description': self.description,
-                'n_certs': len(self), 'certs': self.certs}
+                'n_certs': len(self), 'certs': list(self.certs.values())}
 
     @classmethod
     def from_dict(cls, dct: Dict):
-        certs = {x.dgst: x for x in dct['certs'].values()}
+        certs = {x.dgst: x for x in dct['certs']}
         dset = cls(certs, Path('./'), dct['name'], dct['description'])
         if len(dset) != (claimed := dct['n_certs']):
             logger.error(

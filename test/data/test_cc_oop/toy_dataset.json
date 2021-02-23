@@ -13,9 +13,10 @@
     "name": "toy dataset",
     "description": "toy dataset description",
     "n_certs": 2,
-    "certs": {
-        "7ef8227c1aed06bb": {
+    "certs": [
+        {
             "_type": "CommonCriteriaCert",
+            "dgst": "7ef8227c1aed06bb",
             "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "NetIQ Identity Manager 4.7",
@@ -53,8 +54,9 @@
                 "st_keywords": null
             }
         },
-        "561a012d9a30e960": {
+        {
             "_type": "CommonCriteriaCert",
+            "dgst": "561a012d9a30e960",
             "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "Magic SSO V4.0",
@@ -95,5 +97,5 @@
                 "st_keywords": null
             }
         }
-    }
+    ]
 }
