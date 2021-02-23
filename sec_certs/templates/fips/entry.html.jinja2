@@ -25,81 +25,86 @@
     </li>
 {% endblock %}
 {% block content %}
-	<h1>{{ cert["module_name"]|default("") }}</h1>
+	<h1>{{ cert["web_scan"]["module_name"]|default("") }}</h1>
     <br/>
     <h2>Certificate #{{ cert["cert_id"] }}</h2>
-	<div>
-		<h2 id="web-info" class="mt-5">Webpage information
-        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
-        <b>Status:</b> {{ render_status(cert["status"]) }}<br/>
-        {% if cert["historical_reason"] %}
-            <b>Historical reason:</b> {{ cert["historical_reason"] }}<br/>
-        {% endif %}
-        <b>Validation dates:</b> {% for date in cert["date_validation"] %}{{ date }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
-        {% if cert["date_sunset"] %}
-            <b>Sunset date:</b>
-            {% for date in cert["date_sunset"] %}{{ date }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
-        {% endif %}
-        <b>Standard:</b> {{ cert["standard"] }}<br/>
-        <b>Security level:</b> {{ cert["level"] }}<br/>
-        <b>Type:</b> {{ render_type(cert["type"]) }} {{ cert["type"] }}<br/>
-        <b>Embodiment:</b> {{ cert["embodiment"] }}<br/>
-        {% if cert["caveat"] %}
-            <b>Caveat:</b>
-            {{ cert["caveat"] }}
-            <br/>
-        {% endif %}
-        {% if cert["exceptions"] %}
-            <b>Exceptions:</b>
-            {{ cert["exceptions"] }}
-            <br/>
-        {% endif %}
-        {% if cert["description"] %}
-            <b>Description:</b>
-            {{ cert["description"] }}
-            <br/>
-        {% endif %}
-        {% if cert["hw_versions"] %}
-            <b>Version (Hardware):</b>
-            {{ cert["hw_versions"] }}
-            <br/>
-        {% endif %}
-        {% if cert["fw_versions"] %}
-            <b>Version (Firmware):</b>
-            {{ cert["fw_versions"] }}
-            <br/>
-        {% endif %}
-        {% if cert["tested_conf"] %}
-            <b>Tested configurations:</b>
-            <ul>
-                {% for conf in cert["tested_conf"] %}
-                <li>{{ conf }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <b>Vendor:</b> {{ cert["vendor"] }} <a href="{{ cert['vendor_www'] }}" >{{ cert["vendor_www"] }}</a><br/>
-        <b>Lab:</b> {{ cert["lab"] }} {% if cert["lab_nvlap"] %}(NVLAP Code: {{ cert["lab_nvlap"] }}){% endif %}<br/>
-        {% if cert["algorithms"] %}
-            <b>FIPS Algorithms:</b>
-            <ul>
-                {% for algo in cert["algorithms"] %}
-                    {% if "Name" in algo %}
-                        <li>{{ algo["Name"] }} - {% for name in algo["Certificate"] %}{{ name }}{{ ", " if not loop.last else "" }}{% endfor %}</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        {% endif %}
+    {% if "web_scan" in cert %}
+        <div>
+            <h2 id="web-info" class="mt-5 anchor">Webpage information
+            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
+            <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
+            {% if cert["web_scan"]["historical_reason"] %}
+                <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
+            {% endif %}
+            <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
+            {% if cert["web_scan"]["date_sunset"] %}
+                <b>Sunset date:</b>
+                {{ cert["web_scan"]["date_sunset"] }}<br/>
+            {% endif %}
+            <b>Standard:</b> {{ cert["web_scan"]["standard"] }}<br/>
+            <b>Security level:</b> {{ cert["web_scan"]["level"] }}<br/>
+            <b>Type:</b> {{ render_type(cert["web_scan"]["module_type"]) }} {{ cert["web_scan"]["module_type"] }}<br/>
+            <b>Embodiment:</b> {{ cert["web_scan"]["embodiment"] }}<br/>
+            {% if cert["web_scan"]["caveat"] %}
+                <b>Caveat:</b>
+                {{ cert["web_scan"]["caveat"] }}
+                <br/>
+            {% endif %}
+            {% if cert["web_scan"]["exceptions"] %}
+                <b>Exceptions:</b>
+                <ul>
+                    {% for exceptioon in cert["web_scan"]["exceptions"] %}
+                    <li>{{ exceptioon }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if cert["web_scan"]["description"] %}
+                <b>Description:</b>
+                {{ cert["web_scan"]["description"] }}
+                <br/>
+            {% endif %}
+            {% if cert["web_scan"]["hw_versions"] %}
+                <b>Version (Hardware):</b>
+                {{ cert["web_scan"]["hw_versions"] }}
+                <br/>
+            {% endif %}
+            {% if cert["web_scan"]["fw_versions"] %}
+                <b>Version (Firmware):</b>
+                {{ cert["web_scan"]["fw_versions"] }}
+                <br/>
+            {% endif %}
+            {% if cert["web_scan"]["tested_conf"] %}
+                <b>Tested configurations:</b>
+                <ul>
+                    {% for conf in cert["web_scan"]["tested_conf"] %}
+                    <li>{{ conf }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <b>Vendor:</b> {{ cert["web_scan"]["vendor"] }} <a href="{{ cert["web_scan"]['vendor_www'] }}" >{{ cert["web_scan"]["vendor_www"] }}</a><br/>
+            <b>Lab:</b> {{ cert["web_scan"]["lab"] }} {% if cert["web_scan"]["lab_nvlap"] %}(NVLAP Code: {{ cert["web_scan"]["lab_nvlap"] }}){% endif %}<br/>
+            {% if cert["web_scan"]["algorithms"] %}
+                <b>FIPS Algorithms:</b>
+                <ul>
+                    {% for algo in cert["web_scan"]["algorithms"] %}
+                        {% if "Name" in algo %}
+                            <li>{{ algo["Name"] }} - {% for name in algo["Certificate"] %}{{ name }}{{ ", " if not loop.last else "" }}{% endfor %}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
-		<div class="mt-2 mb-2">
-            {% if cert["certificate_www"] %}
-            <a class="btn btn-primary" role="button" href="{{ cert['certificate_www'] }}" data-toggle="tooltip" data-placement="bottom" title="Certificate"><i class="fas fa-file-contract"></i> Certificate</a>
-            {% endif %}
-            {% if cert["security_policy_www"] %}
-			<a class="btn btn-primary" role="button" href="{{ cert['security_policy_www'] }}" data-toggle="tooltip" data-placement="bottom" title="Security policy"><i class="fas fa-file-alt"></i> Security policy</a>
-            {% endif %}
-			<a class="btn btn-primary" role="button" href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert['fips_module_name']|default('') }}"><i class="fas fa-external-link-alt"></i> Webpage</a>
-		</div>
-	</div>
+            <div class="mt-2 mb-2">
+                {% if cert["web_scan"]["certificate_www"] %}
+                <a class="btn btn-primary" role="button" href="{{ cert['certificate_www'] }}" data-toggle="tooltip" data-placement="bottom" title="Certificate"><i class="fas fa-file-contract"></i> Certificate</a>
+                {% endif %}
+                {% if cert["web_scan"]["security_policy_www"] %}
+                <a class="btn btn-primary" role="button" href="{{ cert['security_policy_www'] }}" data-toggle="tooltip" data-placement="bottom" title="Security policy"><i class="fas fa-file-alt"></i> Security policy</a>
+                {% endif %}
+                <a class="btn btn-primary" role="button" href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert["web_scan"]['module_name']|default('') }}"><i class="fas fa-external-link-alt"></i> Webpage</a>
+            </div>
+        </div>
+    {% endif %}
 
 	{% if "keywords" in cert %}
 	<div>
@@ -107,11 +112,11 @@
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
 		
 		<h3 class="mt-4">Security policy
-        {% if cert["security_policy_www"] %}<a role="button" href="{{ cert["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
-		{{ cryptography_keywords(cert["keywords"], "policy") }}
-		{{ device_keywords(cert["keywords"], "policy") }}
-		{{ security_keywords(cert["keywords"], "policy") }}
-		{{ other_keywords(cert["keywords"], "policy") }}
+        {% if cert["web_scan"]["security_policy_www"] %}<a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
+		{{ cryptography_keywords(cert["processed"]["keywords"], "policy") }}
+		{{ device_keywords(cert["processed"]["keywords"], "policy") }}
+		{{ security_keywords(cert["processed"]["keywords"], "policy") }}
+		{{ other_keywords(cert["processed"]["keywords"], "policy") }}
 	</div>
 	{% endif %}
 

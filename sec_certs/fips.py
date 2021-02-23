@@ -38,25 +38,22 @@ def load_fips_data():
                  loaded_fips_data["certs"].items()}
     del loaded_fips_data
 
-    def _parse_date(date):
-        try:
-            return datetime.strptime(date, "%m/%d/%Y")
-        except ValueError:
-            return datetime.strptime(date, "%m/%d/%y")
-    fips_names = list(sorted(FIPSEntry(int(value["cert_id"]), value["module_name"], key, value["status"],
-                                       value["level"], value["vendor"], value["type"],
-                                       [_parse_date(date) for date in value["date_validation"]],
-                                       _parse_date(value["date_sunset"][0]) if value["date_sunset"] else None,
-                                       value["module_name"].lower() if value["module_name"] else "") for key, value in
+    def _parse_date(cert, date):
+        return datetime.strptime(date, "%Y-%m-%d 00:00:00")
+    fips_names = list(sorted(FIPSEntry(int(value["cert_id"]), value["web_scan"]["module_name"], key, value["web_scan"]["status"],
+                                       value["web_scan"]["level"], value["web_scan"]["vendor"], value["web_scan"]["module_type"],
+                                       [_parse_date(value, date) for date in value["web_scan"]["date_validation"]],
+                                       _parse_date(value, value["web_scan"]["date_sunset"]) if value["web_scan"]["date_sunset"] else None,
+                                       value["web_scan"]["module_name"].lower() if value["web_scan"]["module_name"] else "") for key, value in
                              fips_data.items()))
     print(" * (FIPS) Loaded certs")
 
     fips_references = {cert["cert_id"]: {
         "hashid": hashid,
-        "name": cert["module_name"],
-        "refs": cert["connections"],
+        "name": cert["web_scan"]["module_name"],
+        "refs": cert["processed"]["connections"],
         "href": url_for("fips.entry", hashid=hashid),
-        "type": fips_types[cert["type"]]["id"] if cert["type"] in fips_types else ""
+        "type": fips_types[cert["web_scan"]["module_type"]]["id"] if cert["web_scan"]["module_type"] in fips_types else ""
     } for hashid, cert in fips_data.items()}
 
     fips_graph, fips_graphs, fips_map = create_graph(fips_references)
