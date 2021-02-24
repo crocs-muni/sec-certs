@@ -163,6 +163,10 @@ class CCDataset(Dataset, ComplexSerializableType):
         self.set_local_paths()
 
     @property
+    def json_path(self) -> Path:
+        return self.root_dir / self.name + '.json'
+
+    @property
     def web_dir(self) -> Path:
         return self.root_dir / 'web'
 
@@ -241,7 +245,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
-                           get_archived: bool = True):
+                           get_archived: bool = True, update_json: bool = False):
         """
         Downloads all metadata about certificates from CSV and HTML sources
         """
@@ -284,6 +288,9 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.set_local_paths()
         self.state.meta_sources_parsed = True
+
+        if update_json is True:
+            self.to_json(self.json_path)
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
         """
@@ -469,7 +476,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, constants.N_THREADS)
 
-    def download_all_pdfs(self, fresh: bool = True):
+    def download_all_pdfs(self, fresh: bool = True, update_json: bool = False):
         if self.state.meta_sources_parsed is False:
             logger.error('Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.')
             return
@@ -492,6 +499,9 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.pdfs_downloaded = True
 
+        if update_json is True:
+            self.to_json(self.json_path)
+
     def _convert_reports_to_txt(self, fresh: bool = True):
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
 
@@ -510,7 +520,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             certs_to_process = [x for x in self.certs.values() if x.state.st_link_ok and not x.state.st_convert_ok]
         cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf, certs_to_process, constants.N_THREADS)
 
-    def convert_all_pdfs(self, fresh: bool = True):
+    def convert_all_pdfs(self, fresh: bool = True, update_json: bool = False):
         if self.state.pdfs_downloaded is False:
             logger.info('Attempting to convert pdf while not having them downloaded. Returning.')
             return
@@ -531,6 +541,9 @@ class CCDataset(Dataset, ComplexSerializableType):
                 self._convert_targets_to_txt(False)
 
         self.state.pdfs_converted = True
+
+        if update_json is True:
+            self.to_json(self.json_path)
 
     def _extract_report_metadata(self, fresh: bool = True):
         if fresh is True:
@@ -589,7 +602,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._extract_report_keywords(fresh)
         self._extract_targets_keywords(fresh)
 
-    def extract_data(self, fresh: bool = True):
+    def extract_data(self, fresh: bool = True, update_json: bool = False):
         if self.state.pdfs_converted is False:
             logger.info('Attempting to extract data from txt while not having the pdf->txt conversion done. Returning.')
             return
@@ -612,6 +625,9 @@ class CCDataset(Dataset, ComplexSerializableType):
                 self._extract_targets_keywords(False)
 
         self.state.txt_data_extracted = True
+
+        if update_json is True:
+            self.to_json(self.json_path)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

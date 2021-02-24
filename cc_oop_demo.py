@@ -19,29 +19,26 @@ def main():
     start = datetime.now()
 
     # Create empty dataset
-    dset = CCDataset({}, Path('./debug_dataset'), 'sample_dataset', 'sample dataset description')
+    dset = CCDataset({}, Path('./debug_dataset'), 'cc_full_dataset', 'sample dataset description')
 
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web(to_download=True)
 
-    # Dump dataset into JSON
-    dset.to_json('./debug_dataset/parsed_meta.json')
+    # explicitly dump to json
+    dset.to_json(dset.json_path)
 
     # Load dataset from JSON
-    dset = CCDataset.from_json('./debug_dataset/parsed_meta.json')
+    dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
     # assert dset == new_dset
 
-    # Download pdfs
-    dset.download_all_pdfs()
-    dset.to_json('./debug_dataset/downloaded_pdfs.json')
+    # Download pdfs and update json
+    dset.download_all_pdfs(update_json=True)
 
-    # Convert pdfs to text
-    dset.convert_all_pdfs()
-    dset.to_json('./debug_dataset/converted_pdfs.json')
+    # Convert pdfs to text and update json
+    dset.convert_all_pdfs(update_json=True)
 
-    # Extract data from txt files
-    dset.extract_data()
-    dset.to_json('./debug_dataset/extracted_pdfs.json')
+    # Extract data from txt files and update json
+    dset.extract_data(update_json=True)
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
