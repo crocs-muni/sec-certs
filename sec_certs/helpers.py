@@ -173,8 +173,11 @@ def repair_pdf(file: Path):
 
 
 def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
-    return subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL, timeout=60).returncode
+    response = subprocess.run(['pdftotext', *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60).returncode
+    if response == 0:
+        return constants.RETURNCODE_OK
+    else:
+        return constants.RETURNCODE_NOK
 
 
 def extract_pdf_metadata(filepath: Path):
@@ -192,8 +195,9 @@ def extract_pdf_metadata(filepath: Path):
                 metadata[key] = str(val)
 
     except Exception as e:
-        logger.error(f'Failed to read metadata of {filepath}, error: {e}')
-        return constants.RETURNCODE_NOK, None
+        error_msg = f'Failed to read metadata of {filepath}, error: {e}'
+        logger.error(error_msg)
+        return error_msg, None
 
     return constants.RETURNCODE_OK, metadata
 
@@ -368,8 +372,9 @@ def search_only_headers_anssi(filepath: Path):
                 items_found[constants.TAG_CERT_LAB] = extract_certificates.normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
     except Exception as e:
-        logger.error(f'Failed to parse ANSSI frontpage headers from {filepath}; {e}')
-        return constants.RETURNCODE_NOK, None
+        error_msg = f'Failed to parse ANSSI frontpage headers from {filepath}; {e}'
+        logger.error(error_msg)
+        return error_msg, None
 
     # if True:
     #     print('# hits for rule')
@@ -468,8 +473,9 @@ def search_only_headers_bsi(filepath: Path):
         # print('Total no hits files: {}'.format(len(files_without_match)))
         # print('\n**********************************')
     except Exception as e:
-        logger.error(f'Failed to parse BSI headers from frontpage: {filepath}; {e}')
-        return constants.RETURNCODE_NOK, None
+        error_msg = f'Failed to parse BSI headers from frontpage: {filepath}; {e}'
+        logger.error(error_msg)
+        return error_msg, None
 
     return constants.RETURNCODE_OK, items_found
 
@@ -477,6 +483,7 @@ def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
     try:
         result = extract_certificates.parse_cert_file(filepath, cc_search_rules, -1, extract_certificates.LINE_SEPARATOR)[0]
     except Exception as e:
-        logger.error(f'Failed to parse keywords from: {filepath}; {e}')
-        return constants.RETURNCODE_NOK, None
+        error_msg = f'Failed to parse keywords from: {filepath}; {e}'
+        logger.error(error_msg)
+        return error_msg, None
     return constants.RETURNCODE_OK, result

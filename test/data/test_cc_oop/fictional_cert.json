@@ -39,7 +39,8 @@
         "st_convert_ok": true,
         "report_convert_ok": true,
         "st_extract_ok": true,
-        "report_extract_ok": true
+        "report_extract_ok": true,
+        "errors": []
     },
     "pdf_data": {
         "_type": "PdfData",
