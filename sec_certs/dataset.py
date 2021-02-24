@@ -164,7 +164,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     @property
     def json_path(self) -> Path:
-        return self.root_dir / self.name + '.json'
+        return self.root_dir / (self.name + '.json')
 
     @property
     def web_dir(self) -> Path:
