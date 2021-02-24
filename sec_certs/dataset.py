@@ -461,10 +461,12 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _download_targets(self, fresh=True):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
+
         if fresh is True:
             certs_to_process = self.certs.values()
         else:
             certs_to_process = [x for x in self.certs.values() if not x.state.st_link_ok]
+
         cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, constants.N_THREADS)
 
     def download_all_pdfs(self, fresh: bool = True):

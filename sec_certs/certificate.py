@@ -810,10 +810,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_pdf_path: Path
         st_txt_path: Path
         report_txt_path: Path
+        errors: Optional[List[str]]
 
         def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
                      st_convert_ok: bool = True, report_convert_ok: bool = True,
-                     st_extract_ok: bool = True, report_extract_ok: bool = True):
+                     st_extract_ok: bool = True, report_extract_ok: bool = True,
+                     errors: Optional[List[str]] = None):
             self.st_link_ok = st_link_ok
             self.report_link_ok = report_link_ok
             self.st_convert_ok = st_convert_ok
@@ -821,10 +823,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.st_extract_ok = st_extract_ok
             self.report_extract_ok = report_extract_ok
 
+            if errors is None:
+                self.errors = []
+            else:
+                self.errors = errors
+
         def to_dict(self):
             return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
                     'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok,
-                    'st_extract_ok': self.st_extract_ok, 'report_extract_ok': self.report_extract_ok}
+                    'st_extract_ok': self.st_extract_ok, 'report_extract_ok': self.report_extract_ok,
+                    'errors': self.errors}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
@@ -1064,16 +1072,20 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
         if exit_code != requests.codes.ok:
-            logger.error(f'Cert dgst: {cert.dgst} failed to download report from {cert.report_link}, code: {exit_code}')
+            error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
+            logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
             cert.state.report_link_ok = False
+            cert.state.errors.append(error_msg)
         return cert
 
     @staticmethod
     def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
-            logger.error(f'Cert dgst: {cert.dgst} failed to download ST from {cert.report_link}, code: {exit_code}')
+            error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
+            logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.st_link_ok = False
+            cert.state.errors.append(error_msg)
         return cert
 
     def path_is_corrupted(self, local_path):
@@ -1083,16 +1095,20 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path, ['-raw'])
         if exit_code != constants.RETURNCODE_OK:
-            logger.error(f'Cert dgst: {cert.dgst} failed to convert report pdf->txt')
+            error_msg = 'failed to convert report pdf->txt'
+            logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.report_convert_ok = False
+            cert.state.errors.append(error_msg)
         return cert
 
     @staticmethod
     def convert_target_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path, ['-raw'])
         if exit_code != constants.RETURNCODE_OK:
-            logger.error(f'Cert dgst: {cert.dgst} failed to convert security target pdf->txt')
+            error_msg = 'failed to convert security target pdf->txt'
+            logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.st_convert_ok = False
+            cert.state.errors.append(error_msg)
         return cert
 
     @staticmethod
@@ -1100,6 +1116,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            cert.state.errors.append(response)
         return cert
 
     @staticmethod
@@ -1107,17 +1124,22 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            cert.state.errors.append(response)
         return cert
 
     @staticmethod
     def extract_st_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         cert.pdf_data.st_frontpage = dict()
 
-        response_bsi, cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
         response_anssi, cert.pdf_data.st_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
+        response_bsi, cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
 
-        if response_anssi != constants.RETURNCODE_OK or response_bsi != constants.RETURNCODE_OK:
+        if response_anssi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            cert.state.errors.append(response_anssi)
+        if response_bsi != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            cert.state.errors.append(response_bsi)
 
         return cert
 
@@ -1127,8 +1149,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
         response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
 
-        if response_anssi != constants.RETURNCODE_OK or response_bsi != constants.RETURNCODE_OK:
+        if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            cert.state.errors.append(response_anssi)
+        if response_bsi != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            cert.state.errors.append(response_bsi)
 
         return cert
 
@@ -1144,5 +1170,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            cert.state.errors.append(response)
         return cert
 
