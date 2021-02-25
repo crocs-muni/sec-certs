@@ -15,7 +15,8 @@ import sec_certs.helpers as helpers
 class TestCommonCriteriaOOP(TestCase):
     def setUp(self):
         self.test_data_dir = Path(__file__).parent / 'data' / 'test_cc_oop'
-        self.crt_one = CommonCriteriaCert('Access Control Devices and Systems',
+        self.crt_one = CommonCriteriaCert('active',
+                                          'Access Control Devices and Systems',
                                           'NetIQ Identity Manager 4.7',
                                           'NetIQ Corporation',
                                           'SE',
@@ -23,35 +24,39 @@ class TestCommonCriteriaOOP(TestCase):
                                            'EAL3+'},
                                           date(2020, 6, 15),
                                           date(2025, 6, 15),
-                                          'http://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ\u00ae%20Identity%20Manager%204.7.pdf',
-                                          'http://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf',
+                                          'http://commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ\u00ae%20Identity%20Manager%204.7.pdf',
+                                          'http://commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf',
                                           'csv + html',
-                                          'http://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf',
+                                          'http://commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf',
                                           'https://www.netiq.com/',
                                           set(),
                                           set(),
+                                          None,
                                           None)
 
-        self.crt_two = CommonCriteriaCert('Access Control Devices and Systems',
+        self.crt_two = CommonCriteriaCert('active',
+                                          'Access Control Devices and Systems',
                                           'Magic SSO V4.0',
                                           'Dreamsecurity Co., Ltd.',
                                           'KR',
                                           set(),
                                           date(2019, 11, 15),
                                           date(2024, 11, 15),
-                                          'http://www.commoncriteriaportal.org/files/epfiles/KECS-CR-19-70%20Magic%20SSO%20V4.0(eng)%20V1.0.pdf',
-                                          'http://www.commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf',
+                                          'http://commoncriteriaportal.org/files/epfiles/KECS-CR-19-70%20Magic%20SSO%20V4.0(eng)%20V1.0.pdf',
+                                          'http://commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf',
                                           'csv + html',
                                           None,
                                           'https://www.dreamsecurity.com/',
                                           {CommonCriteriaCert.ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',
-                                                                                'http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf')},
+                                                                                'http://commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf')},
                                           set(),
+                                          None,
                                           None)
 
         pp = CommonCriteriaCert.ProtectionProfile('sample_pp', 'http://sample.pp')
         update = CommonCriteriaCert.MaintainanceReport(date(1900, 1, 1), 'Sample maintainance', 'https://maintainance.up', 'https://maintainance.up')
-        self.fictional_cert = CommonCriteriaCert('Sample category',
+        self.fictional_cert = CommonCriteriaCert('archived',
+                                                 'Sample category',
                                                  'Sample certificate name',
                                                  'Sample manufacturer',
                                                  'Sample scheme',
@@ -65,21 +70,23 @@ class TestCommonCriteriaOOP(TestCase):
                                                  'http://path.to/manufacturer/web',
                                                  {pp},
                                                  {update},
+                                                 None,
                                                  None)
         self.template_dataset = CCDataset({self.crt_one.dgst: self.crt_one, self.crt_two.dgst: self.crt_two}, Path('/fictional/path/to/dataset'), 'toy dataset', 'toy dataset description')
         self.template_dataset.timestamp = datetime(2020, 11, 16, hour=17, minute=4, second=14, microsecond=770153)
+        self.template_dataset.state.meta_sources_parsed = True
 
-        self.template_report_pdf_hashes = {'869415cc4b91282e': '774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52',
-                                          '2d010ecfb604747a': '533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a'}
-        self.template_target_pdf_hashes = {'869415cc4b91282e': 'b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9',
-                                           '2d010ecfb604747a': '3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be'}
+        self.template_report_pdf_hashes = {'7ef8227c1aed06bb': '774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52',
+                                          '561a012d9a30e960': '533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a'}
+        self.template_target_pdf_hashes = {'7ef8227c1aed06bb': 'b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9',
+                                           '561a012d9a30e960': '3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be'}
 
         self.template_report_txt_path = self.test_data_dir / 'report_869415cc4b91282e.txt'
         self.template_target_txt_path = self.test_data_dir / 'target_869415cc4b91282e.txt'
 
     def test_certificate_input_sanity(self):
         self.assertEqual(self.crt_one.report_link,
-                         'http://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf',
+                         'http://commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf',
                          'Report link contains some improperly escaped characters.')
 
     def test_download_and_convert_pdfs(self):
@@ -96,14 +103,14 @@ class TestCommonCriteriaOOP(TestCase):
             self.assertEqual(actual_report_pdf_hashes, self.template_report_pdf_hashes, 'Hashes of downloaded pdfs (certificate report) do not the template')
             self.assertEqual(actual_target_pdf_hashes, self.template_target_pdf_hashes, 'Hashes of downloaded pdfs (security target) do not match the template')
 
-            self.assertTrue(dset['869415cc4b91282e'].state.report_txt_path.exists())
-            self.assertTrue(dset['869415cc4b91282e'].state.st_txt_path.exists())
+            self.assertTrue(dset['7ef8227c1aed06bb'].state.report_txt_path.exists())
+            self.assertTrue(dset['7ef8227c1aed06bb'].state.st_txt_path.exists())
 
-            self.assertAlmostEqual(dset['869415cc4b91282e'].state.st_txt_path.stat().st_size,
+            self.assertAlmostEqual(dset['7ef8227c1aed06bb'].state.st_txt_path.stat().st_size,
                                    self.template_target_txt_path.stat().st_size,
                                    delta=1000)
 
-            self.assertAlmostEqual(dset['869415cc4b91282e'].state.report_txt_path.stat().st_size,
+            self.assertAlmostEqual(dset['7ef8227c1aed06bb'].state.report_txt_path.stat().st_size,
                                    self.template_report_txt_path.stat().st_size,
                                    delta=1000)
 
@@ -151,5 +158,6 @@ class TestCommonCriteriaOOP(TestCase):
                              'Meta files (csv, html) were not deleted properly albeit this was explicitly required.')
 
         self.assertEqual(len(dset), 2, 'The dataset should contain 2 files.')
+
         self.assertTrue(self.crt_one in dset, 'The dataset does not contain the template certificate.')
         self.assertEqual(dset, self.template_dataset, 'The loaded dataset does not match the template dataset.')

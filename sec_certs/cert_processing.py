@@ -5,13 +5,16 @@ import time
 
 
 def process_parallel(func: Callable, items: Iterable, max_workers: int, callback: Optional[Callable] = None,
-                     use_threading: bool = True, progress_bar: bool = True):
+                     use_threading: bool = True, progress_bar: bool = True, unpack: bool = False):
     if use_threading is True:
         pool = ThreadPool(max_workers)
     else:
         pool = Pool(max_workers)
 
-    results = [pool.apply_async(func, (i, ), callback=callback) for i in items]
+    if unpack is False:
+        results = [pool.apply_async(func, (i, ), callback=callback) for i in items]
+    else:
+        results = [pool.apply_async(func, (*i, ), callback=callback) for i in items]
 
     if progress_bar is True:
         bar = tqdm(total=len(results))
