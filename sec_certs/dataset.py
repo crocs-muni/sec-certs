@@ -543,20 +543,22 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                          constants.N_THREADS)
         self.new_files += len(sp_urls)
 
-    def download_all_htmls(self):
+    def download_all_htmls(self) -> List[str]:
         html_paths, html_urls = [], []
-
+        new_files = []
         self.web_dir.mkdir(exist_ok=True)
-        for cert_id in list(self.certs.keys()):
+        for cert_id in self.certs.keys():
             if not (self.web_dir / f'{cert_id}.html').exists():
                 html_urls.append(
                     f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}")
                 html_paths.append(self.web_dir / f"{cert_id}.html")
+                new_files.append(cert_id)
 
         logging.info(f"downloading {len(html_urls)} module html files")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)),
                                          constants.N_THREADS)
         self.new_files += len(html_urls)
+        return new_files
 
     def download_all_algs(self):
         algs_paths, algs_urls = [], []
@@ -592,10 +594,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
     def get_certs_from_web(self, redo=False):
-        def download_html_pages():
+        def download_html_pages() -> List[str]:
+            new_files = self.download_all_htmls()
             self.download_all_pdfs()
-            self.download_all_htmls()
             self.download_all_algs()
+            return new_files
 
         def get_certificates_from_html(html_file: Path) -> None:
             logger.info(f'Getting certificate ids from {html_file}')
@@ -631,7 +634,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             get_certificates_from_html(self.web_dir / f)
 
         logger.info('Downloading certificate html and security policies')
-        download_html_pages()
+        new_certs = download_html_pages()
 
         logger.info(f"{self.new_files} needed to be downloaded")
 
@@ -647,6 +650,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info("Certs loaded from previous scanning")
         dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
         self.certs = dataset.certs
+        for cert_id in new_certs:
+            self.certs[cert_id] = None
         if redo or self.new_files > 0:
             for cert_id, cert in self.certs.items():
                 self.certs[cert_id] = FIPSCertificate.html_from_file(
