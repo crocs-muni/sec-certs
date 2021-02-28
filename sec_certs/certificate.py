@@ -146,8 +146,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         product_url: Optional[str]
 
         def __post_init__(self):
-            self.date_validation = [parser.parse(x) for x in self.date_validation] if self.date_validation else None
-            self.date_sunset = parser.parse(self.date_sunset) if self.date_sunset else None
+            self.date_validation = [parser.parse(x).date() for x in self.date_validation] if self.date_validation else None
+            self.date_sunset = parser.parse(self.date_sunset).date() if self.date_sunset else None
 
         @property
         def dgst(self):

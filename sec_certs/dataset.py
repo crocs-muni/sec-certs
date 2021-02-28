@@ -747,7 +747,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
-    def get_certs_from_web(self, redo=False):
+    def get_certs_from_web(self, redo: bool = False):
         def download_html_pages() -> List[str]:
             new_files = self.download_all_htmls()
             self.download_all_pdfs()
