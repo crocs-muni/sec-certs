@@ -228,6 +228,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
 
+    @classmethod
+    def from_dict(cls, dct: dict):
+        return cls(*tuple(dct.values()))
+
     def __init__(self, cert_id: str,
                  web_scan: 'FIPSCertificate.WebScan',
                  pdf_scan: 'FIPSCertificate.PdfScan',

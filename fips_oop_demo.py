@@ -12,7 +12,7 @@ def main(config_file):
     start = datetime.now()
 
     # Load config
-    config.load(config_file)
+    config.load(config_file if config_file else 'sec_certs/settings.yaml')
 
     # Create empty dataset
     dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')

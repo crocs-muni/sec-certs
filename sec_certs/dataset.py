@@ -865,9 +865,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 conn_last = self.certs[other_id].web_scan.date_validation[-1].year
 
                 return cert_first - conn_first > config.year_difference_between_validations['value'] \
-                       and cert_last - conn_last > config.year_difference_between_validations['value']
+                       and cert_last - conn_last > config.year_difference_between_validations['value'] \
+                        or cert_first < conn_first
 
-            # "< 105" still needs to be used, because of some old certs being revalidated
+            # "< number" still needs to be used, because of some old certs being revalidated
             if cert_candidate.isdecimal() \
                     and int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
                     compare_certs(processed_cert, cert_candidate):
