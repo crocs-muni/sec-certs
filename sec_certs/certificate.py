@@ -865,6 +865,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
+    pandas_serialization_vars = ['dgst', 'name', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
+                                 'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
+
     def __init__(self, status:str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
@@ -910,6 +913,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
+
+    def to_pandas_tuple(self):
+        return tuple(getattr(self, i) for i in self.pandas_serialization_vars)
 
     def merge(self, other: 'CommonCriteriaCert'):
         """

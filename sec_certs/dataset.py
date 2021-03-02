@@ -154,6 +154,11 @@ class CCDataset(Dataset, ComplexSerializableType):
     def to_dict(self):
         return {**{'state': self.state}, **super().to_dict()}
 
+    def to_pandas(self):
+        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
+        cols = CommonCriteriaCert.pandas_serialization_vars
+        return pd.DataFrame(tuples, columns=cols).set_index('dgst')
+
     @classmethod
     def from_dict(cls, dct: Dict):
         dset = super().from_dict(dct)
