@@ -32,6 +32,7 @@ class TestCommonCriteriaOOP(TestCase):
                                           set(),
                                           set(),
                                           None,
+                                          None,
                                           None)
 
         self.crt_two = CommonCriteriaCert('active',
@@ -50,6 +51,7 @@ class TestCommonCriteriaOOP(TestCase):
                                           {CommonCriteriaCert.ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',
                                                                                 'http://commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf')},
                                           set(),
+                                          None,
                                           None,
                                           None)
 
@@ -70,6 +72,7 @@ class TestCommonCriteriaOOP(TestCase):
                                                  'http://path.to/manufacturer/web',
                                                  {pp},
                                                  {update},
+                                                 None,
                                                  None,
                                                  None)
         self.template_dataset = CCDataset({self.crt_one.dgst: self.crt_one, self.crt_two.dgst: self.crt_two}, Path('/fictional/path/to/dataset'), 'toy dataset', 'toy dataset description')
