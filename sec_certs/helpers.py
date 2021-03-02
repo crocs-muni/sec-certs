@@ -15,6 +15,7 @@ import pandas as pd
 import subprocess
 import sec_certs.constants as constants
 from enum import Enum
+from rapidfuzz import process, fuzz
 
 from PyPDF2 import PdfFileReader
 
@@ -487,3 +488,10 @@ def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
         logger.error(error_msg)
         return error_msg, None
     return constants.RETURNCODE_OK, result
+
+
+def match_certs(certs: Dict[str, str], cpes: List[str]):
+    results = {}
+    for dgst, cert_name in certs.items():
+        results[dgst] = process.extract(cert_name, cpes, scorer=fuzz.token_set_ratio, limit=10)
+    return results

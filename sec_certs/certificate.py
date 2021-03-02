@@ -872,7 +872,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  protection_profiles: set,
                  maintainance_updates: set,
                  state: Optional[InternalState],
-                 pdf_data: Optional[PdfData]):
+                 pdf_data: Optional[PdfData],
+                 cpe_matching: Optional[List[Tuple[str]]]):
         super().__init__()
 
         self.status = status
@@ -898,6 +899,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if pdf_data is None:
             pdf_data = self.PdfData()
         self.pdf_data = pdf_data
+
+        if cpe_matching is None:
+            cpe_matching = []
+        self.cpe_matching = cpe_matching
 
     @property
     def dgst(self) -> str:
@@ -1052,7 +1057,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             maintainance_div) if maintainance_div else set()
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],
