@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='sec-certs',
     author='Petr Svenda, Stanislav Bobon, Jan Jancar, Adam Janovsky',
@@ -21,21 +24,7 @@ setup(
         "Intended Audience :: Science/Research"
     ],
     python_requires=">=3.8",
-    install_requires=[
-        "PyPDF2",
-        "matplotlib",
-        "graphviz",
-        "numpy",
-        "tabulate",
-        "tabula-py",
-        "pikepdf",
-        "Click",
-        "requests",
-        "tqdm",
-        "beautifulsoup4",
-        "pandas",
-        "pyyaml"
-    ],
+    install_requires=requirements,
     extras_require={
         "dev": ["mypy", "flake8"],
         "test": ["pytest", "coverage"]

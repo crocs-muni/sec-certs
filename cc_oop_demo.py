@@ -28,8 +28,8 @@ def main():
     dset.to_json(dset.json_path)
 
     # Load dataset from JSON
-    dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
-    # assert dset == new_dset
+    new_dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
+    assert dset == new_dset
 
     # Download pdfs and update json
     dset.download_all_pdfs(update_json=True)
@@ -39,6 +39,9 @@ def main():
 
     # Extract data from txt files and update json
     dset.extract_data(update_json=True)
+
+    # transform to pandas DataFrame
+    df = dset.to_pandas()
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')

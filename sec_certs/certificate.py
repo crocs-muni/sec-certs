@@ -869,6 +869,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
+    pandas_serialization_vars = ['dgst', 'name', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
+                                 'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
+
     def __init__(self, status:str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
@@ -876,7 +879,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  protection_profiles: set,
                  maintainance_updates: set,
                  state: Optional[InternalState],
-                 pdf_data: Optional[PdfData]):
+                 pdf_data: Optional[PdfData],
+                 cpe_matching: Optional[List[Tuple[str]]]):
         super().__init__()
 
         self.status = status
@@ -903,12 +907,19 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             pdf_data = self.PdfData()
         self.pdf_data = pdf_data
 
+        if cpe_matching is None:
+            cpe_matching = []
+        self.cpe_matching = cpe_matching
+
     @property
     def dgst(self) -> str:
         """
         Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
+
+    def to_pandas_tuple(self):
+        return tuple(getattr(self, i) for i in self.pandas_serialization_vars)
 
     def merge(self, other: 'CommonCriteriaCert'):
         """
@@ -1056,7 +1067,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             maintainance_div) if maintainance_div else set()
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],
