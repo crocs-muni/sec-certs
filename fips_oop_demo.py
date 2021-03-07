@@ -7,7 +7,9 @@ from sec_certs.configuration import config
 
 @click.command()
 @click.option('--config-file', help='Path to config file')
-def main(config_file):
+@click.option('--json-file', help='Path to dataset json file')
+@click.option('--no-download-algs', help='don\'t download algs')
+def main(config_file, json_file, no_download_algs):
     logging.basicConfig(level=logging.INFO)
     start = datetime.now()
 
@@ -21,7 +23,7 @@ def main(config_file):
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web()
+    dset.get_certs_from_web(json_file=json_file)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
@@ -46,10 +48,11 @@ def main(config_file):
     logging.info(f"Done. Files not decoded: {not_decoded_files}")
     dset.to_json(dset.root_dir / 'fips_mentioned.json')
     logging.info("Parsing algorithms")
-    aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
-    aset.parse_html()
+    if not no_download_algs:
+        aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
+        aset.parse_html()
 
-    dset.algorithms = aset
+        dset.algorithms = aset
 
     logging.info("finalizing results.")
 
