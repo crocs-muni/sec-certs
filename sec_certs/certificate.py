@@ -11,7 +11,7 @@ from dateutil import parser
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple, Pattern
+from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple, Pattern, Set
 
 from tabula import read_pdf
 
@@ -146,7 +146,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         product_url: Optional[str]
 
         def __post_init__(self):
-            self.date_validation = [parser.parse(x).date() for x in self.date_validation] if self.date_validation else None
+            self.date_validation = [parser.parse(x).date() for x in
+                                    self.date_validation] if self.date_validation else None
             self.date_sunset = parser.parse(self.date_sunset).date() if self.date_sunset else None
 
         @property
@@ -298,9 +299,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         :return: List containing one element - dictionary with all parsed algorithm cert ids
         """
         set_items = set()
-        for m in re.finditer(
-                rf"(?:#{'?' if in_pdf else '[CcAa]?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)",
-                current_text):
+        if in_pdf:
+            reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
+        else:
+            reg = r"(?:#'[CcAa]?'\s?|(?:(Cert)?)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
+        for m in re.finditer(reg, current_text):
             set_items.add(m.group())
 
         return [{"Certificate": list(set_items)}]
@@ -479,7 +482,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             else:
                 new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
 
-
             new_algs = [x for x in new_algs if x != {'Certificate': []}]
 
             items_found['algorithms'] = new_algs
@@ -511,7 +513,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    items_found['certificate_www'] if 'certificate_www' in items_found else None,
                                    items_found['hw_versions'] if 'hw_versions' in items_found else None,
                                    items_found['fw_versions'] if 'fw_versions' in items_found else None,
-                                   items_found['revoked_reason']  if 'revoked_reason' in items_found else None,
+                                   items_found['revoked_reason'] if 'revoked_reason' in items_found else None,
                                    items_found['revoked_link'] if 'revoked_link' in items_found else None,
                                    items_found['sw_versions'] if 'sw_versions' in items_found else None,
                                    items_found['product_url']) if 'product_url' in items_found else None,
@@ -558,6 +560,26 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         items_found.update(common_items_found)
 
         return items_found, cert
+
+    @staticmethod
+    def match_web_algs_to_pdf(cert: 'FIPSCertificate'):
+        algs_vals = list(cert.pdf_scan.keywords['rules_fips_algorithms'].values())
+        id_vals = list(cert.pdf_scan.keywords['rules_cert_id'].values())
+        iterable = [l for x in algs_vals + id_vals for l in list(x.keys())]
+        all_algorithms = set()
+        for x in iterable:
+            if '#' in x:
+                all_algorithms.add(x[x.index('#'):])
+            else:
+                all_algorithms.add(x)
+        print(all_algorithms)
+        for alg_list in (a['Certificate'] for a in cert.web_scan.algorithms):
+            for web_alg in alg_list:
+                # if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
+                if web_alg not in all_algorithms:
+                    logger.error('in cert %s should be found %s but wasnt', cert.dgst, web_alg)
+                else:
+                    logger.error('in cert %s was found %s', cert.dgst, web_alg)
 
     @staticmethod
     def remove_platforms(text_to_parse: str):
@@ -658,15 +680,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     if match == '':
                         continue
 
-                    certs = [x['Certificate'] for x in algorithms]
-
-                    match_cert_id = ''.join(filter(str.isdigit, match))
-
-                    for fips_cert in certs:
-                        for actual_cert in fips_cert:
-                            if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
-                                continue
-
                     if match not in items_found[rule.pattern]:
                         items_found[rule.pattern][match] = {}
                         items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] = 0
@@ -710,7 +723,14 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 lst += FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
         return True, cert, lst
 
+    def _create_alg_set(self) -> Set:
+        result = set()
+        for alg in self.web_scan.algorithms:
+            result.update(cert for cert in alg['Certificate'])
+        return result
+
     def remove_algorithms(self):
+        logger.info(self.dgst)
         self.state.file_status = True
         if not self.pdf_scan.keywords:
             return
@@ -720,10 +740,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for item in self.web_scan.mentioned_certs:
                 self.processed.keywords['rules_cert_id'].update(item)
 
+        alg_set = self._create_alg_set()
+
         for rule in self.processed.keywords['rules_cert_id']:
             to_pop = set()
             rr = re.compile(rule)
             for cert in self.processed.keywords['rules_cert_id'][rule]:
+                if cert in alg_set:
+                    logger.info('\t %s', cert)
+                    to_pop.add(cert)
+                    continue
                 for alg in self.processed.keywords['rules_fips_algorithms']:
                     for found in self.processed.keywords['rules_fips_algorithms'][alg]:
                         if rr.search(found) \
@@ -851,9 +877,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_keywords: Dict[str, str]
         st_keywords: Dict[str, str]
 
-        def __init__(self, report_metadata: Optional[Dict[str, str]] = None, st_metadata: Optional[Dict[str, str]] = None,
+        def __init__(self, report_metadata: Optional[Dict[str, str]] = None,
+                     st_metadata: Optional[Dict[str, str]] = None,
                      report_frontpage: Optional[Dict[str, str]] = None, st_frontpage: Optional[Dict[str, str]] = None,
-                     report_keywords: Optional[Dict[str,str]] = None, st_keywords: Optional[Dict[str, str]] = None):
+                     report_keywords: Optional[Dict[str, str]] = None, st_keywords: Optional[Dict[str, str]] = None):
             self.report_metadata = report_metadata
             self.st_metadata = st_metadata
             self.report_frontpage = report_frontpage
@@ -862,8 +889,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.st_keywords = st_keywords
 
         def to_dict(self):
-            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata, 'report_frontpage': self.report_frontpage,
-                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords, 'st_keywords': self.st_keywords}
+            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata,
+                    'report_frontpage': self.report_frontpage,
+                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
+                    'st_keywords': self.st_keywords}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
@@ -872,7 +901,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_serialization_vars = ['dgst', 'name', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
                                  'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
 
-    def __init__(self, status:str, category: str, name: str, manufacturer: str, scheme: str,
+    def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
@@ -902,7 +931,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if state is None:
             state = self.InternalState()
         self.state = state
-        
+
         if pdf_data is None:
             pdf_data = self.PdfData()
         self.pdf_data = pdf_data
@@ -1066,7 +1095,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         maintainances = _get_maintainance_updates(
             maintainance_div) if maintainance_div else set()
 
-        return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
+        return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
+                   report_link,
                    st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
 
     def set_local_paths(self,
@@ -1161,8 +1191,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @staticmethod
     def extract_report_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         cert.pdf_data.report_frontpage = dict()
-        response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
-        response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
+        response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(
+            cert.state.report_txt_path)
+        response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(
+            cert.state.report_txt_path)
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
@@ -1187,4 +1219,3 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_extract_ok = False
             cert.state.errors.append(response)
         return cert
-
