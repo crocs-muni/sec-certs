@@ -19,7 +19,6 @@ from bs4 import BeautifulSoup, Tag
 from rapidfuzz import process, fuzz
 import xml.etree.ElementTree as ET
 
-
 import sec_certs.helpers as helpers
 import sec_certs.constants as constants
 import sec_certs.cert_processing as cert_processing
@@ -145,7 +144,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name', description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
+    def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description)
         if state is None:
             state = self.DatasetInternalState()
@@ -368,11 +368,13 @@ class CCDataset(Dataset, ComplexSerializableType):
                                                                       x.maintainance_report_link,
                                                                       x.maintainance_st_link))
 
-        certs = {x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
-                                            x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
-                                            None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None, None) for
-                 x in
-                 df_base.itertuples()}
+        certs = {
+            x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
+                                       x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
+                                       None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None,
+                                       None) for
+            x in
+            df_base.itertuples()}
         return certs
 
     def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
@@ -408,7 +410,8 @@ class CCDataset(Dataset, ComplexSerializableType):
                                  date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
-        def _parse_table(soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str) -> Dict[str, 'CommonCriteriaCert']:
+        def _parse_table(soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str) -> Dict[
+            str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
             assert len(tables) <= 1
 
@@ -516,7 +519,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         if fresh is True:
             certs_to_process = [x for x in self.certs.values() if x.state.report_link_ok]
         else:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_link_ok and not x.state.report_convert_ok]
+            certs_to_process = [x for x in self.certs.values() if
+                                x.state.report_link_ok and not x.state.report_convert_ok]
         cert_processing.process_parallel(CommonCriteriaCert.convert_report_pdf, certs_to_process, constants.N_THREADS)
 
     def _convert_targets_to_txt(self, fresh: bool = True):
@@ -557,15 +561,18 @@ class CCDataset(Dataset, ComplexSerializableType):
         if fresh is True:
             certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok]
         else:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok and not x.state.report_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process, constants.N_THREADS)
+            certs_to_process = [x for x in self.certs.values() if
+                                x.state.report_convert_ok and not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process,
+                                         constants.N_THREADS)
 
     def _extract_targets_metadata(self, fresh: bool = True):
         if fresh is True:
             certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok]
         else:
             certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok and not x.state.st_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process, constants.N_THREADS)
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process,
+                                         constants.N_THREADS)
 
     def extract_pdf_metadata(self, fresh: bool = True):
         logger.info('Extracting pdf metadata from CC dataset')
@@ -577,14 +584,17 @@ class CCDataset(Dataset, ComplexSerializableType):
             certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok]
         else:
             certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok and not x.state.st_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process, constants.N_THREADS)
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process,
+                                         constants.N_THREADS)
 
     def _extract_report_frontpage(self, fresh: bool = True):
         if fresh is True:
             certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok]
         else:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok and not x.state.report_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process, constants.N_THREADS)
+            certs_to_process = [x for x in self.certs.values() if
+                                x.state.report_convert_ok and not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process,
+                                         constants.N_THREADS)
 
     def extract_pdf_frontpage(self, fresh: bool = True):
         logger.info('Extracting pdf frontpages from CC dataset.')
@@ -595,15 +605,18 @@ class CCDataset(Dataset, ComplexSerializableType):
         if fresh is True:
             certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok]
         else:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok and not x.state.report_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process, constants.N_THREADS)
+            certs_to_process = [x for x in self.certs.values() if
+                                x.state.report_convert_ok and not x.state.report_extract_ok]
+        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process,
+                                         constants.N_THREADS)
 
     def _extract_targets_keywords(self, fresh: bool = True):
         if fresh is True:
             certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok]
         else:
             certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok and not x.state.st_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process, constants.N_THREADS)
+        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process,
+                                         constants.N_THREADS)
 
     def extract_pdf_keywords(self, fresh: bool = True):
         logger.info('Extracting pdf keywords from CC dataset.')
@@ -641,7 +654,8 @@ class CCDataset(Dataset, ComplexSerializableType):
     def fuzzy_match_cpe(self, cpe_path: Path, update_json: bool = False):
         def get_cpe_titles(cpe_path: Path):
             root = ET.parse(str(cpe_path)).getroot()
-            return [child.text for child in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item/{http://cpe.mitre.org/dictionary/2.0}title')]
+            return [child.text for child in root.findall(
+                '{http://cpe.mitre.org/dictionary/2.0}cpe-item/{http://cpe.mitre.org/dictionary/2.0}title')]
 
         digests = [x for x in self.certs.keys()]
         cpe_titles = get_cpe_titles(cpe_path)
@@ -653,7 +667,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         chunks = chunk_list(digests, constants.N_THREADS)
         chunks_dicts = [{x: self[x].name for x in y} for y in chunks]
 
-        results = cert_processing.process_parallel(helpers.match_certs, list(zip(chunks_dicts, [cpe_titles for _ in range(constants.N_THREADS)])), constants.N_THREADS, use_threading=False, unpack=True)
+        results = cert_processing.process_parallel(helpers.match_certs, list(
+            zip(chunks_dicts, [cpe_titles for _ in range(constants.N_THREADS)])), constants.N_THREADS,
+                                                   use_threading=False, unpack=True)
 
         for chunk in results:
             for digest, matches in chunk.items():
@@ -661,7 +677,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         if update_json is True:
             self.to_json(self.json_path)
-
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
@@ -716,6 +731,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                                     use_threading=False)
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
+
+    def match_algs(self):
+        for cert in self.certs.values():
+            FIPSCertificate.match_web_algs_to_pdf(cert)
+        # cert_processing.process_parallel(FIPSCertificate.match_web_algs_to_pdf,
+        #                                  [cert for cert in self.certs.values()],
+        #                                  constants.N_THREADS,
+        #                                  use_threading=False)
 
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []
@@ -781,7 +804,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
-    def get_certs_from_web(self, redo: bool = False):
+    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None):
         def download_html_pages() -> List[str]:
             new_files = self.download_all_htmls()
             self.download_all_pdfs()
@@ -826,7 +849,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logger.info(f"{self.new_files} needed to be downloaded")
 
-        if not (self.root_dir / 'fips_full_dataset.json').exists():
+        if not json_file:
+            json_file = self.root_dir / 'fips_full_dataset.json'
+
+        if not json_file.exists():
             for cert_id in self.certs:
                 self.certs[cert_id] = FIPSCertificate.html_from_file(
                     self.web_dir / f'{cert_id}.html',
@@ -836,8 +862,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             return
 
         logger.info("Certs loaded from previous scanning")
-        dataset = self.from_json(self.root_dir / 'fips_full_dataset.json')
+        dataset = self.from_json(json_file)
         self.certs = dataset.certs
+        self.algorithms = dataset.algorithms
         for cert_id in new_certs:
             self.certs[cert_id] = None
         if redo or self.new_files > 0:
@@ -900,7 +927,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
                 return cert_first - conn_first > config.year_difference_between_validations['value'] \
                        and cert_last - conn_last > config.year_difference_between_validations['value'] \
-                        or cert_first < conn_first
+                       or cert_first < conn_first
 
             # "< number" still needs to be used, because of some old certs being revalidated
             if cert_candidate.isdecimal() \
@@ -994,12 +1021,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 dot.attr('node', color='gold')
             found_interesting_cert(current_key)
             dot.node(current_key,
-                     label= current_key +
-                     '&#10;' +
-                     self.certs[current_key].web_scan.vendor +
-                     '&#10;' +
-                     (self.certs[current_key].web_scan.module_name
-                      if self.certs[current_key].web_scan.module_name else ''))
+                     label=current_key +
+                           '&#10;' +
+                           self.certs[current_key].web_scan.vendor +
+                           '&#10;' +
+                           (self.certs[current_key].web_scan.module_name
+                            if self.certs[current_key].web_scan.module_name else ''))
 
         keys = 0
         edges = 0
