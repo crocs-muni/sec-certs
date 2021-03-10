@@ -8,7 +8,7 @@ from sec_certs.configuration import config
 @click.command()
 @click.option('--config-file', help='Path to config file')
 @click.option('--json-file', help='Path to dataset json file')
-@click.option('--no-download-algs', help='don\'t download algs')
+@click.option('--no-download-algs', help='don\'t download algs', is_flag=True)
 def main(config_file, json_file, no_download_algs):
     logging.basicConfig(level=logging.INFO)
     start = datetime.now()
@@ -50,7 +50,7 @@ def main(config_file, json_file, no_download_algs):
     logging.info("Parsing algorithms")
     if not no_download_algs:
         aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
-        aset.parse_html()
+        aset.get_certs_from_web()
 
         dset.algorithms = aset
 

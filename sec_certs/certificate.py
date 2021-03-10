@@ -730,7 +730,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return result
 
     def remove_algorithms(self):
-        logger.info(self.dgst)
         self.state.file_status = True
         if not self.pdf_scan.keywords:
             return
@@ -747,7 +746,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             rr = re.compile(rule)
             for cert in self.processed.keywords['rules_cert_id'][rule]:
                 if cert in alg_set:
-                    logger.info('\t %s', cert)
                     to_pop.add(cert)
                     continue
                 for alg in self.processed.keywords['rules_fips_algorithms']:

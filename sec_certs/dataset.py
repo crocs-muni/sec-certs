@@ -771,29 +771,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.new_files += len(html_urls)
         return new_files
 
-    def download_all_algs(self):
-        algs_paths, algs_urls = [], []
-
-        # get first page to find out how many pages there are
-        helpers.download_file(
-            constants.FIPS_ALG_URL + '1',
-            self.algs_dir / "page1.html")
-
-        with open(self.algs_dir / "page1.html", "r") as alg_file:
-            soup = BeautifulSoup(alg_file.read(), 'html.parser')
-            num_pages = soup.select('span[data-total-pages]')[0].attrs
-
-        self.algs_dir.mkdir(exist_ok=True)
-        for i in range(1, int(num_pages['data-total-pages'])):
-            if not (self.algs_dir / f'page{i}.html').exists():
-                algs_urls.append(
-                    constants.FIPS_ALG_URL + str(i))
-                algs_paths.append(self.algs_dir / f"page{i}.html")
-
-        logging.info(f"downloading {len(algs_urls)} algs html files")
-        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
-                                         constants.N_THREADS)
-        self.new_files += len(algs_urls)
 
     def convert_all_pdfs(self):
         logger.info('Converting FIPS certificate reports to .txt')
@@ -808,7 +785,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         def download_html_pages() -> List[str]:
             new_files = self.download_all_htmls()
             self.download_all_pdfs()
-            self.download_all_algs()
             return new_files
 
         def get_certificates_from_html(html_file: Path) -> None:
@@ -1095,7 +1071,29 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
     def get_certs_from_web(self):
-        pass
+        self.root_dir.mkdir(exist_ok=True)
+        algs_paths, algs_urls = [], []
+
+        # get first page to find out how many pages there are
+        helpers.download_file(
+            constants.FIPS_ALG_URL + '1',
+            self.root_dir / "page1.html")
+
+        with open(self.root_dir / "page1.html", "r") as alg_file:
+            soup = BeautifulSoup(alg_file.read(), 'html.parser')
+            num_pages = soup.select('span[data-total-pages]')[0].attrs
+
+        for i in range(1, int(num_pages['data-total-pages'])):
+            if not (self.root_dir / f'page{i}.html').exists():
+                algs_urls.append(
+                    constants.FIPS_ALG_URL + str(i))
+                algs_paths.append(self.root_dir / f"page{i}.html")
+
+        logging.info(f"downloading {len(algs_urls)} algs html files")
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
+                                         constants.N_THREADS)
+
+        self.parse_html()
 
     def parse_html(self):
         def split_alg(alg_string):
