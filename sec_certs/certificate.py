@@ -441,6 +441,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             state.txt_state = initialized.state.txt_state
             initialized.processed.connections = []
 
+        if redo:
+            items_found = FIPSCertificate.initialize_dictionary()
+            items_found['cert_id'] = file.stem
+
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
         for div in soup.find_all('div', class_='row padrow'):
@@ -492,7 +496,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    {} if not initialized else initialized.pdf_scan.keywords,
                                    [] if not initialized else initialized.pdf_scan.algorithms
                                ),
-                               FIPSCertificate.Processed(None, {}, []) if not initialized else initialized.processed,
+                               FIPSCertificate.Processed(None, {}, []),
                                state
                                )
 
@@ -539,7 +543,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         iterable = [l for x in algs_vals for l in list(x.keys())]
         iterable += tables
         all_algorithms = set()
-        print(iterable)
         for x in iterable:
             if '#' in x:
                 all_algorithms.add(x[x.index('#') + 1:])
@@ -553,8 +556,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     # if web_alg not in all_algorithms:
                     logger.error('in cert %s should be found %s but wasnt', cert.dgst, web_alg)
                     not_found.append(web_alg)
-                else:
-                    logger.error('in cert %s was found %s', cert.dgst, web_alg)
         print(not_found)
 
     @staticmethod
