@@ -399,8 +399,10 @@ rules_fips_remove_algorithm_ids = [
 
 # --- PKCS (#) ---
     r"PKCS[\s]?#?\d+",
-    r"PKSC[\s]?#?\d+", # typo, #625
+    r"PKSC[\s]?#?\d+" # typo, #625
+]
 
+rules_fips_to_remove = [
 # --- random words found ---
     r"Survey #192",  # why would they get an address like this /o\ cert 2079
     r"[Ss]lot #\d",  # a card slot, #2069
@@ -501,6 +503,7 @@ rules.update(common_rules)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fips_rules = {}
 fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
+fips_rules['rules_to_remove'] = rules_fips_to_remove
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
 fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
