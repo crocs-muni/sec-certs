@@ -766,9 +766,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 new_files.append(cert_id)
 
         logging.info(f"downloading {len(html_urls)} module html files")
-        cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)),
+        failed = cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)),
                                          constants.N_THREADS)
+        failed = [c for c in failed if c]
+
         self.new_files += len(html_urls)
+        logging.info(f"Download failed for {len(failed)} files. Retrying...")
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, failed,
+                                         constants.N_THREADS)
         return new_files
 
     def convert_all_pdfs(self):
@@ -827,29 +832,26 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if not json_file:
             json_file = self.root_dir / 'fips_full_dataset.json'
 
-        if not json_file.exists():
-            for cert_id in self.certs:
-                self.certs[cert_id] = FIPSCertificate.html_from_file(
-                    self.web_dir / f'{cert_id}.html',
-                    FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
-                                          (self.web_dir / cert_id).with_suffix('.html'),
-                                          (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False))
-            return
-
-        logger.info("Certs loaded from previous scanning")
-        dataset = self.from_json(json_file)
-        self.certs = dataset.certs
-        self.algorithms = dataset.algorithms
+        if json_file.exists():
+            logger.info("Certs loaded from previous scanning")
+            dataset = self.from_json(json_file)
+            self.certs = dataset.certs
+            self.algorithms = dataset.algorithms
         for cert_id in new_certs:
             self.certs[cert_id] = None
-        if redo or self.new_files > 0:
-            for cert_id, cert in self.certs.items():
-                self.certs[cert_id] = FIPSCertificate.html_from_file(
-                    self.web_dir / f'{cert_id}.html',
-                    FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
-                                          (self.web_dir / cert_id).with_suffix('.html'),
-                                          (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False),
-                    cert, redo=True)
+
+        if not redo and self.new_files == 0:
+            logger.info('No new changes to web_scan are going to be made')
+            return
+
+        logger.info(f'Parsing web pages{" from scratch" if redo else ""}...')
+        for cert_id, cert in self.certs.items():
+            self.certs[cert_id] = FIPSCertificate.html_from_file(
+                self.web_dir / f'{cert_id}.html',
+                FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
+                                      (self.web_dir / cert_id).with_suffix('.html'),
+                                      (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False),
+                cert, redo=redo)
 
     def extract_certs_from_tables(self) -> List[Path]:
         """

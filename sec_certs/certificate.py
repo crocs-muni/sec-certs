@@ -246,19 +246,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.state = state
 
     @staticmethod
-    def download_html_page(cert: Tuple[str, Path]) -> None:
+    def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
         exit_code = helpers.download_file(*cert)
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download html page from {cert[0]}, code: {exit_code}')
-
-    @staticmethod
-    def extract_filename(file: str) -> str:
-        """
-        Extracts filename from path
-        @param file: UN*X path
-        :return: filename without last extension
-        """
-        return os.path.splitext(os.path.basename(file))[0]
+            return cert
+        return None
 
     @staticmethod
     def initialize_dictionary() -> Dict:
