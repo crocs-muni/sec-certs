@@ -401,7 +401,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         items['embodiment'] = items['embodiment'].lower().replace('-', ' ').replace('stand alone', 'standalone').title()
 
     @classmethod
-    def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None) -> 'FIPSCertificate':
+    def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None,
+                       redo: bool = False) -> 'FIPSCertificate':
         pairs = {
             'Module Name': 'module_name',
             'Standard': 'standard',
@@ -533,22 +534,28 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @staticmethod
     def match_web_algs_to_pdf(cert: 'FIPSCertificate'):
         algs_vals = list(cert.pdf_scan.keywords['rules_fips_algorithms'].values())
-        id_vals = list(cert.pdf_scan.keywords['rules_cert_id'].values())
-        iterable = [l for x in algs_vals + id_vals for l in list(x.keys())]
+        table_vals = [x['Certificate'] for x in cert.pdf_scan.algorithms]
+        tables = [x.strip() for y in table_vals for x in y]
+        iterable = [l for x in algs_vals for l in list(x.keys())]
+        iterable += tables
         all_algorithms = set()
+        print(iterable)
         for x in iterable:
             if '#' in x:
-                all_algorithms.add(x[x.index('#'):])
+                all_algorithms.add(x[x.index('#') + 1:])
             else:
                 all_algorithms.add(x)
         print(all_algorithms)
+        not_found = []
         for alg_list in (a['Certificate'] for a in cert.web_scan.algorithms):
             for web_alg in alg_list:
-                # if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
-                if web_alg not in all_algorithms:
+                if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
+                    # if web_alg not in all_algorithms:
                     logger.error('in cert %s should be found %s but wasnt', cert.dgst, web_alg)
+                    not_found.append(web_alg)
                 else:
                     logger.error('in cert %s was found %s', cert.dgst, web_alg)
+        print(not_found)
 
     @staticmethod
     def remove_platforms(text_to_parse: str):

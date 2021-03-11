@@ -771,7 +771,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.new_files += len(html_urls)
         return new_files
 
-
     def convert_all_pdfs(self):
         logger.info('Converting FIPS certificate reports to .txt')
         tuples = [
@@ -849,7 +848,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     self.web_dir / f'{cert_id}.html',
                     FIPSCertificate.State((self.policies_dir / cert_id).with_suffix('.pdf'),
                                           (self.web_dir / cert_id).with_suffix('.html'),
-                                          (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False), cert)
+                                          (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False),
+                    cert, redo=True)
 
     def extract_certs_from_tables(self) -> List[Path]:
         """
