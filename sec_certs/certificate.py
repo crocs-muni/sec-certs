@@ -455,36 +455,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             if div.find('h4', class_='panel-title').text == 'Related Files':
                 FIPSCertificate.parse_related_files(div, items_found)
 
-        if initialized:
-            new_algs = []
-            not_defined = set()
-            for i, alg in enumerate(items_found['algorithms']):
-                if 'Name' not in alg:
-                    for cert_id in alg['Certificate']:
-                        not_defined.add(cert_id)
-                    continue
-
-                for pair in range(i + 1, len(items_found['algorithms'])):
-                    if 'Name' in items_found['algorithms'][pair] \
-                            and alg['Name'] == items_found['algorithms'][pair]['Name']:
-                        entry = {'Name': alg['Name'], 'Certificate':
-                            list(set([x for x in alg['Certificate']])
-                                 | set(items_found['algorithms'][pair]['Certificate'])),
-                                 'Raw': items_found['algorithms'][pair]['Raw'],
-                                 'Links': items_found['algorithms'][pair]['Links']}
-                        if entry not in new_algs:
-                            new_algs.append(entry)
-            for entry in new_algs:
-                if entry['Name'] == 'Not Defined':
-                    entry['Certificate'] = list(set(entry['Certificate'] | not_defined))
-                    break
-            else:
-                new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
-
-            new_algs = [x for x in new_algs if x != {'Certificate': []}]
-
-            items_found['algorithms'] = new_algs
-
         FIPSCertificate.normalize(items_found)
 
         return FIPSCertificate(items_found['cert_id'],
