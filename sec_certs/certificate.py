@@ -302,7 +302,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if in_pdf:
             reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
         else:
-            reg = r"(?:#'[CcAa]?'\s?|(?:(Cert)?)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
+            reg = r"(?:#[CcAa]?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
         for m in re.finditer(reg, current_text):
             set_items.add(m.group())
 
@@ -429,7 +429,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not initialized:
             items_found = FIPSCertificate.initialize_dictionary()
             items_found['cert_id'] = file.stem
-
         else:
             items_found = initialized.web_scan.__dict__
             items_found['cert_id'] = initialized.cert_id
