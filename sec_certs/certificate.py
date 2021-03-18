@@ -546,11 +546,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for alg_list in (a['Certificate'] for a in cert.web_scan.algorithms):
             for web_alg in alg_list:
                 if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
-                    # if web_alg not in all_algorithms:
-                    logger.error('in cert %s should be found %s but wasnt', cert.dgst, web_alg)
                     not_found.append(web_alg)
-        logger.info(
-            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n\tFOUND: {len(not_found) - len([a['Certificate'] for a in cert.web_scan.algorithms])}")
+        logger.error(
+            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n"
+            f"\tFOUND: {sum([len(a['Certificate']) for a in cert.web_scan.algorithms]) - len(not_found)}")
+        logger.error(f"Not found: {not_found}")
         return len(not_found)
 
     @staticmethod
