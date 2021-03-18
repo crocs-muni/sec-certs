@@ -850,7 +850,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if not redo and self.new_files == 0:
             logger.info('No new changes to web_scan are going to be made')
             return
-
+        # now we want to do redo, because we want to avoid duplicites
+        redo = True
         logger.info(f'Parsing web pages{" from scratch" if redo else ""}...')
         for cert_id, cert in self.certs.items():
             self.certs[cert_id] = FIPSCertificate.html_from_file(
