@@ -6,6 +6,7 @@ from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple, Optional
 from itertools import groupby
 from dataclasses import dataclass
 import copy
+import matplotlib.pyplot as plt
 
 import json
 from abc import ABC, abstractmethod
@@ -732,13 +733,19 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
 
-    def match_algs(self):
+    def match_algs(self, show_graph=False):
+        output = {}
         for cert in self.certs.values():
-            FIPSCertificate.match_web_algs_to_pdf(cert)
-        # cert_processing.process_parallel(FIPSCertificate.match_web_algs_to_pdf,
-        #                                  [cert for cert in self.certs.values()],
-        #                                  constants.N_THREADS,
-        #                                  use_threading=False)
+            output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
+
+
+        pd_data = pd.Series(output)
+        pd_data.hist(bins=50)
+        if show_graph:
+            plt.show()
+        return pd_data
+
+
 
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []

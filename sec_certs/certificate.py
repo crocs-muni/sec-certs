@@ -87,7 +87,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         file_status: Optional[bool]
         txt_state: bool
 
-    @dataclass(eq=True, frozen=True)
+    @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
         cert_id: str
         vendor: str
@@ -529,7 +529,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found, cert
 
     @staticmethod
-    def match_web_algs_to_pdf(cert: 'FIPSCertificate'):
+    def match_web_algs_to_pdf(cert: 'FIPSCertificate') -> int:
         algs_vals = list(cert.pdf_scan.keywords['rules_fips_algorithms'].values())
         table_vals = [x['Certificate'] for x in cert.pdf_scan.algorithms]
         tables = [x.strip() for y in table_vals for x in y]
@@ -538,10 +538,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         all_algorithms = set()
         for x in iterable:
             if '#' in x:
-                all_algorithms.add(x[x.index('#') + 1:])
+                # erase everything until "#" included and take digits
+                all_algorithms.add(''.join(filter(str.isdigit, x[x.index('#') + 1:])))
             else:
-                all_algorithms.add(x)
-        print(all_algorithms)
+                all_algorithms.add(''.join(filter(str.isdigit, x)))
         not_found = []
         for alg_list in (a['Certificate'] for a in cert.web_scan.algorithms):
             for web_alg in alg_list:
@@ -549,7 +549,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     # if web_alg not in all_algorithms:
                     logger.error('in cert %s should be found %s but wasnt', cert.dgst, web_alg)
                     not_found.append(web_alg)
-        print(not_found)
+        logger.info(
+            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n\tFOUND: {len(not_found) - len([a['Certificate'] for a in cert.web_scan.algorithms])}")
+        return len(not_found)
 
     @staticmethod
     def remove_platforms(text_to_parse: str):
