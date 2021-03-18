@@ -118,7 +118,7 @@ def parse_list_of_tables(txt: str) -> Set[str]:
     :param txt: chunk of text
     :return: set of all pages mentioning algorithm table
     """
-    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
+    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm|[Ss]ecurity [Ff]unctions?).+?(?P<page_num>\d+)$", re.MULTILINE)
     pages = set()
     for m in rr.finditer(txt):
         pages.add(m.group('page_num'))
