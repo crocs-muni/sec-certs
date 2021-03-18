@@ -23,7 +23,7 @@ def main(config_file, json_file, no_download_algs):
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web(json_file=json_file)
+    dset.get_certs_from_web(json_file=json_file, redo=True)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
@@ -35,7 +35,7 @@ def main(config_file, json_file, no_download_algs):
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    dset.extract_keywords()
+    dset.extract_keywords(redo=True)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")
@@ -62,6 +62,12 @@ def main(config_file, json_file, no_download_algs):
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     dset.get_dot_graph('different_new')
+
+    data = dset.match_algs(show_graph=True)
+    sorted_data = data.value_counts(ascending=True)
+
+    logging.info(sorted_data.where(sorted_data > 1).dropna())
+
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 
