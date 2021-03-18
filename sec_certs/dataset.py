@@ -752,7 +752,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.policies_dir.mkdir(exist_ok=True)
 
         for cert_id in list(self.certs.keys()):
-            if not (self.policies_dir / f'{cert_id}.pdf').exists():
+            if not (self.policies_dir / f'{cert_id}.pdf').exists() or not self.certs[cert_id].state.txt_state:
                 sp_urls.append(
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf")
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
@@ -832,9 +832,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             get_certificates_from_html(self.web_dir / f)
 
         logger.info('Downloading certificate html and security policies')
-        new_certs = download_html_pages()
-
-        logger.info(f"{self.new_files} needed to be downloaded")
 
         if not json_file:
             json_file = self.root_dir / 'fips_full_dataset.json'
@@ -844,6 +841,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             dataset = self.from_json(json_file)
             self.certs = dataset.certs
             self.algorithms = dataset.algorithms
+
+        new_certs = download_html_pages()
+
+        logger.info(f"{self.new_files} needed to be downloaded")
+
         for cert_id in new_certs:
             self.certs[cert_id] = None
 
