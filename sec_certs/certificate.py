@@ -11,7 +11,7 @@ from dateutil import parser
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
-from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple, Pattern
+from typing import Union, Optional, List, Dict, ClassVar, TypeVar, Type, Tuple, Pattern, Set
 
 from tabula import read_pdf
 
@@ -87,7 +87,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         file_status: Optional[bool]
         txt_state: bool
 
-    @dataclass(eq=True, frozen=True)
+    @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
         cert_id: str
         vendor: str
@@ -146,8 +146,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         product_url: Optional[str]
 
         def __post_init__(self):
-            self.date_validation = [parser.parse(x) for x in self.date_validation] if self.date_validation else None
-            self.date_sunset = parser.parse(self.date_sunset) if self.date_sunset else None
+            self.date_validation = [parser.parse(x).date() for x in
+                                    self.date_validation] if self.date_validation else None
+            self.date_sunset = parser.parse(self.date_sunset).date() if self.date_sunset else None
 
         @property
         def dgst(self):
@@ -228,6 +229,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download security policy from {cert[0]}, code: {exit_code}')
 
+    @classmethod
+    def from_dict(cls, dct: dict):
+        return cls(*tuple(dct.values()))
+
     def __init__(self, cert_id: str,
                  web_scan: 'FIPSCertificate.WebScan',
                  pdf_scan: 'FIPSCertificate.PdfScan',
@@ -241,19 +246,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.state = state
 
     @staticmethod
-    def download_html_page(cert: Tuple[str, Path]) -> None:
+    def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
         exit_code = helpers.download_file(*cert)
         if exit_code != requests.codes.ok:
             logger.error(f'Failed to download html page from {cert[0]}, code: {exit_code}')
-
-    @staticmethod
-    def extract_filename(file: str) -> str:
-        """
-        Extracts filename from path
-        @param file: UN*X path
-        :return: filename without last extension
-        """
-        return os.path.splitext(os.path.basename(file))[0]
+            return cert
+        return None
 
     @staticmethod
     def initialize_dictionary() -> Dict:
@@ -294,9 +292,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         :return: List containing one element - dictionary with all parsed algorithm cert ids
         """
         set_items = set()
-        for m in re.finditer(
-                rf"(?:#{'?' if in_pdf else '[CcAa]?'}\s?|(?:Cert{'' if in_pdf else '?'})\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)",
-                current_text):
+        if in_pdf:
+            reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
+        else:
+            reg = r"(?:#[CcAa]?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
+        for m in re.finditer(reg, current_text):
             set_items.add(m.group())
 
         return [{"Certificate": list(set_items)}]
@@ -394,7 +394,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         items['embodiment'] = items['embodiment'].lower().replace('-', ' ').replace('stand alone', 'standalone').title()
 
     @classmethod
-    def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None) -> 'FIPSCertificate':
+    def html_from_file(cls, file: Path, state: State, initialized: 'FIPSCertificate' = None,
+                       redo: bool = False) -> 'FIPSCertificate':
         pairs = {
             'Module Name': 'module_name',
             'Standard': 'standard',
@@ -422,7 +423,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not initialized:
             items_found = FIPSCertificate.initialize_dictionary()
             items_found['cert_id'] = file.stem
-
         else:
             items_found = initialized.web_scan.__dict__
             items_found['cert_id'] = initialized.cert_id
@@ -433,6 +433,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             state.file_status = initialized.state.file_status
             state.txt_state = initialized.state.txt_state
             initialized.processed.connections = []
+
+        if redo:
+            items_found = FIPSCertificate.initialize_dictionary()
+            items_found['cert_id'] = file.stem
 
         text = extract_certificates.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
@@ -448,37 +452,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             if div.find('h4', class_='panel-title').text == 'Related Files':
                 FIPSCertificate.parse_related_files(div, items_found)
-
-        if initialized:
-            new_algs = []
-            not_defined = set()
-            for i, alg in enumerate(items_found['algorithms']):
-                if 'Name' not in alg:
-                    for cert_id in alg['Certificate']:
-                        not_defined.add(cert_id)
-                    continue
-
-                for pair in range(i + 1, len(items_found['algorithms'])):
-                    if 'Name' in items_found['algorithms'][pair] \
-                            and alg['Name'] == items_found['algorithms'][pair]['Name']:
-                        entry = {'Name': alg['Name'], 'Certificate':
-                            list(set([x for x in alg['Certificate']])
-                                 | set(items_found['algorithms'][pair]['Certificate'])),
-                                 'Raw': items_found['algorithms'][pair]['Raw'],
-                                 'Links': items_found['algorithms'][pair]['Links']}
-                        if entry not in new_algs:
-                            new_algs.append(entry)
-            for entry in new_algs:
-                if entry['Name'] == 'Not Defined':
-                    entry['Certificate'] = list(set(entry['Certificate'] | not_defined))
-                    break
-            else:
-                new_algs.append({'Name': 'Not Defined', 'Certificate': list(not_defined)})
-
-
-            new_algs = [x for x in new_algs if x != {'Certificate': []}]
-
-            items_found['algorithms'] = new_algs
 
         FIPSCertificate.normalize(items_found)
 
@@ -507,7 +480,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    items_found['certificate_www'] if 'certificate_www' in items_found else None,
                                    items_found['hw_versions'] if 'hw_versions' in items_found else None,
                                    items_found['fw_versions'] if 'fw_versions' in items_found else None,
-                                   items_found['revoked_reason']  if 'revoked_reason' in items_found else None,
+                                   items_found['revoked_reason'] if 'revoked_reason' in items_found else None,
                                    items_found['revoked_link'] if 'revoked_link' in items_found else None,
                                    items_found['sw_versions'] if 'sw_versions' in items_found else None,
                                    items_found['product_url']) if 'product_url' in items_found else None,
@@ -516,7 +489,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    {} if not initialized else initialized.pdf_scan.keywords,
                                    [] if not initialized else initialized.pdf_scan.algorithms
                                ),
-                               FIPSCertificate.Processed(None, {}, []) if not initialized else initialized.processed,
+                               FIPSCertificate.Processed(None, {}, []),
                                state
                                )
 
@@ -554,6 +527,31 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         items_found.update(common_items_found)
 
         return items_found, cert
+
+    @staticmethod
+    def match_web_algs_to_pdf(cert: 'FIPSCertificate') -> int:
+        algs_vals = list(cert.pdf_scan.keywords['rules_fips_algorithms'].values())
+        table_vals = [x['Certificate'] for x in cert.pdf_scan.algorithms]
+        tables = [x.strip() for y in table_vals for x in y]
+        iterable = [l for x in algs_vals for l in list(x.keys())]
+        iterable += tables
+        all_algorithms = set()
+        for x in iterable:
+            if '#' in x:
+                # erase everything until "#" included and take digits
+                all_algorithms.add(''.join(filter(str.isdigit, x[x.index('#') + 1:])))
+            else:
+                all_algorithms.add(''.join(filter(str.isdigit, x)))
+        not_found = []
+        for alg_list in (a['Certificate'] for a in cert.web_scan.algorithms):
+            for web_alg in alg_list:
+                if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
+                    not_found.append(web_alg)
+        logger.error(
+            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n"
+            f"\tFOUND: {sum([len(a['Certificate']) for a in cert.web_scan.algorithms]) - len(not_found)}")
+        logger.error(f"Not found: {not_found}")
+        return len(not_found)
 
     @staticmethod
     def remove_platforms(text_to_parse: str):
@@ -654,15 +652,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     if match == '':
                         continue
 
-                    certs = [x['Certificate'] for x in algorithms]
-
-                    match_cert_id = ''.join(filter(str.isdigit, match))
-
-                    for fips_cert in certs:
-                        for actual_cert in fips_cert:
-                            if actual_cert != '' and match_cert_id == ''.join(filter(str.isdigit, actual_cert)):
-                                continue
-
                     if match not in items_found[rule.pattern]:
                         items_found[rule.pattern][match] = {}
                         items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] = 0
@@ -706,6 +695,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 lst += FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
         return True, cert, lst
 
+    def _create_alg_set(self) -> Set:
+        result = set()
+        for alg in self.web_scan.algorithms:
+            result.update(cert for cert in alg['Certificate'])
+        return result
+
     def remove_algorithms(self):
         self.state.file_status = True
         if not self.pdf_scan.keywords:
@@ -716,10 +711,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for item in self.web_scan.mentioned_certs:
                 self.processed.keywords['rules_cert_id'].update(item)
 
+        alg_set = self._create_alg_set()
+
         for rule in self.processed.keywords['rules_cert_id']:
             to_pop = set()
             rr = re.compile(rule)
             for cert in self.processed.keywords['rules_cert_id'][rule]:
+                if cert in alg_set:
+                    to_pop.add(cert)
+                    continue
                 for alg in self.processed.keywords['rules_fips_algorithms']:
                     for found in self.processed.keywords['rules_fips_algorithms'][alg]:
                         if rr.search(found) \
@@ -847,9 +847,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_keywords: Dict[str, str]
         st_keywords: Dict[str, str]
 
-        def __init__(self, report_metadata: Optional[Dict[str, str]] = None, st_metadata: Optional[Dict[str, str]] = None,
+        def __init__(self, report_metadata: Optional[Dict[str, str]] = None,
+                     st_metadata: Optional[Dict[str, str]] = None,
                      report_frontpage: Optional[Dict[str, str]] = None, st_frontpage: Optional[Dict[str, str]] = None,
-                     report_keywords: Optional[Dict[str,str]] = None, st_keywords: Optional[Dict[str, str]] = None):
+                     report_keywords: Optional[Dict[str, str]] = None, st_keywords: Optional[Dict[str, str]] = None):
             self.report_metadata = report_metadata
             self.st_metadata = st_metadata
             self.report_frontpage = report_frontpage
@@ -858,8 +859,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.st_keywords = st_keywords
 
         def to_dict(self):
-            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata, 'report_frontpage': self.report_frontpage,
-                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords, 'st_keywords': self.st_keywords}
+            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata,
+                    'report_frontpage': self.report_frontpage,
+                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
+                    'st_keywords': self.st_keywords}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
@@ -868,7 +871,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_serialization_vars = ['dgst', 'name', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
                                  'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
 
-    def __init__(self, status:str, category: str, name: str, manufacturer: str, scheme: str,
+    def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
@@ -898,7 +901,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if state is None:
             state = self.InternalState()
         self.state = state
-        
+
         if pdf_data is None:
             pdf_data = self.PdfData()
         self.pdf_data = pdf_data
@@ -1062,7 +1065,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         maintainances = _get_maintainance_updates(
             maintainance_div) if maintainance_div else set()
 
-        return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after, report_link,
+        return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
+                   report_link,
                    st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
 
     def set_local_paths(self,
@@ -1157,8 +1161,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @staticmethod
     def extract_report_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         cert.pdf_data.report_frontpage = dict()
-        response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.report_txt_path)
-        response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.report_txt_path)
+        response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(
+            cert.state.report_txt_path)
+        response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(
+            cert.state.report_txt_path)
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
@@ -1183,4 +1189,3 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_extract_ok = False
             cert.state.errors.append(response)
         return cert
-

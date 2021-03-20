@@ -2,7 +2,7 @@
 smallest_certificate_id_to_connect:
   description: During validation we don't connect certificates with number lower than
     _this_ to connections
-  value: 60
+  value: 40
 year_difference_between_validations:
   description: During validation we don't connect certificates with validation dates
     difference higher than _this_

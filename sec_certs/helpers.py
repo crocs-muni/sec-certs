@@ -16,6 +16,7 @@ import subprocess
 import sec_certs.constants as constants
 from enum import Enum
 from rapidfuzz import process, fuzz
+import matplotlib.pyplot as plt
 
 from PyPDF2 import PdfFileReader
 
@@ -118,7 +119,7 @@ def parse_list_of_tables(txt: str) -> Set[str]:
     :param txt: chunk of text
     :return: set of all pages mentioning algorithm table
     """
-    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm).+?(?P<page_num>\d+)$", re.MULTILINE)
+    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm|[Ss]ecurity [Ff]unctions?).+?(?P<page_num>\d+)$", re.MULTILINE)
     pages = set()
     for m in rr.finditer(txt):
         pages.add(m.group('page_num'))
@@ -495,3 +496,12 @@ def match_certs(certs: Dict[str, str], cpes: List[str]):
     for dgst, cert_name in certs.items():
         results[dgst] = process.extract(cert_name, cpes, scorer=fuzz.token_set_ratio, limit=10)
     return results
+
+def analyze_matched_algs(data: Dict):
+    pd_data = pd.Series(data)
+    pd_data.hist(bins=50)
+    plt.show()
+
+    sorted_data = pd_data.value_counts(ascending=True)
+
+    logging.info(sorted_data.where(sorted_data > 1).dropna())
