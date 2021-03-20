@@ -6,7 +6,6 @@ from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple, Optional
 from itertools import groupby
 from dataclasses import dataclass
 import copy
-import matplotlib.pyplot as plt
 
 import json
 from abc import ABC, abstractmethod

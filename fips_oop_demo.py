@@ -64,7 +64,7 @@ def main(config_file, json_file, no_download_algs):
 
     dset.get_dot_graph('different_new')
 
-    data = dset.match_algs(show_graph=True)
+    data = dset.match_algs()
     analyze_matched_algs(data)
 
     end = datetime.now()
