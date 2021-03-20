@@ -16,6 +16,7 @@ import subprocess
 import sec_certs.constants as constants
 from enum import Enum
 from rapidfuzz import process, fuzz
+import matplotlib.pyplot as plt
 
 from PyPDF2 import PdfFileReader
 
@@ -495,3 +496,12 @@ def match_certs(certs: Dict[str, str], cpes: List[str]):
     for dgst, cert_name in certs.items():
         results[dgst] = process.extract(cert_name, cpes, scorer=fuzz.token_set_ratio, limit=10)
     return results
+
+def analyze_matched_algs(data: Dict):
+    pd_data = pd.Series(data)
+    pd_data.hist(bins=50)
+    plt.show()
+
+    sorted_data = pd_data.value_counts(ascending=True)
+
+    logging.info(sorted_data.where(sorted_data > 1).dropna())

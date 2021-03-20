@@ -4,6 +4,7 @@ import logging
 import click
 from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from sec_certs.configuration import config
+from sec_certs.helpers import analyze_matched_algs
 
 @click.command()
 @click.option('--config-file', help='Path to config file')
@@ -64,9 +65,7 @@ def main(config_file, json_file, no_download_algs):
     dset.get_dot_graph('different_new')
 
     data = dset.match_algs(show_graph=True)
-    sorted_data = data.value_counts(ascending=True)
-
-    logging.info(sorted_data.where(sorted_data > 1).dropna())
+    analyze_matched_algs(data)
 
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')

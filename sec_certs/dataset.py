@@ -733,17 +733,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
 
-    def match_algs(self, show_graph=False):
+    def match_algs(self, show_graph=False) -> Dict:
         output = {}
         for cert in self.certs.values():
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
 
-
-        pd_data = pd.Series(output)
-        pd_data.hist(bins=50)
-        if show_graph:
-            plt.show()
-        return pd_data
+        return output
 
 
 
