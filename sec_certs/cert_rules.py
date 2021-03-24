@@ -7,7 +7,6 @@ rules_cert_id = [
     'BSI-DSZ-CC-[0-9]+?-[0-9]+',  # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+',  # German BSI
     'BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+',  # German BSI
-    'BSI [0-9]+?',  # German BSI
     # 'CC-Zert-.+?',
     'ANSSI(?:-|-CC-)[0-9]+?/[0-9]+',  # French
     # 'ANSSI-CC-CER-F-.+?', # French
@@ -58,8 +57,7 @@ rules_protection_profiles = [
     'PP-SSCD.+?',
     'PP_DBMS_.+?'
     #    'Protection Profile',
-    'CCMB-20.+?',
-    'CCMB-20[0-9]+?-[0-9]+?-[0-9]+?',
+    #'CCMB-20.+?',
     'BSI-CCPP-.+?',
     'ANSSI-CC-PP.+?',
     'WBIS_V[0-9]\\.[0-9]',
@@ -68,6 +66,7 @@ rules_protection_profiles = [
 
 rules_technical_reports = [
     'BSI[ ]*TR-[0-9]+?(?:-[0-9]+?|)',
+    'BSI [0-9]+?',  # German BSI document containing list of issued certificates in some period
 ]
 
 rules_device_id = [
@@ -97,6 +96,8 @@ rules_standard_id = [
     '[Xx]\\.509',
     'RFC [0-9]+',
     '(?:SCP|scp)[ \']*[0-9][0-9]',
+    'CC[I]*MB-20[0-9]+?-[0-9]+?-[0-9]+?',   # Common Criteria methodology
+    'CCIMB-9[0-9]-[0-9]+?'                  # Common Criteria methodology old
 ]
 
 rules_security_level = [
@@ -507,6 +508,7 @@ fips_rules['rules_to_remove'] = rules_fips_to_remove
 fips_rules['rules_security_level'] = rules_fips_security_level
 fips_rules['rules_cert_id'] = rules_fips_cert
 fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
+#fips_rules.update(fips_common_rules)
 
 for rule in fips_rules:
     for current_rule in range(len(fips_rules[rule])):

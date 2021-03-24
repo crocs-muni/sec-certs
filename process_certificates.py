@@ -21,15 +21,16 @@ from sec_certs.cert_rules import rules as cc_search_rules
 @click.option("--do-analysis", "do_analysis", is_flag=True, help="Whether to analyse certificates.")
 @click.option("--do-analysis-fips", "do_analysis_fips", is_flag=True, help="Whether to analyse fips certificates.")
 @click.option("--do-find-affected", "do_find_affected", help="Find affected certs.", multiple=True, type=str, metavar="certificate id")
+@click.option("--do-find-affecting", "do_find_affecting", help="Find certificates affecting the provided one", multiple=True, type=str, metavar="certificate id")
 @click.option("--do-find-affected-keyword", "do_find_affected_keywords", help="Find certs referencing all certs with specific keyword.", multiple=True, type=str, metavar="keyword")
 @click.option("--analysis-label", "analysis_label", help="Optional custom label for analysis results", multiple=False, type=str, metavar="cutsom label")
 @click.option("-t", "--threads", "threads", type=int, default=4, help="Amount of threads to use.")
 def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_extraction_meta: bool,
          do_download_certs: bool, do_pdftotext: bool, do_extraction_certs: bool,
          do_pairing: bool, do_processing: bool, do_analysis: bool, do_analysis_fips: bool, do_find_affected: list,
-         do_find_affected_keywords: list, analysis_label: str, threads: int):
-    directory = Path(directory)
+         do_find_affected_keywords: list, do_find_affecting: list, analysis_label: str, threads: int):
 
+    directory = Path(directory)
     web_dir = directory / "web"
     walk_dir = directory / "certs"
     certs_dir = walk_dir / "certs"
@@ -249,7 +250,7 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
 
         # set output folder according to analysis label
         out_folder = analysis_label + '_' + name_results
-        results_out_dir = results_out_dir / out_folder
+        results_out_dir = results_dir / out_folder
 
         do_analysis_affected(all_cert_items, results_out_dir, list(do_find_affected), analysis_label)
 
@@ -263,6 +264,16 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
         # set output folder according to analysis label
         results_out_dir = results_dir / analysis_label
         do_analysis_affected(all_cert_items, results_out_dir, list(do_find_affected), analysis_label)
+
+    # find all certificates which are potentially affecting security of the provided one ()
+    # example: --do-find-affecting ANSSI-CC-2013/55     # Estonia estID
+    # example: --do-find-affecting ANSSI-CC-2020/44     # eTravel v2.2 EAC/BAC on MultiApp v4.0.1 platform with Filter Set 1.0 version 1.0
+    if len(do_find_affecting) > 0:
+        with open(results_dir / 'certificate_data_complete_processed_analyzed.json') as json_file:
+            all_cert_items = json.load(json_file)
+        # set output folder according to analysis label
+        results_out_dir = results_dir / analysis_label
+        do_analysis_affecting(all_cert_items, results_out_dir, list(do_find_affecting), analysis_label)
 
     # analysis of fips extracted data
     if do_analysis_fips:
