@@ -2,12 +2,14 @@ from flag import flag
 from flask import Flask, render_template, current_app, request
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_pymongo import PyMongo
+from flask_assets import Environment as Assets
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
+app.jinja_env.autoescape = True
 
 sentry_sdk.init(
     dsn=app.config["SENTRY_INGEST"],
@@ -19,6 +21,8 @@ sentry_sdk.init(
 )
 
 mongo = PyMongo(app)
+
+assets = Assets(app)
 
 debug = DebugToolbarExtension(app)
 
@@ -35,13 +39,12 @@ def blueprint_prefix():
     return current_app.blueprints[request.blueprint].url_prefix
 
 
-with app.app_context():
-    from .cc import cc
-    app.register_blueprint(cc)
-    from .pp import pp
-    app.register_blueprint(pp)
-    from .fips import fips
-    app.register_blueprint(fips)
+from .cc import cc
+app.register_blueprint(cc)
+from .pp import pp
+app.register_blueprint(pp)
+from .fips import fips
+app.register_blueprint(fips)
 
 
 @app.route("/")

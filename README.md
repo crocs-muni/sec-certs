@@ -1,4 +1,4 @@
-![](sec_certs/static/logo.svg)
+![](sec_certs/static/img/logo.svg)
 
 # seccerts.org page
 

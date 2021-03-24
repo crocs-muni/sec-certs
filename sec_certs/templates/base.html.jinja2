@@ -5,18 +5,19 @@
     {% block head %}
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta name="application-name" content="sec_certs"/>
+        <meta name="application-name" content="Security Certifications"/>
         {% block title %}<title>{{ title|default("seccerts.org") }}</title>{% endblock %}
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
-        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome.min.css') }}">
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap"
-              rel="stylesheet">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}"/>
+        {% assets output="gen/libs.css",
+                "lib/bootstrap.min.css", "lib/fontawesome.min.css", "lib/metropolis.css" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}">
+        {% endassets %}
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-        <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='d3.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='d3-legend.min.js') }}"></script>
+        {% assets output="gen/libs.js",
+                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
         <!-- Matomo -->
         <script type="text/javascript">
           var _paq = window._paq = window._paq || [];
@@ -82,7 +83,7 @@
     </nav>
     <div class="bg-light border-right" id="sidebar-wrapper">
         {% set active_page = active_page|default('') %}
-        <div class="sidebar-heading"><img src="{{ url_for('static', filename='logo.svg') }}" alt="seccerts"/></div>
+        <div class="sidebar-heading"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt="seccerts"/></div>
         <div class="list-group list-group-flush">
             <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'index' %}item-active{% endif %}">Index</a>
             <a href="{{ url_for('cc.index') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'cc' %}item-active{% endif %}">Common
@@ -92,7 +93,7 @@
         </div>
         <div id="logo">
             <a href="https://crocs.fi.muni.cz">
-                <img src="{{ url_for('static', filename='crocs_claim.svg') }}"
+                <img src="{{ url_for('static', filename='img/crocs_claim.svg') }}"
                      alt="Centre for Research on Cryptography and Security"/>
             </a>
         </div>
