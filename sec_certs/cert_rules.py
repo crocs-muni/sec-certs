@@ -509,4 +509,4 @@ fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to pro
 
 for rule in fips_rules:
     for current_rule in range(len(fips_rules[rule])):
-        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule] + REGEXEC_SEP)
+        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule])
