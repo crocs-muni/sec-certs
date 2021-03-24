@@ -174,7 +174,7 @@ def search_pagination():
 
 @fips.route("/analysis/")
 def analysis():
-    return
+    return render_template("fips/analysis.html.jinja2")
 
 
 @fips.route("/<string(length=20):hashid>/")
