@@ -555,7 +555,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def remove_platforms(text_to_parse: str):
-        pat = re.compile(r"(?:modification|revision|change) history\n[\s\S]*?", re.IGNORECASE)
+        pat = re.compile(r"(?:(?:modification|revision|change) history|version control)\n[\s\S]*?", re.IGNORECASE)
         for match in pat.finditer(text_to_parse):
             text_to_parse = text_to_parse.replace(
                 match.group(), 'x' * len(match.group()))
