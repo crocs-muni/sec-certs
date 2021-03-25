@@ -1044,8 +1044,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logging.info(f"rendering {keys} keys and {edges} edges")
 
-        dot.render(str(output_file_name) + '_connections', view=True)
-        single_dot.render(str(output_file_name) + '_single', view=True)
+        dot.render(self.root_dir / (str(output_file_name) + '_connections'), view=True)
+        single_dot.render(self.root_dir / (str(output_file_name) + '_single'), view=True)
 
     def to_dict(self):
         return {'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
