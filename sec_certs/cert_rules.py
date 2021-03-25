@@ -321,28 +321,29 @@ rules_other = [
 rules_fips_remove_algorithm_ids = [
 
 # --- HMAC(-SHA)(-1) - (bits) (method) ((hardware/firmware cert) #id) ---
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{4})",
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{3})",
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{2})",
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{1})",
+# + added (and #id) everywhere
+    r"HMAC(?:[- –]*SHA)?(?:[- –]*1)?[– -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?[\s(\[]*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{4})(?:[\s#]*and[\s#]*\d+)?",
+    r"HMAC(?:[- –]*SHA)?(?:[- –]*1)?[– -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?[\s(\[]*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{3})(?:[\s#]*and[\s#]*\d+)?",
+    r"HMAC(?:[- –]*SHA)?(?:[- –]*1)?[– -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?[\s(\[]*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{2})(?:[\s#]*and[\s#]*\d+)?",
+    r"HMAC(?:[- –]*SHA)?(?:[- –]*1)?[– -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\(?(?: |hardware|firmware)*?[\s(\[]*?(?:#|cert\.?|Cert\.?|Certificate|certificate)?[\s#]*?)?[\s#]*?(\d{1})(?:[\s#]*and[\s#]*\d+)?",
 
 # --- same as above, without hw or fw ---
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
-    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
+    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
+    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
+    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
+    r"HMAC(?:-SHA)?(?:-1)?[ -]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
 
 # --- SHS/A - (bits) (method) ((cert #) numbers) ---
-    r"SH[SA][-– ]*(?:160|224|256|384|512)?(?:[\s(\[]*?(?:KAT)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})(?:\)?\[#?\d+\])?",
-    r"SH[SA][-– ]*(?:160|224|256|384|512)?(?:[\s(\[]*?(?:KAT)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})(?:\)?\[#?\d+\])?",
-    r"SH[SA][-– ]*(?:160|224|256|384|512)?(?:[\s(\[]*?(?:KAT)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})(?:\)?\[#?\d+\])?",
-    r"SH[SA][-– ]*(?:160|224|256|384|512)?(?:[\s(\[]*?(?:KAT)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})(?:\)?\[#?\d+\])?",
+    r"SH[SA][-– 123]*(?:;|\/|160|224|256|384|512)?(?:[\s(\[]*?(?:KAT|[Bb]yte [Oo]riented)*?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})(?:\)?\[#?\d+\])?(?:[\s#]*?and[\s#]*?\d+)?",
+    r"SH[SA][-– 123]*(?:;|\/|160|224|256|384|512)?(?:[\s(\[]*?(?:KAT|[Bb]yte [Oo]riented)*?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})(?:\)?\[#?\d+\])?(?:[\s#]*?and[\s#]*?\d+)?",
+    r"SH[SA][-– 123]*(?:;|\/|160|224|256|384|512)?(?:[\s(\[]*?(?:KAT|[Bb]yte [Oo]riented)*?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})(?:\)?\[#?\d+\])?(?:[\s#]*?and[\s#]*?\d+)?",
+    r"SH[SA][-– 123]*(?:;|\/|160|224|256|384|512)?(?:[\s(\[]*?(?:KAT|[Bb]yte [Oo]riented)*?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})(?:\)?\[#?\d+\])?(?:[\s#]*?and[\s#]*?\d+)?",
 
 # --- RSA (bits) (method) ((cert #)) ---
-    r"RSA(?:[-– ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
-    r"RSA(?:[-– ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
-    r"RSA(?:[-– ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
-    r"RSA(?:[-– ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
+    r"RSA(?:[-– ]*(?:;|\/|512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:;|\/|KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
+    r"RSA(?:[-– ]*(?:;|\/|512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:;|\/|KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
+    r"RSA(?:[-– ]*(?:;|\/|512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:;|\/|KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
+    r"RSA(?:[-– ]*(?:;|\/|512|768|1024|1280|1536|2048|3072|4096|8192)\s\(\[]*?(?:(?:;|\/|KAT|Verify|PSS|\s)*?)?[\s,]*?[\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
 
 # --- RSA (SSA) (PKCS) (version) (#) ---
     r"(?:RSA)?[-– ]?(?:SSA)?[- ]?PKCS\s?#?\d(?:-[Vv]1_5| [Vv]1[-_]5)?[\s#]*?(\d{4})?",
@@ -351,10 +352,10 @@ rules_fips_remove_algorithm_ids = [
     r"(?:RSA)?[-– ]?(?:SSA)?[- ]?PKCS\s?#?\d(?:-[Vv]1_5| [Vv]1[-_]5)?[\s#]*?(\d{1})?",
 
 # --- AES (bits) (method) ((cert #)) ---
-    r"AES[-– ]*((?:128|192|256|)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})(?:\)?[\s#]*?\[#?\d+\])?",
-    r"AES[-– ]*((?:128|192|256|)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})(?:\)?[\s#]*?\[#?\d+\])?",
-    r"AES[-– ]*((?:128|192|256|)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})(?:\)?[\s#]*?\[#?\d+\])?",
-    r"AES[-– ]*((?:128|192|256|)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})(?:\)?[\s#]*?\[#?\d+\])?",
+    r"AES[-– ]*((?: |;|\/|bit|key|128|192|256|CBC)*(?: |\/|;|[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV|CBC)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})(?:\)?[\s#]*?\[#?\d+\])?(?:[\s#]*?and[\s#]*?(\d+))?",
+    r"AES[-– ]*((?: |;|\/|bit|key|128|192|256|CBC)*(?: |\/|;|[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV|CBC)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})(?:\)?[\s#]*?\[#?\d+\])?(?:[\s#]*?and[\s#]*?(\d+))?",
+    r"AES[-– ]*((?: |;|\/|bit|key|128|192|256|CBC)*(?: |\/|;|[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV|CBC)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})(?:\)?[\s#]*?\[#?\d+\])?(?:[\s#]*?and[\s#]*?(\d+))?",
+    r"AES[-– ]*((?: |;|\/|bit|key|128|192|256|CBC)*(?: |\/|;|[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV|CBC)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})(?:\)?[\s#]*?\[#?\d+\])?(?:[\s#]*?and[\s#]*?(\d+))?",
 
 # --- Diffie Helman (CVL) ((cert #)) ---
     r"Diffie[-– ]*Hellman[,\s(\[]*?(?:CVL|\s)*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?[\s#]*?(\d{4})",
@@ -363,22 +364,22 @@ rules_fips_remove_algorithm_ids = [
     r"Diffie[-– ]*Hellman[,\s(\[]*?(?:CVL|\s)*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?[\s#]*?(\d{1})",
 
 # --- DRBG (bits) (method) (cert #) ---
-    r"DRBG[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
-    r"DRBG[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
-    r"DRBG[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
-    r"DRBG[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
+    r"DRBG[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
+    r"DRBG[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
+    r"DRBG[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
+    r"DRBG[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
 
 # --- DES (bits) (method) (cert #)
-    r"DES[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
-    r"DES[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
-    r"DES[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
-    r"DES[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
+    r"DES[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT|CBC|(?:\d(?: and \d)? keying options?))*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)*?[\s#]*?)?[\s#]*?(\d{4})(?:[\s#]*?and[\s#]*?(\d+))?",
+    r"DES[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT|CBC|(?:\d(?: and \d)? keying options?))*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)*?[\s#]*?)?[\s#]*?(\d{3})(?:[\s#]*?and[\s#]*?(\d+))?",
+    r"DES[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT|CBC|(?:\d(?: and \d)? keying options?))*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)*?[\s#]*?)?[\s#]*?(\d{2})(?:[\s#]*?and[\s#]*?(\d+))?",
+    r"DES[ –-]*((?:;|\/|160|224|256|384|512)?(?:;|\/| |[Dd]ecrypt|[Ee]ncrypt|KAT|CBC|(?:\d(?: and \d)? keying options?))*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)*?[\s#]*?)?[\s#]*?(\d{1})(?:[\s#]*?and[\s#]*?(\d+))?",
 
 # --- DSA (bits) (method) (cert #)
-    r"DSA[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
-    r"DSA[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
-    r"DSA[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
-    r"DSA[ –-]*((?:160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
+    r"DSA[ –-]*((?:;|\/|160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{4})",
+    r"DSA[ –-]*((?:;|\/|160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{3})",
+    r"DSA[ –-]*((?:;|\/|160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{2})",
+    r"DSA[ –-]*((?:;|\/|160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\s(\[]*?(?:#|cert\.?|certificate|Cert\.?|Certificate)?[\s#]*?)?[\s#]*?(\d{1})",
 
 # --- platforms (#)+ - this is used in modification history ---
     r"[Pp]latforms? #\d+(?:#\d+|,| |-|and)*[^\n]*",
