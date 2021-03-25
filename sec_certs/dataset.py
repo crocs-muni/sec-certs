@@ -651,14 +651,26 @@ class CCDataset(Dataset, ComplexSerializableType):
             self.to_json(self.json_path)
 
     # TODO: Probably breaks a logic of ceritifcate managing itself. Needs design refactoring
-    def fuzzy_match_cpe(self, cpe_path: Path, update_json: bool = False):
-        def get_cpe_titles(cpe_path: Path):
+    def fuzzy_match_cpe(self, cpe_path: Path, update_json: bool = False, vuln_cpe_path: Optional[Path] = None):
+        def get_cpe_titles(cpe_path: Path, only_vuln=True, vuln_path=None):
             root = ET.parse(str(cpe_path)).getroot()
-            return [child.text for child in root.findall(
-                '{http://cpe.mitre.org/dictionary/2.0}cpe-item/{http://cpe.mitre.org/dictionary/2.0}title')]
+            if only_vuln and vuln_path:
+                with vuln_path.open('r') as handle:
+                    vuln_cpes = set(json.load(handle))
+                lst = []
+                for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
+                    title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title').text
+                    cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item').attrib['name']
+                    if cpe_uri in vuln_cpes:
+                        lst.append(title)
+            else:
+                lst = [child.text for child in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item/{http://cpe.mitre.org/dictionary/2.0}title')]
+            return lst
 
         digests = [x for x in self.certs.keys()]
-        cpe_titles = get_cpe_titles(cpe_path)
+        logging.info('Loading CPE titles...')
+        cpe_titles = get_cpe_titles(cpe_path, only_vuln=True, vuln_path=vuln_cpe_path)
+        logging.info(f'Retreving among {len(cpe_titles)} cpe titles.')
 
         def chunk_list(a: List, n: int):
             k, m = divmod(len(a), n)

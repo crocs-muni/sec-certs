@@ -868,7 +868,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    pandas_serialization_vars = ['dgst', 'name', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
+    pandas_serialization_vars = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
                                  'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
@@ -1082,6 +1082,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + '.txt')
         if st_txt_dir is not None:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
+
+    @property
+    def best_cpe_match(self):
+        clean = [x for x in self.cpe_matching if len(x[0]) > 5]
+        cpe_match_ranking = [x[1] for x in clean]
+        argmax = cpe_match_ranking.index(max(cpe_match_ranking))
+        return clean[argmax]
 
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
