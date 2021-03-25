@@ -963,7 +963,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             for rule in current_cert.processed.keywords['rules_cert_id']:
                 for cert in current_cert.processed.keywords['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
-                    if cert_id not in current_cert.processed.connections and validate_id(current_cert, cert_id):
+                    if cert_id not in current_cert.processed.connections and validate_id(current_cert, cert_id) \
+                            and cert_id != current_cert.cert_id:
                         current_cert.processed.connections.append(cert_id)
 
     def finalize_results(self):

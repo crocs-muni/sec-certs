@@ -515,8 +515,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing['value'] else text
 
-        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse),
-                                                                 cert.web_scan.algorithms)
+        if config.ignore_first_page:
+            text_to_parse = text_to_parse[text_to_parse.index(""):]
+
+        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse))
 
         save_modified_cert_file(cert.state.fragment_path.with_suffix('.fips.txt'), fips_text, unicode_error)
 
@@ -629,8 +631,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, whole_text_with_newlines
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str, algorithms: List[Dict]) \
-            -> Tuple[Optional[Dict], str]:
+    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict], str]:
         # apply all rules
         items_found_all: Dict = {}
         for rule_group in fips_rules.keys():

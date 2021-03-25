@@ -6,7 +6,11 @@ smallest_certificate_id_to_connect:
 year_difference_between_validations:
   description: During validation we don't connect certificates with validation dates
     difference higher than _this_
-  value: 5
+  value: 6
 use_text_with_newlines_during_parsing:
   description: During keyword search, search in text with newlines
   value: true
+ignore_first_page:
+  description: During keyword search, first page usually contains addresses - ignore it.
+  value: true
+

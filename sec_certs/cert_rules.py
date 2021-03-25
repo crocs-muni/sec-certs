@@ -405,7 +405,6 @@ rules_fips_remove_algorithm_ids = [
 ]
 rules_fips_to_remove = [
 # --- random words found ---
-    r"Survey #192",  # why would they get an address like this /o\ cert 2079
     r"[Ss]lot #\d",  # a card slot, #2069
     r"[Ss]eals? ?\(?#\d - #\d", #  #1232
     r"\[#\d*\]", # some certs use this as references
@@ -419,8 +418,6 @@ rules_fips_to_remove = [
     r"[Ll]abel #\d+",
     r"\(#\d\)",
     r"IETF[25\s]*RFC[26\s]*#\d+", # #3425
-    r"Bendix Road North #760", # #3325
-    r"5080 Spectrum Drive, #1000E",
     r"Document # 540-105000-A1",
     r"Certificate #2287-1 from EMCE Engineering", # ???
 ]
