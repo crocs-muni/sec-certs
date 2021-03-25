@@ -130,7 +130,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         algorithms: Optional[List[Dict[str, str]]]
         tested_conf: Optional[List[str]]
         description: Optional[str]
-        mentioned_certs: Optional[List[str]]
+        mentioned_certs: Optional[List[Dict]]
         vendor: Optional[str]
         vendor_www: Optional[str]
         lab: Optional[str]
@@ -708,6 +708,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return
 
         self.processed.keywords = copy.deepcopy(self.pdf_scan.keywords)
+        # TODO figure out why can't I delete this
         if self.web_scan.mentioned_certs:
             for item in self.web_scan.mentioned_certs:
                 self.processed.keywords['rules_cert_id'].update(item)

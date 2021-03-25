@@ -967,6 +967,15 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                             and cert_id != current_cert.cert_id:
                         current_cert.processed.connections.append(cert_id)
 
+            # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
+            if current_cert.web_scan.mentioned_certs:
+                for item in current_cert.web_scan.mentioned_certs:
+                    for key in item:
+                        for connection in item[key]:
+                            cert_id = ''.join(filter(str.isdigit, connection))
+                            if cert_id not in current_cert.processed.connections and cert_id != '':
+                                current_cert.processed.connections.append(cert_id)
+
     def finalize_results(self):
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
