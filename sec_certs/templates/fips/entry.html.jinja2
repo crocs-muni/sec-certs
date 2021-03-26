@@ -31,7 +31,7 @@
     {% if "web_scan" in cert %}
         <div>
             <h2 id="web-info" class="mt-5 anchor">Webpage information
-            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
+            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
             <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
             {% if cert["web_scan"]["historical_reason"] %}
                 <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
@@ -96,12 +96,12 @@
 
             <div class="mt-2 mb-2">
                 {% if cert["web_scan"]["certificate_www"] %}
-                <a class="btn btn-primary" role="button" href="{{ cert['certificate_www'] }}" data-toggle="tooltip" data-placement="bottom" title="Certificate"><i class="fas fa-file-contract"></i> Certificate</a>
+                <a class="btn btn-primary" role="button" href="{{ cert['certificate_www'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Certificate"><i class="fas fa-file-contract"></i> Certificate</a>
                 {% endif %}
                 {% if cert["web_scan"]["security_policy_www"] %}
-                <a class="btn btn-primary" role="button" href="{{ cert['security_policy_www'] }}" data-toggle="tooltip" data-placement="bottom" title="Security policy"><i class="fas fa-file-alt"></i> Security policy</a>
+                <a class="btn btn-primary" role="button" href="{{ cert['security_policy_www'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Security policy"><span class="fas fa-file-alt"></span> Security policy</a>
                 {% endif %}
-                <a class="btn btn-primary" role="button" href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}" data-toggle="tooltip" data-placement="bottom" title="{{ cert["web_scan"]['module_name']|default('') }}"><i class="fas fa-external-link-alt"></i> Webpage</a>
+                <a class="btn btn-primary" role="button" href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ cert["web_scan"]['module_name']|default('') }}"><i class="fas fa-external-link-alt"></i> Webpage</a>
             </div>
         </div>
     {% endif %}
@@ -109,10 +109,10 @@
 	{% if "keywords" in cert %}
 	<div>
 		<h2 id="doc-info" class="mt-5">Document information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
 		
 		<h3 class="mt-4">Security policy
-        {% if cert["web_scan"]["security_policy_www"] %}<a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
+        {% if cert["web_scan"]["security_policy_www"] %}<a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
 		{{ cryptography_keywords(cert["processed"]["keywords"], "policy") }}
 		{{ device_keywords(cert["processed"]["keywords"], "policy") }}
 		{{ security_keywords(cert["processed"]["keywords"], "policy") }}
@@ -130,13 +130,17 @@
 
 	<div class="mt-5 mb-5">
 		<h2 class="anchor" id="raw-data-head">Raw data
-		<button id="raw-data-button" type="button" data-toggle="collapse" data-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
-		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
+		<button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
 		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
         $(function () {
-           $("#raw-data-button").tooltip();
+            let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+              return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+           new bootstrap.Tooltip($("#raw-data-button").get(0));
         });
 		$('#raw-data').on('show.bs.collapse', function () {
 			$("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");

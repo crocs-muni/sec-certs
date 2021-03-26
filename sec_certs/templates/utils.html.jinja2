@@ -175,13 +175,18 @@
         d3.select("#network").append(() => svg.node());
     }
 
-    let highlighted = {{ highlight }};
+    let highlighted = {{ highlight|safe }};
 
 	Promise.all([d3.json("{{ net_url }}"), d3.json("{{ type_url }}")]).then(values => {
 	    let data = values[0];
 	    let types = values[1];
+	    console.log(data);
+	    console.log(types);
         if (("nodes" in data) && ("links" in data)) {
+            console.log("rendering");
             renderNetwork(data, types, highlighted);
+        } else {
+
         }
     });
 	</script>

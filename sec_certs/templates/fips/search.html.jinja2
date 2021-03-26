@@ -21,15 +21,16 @@
                             <div class="col">
                         {% endif %}
                         <div class="form-check">
-                        <input id="category-{{ val['id'] }}" type="checkbox" class="form-check-input" data-id="{{ val['id'] }}" {% if val["selected"] %}checked{% endif %}>
-                        <label class="form-check-label" for="category-{{ val['id'] }}">
-                            <i class="fas fa-fw {{ val['icon'] }}"></i> {{ name }}
-                        </label>
+                            <span>
+                                <input id="category-{{ val['id'] }}" type="checkbox" class="form-check-input" data-id="{{ val['id'] }}" {% if val["selected"] %}checked{% endif %}>
+                                <label class="form-check-label" for="category-{{ val['id'] }}">
+                                    <i class="fas fa-fw {{ val['icon'] }}"></i> {{ name }}
+                                </label>
+                            </span>
                         </div>
                         {% if (loop.index0 + 1) % 5 == 0 %}
                             </div>
                         {% endif %}
-                    </span>
                     {% endfor %}
                 </div>
             </div>

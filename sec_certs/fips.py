@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 import json
 import gc
@@ -5,7 +6,7 @@ from collections import namedtuple
 from sys import getsizeof
 from hashlib import blake2b
 
-from flask import Blueprint, render_template, current_app, url_for, request
+from flask import Blueprint, render_template, current_app, url_for, request, redirect
 from pkg_resources import resource_stream
 
 from networkx import info as graph_info
@@ -175,6 +176,11 @@ def search_pagination():
 @fips.route("/analysis/")
 def analysis():
     return render_template("fips/analysis.html.jinja2")
+
+
+@fips.route("/random/")
+def rand():
+    return redirect(url_for(".entry", hashid=random.choice(list(fips_data.keys()))))
 
 
 @fips.route("/<string(length=20):hashid>/")

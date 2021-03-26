@@ -1,11 +1,12 @@
 import json
 import gc
 from collections import namedtuple
+import random
 from sys import getsizeof
 from datetime import datetime
 from hashlib import blake2b
 
-from flask import Blueprint, render_template, url_for, current_app, request
+from flask import Blueprint, render_template, url_for, current_app, request, redirect
 from pkg_resources import resource_stream
 
 from networkx import info as graph_info
@@ -246,6 +247,11 @@ def search_pagination():
 @cc.route("/analysis/")
 def analysis():
     return render_template("cc/analysis.html.jinja2", analysis=cc_analysis)
+
+
+@cc.route("/random/")
+def rand():
+    return redirect(url_for(".entry", hashid=random.choice(list(cc_data.keys()))))
 
 
 @cc.route("/<string(length=20):hashid>/")
