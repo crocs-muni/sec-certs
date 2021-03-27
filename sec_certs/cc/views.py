@@ -1,12 +1,13 @@
 import random
+from operator import itemgetter
 
-from flask import render_template, url_for, current_app, request, redirect
+import pymongo
+from flask import render_template, url_for, current_app, request, redirect, abort
+from networkx import node_link_data
 
-
-from sec_certs.utils import Pagination, smallest, entry_func, entry_json_func, entry_graph_json_func, \
-    network_graph_func, send_json_attachment
-from . import cc, cc_sars, cc_sfrs, cc_categories, cc_analysis, cc_data, cc_graphs, cc_map, cc_names
-
+from . import cc, cc_sars, cc_sfrs, cc_categories, get_cc_graphs, get_cc_map, get_cc_analysis
+from .. import mongo
+from ..utils import Pagination, network_graph_func, send_json_attachment, add_dots
 
 
 @cc.app_template_global("get_cc_sar")
@@ -52,39 +53,53 @@ def network():
 
 @cc.route("/network/graph.json")
 def network_graph():
-    return network_graph_func(cc_graphs)
+    return network_graph_func(get_cc_graphs())
 
 
 def select_certs(q, cat, status, sort):
     categories = cc_categories.copy()
-    names = cc_names
+    query = {}
+    projection = {
+        "_id": 1,
+        "csv_scan.cert_item_name": 1,
+        "csv_scan.cert_status": 1,
+        "csv_scan.cc_certification_date": 1,
+        "csv_scan.cc_archived_date": 1,
+        "csv_scan.cc_category": 1
+    }
 
-    if q is not None:
-        ql = q.lower()
-        names = list(filter(lambda x: ql in x.search_name, names))
+    if q is not None and q != "":
+        query["$text"] = {"$search": q}
+        projection["score"] = {"$meta": "textScore"}
 
     if cat is not None:
-        for category in categories.values():
+        selected_cats = []
+        for name, category in categories.items():
             if category["id"] in cat:
+                selected_cats.append(name)
                 category["selected"] = True
             else:
                 category["selected"] = False
-        names = list(filter(lambda x: categories[x.category]["selected"], names))
+        query["csv_scan.cc_category"] = {"$in": selected_cats}
     else:
         for category in categories.values():
             category["selected"] = True
 
     if status is not None and status != "any":
-        names = list(filter(lambda x: status == x.status, names))
+        query["csv_scan.cert_status"] = status
 
-    if sort == "name":
-        pass
+    cursor = mongo.db.cc.find(query, projection)
+
+    if sort == "match" and q is not None and q != "":
+        cursor.sort([("score", {"$meta": "textScore"})])
     elif sort == "cert_date":
-        names = list(sorted(names, key=lambda x: x.cert_date if x.cert_date else smallest))
+        cursor.sort([("csv_scan.cc_certification_date", pymongo.ASCENDING)])
     elif sort == "archive_date":
-        names = list(sorted(names, key=lambda x: x.archived_date if x.archived_date else smallest))
+        cursor.sort([("csv_scan.cc_archived_date", pymongo.ASCENDING)])
+    else:
+        cursor.sort([("csv_scan.cert_item_name", pymongo.ASCENDING)])
 
-    return names, categories
+    return cursor, categories
 
 
 def process_search(req, callback=None):
@@ -92,17 +107,17 @@ def process_search(req, callback=None):
     q = req.args.get("q", None)
     cat = req.args.get("cat", None)
     status = req.args.get("status", "any")
-    sort = req.args.get("sort", "name")
+    sort = req.args.get("sort", "match")
 
-    names, categories = select_certs(q, cat, status, sort)
+    cursor, categories = select_certs(q, cat, status, sort)
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-    pagination = Pagination(page=page, per_page=per_page, search=True, found=len(names), total=len(cc_names),
+    pagination = Pagination(page=page, per_page=per_page, search=True, found=cursor.count(), total=mongo.db.cc.count_documents({}),
                             css_framework="bootstrap4", alignment="center",
                             url_callback=callback)
     return {
         "pagination": pagination,
-        "certs": names[(page - 1) * per_page:page * per_page],
+        "certs": cursor[(page - 1) * per_page:page * per_page],
         "categories": categories,
         "q": q,
         "page": page,
@@ -129,24 +144,46 @@ def search_pagination():
 
 @cc.route("/analysis/")
 def analysis():
-    return render_template("cc/analysis.html.jinja2", analysis=cc_analysis)
+    a = get_cc_analysis()
+    print(a)
+    return render_template("cc/analysis.html.jinja2", analysis=a)
 
 
 @cc.route("/random/")
 def rand():
-    return redirect(url_for(".entry", hashid=random.choice(list(cc_data.keys()))))
+    current_ids = list(map(itemgetter("_id"), mongo.db.cc.find({}, ["_id"])))
+    return redirect(url_for(".entry", hashid=random.choice(current_ids)))
 
 
 @cc.route("/<string(length=20):hashid>/")
 def entry(hashid):
-    return entry_func(hashid, cc_data, "cc/entry.html.jinja2")
+    doc = mongo.db.cc.find_one({"_id": hashid})
+    if doc:
+        cert = add_dots(doc)
+        print(cert)
+        return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid)
+    else:
+        return abort(404)
 
 
 @cc.route("/<string(length=20):hashid>/graph.json")
 def entry_graph_json(hashid):
-    return entry_graph_json_func(hashid, cc_data, cc_map)
+    doc = mongo.db.cc.find_one({"_id": hashid})
+    if doc:
+        cc_map = get_cc_map()
+        if hashid in cc_map.keys():
+            network_data = node_link_data(cc_map[hashid])
+        else:
+            network_data = {}
+        return send_json_attachment(network_data)
+    else:
+        return abort(404)
 
 
 @cc.route("/<string(length=20):hashid>/cert.json")
 def entry_json(hashid):
-    return entry_json_func(hashid, cc_data)
+    doc = mongo.db.cc.find_one({"_id": hashid})
+    if doc:
+        return send_json_attachment(add_dots(doc))
+    else:
+        return abort(404)

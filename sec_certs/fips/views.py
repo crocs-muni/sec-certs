@@ -1,11 +1,9 @@
 import random
 from flask import render_template, current_app, url_for, request, redirect
 
-
 from sec_certs.utils import Pagination, send_json_attachment, entry_json_func, entry_graph_json_func, entry_func, \
     network_graph_func, smallest
 from . import fips, fips_data, fips_map, fips_types, fips_graphs, fips_names
-
 
 
 @fips.app_template_global("get_fips_type")

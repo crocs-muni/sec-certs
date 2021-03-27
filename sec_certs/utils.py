@@ -114,3 +114,29 @@ def entry_graph_json_func(hashid, data, graph_map):
         return send_json_attachment(network)
     else:
         return abort(404)
+
+
+def remove_dots(data):
+    if isinstance(data, dict):
+        ks = list(data.keys())
+        for key in ks:
+            data[key] = remove_dots(data[key])
+            if '.' in key:
+                data[key.replace('.', '\uff0e')] = data[key]
+                del data[key]
+    elif isinstance(data, list):
+        data = list(map(remove_dots, data))
+    return data
+
+
+def add_dots(data):
+    if isinstance(data, dict):
+        ks = list(data.keys())
+        for key in ks:
+            data[key] = remove_dots(data[key])
+            if '\uff0e' in key:
+                data[key.replace('\uff0e', '.')] = data[key]
+                del data[key]
+    elif isinstance(data, list):
+        data = list(map(remove_dots, data))
+    return data

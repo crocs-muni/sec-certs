@@ -17,3 +17,4 @@ sentry-sdk==0.20.3
 urllib3==1.26.3
 webassets==2.0
 Werkzeug==1.0.1
+tqdm==4.59.0

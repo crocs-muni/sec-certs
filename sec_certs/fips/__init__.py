@@ -6,7 +6,6 @@ from sys import getsizeof
 from hashlib import blake2b
 
 from flask import Blueprint
-from pkg_resources import resource_stream
 
 from networkx import info as graph_info
 
@@ -30,7 +29,7 @@ def load_fips_data():
         data = f.read()
         loaded_fips_data = json.loads(data)
         del data
-    with resource_stream("sec_certs.fips", "types.json") as f:
+    with fips.open_resource("types.json") as f:
         fips_types = json.load(f)
     print(" * (FIPS) Loaded types")
     fips_data = {blake2b(key.encode(), digest_size=10).hexdigest(): value for key, value in

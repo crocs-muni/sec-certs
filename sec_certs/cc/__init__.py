@@ -1,62 +1,41 @@
+import atexit
 import json
-import gc
-from collections import namedtuple
-from sys import getsizeof
 from datetime import datetime
-from hashlib import blake2b
 
 from flask import Blueprint
-from pkg_resources import resource_stream
-from networkx import info as graph_info
 
-from sec_certs.utils import create_graph
+from ..utils import create_graph
+from .. import mongo
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
 
-cc_names = []
-cc_data = {}
 cc_graphs = []
 cc_analysis = {}
 cc_map = {}
-cc_sfrs = {}
-cc_sars = {}
-cc_categories = {}
-
-CCEntry = namedtuple("CCEntry", ("name", "hashid", "status", "cert_date", "archived_date", "category", "search_name"))
+with cc.open_resource("sfrs.json") as f:
+    cc_sfrs = json.load(f)
+with cc.open_resource("sars.json") as f:
+    cc_sars = json.load(f)
+with cc.open_resource("categories.json") as f:
+    cc_categories = json.load(f)
 
 
 @cc.before_app_first_request
 def load_cc_data():
-    global cc_names, cc_data, cc_graphs, cc_map, cc_analysis, cc_sfrs, cc_sars, cc_categories
-    # Load raw data
-    with current_app.open_instance_resource("cc.json") as f:
-        data = f.read()
-        loaded_cc_data = json.loads(data)
-        del data
-    print(" * (CC) Loaded certs")
-    with resource_stream("sec_certs.cc", "sfrs.json") as f:
-        cc_sfrs = json.load(f)
-    print(" * (CC) Loaded SFRs")
-    with resource_stream("sec_certs.cc", "sars.json") as f:
-        cc_sars = json.load(f)
-    print(" * (CC) Loaded SARs")
-    with resource_stream("sec_certs.cc", "categories.json") as f:
-        cc_categories = json.load(f)
-    print(" * (CC) Loaded categories")
-
-    # Create ids
-    cc_data = {blake2b(key.encode(), digest_size=10).hexdigest(): value for key, value in loaded_cc_data.items()}
-    del loaded_cc_data
-    cc_names = list(sorted(CCEntry(value["csv_scan"]["cert_item_name"], key, value["csv_scan"]["cert_status"],
-                                   datetime.strptime(value["csv_scan"]["cc_certification_date"], "%m/%d/%Y"),
-                                   datetime.strptime(value["csv_scan"]["cc_archived_date"], "%m/%d/%Y") if
-                                   value["csv_scan"]["cc_archived_date"] else value["csv_scan"]["cc_archived_date"],
-                                   value["csv_scan"]["cc_category"], value["csv_scan"]["cert_item_name"].lower())
-                           for key, value in cc_data.items()))
-
+    global cc_graphs, cc_analysis, cc_map
     # Extract references
+    data = mongo.db.cc.find({}, {
+        "_id": 1,
+        "csv_scan.cert_item_name": 1,
+        "csv_scan.cc_category": 1,
+        "csv_scan.cc_certification_date": 1,
+        "processed.cert_id": 1,
+        "keywords_scan.rules_cert_id": 1,
+        "st_keywords_scan.rules_cert_id": 1
+    })
     cc_references = {}
-    for hashid, cert in cc_data.items():
+    for cert in data:
+        hashid = cert["_id"]
         if "processed" in cert and "cert_id" in cert["processed"] and cert["processed"]["cert_id"] != "":
             cert_id = cert["processed"]["cert_id"]
         else:
@@ -80,23 +59,20 @@ def load_cc_data():
         cc_references[cert_id] = reference
 
     cc_graph, cc_graphs, cc_map = create_graph(cc_references)
-    print(f" * (CC) Got {len(cc_data)} certificates")
-    print(f" * (CC) Got {len(cc_references)} certificates with IDs")
-    print(f" * (CC) Got graph:\n{graph_info(cc_graph)}")
-    print(" * (CC) Made network")
     del cc_graph
 
     cc_analysis["categories"] = {}
-    for cert in cc_names:
-        cc_analysis["categories"].setdefault(cert.category, 0)
-        cc_analysis["categories"][cert.category] += 1
+    for cert in data.clone():
+        cc_analysis["categories"].setdefault(cert["csv_scan"]["cc_category"], 0)
+        cc_analysis["categories"][cert["csv_scan"]["cc_category"]] += 1
     cc_analysis["categories"] = [{"name": key, "value": value} for key, value in cc_analysis["categories"].items()]
+    print(cc_analysis)
 
     cc_analysis["certified"] = {}
-    for cert in cc_names:
-        cert_month = cert.cert_date.replace(day=1).strftime("%Y-%m-%d")
-        cc_analysis["certified"].setdefault(cert.category, [])
-        months = cc_analysis["certified"][cert.category]
+    for cert in data.clone():
+        cert_month = datetime.strptime(cert["csv_scan"]["cc_certification_date"], "%m/%d/%Y").replace(day=1).strftime("%Y-%m-%d")
+        cc_analysis["certified"].setdefault(cert["csv_scan"]["cc_category"], [])
+        months = cc_analysis["certified"][cert["csv_scan"]["cc_category"]]
         for month in months:
             if month["date"] == cert_month:
                 month["value"] += 1
@@ -116,11 +92,42 @@ def load_cc_data():
             if category not in month.keys():
                 month[category] = 0
     cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
-    print(" * (CC) Performed analysis")
 
-    mem_taken = sum(map(getsizeof, (cc_names, cc_data, cc_graphs, cc_map, cc_sars, cc_sfrs, cc_categories, cc_analysis)))
-    print(f" * (CC) Size in memory: {mem_taken}B")
-    gc.collect()
+
+cc_changes = mongo.db.cc.watch()
+
+
+def _update_cc_data():
+    do_update = False
+    while cc_changes.alive and cc_changes.try_next():
+        do_update = True
+    if do_update:
+        load_cc_data()
+
+
+def get_cc_graphs():
+    _update_cc_data()
+    return cc_graphs
+
+
+def get_cc_map():
+    _update_cc_data()
+    return cc_map
+
+
+def get_cc_analysis():
+    _update_cc_data()
+    return cc_analysis
+
+
+def _close_changes_watch():
+    cc_changes.close()
+
+
+atexit.register(_close_changes_watch)
+
+
 
 
 from .views import *
+from .commands import *

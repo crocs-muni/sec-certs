@@ -123,12 +123,18 @@
 				<th>Archive date</th>
 			</tr>
 		</thead>
-	{% for name, hashid, status, cert_date, archive_date, category, search_name in certs %}
+	{% for cert in certs %}
+        {% set name = cert["csv_scan"]["cert_item_name"] %}
+        {% set status = cert["csv_scan"]["cert_status"] %}
+        {% set hashid = cert["_id"] %}
+        {% set cert_date = cert["csv_scan"]["cc_certification_date"] %}
+        {% set archive_date = cert["csv_scan"]["cc_archived_date"] %}
+        {% set category = cert["csv_scan"]["cc_category"] %}
 		<tr>
 		<td class="pl-1">{{ render_category(category) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
 		<td>{{ render_status(status) }}</td>
-		<td>{{ cert_date.strftime("%d-%m-%Y") }}</td>
-		<td>{{ archive_date.strftime("%d-%m-%Y") if archive_date else "" }}</td>
+		<td>{{ cert_date }}</td>
+		<td>{{ archive_date if archive_date else "" }}</td>
 		</tr>
 	{% endfor %}
 	</table>

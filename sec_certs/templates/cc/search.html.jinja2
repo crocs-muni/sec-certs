@@ -45,6 +45,7 @@
             <div class="mt-3 mb-3">
             <h4><label for="search-sort">Sort</label></h4>
                 <select id="search-sort" class="form-control">
+                    <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match</option>
                     <option value="name" {% if sort == "name" %}selected="selected"{% endif %}>Name</option>
                     <option value="cert_date" {% if sort == "cert_date" %}selected="selected"{% endif %}>Certification date</option>
                     <option value="archive_date" {% if sort == "archive_date" %}selected="selected"{% endif %}>Archive date</option>
