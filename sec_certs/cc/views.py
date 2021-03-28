@@ -2,12 +2,15 @@ import random
 from operator import itemgetter
 
 import pymongo
-from flask import render_template, url_for, current_app, request, redirect, abort
+from flask import (abort, current_app, redirect, render_template, request,
+                   url_for)
 from networkx import node_link_data
 
-from . import cc, cc_sars, cc_sfrs, cc_categories, get_cc_graphs, get_cc_map, get_cc_analysis
 from .. import mongo
-from ..utils import Pagination, network_graph_func, send_json_attachment, add_dots
+from ..utils import (Pagination, add_dots, network_graph_func,
+                     send_json_attachment)
+from . import (cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis,
+               get_cc_graphs, get_cc_map)
 
 
 @cc.app_template_global("get_cc_sar")
@@ -112,7 +115,8 @@ def process_search(req, callback=None):
     cursor, categories = select_certs(q, cat, status, sort)
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-    pagination = Pagination(page=page, per_page=per_page, search=True, found=cursor.count(), total=mongo.db.cc.count_documents({}),
+    pagination = Pagination(page=page, per_page=per_page, search=True, found=cursor.count(),
+                            total=mongo.db.cc.count_documents({}),
                             css_framework="bootstrap4", alignment="center",
                             url_callback=callback)
     return {
@@ -144,9 +148,7 @@ def search_pagination():
 
 @cc.route("/analysis/")
 def analysis():
-    a = get_cc_analysis()
-    print(a)
-    return render_template("cc/analysis.html.jinja2", analysis=a)
+    return render_template("cc/analysis.html.jinja2", analysis=get_cc_analysis())
 
 
 @cc.route("/random/")
@@ -159,8 +161,6 @@ def rand():
 def entry(hashid):
     doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
-        cert = add_dots(doc)
-        print(cert)
         return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid)
     else:
         return abort(404)

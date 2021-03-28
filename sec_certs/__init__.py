@@ -1,11 +1,10 @@
+import sentry_sdk
 from flag import flag
-from flask import Flask, render_template, current_app, request
+from flask import Flask, current_app, render_template, request
+from flask_assets import Environment as Assets
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_pymongo import PyMongo
-from flask_assets import Environment as Assets
-import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
-
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -40,10 +39,13 @@ def blueprint_prefix():
 
 
 from .cc import cc
+
 app.register_blueprint(cc)
 from .pp import pp
+
 app.register_blueprint(pp)
 from .fips import fips
+
 app.register_blueprint(fips)
 
 

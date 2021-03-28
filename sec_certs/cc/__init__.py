@@ -4,10 +4,11 @@ from datetime import datetime
 
 from flask import Blueprint
 
-from ..utils import create_graph
 from .. import mongo
+from ..utils import create_graph
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
+cc.cli.short_help = "Common Criteria commands."
 
 cc_graphs = []
 cc_analysis = {}
@@ -66,7 +67,6 @@ def load_cc_data():
         cc_analysis["categories"].setdefault(cert["csv_scan"]["cc_category"], 0)
         cc_analysis["categories"][cert["csv_scan"]["cc_category"]] += 1
     cc_analysis["categories"] = [{"name": key, "value": value} for key, value in cc_analysis["categories"].items()]
-    print(cc_analysis)
 
     cc_analysis["certified"] = {}
     for cert in data.clone():
@@ -127,7 +127,5 @@ def _close_changes_watch():
 atexit.register(_close_changes_watch)
 
 
-
-
-from .views import *
 from .commands import *
+from .views import *

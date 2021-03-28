@@ -1,9 +1,9 @@
 import random
-
-from flask import render_template, abort, jsonify
-from flask_paginate import Pagination as FlaskPagination
 from functools import total_ordering
+
 import networkx as nx
+from flask import abort, jsonify, render_template
+from flask_paginate import Pagination as FlaskPagination
 from networkx import node_link_data
 from networkx.algorithms.components import weakly_connected_components
 
@@ -133,10 +133,10 @@ def add_dots(data):
     if isinstance(data, dict):
         ks = list(data.keys())
         for key in ks:
-            data[key] = remove_dots(data[key])
+            data[key] = add_dots(data[key])
             if '\uff0e' in key:
                 data[key.replace('\uff0e', '.')] = data[key]
                 del data[key]
     elif isinstance(data, list):
-        data = list(map(remove_dots, data))
+        data = list(map(add_dots, data))
     return data
