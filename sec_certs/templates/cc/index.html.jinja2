@@ -10,6 +10,9 @@
     <li class="nav-item">
         <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".rand") }}">Random</a>
+    </li>
 {% endblock %}
 {% block content %}
     <h1>Common Criteria</h1>
@@ -32,7 +35,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Graph</h5>
                     <p class="card-text">View an interactive graph of references in Common Criteria certificates.</p>
-                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i class="fas fa-project-diagram"></i> Go</a>
+                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i class="fas fa-project-diagram fa-fw"></i> Go</a>
                 </div>
             </div>
         </div>
@@ -42,7 +45,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Search</h5>
                     <p class="card-text">Search and browse through the certificates and our extracted metadata.</p>
-                    <a href="{{ url_for(".search") }}" class="btn btn-primary"><i class="fas fa-search"></i> Go</a>
+                    <a href="{{ url_for(".search") }}" class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Go</a>
                 </div>
             </div>
         </div>
@@ -54,7 +57,17 @@
                 <div class="card-body">
                     <h5 class="card-title">Analysis</h5>
                     <p class="card-text">View a part of our results of our analysis of the Common Criteria certificate data.</p>
-                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i class="fas fa-chart-line"></i> Go</a>
+                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i class="fas fa-chart-line fa-fw"></i> Go</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card bg-light">
+                <img class="card-img-top" src="{{ url_for('static', filename='img/cc_random.png') }}" alt="Graph">
+                <div class="card-body">
+                    <h5 class="card-title">Random</h5>
+                    <p class="card-text">See a random Common Criteria certificate.</p>
+                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i class="fas fa-dice fa-fw"></i> Go</a>
                 </div>
             </div>
         </div>

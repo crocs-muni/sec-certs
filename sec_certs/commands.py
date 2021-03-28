@@ -72,7 +72,7 @@ def _drop(collection):
     click.echo("Dropped")
 
 
-def _query(query, collection):
-    docs = collection.find(query)
+def _query(query, projection, collection):
+    docs = collection.find(query, projection=projection)
     for doc in docs:
         print(json.dumps(add_dots(doc), indent=2))

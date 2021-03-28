@@ -1,0 +1,102 @@
+{% extends "base.html.jinja2" %}
+{% set active_page = "pp" %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category %}
+{% block title %}
+    <title>
+    {{ profile["csv_scan"]["cc_pp_name"]|default("") + " | seccerts.org" }}
+    </title>
+{% endblock %}
+{% block content %}
+    <div>
+	<h1>{{ profile["csv_scan"]["cc_pp_name"]|default("") }}</h1>
+
+    {% if "csv_scan" in profile %}
+		<div class="mt-5 mb-5">
+		<h2 class="anchor" id="csv-info">CSV information
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the CSV protection profile database provided by the Common Criteria portal.">?</span></h2>
+		<b>Status:</b>{{ render_status(profile["csv_scan"]["cert_status"]) }}<br/>
+
+		<b>Certification date:</b>
+		{{ profile["csv_scan"]["cc_certification_date"] }}
+		<br/>
+		{% if profile["csv_scan"]["cc_archived_date"] %}
+		<b>Archived date:</b>
+		{{ profile["csv_scan"]["cc_archived_date"] }}
+		<br/>
+		{% endif %}
+		<b>Scheme:</b>
+		<span title="{{ profile['csv_scan']['scheme'] }}">{{ country_to_flag(profile["csv_scan"]["scheme"]) }}</span>
+		<br/>
+		<b>Category:</b>
+		{{ render_category(profile["csv_scan"]["cc_category"]) }} {{ profile["csv_scan"]["cc_category"] }}
+		<br/>
+		<b>Security level:</b>
+		{{ profile["csv_scan"]["cc_security_level"] }}
+		<br/>
+        {# TODO: Parse maintenance reports! #}
+
+		<div class="mt-2 mb-2">
+			<a class="btn btn-primary" role="button" href="{{ profile['csv_scan']['link_pp_report'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
+			<a class="btn btn-primary" role="button" href="{{ profile['csv_scan']['link_pp_document'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-file-contract"></i> Protection Profile</a>
+		</div>
+		</div>
+	{% endif %}
+
+	{% if "frontpage_scan" in profile %}
+		<div class="mt-5 mb-5">
+		<h2 class="anchor" id="frontpage-info">Frontpage information
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the frontpage of the protection profile document.">?</span></h2>
+
+		{% if "cert_id" in profile["frontpage_scan"] %}
+		<b>Protection Profile ID:</b>
+		{{ profile["frontpage_scan"]["pp_id"] }}
+		<br/>
+		{% endif %}
+		{% if "pp_title" in profile["frontpage_scan"] %}
+		<b>Title:</b>
+		{{ profile["frontpage_scan"]["pp_title"] }}
+		<br/>
+		{% endif %}
+		{% if "pp_version_number" in profile["frontpage_scan"] %}
+		<b>Version:</b>
+		{{ profile["frontpage_scan"]["pp_version_number"] }}
+		<br/>
+		{% endif %}
+		{% if "cc_security_level" in profile["frontpage_scan"] %}
+		<b>Security level:</b>
+		{{ profile["frontpage_scan"]["cc_security_level"] }}
+		<br/>
+		{% endif %}
+		</div>
+	{% endif %}
+    
+    {% if "keywords_scan" in profile or "processed" in profile %}
+		<div class="mt-5 mb-5">
+		<h2 class="anchor" id="doc-info">Document information
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
+		{% if "processed" in profile %}
+			{% if "cc_pp_csvid" in profile["processed"] %}
+				<b>Protection Profile ID:</b>
+                <ul>
+                    {% for pp_id in profile["processed"]["cc_pp_csvid"] %}
+                        <li>{{ pp_id }}</li>
+                    {% endfor %}
+                </ul>
+				<br/>
+			{% endif %}
+		{% endif %}
+
+		{% if "keywords_scan" in profile %}
+			<h3 class="mt-4"><i class="fas fa-file-contract"></i> Protection Profile
+            <a role="button" href="{{ profile['csv_scan']['link_pp_document'] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h3>
+			{{ cryptography_keywords(profile["keywords_scan"], "pp") }}
+			{{ device_keywords(profile["keywords_scan"], "pp") }}
+			{{ security_keywords(profile["keywords_scan"], "pp", hidden=["rules_security_level"], map_funcs={"rules_security_assurance_components": render_sars,
+							 																				"rules_security_functional_components": render_sfrs}) }}
+			{{ other_keywords(profile["keywords_scan"], "pp") }}
+		{% endif %}
+		</div>
+	{% endif %}
+
+    </div>
+{% endblock %}

@@ -10,6 +10,9 @@
     <li class="nav-item">
         <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".rand") }}">Random</a>
+    </li>
 {% endblock %}
 {% block content %}
     <h1>FIPS 140</h1>
@@ -55,6 +58,16 @@
                     <h5 class="card-title">Analysis</h5>
                     <p class="card-text">View a part of our results of our analysis of the FIPS 140 certificate data.</p>
                     <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i class="fas fa-chart-line"></i> Go</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card bg-light">
+                <img class="card-img-top" src="{{ url_for('static', filename='img/cc_random.png') }}" alt="Graph">
+                <div class="card-body">
+                    <h5 class="card-title">Random</h5>
+                    <p class="card-text">See a random FIPS 140 certificate.</p>
+                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i class="fas fa-dice fa-fw"></i> Go</a>
                 </div>
             </div>
         </div>

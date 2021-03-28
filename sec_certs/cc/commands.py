@@ -32,6 +32,7 @@ def drop():
 
 
 @cc.cli.command("query", help="Query the MongoDB for certs.")
+@click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
-def query(query):
-    _query(query, mongo.db.cc)
+def query(query, projection):
+    _query(query, projection, mongo.db.cc)

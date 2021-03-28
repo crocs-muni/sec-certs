@@ -2,6 +2,7 @@ import random
 from operator import itemgetter
 
 import pymongo
+import sentry_sdk
 from flask import (abort, current_app, redirect, render_template, request,
                    url_for)
 from networkx import node_link_data
@@ -159,7 +160,8 @@ def rand():
 
 @cc.route("/<string(length=20):hashid>/")
 def entry(hashid):
-    doc = mongo.db.cc.find_one({"_id": hashid})
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
         return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid)
     else:
@@ -168,7 +170,8 @@ def entry(hashid):
 
 @cc.route("/<string(length=20):hashid>/graph.json")
 def entry_graph_json(hashid):
-    doc = mongo.db.cc.find_one({"_id": hashid})
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
         cc_map = get_cc_map()
         if hashid in cc_map.keys():
@@ -182,7 +185,8 @@ def entry_graph_json(hashid):
 
 @cc.route("/<string(length=20):hashid>/cert.json")
 def entry_json(hashid):
-    doc = mongo.db.cc.find_one({"_id": hashid})
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(add_dots(doc))
     else:
