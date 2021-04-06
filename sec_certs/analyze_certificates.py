@@ -483,7 +483,10 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 
         # change line type to prevent color repetitions
         num_lines_plotted += 1
-        color_index += 1
+        if color_index < len(GRAPHS_COLOR_PALETTE) - 1:
+            color_index += 1
+        else:
+            color_index = 0
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
