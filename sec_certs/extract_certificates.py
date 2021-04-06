@@ -10,6 +10,7 @@ from multiprocessing.pool import ThreadPool
 from multiprocessing.spawn import freeze_support
 from re import Pattern
 from typing import Sequence
+from itertools import islice
 
 from tqdm import tqdm
 from enum import Enum
@@ -2364,12 +2365,25 @@ def do_extract_cpe_items(results_dir: Path):
                 TITLE_STR = '<title xml:lang="en-US">'
                 title = line[line.find(TITLE_STR) + len(TITLE_STR): line.find('</title>')]
 
+                # try to find cpe2.3 item till the ned of element
+                cpe_23 = ''
+                while True:
+                    line_index += 1
+                    line = lines[line_index]
+                    if line.find('</cpe-item>') != -1:
+                        break
+                    CPE32_ITEM = '<cpe-23:cpe23-item name="'
+                    if line.find(CPE32_ITEM) != -1:
+                        cpe_23 = line[line.find(CPE32_ITEM) + len(CPE32_ITEM) : line.find('"/>')]
+                        break
+
                 cpe_item = {}
                 #cpe_item['id'] = name
                 cpe_item['vendor'] = product_info[2]
                 cpe_item['product'] = product_info[3]
                 cpe_item['version'] = product_info[4]
                 cpe_item['title'] = title
+                cpe_item['cpe-23'] = cpe_23
 
                 cpe_items[name] = cpe_item
 
@@ -2378,43 +2392,86 @@ def do_extract_cpe_items(results_dir: Path):
     return cpe_items
 
 
+def find_string_tokenized(target_string: str, find_string: str, split_token: str):
+    all_match = True
+    for word in find_string.split(split_token):  # sentinel_license_manager -> ['sentinel', 'license', 'manager']
+        if target_string.find(word) == -1:
+            all_match = False
+            break
+
+    return all_match
+
+def replace_escaped_chars_dict(target_dict: dict):
+    for key in target_dict.keys():
+        target_dict[key] = replace_escaped_chars(target_dict[key])
+    return target_dict
+
+
+def replace_escaped_chars(target_string: str):
+    pos = target_string.find('%')
+    while pos != -1:
+        out_string = target_string[:pos]
+        num_str = target_string[pos+1:pos+3]
+        try:
+            num = int(num_str, 16)
+            out_string += chr(num)
+            out_string += target_string[pos + 3:]
+        except ValueError as e:
+            print(e)
+            out_string += target_string[pos + 1:]
+
+        target_string = out_string
+        pos = target_string.find('%')
+
+    return target_string
+
+
 def do_process_cpe_to_certs(params):
-    cpe_to_process, all_cert_items = params
-    with tqdm(total=len(cpe_to_process.keys())) as progress:
-        certs_to_cpe = {}
-        cpe_to_certs = {}
-        for cpe_item_key in cpe_to_process.keys():
-            cpe_item = cpe_to_process[cpe_item_key]
-            cpe_vendor_lower = cpe_item['vendor'].lower()
-            cpe_version_lower = cpe_item['version'].lower()
-            cpe_product_lower = cpe_item['product'].lower()
-            for cert_key in all_cert_items.keys():
-                cert = all_cert_items[cert_key]
-                # first match vendor
-                cert_manuf_lower = cert['csv_scan']['cc_manufacturer'].lower()
-                if cert_manuf_lower.find(cpe_vendor_lower) != -1:
-                    # vendor is matching, try to match version
-                    cert_name_lower = cert['csv_scan']['cert_item_name'].lower()
-                    # try to find all words from the cpe product separately in the certificate name
-                    all_match = True
-                    for word in cpe_product_lower.split('_'): # sentinel_license_manager -> ['sentinel', 'license', 'manager']
-                        if cert_name_lower.find(word) == -1:
-                            all_match = False
-                            break
+    cpe_to_process, all_cert_items, num_threads, display_progress = params
 
-                    # check if version match (or is not provided)
-                    #if not (cpe_version_lower == '-' or cert_name_lower.find(cpe_version_lower) != -1):
-                    #    all_match = False
+    progress = None
+    if display_progress:
+        progress = tqdm(total=len(cpe_to_process.keys()) * num_threads)  # assume roughly same number of items per thread
 
-                    if all_match:
-                        print('possible match: {}  =  {}'.format(cert['csv_scan']['cert_item_name'], cpe_item_key))
-                        certs_to_cpe[cert_key] = certs_to_cpe.get(cert_key, [])
-                        certs_to_cpe[cert_key].append(cpe_item_key)
-                        cpe_to_certs[cpe_item_key] = cpe_to_certs.get(cpe_item_key, [])
-                        cpe_to_certs[cpe_item_key].append(cert_key)
+    certs_to_cpe = {}
+    cpe_to_certs = {}
+    for cpe_item_key in cpe_to_process.keys():
+        cpe_item = cpe_to_process[cpe_item_key]
+        cpe_vendor_lower = cpe_item['vendor'].lower()
+        cpe_vendor_lower = replace_escaped_chars(cpe_vendor_lower)
+        cpe_version_lower = cpe_item['version'].lower()
+        cpe_product_lower = cpe_item['product'].lower()
+        cpe_product_lower = replace_escaped_chars(cpe_product_lower)
+        for cert_key in all_cert_items.keys():
+            cert = all_cert_items[cert_key]
+            # first match vendor
+            cert_manuf_lower = cert['csv_scan']['cc_manufacturer'].lower()
+            if find_string_tokenized(cert_manuf_lower, cpe_vendor_lower, '_'):
+                # vendor is matching, try to match version
+                cert_name_lower = cert['csv_scan']['cert_item_name'].lower()
+                # try to find all words from the cpe product separately in the certificate name
+                # sentinel_license_manager -> ['sentinel', 'license', 'manager']
+                all_match = find_string_tokenized(cert_name_lower, cpe_product_lower, '_')
 
-                        # TODO: try to match also title content
-            progress.update(1)
+                # check if version match (or is not provided)
+                #if not (cpe_version_lower == '-' or cert_name_lower.find(cpe_version_lower) != -1):
+                if cpe_version_lower == '-' or cpe_version_lower == '':  # ignore items without version
+                    all_match = False
+                else:
+                    if cert_name_lower.find(cpe_version_lower) == -1:
+                        all_match = False
+
+                if all_match:
+                    print('possible match: {}  =  {}'.format(cert['csv_scan']['cert_item_name'], cpe_item_key))
+                    certs_to_cpe[cert_key] = certs_to_cpe.get(cert_key, [])
+                    certs_to_cpe[cert_key].append(cpe_item_key)
+                    cpe_to_certs[cpe_item_key] = cpe_to_certs.get(cpe_item_key, [])
+                    cpe_to_certs[cpe_item_key].append(cert_key)
+
+                    # TODO: try to match also title content
+
+        if progress:
+            progress.update(1 * num_threads)    # assume that other threads are running same speed and we just processed one item
 
     return certs_to_cpe, cpe_to_certs
 
@@ -2452,5 +2509,38 @@ def do_process_cpe_to_certs_parallel(cpe_items: dict, all_cert_items: dict, num_
 
                     progress.update(batch_len * num_items_per_thread)
                     params = []
+
+    return all_certs_to_cpe, all_cpe_to_certs
+
+
+def do_process_cpe_to_certs_parallel2(cpe_items: dict, all_cert_items: dict, num_threads: int):
+    def chunks(data, SIZE=10000):
+        it = iter(data)
+        for i in range(0, len(data), SIZE):
+            yield {k: data[k] for k in islice(it, SIZE)}
+
+
+    all_certs_to_cpe = {}
+    all_cpe_to_certs = {}
+    with Pool(num_threads) as p:
+        # split cpe_items into num_threads parts
+        params = []
+        display_progress = True
+        for cpe_to_process in chunks(cpe_items, round(len(cpe_items) / num_threads)):
+            params.append((cpe_to_process, all_cert_items, num_threads, display_progress))
+            display_progress = False  # display progress only for the first threat
+
+        results = p.map(do_process_cpe_to_certs, params)
+        for response in results:
+            certs_to_cpe = response[0]
+            cpe_to_certs = response[1]
+
+            for cert_key in certs_to_cpe.keys():
+                all_certs_to_cpe[cert_key] = all_certs_to_cpe.get(cert_key, [])
+                all_certs_to_cpe[cert_key] += certs_to_cpe[cert_key]
+
+            for cpe_item_key_local in cpe_to_certs.keys():
+                all_cpe_to_certs[cpe_item_key_local] = all_cpe_to_certs.get(cpe_item_key_local, [])
+                all_cpe_to_certs[cpe_item_key_local] += cpe_to_certs[cpe_item_key_local]
 
     return all_certs_to_cpe, all_cpe_to_certs
