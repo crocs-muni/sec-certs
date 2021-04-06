@@ -1,4 +1,5 @@
 import random
+import re
 from operator import itemgetter
 
 import pymongo
@@ -77,8 +78,9 @@ def select_certs(q, cat, status, sort):
     }
 
     if q is not None and q != "":
-        query["$text"] = {"$search": q}
         projection["score"] = {"$meta": "textScore"}
+        re_q = ".*" + re.escape(q) + ".*"
+        query["$or"] = [{"$text": {"$search": q}}, {"csv_scan.cert_item_name": {"$regex": re_q}}]
 
     if cat is not None:
         selected_cats = []
@@ -99,7 +101,7 @@ def select_certs(q, cat, status, sort):
     cursor = mongo.db.cc.find(query, projection)
 
     if sort == "match" and q is not None and q != "":
-        cursor.sort([("score", {"$meta": "textScore"})])
+        cursor.sort([("score", {"$meta": "textScore"}), ("csv_scan.cert_item_name", pymongo.ASCENDING)])
     elif sort == "cert_date":
         cursor.sort([("csv_scan.cc_certification_date", pymongo.ASCENDING)])
     elif sort == "archive_date":

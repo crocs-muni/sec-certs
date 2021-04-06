@@ -63,6 +63,7 @@ def _create(collection_name, text_attr):
     click.echo("Creating...")
     mongo.db.create_collection(collection_name)
     mongo.db[collection_name].create_index([(text_attr, pymongo.TEXT)])
+    mongo.db[collection_name].create_index([(text_attr, pymongo.ASCENDING)])
     click.echo("Created")
 
 

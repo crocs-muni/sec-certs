@@ -1,4 +1,5 @@
 import random
+import re
 from operator import itemgetter
 
 import pymongo
@@ -57,8 +58,10 @@ def select_certs(q, cat, status, sort):
     }
 
     if q is not None and q != "":
-        query["$text"] = {"$search": q}
         projection["score"] = {"$meta": "textScore"}
+        re_q = ".*" + re.escape(q) + ".*"
+        # TODO: Add equality of id query here, then sort it with highest priority
+        query["$or"] = [{"$text": {"$search": q}}, {"web_scan.module_name": {"$regex": re_q}}]
 
     if cat is not None:
         selected_cats = []
@@ -79,7 +82,7 @@ def select_certs(q, cat, status, sort):
     cursor = mongo.db.fips.find(query, projection)
 
     if sort == "match" and q is not None and q != "":
-        cursor.sort([("score", {"$meta": "textScore"})])
+        cursor.sort([("score", {"$meta": "textScore"}), ("web_scan.module_name", pymongo.ASCENDING)])
     elif sort == "number":
         cursor.sort([("cert_id", pymongo.ASCENDING)])
     elif sort == "first_cert_date":
