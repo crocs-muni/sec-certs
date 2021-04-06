@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <meta name="application-name" content="Security Certifications"/>
         {% block title %}<title>{{ title|default("seccerts.org") }}</title>{% endblock %}
-        <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}"/>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}"/>
         {% assets output="gen/libs.css",
                 "lib/bootstrap.min.css", "lib/fontawesome.min.css", "lib/metropolis.css" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}">
