@@ -60,8 +60,13 @@ def select_certs(q, cat, status, sort):
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
         re_q = ".*" + re.escape(q) + ".*"
-        # TODO: Add equality of id query here, then sort it with highest priority
         query["$or"] = [{"$text": {"$search": q}}, {"web_scan.module_name": {"$regex": re_q}}]
+        # TODO: Add the index on cert_id and enable this
+        # try:
+        #     iq = int(q)
+        #     query["$or"].append({"cert_id": iq})
+        # except:
+        #     pass
 
     if cat is not None:
         selected_cats = []

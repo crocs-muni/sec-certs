@@ -42,11 +42,11 @@
 		<b>Status:</b>{{ render_status(cert["csv_scan"]["cert_status"]) }}<br/>
 
 		<b>Certification date:</b>
-		{{ cert["csv_scan"]["cc_certification_date"] }}
+		{{ cert["csv_scan"]["cc_certification_date"].strftime("%d-%m-%Y") }}
 		<br/>
 		{% if cert["csv_scan"]["cc_archived_date"] %}
 		<b>Archived date:</b>
-		{{ cert["csv_scan"]["cc_archived_date"] }}
+		{{ cert["csv_scan"]["cc_archived_date"].strftime("%d-%m-%Y") }}
 		<br/>
 		{% endif %}
 		<b>Scheme:</b>

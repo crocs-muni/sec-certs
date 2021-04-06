@@ -1,7 +1,9 @@
 import json
+from sys import stdout
+
+import bson
 from hashlib import blake2b
 from operator import itemgetter
-from pprint import pprint
 
 import click
 import pymongo
@@ -12,7 +14,7 @@ from . import mongo
 from .utils import add_dots, remove_dots
 
 
-def _load_certs(file, certs_path):
+def _load_certs(file, certs_path, mapper):
     click.echo("Loading certs...")
     data = file.read()
     certs = json.loads(data)
@@ -22,13 +24,13 @@ def _load_certs(file, certs_path):
             certs = certs[name]
     for key, val in tqdm(certs.items()):
         val["_id"] = blake2b(key.encode(), digest_size=10).hexdigest()
-        certs[key] = remove_dots(val)
+        certs[key] = remove_dots(mapper(val))
     click.echo("Loaded certs")
     return certs
 
 
-def _add(file, collection, certs_path):
-    cert_data = _load_certs(file, certs_path)
+def _add(file, collection, certs_path, mapper):
+    cert_data = _load_certs(file, certs_path, mapper)
 
     click.echo("Inserting...")
     try:
@@ -38,8 +40,8 @@ def _add(file, collection, certs_path):
         click.echo(f"Couldn't insert: {e}")
 
 
-def _update(file, remove, collection, certs_path):
-    cert_data = _load_certs(file, certs_path)
+def _update(file, remove, collection, certs_path, mapper):
+    cert_data = _load_certs(file, certs_path, mapper)
     if remove:
         new_ids = set(map(itemgetter("_id"), cert_data.values()))
         current_ids = set(map(itemgetter("_id"), collection.find({}, ["_id"])))

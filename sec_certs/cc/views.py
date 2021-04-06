@@ -74,7 +74,8 @@ def select_certs(q, cat, status, sort):
         "csv_scan.cert_status": 1,
         "csv_scan.cc_certification_date": 1,
         "csv_scan.cc_archived_date": 1,
-        "csv_scan.cc_category": 1
+        "csv_scan.cc_category": 1,
+        "processed.cert_id": 1
     }
 
     if q is not None and q != "":

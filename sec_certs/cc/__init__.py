@@ -80,7 +80,7 @@ def load_cc_data():
 
         cc_analysis["certified"] = {}
         for cert in data.clone():
-            cert_month = datetime.strptime(cert["csv_scan"]["cc_certification_date"], "%m/%d/%Y").replace(day=1).strftime("%Y-%m-%d")
+            cert_month = cert["csv_scan"]["cc_certification_date"].replace(day=1).strftime("%Y-%m-%d")
             cc_analysis["certified"].setdefault(cert["csv_scan"]["cc_category"], [])
             months = cc_analysis["certified"][cert["csv_scan"]["cc_category"]]
             for month in months:

@@ -29,7 +29,7 @@ def load_fips_data():
             "web_scan.module_type": 1,
             "processed.connections": 1
         })
-        fips_references = {cert["cert_id"]: {
+        fips_references = {str(cert["cert_id"]): {
             "hashid": cert["_id"],
             "name": cert["web_scan"]["module_name"],
             "refs": cert["processed"]["connections"],

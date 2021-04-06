@@ -1,4 +1,8 @@
 import json
+import html
+import codecs
+from datetime import datetime
+
 import click
 
 from .. import mongo
@@ -6,10 +10,27 @@ from . import cc
 from ..commands import _add, _update, _create, _drop, _query
 
 
+def cc_mapper(cert):
+    if "csv_scan" in cert:
+        cs = cert["csv_scan"]
+        if "cc_archived_date" in cs:
+            cs["cc_archived_date"] = datetime.strptime(cs["cc_archived_date"], "%m/%d/%Y") if cs["cc_archived_date"] else None
+        if "cc_certification_date" in cs:
+            cs["cc_certification_date"] = datetime.strptime(cs["cc_certification_date"], "%m/%d/%Y") if cs["cc_certification_date"] else None
+        if "cert_item_name" in cs:
+            cs["cert_item_name"] = html.unescape(cs["cert_item_name"])
+    if "frontpage_scan" in cert:
+        fs = cert["frontpage_scan"]
+        for n in ("cc_security_level", "cc_version", "cert_item", "cert_lab", "developer"):
+            if n in fs:
+                fs[n] = codecs.decode(fs[n], "unicode-escape")
+    return cert
+
+
 @cc.cli.command("import", help="Import CC certs.")
 @click.argument("file", type=click.File())
 def add(file):
-    _add(file, mongo.db.cc, None)
+    _add(file, mongo.db.cc, None, cc_mapper)
 
 
 @cc.cli.command("update", help="Update CC certs.")
@@ -18,7 +39,7 @@ def add(file):
 )
 @click.argument("file", type=click.File())
 def update(file, remove):
-    _update(file, remove, mongo.db.cc, None)
+    _update(file, remove, mongo.db.cc, None, cc_mapper)
 
 
 @cc.cli.command("create", help="Create the DB of CC certs.")

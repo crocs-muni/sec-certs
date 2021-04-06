@@ -36,10 +36,10 @@
             {% if cert["web_scan"]["historical_reason"] %}
                 <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
             {% endif %}
-            <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
+            <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date.strftime("%d-%m-%Y") }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
             {% if cert["web_scan"]["date_sunset"] %}
                 <b>Sunset date:</b>
-                {{ cert["web_scan"]["date_sunset"] }}<br/>
+                {{ cert["web_scan"]["date_sunset"].strftime("%d-%m-%Y") }}<br/>
             {% endif %}
             <b>Standard:</b> {{ cert["web_scan"]["standard"] }}<br/>
             <b>Security level:</b> {{ cert["web_scan"]["level"] }}<br/>
