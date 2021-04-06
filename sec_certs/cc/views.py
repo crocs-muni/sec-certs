@@ -7,7 +7,7 @@ from flask import (abort, current_app, redirect, render_template, request,
                    url_for)
 from networkx import node_link_data
 
-from .. import mongo
+from .. import mongo, cache
 from ..utils import (Pagination, add_dots, network_graph_func,
                      send_json_attachment)
 from . import (cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis,
@@ -20,6 +20,7 @@ def get_cc_sar(sar):
 
 
 @cc.route("/sars.json")
+@cache.cached(60 * 60)
 def sars():
     return send_json_attachment(cc_sars)
 
@@ -30,6 +31,7 @@ def get_cc_sfr(sfr):
 
 
 @cc.route("/sfrs.json")
+@cache.cached(60 * 60)
 def sfrs():
     return send_json_attachment(cc_sfrs)
 
@@ -40,6 +42,7 @@ def get_cc_category(name):
 
 
 @cc.route("/categories.json")
+@cache.cached(60 * 60)
 def categories():
     return send_json_attachment(cc_categories)
 
@@ -56,6 +59,7 @@ def network():
 
 
 @cc.route("/network/graph.json")
+@cache.cached(5 * 60)
 def network_graph():
     return network_graph_func(get_cc_graphs())
 

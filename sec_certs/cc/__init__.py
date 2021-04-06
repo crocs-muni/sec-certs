@@ -3,7 +3,7 @@ import json
 import sentry_sdk
 from datetime import datetime
 
-from flask import Blueprint, current_app
+from flask import Blueprint
 
 from .. import mongo
 from ..utils import create_graph
@@ -99,7 +99,7 @@ def load_cc_data():
         cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
 
 
-cc_changes = mongo.db.cc.watch()
+cc_changes = mongo.db.cc.watch()  # TODO: This should move to the before_first function so that the client is not conected before fork
 
 
 def _update_cc_data():

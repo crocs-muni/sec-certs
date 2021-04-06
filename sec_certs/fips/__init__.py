@@ -41,7 +41,7 @@ def load_fips_data():
         del fips_graph
 
 
-fips_changes = mongo.db.fips.watch()
+fips_changes = mongo.db.fips.watch()  # TODO: This should move to the before_first function so that the client is not conected before fork
 
 
 def _update_fips_data():

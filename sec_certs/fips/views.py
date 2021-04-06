@@ -5,7 +5,7 @@ import pymongo
 from flask import abort, current_app, redirect, render_template, request, url_for
 from networkx import node_link_data
 
-from .. import mongo
+from .. import mongo, cache
 from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
 from . import fips, fips_types, get_fips_graphs, get_fips_map
 
@@ -16,6 +16,7 @@ def get_fips_type(name):
 
 
 @fips.route("/types.json")
+@cache.cached(60 * 60)
 def types():
     return send_json_attachment(fips_types)
 
@@ -35,6 +36,7 @@ def network():
 
 
 @fips.route("/network/graph.json")
+@cache.cached(5 * 60)
 def network_graph():
     return network_graph_func(get_fips_graphs())
 
@@ -74,7 +76,6 @@ def select_certs(q, cat, status, sort):
     if status is not None and status != "Any":
         query["web_scan.status"] = status
 
-    print(query)
     cursor = mongo.db.fips.find(query, projection)
 
     if sort == "match" and q is not None and q != "":
