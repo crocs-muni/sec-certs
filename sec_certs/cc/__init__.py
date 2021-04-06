@@ -2,7 +2,7 @@ import atexit
 import json
 import sentry_sdk
 from datetime import datetime
-
+from werkzeug.local import Local
 from flask import Blueprint
 
 from .. import mongo
@@ -11,9 +11,12 @@ from ..utils import create_graph
 cc = Blueprint("cc", __name__, url_prefix="/cc")
 cc.cli.short_help = "Common Criteria commands."
 
-cc_graphs = []
-cc_analysis = {}
-cc_map = {}
+cc_local = Local()
+cc_local.graphs = []
+cc_local.analysis = {}
+cc_local.map = {}
+cc_local.changes = None
+
 with cc.open_resource("sfrs.json") as f:
     cc_sfrs = json.load(f)
 with cc.open_resource("sars.json") as f:
@@ -22,11 +25,10 @@ with cc.open_resource("categories.json") as f:
     cc_categories = json.load(f)
 
 
-@cc.before_app_first_request
 def load_cc_data():
-    global cc_graphs, cc_analysis, cc_map
-    with sentry_sdk.start_span(op="cc.load", description="Load CC data"):
+    global cc_local
 
+    with sentry_sdk.start_span(op="cc.load", description="Load CC data"):
         # Extract references
         data = mongo.db.cc.find({}, {
             "_id": 1,
@@ -65,8 +67,11 @@ def load_cc_data():
     with sentry_sdk.start_span(op="cc.load", description="Compute CC graph"):
         cc_graph, cc_graphs, cc_map = create_graph(cc_references)
         del cc_graph
+        cc_local.graphs = cc_graphs
+        cc_local.map = cc_map
 
     with sentry_sdk.start_span(op="cc.load", description="Compute CC analysis"):
+        cc_analysis = {}
         cc_analysis["categories"] = {}
         for cert in data.clone():
             cc_analysis["categories"].setdefault(cert["csv_scan"]["cc_category"], 0)
@@ -97,14 +102,22 @@ def load_cc_data():
                 if category not in month.keys():
                     month[category] = 0
         cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
+        cc_local.analysis = cc_analysis
 
 
-cc_changes = mongo.db.cc.watch()  # TODO: This should move to the before_first function so that the client is not conected before fork
+@cc.before_app_first_request
+def _init_cc_data():
+    global cc_local
+    cc_local.graphs = []
+    cc_local.analysis = {}
+    cc_local.map = {}
+    cc_local.changes = mongo.db.cc.watch()
+    load_cc_data()
 
 
 def _update_cc_data():
     do_update = False
-    while cc_changes.alive and cc_changes.try_next():
+    while cc_local.changes and cc_local.changes.alive and cc_local.changes.try_next():
         do_update = True
     if do_update:
         load_cc_data()
@@ -112,24 +125,17 @@ def _update_cc_data():
 
 def get_cc_graphs():
     _update_cc_data()
-    return cc_graphs
+    return cc_local.graphs
 
 
 def get_cc_map():
     _update_cc_data()
-    return cc_map
+    return cc_local.map
 
 
 def get_cc_analysis():
     _update_cc_data()
-    return cc_analysis
-
-
-def _close_changes_watch():
-    cc_changes.close()
-
-
-atexit.register(_close_changes_watch)
+    return cc_local.analysis
 
 
 from .commands import *

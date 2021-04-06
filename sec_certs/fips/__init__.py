@@ -1,6 +1,7 @@
+import atexit
 import json
 import sentry_sdk
-
+from werkzeug.local import Local
 from flask import Blueprint
 
 from .. import mongo
@@ -9,15 +10,16 @@ from ..utils import create_graph
 fips = Blueprint("fips", __name__, url_prefix="/fips")
 fips.cli.short_help = "FIPS 140 commands."
 
-fips_graphs = []
-fips_map = {}
+fips_local = Local()
+fips_local.graphs = []
+fips_local.map = {}
+fips_local.changes = None
 with fips.open_resource("types.json") as f:
     fips_types = json.load(f)
 
 
-@fips.before_app_first_request
 def load_fips_data():
-    global fips_graphs, fips_map
+    global fips_local
 
     with sentry_sdk.start_span(op="fips.load", description="Load FIPS data"):
         data = mongo.db.fips.find({}, {
@@ -39,14 +41,22 @@ def load_fips_data():
     with sentry_sdk.start_span(op="fips.load", description="Compute FIPS graph"):
         fips_graph, fips_graphs, fips_map = create_graph(fips_references)
         del fips_graph
+    fips_local.graphs = fips_graphs
+    fips_local.map = fips_map
 
 
-fips_changes = mongo.db.fips.watch()  # TODO: This should move to the before_first function so that the client is not conected before fork
+@fips.before_app_first_request
+def _init_fips_data():
+    global fips_local
+    fips_local.graphs = []
+    fips_local.map = {}
+    fips_local.changes = mongo.db.fips.watch()
+    load_fips_data()
 
 
 def _update_fips_data():
     do_update = False
-    while fips_changes.alive and fips_changes.try_next():
+    while fips_local and fips_local.changes.alive and fips_local.changes.try_next():
         do_update = True
     if do_update:
         load_fips_data()
@@ -54,16 +64,12 @@ def _update_fips_data():
 
 def get_fips_graphs():
     _update_fips_data()
-    return fips_graphs
+    return fips_local.graphs
 
 
 def get_fips_map():
     _update_fips_data()
-    return fips_map
-
-
-def _close_changes_watch():
-    fips_changes.close()
+    return fips_local.map
 
 
 from .commands import *
