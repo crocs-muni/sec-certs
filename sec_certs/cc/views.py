@@ -81,7 +81,7 @@ def select_certs(q, cat, status, sort):
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
         re_q = ".*" + re.escape(q) + ".*"
-        query["$or"] = [{"$text": {"$search": q}}, {"csv_scan.cert_item_name": {"$regex": re_q}}]
+        query["$or"] = [{"$text": {"$search": q}}, {"csv_scan.cert_item_name": {"$regex": re_q, "$options": "i"}}]
 
     if cat is not None:
         selected_cats = []

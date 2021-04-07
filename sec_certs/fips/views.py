@@ -60,7 +60,7 @@ def select_certs(q, cat, status, sort):
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
         re_q = ".*" + re.escape(q) + ".*"
-        query["$or"] = [{"$text": {"$search": q}}, {"web_scan.module_name": {"$regex": re_q}}]
+        query["$or"] = [{"$text": {"$search": q}}, {"web_scan.module_name": {"$regex": re_q, "$options": "i"}}]
         # TODO: Add the index on cert_id and enable this
         # try:
         #     iq = int(q)
