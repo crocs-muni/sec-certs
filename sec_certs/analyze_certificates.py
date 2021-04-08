@@ -17,7 +17,7 @@ from tabulate import tabulate
 
 from . import sanity
 from .constants import *
-from .cert_rules import rules_security_functional_components, rules_security_assurance_components
+from .cert_rules import rules_security_functional_components, rules_security_assurance_components, rules_cc_claims
 
 plt.rcdefaults()
 
@@ -598,6 +598,13 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
         item_name = item[:3]
         target_keywords[item_name] = []
         target_keywords[item_name].append(['keywords_scan', 'rules_security_functional_components', item])
+    # CC claims
+    for item in rules_cc_claims:
+        item_name = item[:item.find('\\.')]
+        target_keywords[item_name] = []
+        target_keywords[item_name].append(['keywords_scan', 'rules_cc_claims', item])
+
+
 
     # process all certificate items
     for cert_long_id in all_cert_items.keys():
@@ -670,11 +677,16 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
                     if is_in_dict(cert, target_keyword):
                         hits = get_item_from_dict(cert, target_keyword)
                         for hit in hits:
-                        #for hit_group in hits:
-                        #    for hit in hits[hit_group]:
                             hit = hit.replace(' ', '')
                             hit = hit.replace('-', '')
                             hit = hit.upper()
+
+                            # replace all SARs and SFRs label with longer name
+                            if hit.find('.') != -1:
+                                hit_prefix = hit[:hit.find('.')]
+                                if hit_prefix in SAR_string_mapping.keys():
+                                    hit = '{}: {}'.format(hit, SAR_string_mapping[hit_prefix])
+
                             if hit not in hits_date[target_group].keys():
                                 hits_date[target_group][hit] = {}
                                 for year in range(START_YEAR, END_YEAR):
@@ -751,6 +763,7 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
         if manuf in top_manufacturers:
             top_manufacturers_date[manuf] = manufacturer_date[manuf]
 
+
     # filter only subset of years if required
     plot_hits_date = {}
     if force_plot_end_year:
@@ -776,7 +789,6 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
 
     plot_hits_date_normalized = {}
     for item in plot_hits_date:
-        #hits_date[target_group][hit][cert_year].append(cert_long_id)
         plot_hits_date_normalized = copy.deepcopy(plot_hits_date)
         for group in plot_hits_date.keys():
             for hit in plot_hits_date[group].keys():
@@ -790,6 +802,8 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
     sc_manufacturers = ['Gemalto', 'NXP Semiconductors', 'Samsung', 'STMicroelectronics', 'Oberthur Technologies',
                         'Infineon Technologies AG', 'G+D Mobile Security GmbH', 'ATMEL Smart Card ICs', 'Idemia',
                         'Athena Smartcard', 'Renesas', 'Philips Semiconductors GmbH', 'Oberthur Card Systems']
+
+
 
     # plot graphs showing cert. scheme and EAL in years
     plot_schemes_multi_graph(years, plot_scheme_date, ['DE', 'JP', 'FR', 'US', 'CA'], 'Year of issuance', 'Number of certificates issued', fig_label('CC certificates issuance frequency per scheme and year', filter_label), 'num_certs_in_years')

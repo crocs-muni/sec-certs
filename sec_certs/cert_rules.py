@@ -141,6 +141,7 @@ rules_cc_claims = [
     r'T\.[\._\-A-Z]+?',     # Threats
     r'A\.[\._\-A-Z]+?',     # Assumptions
     r'R\.[\._\-A-Z]+?',     # Requirements
+    r'P\.[\._\-A-Z]+?',     # Policy (organisational security)
     r'OT\.[\._\-A-Z]+?',    # security objectives
     r'OP\.[\._\-A-Z]+?',    # OPerations
     r'OE\.[\._\-A-Z]+?',    # Objectives for the Environment
