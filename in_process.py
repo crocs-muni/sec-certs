@@ -35,8 +35,13 @@ class MIPEntry(ComplexSerializableType):
         return {**self.__dict__, "status": self.status.value}
 
     @classmethod
-    def from_dict(cls, dct: dict) -> 'MIPEntry':
-        return cls(dct['module_name'], dct['vendor_name'], dct['standard'], MIPStatus(dct['status']))
+    def from_dict(cls, dct: dict) -> "MIPEntry":
+        return cls(
+            dct["module_name"],
+            dct["vendor_name"],
+            dct["standard"],
+            MIPStatus(dct["status"]),
+        )
 
 
 @dataclass
@@ -46,11 +51,19 @@ class MIPSnapshot(ComplexSerializableType):
     last_updated: date
 
     def to_dict(self):
-        return {"entries": list(self.entries), "timestamp": self.timestamp.isoformat(), "last_updated": self.last_updated.isoformat()}
+        return {
+            "entries": list(self.entries),
+            "timestamp": self.timestamp.isoformat(),
+            "last_updated": self.last_updated.isoformat(),
+        }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> 'MIPSnapshot':
-        return cls(set(dct["entries"]), datetime.fromisoformat(dct["timestamp"]), date.fromisoformat(dct["last_updated"]))
+    def from_dict(cls, dct: dict) -> "MIPSnapshot":
+        return cls(
+            set(dct["entries"]),
+            datetime.fromisoformat(dct["timestamp"]),
+            date.fromisoformat(dct["last_updated"]),
+        )
 
 
 @dataclass(frozen=True)
@@ -64,8 +77,13 @@ class IUTEntry(ComplexSerializableType):
         return {**self.__dict__, "iut_date": self.iut_date.isoformat()}
 
     @classmethod
-    def from_dict(cls, dct: dict) -> 'IUTEntry':
-        return cls(dct['module_name'], dct['vendor_name'], dct['standard'], date.fromisoformat(dct['iut_date']))
+    def from_dict(cls, dct: dict) -> "IUTEntry":
+        return cls(
+            dct["module_name"],
+            dct["vendor_name"],
+            dct["standard"],
+            date.fromisoformat(dct["iut_date"]),
+        )
 
 
 @dataclass
@@ -75,11 +93,19 @@ class IUTSnapshot(ComplexSerializableType):
     last_updated: date
 
     def to_dict(self):
-        return {"entries": list(self.entries), "timestamp": self.timestamp.isoformat(), "last_updated": self.last_updated.isoformat()}
+        return {
+            "entries": list(self.entries),
+            "timestamp": self.timestamp.isoformat(),
+            "last_updated": self.last_updated.isoformat(),
+        }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> 'IUTSnapshot':
-        return cls(set(dct["entries"]), datetime.fromisoformat(dct["timestamp"]), date.fromisoformat(dct["last_updated"]))
+    def from_dict(cls, dct: dict) -> "IUTSnapshot":
+        return cls(
+            set(dct["entries"]),
+            datetime.fromisoformat(dct["timestamp"]),
+            date.fromisoformat(dct["last_updated"]),
+        )
 
 
 @click.group()
@@ -108,16 +134,25 @@ def fips_mip(directory, output):
     snapshots = []
     fnames = list(directory.glob("*"))
     for fname in tqdm(sorted(fnames), total=len(fnames)):
-        snapshot_date = to_utc(datetime.fromisoformat(fname.name[len("fips_mip_"):-len(".html")]))
+        snapshot_date = to_utc(
+            datetime.fromisoformat(fname.name[len("fips_mip_") : -len(".html")])
+        )
         with open(fname) as f:
             soup = BeautifulSoup(f, "html.parser")
         tables = soup.find_all("table")
         if len(tables) != 1:
             click.secho(f"*** Not only a single table in {fname}.", fg="red", err=True)
             continue
-        last_updated_elem = next(filter(lambda e: isinstance(e, Tag) and e.name == "p", soup.find(id="content").next_siblings))
+        last_updated_elem = next(
+            filter(
+                lambda e: isinstance(e, Tag) and e.name == "p",
+                soup.find(id="content").next_siblings,
+            )
+        )
         last_updated_text = str(last_updated_elem.string).strip()
-        last_updated = datetime.strptime(last_updated_text, "Last Updated: %m/%d/%Y").date()
+        last_updated = datetime.strptime(
+            last_updated_text, "Last Updated: %m/%d/%Y"
+        ).date()
         table = tables[0].find("tbody")
         lines = table.find_all("tr")
         if snapshot_date <= datetime(2020, 10, 28):
@@ -134,9 +169,24 @@ def fips_mip(directory, output):
                     status = MIPStatus.REVIEW_PENDING
                 elif "mip-highlight" in tds[-4]["class"]:
                     status = MIPStatus.IN_REVIEW
-                entries.add(MIPEntry(str(tds[0].string), str(tds[1].string), str(tds[2].string), status))
+                entries.add(
+                    MIPEntry(
+                        str(tds[0].string),
+                        str(tds[1].string),
+                        str(tds[2].string),
+                        status,
+                    )
+                )
         else:
-            entries = {MIPEntry(str(line[0].string), str(line[1].string), str(line[2].string), MIPStatus(str(line[3].string))) for line in map(lambda tr: tr.find_all("td"), lines)}
+            entries = {
+                MIPEntry(
+                    str(line[0].string),
+                    str(line[1].string),
+                    str(line[2].string),
+                    MIPStatus(str(line[3].string)),
+                )
+                for line in map(lambda tr: tr.find_all("td"), lines)
+            }
         snapshots.append(MIPSnapshot(entries, snapshot_date, last_updated))
     json.dump(snapshots, output, indent=4, cls=CustomJSONEncoder)
 
@@ -162,19 +212,36 @@ def fips_iut(directory, output):
     snapshots = []
     fnames = list(directory.glob("*"))
     for fname in tqdm(sorted(fnames), total=len(fnames)):
-        snapshot_date = to_utc(datetime.fromisoformat(fname.name[len("fips_iut_"):-len(".html")]))
+        snapshot_date = to_utc(
+            datetime.fromisoformat(fname.name[len("fips_iut_") : -len(".html")])
+        )
         with open(fname) as f:
             soup = BeautifulSoup(f, "html.parser")
         tables = soup.find_all("table")
         if len(tables) != 1:
             click.secho(f"*** Not only a single table in {fname}.", fg="red", err=True)
             continue
-        last_updated_elem = next(filter(lambda e: isinstance(e, Tag) and e.name == "p", soup.find(id="content").next_siblings))
+        last_updated_elem = next(
+            filter(
+                lambda e: isinstance(e, Tag) and e.name == "p",
+                soup.find(id="content").next_siblings,
+            )
+        )
         last_updated_text = str(last_updated_elem.string).strip()
-        last_updated = datetime.strptime(last_updated_text, "Last Updated: %m/%d/%Y").date()
+        last_updated = datetime.strptime(
+            last_updated_text, "Last Updated: %m/%d/%Y"
+        ).date()
         table = tables[0].find("tbody")
         lines = table.find_all("tr")
-        entries = {IUTEntry(str(line[0].string), str(line[1].string), str(line[2].string), datetime.strptime(str(line[3].string), "%m/%d/%Y").date()) for line in map(lambda tr: tr.find_all("td"), lines)}
+        entries = {
+            IUTEntry(
+                str(line[0].string),
+                str(line[1].string),
+                str(line[2].string),
+                datetime.strptime(str(line[3].string), "%m/%d/%Y").date(),
+            )
+            for line in map(lambda tr: tr.find_all("td"), lines)
+        }
         snapshots.append(IUTSnapshot(entries, snapshot_date, last_updated))
     json.dump(snapshots, output, indent=4, cls=CustomJSONEncoder)
 
