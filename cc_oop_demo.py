@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 import logging
 import json
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ def main():
 
     # transform to pandas DataFrame
     df = dset.to_pandas()
+
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')

@@ -868,6 +868,20 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
+    @dataclass(init=False)
+    class Heuristics(ComplexSerializableType):
+        extracted_versions: List[str]
+
+        def __init__(self, extracted_versions: Optional[List[str]] = None):
+            self.extracted_versions = extracted_versions
+
+        def to_dict(self):
+            return {'extracted_versions': self.extracted_versions}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, str]):
+            return cls(*tuple(dct.values()))
+
     pandas_serialization_vars = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
                                  'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
 
@@ -879,7 +893,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  maintainance_updates: set,
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
-                 cpe_matching: Optional[List[Tuple[str]]]):
+                 cpe_matching: Optional[List[Tuple[str]]],
+                 heuristics: Optional[Heuristics]):
         super().__init__()
 
         self.status = status
@@ -909,6 +924,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if cpe_matching is None:
             cpe_matching = []
         self.cpe_matching = cpe_matching
+
+        if heuristics is None:
+            heuristics = self.Heuristics()
+        self.heuristics = heuristics
 
     @property
     def dgst(self) -> str:
@@ -1067,7 +1086,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
                    report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],

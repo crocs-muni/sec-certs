@@ -51,5 +51,9 @@
         "report_keywords": null,
         "st_keywords": null
     },
-    "cpe_matching": []
+    "cpe_matching": [],
+    "heuristics": {
+        "_type": "Heuristics",
+        "extracted_versions": null
+    }
 }

@@ -51,6 +51,11 @@ class Dataset(ABC):
             raise FileNotFoundError('Root directory for Dataset does not exist')
         self._root_dir = new_path
 
+    @property
+    def json_path(self) -> Path:
+        return self.root_dir / (self.name + '.json')
+
+
     def __iter__(self):
         yield from self.certs.values()
 
@@ -83,7 +88,10 @@ class Dataset(ABC):
                 f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
         return dset
 
-    def to_json(self, output_path: Union[str, Path]):
+    def to_json(self, output_path: Union[str, Path] = None):
+        if not output_path:
+            output_path = self.json_path
+
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
 
@@ -169,10 +177,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     def root_dir(self, new_dir: Union[str, Path]):
         Dataset.root_dir.fset(self, new_dir)
         self.set_local_paths()
-
-    @property
-    def json_path(self) -> Path:
-        return self.root_dir / (self.name + '.json')
 
     @property
     def web_dir(self) -> Path:
@@ -372,7 +376,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
                                        x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
                                        None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None,
-                                       None) for
+                                       None, None) for
             x in
             df_base.itertuples()}
         return certs
