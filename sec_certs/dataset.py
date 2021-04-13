@@ -376,7 +376,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
                                        x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
                                        None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None,
-                                       None, None) for
+                                       None) for
             x in
             df_base.itertuples()}
         return certs
@@ -650,6 +650,17 @@ class CCDataset(Dataset, ComplexSerializableType):
                 self._extract_targets_keywords(False)
 
         self.state.txt_data_extracted = True
+
+        if update_json is True:
+            self.to_json(self.json_path)
+
+    def compute_heuristics(self, update_json=True):
+        def compute_candidate_versions():
+            logger.info('Computing heuristics: possible product versions in certificate name')
+            for cert in self:
+                cert.get_heuristics_version()
+
+        compute_candidate_versions()
 
         if update_json is True:
             self.to_json(self.json_path)

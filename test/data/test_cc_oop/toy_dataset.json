@@ -54,10 +54,10 @@
                 "report_keywords": null,
                 "st_keywords": null
             },
-            "cpe_matching": [],
             "heuristics": {
                 "_type": "Heuristics",
-                "extracted_versions": null
+                "extracted_versions": null,
+                "cpe_matches": null
             }
         },
         {
@@ -103,10 +103,10 @@
                 "report_keywords": null,
                 "st_keywords": null
             },
-            "cpe_matching": [],
             "heuristics": {
                 "_type": "Heuristics",
-                "extracted_versions": null
+                "extracted_versions": null,
+                "cpe_matches": null
             }
         }
     ]

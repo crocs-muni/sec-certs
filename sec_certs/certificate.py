@@ -871,12 +871,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @dataclass(init=False)
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str]
+        cpe_matches: List[str]
 
-        def __init__(self, extracted_versions: Optional[List[str]] = None):
+        def __init__(self, extracted_versions: Optional[List[str]] = None, cpe_matches: Optional[List[str]] = None):
             self.extracted_versions = extracted_versions
+            self.cpe_matches = cpe_matches
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):
@@ -893,7 +895,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  maintainance_updates: set,
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
-                 cpe_matching: Optional[List[Tuple[str]]],
                  heuristics: Optional[Heuristics]):
         super().__init__()
 
@@ -920,10 +921,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if pdf_data is None:
             pdf_data = self.PdfData()
         self.pdf_data = pdf_data
-
-        if cpe_matching is None:
-            cpe_matching = []
-        self.cpe_matching = cpe_matching
 
         if heuristics is None:
             heuristics = self.Heuristics()
@@ -1086,7 +1083,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
                    report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None, None)
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],
@@ -1215,3 +1212,27 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_extract_ok = False
             cert.state.errors.append(response)
         return cert
+
+    def get_heuristics_version(self):
+        """
+        Will extract possible versions from the name
+        """
+        at_least_something = r'(\b(\d)+\b)'
+        just_numbers = r'(\d{1,5})(\.\d{1,5})'
+
+        without_version = r'(' + just_numbers + r'+)'
+        long_version = r'(' + r'(\bversion)\s*' + just_numbers + r'+)'
+        short_version = r'(' + r'\bv\s*' + just_numbers + r'+)'
+        full_regex_string = r'|'.join([without_version, short_version, long_version])
+        normalizer = r'(\d+\.*)+'
+
+        matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, self.name, re.IGNORECASE)])
+        if not matched_strings:
+            matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, self.name, re.IGNORECASE)])
+
+        if matched_strings:
+            self.heuristics.extracted_versions = [re.search(normalizer, x).group() for x in matched_strings]
+        else:
+            self.heuristics.extracted_versions = ['-']
+
+
