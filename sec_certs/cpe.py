@@ -5,7 +5,11 @@ from typing import Optional, List, Dict, Tuple, Set
 import itertools
 import re
 from rapidfuzz import process, fuzz
+import tempfile
+from pathlib import Path
+import zipfile
 
+import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType
 
 import pandas as pd
@@ -105,6 +109,20 @@ class CPEDataset:
     @classmethod
     def to_json(cls):
         raise NotImplementedError
+
+    @classmethod
+    def from_web(cls):
+        basename = 'official-cpe-dictionary_v2.3.xml'
+        url = 'https://nvd.nist.gov/feeds/xml/cpe/dictionary/' + basename + '.zip'
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            xml_path = Path(tmp_dir) / basename
+            zip_path = Path(tmp_dir) / (basename + '.zip')
+            helpers.download_file(url, zip_path)
+
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(tmp_dir)
+
+            return cls.from_xml(xml_path)
 
     @classmethod
     def from_xml(cls, xml_path: str):
