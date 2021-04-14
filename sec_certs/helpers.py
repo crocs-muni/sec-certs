@@ -134,8 +134,15 @@ def find_tables_iterative(file_text: str) -> List[int]:
             current_page += 1
         if line.startswith('Table ') or line.startswith('Exhibit'):
             pages.add(current_page)
+            pages.add(current_page + 1)
+            if current_page > 2:
+                pages.add(current_page - 1)
     if not pages:
         logger.warning('No pages found')
+    for page in pages:
+        if page > current_page - 1:
+            return list(pages - {page})
+
     return list(pages)
 
 
@@ -501,6 +508,7 @@ def analyze_matched_algs(data: Dict):
     pd_data = pd.Series(data)
     pd_data.hist(bins=50)
     plt.show()
+    plt.save('matched_algs.png')
 
     sorted_data = pd_data.value_counts(ascending=True)
 
