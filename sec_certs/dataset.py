@@ -739,14 +739,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return output
 
-
-
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []
         self.policies_dir.mkdir(exist_ok=True)
 
         for cert_id in list(self.certs.keys()):
-            if not (self.policies_dir / f'{cert_id}.pdf').exists() or not self.certs[cert_id].state.txt_state:
+            if not (self.policies_dir / f'{cert_id}.pdf').exists() or (self.certs[cert_id]
+                                                                       and not self.certs[cert_id].state.txt_state):
                 sp_urls.append(
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf")
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
@@ -768,7 +767,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logging.info(f"downloading {len(html_urls)} module html files")
         failed = cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)),
-                                         constants.N_THREADS)
+                                                  constants.N_THREADS)
         failed = [c for c in failed if c]
 
         self.new_files += len(html_urls)
@@ -800,7 +799,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             table = [x for x in html.find(
                 id='searchResultsTable').tbody.contents if x != '\n']
             for entry in table:
-                self.certs[entry.find('a').text] = {}
+                self.certs[entry.find('a').text] = None
 
         logger.info("Downloading required html files")
 
