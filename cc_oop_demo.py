@@ -44,6 +44,8 @@ def main():
     # transform to pandas DataFrame
     df = dset.to_pandas()
 
+    # Compute heuristics on the dataset
+    dset.compute_heuristics(update_json=True)
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
