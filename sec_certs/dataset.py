@@ -27,6 +27,7 @@ import sec_certs.files as files
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
+from sec_certs.cpe import CPEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,6 @@ class Dataset(ABC):
     @property
     def json_path(self) -> Path:
         return self.root_dir / (self.name + '.json')
-
 
     def __iter__(self):
         yield from self.certs.values()
@@ -654,13 +654,27 @@ class CCDataset(Dataset, ComplexSerializableType):
         if update_json is True:
             self.to_json(self.json_path)
 
-    def compute_heuristics(self, update_json=True):
+    def compute_heuristics(self, cpe_xml_path: str, update_json=True):
         def compute_candidate_versions():
             logger.info('Computing heuristics: possible product versions in certificate name')
             for cert in self:
                 cert.get_heuristics_version()
 
+        def compute_candidate_cpe_vendors(cpe_dataset: CPEDataset):
+            logger.info('Computing heuristics: Possible vendors from CPE repository that could match the certificate vendor')
+            for cert in self:
+                cert.get_heuristics_cpe_vendors(cpe_dataset)
+
+        def compute_cpe_matches(cpe_dataset: CPEDataset):
+            logger.info('Computing heuristics: Finding CPE matches for certificates')
+            for cert in self:
+                cert.get_heuristics_cpe_match(cpe_dataset)
+
         compute_candidate_versions()
+
+        cpe_dset = CPEDataset.from_xml(cpe_xml_path)
+        compute_candidate_cpe_vendors(cpe_dset)
+        compute_cpe_matches(cpe_dset)
 
         if update_json is True:
             self.to_json(self.json_path)

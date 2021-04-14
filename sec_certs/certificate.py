@@ -22,6 +22,7 @@ from sec_certs.extract_certificates import load_cert_file, normalize_match_strin
     LINE_SEPARATOR, APPEND_DETAILED_MATCH_MATCHES
 from sec_certs.cert_rules import fips_rules, fips_common_rules
 from sec_certs.configuration import config
+from sec_certs.cpe import CPE, CPEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -744,8 +745,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
-    cc_url = 'http://commoncriteriaportal.org'
-    empty_st_url = 'http://commoncriteriaportal.org/files/epfiles/'
+    cc_url = 'http://www.commoncriteriaportal.org'
+    empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
     class MaintainanceReport(ComplexSerializableType):
@@ -871,11 +872,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @dataclass(init=False)
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str]
+        cpe_candidate_vendors: List[str]
         cpe_matches: List[str]
 
-        def __init__(self, extracted_versions: Optional[List[str]] = None, cpe_matches: Optional[List[str]] = None):
+        def __init__(self, extracted_versions: Optional[List[str]] = None, cpe_matches: Optional[List[str]] = None, cpe_candidate_vendors: Optional[List[str]] = None):
             self.extracted_versions = extracted_versions
             self.cpe_matches = cpe_matches
+            self.cpe_candidate_vendors = cpe_candidate_vendors
+
 
         def to_dict(self):
             return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches}
@@ -932,6 +936,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
+
+    def __str__(self):
+        return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
         return tuple(getattr(self, i) for i in self.pandas_serialization_vars)
@@ -1235,4 +1242,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         else:
             self.heuristics.extracted_versions = ['-']
 
+    # TODO: Move this to heuristics dataclass?
+    def get_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        """
+        With the help of the CPE dataset, will find CPE vendors that could match the given certificate vendor
+        """
+        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
 
+    def get_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name, self.heuristics.cpe_candidate_vendors, self.heuristics.extracted_versions)
