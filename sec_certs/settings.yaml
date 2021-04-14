@@ -13,4 +13,7 @@ use_text_with_newlines_during_parsing:
 ignore_first_page:
   description: During keyword search, first page usually contains addresses - ignore it.
   value: true
+cert_threshold:
+  description: Used with --higher-precision-results. Determines the amount of mismatched algorithms to be considered faulty.
+  value: 5
 

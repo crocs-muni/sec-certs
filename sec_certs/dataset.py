@@ -734,8 +734,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def match_algs(self) -> Dict:
         output = {}
+        cert: FIPSCertificate
         for cert in self.certs.values():
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
+            cert.processed.unmatched_algs = output[cert.dgst]
 
         return output
 
@@ -856,14 +858,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                       (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False),
                 cert, redo=redo)
 
-    def extract_certs_from_tables(self) -> List[Path]:
+    def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
         """
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
         """
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
-                                                  [cert for cert in self.certs.values() if
-                                                   not cert.state.tables_done and cert.state.txt_state],
+                                                  [(cert, high_precision) for cert in self.certs.values() if
+                                                   (not cert.state.tables_done or high_precision) and cert.state.txt_state],
                                                   constants.N_THREADS // 4,  # tabula already processes by parallel, so
                                                   # it's counterproductive to use all threads
                                                   use_threading=False)

@@ -508,7 +508,7 @@ def analyze_matched_algs(data: Dict):
     pd_data = pd.Series(data)
     pd_data.hist(bins=50)
     plt.show()
-    plt.save('matched_algs.png')
+    plt.savefig('matched_algs.png')
 
     sorted_data = pd_data.value_counts(ascending=True)
 

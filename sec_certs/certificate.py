@@ -199,6 +199,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         keywords: Optional[Dict]
         algorithms: Dict
         connections: List
+        unmatched_algs: int
 
         @property
         def dgst(self):
@@ -549,7 +550,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for web_alg in alg_list:
                 if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
                     not_found.append(web_alg)
-        logger.error(
+        logger.info(
             f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n"
             f"\tFOUND: {sum([len(a['Certificate']) for a in cert.web_scan.algorithms]) - len(not_found)}")
         logger.error(f"Not found: {not_found}")
@@ -634,6 +635,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict], str]:
         # apply all rules
         items_found_all: Dict = {}
+
         for rule_group in fips_rules.keys():
             if rule_group not in items_found_all:
                 items_found_all[rule_group] = {}
@@ -665,21 +667,27 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, text_to_parse
 
     @staticmethod
-    def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
+    def analyze_tables(tup: Tuple['FIPSCertificate', bool] ) -> Tuple[bool, 'FIPSCertificate', List]:
+        cert, precision = tup
+        if not (precision and cert.state.tables_done)\
+                or (precision and cert.processed.unmatched_algs < config.cert_threshold['value']):
+            return cert.state.tables_done, cert, []
+
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
         with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
+        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold['value'] # bool value
 
         lst: List = []
         if tables:
             try:
-                data = read_pdf(cert_file, pages=tables, silent=True)
+                data = read_pdf(cert_file, pages='all' if all_pages else tables, silent=True)
             except Exception as e:
                 try:
                     logger.error(e)
                     helpers.repair_pdf(cert_file)
-                    data = read_pdf(cert_file, pages=tables, silent=True)
+                    data = read_pdf(cert_file, pages='all' if all_pages else tables, silent=True)
 
                 except Exception as ex:
                     logger.error(ex)
