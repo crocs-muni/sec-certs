@@ -340,7 +340,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
 
         # TODO: Now skipping bad lines, smarter heuristics to be built for dumb files
-        df = pd.read_csv(file, engine='python', encoding='windows-1250', error_bad_lines=False)
+        df = pd.read_csv(file, engine='python', encoding='windows-1252', error_bad_lines=False)
         df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
 
         df['is_maintainance'] = ~df.maintainance_title.isnull()
