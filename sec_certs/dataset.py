@@ -1067,7 +1067,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 dot.edge(key, conn)
                 edges += 1
 
-        logging.info(f"rendering {keys} keys and {edges} edges")
+        logging.info(f"rendering for {connection_list}: {keys} keys and {edges} edges")
 
         dot.render(self.root_dir / (str(output_file_name) + '_connections'), view=True)
         single_dot.render(self.root_dir / (str(output_file_name) + '_single'), view=True)
