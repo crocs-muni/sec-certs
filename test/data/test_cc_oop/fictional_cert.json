@@ -54,6 +54,8 @@
     "heuristics": {
         "_type": "Heuristics",
         "extracted_versions": null,
-        "cpe_matches": null
+        "cpe_matches": null,
+        "verified_cpe_match": null,
+        "related_cves": null
     }
 }
