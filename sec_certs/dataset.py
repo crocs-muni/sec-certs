@@ -690,10 +690,34 @@ class CCDataset(Dataset, ComplexSerializableType):
         else:
             cve_dataset = CVEDataset.from_json(cve_dataset_path)
 
-        compute_related_cves(cve_dataset)
+        # TODO: Invoke me back
+        # compute_related_cves(cve_dataset)
 
         if update_json is True:
             self.to_json(self.json_path)
+
+    def manually_verify_cpe_matches(self, update_json=True):
+        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches]
+        logger.info('Manually verifying CPE matches')
+        n_certs_to_verify = len(certs_to_verify)
+        for i, x in enumerate(certs_to_verify):
+            print(f'[{i}/{n_certs_to_verify}]Vendor: {x.manufacturer}, name: {x.name}')
+            for index, c in enumerate(x.heuristics.cpe_matches):
+                print(f'\t- {[index]}: {c[1]}')
+            print(f'\t- [X]: No fitting match')
+            inpt = input('Select fitting CPE matches (split with comma if choosing more):')
+            inpts = [x for x in inpt.split(',')]
+
+            if 'X' not in inpts:
+                inpts = [int(x) for x in inpts]
+                matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
+                self[x.dgst].heuristics.verified_cpe_matches = matches
+            if not i % 10:
+                print(f'Saving progress.')
+                self.to_json()
+
+        if update_json is True:
+            self.to_json()
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

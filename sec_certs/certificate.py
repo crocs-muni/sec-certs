@@ -8,6 +8,7 @@ import copy
 import json
 import requests
 from dateutil import parser
+import itertools
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
@@ -875,20 +876,22 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         extracted_versions: List[str]
         cpe_candidate_vendors: List[str]
         cpe_matches: Optional[List[Tuple[float, CPE]]]
-        verified_cpe_match: Optional[CPE]
-        related_cves: Optional[List[CVE]]
+        verified_cpe_matches: Optional[List[CPE]]
+        related_cves: Optional[List[str]]
 
-        def __init__(self, extracted_versions: Optional[List[str]] = None, cpe_matches: Optional[List[str]] = None, cpe_candidate_vendors: Optional[List[str]] = None,
-                     verified_cpe_match: Optional[str] = None,
+        def __init__(self, extracted_versions: Optional[List[str]] = None,
+                     cpe_matches: Optional[List[str]] = None,
+                     cpe_candidate_vendors: Optional[List[str]] = None,
+                     verified_cpe_matches: Optional[List[str]] = None,
                      related_cves: Optional[List[CVE]] = None):
             self.extracted_versions = extracted_versions
             self.cpe_matches = cpe_matches
             self.cpe_candidate_vendors = cpe_candidate_vendors
-            self.verified_cpe_match = verified_cpe_match
+            self.verified_cpe_matches = verified_cpe_matches
             self.related_cves = related_cves
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_match': self.verified_cpe_match, 'related_cves': self.related_cves}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):
@@ -1257,13 +1260,19 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def get_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
         self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name, self.heuristics.cpe_candidate_vendors, self.heuristics.extracted_versions)
+
+        # TODO: Delete me, I'm just a placeholder
         if self.heuristics.cpe_matches:
-            self.heuristics.verified_cpe_match = self.heuristics.cpe_matches[0][1]
+            self.heuristics.verified_cpe_matches = [x[1] for x in self.heuristics.cpe_matches]
         else:
-            self.heuristics.verified_cpe_match = None
+            self.heuristics.verified_cpe_matches = None
 
     def get_heuristics_related_cves(self, cve_dataset: CVEDataset):
-        if self.heuristics.verified_cpe_match:
-            self.heuristics.related_cves = cve_dataset.get_cves_for_cpe(self.heuristics.verified_cpe_match.uri)
+        if self.heuristics.verified_cpe_matches:
+            self.heuristics.related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
+            self.heuristics.related_cves = itertools.chain.from_iterable(self.heuristics.related_cves)
+            self.heuristics.related_cves = list(filter(lambda x: x is not None, self.heuristics.related_cves))
+            if not self.heuristics.related_cves:
+                return None
         else:
             self.heuristics.related_cves = None
