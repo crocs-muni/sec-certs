@@ -65,7 +65,7 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     logging.info('dump again')
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
-    dset.get_dot_graph('different_new')
+    dset.plot_graphs()
 
     data = dset.match_algs()
     analyze_matched_algs(data)

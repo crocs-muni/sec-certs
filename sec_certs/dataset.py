@@ -987,12 +987,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
-    def get_dot_graph(self, output_file_name: str):
+    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed'):
         """
         Function that plots .dot graph of dependencies between certificates
         Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
         certificates are displayed in {output_file_name}single.pdf
         :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
+        :param connection_list: 'processed', 'web', or 'pdf' - plots a graph from this source
+                                default - processed
         """
         dot = Digraph(comment='Certificate ecosystem')
         single_dot = Digraph(comment='Modules with no dependencies')
@@ -1026,27 +1028,44 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                            (self.certs[current_key].web_scan.module_name
                             if self.certs[current_key].web_scan.module_name else ''))
 
+        def get_processed_list():
+            if connection_list == "pdf":
+                cert_list = self.certs[key].pdf_scan.connections
+
+            elif connection_list == "web":
+                cert_list = self.certs[key].web_scan.connections
+
+            else:
+                cert_list = self.certs[key].processed.connections
+            return cert_list
+
         keys = 0
         edges = 0
 
         highlighted_vendor = 'Red Hat®, Inc.'
         for key in self.certs:
-            if key != 'Not found' and self.certs[key].state.file_status:
-                if self.certs[key].processed.connections:
-                    color_check(key)
-                    keys += 1
-                else:
-                    single_dot.attr('node', color='lightblue')
-                    found_interesting_cert(key)
-                    single_dot.node(key, label=key + '\r\n' + self.certs[key].web_scan.vendor + (
-                        '\r\n' + self.certs[key].web_scan.module_name if self.certs[key].web_scan.module_name else ''))
+            if key == 'Not found' or not self.certs[key].state.file_status:
+                continue
+
+            processed = get_processed_list()
+
+            if processed:
+                color_check(key)
+                keys += 1
+            else:
+                single_dot.attr('node', color='lightblue')
+                found_interesting_cert(key)
+                single_dot.node(key, label=key + '\r\n' + self.certs[key].web_scan.vendor + (
+                    '\r\n' + self.certs[key].web_scan.module_name if self.certs[key].web_scan.module_name else ''))
 
         for key in self.certs:
-            if key != 'Not found' and self.certs[key].state.file_status:
-                for conn in self.certs[key].processed.connections:
-                    color_check(conn)
-                    dot.edge(key, conn)
-                    edges += 1
+            if key == 'Not found' or not self.certs[key].state.file_status:
+                continue
+            processed = get_processed_list()
+            for conn in processed:
+                color_check(conn)
+                dot.edge(key, conn)
+                edges += 1
 
         logging.info(f"rendering {keys} keys and {edges} edges")
 
@@ -1089,7 +1108,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return vendors
 
-    def find_certs_with_different_algorithm_vendors(self) -> dict:
+    def find_certs_with_different_algorithm_vendors(self) -> Dict:
         cert: FIPSCertificate
         mapped = {}
         for cert in self.certs.values():
@@ -1115,6 +1134,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info(f"Average: {sum(mapped.values()) / len(mapped)}")
 
         return mapped
+
+
+    def plot_graphs(self):
+        self.get_dot_graph('full_graph')
+        self.get_dot_graph('web_only_graph', 'web')
+        self.get_dot_graph('pdf_only_graph', 'pdf')
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
