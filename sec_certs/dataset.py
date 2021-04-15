@@ -93,7 +93,7 @@ class Dataset(ABC):
             output_path = self.json_path
 
         with Path(output_path).open('w') as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
