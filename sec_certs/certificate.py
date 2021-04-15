@@ -144,6 +144,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         revoked_link: Optional[str]
         sw_versions: Optional[str]
         product_url: Optional[str]
+        connections: List
 
         def __post_init__(self):
             self.date_validation = [parser.parse(x).date() for x in
@@ -174,6 +175,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         cert_id: int
         keywords: Dict
         algorithms: List
+        connections: List
 
         @property
         def dgst(self):
