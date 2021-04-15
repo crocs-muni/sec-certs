@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Dict, List
+from dataclasses import dataclass, field
+from typing import Dict, List,  Optional
 import copy
 import datetime
 from pathlib import Path
@@ -10,6 +10,7 @@ import glob
 import tqdm
 import json
 
+from sec_certs.cert_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
@@ -96,13 +97,35 @@ class CVE(ComplexSerializableType):
 @dataclass
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
+    cpes_to_cve_lookup: Dict[str, List[str]] = field(init=False)
 
     def to_dict(self):
-        return copy.deepcopy(self.__dict__)
+        return copy.deepcopy({'cves': self.cves})
 
     @classmethod
     def from_dict(cls, dct: Dict):
         return cls(*tuple(dct.values()))
+
+    def __post_init__(self):
+        self.cpes_to_cve_lookup = dict()
+        for cve in self:
+            for cpe in cve.vulnerable_cpes:
+                if not cpe in self.cpes_to_cve_lookup:
+                    self.cpes_to_cve_lookup[cpe] = [cve.cve_id]
+                else:
+                    self.cpes_to_cve_lookup[cpe].append(cve.cve_id)
+
+    def __iter__(self):
+        yield from self.cves.values()
+
+    def __getitem__(self, item: str) -> CVE:
+        return self.cves.__getitem__(item.lower())
+
+    def __setitem__(self, key: str, value: CVE):
+        self.cves.__setitem__(key.lower(), value)
+
+    def __len__(self) -> int:
+        return len(self.cves)
 
     @staticmethod
     def download_cves(output_path: str, start_year: int, end_year: int):
@@ -141,8 +164,9 @@ class CVEDataset(ComplexSerializableType):
 
             all_cves = dict()
             logger.info(f'Building CVEDataset from downloaded jsons.')
-            for filepath in tqdm.tqdm(json_files):
-                all_cves.update(cls.from_nist_json(filepath).cves)
+            results = process_parallel(cls.from_nist_json, json_files, constants.N_THREADS, use_threading=False)
+            for r in results:
+                all_cves.update(r.cves)
         return cls(all_cves)
 
     def to_json(self, output_path: str):
@@ -156,3 +180,7 @@ class CVEDataset(ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 
+    def get_cves_for_cpe(self, cpe_uri: str) -> Optional[List[str]]:
+        if not isinstance(cpe_uri, str):
+            return None
+        return self.cpes_to_cve_lookup[cpe_uri] if self.cpes_to_cve_lookup[cpe_uri] else None
