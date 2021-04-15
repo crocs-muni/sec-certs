@@ -749,7 +749,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @staticmethod
     def get_compare(vendor: str):
         vendor_split = vendor.replace(',', '') \
-            .replace('-', ' ').replace('+', ' ').replace('®', '').split()
+            .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
         return vendor_split[0] if len(vendor_split) > 0 else vendor
 
 

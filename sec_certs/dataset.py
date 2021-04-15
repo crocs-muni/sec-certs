@@ -865,7 +865,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         """
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [(cert, high_precision) for cert in self.certs.values() if
-                                                   (not cert.state.tables_done or high_precision) and cert.state.txt_state],
+                                                   (
+                                                           not cert.state.tables_done or high_precision) and cert.state.txt_state],
                                                   constants.N_THREADS // 4,  # tabula already processes by parallel, so
                                                   # it's counterproductive to use all threads
                                                   use_threading=False)
@@ -1083,6 +1084,33 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             vendors[prefix] = list(a)
 
         return vendors
+
+    def find_certs_with_different_algorithm_vendors(self) -> dict:
+        cert: FIPSCertificate
+        mapped = {}
+        for cert in self.certs.values():
+            mapped[cert.dgst] = 0
+            for alg in cert.web_scan.algorithms:
+                if not "Name" in alg:
+                    continue
+                alg_certs = alg["Certificate"]
+                for alg_cert in alg_certs:
+                    found = self.algorithms[''.join(filter(str.isdigit, alg_cert))]
+                    found_cert: FIPSCertificate.Algorithm
+                    for found_cert in found:
+                        if FIPSCertificate.get_compare(cert.web_scan.vendor) == FIPSCertificate.get_compare(found_cert.vendor):
+                            break
+                    else:
+                        mapped[cert.dgst] += 1
+
+        mapped = {k: v for k, v in mapped.items() if v != 0}
+        mapped = {k: v for k, v in sorted(mapped.items(), key=lambda item: item[1], reverse=True)}
+
+        logger.info(json.dumps({k: mapped[k] for k in list(mapped)[:10]}, indent=4))
+        logger.info(f"Max: {max(mapped.values())}")
+        logger.info(f"Average: {sum(mapped.values()) / len(mapped)}")
+
+        return mapped
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):

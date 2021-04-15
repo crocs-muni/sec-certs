@@ -4,6 +4,7 @@ import logging
 import click
 from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from sec_certs.configuration import config
+import json
 from sec_certs.helpers import analyze_matched_algs
 
 
@@ -59,7 +60,6 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
         dset.algorithms = aset
 
     logging.info("finalizing results.")
-
     dset.finalize_results()
 
     logging.info('dump again')
@@ -69,6 +69,7 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
 
     data = dset.match_algs()
     analyze_matched_algs(data)
+    dset.find_certs_with_different_algorithm_vendors()
 
     dset.to_json(dset.root_dir / 'fips_mentioned.json')
     end = datetime.now()
