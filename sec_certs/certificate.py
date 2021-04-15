@@ -23,6 +23,7 @@ from sec_certs.extract_certificates import load_cert_file, normalize_match_strin
 from sec_certs.cert_rules import fips_rules, fips_common_rules
 from sec_certs.configuration import config
 from sec_certs.cpe import CPE, CPEDataset
+from sec_certs.cve import CVE, CVEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -873,16 +874,21 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str]
         cpe_candidate_vendors: List[str]
-        cpe_matches: List[str]
+        cpe_matches: Optional[List[Tuple[float, CPE]]]
+        verified_cpe_match: Optional[CPE]
+        related_cves: Optional[List[CVE]]
 
-        def __init__(self, extracted_versions: Optional[List[str]] = None, cpe_matches: Optional[List[str]] = None, cpe_candidate_vendors: Optional[List[str]] = None):
+        def __init__(self, extracted_versions: Optional[List[str]] = None, cpe_matches: Optional[List[str]] = None, cpe_candidate_vendors: Optional[List[str]] = None,
+                     verified_cpe_match: Optional[str] = None,
+                     related_cves: Optional[List[CVE]] = None):
             self.extracted_versions = extracted_versions
             self.cpe_matches = cpe_matches
             self.cpe_candidate_vendors = cpe_candidate_vendors
-
+            self.verified_cpe_match = verified_cpe_match
+            self.related_cves = related_cves
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_match': self.verified_cpe_match, 'related_cves': self.related_cves}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):
@@ -1251,3 +1257,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def get_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
         self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name, self.heuristics.cpe_candidate_vendors, self.heuristics.extracted_versions)
+        if self.heuristics.cpe_matches:
+            self.heuristics.verified_cpe_match = self.heuristics.cpe_matches[0][1]
+        else:
+            self.heuristics.verified_cpe_match = None
+
+    def get_heuristics_related_cves(self, cve_dataset: CVEDataset):
+        if self.heuristics.verified_cpe_match:
+            self.heuristics.related_cves = cve_dataset.get_cves_for_cpe(self.heuristics.verified_cpe_match.uri)
+        else:
+            self.heuristics.related_cves = None

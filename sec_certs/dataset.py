@@ -28,6 +28,7 @@ from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertifica
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
 from sec_certs.cpe import CPEDataset
+from sec_certs.cve import CVEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -654,7 +655,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         if update_json is True:
             self.to_json(self.json_path)
 
-    def compute_heuristics(self, cpe_xml_path: Optional[str] = None, update_json=True):
+    def compute_heuristics(self, cpe_xml_path: Optional[str] = None, cve_dataset_path: Optional[str] = None, update_json=True):
         def compute_candidate_versions():
             logger.info('Computing heuristics: possible product versions in certificate name')
             for cert in self:
@@ -670,6 +671,11 @@ class CCDataset(Dataset, ComplexSerializableType):
             for cert in self:
                 cert.get_heuristics_cpe_match(cpe_dataset)
 
+        def compute_related_cves(cve_dataset: CVEDataset):
+            logger.info('Retreiving CVEs for verified CPE match.')
+            for cert in self:
+                cert.get_heuristics_related_cves(cve_dataset)
+
         compute_candidate_versions()
 
         if not cpe_xml_path:
@@ -678,6 +684,13 @@ class CCDataset(Dataset, ComplexSerializableType):
             cpe_dset = CPEDataset.from_xml(cpe_xml_path)
         compute_candidate_cpe_vendors(cpe_dset)
         compute_cpe_matches(cpe_dset)
+
+        if not cve_dataset_path:
+            cve_dataset = CVEDataset.from_web()
+        else:
+            cve_dataset = CVEDataset.from_json(cve_dataset_path)
+
+        compute_related_cves(cve_dataset)
 
         if update_json is True:
             self.to_json(self.json_path)

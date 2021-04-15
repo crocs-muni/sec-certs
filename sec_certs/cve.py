@@ -183,4 +183,4 @@ class CVEDataset(ComplexSerializableType):
     def get_cves_for_cpe(self, cpe_uri: str) -> Optional[List[str]]:
         if not isinstance(cpe_uri, str):
             return None
-        return self.cpes_to_cve_lookup[cpe_uri] if self.cpes_to_cve_lookup[cpe_uri] else None
+        return self.cpes_to_cve_lookup.get(cpe_uri, None)
