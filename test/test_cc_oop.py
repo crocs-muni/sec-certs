@@ -155,7 +155,7 @@ class TestCommonCriteriaOOP(TestCase):
             shutil.copyfile(self.test_data_dir / 'cc_products_active.html', dataset_path / 'web' / 'cc_products_active.html')
 
             dset = CCDataset({}, dataset_path, 'sample_dataset', 'sample dataset description')
-            dset.get_certs_from_web(keep_metadata=False, to_download=False, get_archived=False, get_active=True)
+            dset.get_certs_from_web(keep_metadata=False, to_download=False, get_archived=False, get_active=True, update_json=False)
 
             self.assertEqual(len(os.listdir(dataset_path)), 0,
                              'Meta files (csv, html) were not deleted properly albeit this was explicitly required.')
