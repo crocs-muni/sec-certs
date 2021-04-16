@@ -729,26 +729,30 @@ class CCDataset(Dataset, ComplexSerializableType):
         def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
             n_certs_to_verify = len(certificates_to_verify)
             for i, x in enumerate(certificates_to_verify):
-                print(f'[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
+                print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
                 for index, c in enumerate(x.heuristics.cpe_matches):
                     print(f'\t- {[index]}: {c[1]}')
+                print(f'\t- [A]: All are fitting')
                 print(f'\t- [X]: No fitting match')
                 inpt = input('Select fitting CPE matches (split with comma if choosing more):')
                 inpts = [x for x in inpt.strip().split(',')]
 
-                if 'X' not in inpts:
+                if 'X' not in inpts and 'x' not in inpts:
+                    if 'A' or 'a' in inpts:
+                        inpts = [x for x in range(0, len(x.heuristics.cpe_matches))]
                     try:
                         inpts = [int(x) for x in inpts]
                         if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
                             raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
-                    except ValueError:
-                        logger.error('Bad input from user, repeating instance')
+                    except ValueError as e:
+                        logger.error(f'Bad input from user, repeating instance: {e}')
+                        time.sleep(0.05)
                         verify_certs([x])
                     else:
                         matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
                         self[x.dgst].heuristics.verified_cpe_matches = matches
 
-                        if i != 0 and not i % 10:
+                        if i != 0 and not i % 10 and update_json:
                             print(f'Saving progress.')
                             self.to_json()
 
