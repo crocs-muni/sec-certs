@@ -207,20 +207,17 @@ class CPEDataset:
         candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(cert_candidate_cpe_vendors, cert_candidate_versions)
 
         if not candidate_vendor_version_pairs:
-            return None
+            return []
 
         return list(itertools.chain.from_iterable([self.vendor_version_to_cpe[x] for x in candidate_vendor_version_pairs]))
 
-    def get_cpe_matches(self, cert_name: str, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List, relax_version: bool = False, n_max_matches=5, threshold: int = 60) -> Optional[List[Tuple[float, CPE]]]:
+    def get_cpe_matches(self, cert_name: str, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str], relax_version: bool = False, n_max_matches=10, threshold: int = 60) -> Optional[List[Tuple[float, CPE]]]:
         replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
 
         def sanitize_matched_string(string: str):
             string = string.replace('®', '').replace('™', '').lower()
             return replace_non_letter_non_numbers_with_space.sub(' ', string)
         candidates = self.get_candidate_cpe_items(cert_candidate_cpe_vendors, cert_candidate_versions)
-
-        if not candidates:
-            return None
 
         sanitized_cert_name = sanitize_matched_string(cert_name)
         reasonable_matches = []
@@ -233,5 +230,13 @@ class CPEDataset:
 
         if reasonable_matches:
             reasonable_matches = sorted(reasonable_matches, key=lambda x: x[0], reverse=True)
+
+            # possibly filter short titles to avoid false positives
+            # reasonable_matches = list(filter(lambda x: len(x[1].item_name) > 4, reasonable_matches))
+
             return reasonable_matches[:n_max_matches]
+
+        if not reasonable_matches and not relax_version:
+            return self.get_cpe_matches(cert_name, cert_candidate_cpe_vendors, ['-'], relax_version=True, n_max_matches=n_max_matches, threshold=threshold)
+
         return None

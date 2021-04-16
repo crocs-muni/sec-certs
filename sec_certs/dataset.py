@@ -61,7 +61,7 @@ class Dataset(ABC):
     def __iter__(self):
         yield from self.certs.values()
 
-    def __getitem__(self, item: str) -> 'Certificate':
+    def __getitem__(self, item: str):
         return self.certs.__getitem__(item.lower())
 
     def __setitem__(self, key: str, value: 'Certificate'):
@@ -162,6 +162,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         if state is None:
             state = self.DatasetInternalState()
         self.state = state
+
+    def __iter__(self) -> CommonCriteriaCert:
+        yield from self.certs.values()
 
     def to_dict(self):
         return {**{'state': self.state}, **super().to_dict()}
@@ -710,11 +713,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             for cert in self:
                 cert.get_heuristics_version()
 
-        def compute_candidate_cpe_vendors(cpe_dataset: CPEDataset):
-            logger.info('Computing heuristics: Possible vendors from CPE repository that could match the certificate vendor')
-            for cert in self:
-                cert.get_heuristics_cpe_vendors(cpe_dataset)
-
         def compute_cpe_matches(cpe_dataset: CPEDataset):
             logger.info('Computing heuristics: Finding CPE matches for certificates')
             for cert in self:
@@ -722,7 +720,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         compute_candidate_versions()
         cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
-        compute_candidate_cpe_vendors(cpe_dset)
         compute_cpe_matches(cpe_dset)
 
         if update_json is True:
