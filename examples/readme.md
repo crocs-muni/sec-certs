@@ -41,4 +41,6 @@ Select fitting CPE matches (split with comma if choosing more):
 
 one may answer with `0,1,2` as all CPEs may be releated to the certificate. 
 
-The progress of the expert is periodically saved. Currently, there's no way to gracefully exit the process, just do keyboard interrupt if you want to stop. The json will be updated and next time you will get prompted only for the unlabeled certificates.
+The progress of the expert is periodically saved. Currently, there's no way to gracefully exit the process, just do keyboard interrupt if you want to stop. The json will be updated and next time you will get prompted only for the unlabeled certificates. 
+
+We strongly suggest you try the process with `dset.manually_verify_cpe_matches(update_json=False)` to experiment with correct inputs/outputs. While you will get prompted again if the input is recognized incorrect, the `update_json=False` will not store the results so you can experiment with the tool without loosing your results or creating bad labels.

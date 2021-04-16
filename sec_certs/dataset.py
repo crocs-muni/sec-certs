@@ -734,11 +734,10 @@ class CCDataset(Dataset, ComplexSerializableType):
                     print(f'\t- {[index]}: {c[1]}')
                 print(f'\t- [A]: All are fitting')
                 print(f'\t- [X]: No fitting match')
-                inpt = input('Select fitting CPE matches (split with comma if choosing more):')
-                inpts = [x for x in inpt.strip().split(',')]
+                inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
 
                 if 'X' not in inpts and 'x' not in inpts:
-                    if 'A' or 'a' in inpts:
+                    if 'A' in inpts or 'a' in inpts:
                         inpts = [x for x in range(0, len(x.heuristics.cpe_matches))]
                     try:
                         inpts = [int(x) for x in inpts]
