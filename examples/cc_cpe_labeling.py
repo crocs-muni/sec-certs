@@ -18,7 +18,7 @@ def main():
     start = datetime.now()
 
     dset = CCDataset({}, Path('./my_debug_datset'), 'cc_full_dataset', 'Full CC dataset')
-    dset.get_certs_from_web(to_download=True, update_json=True)
+    dset.get_certs_from_web(to_download=True)
     dset.compute_heuristics()
     dset.manually_verify_cpe_matches()
 

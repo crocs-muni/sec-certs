@@ -27,7 +27,7 @@ For each of the certificates, the user is then prompted for an expert knowledge,
 Select fitting CPE matches (split with comma if choosing more):
 ```
 
-Here, one should type `X` and press enter, since all guesses are false positives. In different case
+Here, one should type `X` (case insensitive) and press enter, since all guesses are false positives. In different case
 
 ```
 [1/1512] Vendor: NetIQ, Incorporated, Name: NetIQ Access Manager 4.5

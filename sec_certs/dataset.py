@@ -284,7 +284,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
-                           get_archived: bool = True, update_json: bool = False):
+                           get_archived: bool = True, update_json: bool = True):
         """
         Downloads all metadata about certificates from CSV and HTML sources
         """
