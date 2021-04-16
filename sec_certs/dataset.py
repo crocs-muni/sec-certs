@@ -154,9 +154,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
+    def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description)
+        self.certs: Dict[str, 'CommonCriteriaCert'] = certs  # semantically redundant, but the type hint is needed
+
         if state is None:
             state = self.DatasetInternalState()
         self.state = state
@@ -166,8 +168,16 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def to_pandas(self):
         tuples = [x.to_pandas_tuple() for x in self.certs.values()]
-        cols = CommonCriteriaCert.pandas_serialization_vars
-        return pd.DataFrame(tuples, columns=cols).set_index('dgst')
+        cols = CommonCriteriaCert.pandas_columns
+
+        df = pd.DataFrame(tuples, columns=cols)
+        df = df.set_index('dgst')
+
+        df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
+        df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
+        df = df.astype({'category': 'category', 'status': 'category', 'scheme': 'category'})
+
+        return df
 
     @classmethod
     def from_dict(cls, dct: Dict):

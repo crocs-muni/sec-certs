@@ -897,8 +897,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, str]):
             return cls(*tuple(dct.values()))
 
-    pandas_serialization_vars = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
-                                 'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
+    pandas_columns = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level',
+                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link',
+                      'manufacturer_web', 'extracted_versions', 'cpe_matches', 'verified_cpe_matches',
+                      'related_cves']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -950,7 +952,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
-        return tuple(getattr(self, i) for i in self.pandas_serialization_vars)
+        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level,\
+               self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
+               self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
+               self.heuristics.related_cves
+
 
     def merge(self, other: 'CommonCriteriaCert'):
         """
