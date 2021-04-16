@@ -1,6 +1,6 @@
 import re
 from datetime import datetime, date
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 from pathlib import Path
 import os
@@ -874,19 +874,19 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @dataclass(init=False)
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str]
-        cpe_candidate_vendors: List[str]
+        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
         cpe_matches: Optional[List[Tuple[float, CPE]]]
         verified_cpe_matches: Optional[List[CPE]]
         related_cves: Optional[List[str]]
 
-        def __init__(self, extracted_versions: Optional[List[str]] = None,
+        def __init__(self,
+                     extracted_versions: Optional[List[str]] = None,
                      cpe_matches: Optional[List[str]] = None,
-                     cpe_candidate_vendors: Optional[List[str]] = None,
                      verified_cpe_matches: Optional[List[str]] = None,
                      related_cves: Optional[List[CVE]] = None):
             self.extracted_versions = extracted_versions
             self.cpe_matches = cpe_matches
-            self.cpe_candidate_vendors = cpe_candidate_vendors
+            self.cpe_candidate_vendors = None
             self.verified_cpe_matches = verified_cpe_matches
             self.related_cves = related_cves
 

@@ -6,6 +6,7 @@ from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple, Optional
 from itertools import groupby
 from dataclasses import dataclass
 import copy
+import time
 
 import json
 from abc import ABC, abstractmethod
@@ -685,36 +686,47 @@ class CCDataset(Dataset, ComplexSerializableType):
         compute_candidate_cpe_vendors(cpe_dset)
         compute_cpe_matches(cpe_dset)
 
-        if not cve_dataset_path:
-            cve_dataset = CVEDataset.from_web()
-        else:
-            cve_dataset = CVEDataset.from_json(cve_dataset_path)
-
         # TODO: Invoke me back
+        # if not cve_dataset_path:
+        #     cve_dataset = CVEDataset.from_web()
+        # else:
+        #     cve_dataset = CVEDataset.from_json(cve_dataset_path)
         # compute_related_cves(cve_dataset)
 
         if update_json is True:
             self.to_json(self.json_path)
 
     def manually_verify_cpe_matches(self, update_json=True):
-        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches]
-        logger.info('Manually verifying CPE matches')
-        n_certs_to_verify = len(certs_to_verify)
-        for i, x in enumerate(certs_to_verify):
-            print(f'[{i}/{n_certs_to_verify}]Vendor: {x.manufacturer}, name: {x.name}')
-            for index, c in enumerate(x.heuristics.cpe_matches):
-                print(f'\t- {[index]}: {c[1]}')
-            print(f'\t- [X]: No fitting match')
-            inpt = input('Select fitting CPE matches (split with comma if choosing more):')
-            inpts = [x for x in inpt.split(',')]
+        def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
+            n_certs_to_verify = len(certificates_to_verify)
+            for i, x in enumerate(certificates_to_verify):
+                print(f'[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
+                for index, c in enumerate(x.heuristics.cpe_matches):
+                    print(f'\t- {[index]}: {c[1]}')
+                print(f'\t- [X]: No fitting match')
+                inpt = input('Select fitting CPE matches (split with comma if choosing more):')
+                inpts = [x for x in inpt.strip().split(',')]
 
-            if 'X' not in inpts:
-                inpts = [int(x) for x in inpts]
-                matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
-                self[x.dgst].heuristics.verified_cpe_matches = matches
-            if not i % 10:
-                print(f'Saving progress.')
-                self.to_json()
+                if 'X' not in inpts:
+                    try:
+                        inpts = [int(x) for x in inpts]
+                        if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
+                            raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
+                    except ValueError:
+                        logger.error('Bad input from user, repeating instance')
+                        verify_certs([x])
+                    else:
+                        matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
+                        self[x.dgst].heuristics.verified_cpe_matches = matches
+
+                        if i != 0 and not i % 10:
+                            print(f'Saving progress.')
+                            self.to_json()
+
+        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
+        logger.info('Manually verifying CPE matches')
+        time.sleep(0.05)  # easier than flushing the logger
+        verify_certs(certs_to_verify)
 
         if update_json is True:
             self.to_json()
@@ -779,7 +791,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
 
         return output
-
 
 
     def download_all_pdfs(self):
