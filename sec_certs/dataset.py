@@ -212,6 +212,18 @@ class CCDataset(Dataset, ComplexSerializableType):
     def targets_txt_dir(self) -> Path:
         return self.targets_dir / 'txt'
 
+    @property
+    def auxillary_datasets_path(self) -> Path:
+        return self.root_dir / 'auxillary_datasets'
+
+    @property
+    def cve_dataset_path(self) -> Path:
+        return self.auxillary_datasets_path / 'cve_dataset.json'
+
+    @property
+    def cpe_dataset_path(self) -> Path:
+        return self.auxillary_datasets_path / 'cpe_dataset.json'
+
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
         'cc_products_archived.html': 'https://www.commoncriteriaportal.org/products/index.cfm?archived=1',
@@ -656,7 +668,33 @@ class CCDataset(Dataset, ComplexSerializableType):
         if update_json is True:
             self.to_json(self.json_path)
 
-    def compute_heuristics(self, cpe_xml_path: Optional[str] = None, cve_dataset_path: Optional[str] = None, update_json=True):
+    def prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
+        logger.info('Preparing CPE dataset.')
+        if not self.auxillary_datasets_path.exists():
+            self.auxillary_datasets_path.mkdir(parents=True)
+
+        if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
+            cpe_dataset = CPEDataset.from_web()
+            cpe_dataset.to_json(str(self.cpe_dataset_path))
+        else:
+            cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
+
+        return cpe_dataset
+
+    def prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
+        logger.info('Preparing CVE dataset.')
+        if not self.auxillary_datasets_path.exists():
+            self.auxillary_datasets_path.mkdir(parents=True)
+
+        if not self.cve_dataset_path.exists() or download_fresh_cves is True:
+            cve_dataset = CVEDataset.from_web()
+            cve_dataset.to_json(str(self.cve_dataset_path))
+        else:
+            cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
+
+        return cve_dataset
+
+    def compute_heuristics(self, update_json=True, download_fresh_cpes: bool = False):
         def compute_candidate_versions():
             logger.info('Computing heuristics: possible product versions in certificate name')
             for cert in self:
@@ -672,26 +710,10 @@ class CCDataset(Dataset, ComplexSerializableType):
             for cert in self:
                 cert.get_heuristics_cpe_match(cpe_dataset)
 
-        def compute_related_cves(cve_dataset: CVEDataset):
-            logger.info('Retreiving CVEs for verified CPE match.')
-            for cert in self:
-                cert.get_heuristics_related_cves(cve_dataset)
-
         compute_candidate_versions()
-
-        if not cpe_xml_path:
-            cpe_dset = CPEDataset.from_web()
-        else:
-            cpe_dset = CPEDataset.from_xml(cpe_xml_path)
+        cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
         compute_candidate_cpe_vendors(cpe_dset)
         compute_cpe_matches(cpe_dset)
-
-        # TODO: Invoke me back
-        # if not cve_dataset_path:
-        #     cve_dataset = CVEDataset.from_web()
-        # else:
-        #     cve_dataset = CVEDataset.from_json(cve_dataset_path)
-        # compute_related_cves(cve_dataset)
 
         if update_json is True:
             self.to_json(self.json_path)
@@ -730,6 +752,17 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         if update_json is True:
             self.to_json()
+
+    def compute_related_cves(self, download_fresh_cves: bool = False):
+        logger.info('Retreiving related CVEs to verified CPE matches')
+        cve_dset = self.prepare_cve_dataset(download_fresh_cves)
+
+        verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
+        if not verified_cpe_rich_certs:
+            logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
+            return
+        for cert in verified_cpe_rich_certs:
+            cert.get_heuristics_related_cves(cve_dset)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

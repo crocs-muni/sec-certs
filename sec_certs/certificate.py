@@ -1261,18 +1261,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def get_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
         self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name, self.heuristics.cpe_candidate_vendors, self.heuristics.extracted_versions)
 
-        # TODO: Delete me, I'm just a placeholder
-        if self.heuristics.cpe_matches:
-            self.heuristics.verified_cpe_matches = [x[1] for x in self.heuristics.cpe_matches]
-        else:
-            self.heuristics.verified_cpe_matches = None
-
     def get_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:
-            self.heuristics.related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
-            self.heuristics.related_cves = itertools.chain.from_iterable(self.heuristics.related_cves)
-            self.heuristics.related_cves = list(filter(lambda x: x is not None, self.heuristics.related_cves))
-            if not self.heuristics.related_cves:
-                return None
+            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
+            related_cves = list(filter(lambda x: x is not None, related_cves))
+            if related_cves:
+                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
         else:
             self.heuristics.related_cves = None

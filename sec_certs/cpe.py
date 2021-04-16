@@ -65,8 +65,8 @@ def get_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
 @dataclass
 class CPEDataset:
     cpes: Dict[str, CPE]
-    vendor_to_versions: Dict[str, List[str]] = field(init=False) # Look-up dict cpe_vendor: list of viable versions
-    vendor_version_to_cpe: Dict[Tuple[str, str], List[CPE]] = field(init=False) # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
+    vendor_to_versions: Dict[str, List[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
+    vendor_version_to_cpe: Dict[Tuple[str, str], List[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
     vendors: Set[str] = field(init=False)
 
     def __iter__(self):
@@ -106,9 +106,9 @@ class CPEDataset:
             data = json.load(handle)
         return cls({x: CPE(x, y) for x, y in data.items()})
 
-    @classmethod
-    def to_json(cls):
-        raise NotImplementedError
+    def to_json(self, json_path: str):
+        with open(json_path, 'w') as handle:
+            json.dump({x: y.title for x, y in self.cpes.items()}, handle, indent=4)
 
     @classmethod
     def from_web(cls):

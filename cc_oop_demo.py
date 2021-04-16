@@ -47,6 +47,12 @@ def main():
     # Compute heuristics on the dataset
     dset.compute_heuristics(update_json=True)
 
+    # Manually verify CPE findings and compute related cves
+    # dset.manually_verify_cpe_matches(update_json=True)
+    # dset.compute_related_cves()
+
+
+
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
 

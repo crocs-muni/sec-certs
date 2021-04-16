@@ -157,13 +157,13 @@ class CVEDataset(ComplexSerializableType):
 
     @classmethod
     def from_web(cls, start_year: int = 2002, end_year: int = datetime.datetime.now().year):
-        logger.info(f'Building CVE dataset from downloaded folder.')
+        logger.info(f'Building CVE dataset from nist.gov website.')
         with tempfile.TemporaryDirectory() as tmp_dir:
             cls.download_cves(tmp_dir, start_year, end_year)
             json_files = glob.glob(tmp_dir + '/*.json')
 
             all_cves = dict()
-            logger.info(f'Building CVEDataset from downloaded jsons.')
+            logger.info(f'Downloaded required resources. Building CVEDataset from jsons.')
             results = process_parallel(cls.from_nist_json, json_files, constants.N_THREADS, use_threading=False)
             for r in results:
                 all_cves.update(r.cves)
