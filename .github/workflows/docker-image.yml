@@ -1,0 +1,25 @@
+# code created with help of the github documentation : https://docs.github.com/en/actions/guides/publishing-docker-images
+
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+      
+  build-and-push:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }} #we can set these secrets with admin rights, so the code will adapt to the dockerHub account used
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: keleran/sec-certs #for now I wrote my repo
+          tag_with_ref: true
