@@ -5,7 +5,7 @@ New object oriented API. The old one should not be used, unless you explicitly w
 To download and build whole dataset can take up to several hours.
 
 
-## Manual CPE matching
+## Manual CPE labeling
 
 The tool contains a fuzzy procedure that attempts to map [CPE names](https://nvd.nist.gov/products/cpe) to CC certificates. Result is a list of potentially promising matchings that should be manually evaluated by an analyst to obtain ground truth labeling. The analyst should run the file [cc_cpe_labeling.py](https://github.com/crocs-muni/sec-certs/blob/master/examples/cc_cpe_labeling.py)
 
