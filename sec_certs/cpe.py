@@ -222,8 +222,14 @@ class CPEDataset:
         sanitized_cert_name = sanitize_matched_string(cert_name)
         reasonable_matches = []
         for c in candidates:
-            sanitized_candidate = sanitize_matched_string(c.title)
-            potential = max(fuzz.token_set_ratio(sanitized_cert_name, sanitized_candidate), fuzz.partial_ratio(sanitized_cert_name, sanitized_candidate))
+            sanitized_title = sanitize_matched_string(c.title)
+            sanitized_item_name = sanitize_matched_string(c.item_name)
+            set_match_title = fuzz.token_set_ratio(sanitized_cert_name, sanitized_title)
+            partial_match_title = fuzz.partial_ratio(sanitized_cert_name, sanitized_title)
+            set_match_item = fuzz.token_set_ratio(sanitized_cert_name, sanitized_item_name)
+            partial_match_item = fuzz.partial_ratio(sanitized_cert_name, sanitized_item_name)
+
+            potential = max([set_match_title, partial_match_title, set_match_item, partial_match_item])
 
             if potential > threshold:
                 reasonable_matches.append((potential, c))
