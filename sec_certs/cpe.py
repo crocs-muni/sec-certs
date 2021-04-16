@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 import logging
 import json
-from typing import Optional, List, Dict, Tuple, Set
+from typing import Optional, List, Dict, Tuple, Set, Union
 import itertools
 import re
 from rapidfuzz import process, fuzz
@@ -101,8 +101,8 @@ class CPEDataset:
         self.vendor_version_to_cpe = {x: list(set(y)) for x, y in self.vendor_version_to_cpe.items()}
 
     @classmethod
-    def from_json(cls, json_path: str):
-        with open(json_path, 'r') as handle:
+    def from_json(cls, json_path: Union[str, Path]):
+        with Path(json_path).open('r') as handle:
             data = json.load(handle)
         return cls({x: CPE(x, y) for x, y in data.items()})
 

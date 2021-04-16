@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional
+from typing import Dict, List,  Optional, Union
 import copy
 import datetime
 from pathlib import Path
@@ -18,9 +18,9 @@ from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class CVE(ComplexSerializableType):
-    @dataclass
+    @dataclass(eq=True)
     class Impact(ComplexSerializableType):
         base_score: float
         severity: str
@@ -94,7 +94,7 @@ class CVE(ComplexSerializableType):
         return CVE(cve_id, vulnerable_cpes, impact)
 
 
-@dataclass
+@dataclass(eq=True)
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
     cpes_to_cve_lookup: Dict[str, List[str]] = field(init=False)
@@ -174,9 +174,8 @@ class CVEDataset(ComplexSerializableType):
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
     @classmethod
-    def from_json(cls, input_path: str):
-        input_path = Path(input_path)
-        with input_path.open('r') as handle:
+    def from_json(cls, input_path: Union[str, Path]):
+        with Path(input_path).open('r') as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 

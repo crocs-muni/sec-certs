@@ -1,0 +1,33 @@
+{
+    "_type": "CVEDataset",
+    "cves": {
+        "CVE-2017-1732": {
+            "_type": "CVE",
+            "cve_id": "CVE-2017-1732",
+            "vulnerable_cpes": [
+                "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
+            ],
+            "impact": {
+                "_type": "Impact",
+                "base_score": 5.3,
+                "severity": "MEDIUM",
+                "explotability_score": 3.9,
+                "impact_score": 1.4
+            }
+        },
+        "CVE-2019-4513": {
+            "_type": "CVE",
+            "cve_id": "CVE-2019-4513",
+            "vulnerable_cpes": [
+                "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
+            ],
+            "impact": {
+                "_type": "Impact",
+                "base_score": 8.2,
+                "severity": "HIGH",
+                "explotability_score": 3.9,
+                "impact_score": 4.2
+            }
+        }
+    }
+}
