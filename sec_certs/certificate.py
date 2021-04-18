@@ -276,13 +276,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         :return: list of all found algorithm IDs
         """
         ids_found = []
-        r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
+        r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
         for m in re.finditer(r_key, current_text):
-            if r_key in ids_found and m.group() in ids_found[0]:
-                ids_found[0][m.group()]['count'] += 1
+            if m.group('word').lower() in {'rsa', 'shs', 'dsa', 'pkcs', 'aes'}:
+                continue
+            if r_key in ids_found and m.group('id') in ids_found[0]:
+                ids_found[0][m.group('id')]['count'] += 1
             else:
                 ids_found.append(
-                    {r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
+                    {r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group('id'): {'count': 1}}})
 
         return ids_found
 
@@ -486,13 +488,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    items_found['revoked_reason'] if 'revoked_reason' in items_found else None,
                                    items_found['revoked_link'] if 'revoked_link' in items_found else None,
                                    items_found['sw_versions'] if 'sw_versions' in items_found else None,
-                                   items_found['product_url']) if 'product_url' in items_found else None,
+                                   items_found['product_url'] if 'product_url' in items_found else None,
+                                   []
+                               ),  # connections
                                FIPSCertificate.PdfScan(
                                    items_found['cert_id'],
                                    {} if not initialized else initialized.pdf_scan.keywords,
-                                   [] if not initialized else initialized.pdf_scan.algorithms
+                                   [] if not initialized else initialized.pdf_scan.algorithms,
+                                   []  # connections
                                ),
-                               FIPSCertificate.Processed(None, {}, []),
+                               FIPSCertificate.Processed(None, {}, [], 0),
                                state
                                )
 
@@ -669,9 +674,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, text_to_parse
 
     @staticmethod
-    def analyze_tables(tup: Tuple['FIPSCertificate', bool] ) -> Tuple[bool, 'FIPSCertificate', List]:
+    def analyze_tables(tup: Tuple['FIPSCertificate', bool]) -> Tuple[bool, 'FIPSCertificate', List]:
         cert, precision = tup
-        if not (precision and cert.state.tables_done)\
+        if not (precision and cert.state.tables_done) \
                 or (precision and cert.processed.unmatched_algs < config.cert_threshold['value']):
             return cert.state.tables_done, cert, []
 
@@ -679,7 +684,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         txt_file = cert_file.with_suffix('.pdf.txt')
         with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
-        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold['value'] # bool value
+        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold['value']  # bool value
 
         lst: List = []
         if tables:

@@ -401,7 +401,11 @@ rules_fips_remove_algorithm_ids = [
 
 # --- PKCS (#) ---
     r"PKCS[\s]?#?\d+",
-    r"PKSC[\s]?#?\d+" # typo, #625
+    r"PKSC[\s]?#?\d+", # typo, #625
+
+# --- # C and # A (just in case) ---
+    r"#\s+?[Cc]\d+",
+    r"#\s+?[Aa]\d+"
 ]
 rules_fips_to_remove = [
 # --- random words found ---
