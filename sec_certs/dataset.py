@@ -1117,14 +1117,20 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 if not "Name" in alg:
                     continue
                 alg_certs = alg["Certificate"]
+                alg_name = alg["Name"]
                 for alg_cert in alg_certs:
+                    if 'C' in alg_cert:
+                        alg_name = "C"
+                    elif 'A' in alg_cert:
+                        alg_name = "A"
                     found = self.algorithms[''.join(filter(str.isdigit, alg_cert))]
                     found_cert: FIPSCertificate.Algorithm
                     for found_cert in found:
-                        if FIPSCertificate.get_compare(cert.web_scan.vendor) == FIPSCertificate.get_compare(found_cert.vendor):
+                        if alg_name == found_cert.type and \
+                                FIPSCertificate.get_compare(cert.web_scan.vendor) != FIPSCertificate.get_compare(
+                            found_cert.vendor):
+                            mapped[cert.dgst] += 1
                             break
-                    else:
-                        mapped[cert.dgst] += 1
 
         mapped = {k: v for k, v in mapped.items() if v != 0}
         mapped = {k: v for k, v in sorted(mapped.items(), key=lambda item: item[1], reverse=True)}
@@ -1135,11 +1141,15 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return mapped
 
-
     def plot_graphs(self):
         self.get_dot_graph('full_graph')
         self.get_dot_graph('web_only_graph', 'web')
         self.get_dot_graph('pdf_only_graph', 'pdf')
+
+    def clean_empty_entries(self):
+        cert: FIPSCertificate
+        for cert in self.certs.values():
+            cert.clean_empty_entries()
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):

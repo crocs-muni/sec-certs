@@ -754,6 +754,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
         return vendor_split[0] if len(vendor_split) > 0 else vendor
 
+    def clean_empty_entries(self):
+        self.web_scan.algorithms = [x for x in self.web_scan.algorithms if x != {"Certificate": []}]
+        self.pdf_scan.algorithms = [x for x in self.pdf_scan.algorithms if x != {"Certificate": []}]
+        # processed algorithms are cleared during parsing
+
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://commoncriteriaportal.org'
