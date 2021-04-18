@@ -787,21 +787,41 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
 
-    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None):
+    def prepare_dataset(self, test: Optional[Path] = None):
+        if test:
+            html_files = [test]
+        else:
+            html_files = ['fips_modules_active.html',
+                          'fips_modules_historical.html', 'fips_modules_revoked.html']
+            helpers.download_file(
+                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+                self.web_dir / "fips_modules_active.html")
+            helpers.download_file(
+                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+                self.web_dir / "fips_modules_historical.html")
+            helpers.download_file(
+                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+                self.web_dir / "fips_modules_revoked.html")
+
+        # Parse those files and get list of currently processable files (always)
+        for f in html_files:
+            self._get_certificates_from_html(self.web_dir / f)
+
+    def _get_certificates_from_html(self, html_file: Path) -> None:
+        logger.info(f'Getting certificate ids from {html_file}')
+        with open(html_file, 'r', encoding='utf-8') as handle:
+            html = BeautifulSoup(handle.read(), 'html.parser')
+
+        table = [x for x in html.find(
+            id='searchResultsTable').tbody.contents if x != '\n']
+        for entry in table:
+            self.certs[entry.find('a').text] = None
+
+    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None, test: Optional[Path] = None):
         def download_html_pages() -> List[str]:
             new_files = self.download_all_htmls()
             self.download_all_pdfs()
             return new_files
-
-        def get_certificates_from_html(html_file: Path) -> None:
-            logger.info(f'Getting certificate ids from {html_file}')
-            with open(html_file, 'r', encoding='utf-8') as handle:
-                html = BeautifulSoup(handle.read(), 'html.parser')
-
-            table = [x for x in html.find(
-                id='searchResultsTable').tbody.contents if x != '\n']
-            for entry in table:
-                self.certs[entry.find('a').text] = None
 
         logger.info("Downloading required html files")
 
@@ -810,21 +830,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.algs_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
-        html_files = ['fips_modules_active.html',
-                      'fips_modules_historical.html', 'fips_modules_revoked.html']
-        helpers.download_file(
-            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
-            self.web_dir / "fips_modules_active.html")
-        helpers.download_file(
-            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
-            self.web_dir / "fips_modules_historical.html")
-        helpers.download_file(
-            "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
-            self.web_dir / "fips_modules_revoked.html")
-
-        # Parse those files and get list of currently processable files (always)
-        for f in html_files:
-            get_certificates_from_html(self.web_dir / f)
+        self.prepare_dataset(test)
 
         logger.info('Downloading certificate html and security policies')
 

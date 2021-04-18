@@ -278,7 +278,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         ids_found = []
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
         for m in re.finditer(r_key, current_text):
-            if m.group('word').lower() in {'rsa', 'shs', 'dsa', 'pkcs', 'aes'}:
+            if m.group('word') and m.group('word').lower() in {'rsa', 'shs', 'dsa', 'pkcs', 'aes'}:
                 continue
             if r_key in ids_found and m.group('id') in ids_found[0]:
                 ids_found[0][m.group('id')]['count'] += 1
