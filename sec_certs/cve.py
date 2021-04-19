@@ -139,7 +139,7 @@ class CVEDataset(ComplexSerializableType):
         logger.info(f'Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}')
         with tempfile.TemporaryDirectory() as tmp_dir:
             outpaths = [Path(tmp_dir) / Path(x).name.rstrip('.zip') for x in urls]
-            responses = list(zip(*helpers.download_parallel(list(zip(urls, outpaths)), num_threads=8)))[1]
+            responses = list(zip(*helpers.download_parallel(list(zip(urls, outpaths)), num_threads=constants.N_THREADS)))[1]
 
             for o, u, r in zip(outpaths, urls, responses):
                 if r == constants.RESPONSE_OK:
