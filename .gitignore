@@ -1,5 +1,6 @@
 # idea files
 .idea
+.vscode
 
 # results folder
 results*/
