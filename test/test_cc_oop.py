@@ -160,9 +160,6 @@ class TestCommonCriteriaOOP(TestCase):
             self.assertEqual(len(os.listdir(dataset_path)), 0,
                              'Meta files (csv, html) were not deleted properly albeit this was explicitly required.')
 
-            for cert in dset:
-                print(repr(cert.report_link))
-
         self.assertEqual(len(dset), 2, 'The dataset should contain 2 files.')
 
         self.assertTrue(self.crt_one in dset, 'The dataset does not contain the template certificate.')
