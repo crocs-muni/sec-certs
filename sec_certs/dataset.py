@@ -764,7 +764,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             self.to_json()
 
     def compute_related_cves(self, download_fresh_cves: bool = False):
-        logger.info('Retreiving related CVEs to verified CPE matches')
+        logger.info('Retrieving related CVEs to verified CPE matches')
         cve_dset = self.prepare_cve_dataset(download_fresh_cves)
 
         verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
