@@ -130,7 +130,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         algorithms: Optional[List[Dict[str, str]]]
         tested_conf: Optional[List[str]]
         description: Optional[str]
-        mentioned_certs: Optional[List[Dict]]
+        mentioned_certs: Optional[Dict[str, Dict[str, int]]]
         vendor: Optional[str]
         vendor_www: Optional[str]
         lab: Optional[str]
@@ -144,7 +144,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         revoked_link: Optional[str]
         sw_versions: Optional[str]
         product_url: Optional[str]
-        connections: List
+        connections: List[str]
 
         def __post_init__(self):
             self.date_validation = [parser.parse(x).date() for x in
@@ -198,9 +198,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @dataclass(eq=True)
     class Processed(ComplexSerializableType):
-        keywords: Optional[Dict]
-        algorithms: Dict
-        connections: List
+        keywords: Optional[Dict[str, Dict]]
+        algorithms: Dict[str, Dict]
+        connections: List[str]
         unmatched_algs: int
 
         @property
@@ -263,26 +263,25 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
              'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
              'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
              'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
-             'mentioned_certs': [], 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
+             'mentioned_certs': {}, 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
              'hw_versions': None, 'fw_versions': None, 'sw_versions': None, 'product_url': None}
 
         return d
 
     @staticmethod
-    def parse_caveat(current_text: str) -> List:
+    def parse_caveat(current_text: str) -> Dict[str, Dict[str, int]]:
         """
         Parses content of "Caveat" of FIPS CMVP .html file
         :param current_text: text of "Caveat"
-        :return: list of all found algorithm IDs
+        :return: dictionary of all found algorithm IDs
         """
-        ids_found = []
+        ids_found = {}
         r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
         for m in re.finditer(r_key, current_text):
-            if r_key in ids_found and m.group() in ids_found[0]:
-                ids_found[0][m.group()]['count'] += 1
+            if m.group() in ids_found:
+                ids_found[m.group()]['count'] += 1
             else:
-                ids_found.append(
-                    {r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
+                ids_found[m.group()] = {'count': 1}
 
         return ids_found
 
@@ -302,7 +301,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for m in re.finditer(reg, current_text):
             set_items.add(m.group())
 
-        return [{"Certificate": list(set_items)}]
+        return [{"Certificate": list(set_items)}] if len(set_items) > 0 else []
 
     @staticmethod
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
@@ -335,8 +334,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
-                    content)
+                html_items_found['mentioned_certs'].update(FIPSCertificate.parse_caveat(
+                    content))
 
             elif 'FIPS Algorithms' in title:
                 html_items_found['algorithms'] += FIPSCertificate.parse_table(
@@ -486,13 +485,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    items_found['revoked_reason'] if 'revoked_reason' in items_found else None,
                                    items_found['revoked_link'] if 'revoked_link' in items_found else None,
                                    items_found['sw_versions'] if 'sw_versions' in items_found else None,
-                                   items_found['product_url']) if 'product_url' in items_found else None,
+                                   items_found['product_url'] if 'product_url' in items_found else None,
+                                   [] # connections
+                               ),
                                FIPSCertificate.PdfScan(
                                    items_found['cert_id'],
                                    {} if not initialized else initialized.pdf_scan.keywords,
-                                   [] if not initialized else initialized.pdf_scan.algorithms
+                                   [] if not initialized else initialized.pdf_scan.algorithms,
+                                    []  # connections
                                ),
-                               FIPSCertificate.Processed(None, {}, []),
+                               FIPSCertificate.Processed(None, {}, [], 0),
                                state
                                )
 
@@ -552,10 +554,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for web_alg in alg_list:
                 if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
                     not_found.append(web_alg)
-        logger.info(
-            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n"
-            f"\tFOUND: {sum([len(a['Certificate']) for a in cert.web_scan.algorithms]) - len(not_found)}")
-        logger.error(f"Not found: {not_found}")
         return len(not_found)
 
     @staticmethod
@@ -699,11 +697,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for df in data:
                 for col in range(len(df.columns)):
                     if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                        lst += FIPSCertificate.extract_algorithm_certificates(
+                        tmp =  FIPSCertificate.extract_algorithm_certificates(
                             df.iloc[:, col].to_string(index=False), True)
-
+                        lst += tmp if tmp != [{"Certificate": []}] else []
                 # Parse again if someone picks not so descriptive column names
-                lst += FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
+                tmp = FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
+                lst += tmp if tmp != [{"Certificate": []}] else []
         return True, cert, lst
 
     def _create_alg_set(self) -> Set:
@@ -720,8 +719,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.processed.keywords = copy.deepcopy(self.pdf_scan.keywords)
         # TODO figure out why can't I delete this
         if self.web_scan.mentioned_certs:
-            for item in self.web_scan.mentioned_certs:
-                self.processed.keywords['rules_cert_id'].update(item)
+            for item, value in self.web_scan.mentioned_certs.items():
+                self.processed.keywords['rules_cert_id'].update({'caveat_item': {item: value}})
 
         alg_set = self._create_alg_set()
 
@@ -753,11 +752,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         vendor_split = vendor.replace(',', '') \
             .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
         return vendor_split[0] if len(vendor_split) > 0 else vendor
-
-    def clean_empty_entries(self):
-        self.web_scan.algorithms = [x for x in self.web_scan.algorithms if x != {"Certificate": []}]
-        self.pdf_scan.algorithms = [x for x in self.pdf_scan.algorithms if x != {"Certificate": []}]
-        # processed algorithms are cleared during parsing
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):

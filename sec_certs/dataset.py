@@ -975,23 +975,22 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
             if current_cert.web_scan.mentioned_certs:
                 for item in current_cert.web_scan.mentioned_certs:
-                    for key in item:
-                        for connection in item[key]:
-                            cert_id = ''.join(filter(str.isdigit, connection))
-                            if cert_id not in current_cert.processed.connections and cert_id != '':
-                                current_cert.processed.connections.append(cert_id)
-                                current_cert.web_scan.connections.append(cert_id)
+                    cert_id = ''.join(filter(str.isdigit, item))
+                    if cert_id not in current_cert.processed.connections and cert_id != '':
+                        current_cert.processed.connections.append(cert_id)
+                        current_cert.web_scan.connections.append(cert_id)
 
     def finalize_results(self):
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
-    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed'):
+    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed', highlighted_vendor: str = 'Red Hat®, Inc.'):
         """
         Function that plots .dot graph of dependencies between certificates
         Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
         certificates are displayed in {output_file_name}single.pdf
+        :param highlighted_vendor: vendor whose certificates should be highlighted in red color
         :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
         :param connection_list: 'processed', 'web', or 'pdf' - plots a graph from this source
                                 default - processed
@@ -1010,8 +1009,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     dot.attr('node', color='grey32')
                 if self.certs[current_key].web_scan.status == 'Historical':
                     dot.attr('node', color='gold3')
-            if self.certs[current_key].web_scan.vendor == "SUSE, LLC":
-                dot.attr('node', color='lightblue')
 
         def color_check(current_key):
             dot.attr('node', color='lightgreen')
@@ -1042,7 +1039,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         keys = 0
         edges = 0
 
-        highlighted_vendor = 'Red Hat®, Inc.'
         for key in self.certs:
             if key == 'Not found' or not self.certs[key].state.file_status:
                 continue
