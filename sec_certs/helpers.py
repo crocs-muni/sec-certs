@@ -481,6 +481,7 @@ def search_only_headers_bsi(filepath: Path):
 
     return constants.RETURNCODE_OK, items_found
 
+
 def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
     try:
         result = extract_certificates.parse_cert_file(filepath, cc_search_rules, -1, extract_certificates.LINE_SEPARATOR)[0]
