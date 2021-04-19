@@ -166,24 +166,15 @@ class CPEDataset:
             return None
         return list(result)
 
-    def get_matching_versions_for_vendor(self, cert_version: str, cpe_vendor: str):
-        """
-        Given version of certificate and cpe_vendor, will look-up relevant cpe_versions
-        """
-        pass
-
     def get_candidate_vendor_version_pairs(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[Tuple[str, str]]]:
         """
         Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given certificate
         Parameters
-        ----------
-        cert_candidate_cpe_vendors ... list of CPE vendors relevant to a certificate
-        cert_candidate_versions ... List of versions heuristically extracted from the certificate name
-
-        Returns
-        -------
-        List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
+        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a certificate
+        :param cert_candidate_versions: List of versions heuristically extracted from the certificate name
+        :return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
+
         def is_cpe_version_among_cert_versions(cpe_version: str, cert_versions: List[str]) -> bool:
             just_numbers = r'(\d{1,5})(\.\d{1,5})' # TODO: The use of this should be double-checked
             for v in cert_versions:
