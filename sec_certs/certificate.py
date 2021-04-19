@@ -566,7 +566,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def parse_cert_file_common(text_to_parse: str, whole_text_with_newlines: str,
-                               search_rules: Dict) -> Tuple[Optional[Dict], str]:
+                               search_rules: Dict) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
         # apply all rules
         items_found_all = {}
         for rule_group in search_rules.keys():
@@ -632,7 +632,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, whole_text_with_newlines
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict], str]:
+    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
         # apply all rules
         items_found_all: Dict = {}
 
