@@ -29,15 +29,14 @@ class TestCPEandCVEMatching(TestCase):
     def test_cpe_lookup_dicts(self):
         self.assertEqual(self.cpe_dset.vendors, {'ibm', 'tracker-software', 'semperplugins'},
                          'The set of versions in CPE dataset does not match template')
-        alt_lookup = {x: set(y) for x, y in self.cpe_dset.vendor_to_versions.items()}
-        self.assertEqual(alt_lookup, {'ibm': {'8.2.2', '2.6.0.1'}, 'semperplugins': {'1.3.6.4'}, 'tracker-software': {'6.0.320.0'}},
+        self.assertEqual(self.cpe_dset.vendor_to_versions, {'ibm': {'8.2.2', '2.6.0.1'}, 'semperplugins': {'1.3.6.4'}, 'tracker-software': {'6.0.320.0'}},
                          'The CPE lookup dictionary vendor->version of CPE dataset does not match template.')
-        self.assertEqual(self.cpe_dset.vendor_version_to_cpe, {('ibm', '8.2.2'): [CPE('cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*', 'IBM Security Access Manager For Enterprise Single Sign-On 8.2.2')], ('ibm', '2.6.0.1'): [CPE('cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*', 'IBM Security Key Lifecycle Manager 2.6.0.1')], ('semperplugins', '1.3.6.4'): [CPE('cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*', 'Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress')], ('tracker-software', '6.0.320.0'): [CPE('cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*', 'Tracker Software PDF-XChange Lite Printer 6.0.320.0')]},
+        self.assertEqual(self.cpe_dset.vendor_version_to_cpe, {('ibm', '8.2.2'): {CPE('cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*', 'IBM Security Access Manager For Enterprise Single Sign-On 8.2.2')}, ('ibm', '2.6.0.1'): {CPE('cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*', 'IBM Security Key Lifecycle Manager 2.6.0.1')}, ('semperplugins', '1.3.6.4'): {CPE('cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*', 'Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress')}, ('tracker-software', '6.0.320.0'): {CPE('cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*', 'Tracker Software PDF-XChange Lite Printer 6.0.320.0')}},
                          'The CPE lookup dictionary (vendor,version)->cpe does not match the template.')
 
     def test_cve_lookup_dicts(self):
         alt_lookup = {x: set(y) for x,y in self.cve_dset.cpes_to_cve_lookup.items()}
-        self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': set(['CVE-2017-1732', 'CVE-2019-4513'])},
+        self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': {'CVE-2017-1732', 'CVE-2019-4513'}},
                          'The CVE lookup dicionary cve-> affected cpes does not match the template')
 
     def test_load_cve_dataset(self):

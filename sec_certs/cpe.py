@@ -66,8 +66,8 @@ def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
 @dataclass
 class CPEDataset:
     cpes: Dict[str, CPE]
-    vendor_to_versions: Dict[str, List[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
-    vendor_version_to_cpe: Dict[Tuple[str, str], List[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
+    vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
+    vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
     vendors: Set[str] = field(init=False)
 
     cpe_xml_basename: ClassVar[str] = 'official-cpe-dictionary_v2.3.xml'
@@ -90,19 +90,15 @@ class CPEDataset:
         Will build look-up dictionaries that are used for fast matching
         """
         logging.info('CPE dataset: building lookup dictionaries.')
-        self.vendor_to_versions = {x.vendor: [] for x in self}
+        self.vendor_to_versions = {x.vendor: set() for x in self}
         self.vendor_version_to_cpe = dict()
         self.vendors = set(self.vendor_to_versions.keys())
         for cpe in self:
-            self.vendor_to_versions[cpe.vendor].append(cpe.version)
+            self.vendor_to_versions[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe:
-                self.vendor_version_to_cpe[(cpe.vendor, cpe.version)] = [cpe]
+                self.vendor_version_to_cpe[(cpe.vendor, cpe.version)] = {cpe}
             else:
-                self.vendor_version_to_cpe[(cpe.vendor, cpe.version)].append(cpe)
-
-        # remove duplicates
-        self.vendor_to_versions = {x: list(set(y)) for x, y in self.vendor_to_versions.items()}
-        self.vendor_version_to_cpe = {x: list(set(y)) for x, y in self.vendor_version_to_cpe.items()}
+                self.vendor_version_to_cpe[(cpe.vendor, cpe.version)].add(cpe)
 
     @classmethod
     def from_json(cls, json_path: Union[str, Path]):
