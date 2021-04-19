@@ -12,7 +12,7 @@ import sec_certs.helpers as helpers
 import sec_certs.constants as constants
 import sec_certs.cert_processing as cert_processing
 
-from sec_certs.certificate import Certificate
+from sec_certs.certificate.certificate import Certificate
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
 
 logger = logging.getLogger(__name__)
