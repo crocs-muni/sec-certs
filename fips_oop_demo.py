@@ -40,7 +40,7 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    dset.extract_keywords(redo=False)
+    dset.extract_keywords(redo=True)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")
@@ -65,11 +65,11 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     logging.info('dump again')
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
-    dset.plot_graphs()
+    dset.plot_graphs(show=False)
 
-    data = dset.match_algs()
-    analyze_matched_algs(data)
-    dset.find_certs_with_different_algorithm_vendors()
+    # data = dset.match_algs()
+    # analyze_matched_algs(data)
+    # dset.find_certs_with_different_algorithm_vendors()
 
     dset.to_json(dset.root_dir / 'fips_mentioned.json')
     end = datetime.now()

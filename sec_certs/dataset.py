@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 import locale
 import logging
@@ -947,6 +948,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for current_cert in self.certs.values():
             if not current_cert.state.txt_state:
                 continue
+
+            for rule in current_cert.processed.keywords['rules_cert_id']:
+                matches = current_cert.processed.keywords['rules_cert_id'][rule]
+                logger.error(current_cert.cert_id)
+                current_cert.processed.keywords['rules_cert_id'][rule] = [cert_id for cert_id in matches if
+                                                                          validate_id(current_cert, cert_id.lstrip("#CA0 "))
+                                                                          and cert_id != current_cert.cert_id]
+
             for rule in current_cert.processed.keywords['rules_cert_id']:
                 for cert in current_cert.processed.keywords['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
@@ -973,8 +982,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             for rule in current_cert.processed.keywords['rules_cert_id']:
                 for cert in current_cert.processed.keywords['rules_cert_id'][rule]:
                     cert_id = ''.join(filter(str.isdigit, cert))
-                    if cert_id not in current_cert.processed.connections and validate_id(current_cert, cert_id) \
-                            and cert_id != current_cert.cert_id:
+                    if cert_id not in current_cert.processed.connections:
                         current_cert.processed.connections.append(cert_id)
                         current_cert.pdf_scan.connections.append(cert_id)
 
@@ -993,7 +1001,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
-    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed'):
+    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed', show: bool = True):
         """
         Function that plots .dot graph of dependencies between certificates
         Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
@@ -1075,8 +1083,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logging.info(f"rendering for {connection_list}: {keys} keys and {edges} edges")
 
-        dot.render(self.root_dir / (str(output_file_name) + '_connections'), view=True)
-        single_dot.render(self.root_dir / (str(output_file_name) + '_single'), view=True)
+        dot.render(self.root_dir / (str(output_file_name) + '_connections'), view=show)
+        single_dot.render(self.root_dir / (str(output_file_name) + '_single'), view=show)
 
     def to_dict(self):
         return {'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
@@ -1147,10 +1155,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return mapped
 
-    def plot_graphs(self):
-        self.get_dot_graph('full_graph')
-        self.get_dot_graph('web_only_graph', 'web')
-        self.get_dot_graph('pdf_only_graph', 'pdf')
+    def plot_graphs(self, show: bool = False):
+        self.get_dot_graph('full_graph', show=show)
+        self.get_dot_graph('web_only_graph', 'web', show=show)
+        self.get_dot_graph('pdf_only_graph', 'pdf', show=show)
 
     def clean_empty_entries(self):
         cert: FIPSCertificate
