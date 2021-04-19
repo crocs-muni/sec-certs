@@ -57,7 +57,7 @@ class TestCPEandCVEMatching(TestCase):
         self.assertEqual(self.cc_dset['c01e5375331b25dc'].heuristics.extracted_versions, ['8.2'], 'The version extracted from the certificate does not match the template')
         new_cert = CommonCriteriaCert('', '', 'IDOneClassIC Card : ID-One Cosmo 64 RSA v5.4 and applet IDOneClassIC v1.0 embedded on P5CT072VOP', '', '',
                                       '', None, None, '', '', '', '', '', set(), set(), None, None, None)
-        new_cert.get_heuristics_version()
+        new_cert.compute_heuristics_version()
         self.assertEqual(set(new_cert.heuristics.extracted_versions), {'5.4', '1.0'}, 'The extracted versions do not match the template.')
 
 

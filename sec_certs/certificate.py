@@ -1235,7 +1235,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.errors.append(response)
         return cert
 
-    def get_heuristics_version(self):
+    def compute_heuristics_version(self):
         """
         Will extract possible versions from the name
         """
@@ -1257,22 +1257,21 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         else:
             self.heuristics.extracted_versions = ['-']
 
-    # TODO: Move this to heuristics dataclass?
-    def get_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         """
         With the help of the CPE dataset, will find CPE vendors that could match the given certificate vendor
         """
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
 
-    def get_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
-        self.get_heuristics_cpe_vendors(cpe_dataset)
+    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        self.compute_heuristics_cpe_vendors(cpe_dataset)
         self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
                                                                   self.heuristics.cpe_candidate_vendors,
                                                                   self.heuristics.extracted_versions,
                                                                   n_max_matches=constants.CPE_MAX_MATCHES,
                                                                   threshold=constants.CPE_MATCHING_THRESHOLD)
 
-    def get_heuristics_related_cves(self, cve_dataset: CVEDataset):
+    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:
             related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
             related_cves = list(filter(lambda x: x is not None, related_cves))

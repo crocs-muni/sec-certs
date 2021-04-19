@@ -711,12 +711,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         def compute_candidate_versions():
             logger.info('Computing heuristics: possible product versions in certificate name')
             for cert in self:
-                cert.get_heuristics_version()
+                cert.compute_heuristics_version()
 
         def compute_cpe_matches(cpe_dataset: CPEDataset):
             logger.info('Computing heuristics: Finding CPE matches for certificates')
             for cert in self:
-                cert.get_heuristics_cpe_match(cpe_dataset)
+                cert.compute_heuristics_cpe_match(cpe_dataset)
 
         compute_candidate_versions()
         cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
@@ -772,7 +772,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
         for cert in verified_cpe_rich_certs:
-            cert.get_heuristics_related_cves(cve_dset)
+            cert.compute_heuristics_related_cves(cve_dset)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
