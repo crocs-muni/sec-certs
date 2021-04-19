@@ -8,6 +8,7 @@ from rapidfuzz import process, fuzz
 import tempfile
 from pathlib import Path
 import zipfile
+import operator
 
 import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType
@@ -236,7 +237,7 @@ class CPEDataset:
                 reasonable_matches.append((potential, c))
 
         if reasonable_matches:
-            reasonable_matches = sorted(reasonable_matches, key=lambda x: x[0], reverse=True)
+            reasonable_matches = sorted(reasonable_matches, key=operator.itemgetter(0), reverse=True)
 
             # possibly filter short titles to avoid false positives
             # reasonable_matches = list(filter(lambda x: len(x[1].item_name) > 4, reasonable_matches))
