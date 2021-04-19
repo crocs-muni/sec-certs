@@ -746,6 +746,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                             raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
                     except ValueError as e:
                         logger.error(f'Bad input from user, repeating instance: {e}')
+                        print(f'Bad input from user, repeating instance: {e}')
                         time.sleep(0.05)
                         verify_certs([x])
                     else:
