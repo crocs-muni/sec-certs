@@ -1,8 +1,8 @@
 from unittest import TestCase
-from sec_certs.dataset import CCDataset
-from sec_certs.certificate import CommonCriteriaCert
-from sec_certs.cpe import CPEDataset, CPE
-from sec_certs.cve import CVEDataset, CVE
+from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.dataset.cpe import CPEDataset, CPE
+from sec_certs.dataset.cve import CVEDataset, CVE
 from pathlib import Path
 
 

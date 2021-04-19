@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-from sec_certs.dataset import CCDataset
+from sec_certs.dataset.common_criteria import CCDataset
 import sec_certs.constants as constants
 
 logger = logging.getLogger(__name__)

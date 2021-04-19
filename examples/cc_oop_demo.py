@@ -1,4 +1,4 @@
-from sec_certs.dataset import CCDataset
+from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.serialization import CustomJSONEncoder, CustomJSONDecoder
 import sec_certs.constants as constants
 from pathlib import Path

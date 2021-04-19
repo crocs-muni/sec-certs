@@ -7,8 +7,8 @@ import filecmp
 import shutil
 import os
 
-from sec_certs.dataset import CCDataset
-from sec_certs.certificate import CommonCriteriaCert
+from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.certificate.common_criteria import CommonCriteriaCert
 import sec_certs.helpers as helpers
 
 
