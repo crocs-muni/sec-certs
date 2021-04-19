@@ -19,9 +19,9 @@ dset.manually_verify_cpe_matches()
 For each of the certificates, the user is then prompted for an expert knowledge, see example below:
 
 ```
-[0/1512] Vendor: NetIQ Corporation, Name: NetIQ Identity Manager 4.7
-	- [0]: CPE(uri='cpe:2.3:a:netiq:sentinel:-:*:*:*:*:*:*:*', title='NetIQ Sentinel', version='-', vendor='netiq', item_name='sentinel')
-	- [1]: CPE(uri='cpe:2.3:a:netiq:sentinel_agent_manager:-:*:*:*:*:*:*:*', title='NetIQ Sentinel Agent Manager', version='-', vendor='netiq', item_name='sentinel agent manager')
+[0/1516] Vendor: NetIQ Corporation, Name: NetIQ Identity Manager 4.7
+	- [0]: netiq NetIQ Sentinel CPE-URI: cpe:2.3:a:netiq:sentinel:-:*:*:*:*:*:*:*
+	- [1]: netiq NetIQ Sentinel Agent Manager CPE-URI: cpe:2.3:a:netiq:sentinel_agent_manager:-:*:*:*:*:*:*:*
 	- [A]: All are fitting
 	- [X]: No fitting match
 Select fitting CPE matches (split with comma if choosing more):
@@ -30,17 +30,23 @@ Select fitting CPE matches (split with comma if choosing more):
 Here, one should type `X` (case insensitive) and press enter, since all guesses are false positives. In different case
 
 ```
-[1/1512] Vendor: NetIQ, Incorporated, Name: NetIQ Access Manager 4.5
-	- [0]: CPE(uri='cpe:2.3:a:netiq:access_manager:4.5:hotfix1:*:*:*:*:*:*', title='NetIQ Access Manager 4.5 Hotfix 1', version='4.5', vendor='netiq', item_name='access manager')
-	- [1]: CPE(uri='cpe:2.3:a:netiq:access_manager:4.5:sp1:*:*:*:*:*:*', title='NetIQ Access Manager 4.5 Service Pack 1', version='4.5', vendor='netiq', item_name='access manager')
-	- [2]: CPE(uri='cpe:2.3:a:netiq:access_manager:4.5:-:*:*:*:*:*:*', title='NetIQ Access Manager 4.5', version='4.5', vendor='netiq', item_name='access manager')
+[1/1516] Vendor: NetIQ, Incorporated, Name: NetIQ Access Manager 4.5
+	- [0]: netiq NetIQ Access Manager 4.5 CPE-URI: cpe:2.3:a:netiq:access_manager:4.5:-:*:*:*:*:*:*
+	- [1]: netiq NetIQ Access Manager 4.5 Service Pack 1 CPE-URI: cpe:2.3:a:netiq:access_manager:4.5:sp1:*:*:*:*:*:*
+	- [2]: netiq NetIQ Access Manager 4.5 Hotfix 1 CPE-URI: cpe:2.3:a:netiq:access_manager:4.5:hotfix1:*:*:*:*:*:*
 	- [A]: All are fitting
 	- [X]: No fitting match
-Select fitting CPE matches (split with comma if choosing more):
 ```
 
-one may answer with `0,1,2` as all CPEs may be releated to the certificate. 
+one may answer with `0,1,2` or simply `A` as all CPEs may be releated to the certificate. 
 
 The progress of the expert is periodically saved. Currently, there's no way to gracefully exit the process, just do keyboard interrupt if you want to stop. The json will be updated and next time you will get prompted only for the unlabeled certificates. 
 
 We strongly suggest you try the process with `dset.manually_verify_cpe_matches(update_json=False)` to experiment with correct inputs/outputs. While you will get prompted again if the input is recognized incorrect, the `update_json=False` will not store the results so you can experiment with the tool without loosing your results or creating bad labels.
+
+Would you want to exit in the middle and return back after a while, just exit with CTRL+C. You can then label the rest of the unlabeled certificates with
+
+```
+dset = CCDataset.from_json('./my_debug_datset/cc_full_dataset.json')
+dset.manually_verify_cpe_matches()
+```

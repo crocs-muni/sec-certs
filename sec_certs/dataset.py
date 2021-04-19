@@ -732,7 +732,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             for i, x in enumerate(certificates_to_verify):
                 print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
                 for index, c in enumerate(x.heuristics.cpe_matches):
-                    print(f'\t- {[index]}: {c[1]}')
+                    print(f'\t- {[index]}: {c[1].vendor} {c[1].title} CPE-URI: {c[1].uri}')
                 print(f'\t- [A]: All are fitting')
                 print(f'\t- [X]: No fitting match')
                 inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
