@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 import logging
 import json
-from typing import Optional, List, Dict, Tuple, Set, Union
+from typing import Optional, List, Dict, Tuple, Set, Union, ClassVar
 import itertools
 import re
 from rapidfuzz import process, fuzz
@@ -46,7 +46,7 @@ class CPE(ComplexSerializableType):
         return hash(self.uri)
 
 
-def get_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
+def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
     """
     Will parse CPE XML file into dictionary cpe_uri: cpe_title and dump the dict into json
     """
@@ -68,6 +68,9 @@ class CPEDataset:
     vendor_to_versions: Dict[str, List[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
     vendor_version_to_cpe: Dict[Tuple[str, str], List[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
     vendors: Set[str] = field(init=False)
+
+    cpe_xml_basename: ClassVar[str] = 'official-cpe-dictionary_v2.3.xml'
+    cpe_url: ClassVar[str] = 'https://nvd.nist.gov/feeds/xml/cpe/dictionary/' + cpe_xml_basename + '.zip'
 
     def __iter__(self):
         yield from self.cpes.values()
@@ -112,12 +115,10 @@ class CPEDataset:
 
     @classmethod
     def from_web(cls):
-        basename = 'official-cpe-dictionary_v2.3.xml'
-        url = 'https://nvd.nist.gov/feeds/xml/cpe/dictionary/' + basename + '.zip'
         with tempfile.TemporaryDirectory() as tmp_dir:
-            xml_path = Path(tmp_dir) / basename
-            zip_path = Path(tmp_dir) / (basename + '.zip')
-            helpers.download_file(url, zip_path)
+            xml_path = Path(tmp_dir) / cls.cpe_xml_basename
+            zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + '.zip')
+            helpers.download_file(cls.cpe_url, zip_path)
 
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(tmp_dir)
@@ -125,7 +126,7 @@ class CPEDataset:
             return cls.from_xml(xml_path)
 
     @classmethod
-    def from_xml(cls, xml_path: str):
+    def from_xml(cls, xml_path: Union[str, Path]):
         logger.info('Loading CPE dataset from XML.')
         root = ET.parse(xml_path).getroot()
         dct = {}
