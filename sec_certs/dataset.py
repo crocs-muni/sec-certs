@@ -154,10 +154,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
+    certs: Dict[str, 'CommonCriteriaCert']
+
     def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description)
-        self.certs: Dict[str, 'CommonCriteriaCert'] = certs  # semantically redundant, but the type hint is needed
 
         if state is None:
             state = self.DatasetInternalState()
