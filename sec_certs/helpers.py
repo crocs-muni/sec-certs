@@ -498,12 +498,6 @@ def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
     return constants.RETURNCODE_OK, result
 
 
-def match_certs(certs: Dict[str, str], cpes: List[str]):
-    results = {}
-    for dgst, cert_name in certs.items():
-        results[dgst] = process.extract(cert_name, cpes, scorer=fuzz.token_set_ratio, limit=10)
-    return results
-
 def analyze_matched_algs(data: Dict):
     pd_data = pd.Series(data)
     pd_data.hist(bins=50)

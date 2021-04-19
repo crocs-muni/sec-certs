@@ -1,6 +1,6 @@
 import re
 from datetime import datetime, date
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 from pathlib import Path
 import os
@@ -8,6 +8,7 @@ import copy
 import json
 import requests
 from dateutil import parser
+import itertools
 
 from abc import ABC, abstractmethod
 from bs4 import Tag, BeautifulSoup, NavigableString
@@ -22,6 +23,8 @@ from sec_certs.extract_certificates import load_cert_file, normalize_match_strin
     LINE_SEPARATOR, APPEND_DETAILED_MATCH_MATCHES
 from sec_certs.cert_rules import fips_rules, fips_common_rules
 from sec_certs.configuration import config
+from sec_certs.cpe import CPE, CPEDataset
+from sec_certs.cve import CVE, CVEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +59,7 @@ class Certificate(ABC):
 
     def to_json(self, output_path: Union[Path, str]):
         with Path(output_path).open('w') as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, input_path: Union[Path, str]):
@@ -130,7 +133,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         algorithms: Optional[List[Dict[str, str]]]
         tested_conf: Optional[List[str]]
         description: Optional[str]
-        mentioned_certs: Optional[List[Dict]]
+        mentioned_certs: Optional[Dict[str, Dict[str, int]]]
         vendor: Optional[str]
         vendor_www: Optional[str]
         lab: Optional[str]
@@ -144,7 +147,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         revoked_link: Optional[str]
         sw_versions: Optional[str]
         product_url: Optional[str]
-        connections: List
+        connections: List[str]
 
         def __post_init__(self):
             self.date_validation = [parser.parse(x).date() for x in
@@ -198,9 +201,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @dataclass(eq=True)
     class Processed(ComplexSerializableType):
-        keywords: Optional[Dict]
-        algorithms: Dict
-        connections: List
+        keywords: Optional[Dict[str, Dict]]
+        algorithms: Dict[str, Dict]
+        connections: List[str]
         unmatched_algs: int
 
         @property
@@ -263,28 +266,27 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
              'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
              'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
              'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
-             'mentioned_certs': [], 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
+             'mentioned_certs': {}, 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
              'hw_versions': None, 'fw_versions': None, 'sw_versions': None, 'product_url': None}
 
         return d
 
     @staticmethod
-    def parse_caveat(current_text: str) -> List:
+    def parse_caveat(current_text: str) -> Dict[str, Dict[str, int]]:
         """
         Parses content of "Caveat" of FIPS CMVP .html file
         :param current_text: text of "Caveat"
-        :return: list of all found algorithm IDs
+        :return: dictionary of all found algorithm IDs
         """
-        ids_found = []
+        ids_found = {}
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
         for m in re.finditer(r_key, current_text):
             if m.group('word') and m.group('word').lower() in {'rsa', 'shs', 'dsa', 'pkcs', 'aes'}:
                 continue
-            if r_key in ids_found and m.group('id') in ids_found[0]:
-                ids_found[0][m.group('id')]['count'] += 1
+            if m.group('id') in ids_found:
+                ids_found[m.group('id')]['count'] += 1
             else:
-                ids_found.append(
-                    {r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group('id'): {'count': 1}}})
+                ids_found[m.group('id')] = {'count': 1}
 
         return ids_found
 
@@ -304,7 +306,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for m in re.finditer(reg, current_text):
             set_items.add(m.group())
 
-        return [{"Certificate": list(set_items)}]
+        return [{"Certificate": list(set_items)}] if len(set_items) > 0 else []
 
     @staticmethod
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
@@ -337,8 +339,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
-                    content)
+                html_items_found['mentioned_certs'].update(FIPSCertificate.parse_caveat(
+                    content))
 
             elif 'FIPS Algorithms' in title:
                 html_items_found['algorithms'] += FIPSCertificate.parse_table(
@@ -557,10 +559,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for web_alg in alg_list:
                 if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
                     not_found.append(web_alg)
-        logger.info(
-            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n"
-            f"\tFOUND: {sum([len(a['Certificate']) for a in cert.web_scan.algorithms]) - len(not_found)}")
-        logger.error(f"Not found: {not_found}")
         return len(not_found)
 
     @staticmethod
@@ -573,7 +571,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def parse_cert_file_common(text_to_parse: str, whole_text_with_newlines: str,
-                               search_rules: Dict) -> Tuple[Optional[Dict], str]:
+                               search_rules: Dict) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
         # apply all rules
         items_found_all = {}
         for rule_group in search_rules.keys():
@@ -639,7 +637,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, whole_text_with_newlines
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict], str]:
+    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
         # apply all rules
         items_found_all: Dict = {}
 
@@ -704,11 +702,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for df in data:
                 for col in range(len(df.columns)):
                     if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                        lst += FIPSCertificate.extract_algorithm_certificates(
+                        tmp =  FIPSCertificate.extract_algorithm_certificates(
                             df.iloc[:, col].to_string(index=False), True)
-
+                        lst += tmp if tmp != [{"Certificate": []}] else []
                 # Parse again if someone picks not so descriptive column names
-                lst += FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
+                tmp = FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
+                lst += tmp if tmp != [{"Certificate": []}] else []
         return True, cert, lst
 
     def _create_alg_set(self) -> Set:
@@ -725,8 +724,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.processed.keywords = copy.deepcopy(self.pdf_scan.keywords)
         # TODO figure out why can't I delete this
         if self.web_scan.mentioned_certs:
-            for item in self.web_scan.mentioned_certs:
-                self.processed.keywords['rules_cert_id'].update(item)
+            for item, value in self.web_scan.mentioned_certs.items():
+                self.processed.keywords['rules_cert_id'].update({'caveat_item': {item: value}})
 
         alg_set = self._create_alg_set()
 
@@ -759,15 +758,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
         return vendor_split[0] if len(vendor_split) > 0 else vendor
 
-    def clean_empty_entries(self):
-        self.web_scan.algorithms = [x for x in self.web_scan.algorithms if x != {"Certificate": []}]
-        self.pdf_scan.algorithms = [x for x in self.pdf_scan.algorithms if x != {"Certificate": []}]
-        # processed algorithms are cleared during parsing
-
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
-    cc_url = 'http://commoncriteriaportal.org'
-    empty_st_url = 'http://commoncriteriaportal.org/files/epfiles/'
+    cc_url = 'http://www.commoncriteriaportal.org'
+    empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
     class MaintainanceReport(ComplexSerializableType):
@@ -890,8 +884,36 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    pandas_serialization_vars = ['dgst', 'name', 'manufacturer', 'scheme', 'security_level', 'not_valid_before',
-                                 'not_valid_after', 'report_link', 'st_link', 'src', 'manufacturer_web']
+    @dataclass(init=False)
+    class Heuristics(ComplexSerializableType):
+        extracted_versions: List[str]
+        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+        cpe_matches: Optional[List[Tuple[float, CPE]]]
+        verified_cpe_matches: Optional[List[CPE]]
+        related_cves: Optional[List[str]]
+
+        def __init__(self,
+                     extracted_versions: Optional[List[str]] = None,
+                     cpe_matches: Optional[List[str]] = None,
+                     verified_cpe_matches: Optional[List[str]] = None,
+                     related_cves: Optional[List[CVE]] = None):
+            self.extracted_versions = extracted_versions
+            self.cpe_matches = cpe_matches
+            self.cpe_candidate_vendors = None
+            self.verified_cpe_matches = verified_cpe_matches
+            self.related_cves = related_cves
+
+        def to_dict(self):
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, str]):
+            return cls(*tuple(dct.values()))
+
+    pandas_columns = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level',
+                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link',
+                      'manufacturer_web', 'extracted_versions', 'cpe_matches', 'verified_cpe_matches',
+                      'related_cves']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -901,7 +923,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  maintainance_updates: set,
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
-                 cpe_matching: Optional[List[Tuple[str]]]):
+                 heuristics: Optional[Heuristics]):
         super().__init__()
 
         self.status = status
@@ -928,9 +950,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             pdf_data = self.PdfData()
         self.pdf_data = pdf_data
 
-        if cpe_matching is None:
-            cpe_matching = []
-        self.cpe_matching = cpe_matching
+        if heuristics is None:
+            heuristics = self.Heuristics()
+        self.heuristics = heuristics
 
     @property
     def dgst(self) -> str:
@@ -939,8 +961,15 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
+    def __str__(self):
+        return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
+
     def to_pandas_tuple(self):
-        return tuple(getattr(self, i) for i in self.pandas_serialization_vars)
+        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level,\
+               self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
+               self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
+               self.heuristics.related_cves
+
 
     def merge(self, other: 'CommonCriteriaCert'):
         """
@@ -1105,6 +1134,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if st_txt_dir is not None:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
 
+    @property
+    def best_cpe_match(self):
+        clean = [x for x in self.cpe_matching if len(x[0]) > 5]
+        cpe_match_ranking = [x[1] for x in clean]
+        argmax = cpe_match_ranking.index(max(cpe_match_ranking))
+        return clean[argmax]
+
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
@@ -1211,3 +1247,48 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_extract_ok = False
             cert.state.errors.append(response)
         return cert
+
+    def compute_heuristics_version(self):
+        """
+        Will extract possible versions from the name
+        """
+        at_least_something = r'(\b(\d)+\b)'
+        just_numbers = r'(\d{1,5})(\.\d{1,5})'
+
+        without_version = r'(' + just_numbers + r'+)'
+        long_version = r'(' + r'(\bversion)\s*' + just_numbers + r'+)'
+        short_version = r'(' + r'\bv\s*' + just_numbers + r'+)'
+        full_regex_string = r'|'.join([without_version, short_version, long_version])
+        normalizer = r'(\d+\.*)+'
+
+        matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, self.name, re.IGNORECASE)])
+        if not matched_strings:
+            matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, self.name, re.IGNORECASE)])
+
+        if matched_strings:
+            self.heuristics.extracted_versions = [re.search(normalizer, x).group() for x in matched_strings]
+        else:
+            self.heuristics.extracted_versions = ['-']
+
+    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        """
+        With the help of the CPE dataset, will find CPE vendors that could match the given certificate vendor
+        """
+        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
+
+    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        self.compute_heuristics_cpe_vendors(cpe_dataset)
+        self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
+                                                                  self.heuristics.cpe_candidate_vendors,
+                                                                  self.heuristics.extracted_versions,
+                                                                  n_max_matches=constants.CPE_MAX_MATCHES,
+                                                                  threshold=constants.CPE_MATCHING_THRESHOLD)
+
+    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
+        if self.heuristics.verified_cpe_matches:
+            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
+            related_cves = list(filter(lambda x: x is not None, related_cves))
+            if related_cves:
+                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
+        else:
+            self.heuristics.related_cves = None

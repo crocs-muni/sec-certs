@@ -10,11 +10,13 @@ from sec_certs.helpers import analyze_matched_algs
 @click.command()
 @click.option('--config-file', help='Path to config file')
 @click.option('--json-file', help='Path to dataset json file')
-@click.option('--no-download-algs', help='Don\'t download algs', is_flag=True)
+@click.option('--no-download-algs', help='Redo scan of html files', is_flag=True)
+@click.option('--redo-web-scan', help='Redo scan of PDF files', is_flag=True)
+@click.option('--redo-keyword-scan', help='Don\'t download algs', is_flag=True)
 @click.option('--higher-precision-results',
               help='Redo table search for certificates with high error rate. Behaviour undefined if used on a newly instantiated dataset.',
               is_flag=True)
-def main(config_file, json_file, no_download_algs, higher_precision_results):
+def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_scan, higher_precision_results):
     logging.basicConfig(level=logging.INFO)
     start = datetime.now()
 
@@ -28,7 +30,7 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web(json_file=json_file, redo=False)
+    dset.get_certs_from_web(json_file=json_file, redo=redo_web_scan)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
@@ -40,7 +42,7 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    dset.extract_keywords(redo=True)
+    dset.extract_keywords(redo=redo_keyword_scan)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")
@@ -61,7 +63,6 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     logging.info("finalizing results.")
     dset.finalize_results()
 
-    dset.clean_empty_entries()
     logging.info('dump again')
     dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
@@ -71,7 +72,7 @@ def main(config_file, json_file, no_download_algs, higher_precision_results):
     # analyze_matched_algs(data)
     # dset.find_certs_with_different_algorithm_vendors()
 
-    dset.to_json(dset.root_dir / 'fips_mentioned.json')
+    # dset.to_json(dset.root_dir / 'fips_mentioned.json')
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 
