@@ -6,6 +6,7 @@ from typing import Dict, List, ClassVar, Collection, Union, Set, Tuple, Optional
 from itertools import groupby
 from dataclasses import dataclass
 import copy
+import time
 
 import json
 from abc import ABC, abstractmethod
@@ -27,6 +28,8 @@ import sec_certs.files as files
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
+from sec_certs.cpe import CPEDataset
+from sec_certs.cve import CVEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +54,14 @@ class Dataset(ABC):
             raise FileNotFoundError('Root directory for Dataset does not exist')
         self._root_dir = new_path
 
+    @property
+    def json_path(self) -> Path:
+        return self.root_dir / (self.name + '.json')
+
     def __iter__(self):
         yield from self.certs.values()
 
-    def __getitem__(self, item: str) -> 'Certificate':
+    def __getitem__(self, item: str):
         return self.certs.__getitem__(item.lower())
 
     def __setitem__(self, key: str, value: 'Certificate'):
@@ -83,9 +90,12 @@ class Dataset(ABC):
                 f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
         return dset
 
-    def to_json(self, output_path: Union[str, Path]):
+    def to_json(self, output_path: Union[str, Path] = None):
+        if not output_path:
+            output_path = self.json_path
+
         with Path(output_path).open('w') as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
@@ -144,20 +154,34 @@ class CCDataset(Dataset, ComplexSerializableType):
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
+    certs: Dict[str, 'CommonCriteriaCert']
+
+    def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description)
+
         if state is None:
             state = self.DatasetInternalState()
         self.state = state
+
+    def __iter__(self) -> CommonCriteriaCert:
+        yield from self.certs.values()
 
     def to_dict(self):
         return {**{'state': self.state}, **super().to_dict()}
 
     def to_pandas(self):
         tuples = [x.to_pandas_tuple() for x in self.certs.values()]
-        cols = CommonCriteriaCert.pandas_serialization_vars
-        return pd.DataFrame(tuples, columns=cols).set_index('dgst')
+        cols = CommonCriteriaCert.pandas_columns
+
+        df = pd.DataFrame(tuples, columns=cols)
+        df = df.set_index('dgst')
+
+        df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
+        df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
+        df = df.astype({'category': 'category', 'status': 'category', 'scheme': 'category'})
+
+        return df
 
     @classmethod
     def from_dict(cls, dct: Dict):
@@ -169,10 +193,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     def root_dir(self, new_dir: Union[str, Path]):
         Dataset.root_dir.fset(self, new_dir)
         self.set_local_paths()
-
-    @property
-    def json_path(self) -> Path:
-        return self.root_dir / (self.name + '.json')
 
     @property
     def web_dir(self) -> Path:
@@ -205,6 +225,18 @@ class CCDataset(Dataset, ComplexSerializableType):
     @property
     def targets_txt_dir(self) -> Path:
         return self.targets_dir / 'txt'
+
+    @property
+    def auxillary_datasets_path(self) -> Path:
+        return self.root_dir / 'auxillary_datasets'
+
+    @property
+    def cve_dataset_path(self) -> Path:
+        return self.auxillary_datasets_path / 'cve_dataset.json'
+
+    @property
+    def cpe_dataset_path(self) -> Path:
+        return self.auxillary_datasets_path / 'cpe_dataset.json'
 
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
@@ -253,7 +285,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
-                           get_archived: bool = True, update_json: bool = False):
+                           get_archived: bool = True, update_json: bool = True):
         """
         Downloads all metadata about certificates from CSV and HTML sources
         """
@@ -336,7 +368,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                       'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
 
         # TODO: Now skipping bad lines, smarter heuristics to be built for dumb files
-        df = pd.read_csv(file, engine='python', encoding='windows-1250', error_bad_lines=False)
+        df = pd.read_csv(file, engine='python', encoding='windows-1252', error_bad_lines=False)
         df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
 
         df['is_maintainance'] = ~df.maintainance_title.isnull()
@@ -650,33 +682,99 @@ class CCDataset(Dataset, ComplexSerializableType):
         if update_json is True:
             self.to_json(self.json_path)
 
-    # TODO: Probably breaks a logic of ceritifcate managing itself. Needs design refactoring
-    def fuzzy_match_cpe(self, cpe_path: Path, update_json: bool = False):
-        def get_cpe_titles(cpe_path: Path):
-            root = ET.parse(str(cpe_path)).getroot()
-            return [child.text for child in root.findall(
-                '{http://cpe.mitre.org/dictionary/2.0}cpe-item/{http://cpe.mitre.org/dictionary/2.0}title')]
+    def prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
+        logger.info('Preparing CPE dataset.')
+        if not self.auxillary_datasets_path.exists():
+            self.auxillary_datasets_path.mkdir(parents=True)
 
-        digests = [x for x in self.certs.keys()]
-        cpe_titles = get_cpe_titles(cpe_path)
+        if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
+            cpe_dataset = CPEDataset.from_web()
+            cpe_dataset.to_json(str(self.cpe_dataset_path))
+        else:
+            cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
 
-        def chunk_list(a: List, n: int):
-            k, m = divmod(len(a), n)
-            return (a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
+        return cpe_dataset
 
-        chunks = chunk_list(digests, constants.N_THREADS)
-        chunks_dicts = [{x: self[x].name for x in y} for y in chunks]
+    def prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
+        logger.info('Preparing CVE dataset.')
+        if not self.auxillary_datasets_path.exists():
+            self.auxillary_datasets_path.mkdir(parents=True)
 
-        results = cert_processing.process_parallel(helpers.match_certs, list(
-            zip(chunks_dicts, [cpe_titles for _ in range(constants.N_THREADS)])), constants.N_THREADS,
-                                                   use_threading=False, unpack=True)
+        if not self.cve_dataset_path.exists() or download_fresh_cves is True:
+            cve_dataset = CVEDataset.from_web()
+            cve_dataset.to_json(str(self.cve_dataset_path))
+        else:
+            cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
-        for chunk in results:
-            for digest, matches in chunk.items():
-                self[digest].cpe_matching = matches
+        return cve_dataset
+
+    def compute_heuristics(self, update_json=True, download_fresh_cpes: bool = False):
+        def compute_candidate_versions():
+            logger.info('Computing heuristics: possible product versions in certificate name')
+            for cert in self:
+                cert.compute_heuristics_version()
+
+        def compute_cpe_matches(cpe_dataset: CPEDataset):
+            logger.info('Computing heuristics: Finding CPE matches for certificates')
+            for cert in self:
+                cert.compute_heuristics_cpe_match(cpe_dataset)
+
+        compute_candidate_versions()
+        cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
+        compute_cpe_matches(cpe_dset)
 
         if update_json is True:
             self.to_json(self.json_path)
+
+    def manually_verify_cpe_matches(self, update_json=True):
+        def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
+            n_certs_to_verify = len(certificates_to_verify)
+            for i, x in enumerate(certificates_to_verify):
+                print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
+                for index, c in enumerate(x.heuristics.cpe_matches):
+                    print(f'\t- {[index]}: {c[1]}')
+                print(f'\t- [A]: All are fitting')
+                print(f'\t- [X]: No fitting match')
+                inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
+
+                if 'X' not in inpts and 'x' not in inpts:
+                    if 'A' in inpts or 'a' in inpts:
+                        inpts = [x for x in range(0, len(x.heuristics.cpe_matches))]
+                    try:
+                        inpts = [int(x) for x in inpts]
+                        if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
+                            raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
+                    except ValueError as e:
+                        logger.error(f'Bad input from user, repeating instance: {e}')
+                        print(f'Bad input from user, repeating instance: {e}')
+                        time.sleep(0.05)
+                        verify_certs([x])
+                    else:
+                        matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
+                        self[x.dgst].heuristics.verified_cpe_matches = matches
+
+                        if i != 0 and not i % 10 and update_json:
+                            print(f'Saving progress.')
+                            self.to_json()
+
+        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
+        logger.info('Manually verifying CPE matches')
+        time.sleep(0.05)  # easier than flushing the logger
+        verify_certs(certs_to_verify)
+
+        if update_json is True:
+            self.to_json()
+
+    def compute_related_cves(self, download_fresh_cves: bool = False):
+        logger.info('Retrieving related CVEs to verified CPE matches')
+        cve_dset = self.prepare_cve_dataset(download_fresh_cves)
+
+        verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
+        if not verified_cpe_rich_certs:
+            logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
+            return
+        for cert in verified_cpe_rich_certs:
+            cert.compute_heuristics_related_cves(cve_dset)
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
@@ -740,6 +838,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             cert.processed.unmatched_algs = output[cert.dgst]
 
         return output
+
 
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []
