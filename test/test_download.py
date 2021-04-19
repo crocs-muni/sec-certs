@@ -41,4 +41,3 @@ class BasicTests(TestCase):
             (tmp_path / "targets").mkdir()
             download_cc(tmp_path, cert_list, 4)
             actual = {path.name for path in tmp_path.iterdir()}
-            print(actual)
