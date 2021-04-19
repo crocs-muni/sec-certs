@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union
+from typing import Dict, List,  Optional, Union, ClassVar
 import copy
 import datetime
 from pathlib import Path
@@ -99,6 +99,8 @@ class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
     cpes_to_cve_lookup: Dict[str, List[str]] = field(init=False)
 
+    cve_url: ClassVar[str] = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
+
     def to_dict(self):
         return copy.deepcopy({'cves': self.cves})
 
@@ -127,14 +129,12 @@ class CVEDataset(ComplexSerializableType):
     def __len__(self) -> int:
         return len(self.cves)
 
-    @staticmethod
-    def download_cves(output_path: str, start_year: int, end_year: int):
+    def download_cves(self, output_path: str, start_year: int, end_year: int):
         output_path = Path(output_path)
         if not output_path.exists:
             output_path.mkdir()
 
-        base_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
-        urls = [base_url + str(x) + '.json.zip' for x in range(start_year, end_year + 1)]
+        urls = [self.cve_url + str(x) + '.json.zip' for x in range(start_year, end_year + 1)]
 
         logger.info(f'Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}')
         with tempfile.TemporaryDirectory() as tmp_dir:
