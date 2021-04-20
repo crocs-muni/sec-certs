@@ -1,5 +1,6 @@
 import copy
 import itertools
+import operator
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -137,20 +138,61 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                     'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
                     'st_keywords': self.st_keywords}
 
-        def get_bsi_data(self) -> Dict[str, Any]:
+        @property
+        def bsi_data(self) -> Optional[Dict[str, Any]]:
             return self.report_frontpage['bsi']
 
-        def get_anssi_data(self) -> Dict[str, Any]:
+        @property
+        def anssi_data(self) -> Optional[Dict[str, Any]]:
             return self.report_frontpage['anssi']
 
-        def get_cert_lab(self) -> Optional[List[str]]:
+        @property
+        def cert_lab(self) -> Optional[List[str]]:
             labs = []
-            if bsi_data := self.get_bsi_data():
+            if bsi_data := self.bsi_data:
                 labs.append(bsi_data['cert_lab'].split(' ')[0].upper())
-            if anssi_data := self.get_anssi_data():
+            if anssi_data := self.anssi_data:
                 labs.append(anssi_data['cert_lab'].split(' ')[0].upper())
 
             return labs if labs else None
+
+        @property
+        def bsi_cert_id(self) -> Optional[str]:
+            return self.bsi_data.get('cert_id', None)
+
+        @property
+        def anssi_cert_id(self) -> Optional[str]:
+            return self.anssi_data.get('cert_id', None)
+
+        @property
+        def processed_cert_id(self) -> Optional[str]:
+            if self.bsi_cert_id and self.anssi_cert_id:
+                logger.error('Both BSI and ANSSI cert_id set.')
+                raise ValueError('Both BSI and ANSSI cert_id set.')
+            if self.bsi_cert_id:
+                return self.bsi_cert_id
+            else:
+                return self.anssi_cert_id
+
+        @property
+        def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
+            return self.report_keywords['rules_cert_id']
+
+        @property
+        def keywords_cert_id(self) -> Optional[str]:
+            """
+            :return: the most occuring among cert ids captured in keywords scan
+            """
+            if not self.keywords_rules_cert_id:
+                return None
+
+            candidates = [(x, y['count']) for x, y in self.keywords_rules_cert_id.values()]
+            candidates = sorted(candidates,  key=operator.itemgetter(1), reverse=True)
+            return candidates[0][0]
+
+        @property
+        def cert_id(self) -> Optional[str]:
+            return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
@@ -163,8 +205,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         verified_cpe_matches: Optional[List[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
+        cert_id: Optional[str] = field(default=None)
 
-        # cert_id: Optional[str]
         # manufacturer_list: Optional[List[str]]
 
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
@@ -173,7 +215,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.cpe_candidate_vendors = None
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab, 'cert_id': self.cert_id}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):
@@ -565,4 +607,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if not self.pdf_data:
             logger.error('Cannot compute certificate lab when pdf files were not processed.')
             return
-        self.heuristics.cert_lab = self.pdf_data.get_cert_lab()
+        self.heuristics.cert_lab = self.pdf_data.cert_lab
+
+    def compute_heuristics_cert_id(self):
+        if not self.pdf_data:
+            logger.error('Cannot compute certificate id when pdf files were not processed.')
+            return
+        self.heuristics.cert_id = self.pdf_data.cert_id

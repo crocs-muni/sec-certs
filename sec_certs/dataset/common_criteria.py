@@ -605,10 +605,16 @@ class CCDataset(Dataset, ComplexSerializableType):
             for cert in self:
                 cert.compute_heuristics_cert_lab()
 
+        def compute_cert_ids():
+            logger.info('Deriving information about certificate ids from pdf scan.')
+            for cert in self:
+                cert.compute_heuristics_cert_id()
+
         compute_candidate_versions()
         cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
         compute_cpe_matches(cpe_dset)
         compute_cert_labs()
+        compute_cert_ids()
 
         if update_json is True:
             self.to_json(self.json_path)
