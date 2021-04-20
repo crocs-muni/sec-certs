@@ -202,6 +202,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
+        labeled: bool = field(default=False)
         verified_cpe_matches: Optional[List[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
@@ -215,7 +216,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.cpe_candidate_vendors = None
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab, 'cert_id': self.cert_id}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'labeled': self.labeled, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab, 'cert_id': self.cert_id}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):

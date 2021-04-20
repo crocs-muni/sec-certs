@@ -650,7 +650,9 @@ class CCDataset(Dataset, ComplexSerializableType):
                     print(f'Saving progress.')
                     self.to_json()
 
-        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
+                self[x.dgst].heuristics.labeled = True
+
+        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.labeled)]
         logger.info('Manually verifying CPE matches')
         time.sleep(0.05)  # easier than flushing the logger
         verify_certs(certs_to_verify)
