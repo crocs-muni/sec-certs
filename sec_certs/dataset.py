@@ -1019,9 +1019,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                        and cert_last - conn_last > config.year_difference_between_validations['value'] \
                        or cert_first < conn_first
 
+            if cert_candidate not in self.certs or not cert_candidate.isdecimal():
+                return False
+
             # "< number" still needs to be used, because of some old certs being revalidated
-            if cert_candidate.isdecimal() \
-                    and int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
+            if int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
                     compare_certs(processed_cert, cert_candidate):
                 return False
             if cert_candidate not in self.algorithms.certs:
@@ -1050,25 +1052,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
             for rule in current_cert.processed.keywords['rules_cert_id']:
                 matches = current_cert.processed.keywords['rules_cert_id'][rule]
-                logger.error(current_cert.cert_id)
                 current_cert.processed.keywords['rules_cert_id'][rule] = [cert_id for cert_id in matches if
-                                                                          validate_id(current_cert, cert_id.lstrip("#CA0 "))
+                                                                          validate_id(current_cert, cert_id.replace('Cert.', '')
+                                                                                      .replace('cert.', '')
+                                                                                      .lstrip("#CA0 "))
                                                                           and cert_id != current_cert.cert_id]
-
-            for rule in current_cert.processed.keywords['rules_cert_id']:
-                for cert in current_cert.processed.keywords['rules_cert_id'][rule]:
-                    cert_id = ''.join(filter(str.isdigit, cert))
-
-                    if cert_id == '' or cert_id not in self.certs:
-                        broken_files.add(current_cert.dgst)
-                        current_cert.state.file_status = False
-                        break
-
-        if broken_files:
-            logger.warning("CERTIFICATE FILES WITH WRONG CERTIFICATES PARSED")
-            logger.warning(broken_files)
-            logger.warning("... skipping these...")
-            logger.warning(f"Total non-analyzable files:{len(broken_files)}")
 
         for current_cert in self.certs.values():
             current_cert.processed.connections = []

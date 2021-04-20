@@ -417,6 +417,8 @@ rules_fips_to_remove = [
     r"TEL #\d and #\d", # #3337
     r"#\d+ - #\d+", # labels, seals... #1232
     r"#\d+‐#?\d+", # labels, seals... #3530
+    r"#\d+ to #?\d+", # labels, seals... #3058
+    r"see #\d+", # labels, seals... #3058
     r"#\d+, ?#\d+",
     r"#?\d+ and #?\d+",
     r"label \(#\d+\)",
@@ -425,7 +427,8 @@ rules_fips_to_remove = [
     r"IETF[25\s]*RFC[26\s]*#\d+", # #3425
     r"Document # 540-105000-A1",
     r"Certificate #2287-1 from EMCE Engineering", # ???
-    r"[sS]cenario\s#\d+", # 3789
+    r"[sS]cenarios?\s?#\d+", # 3789
+    r"#\d+\s?\(\S\)", # 2159
 ]
 
 rules_fips_cert = [
@@ -433,10 +436,10 @@ rules_fips_cert = [
     #     r"(?:#\s?|Cert\.?[^. ]*?\s?)(?P<id>\d{3})",
     #     r"(?:#\s?|Cert\.?[^. ]*?\s?)(?P<id>\d{2})",
     #     r"(?:#\s?|Cert\.?[^. ]*?\s?)(?P<id>\d{1})
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{4}[^\d\w])",
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{3}[^\d\w])",
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{2}[^\d\w])",
-    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{1}[^\d\w])"
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{4})(?!\d)",
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{3})(?!\d)",
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{2})(?!\d)",
+    r"(?:#[^\S\r\n]?|Cert\.?(?!.\s)[^\S\r\n]?|Certificate[^\S\r\n]?)(?P<id>\d{1})(?!\d)"
 ]
 
 #  rule still too "general"

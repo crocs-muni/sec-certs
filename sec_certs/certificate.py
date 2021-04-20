@@ -319,9 +319,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         trs = element.find_all('tr')
         for tr in trs:
             tds = tr.find_all('td')
+            cert = FIPSCertificate.extract_algorithm_certificates(tds[1].text)
             found_items.append(
                 {'Name': tds[0].text,
-                 'Certificate': FIPSCertificate.extract_algorithm_certificates(tds[1].text)[0]['Certificate'],
+                 'Certificate': cert[0]['Certificate'] if cert != [] else [],
                  'Links': [str(x) for x in tds[1].find_all('a')],
                  'Raw': str(tr)})
 
@@ -515,6 +516,17 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 cert.state.txt_state = True
         return cert
 
+
+    @staticmethod
+    def _declare_state(text: str):
+        """
+        If less then half of the text is formed of alphabet characters,
+        we declare the security policy as "non-parsable"
+        :param text: security policy content
+        :return: True if parsable, otherwise False
+        """
+        return len(text) * 0.5 <= len(''.join(filter(str.isalpha, text)))
+
     @staticmethod
     def find_keywords(cert: 'FIPSCertificate') -> Tuple[Optional[Dict], 'FIPSCertificate']:
         if not cert.state.txt_state:
@@ -524,6 +536,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                                                  -1, LINE_SEPARATOR)
 
         text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing['value'] else text
+
+        cert.state.txt_state = FIPSCertificate._declare_state(text)
 
         if config.ignore_first_page:
             text_to_parse = text_to_parse[text_to_parse.index(""):]
