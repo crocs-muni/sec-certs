@@ -20,7 +20,7 @@ def _set_up_dataset_for_full(td, certs):
     dataset.convert_all_pdfs()
     dataset.extract_keywords()
     dataset.extract_certs_from_tables(high_precision=True)
-    dataset.algorithms = FIPSAlgorithmDataset.from_json('data/test_fips_oop/algorithms.json')
+    dataset.algorithms = FIPSAlgorithmDataset.from_json(Path(__file__).parent / 'data/test_fips_oop/algorithms.json')
     dataset.finalize_results()
     return dataset
 
@@ -40,7 +40,7 @@ class TestFipsOOP(TestCase):
             ['3493', '3495', '3711', '3176', '3488', '3126', '3269', '3524', '3220', '2398', '3543', '2676', '3313',
              '3363', '3608', '3158'],  # Chunk referencing openSSL FIPS Object Module SE
         ]
-        config.load(Path('./settings_test.yaml'))
+        config.load(Path(__file__).parent / 'settings_test.yaml')
 
     def test_size(self):
         for certs in self.certs_to_parse:
