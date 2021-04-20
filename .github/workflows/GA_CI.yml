@@ -1,0 +1,24 @@
+name: tests
+on: 
+  push:
+    branches:
+    - master
+    - dev
+    
+jobs:
+  name: Set env up
+  runs-on: ubuntu-latest
+  steps:
+    - run: apt-get install poppler-utils
+    - uses: actions/checkout@v2
+    - name : Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install python dependencies
+      run: pip install -r requirements.txt
+    - name : Install pytest and run scripts like Travis does
+      run: |
+        pip install pytest
+        pip install pytest-cov
+        pytest test
