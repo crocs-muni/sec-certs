@@ -600,9 +600,15 @@ class CCDataset(Dataset, ComplexSerializableType):
             for cert in self:
                 cert.compute_heuristics_cpe_match(cpe_dataset)
 
+        def compute_cert_labs():
+            logger.info('Deriving information about laboratories involved in certification.')
+            for cert in self:
+                cert.compute_heuristics_cert_lab()
+
         compute_candidate_versions()
         cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
         compute_cpe_matches(cpe_dset)
+        compute_cert_labs()
 
         if update_json is True:
             self.to_json(self.json_path)

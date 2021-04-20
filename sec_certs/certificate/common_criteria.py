@@ -565,4 +565,4 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if not self.pdf_data:
             logger.error('Cannot compute certificate lab when pdf files were not processed.')
             return
-        self.pdf_data.get_cert_lab()
+        self.heuristics.cert_lab = self.pdf_data.get_cert_lab()
