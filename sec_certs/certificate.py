@@ -878,20 +878,23 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cpe_matches: Optional[List[Tuple[float, CPE]]]
         verified_cpe_matches: Optional[List[CPE]]
         related_cves: Optional[List[str]]
+        labeled: bool
 
         def __init__(self,
                      extracted_versions: Optional[List[str]] = None,
                      cpe_matches: Optional[List[str]] = None,
                      verified_cpe_matches: Optional[List[str]] = None,
-                     related_cves: Optional[List[CVE]] = None):
+                     related_cves: Optional[List[CVE]] = None,
+                     labeled: bool = False):
             self.extracted_versions = extracted_versions
             self.cpe_matches = cpe_matches
             self.cpe_candidate_vendors = None
             self.verified_cpe_matches = verified_cpe_matches
             self.related_cves = related_cves
+            self.labeled = labeled
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'labeled': self.labeled}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):
