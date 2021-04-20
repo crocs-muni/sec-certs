@@ -753,9 +753,9 @@ class CCDataset(Dataset, ComplexSerializableType):
                         matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
                         self[x.dgst].heuristics.verified_cpe_matches = matches
 
-                        if i != 0 and not i % 10 and update_json:
-                            print(f'Saving progress.')
-                            self.to_json()
+            if i != 0 and not i % 10 and update_json:
+                print(f'Saving progress.')
+                self.to_json()
 
         certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
         logger.info('Manually verifying CPE matches')
