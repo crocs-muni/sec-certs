@@ -59,7 +59,8 @@
                 "extracted_versions": null,
                 "cpe_matches": null,
                 "verified_cpe_matches": null,
-                "related_cves": null
+                "related_cves": null,
+                "cert_lab": null
             }
         },
         {
@@ -110,7 +111,8 @@
                 "extracted_versions": null,
                 "cpe_matches": null,
                 "verified_cpe_matches": null,
-                "related_cves": null
+                "related_cves": null,
+                "cert_lab": null
             }
         }
     ]

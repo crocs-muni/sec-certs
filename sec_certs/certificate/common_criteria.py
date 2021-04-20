@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union
+from typing import Optional, List, Dict, Tuple, Union, Any
 
 import requests
 from bs4 import Tag
@@ -113,17 +113,17 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
-        report_metadata: Dict[str, str]
-        st_metadata: Dict[str, str]
-        report_frontpage: Dict[str, str]
-        st_frontpage: Dict[str, str]
-        report_keywords: Dict[str, str]
-        st_keywords: Dict[str, str]
+        report_metadata: Dict[str, Any]
+        st_metadata: Dict[str, Any]
+        report_frontpage: Dict[str, Dict[str, Any]]
+        st_frontpage: Dict[str, Dict[str, Any]]
+        report_keywords: Dict[str, Any]
+        st_keywords: Dict[str, Any]
 
-        def __init__(self, report_metadata: Optional[Dict[str, str]] = None,
-                     st_metadata: Optional[Dict[str, str]] = None,
-                     report_frontpage: Optional[Dict[str, str]] = None, st_frontpage: Optional[Dict[str, str]] = None,
-                     report_keywords: Optional[Dict[str, str]] = None, st_keywords: Optional[Dict[str, str]] = None):
+        def __init__(self, report_metadata: Optional[Dict[str, Any]] = None,
+                     st_metadata: Optional[Dict[str, Any]] = None,
+                     report_frontpage: Optional[Dict[str, Dict[str, Any]]] = None, st_frontpage: Optional[Dict[str, Dict[str, Any]]] = None,
+                     report_keywords: Optional[Dict[str, Any]] = None, st_keywords: Optional[Dict[str, Any]] = None):
             self.report_metadata = report_metadata
             self.st_metadata = st_metadata
             self.report_frontpage = report_frontpage
@@ -137,31 +137,43 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                     'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
                     'st_keywords': self.st_keywords}
 
+        def get_bsi_data(self) -> Dict[str, Any]:
+            return self.report_frontpage['bsi']
+
+        def get_anssi_data(self) -> Dict[str, Any]:
+            return self.report_frontpage['anssi']
+
+        def get_cert_lab(self) -> Optional[List[str]]:
+            labs = []
+            if bsi_data := self.get_bsi_data():
+                labs.append(bsi_data['cert_lab'].split(' ')[0].upper())
+            if anssi_data := self.get_anssi_data():
+                labs.append(anssi_data['cert_lab'].split(' ')[0].upper())
+
+            return labs if labs else None
+
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
 
-    @dataclass(init=False)
+    @dataclass
     class Heuristics(ComplexSerializableType):
-        extracted_versions: List[str]
-        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
-        cpe_matches: Optional[List[Tuple[float, CPE]]]
-        verified_cpe_matches: Optional[List[CPE]]
-        related_cves: Optional[List[str]]
+        extracted_versions: List[str] = field(default=None)
+        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
+        verified_cpe_matches: Optional[List[CPE]] = field(default=None)
+        related_cves: Optional[List[str]] = field(default=None)
+        cert_lab: Optional[List[str]] = field(default=None)
 
-        def __init__(self,
-                     extracted_versions: Optional[List[str]] = None,
-                     cpe_matches: Optional[List[str]] = None,
-                     verified_cpe_matches: Optional[List[str]] = None,
-                     related_cves: Optional[List[CVE]] = None):
-            self.extracted_versions = extracted_versions
-            self.cpe_matches = cpe_matches
+        # cert_id: Optional[str]
+        # manufacturer_list: Optional[List[str]]
+
+        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+
+        def __post_init__(self):
             self.cpe_candidate_vendors = None
-            self.verified_cpe_matches = verified_cpe_matches
-            self.related_cves = related_cves
 
         def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves}
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab}
 
         @classmethod
         def from_dict(cls, dct: Dict[str, str]):
@@ -226,7 +238,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
                self.heuristics.related_cves
-
 
     def merge(self, other: 'CommonCriteriaCert'):
         """
@@ -549,3 +560,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
         else:
             self.heuristics.related_cves = None
+
+    def compute_heuristics_cert_lab(self):
+        if not self.pdf_data:
+            logger.error('Cannot compute certificate lab when pdf files were not processed.')
+            return
+        self.pdf_data.get_cert_lab()
