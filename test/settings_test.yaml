@@ -1,0 +1,19 @@
+---
+smallest_certificate_id_to_connect:
+  description: During validation we don't connect certificates with number lower than
+    _this_ to connections
+  value: 40
+year_difference_between_validations:
+  description: During validation we don't connect certificates with validation dates
+    difference higher than _this_
+  value: 7
+use_text_with_newlines_during_parsing:
+  description: During keyword search, search in text with newlines
+  value: true
+ignore_first_page:
+  description: During keyword search, first page usually contains addresses - ignore it.
+  value: true
+cert_threshold:
+  description: Used with --higher-precision-results. Determines the amount of mismatched algorithms to be considered faulty.
+  value: 5
+

@@ -40,7 +40,7 @@ class TestFipsOOP(TestCase):
             ['3493', '3495', '3711', '3176', '3488', '3126', '3269', '3524', '3220', '2398', '3543', '2676', '3313',
              '3363', '3608', '3158'],  # Chunk referencing openSSL FIPS Object Module SE
         ]
-        config.load(Path('../sec_certs/settings.yaml'))
+        config.load(Path('./settings_test.yaml'))
 
     def test_size(self):
         for certs in self.certs_to_parse:
