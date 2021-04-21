@@ -4,14 +4,9 @@ Tool for analysis of security certificates and their security targets (Common Cr
 
 This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Faculty of Informatics, Masaryk University.
 
-## Usage (Dockerfile)
 
-1. Run `sudo apt install docker.io`
-2. Go into the directory where the Dockerfile is
-3. Run `sudo docker build . -t NAME_OF_YOUR_IMAGE`
-4. The image is now created in your local Docker repo, use `sudo docker run NAME_OF_YOUR_IMAGE:latest` to run the container
+## Installation (CC)
 
-## Usage (CC)
 
 The tool requires several Python packages as well as the `pdftotext` binary somewhere on the `PATH`.
 The easiest way to setup the tool is to install it in a virtual environment, e.g.:
@@ -26,6 +21,12 @@ python3 -m venv virt
 . virt/bin/activate
 pip install -e .
 ```
+
+## Examples
+
+Some examples are documented in [examples](https://github.com/crocs-muni/sec-certs/blob/master/examples/)
+
+## Old API
 
 The following steps will do a full extraction and analysis of CC certificates:
 
