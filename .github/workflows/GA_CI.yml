@@ -1,9 +1,6 @@
 name: tests
-on: 
-  push:
-    branches:
-    - master
-    - dev
+on: [push]
+
     
 jobs:
   run-test:
