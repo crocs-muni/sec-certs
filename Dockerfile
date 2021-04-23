@@ -30,4 +30,4 @@ ENV PATH /usr/bin/pdftotext:${PATH}
 
 
 # Run the application:
-CMD ["python3", "/opt/sec-certs/cc_oop_demo.py"]
+CMD ["python3", "/opt/sec-certs/examples/cc_oop_demo.py"]
