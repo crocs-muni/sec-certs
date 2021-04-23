@@ -1,4 +1,5 @@
 import copy
+import itertools
 import locale
 import shutil
 import time
@@ -6,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Union, List
+import json
 
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
@@ -670,3 +672,39 @@ class CCDataset(Dataset, ComplexSerializableType):
             return
         for cert in verified_cpe_rich_certs:
             cert.compute_heuristics_related_cves(cve_dset)
+
+    def to_label_studio_json(self, output_path: Union[str, Path]):
+        lst = []
+        for cert in [x for x in self if x.heuristics.cpe_matches and not x.heuristics.labeled]:
+            dct = {'text': cert.name}
+            candidates = [x[1].title for x in cert.heuristics.cpe_matches]
+            candidates += ['No good match'] * (constants.CPE_MAX_MATCHES - len(candidates))
+            options = ['option_' + str(x) for x in range(1, 21)]
+            dct.update({o: c for o, c in zip(options, candidates)})
+            lst.append(dct)
+
+        with Path(output_path).open('w') as handle:
+            json.dump(lst, handle, indent=4)
+
+    def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
+        return [crt for crt in self if crt.name == cert_name]
+
+    def load_label_studio_labels(self, input_path: Union[str, Path]):
+        with Path(input_path).open('r') as handle:
+            data = json.load(handle)
+
+        cpe_dset = self.prepare_cpe_dataset()
+
+        for annotation in data:
+            if 'verified_cpe_match' not in annotation:
+                continue
+
+            match_keys = annotation['verified_cpe_match']['choices']
+            if isinstance(match_keys, str):
+                match_keys = [match_keys]
+            match_keys = [x[1:] for x in match_keys]
+            cpes = itertools.chain.from_iterable([cpe_dset.get_cpes_from_title(annotation[x]) for x in match_keys])
+            certs = self.get_certs_from_name(annotation['text'])
+
+            for c in certs:
+                c.heuristics.verified_cpe_matches = cpes
