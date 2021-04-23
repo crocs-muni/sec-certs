@@ -4,7 +4,9 @@ Tool for analysis of security certificates and their security targets (Common Cr
 
 This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Faculty of Informatics, Masaryk University.
 
+
 ## Installation (CC)
+
 
 The tool requires several Python packages as well as the `pdftotext` binary somewhere on the `PATH`.
 The easiest way to setup the tool is to install it in a virtual environment, e.g.:
