@@ -20,7 +20,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Topic :: Security",
         "Topic :: Security :: Cryptography",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research"
     ],
