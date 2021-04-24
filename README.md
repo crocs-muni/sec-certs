@@ -4,10 +4,14 @@ Tool for analysis of security certificates and their security targets (Common Cr
 
 This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Faculty of Informatics, Masaryk University.
 
-[![Website seccerts.org](https://img.shields.io/website-up-down-green-red/http/monip.org.svg)](http://seccerts.org/) 
-[![PyPI version sec-certs](https://badge.fury.io/py/ansicolortags.svg)](https://pypi.org/project/sec-certs/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/ansicolortags.svg)](https://pypi.python.org/pypi/sec-certs/)
-![GitHub actions tests](https://github.com/crocs-muni/sec-certs/actions/workflows/GA_CI.yml/badge.svg)
+![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org)
+
+![PyPI](https://img.shields.io/pypi/v/sec-certs?style=flat-square)
+
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?style=flat-square)
+
 
 ## Installation (CC)
 
