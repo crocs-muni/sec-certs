@@ -4,9 +4,12 @@ Tool for analysis of security certificates and their security targets (Common Cr
 
 This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Faculty of Informatics, Masaryk University.
 
+[![Website seccerts.org](https://img.shields.io/website-up-down-green-red/http/monip.org.svg)](http://seccerts.org/) 
+[![PyPI version sec-certs](https://badge.fury.io/py/ansicolortags.svg)](https://pypi.org/project/sec-certs/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/ansicolortags.svg)](https://pypi.python.org/pypi/sec-certs/)
+![GitHub actions tests](https://github.com/crocs-muni/sec-certs/actions/workflows/GA_CI.yml/badge.svg)
 
 ## Installation (CC)
-
 
 The tool requires several Python packages as well as the `pdftotext` binary somewhere on the `PATH`.
 The easiest way to setup the tool is to install it in a virtual environment, e.g.:
