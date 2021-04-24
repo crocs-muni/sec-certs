@@ -1238,15 +1238,36 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return mapped
 
+    def references_vendors_or_not(self):
+        cert: FIPSCertificate
+        res: Dict[str, int] = {"own": 0, "other": 0, "both": 0}
+        for cert in self.certs.values():
+            if not cert.web_scan.vendor or cert.processed.connections == []:
+                continue
+            cert_vendor = FIPSCertificate.get_compare(cert.web_scan.vendor)
+            own, other = 0, 0
+            for connection in cert.processed.connections:
+                processed: FIPSCertificate = self.certs[connection]
+                conn_vendor = FIPSCertificate.get_compare(processed.web_scan.vendor)
+                if cert_vendor == conn_vendor:
+                    own += 1
+                else:
+                    other += 1
+
+            if own != 0 and other != 0:
+                res['both'] += 1
+                continue
+            if own != 0:
+                res['own'] += 1
+                continue
+            res['other'] += 1
+
+        return res
+
     def plot_graphs(self, show: bool = False):
         self.get_dot_graph('full_graph', show=show)
         self.get_dot_graph('web_only_graph', 'web', show=show)
         self.get_dot_graph('pdf_only_graph', 'pdf', show=show)
-
-    def clean_empty_entries(self):
-        cert: FIPSCertificate
-        for cert in self.certs.values():
-            cert.clean_empty_entries()
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):

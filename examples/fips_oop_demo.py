@@ -21,10 +21,10 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     start = datetime.now()
 
     # Load config
-    config.load(config_file if config_file else 'sec_certs/settings.yaml')
+    config.load(config_file if config_file else '../sec_certs/settings.yaml')
 
     # Create empty dataset
-    dset = FIPSDataset({}, Path('./fips_dataset'), 'sample_dataset', 'sample dataset description')
+    dset = FIPSDataset({}, Path('../fips_dataset'), 'sample_dataset', 'sample dataset description')
 
     # this is for creating test dataset, usually with small number of pdfs
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
@@ -55,7 +55,7 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     logging.info(f"Done. Files not decoded: {not_decoded_files}")
     logging.info("Parsing algorithms")
     if not no_download_algs:
-        aset = FIPSAlgorithmDataset({}, Path('fips_dataset/web/algorithms'), 'algorithms', 'sample algs')
+        aset = FIPSAlgorithmDataset({}, Path(dset.root_dir / 'web/algorithms'), 'algorithms', 'sample algs')
         aset.get_certs_from_web()
 
         dset.algorithms = aset
@@ -63,16 +63,17 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     logging.info("finalizing results.")
     dset.finalize_results()
 
-    logging.info('dump again')
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    # logging.info('dump again')
+    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
-    dset.plot_graphs(show=False)
+    # dset.plot_graphs(show=False)
 
     # data = dset.match_algs()
     # analyze_matched_algs(data)
     # dset.find_certs_with_different_algorithm_vendors()
 
     # dset.to_json(dset.root_dir / 'fips_mentioned.json')
+    print(dset.references_vendors_or_not())
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 
