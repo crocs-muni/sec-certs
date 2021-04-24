@@ -1,0 +1,10 @@
+name: get-version
+on: [push, workflow_dispatch]
+
+steps:
+  - id: get_version
+    uses: battila7/get-version-action@v2
+
+  - run: echo ${{ steps.get_version.outputs.version }}
+
+  - run: echo ${{ steps.get_version.outputs.version-without-v }}
