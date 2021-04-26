@@ -72,6 +72,7 @@ The analysis can be extended in several ways:
  3. Help to fix problems in data extraction - some PDF files are corrupted, there are many typos even in certificate IDs...
 
 ## How to run the application with a Docker container
- 1. pull the image from the DockerHub repository : `sudo docker pull seccerts/sec-certs`
- 2. run `sudo docker run --volume ./processed_data:/opt/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
+
+ 1. pull the image from the DockerHub repository : `docker pull seccerts/sec-certs`
+ 2. run `docker run --volume ./processed_data:/opt/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
  3. All processed data will be in the `~/processed_data` directory
