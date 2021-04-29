@@ -33,7 +33,7 @@ setup(
     },
     entry_points="""
         [console_scripts]
-        process-certs=process_certificates:main
-        fips-certs=fips_certificates:main
+        process-certs=sec_certs.entrypoints.process_certificates:main
+        fips-certs=sec_certs.entrypoints.fips_certificates:main
     """
 )
