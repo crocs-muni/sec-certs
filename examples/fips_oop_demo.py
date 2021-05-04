@@ -34,25 +34,25 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
     logging.info("Converting pdfs")
-    dset.convert_all_pdfs()
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    # dset.convert_all_pdfs()
+    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    dset.extract_keywords(redo=redo_keyword_scan)
+    # dset.extract_keywords(redo=redo_keyword_scan)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Searching for tables in pdfs")
 
-    not_decoded_files = dset.extract_certs_from_tables(higher_precision_results)
+    # not_decoded_files = dset.extract_certs_from_tables(higher_precision_results)
 
-    logging.info(f"Done. Files not decoded: {not_decoded_files}")
+    # logging.info(f"Done. Files not decoded: {not_decoded_files}")
     logging.info("Parsing algorithms")
     if not no_download_algs:
         aset = FIPSAlgorithmDataset({}, Path(dset.root_dir / 'web/algorithms'), 'algorithms', 'sample algs')
@@ -73,7 +73,8 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     # dset.find_certs_with_different_algorithm_vendors()
 
     # dset.to_json(dset.root_dir / 'fips_mentioned.json')
-    print(dset.references_vendors_or_not())
+
+    dset.plot_alg_analysis_graphs()
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 

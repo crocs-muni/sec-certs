@@ -26,6 +26,8 @@ import sec_certs.constants as constants
 import sec_certs.cert_processing as cert_processing
 import sec_certs.files as files
 
+from sec_certs.analyze_certificates import plot_bar_graph
+
 from sec_certs.certificate import CommonCriteriaCert, Certificate, FIPSCertificate
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
@@ -440,11 +442,11 @@ class CCDataset(Dataset, ComplexSerializableType):
             date_string = footer_text.split(',')[1:3]
             time_string = footer_text.split(',')[3].split(' at ')[1]
             formatted_datetime = date_string[0] + \
-                                 date_string[1] + ' ' + time_string
+                date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
         def _parse_table(soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str) -> Dict[
-            str, 'CommonCriteriaCert']:
+                str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
             assert len(tables) <= 1
 
@@ -744,7 +746,8 @@ class CCDataset(Dataset, ComplexSerializableType):
                     try:
                         inpts = [int(x) for x in inpts]
                         if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
-                            raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
+                            raise ValueError(
+                                f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
                     except ValueError as e:
                         logger.error(f'Bad input from user, repeating instance: {e}')
                         print(f'Bad input from user, repeating instance: {e}')
@@ -758,7 +761,8 @@ class CCDataset(Dataset, ComplexSerializableType):
                             print(f'Saving progress.')
                             self.to_json()
 
-        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
+        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (
+            x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
         logger.info('Manually verifying CPE matches')
         time.sleep(0.05)  # easier than flushing the logger
         verify_certs(certs_to_verify)
@@ -772,7 +776,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
         if not verified_cpe_rich_certs:
-            logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
+            logger.error(
+                'No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
         for cert in verified_cpe_rich_certs:
             cert.compute_heuristics_related_cves(cve_dset)
@@ -839,7 +844,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             cert.processed.unmatched_algs = output[cert.dgst]
 
         return output
-
 
     def download_all_pdfs(self):
         sp_paths, sp_urls = [], []
@@ -972,7 +976,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [(cert, high_precision) for cert in self.certs.values() if
                                                    (
-                                                           not cert.state.tables_done or high_precision) and cert.state.txt_state],
+                                                      not cert.state.tables_done or high_precision) and cert.state.txt_state],
                                                   constants.N_THREADS // 4,  # tabula already processes by parallel, so
                                                   # it's counterproductive to use all threads
                                                   use_threading=False)
@@ -1016,8 +1020,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 conn_last = self.certs[other_id].web_scan.date_validation[-1].year
 
                 return cert_first - conn_first > config.year_difference_between_validations['value'] \
-                       and cert_last - conn_last > config.year_difference_between_validations['value'] \
-                       or cert_first < conn_first
+                    and cert_last - conn_last > config.year_difference_between_validations['value'] \
+                    or cert_first < conn_first
 
             if cert_candidate not in self.certs or not cert_candidate.isdecimal():
                 return False
@@ -1053,7 +1057,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             for rule in current_cert.processed.keywords['rules_cert_id']:
                 matches = current_cert.processed.keywords['rules_cert_id'][rule]
                 current_cert.processed.keywords['rules_cert_id'][rule] = [cert_id for cert_id in matches if
-                                                                          validate_id(current_cert, cert_id.replace('Cert.', '')
+                                                                          validate_id(current_cert,
+                                                                                      cert_id.replace('Cert.', '')
                                                                                       .replace('cert.', '')
                                                                                       .lstrip("#CA0 "))
                                                                           and cert_id != current_cert.cert_id]
@@ -1086,11 +1091,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
-    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed', highlighted_vendor: str = 'Red Hat®, Inc.',  show: bool = True):
+    def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed',
+                      highlighted_vendor: str = 'Red Hat®, Inc.', show: bool = True):
         """
         Function that plots .dot graph of dependencies between certificates
         Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
         certificates are displayed in {output_file_name}single.pdf
+        :param show: display graph right on screen
         :param highlighted_vendor: vendor whose certificates should be highlighted in red color
         :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
         :param connection_list: 'processed', 'web', or 'pdf' - plots a graph from this source
@@ -1120,11 +1127,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             found_interesting_cert(current_key)
             dot.node(current_key,
                      label=current_key +
-                           '&#10;' +
-                           self.certs[current_key].web_scan.vendor +
-                           '&#10;' +
-                           (self.certs[current_key].web_scan.module_name
-                            if self.certs[current_key].web_scan.module_name else ''))
+                     '&#10;' +
+                     self.certs[current_key].web_scan.vendor +
+                     '&#10;' +
+                     (self.certs[current_key].web_scan.module_name
+                      if self.certs[current_key].web_scan.module_name else ''))
 
         def get_processed_list():
             if connection_list == "pdf":
@@ -1225,7 +1232,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     for found_cert in found:
                         if alg_name == found_cert.type and \
                                 FIPSCertificate.get_compare(cert.web_scan.vendor) != FIPSCertificate.get_compare(
-                            found_cert.vendor):
+                                    found_cert.vendor):
                             mapped[cert.dgst] += 1
                             break
 
@@ -1268,6 +1275,74 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.get_dot_graph('full_graph', show=show)
         self.get_dot_graph('web_only_graph', 'web', show=show)
         self.get_dot_graph('pdf_only_graph', 'pdf', show=show)
+
+    def _algorithms_by_date_analysis(self):
+        by_date: Dict[int, List[int]] = {}
+        cert: FIPSCertificate
+
+        for cert in self.certs.values():
+            year = cert.web_scan.date_validation[-1].year
+            if year not in by_date:
+                by_date[year] = []
+            num_of_certs = sum([len(alg['Certificate']) for alg in cert.web_scan.algorithms])
+            by_date[year].append(num_of_certs)
+
+        # averages
+        rows = []
+        years = []
+        for year in sorted(by_date.keys()):
+            years.append(year)
+            rows.append(sum(by_date[year]) / len(by_date[year]))
+
+        return rows, years
+
+    def _algorithms_by_module_type(self):
+        by_type: Dict[str, List[int]] = {}
+        cert: FIPSCertificate
+        for cert in self.certs.values():
+            cert_type = cert.web_scan.module_type
+            if cert_type not in by_type:
+                by_type[cert_type] = []
+            by_type[cert_type].append(sum([len(alg['Certificate']) for alg in cert.web_scan.algorithms]))
+
+        rows = []
+        types = []
+        for module_type in sorted(by_type.keys()):
+            types.append(module_type)
+            rows.append(sum(by_type[module_type]) / len(by_type[module_type]))
+
+        return rows, types
+
+    def _algorithms_by_level(self):
+        by_level: Dict[str, List[int]] = {}
+        cert: FIPSCertificate
+        for cert in self.certs.values():
+            level = cert.web_scan.level
+            if level not in by_level:
+                by_level[level] = []
+
+            by_level[level].append(sum([len(alg['Certificate']) for alg in cert.web_scan.algorithms]))
+
+        rows = []
+        levels = []
+        for module_level in sorted(by_level.keys()):
+            levels.append(module_level)
+            rows.append(sum(by_level[module_level]) / len(by_level[module_level]))
+
+        return rows, levels
+
+    def plot_alg_analysis_graphs(self):
+        by_date, years = self._algorithms_by_date_analysis()
+        plot_bar_graph(by_date, years, "Average number of used algorithms",
+                       "Average number of algorithms by last validation date", "../fips_result/algorithms_by_date")
+
+        by_type, types = self._algorithms_by_module_type()
+        plot_bar_graph(by_type, types, "Average number of used algorithms",
+                       "Average number of algorithms by type", "../fips_result/algorithms_by_type")
+
+        by_level, levels = self._algorithms_by_level()
+        plot_bar_graph(by_level, levels, "Average number of used algorithms",
+                       "Average number of algorithms by security level", "../fips_result/algorithms_by_level")
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
