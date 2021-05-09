@@ -498,12 +498,14 @@ def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
     return constants.RETURNCODE_OK, result
 
 
-def analyze_matched_algs(data: Dict):
+def plot_dataframe_graph(data: Dict, label: str, file_name: str, density: bool = False, cumulative: bool = False, bins: int = 50, log: bool = True, show: bool = True):
     pd_data = pd.Series(data)
-    pd_data.hist(bins=50)
-    plt.show()
-    plt.savefig('matched_algs.png')
+    pd_data.hist(bins=bins, label=label, density=density, cumulative=cumulative)
+    plt.savefig(file_name)
+    if show:
+        plt.show()
 
-    sorted_data = pd_data.value_counts(ascending=True)
+    if log:
+        sorted_data = pd_data.value_counts(ascending=True)
 
-    logging.info(sorted_data.where(sorted_data > 1).dropna())
+        logging.info(sorted_data.where(sorted_data > 1).dropna())
