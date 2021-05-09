@@ -46,5 +46,5 @@ TAG_PP_EDITOR = 'pp_editor'
 TAG_PP_REVIEWER = 'pp_reviewer'
 TAG_KEYWORDS = 'keywords'
 FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
-FIPS_ALG_URL = 'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page='
+FIPS_ALG_URL = 'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&page='
 

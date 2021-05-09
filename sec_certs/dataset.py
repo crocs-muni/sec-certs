@@ -442,11 +442,11 @@ class CCDataset(Dataset, ComplexSerializableType):
             date_string = footer_text.split(',')[1:3]
             time_string = footer_text.split(',')[3].split(' at ')[1]
             formatted_datetime = date_string[0] + \
-                date_string[1] + ' ' + time_string
+                                 date_string[1] + ' ' + time_string
             return datetime.strptime(formatted_datetime, ' %B %d %Y %I:%M %p')
 
         def _parse_table(soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str) -> Dict[
-                str, 'CommonCriteriaCert']:
+            str, 'CommonCriteriaCert']:
             tables = soup.find_all('table', id=table_id)
             assert len(tables) <= 1
 
@@ -762,7 +762,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                             self.to_json()
 
         certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (
-            x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
+                x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
         logger.info('Manually verifying CPE matches')
         time.sleep(0.05)  # easier than flushing the logger
         verify_certs(certs_to_verify)
@@ -843,6 +843,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
             cert.processed.unmatched_algs = output[cert.dgst]
 
+        output = {k: v for k, v in output.items() if v != 0}
         return output
 
     def download_all_pdfs(self):
@@ -976,7 +977,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [(cert, high_precision) for cert in self.certs.values() if
                                                    (
-                                                      not cert.state.tables_done or high_precision) and cert.state.txt_state],
+                                                           not cert.state.tables_done or high_precision) and cert.state.txt_state],
                                                   constants.N_THREADS // 4,  # tabula already processes by parallel, so
                                                   # it's counterproductive to use all threads
                                                   use_threading=False)
@@ -1020,8 +1021,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 conn_last = self.certs[other_id].web_scan.date_validation[-1].year
 
                 return cert_first - conn_first > config.year_difference_between_validations['value'] \
-                    and cert_last - conn_last > config.year_difference_between_validations['value'] \
-                    or cert_first < conn_first
+                       and cert_last - conn_last > config.year_difference_between_validations['value'] \
+                       or cert_first < conn_first
 
             if cert_candidate not in self.certs or not cert_candidate.isdecimal():
                 return False
@@ -1127,11 +1128,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             found_interesting_cert(current_key)
             dot.node(current_key,
                      label=current_key +
-                     '&#10;' +
-                     self.certs[current_key].web_scan.vendor +
-                     '&#10;' +
-                     (self.certs[current_key].web_scan.module_name
-                      if self.certs[current_key].web_scan.module_name else ''))
+                           '&#10;' +
+                           self.certs[current_key].web_scan.vendor +
+                           '&#10;' +
+                           (self.certs[current_key].web_scan.module_name
+                            if self.certs[current_key].web_scan.module_name else ''))
 
         def get_processed_list():
             if connection_list == "pdf":
@@ -1212,138 +1213,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return vendors
 
-    def find_certs_with_different_algorithm_vendors(self) -> Dict:
-        cert: FIPSCertificate
-        mapped = {}
-        for cert in self.certs.values():
-            mapped[cert.dgst] = 0
-            for alg in cert.web_scan.algorithms:
-                if not "Name" in alg:
-                    continue
-                alg_certs = alg["Certificate"]
-                alg_name = alg["Name"]
-                for alg_cert in alg_certs:
-                    if 'C' in alg_cert:
-                        alg_name = "C"
-                    elif 'A' in alg_cert:
-                        alg_name = "A"
-                    found = self.algorithms[''.join(filter(str.isdigit, alg_cert))]
-                    found_cert: FIPSCertificate.Algorithm
-                    for found_cert in found:
-                        if alg_name == found_cert.type and \
-                                FIPSCertificate.get_compare(cert.web_scan.vendor) != FIPSCertificate.get_compare(
-                                    found_cert.vendor):
-                            mapped[cert.dgst] += 1
-                            break
-
-        mapped = {k: v for k, v in mapped.items() if v != 0}
-        mapped = {k: v for k, v in sorted(mapped.items(), key=lambda item: item[1], reverse=True)}
-
-        logger.info(json.dumps({k: mapped[k] for k in list(mapped)[:10]}, indent=4))
-        logger.info(f"Max: {max(mapped.values())}")
-        logger.info(f"Average: {sum(mapped.values()) / len(mapped)}")
-
-        return mapped
-
-    def references_vendors_or_not(self):
-        cert: FIPSCertificate
-        res: Dict[str, int] = {"own": 0, "other": 0, "both": 0}
-        for cert in self.certs.values():
-            if not cert.web_scan.vendor or cert.processed.connections == []:
-                continue
-            cert_vendor = FIPSCertificate.get_compare(cert.web_scan.vendor)
-            own, other = 0, 0
-            for connection in cert.processed.connections:
-                processed: FIPSCertificate = self.certs[connection]
-                conn_vendor = FIPSCertificate.get_compare(processed.web_scan.vendor)
-                if cert_vendor == conn_vendor:
-                    own += 1
-                else:
-                    other += 1
-
-            if own != 0 and other != 0:
-                res['both'] += 1
-                continue
-            if own != 0:
-                res['own'] += 1
-                continue
-            res['other'] += 1
-
-        return res
-
     def plot_graphs(self, show: bool = False):
         self.get_dot_graph('full_graph', show=show)
         self.get_dot_graph('web_only_graph', 'web', show=show)
         self.get_dot_graph('pdf_only_graph', 'pdf', show=show)
-
-    def _algorithms_by_date_analysis(self):
-        by_date: Dict[int, List[int]] = {}
-        cert: FIPSCertificate
-
-        for cert in self.certs.values():
-            year = cert.web_scan.date_validation[-1].year
-            if year not in by_date:
-                by_date[year] = []
-            num_of_certs = sum([len(alg['Certificate']) for alg in cert.web_scan.algorithms])
-            by_date[year].append(num_of_certs)
-
-        # averages
-        rows = []
-        years = []
-        for year in sorted(by_date.keys()):
-            years.append(year)
-            rows.append(sum(by_date[year]) / len(by_date[year]))
-
-        return rows, years
-
-    def _algorithms_by_module_type(self):
-        by_type: Dict[str, List[int]] = {}
-        cert: FIPSCertificate
-        for cert in self.certs.values():
-            cert_type = cert.web_scan.module_type
-            if cert_type not in by_type:
-                by_type[cert_type] = []
-            by_type[cert_type].append(sum([len(alg['Certificate']) for alg in cert.web_scan.algorithms]))
-
-        rows = []
-        types = []
-        for module_type in sorted(by_type.keys()):
-            types.append(module_type)
-            rows.append(sum(by_type[module_type]) / len(by_type[module_type]))
-
-        return rows, types
-
-    def _algorithms_by_level(self):
-        by_level: Dict[str, List[int]] = {}
-        cert: FIPSCertificate
-        for cert in self.certs.values():
-            level = cert.web_scan.level
-            if level not in by_level:
-                by_level[level] = []
-
-            by_level[level].append(sum([len(alg['Certificate']) for alg in cert.web_scan.algorithms]))
-
-        rows = []
-        levels = []
-        for module_level in sorted(by_level.keys()):
-            levels.append(module_level)
-            rows.append(sum(by_level[module_level]) / len(by_level[module_level]))
-
-        return rows, levels
-
-    def plot_alg_analysis_graphs(self):
-        by_date, years = self._algorithms_by_date_analysis()
-        plot_bar_graph(by_date, years, "Average number of used algorithms",
-                       "Average number of algorithms by last validation date", "../fips_result/algorithms_by_date")
-
-        by_type, types = self._algorithms_by_module_type()
-        plot_bar_graph(by_type, types, "Average number of used algorithms",
-                       "Average number of algorithms by type", "../fips_result/algorithms_by_type")
-
-        by_level, levels = self._algorithms_by_level()
-        plot_bar_graph(by_level, levels, "Average number of used algorithms",
-                       "Average number of algorithms by security level", "../fips_result/algorithms_by_level")
-
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
@@ -1360,12 +1233,14 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             soup = BeautifulSoup(alg_file.read(), 'html.parser')
             num_pages = soup.select('span[data-total-pages]')[0].attrs
 
-        for i in range(1, int(num_pages['data-total-pages'])):
+        for i in range(2, int(num_pages['data-total-pages'])):
             if not (self.root_dir / f'page{i}.html').exists():
                 algs_urls.append(
                     constants.FIPS_ALG_URL + str(i))
                 algs_paths.append(self.root_dir / f"page{i}.html")
 
+        helpers.download_file(constants.FIPS_ALG_URL + num_pages['data-total-pages'],
+                              self.root_dir / f"page{int(num_pages['data-total-pages'])}.html")
         logging.info(f"downloading {len(algs_urls)} algs html files")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
                                          constants.N_THREADS)
@@ -1383,18 +1258,33 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                 html_soup = BeautifulSoup(handle.read(), 'html.parser')
 
             table = html_soup.find('table', class_='table table-condensed publications-table table-bordered')
-            spans = table.find_all('span')
-            for span in spans:
-                elements = span.find_all('td')
-                vendor, implementation = elements[0].text, elements[1].text
-                elements_sliced = elements[2:]
-                for i in range(0, len(elements_sliced), 2):
-                    alg_type, alg_id = split_alg(elements_sliced[i].text.strip())
-                    validation_date = elements_sliced[i + 1].text.strip()
-                    fips_alg = FIPSCertificate.Algorithm(alg_id, vendor, implementation, alg_type, validation_date)
-                    if alg_id not in self.certs:
-                        self.certs[alg_id] = []
-                    self.certs[alg_id].append(fips_alg)
+            tbody_contents = table.find('tbody').find_all('tr')
+            current_vendor = current_product = current_validation = current_date = ""
+            for tr in tbody_contents:
+                elements = tr.find_all('td')
+
+                for elem in elements:
+                    # td > a > (vendor or date)
+                    attachments = elem.find_all('a')
+                    if len(attachments) == 0:
+                        if 'vendor-name' in elem['id']:
+                            current_vendor = elem.text.strip()
+                        if 'validation-date' in elem['id']:
+                            current_date = elem.text.strip()
+                    else:
+                        for attachment in attachments:
+                            if 'product-name' in attachment['id']:
+                                current_product = elem.text.strip()
+                            if 'validation-number' in attachment['id']:
+                                current_validation = elem.text.strip()
+
+
+
+                alg_type, alg_id = split_alg(current_validation)
+                fips_alg = FIPSCertificate.Algorithm(alg_id, current_vendor, current_product, alg_type, current_date)
+                if alg_id not in self.certs:
+                    self.certs[alg_id] = []
+                self.certs[alg_id].append(fips_alg)
 
     def convert_all_pdfs(self):
         raise NotImplementedError('Not meant to be implemented')
