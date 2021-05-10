@@ -61,12 +61,8 @@
                 "labeled": false,
                 "verified_cpe_matches": null,
                 "related_cves": null,
-<<<<<<< HEAD
                 "cert_lab": null,
                 "cert_id": null
-=======
-                "labeled": false
->>>>>>> dev
             }
         },
         {
