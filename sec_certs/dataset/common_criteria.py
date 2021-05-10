@@ -167,17 +167,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         logger.info(
             f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
 
-    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
-                           get_archived: bool = True, update_json: bool = True):
-        """
-        Downloads all metadata about certificates from CSV and HTML sources
-        """
+    def download_csv_html_resources(self, get_active: bool = True, get_archived: bool = True):
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
-        html_items = [(x, self.web_dir / y)
-                      for y, x in self.html_products.items()]
-        csv_items = [(x, self.web_dir / y)
-                     for y, x in self.csv_products.items()]
+        html_items = [(x, self.web_dir / y) for y, x in self.html_products.items()]
+        csv_items = [(x, self.web_dir / y)for y, x in self.csv_products.items()]
 
         if not get_active:
             html_items = [x for x in html_items if 'active' not in str(x[1])]
@@ -190,10 +184,17 @@ class CCDataset(Dataset, ComplexSerializableType):
         html_urls, html_paths = [x[0] for x in html_items], [x[1] for x in html_items]
         csv_urls, csv_paths = [x[0] for x in csv_items], [x[1] for x in csv_items]
 
+        logger.info('Downloading required csv and html files.')
+        self._download_parallel(html_urls, html_paths)
+        self._download_parallel(csv_urls, csv_paths)
+
+    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
+                           get_archived: bool = True, update_json: bool = True):
+        """
+        Parses all metadata about certificates
+        """
         if to_download is True:
-            logger.info('Downloading required csv and html files.')
-            self._download_parallel(html_urls, html_paths)
-            self._download_parallel(csv_urls, csv_paths)
+            self.download_csv_html_resources(get_active, get_archived)
 
         logger.info('Adding CSV certificates to CommonCriteria dataset.')
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
