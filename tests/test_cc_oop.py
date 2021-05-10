@@ -10,6 +10,7 @@ import os
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
 import sec_certs.helpers as helpers
+import sec_certs.constants as constants
 
 
 class TestCommonCriteriaOOP(TestCase):
@@ -164,3 +165,16 @@ class TestCommonCriteriaOOP(TestCase):
 
         self.assertTrue(self.crt_one in dset, 'The dataset does not contain the template certificate.')
         self.assertEqual(dset, self.template_dataset, 'The loaded dataset does not match the template dataset.')
+
+    def test_download_csv_html_files(self):
+        with TemporaryDirectory() as tmp_dir:
+            dataset_path = Path(tmp_dir)
+            dset = CCDataset({}, dataset_path, 'sample_dataset', 'sample dataset description')
+            dset.download_csv_html_resources(get_active=True, get_archived=False)
+
+            for x in dset.active_html_tuples:
+                self.assertTrue(x[1].exists())
+                self.assertGreaterEqual(x[1].stat().st_size, constants.MIN_CC_HTML_SIZE)
+            for x in dset.active_csv_tuples:
+                self.assertTrue(x[1].exists())
+                self.assertGreaterEqual(x[1].stat().st_size, constants.MIN_CC_CSV_SIZE)

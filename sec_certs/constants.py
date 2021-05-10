@@ -11,6 +11,9 @@ CPE_MAX_MATCHES = 20
 
 MIN_CORRECT_CERT_SIZE = 5000
 
+MIN_CC_HTML_SIZE = 5000000
+MIN_CC_CSV_SIZE = 700000
+
 LOGS_FILENAME = './cert_processing_log.txt'
 
 class CertFramework(Enum):

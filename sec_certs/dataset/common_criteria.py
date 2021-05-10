@@ -6,7 +6,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List
+from typing import Dict, Optional, Union, List, Tuple
 import json
 
 import pandas as pd
@@ -140,6 +140,22 @@ class CCDataset(Dataset, ComplexSerializableType):
         'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
     }
 
+    @property
+    def active_html_tuples(self) -> List[Tuple[str, Path]]:
+        return [(x, self.web_dir / y) for y, x in self.html_products.items() if 'active' in y]
+
+    @property
+    def archived_html_tuples(self) -> List[Tuple[str, Path]]:
+        return [(x, self.web_dir / y) for y, x in self.html_products.items() if 'archived' in y]
+
+    @property
+    def active_csv_tuples(self) -> List[Tuple[str, Path]]:
+        return [(x, self.web_dir / y) for y, x in self.csv_products.items() if 'active' in y]
+
+    @property
+    def archived_csv_tuples(self) -> List[Tuple[str, Path]]:
+        return [(x, self.web_dir / y) for y, x in self.csv_products.items() if 'archived' in y]
+
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
         dset = super().from_json(input_path)
@@ -170,16 +186,14 @@ class CCDataset(Dataset, ComplexSerializableType):
     def download_csv_html_resources(self, get_active: bool = True, get_archived: bool = True):
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
-        html_items = [(x, self.web_dir / y) for y, x in self.html_products.items()]
-        csv_items = [(x, self.web_dir / y)for y, x in self.csv_products.items()]
-
-        if not get_active:
-            html_items = [x for x in html_items if 'active' not in str(x[1])]
-            csv_items = [x for x in csv_items if 'active' not in str(x[1])]
-
-        if not get_archived:
-            html_items = [x for x in html_items if 'archived' not in str(x[1])]
-            csv_items = [x for x in csv_items if 'archived' not in str(x[1])]
+        html_items = []
+        csv_items = []
+        if get_active is True:
+            html_items.extend(self.active_html_tuples)
+            csv_items.extend(self.active_csv_tuples)
+        if get_archived is True:
+            html_items.extend(self.archived_html_tuples)
+            csv_items.extend(self.archived_csv_tuples)
 
         html_urls, html_paths = [x[0] for x in html_items], [x[1] for x in html_items]
         csv_urls, csv_paths = [x[0] for x in csv_items], [x[1] for x in csv_items]
