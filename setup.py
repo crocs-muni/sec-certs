@@ -8,7 +8,8 @@ setup(
     name='sec-certs',
     author='Petr Svenda, Stanislav Bobon, Jan Jancar, Adam Janovsky',
     author_email='svenda@fi.muni.cz',
-    version='0.0.0',
+    version_config=True,
+    setup_requires=['setuptools-git-versioning'],
     packages=find_packages(),
     license='MIT',
     description="Tool for analysis of security certificates",
@@ -19,7 +20,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Topic :: Security",
         "Topic :: Security :: Cryptography",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research"
     ],
@@ -31,7 +33,7 @@ setup(
     },
     entry_points="""
         [console_scripts]
-        process-certs=process_certificates:main
-        fips-certs=fips_certificates:main
+        process-certs=sec_certs.entrypoints.process_certificates:main
+        fips-certs=sec_certs.entrypoints.fips_certificates:main
     """
 )

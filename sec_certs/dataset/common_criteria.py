@@ -651,7 +651,6 @@ class CCDataset(Dataset, ComplexSerializableType):
                 if i != 0 and not i % 10 and update_json:
                     print(f'Saving progress.')
                     self.to_json()
-
                 self[x.dgst].heuristics.labeled = True
 
         certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.labeled)]
