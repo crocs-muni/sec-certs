@@ -33,7 +33,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
         logging.info(f"downloading {len(algs_urls)} algs html files")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
-                                         constants.N_THREADS)
+                                         config.n_threads)
 
         self.parse_html()
 

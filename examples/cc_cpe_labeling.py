@@ -3,13 +3,13 @@ import logging
 from pathlib import Path
 
 from sec_certs.dataset.common_criteria import CCDataset
-import sec_certs.constants as constants
+from sec_certs.configuration import config
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    file_handler = logging.FileHandler(constants.LOGS_FILENAME)
+    file_handler = logging.FileHandler(config.log_filepath)
     stream_handler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)

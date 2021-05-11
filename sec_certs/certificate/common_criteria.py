@@ -16,6 +16,7 @@ from sec_certs.dataset.cpe import CPE, CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.serialization import ComplexSerializableType
 from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.configuration import config
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
@@ -563,8 +564,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
                                                                   self.heuristics.cpe_candidate_vendors,
                                                                   self.heuristics.extracted_versions,
-                                                                  n_max_matches=constants.CPE_MAX_MATCHES,
-                                                                  threshold=constants.CPE_MATCHING_THRESHOLD)
+                                                                  n_max_matches=config.cc_cpe_max_matches,
+                                                                  threshold=config.cc_cpe_matching_threshold)
 
     def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:

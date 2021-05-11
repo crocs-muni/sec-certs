@@ -63,7 +63,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         keywords = cert_processing.process_parallel(FIPSCertificate.find_keywords,
                                                     [cert for cert in self.certs.values() if
                                                      not cert.pdf_scan.keywords or redo],
-                                                    constants.N_THREADS,
+                                                    config.n_threads,
                                                     use_threading=False)
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
@@ -87,7 +87,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
         logging.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)),
-                                         constants.N_THREADS)
+                                         config.n_threads)
         self.new_files += len(sp_urls)
 
     def download_all_htmls(self) -> List[str]:
@@ -103,13 +103,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logging.info(f"downloading {len(html_urls)} module html files")
         failed = cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)),
-                                         constants.N_THREADS)
+                                         config.n_threads)
         failed = [c for c in failed if c]
 
         self.new_files += len(html_urls)
         logging.info(f"Download failed for {len(failed)} files. Retrying...")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, failed,
-                                         constants.N_THREADS)
+                                         config.n_threads)
         return new_files
 
     def convert_all_pdfs(self):
@@ -119,7 +119,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             for cert in self.certs.values() if
             not cert.state.txt_state and (self.policies_dir / f'{cert.cert_id}.pdf').exists()
         ]
-        cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
+        cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, config.n_threads)
 
     def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None):
         def download_html_pages() -> List[str]:
@@ -200,7 +200,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         result = cert_processing.process_parallel(FIPSCertificate.analyze_tables,
                                                   [cert for cert in self.certs.values() if
                                                    not cert.state.tables_done and cert.state.txt_state],
-                                                  constants.N_THREADS // 4,  # tabula already processes by parallel, so
+                                                  config.n_threads // 4,  # tabula already processes by parallel, so
                                                   # it's counterproductive to use all threads
                                                   use_threading=False)
 

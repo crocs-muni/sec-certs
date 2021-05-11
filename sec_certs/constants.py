@@ -1,21 +1,15 @@
 from enum import Enum
 
-N_THREADS = 8
 RESPONSE_OK = 200
 RETURNCODE_OK = 'ok'
 RETURNCODE_NOK = 'nok'
 REQUEST_TIMEOUT = 10
-
-CPE_MATCHING_THRESHOLD = 70
-CPE_MAX_MATCHES = 20
 
 MIN_CORRECT_CERT_SIZE = 5000
 
 MIN_CC_HTML_SIZE = 5000000
 MIN_CC_CSV_SIZE = 700000
 MIN_CC_PP_DATASET_SIZE = 2500000
-
-LOGS_FILENAME = './cert_processing_log.txt'
 
 class CertFramework(Enum):
     CC = 'Common Criteria'

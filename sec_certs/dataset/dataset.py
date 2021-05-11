@@ -14,6 +14,7 @@ import sec_certs.cert_processing as cert_processing
 
 from sec_certs.certificate.certificate import Certificate
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.configuration import config
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ class Dataset(ABC):
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True):
         exit_codes = cert_processing.process_parallel(helpers.download_file,
                                                       list(zip(urls, paths)),
-                                                      constants.N_THREADS,
+                                                      config.n_threads,
                                                       unpack=True)
         n_successful = len([e for e in exit_codes if e == requests.codes.ok])
         logger.info(f'Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.')
