@@ -30,7 +30,6 @@
             "not_valid_after": "2025-06-15",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf",
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
-            "src": "csv + html",
             "cert_link": "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
             "manufacturer_web": "https://www.netiq.com/",
             "protection_profiles": [],
@@ -78,7 +77,6 @@
             "not_valid_after": "2024-11-15",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/KECS-CR-19-70%20Magic%20SSO%20V4.0(eng)%20V1.0.pdf",
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf",
-            "src": "csv + html",
             "cert_link": null,
             "manufacturer_web": "https://www.dreamsecurity.com/",
             "protection_profiles": [

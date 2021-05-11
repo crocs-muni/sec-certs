@@ -172,22 +172,18 @@ class CCDataset(Dataset, ComplexSerializableType):
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
 
-    def _merge_certs(self, certs: Dict[str, 'CommonCriteriaCert']):
+    def _merge_certs(self, certs: Dict[str, 'CommonCriteriaCert'], cert_source: Optional[str] = None):
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
-        will_be_added = {}
-        n_merged = 0
-        for crt in certs.values():
-            if crt not in self:
-                will_be_added[crt.dgst] = crt
-            else:
-                self[crt.dgst].merge(crt)
-                n_merged += 1
+        new_certs = {x.dgst: x for x in certs.values() if x not in self}
+        certs_to_merge = [x for x in certs.values() if x in self]
+        self.certs.update(new_certs)
 
-        self.certs.update(will_be_added)
-        logger.info(
-            f'Added {len(will_be_added)} new and merged further {n_merged} certificates to the dataset.')
+        for crt in certs_to_merge:
+            self[crt.dgst].merge(crt, cert_source)
+
+        logger.info(f'Added {len(new_certs)} new and merged further {len(certs_to_merge)} certificates to the dataset.')
 
     def download_csv_html_resources(self, get_active: bool = True, get_archived: bool = True):
         self.web_dir.mkdir(parents=True, exist_ok=True)
@@ -231,12 +227,12 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         logger.info('Adding CSV certificates to CommonCriteria dataset.')
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
-        self._merge_certs(csv_certs)
+        self._merge_certs(csv_certs, cert_source='csv')
 
         # TODO: Someway along the way, 3 certificates get lost. Investigate and fix.
         logger.info('Adding HTML certificates to CommonCriteria dataset.')
         html_certs = self._get_all_certs_from_html(get_active, get_archived)
-        self._merge_certs(html_certs)
+        self._merge_certs(html_certs, cert_source='html')
 
         logger.info(f'The resulting dataset has {len(self)} certificates.')
 
@@ -319,7 +315,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         certs = {
             x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
-                                       x.not_valid_before, x.not_valid_after, x.report_link, x.st_link, 'csv',
+                                       x.not_valid_before, x.not_valid_after, x.report_link, x.st_link,
                                        None, None, profiles.get(x.dgst, None), updates.get(x.dgst, None), None, None,
                                        None) for
             x in

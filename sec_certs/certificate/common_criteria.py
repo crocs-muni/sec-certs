@@ -208,7 +208,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
-                 not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
+                 not_valid_after: date, report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: set,
                  maintainance_updates: set,
@@ -227,7 +227,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.not_valid_after = helpers.sanitize_date(not_valid_after)
         self.report_link = helpers.sanitize_link(report_link)
         self.st_link = helpers.sanitize_link(st_link)
-        self.src = src
         self.cert_link = helpers.sanitize_link(cert_link)
         self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
@@ -261,7 +260,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
                self.heuristics.related_cves
 
-    def merge(self, other: 'CommonCriteriaCert'):
+    def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """
         Merges with other CC certificate. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
@@ -274,21 +273,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         for att, val in vars(self).items():
             if not val:
                 setattr(self, att, getattr(other, att))
-            elif self.src == 'csv' and other.src == 'html' and att == 'protection_profiles':
+            elif other_source == 'html' and att == 'protection_profiles':
                 setattr(self, att, getattr(other, att))
-            elif self.src == 'csv' and other.src == 'html' and att == 'maintainance_updates':
-                # TODO Fix me: This is a simplification. At the moment html contains more reliable info
+            elif other_source == 'html' and att == 'maintainance_updates':
                 setattr(self, att, getattr(other, att))
-            elif att == 'src':
-                pass  # This is expected
             elif att == 'state':
                 setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):
                     logger.warning(
                         f'When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}')
-        if self.src != other.src:
-            self.src = self.src + ' + ' + other.src
 
     @classmethod
     def from_dict(cls, dct: Dict) -> 'CommonCriteriaCert':
@@ -406,7 +400,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
                    report_link,
-                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
+                   st_link, cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],

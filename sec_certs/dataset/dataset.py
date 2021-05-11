@@ -118,6 +118,6 @@ class Dataset(ABC):
             for p in paths:
                 if p.exists() and p.stat().st_size < constants.MIN_CORRECT_CERT_SIZE:
                     logger.error(f'Corrupted file at: {p}')
-                    # TODO: Delete
+                    p.unlink()
 
 

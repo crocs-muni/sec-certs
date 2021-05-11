@@ -13,7 +13,6 @@
     "not_valid_after": "1900-01-03",
     "report_link": "https://path.to/report/link",
     "st_link": "https://path.to/st/link",
-    "src": "custom",
     "cert_link": "https://path.to/cert/link",
     "manufacturer_web": "https://path.to/manufacturer/web",
     "protection_profiles": [
