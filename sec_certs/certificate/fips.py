@@ -477,8 +477,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         text, text_with_newlines, unicode_error = load_cert_file(cert.state.sp_path.with_suffix('.pdf.txt'),
                                                                  -1, LINE_SEPARATOR)
 
-        text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing[
-            'value'] else text
+        text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing else text
 
         items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse),
                                                                  cert.web_scan.algorithms)
