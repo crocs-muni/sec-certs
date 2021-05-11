@@ -945,7 +945,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if json_file.exists():
             logger.info("Certs loaded from previous scanning")
             dataset = self.from_json(json_file)
-            self.certs = dataset.certs
+            self.certs.update(dataset.certs)
             self.algorithms = dataset.algorithms
 
         new_certs = download_html_pages()

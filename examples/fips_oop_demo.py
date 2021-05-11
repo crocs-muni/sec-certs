@@ -2,9 +2,9 @@ from pathlib import Path
 from datetime import datetime
 import logging
 import click
+
 from sec_certs.dataset import FIPSDataset, FIPSAlgorithmDataset
 from sec_certs.configuration import config
-from sec_certs.helpers import analyze_matched_algs
 
 
 @click.command()
@@ -34,47 +34,41 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     # Dump dataset into JSON
-    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
     logging.info("Converting pdfs")
-    # dset.convert_all_pdfs()
-    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    dset.convert_all_pdfs()
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
-    # dset.extract_keywords(redo=redo_keyword_scan)
+    dset.extract_keywords(redo=redo_keyword_scan)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
     logging.info("Dumping dataset again...")
-    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Searching for tables in pdfs")
 
-    # not_decoded_files = dset.extract_certs_from_tables(higher_precision_results)
+    not_decoded_files = dset.extract_certs_from_tables(higher_precision_results)
 
-    # logging.info(f"Done. Files not decoded: {not_decoded_files}")
+    logging.info(f"Done. Files not decoded: {not_decoded_files}")
     logging.info("Parsing algorithms")
     if not no_download_algs:
         aset = FIPSAlgorithmDataset({}, Path(dset.root_dir / 'web/algorithms'), 'algorithms', 'sample algs')
         aset.get_certs_from_web()
+        logging.info(f'Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.')
 
         dset.algorithms = aset
 
     logging.info("finalizing results.")
     dset.finalize_results()
 
-    # logging.info('dump again')
-    # dset.to_json(dset.root_dir / 'fips_full_dataset.json')
+    logging.info('dump again')
+    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
-    # dset.plot_graphs(show=False)
-
-    # data = dset.match_algs()
-    # analyze_matched_algs(data)
-    # dset.find_certs_with_different_algorithm_vendors()
-
-    # dset.to_json(dset.root_dir / 'fips_mentioned.json')
-
-    dset.plot_alg_analysis_graphs()
+    dset.plot_graphs(show=False)
+    dset.to_json(dset.root_dir / 'fips_mentioned.json')
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 
