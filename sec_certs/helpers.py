@@ -72,7 +72,7 @@ def get_sha256_filepath(filepath):
 def sanitize_link(record: str) -> Union[str, None]:
     if not record:
         return None
-    return record.replace(':443', '').replace(' ', '%20')
+    return record.replace(':443', '').replace(' ', '%20').replace('http://', 'https://')
 
 
 def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:

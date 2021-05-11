@@ -1,6 +1,6 @@
 {
     "_type": "CommonCriteriaCert",
-    "dgst": "9cf077f8b3c4a825",
+    "dgst": "a9ccb81a92e547dc",
     "status": "archived",
     "category": "Sample category",
     "name": "Sample certificate name",
@@ -11,16 +11,16 @@
     ],
     "not_valid_before": "1900-01-02",
     "not_valid_after": "1900-01-03",
-    "report_link": "http://path.to/report/link",
-    "st_link": "http://path.to/st/link",
+    "report_link": "https://path.to/report/link",
+    "st_link": "https://path.to/st/link",
     "src": "custom",
-    "cert_link": "http://path.to/cert/link",
-    "manufacturer_web": "http://path.to/manufacturer/web",
+    "cert_link": "https://path.to/cert/link",
+    "manufacturer_web": "https://path.to/manufacturer/web",
     "protection_profiles": [
         {
             "_type": "ProtectionProfile",
             "pp_name": "sample_pp",
-            "pp_link": "http://sample.pp"
+            "pp_link": "https://sample.pp"
         }
     ],
     "maintainance_updates": [
