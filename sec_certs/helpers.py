@@ -204,6 +204,12 @@ def extract_pdf_metadata(filepath: Path):
     return constants.RETURNCODE_OK, metadata
 
 
+def to_utc(dt):
+    dt -= dt.utcoffset()
+    dt = dt.replace(tzinfo=None)
+    return dt
+
+
 # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
 def search_only_headers_anssi(filepath: Path):
     class HEADER_TYPE(Enum):
