@@ -19,4 +19,4 @@ jobs:
           pip install pytest
           pip install pytest-cov
           pip install ".[dev,test]"
-          pytest tests
+          python3 -m unittest discover tests

@@ -19,6 +19,7 @@ class Configuration(object):
             return res['value']
         return object.__getattribute__(self, key)
 
+
 config_path = files(sec_certs).joinpath('settings.yaml')
 config = Configuration()
 config.load(config_path)
