@@ -735,7 +735,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             for i, x in enumerate(certificates_to_verify):
                 print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
                 for index, c in enumerate(x.heuristics.cpe_matches):
-                    print(f'\t- {[index]}: {c[1]}')
+                    print(f'\t- {[index]}: {c[1].vendor} {c[1].title} CPE-URI: {c[1].uri}')
                 print(f'\t- [A]: All are fitting')
                 print(f'\t- [X]: No fitting match')
                 inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
@@ -757,12 +757,12 @@ class CCDataset(Dataset, ComplexSerializableType):
                         matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
                         self[x.dgst].heuristics.verified_cpe_matches = matches
 
-                        if i != 0 and not i % 10 and update_json:
-                            print(f'Saving progress.')
-                            self.to_json()
+                if i != 0 and not i % 10 and update_json:
+                    print(f'Saving progress.')
+                    self.to_json()
+                self[x.dgst].heuristics.labeled = True
 
-        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (
-                x.heuristics.cpe_matches and not x.heuristics.verified_cpe_matches)]
+        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.labeled)]
         logger.info('Manually verifying CPE matches')
         time.sleep(0.05)  # easier than flushing the logger
         verify_certs(certs_to_verify)
