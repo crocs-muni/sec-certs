@@ -85,7 +85,8 @@
                 {
                     "_type": "ProtectionProfile",
                     "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
-                    "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf"
+                    "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
+                    "pp_ids": null
                 }
             ],
             "maintainance_updates": [],

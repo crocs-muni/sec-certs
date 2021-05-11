@@ -13,8 +13,9 @@ from bs4 import Tag
 from sec_certs import helpers, constants as constants
 from sec_certs.certificate.certificate import Certificate, logger
 from sec_certs.dataset.cpe import CPE, CPEDataset
-from sec_certs.dataset.cve import CVE, CVEDataset
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.serialization import ComplexSerializableType
+from sec_certs.certificate.protection_profile import ProtectionProfile
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
@@ -49,28 +50,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         def __lt__(self, other):
             return self.maintainance_date < other.maintainance_date
-
-    @dataclass(eq=True, frozen=True)
-    class ProtectionProfile(ComplexSerializableType):
-        """
-        Object for holding protection profiles.
-        """
-        pp_name: str
-        pp_link: Optional[str]
-
-        def __post_init__(self):
-            super().__setattr__('pp_name', helpers.sanitize_string(self.pp_name))
-            super().__setattr__('pp_link', helpers.sanitize_link(self.pp_link))
-
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct):
-            return cls(*tuple(dct.values()))
-
-        def __lt__(self, other):
-            return self.pp_name < other.pp_name
 
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
@@ -349,9 +328,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             protection_profiles = set()
             for link in list(cell.find_all('a')):
                 if link.get('href') is not None and '/ppfiles/' in link.get('href'):
-                    protection_profiles.add(CommonCriteriaCert.ProtectionProfile(str(link.contents[0]),
-                                                                                 CommonCriteriaCert.cc_url + link.get(
-                                                                                     'href')))
+                    protection_profiles.add(ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get('href')))
             return protection_profiles
 
         def _get_date(cell: Tag) -> date:

@@ -20,7 +20,8 @@
         {
             "_type": "ProtectionProfile",
             "pp_name": "sample_pp",
-            "pp_link": "https://sample.pp"
+            "pp_link": "https://sample.pp",
+            "pp_ids": null
         }
     ],
     "maintainance_updates": [

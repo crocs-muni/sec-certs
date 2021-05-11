@@ -18,6 +18,8 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.certificate.protection_profile import ProtectionProfile
 
 
 class CCDataset(Dataset, ComplexSerializableType):
@@ -121,6 +123,10 @@ class CCDataset(Dataset, ComplexSerializableType):
     def cpe_dataset_path(self) -> Path:
         return self.auxillary_datasets_path / 'cpe_dataset.json'
 
+    @property
+    def pp_dataset_path(self) -> Path:
+        return self.auxillary_datasets_path / 'pp_dataset.json'
+
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
         'cc_products_archived.html': 'https://www.commoncriteriaportal.org/products/index.cfm?archived=1',
@@ -201,6 +207,19 @@ class CCDataset(Dataset, ComplexSerializableType):
         logger.info('Downloading required csv and html files.')
         self._download_parallel(html_urls, html_paths)
         self._download_parallel(csv_urls, csv_paths)
+
+    def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True):
+        logger.info('Processing protection profiles.')
+        constructor = {True: ProtectionProfileDataset.from_web, False: ProtectionProfileDataset.from_json}
+        if to_download is True and not self.auxillary_datasets_path.exists():
+            self.auxillary_datasets_path.mkdir()
+        pp_dataset = constructor[to_download](self.pp_dataset_path)
+
+        for cert in self:
+            cert.protection_profiles = {pp_dataset.pps.get((x.pp_name, x.pp_link), x) for x in cert.protection_profiles}
+
+        if not keep_metadata:
+            self.pp_dataset_path.unlink()
 
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
                            get_archived: bool = True, update_json: bool = True):
@@ -289,7 +308,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         df_base = df_base.drop_duplicates(subset=['dgst'])
         df_main = df_main.drop_duplicates()
 
-        profiles = {x.dgst: set([CommonCriteriaCert.ProtectionProfile(y, None) for y in
+        profiles = {x.dgst: set([ProtectionProfile(y) for y in
                                  helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in
                     df_base.itertuples()}
         updates = {x.dgst: set() for x in df_base.itertuples()}
@@ -417,7 +436,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, constants.N_THREADS)
 
-    def download_all_pdfs(self, fresh: bool = True, update_json: bool = False):
+    def download_all_pdfs(self, fresh: bool = True, update_json: bool = True):
         if self.state.meta_sources_parsed is False:
             logger.error('Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.')
             return
@@ -462,7 +481,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             certs_to_process = [x for x in self.certs.values() if x.state.st_link_ok and not x.state.st_convert_ok]
         cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf, certs_to_process, constants.N_THREADS)
 
-    def convert_all_pdfs(self, fresh: bool = True, update_json: bool = False):
+    def convert_all_pdfs(self, fresh: bool = True, update_json: bool = True):
         if self.state.pdfs_downloaded is False:
             logger.info('Attempting to convert pdf while not having them downloaded. Returning.')
             return
@@ -553,7 +572,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._extract_report_keywords(fresh)
         self._extract_targets_keywords(fresh)
 
-    def extract_data(self, fresh: bool = True, update_json: bool = False):
+    def extract_data(self, fresh: bool = True, update_json: bool = True):
         if self.state.pdfs_converted is False:
             logger.info('Attempting to extract data from txt while not having the pdf->txt conversion done. Returning.')
             return

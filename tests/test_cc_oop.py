@@ -1,3 +1,4 @@
+import tempfile
 from unittest import TestCase
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkstemp, NamedTemporaryFile
@@ -9,6 +10,7 @@ import os
 
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.certificate.protection_profile import ProtectionProfile
 import sec_certs.helpers as helpers
 import sec_certs.constants as constants
 
@@ -49,14 +51,14 @@ class TestCommonCriteriaOOP(TestCase):
                                           'csv + html',
                                           None,
                                           'https://www.dreamsecurity.com/',
-                                          {CommonCriteriaCert.ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',
-                                                                                'https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf')},
+                                          {ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',
+                                                             'https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf')},
                                           set(),
                                           None,
                                           None,
                                           None)
 
-        pp = CommonCriteriaCert.ProtectionProfile('sample_pp', 'https://sample.pp')
+        pp = ProtectionProfile('sample_pp', 'https://sample.pp')
         update = CommonCriteriaCert.MaintainanceReport(date(1900, 1, 1), 'Sample maintainance', 'https://maintainance.up', 'https://maintainance.up')
         self.fictional_cert = CommonCriteriaCert('archived',
                                                  'Sample category',
@@ -156,7 +158,11 @@ class TestCommonCriteriaOOP(TestCase):
             shutil.copyfile(self.test_data_dir / 'cc_products_active.html', dataset_path / 'web' / 'cc_products_active.html')
 
             dset = CCDataset({}, dataset_path, 'sample_dataset', 'sample dataset description')
-            dset.get_certs_from_web(keep_metadata=False, to_download=False, get_archived=False, get_active=True, update_json=False)
+            dset.get_certs_from_web(keep_metadata=False,
+                                    to_download=False,
+                                    get_archived=False,
+                                    get_active=True,
+                                    update_json=False)
 
             self.assertEqual(len(os.listdir(dataset_path)), 0,
                              'Meta files (csv, html) were not deleted properly albeit this was explicitly required.')
@@ -178,3 +184,10 @@ class TestCommonCriteriaOOP(TestCase):
             for x in dset.active_csv_tuples:
                 self.assertTrue(x[1].exists())
                 self.assertGreaterEqual(x[1].stat().st_size, constants.MIN_CC_CSV_SIZE)
+
+    def test_download_pp_dataset(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            self.template_dataset.root_dir = tmp_dir
+            self.template_dataset.process_protection_profiles()
+            self.assertTrue(self.template_dataset.pp_dataset_path.exists())
+            self.assertGreaterEqual(self.template_dataset.pp_dataset_path.stat().st_size, constants.MIN_CC_PP_DATASET_SIZE)

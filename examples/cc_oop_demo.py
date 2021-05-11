@@ -28,24 +28,27 @@ def main():
     # explicitly dump to json
     dset.to_json(dset.json_path)
 
+    # Retrieve protection profile IDs
+    dset.process_protection_profiles()
+
     # Load dataset from JSON
     new_dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
     assert dset == new_dset
 
     # Download pdfs and update json
-    dset.download_all_pdfs(update_json=True)
+    dset.download_all_pdfs()
 
     # Convert pdfs to text and update json
-    dset.convert_all_pdfs(update_json=True)
+    dset.convert_all_pdfs()
 
     # Extract data from txt files and update json
-    dset.extract_data(update_json=True)
+    dset.extract_data()
 
     # transform to pandas DataFrame
     df = dset.to_pandas()
 
     # Compute heuristics on the dataset
-    dset.compute_heuristics(update_json=True)
+    dset.compute_heuristics()
 
     # Manually verify CPE findings and compute related cves
     # dset.manually_verify_cpe_matches(update_json=True)

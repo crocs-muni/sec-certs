@@ -24,6 +24,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             return {**{'_type': type(obj).__name__}, **obj.to_dict()}
         if isinstance(obj, set):
             return sorted(list(obj))
+        if isinstance(obj, frozenset):
+            return sorted(list(obj))
         if isinstance(obj, date):
             return str(obj)
         if isinstance(obj, Path):
