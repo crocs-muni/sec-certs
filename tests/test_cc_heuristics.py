@@ -8,13 +8,13 @@ from sec_certs.dataset.cve import CVEDataset, CVE
 from pathlib import Path
 from typing import ClassVar, Dict
 import shutil
-import inspect
+import sys
 
 import tests.data.test_cpe_cve
 
 
 class TestCPEandCVEMatching(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(inspect.getfile(tests.data.test_cpe_cve)).parent / 'vulnerable_dataset.json'
+    dataset_json_path: ClassVar[Path] = Path(sys.modules['tests.data.test_cpe_cve'].__file__).parent / 'vulnerable_dataset.json'
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
 
     @classmethod
