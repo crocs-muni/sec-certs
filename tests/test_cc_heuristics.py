@@ -2,6 +2,7 @@ import tempfile
 from unittest import TestCase
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.certificate.protection_profile import ProtectionProfile
 from sec_certs.dataset.cpe import CPEDataset, CPE
 from sec_certs.dataset.cve import CVEDataset, CVE
 from pathlib import Path
@@ -113,3 +114,13 @@ class TestCPEandCVEMatching(TestCase):
 
         self.assertTrue('rules_block_cipher_modes' in extracted_keywords)
         self.assertEqual(list(extracted_keywords['rules_block_cipher_modes'].values())[0]['CBC']['count'], 2)
+
+    def test_protection_profiles_matching(self):
+        artificial_pp: ProtectionProfile = ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',
+                                                             'http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf')
+        self.cc_dset['ebd276cca70fd723'].protection_profiles = {artificial_pp}
+        expected_pp: ProtectionProfile = ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',
+                                                           'http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf',
+                                                           frozenset(['KECS-PP-0822-2017 SSO V1.0']))
+        self.cc_dset.process_protection_profiles(to_download=False)
+        self.assertSetEqual(self.cc_dset['ebd276cca70fd723'].protection_profiles, {expected_pp})

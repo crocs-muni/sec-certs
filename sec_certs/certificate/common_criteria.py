@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union, Any
+from typing import Optional, List, Dict, Tuple, Union, Any, Set
 
 import requests
 from bs4 import Tag
@@ -214,7 +214,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  security_level: Union[str, set], not_valid_before: date,
                  not_valid_after: date, report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
-                 protection_profiles: set,
+                 protection_profiles: Set[ProtectionProfile],
                  maintainance_updates: set,
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
