@@ -172,13 +172,13 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     @classmethod
     def from_web_latest(cls):
+        # TODO: Prepare method for publishing the dataset. Must properly set state of dataset.
         raise NotImplementedError('The dataset was not yet released.')
         dataset_url = 'not set'
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / 'cc_latest_dataset.json'
             helpers.download_file(dataset_url, dset_path)
             return cls.from_json(dset_path)
-
 
 
     def set_local_paths(self):
