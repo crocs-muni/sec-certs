@@ -7,9 +7,11 @@ import sec_certs
 
 
 class Configuration(object):
+    # TODO: Should raise ValueError on unvalidated config
     def load(self, filepath: Union[str, Path]):
         with Path(filepath).open('r') as file:
             state = yaml.load(file, Loader=yaml.FullLoader)
+
         for k, v in state.items():
             setattr(self, k, v)
 

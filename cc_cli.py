@@ -42,7 +42,15 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
     start = datetime.now()
 
     if configpath:
-        config.load(Path(configpath))
+        try:
+            config.load(Path(configpath))
+        except FileNotFoundError:
+            logger.error('Bad path to configuration file')
+            print('Error: Bad path to configuration file')
+            sys.exit(1)
+        except ValueError as e:
+            logger.error('Bad input on configuration file')
+            print(f'Error: Bad format of configuration file: {e}')
 
     if inputpath and not any(['build' in actions, 'all' in actions]):
         dset: CCDataset = CCDataset.from_json(Path(inputpath))
