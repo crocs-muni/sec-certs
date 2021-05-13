@@ -8,12 +8,11 @@ from sec_certs.dataset.cve import CVEDataset, CVE
 from pathlib import Path
 from typing import ClassVar, Dict
 import shutil
-import sys
 
 import tests.data.test_cpe_cve
 
 
-class TestCPEandCVEMatching(TestCase):
+class TestCommonCriteriaHeuristics(TestCase):
     dataset_json_path: ClassVar[Path] = Path(tests.data.test_cpe_cve.__path__[0]) / 'vulnerable_dataset.json'
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
 
