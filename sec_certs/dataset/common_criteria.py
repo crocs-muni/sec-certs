@@ -12,7 +12,7 @@ import json
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
 
-from sec_certs import helpers as helpers, cert_processing as cert_processing, constants as constants
+from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger

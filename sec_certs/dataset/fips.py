@@ -8,7 +8,7 @@ from typing import ClassVar, Tuple, List, Dict, Optional, Union
 from bs4 import BeautifulSoup
 from graphviz import Digraph
 
-from sec_certs import constants as constants, cert_processing as cert_processing, helpers as helpers
+from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
 from sec_certs.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder

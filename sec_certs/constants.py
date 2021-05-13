@@ -46,3 +46,7 @@ TAG_KEYWORDS = 'keywords'
 FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
 FIPS_ALG_URL = 'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=validation&page='
 
+FILE_ERRORS_STRATEGY = 'surrogateescape'
+STOP_ON_UNEXPECTED_NUMS = False
+APPEND_DETAILED_MATCH_MATCHES = False
+LINE_SEPARATOR = ' '

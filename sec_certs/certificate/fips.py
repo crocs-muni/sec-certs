@@ -10,12 +10,13 @@ from bs4 import Tag, NavigableString, BeautifulSoup
 from dateutil import parser
 from tabula import read_pdf
 
-from sec_certs import helpers, dataset, extract_certificates, constants as constants
+import sec_certs.constants
+from sec_certs import helpers, dataset, constants as constants
 from sec_certs.cert_rules import fips_common_rules, REGEXEC_SEP, fips_rules
 from sec_certs.certificate.certificate import Certificate, logger
 from sec_certs.configuration import config
-from sec_certs.extract_certificates import load_cert_file, LINE_SEPARATOR, save_modified_cert_file, \
-    normalize_match_string
+from sec_certs.constants import LINE_SEPARATOR
+from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
 from sec_certs.serialization import ComplexSerializableType
 
 
@@ -401,7 +402,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found = FIPSCertificate.initialize_dictionary()
             items_found['cert_id'] = file.stem
 
-        text = extract_certificates.load_cert_html_file(file)
+        text = helpers.load_cert_html_file(file)
         soup = BeautifulSoup(text, 'html.parser')
         for div in soup.find_all('div', class_='row padrow'):
             FIPSCertificate.parse_html_main(div, items_found, pairs)
@@ -566,7 +567,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     if match not in items_found[rule_str]:
                         items_found[rule_str][match] = {}
                         items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
-                        if extract_certificates.APPEND_DETAILED_MATCH_MATCHES:
+                        if sec_certs.constants.APPEND_DETAILED_MATCH_MATCHES:
                             items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = [
                             ]
                         # else:
@@ -578,7 +579,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     # line_number = get_line_number(lines, line_length_compensation, match_span[0])
                     # start index, end index, line number
                     # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
-                    if extract_certificates.APPEND_DETAILED_MATCH_MATCHES:
+                    if sec_certs.constants.APPEND_DETAILED_MATCH_MATCHES:
                         items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append(
                             [match_span[0], match_span[1]])
 

@@ -5,7 +5,8 @@ from typing import Dict, Union
 
 from bs4 import BeautifulSoup
 
-from sec_certs import helpers as helpers, constants as constants, cert_processing as cert_processing, files as files
+import sec_certs.helpers
+from sec_certs import helpers as helpers, constants as constants, parallel_processing as cert_processing
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
 from sec_certs.certificate.fips import FIPSCertificate
@@ -43,7 +44,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             cert_id = alg_string[len(cert_type):]
             return cert_type.strip(), cert_id.strip()
 
-        for f in files.search_files(self.root_dir):
+        for f in sec_certs.helpers.search_files(self.root_dir):
             with open(f, 'r', encoding='utf-8') as handle:
                 html_soup = BeautifulSoup(handle.read(), 'html.parser')
 

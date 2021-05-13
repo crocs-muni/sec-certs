@@ -10,7 +10,7 @@ import glob
 import tqdm
 import json
 
-from sec_certs.cert_processing import process_parallel
+from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
