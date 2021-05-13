@@ -113,7 +113,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.st_keywords = st_keywords
 
         def __bool__(self):
-            return all([x is None for x in vars(self)])
+            return any([x is not None for x in vars(self)])
 
         def to_dict(self):
             return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata,
