@@ -646,8 +646,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         compute_candidate_versions()
         cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
         compute_cpe_matches(cpe_dset)
-        # compute_cert_labs()
-        # compute_cert_ids()
+        compute_cert_labs()
+        compute_cert_ids()
 
         if update_json is True:
             self.to_json(self.json_path)
