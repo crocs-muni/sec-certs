@@ -9,13 +9,11 @@ from pathlib import Path
 from typing import ClassVar, Dict
 import shutil
 
-import importlib_resources
-
 import tests.data.test_cpe_cve
 
 
 class TestCPEandCVEMatching(TestCase):
-    dataset_json_path: ClassVar[Path] = importlib_resources.path(tests.data.test_cpe_cve, 'vulnerable_dataset.json')
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cpe_cve.__file__).parent / 'vulnerable_dataset.json'
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
 
     @classmethod
