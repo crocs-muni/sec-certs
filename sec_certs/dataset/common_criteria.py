@@ -2,6 +2,7 @@ import copy
 import itertools
 import locale
 import shutil
+import tempfile
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -168,6 +169,17 @@ class CCDataset(Dataset, ComplexSerializableType):
         dset = super().from_json(input_path)
         dset.set_local_paths()
         return dset
+
+    @classmethod
+    def from_web_latest(cls):
+        raise NotImplementedError('The dataset was not yet released.')
+        dataset_url = 'not set'
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / 'cc_latest_dataset.json'
+            helpers.download_file(dataset_url, dset_path)
+            return cls.from_json(dset_path)
+
+
 
     def set_local_paths(self):
         for cert in self:
