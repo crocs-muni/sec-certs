@@ -215,7 +215,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  not_valid_after: date, report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: Set[ProtectionProfile],
-                 maintainance_updates: set,
+                 maintainance_updates: Set[MaintainanceReport],
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
                  heuristics: Optional[Heuristics]):

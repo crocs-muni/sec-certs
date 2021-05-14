@@ -22,10 +22,10 @@ from sec_certs.certificate.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
 from sec_certs.configuration import config
+from sec_certs.certificate.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 
 
 class CCDataset(Dataset, ComplexSerializableType):
-    # TODO: Make properties propagate to changing internal state of related certificates
     @dataclass
     class DatasetInternalState(ComplexSerializableType):
         meta_sources_parsed: bool = False
@@ -777,3 +777,29 @@ class CCDataset(Dataset, ComplexSerializableType):
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = cpes
+
+    def process_maintenance_updates(self):
+        maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
+        updates = list(itertools.chain.from_iterable([CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]))
+        update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates({x.dgst: x for x in updates},
+                                                                               root_dir=self.certs_dir / 'maintenance',
+                                                                               name='Maintainance updates')
+        update_dset.set_local_paths()
+        update_dset.download_all_pdfs()
+        update_dset.convert_all_pdfs()
+        update_dset.extract_data()
+        update_dset.compute_heuristics
+
+
+class CCDatasetMaintenanceUpdates(CCDataset):
+    def __init__(self, certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'], root_dir: Path, name: str = 'dataset name',
+                 description: str = 'dataset_description', state: Optional[CCDataset.DatasetInternalState] = None):
+        super().__init__(certs, root_dir, name, description, state)
+        self.state.meta_sources_parsed = True
+
+    @property
+    def certs_dir(self) -> Path:
+        return self.root_dir
+
+    def __iter__(self) -> CommonCriteriaMaintenanceUpdate:
+        yield from self.certs.values()
