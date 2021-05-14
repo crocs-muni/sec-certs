@@ -255,8 +255,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         conn_first = self.certs[other_id].web_scan.date_validation[0].year
         conn_last = self.certs[other_id].web_scan.date_validation[-1].year
 
-        return cert_first - conn_first > config.year_difference_between_validations['value'] \
-               and cert_last - conn_last > config.year_difference_between_validations['value'] \
+        return cert_first - conn_first > config.year_difference_between_validations \
+               and cert_last - conn_last > config.year_difference_between_validations \
                or cert_first < conn_first
 
     def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate):
@@ -274,7 +274,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             return False
 
         # "< number" still needs to be used, because of some old certs being revalidated
-        if int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
+        if int(cert_candidate) < config.smallest_certificate_id_to_connect or \
                 self._compare_certs(processed_cert, cert_candidate):
             return False
         if cert_candidate not in self.algorithms.certs:

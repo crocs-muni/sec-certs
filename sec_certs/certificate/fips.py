@@ -655,14 +655,14 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def analyze_tables(tup: Tuple['FIPSCertificate', bool]) -> Tuple[bool, 'FIPSCertificate', List]:
         cert, precision = tup
         if not (precision and cert.state.tables_done) \
-                or (precision and cert.processed.unmatched_algs < config.cert_threshold['value']):
+                or (precision and cert.processed.unmatched_algs < config.cert_threshold):
             return cert.state.tables_done, cert, []
 
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
         with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
-        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold['value']  # bool value
+        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold  # bool value
 
         lst: List = []
         if tables:
