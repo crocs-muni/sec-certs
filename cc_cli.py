@@ -33,7 +33,8 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
     stream_handler.setFormatter(formatter)
     handlers = [file_handler]
 
-    output = Path(output)
+    if output:
+        output = Path(output)
 
     if not silent:
         handlers.append(stream_handler)
@@ -45,26 +46,24 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
         try:
             config.load(Path(configpath))
         except FileNotFoundError:
-            logger.error('Bad path to configuration file')
             print('Error: Bad path to configuration file')
             sys.exit(1)
         except ValueError as e:
-            logger.error('Bad input on configuration file')
             print(f'Error: Bad format of configuration file: {e}')
 
-    if inputpath and not any(['build' in actions, 'all' in actions]):
+    actions = {'build', 'download', 'convert', 'analyze'} if 'all' in actions else set(actions)
+
+    if inputpath and 'build' not in actions:
         dset: CCDataset = CCDataset.from_json(Path(inputpath))
-        # TODO: Contents of the old dataset should be copied into the new folder
-        dset.root_dir = output
-    elif inputpath and any(['build' in actions, 'all' in actions]):
+        if output:
+            print(f'Warning: you provided both input and output paths. The dataset from input path will get copied to output path.')
+            dset.root_dir = output
+
+    if inputpath and 'build' in actions:
         print(f'Warning: you wanted to build a dataset but you provided one in JSON -- that will be ignored. New one will be constructed at: {output}')
 
-    actions = set(actions)
-    if 'all' in actions:
-        actions = {'build', 'download', 'convert', 'analyze'}
-
     if 'build' in actions:
-        dset: CCDataset = CCDataset(certs={}, root_dir=output, name=f'CommonCriteria dataset', description=f'Full CommonCriteria dataset snapshot {datetime.now().date()}')
+        dset: CCDataset = CCDataset(certs={}, root_dir=output, name=f'CommonCriteria_dataset', description=f'Full CommonCriteria dataset snapshot {datetime.now().date()}')
         dset.get_certs_from_web()
     elif 'build' not in actions and not inputpath:
         print('Error: If you do not provide input parameter, you must use \'build\' action to build dataset first.')
@@ -72,21 +71,18 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
 
     if 'download' in actions:
         if not dset.state.meta_sources_parsed:
-            logger.error('Attempt to download pdfs while cc web not parsed.')
             print('Error: You want to download all pdfs, but the data from commoncriteria.org was not parsed. You must use \'build\' action first.')
             sys.exit(1)
         dset.download_all_pdfs()
 
     if 'convert' in actions:
         if not dset.state.pdfs_downloaded:
-            logger.error('Attempt to convert pdfs that were not downloaded.')
             print('Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use \'download\' action first.')
             sys.exit(1)
         dset.convert_all_pdfs()
 
     if 'analyze' in actions:
         if not dset.state.pdfs_converted:
-            logger.error('Attempt to analyze certificates that were not downloaded.')
             print('Error: You want to process txt documents of certificates, but pdfs were not converted. You must use \'convert\' action first.')
             sys.exit(1)
         dset.extract_data()

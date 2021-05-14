@@ -37,6 +37,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         def to_dict(self):
             return copy.deepcopy(self.__dict__)
 
+        def __bool__(self):
+            return any(vars(self))
+
         @classmethod
         def from_dict(cls, dct: Dict[str, bool]):
             return cls(*tuple(dct.values()))
@@ -78,8 +81,22 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     @Dataset.root_dir.setter
     def root_dir(self, new_dir: Union[str, Path]):
+        old_dset = copy.deepcopy(self)
         Dataset.root_dir.fset(self, new_dir)
         self.set_local_paths()
+
+        if self.state and old_dset.root_dir != Path('..'):
+            logger.info(f'Changing root dir of partially processed dataset. All contents will get copied to {new_dir}')
+            self.copy_dataset_contents(old_dset)
+            self.to_json()
+
+    def copy_dataset_contents(self, old_dset: 'CCDataset'):
+        if old_dset.state.meta_sources_parsed:
+            shutil.copytree(old_dset.web_dir, self.web_dir)
+        if old_dset.state.pdfs_downloaded:
+            shutil.copytree(old_dset.certs_dir, self.certs_dir)
+        if old_dset.state.certs_analyzed:
+            shutil.copytree(old_dset.auxillary_datasets_dir, self.auxillary_datasets_dir)
 
     @property
     def web_dir(self) -> Path:
@@ -114,20 +131,20 @@ class CCDataset(Dataset, ComplexSerializableType):
         return self.targets_dir / 'txt'
 
     @property
-    def auxillary_datasets_path(self) -> Path:
+    def auxillary_datasets_dir(self) -> Path:
         return self.root_dir / 'auxillary_datasets'
 
     @property
     def cve_dataset_path(self) -> Path:
-        return self.auxillary_datasets_path / 'cve_dataset.json'
+        return self.auxillary_datasets_dir / 'cve_dataset.json'
 
     @property
     def cpe_dataset_path(self) -> Path:
-        return self.auxillary_datasets_path / 'cpe_dataset.json'
+        return self.auxillary_datasets_dir / 'cpe_dataset.json'
 
     @property
     def pp_dataset_path(self) -> Path:
-        return self.auxillary_datasets_path / 'pp_dataset.json'
+        return self.auxillary_datasets_dir / 'pp_dataset.json'
 
     html_products = {
         'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
@@ -180,7 +197,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             helpers.download_file(dataset_url, dset_path)
             return cls.from_json(dset_path)
 
-
     def set_local_paths(self):
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
@@ -220,8 +236,8 @@ class CCDataset(Dataset, ComplexSerializableType):
     def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True):
         logger.info('Processing protection profiles.')
         constructor = {True: ProtectionProfileDataset.from_web, False: ProtectionProfileDataset.from_json}
-        if to_download is True and not self.auxillary_datasets_path.exists():
-            self.auxillary_datasets_path.mkdir()
+        if to_download is True and not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir()
         pp_dataset = constructor[to_download](self.pp_dataset_path)
 
         for cert in self:
@@ -610,8 +626,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
         logger.info('Preparing CPE dataset.')
-        if not self.auxillary_datasets_path.exists():
-            self.auxillary_datasets_path.mkdir(parents=True)
+        if not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir(parents=True)
 
         if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
             cpe_dataset = CPEDataset.from_web()
@@ -623,8 +639,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
         logger.info('Preparing CVE dataset.')
-        if not self.auxillary_datasets_path.exists():
-            self.auxillary_datasets_path.mkdir(parents=True)
+        if not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir(parents=True)
 
         if not self.cve_dataset_path.exists() or download_fresh_cves is True:
             cve_dataset = CVEDataset.from_web()

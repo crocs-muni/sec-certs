@@ -35,9 +35,9 @@ class Dataset(ABC):
 
     @root_dir.setter
     def root_dir(self, new_dir: Union[str, Path]):
-        if not (new_path := Path(new_dir)).exists():
-            raise FileNotFoundError('Root directory for Dataset does not exist')
-        self._root_dir = new_path
+        new_dir = Path(new_dir)
+        new_dir.mkdir(exist_ok=True)
+        self._root_dir = new_dir
 
     @property
     def json_path(self) -> Path:
