@@ -788,10 +788,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         update_dset.download_all_pdfs()
         update_dset.convert_all_pdfs()
         update_dset.extract_data()
-        update_dset.compute_heuristics
 
 
 class CCDatasetMaintenanceUpdates(CCDataset):
+    """
+    Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
+    """
     def __init__(self, certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[CCDataset.DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description, state)
@@ -803,3 +805,9 @@ class CCDatasetMaintenanceUpdates(CCDataset):
 
     def __iter__(self) -> CommonCriteriaMaintenanceUpdate:
         yield from self.certs.values()
+
+    def compute_heuristics(self, update_json=True, download_fresh_cpes: bool = False):
+        raise NotImplementedError
+
+    def compute_related_cves(self, download_fresh_cves: bool = False):
+        raise NotImplementedError
