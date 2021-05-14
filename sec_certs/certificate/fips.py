@@ -86,7 +86,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         algorithms: Optional[List[Dict[str, str]]]
         tested_conf: Optional[List[str]]
         description: Optional[str]
-        mentioned_certs: Optional[List[str]]
+        mentioned_certs: Optional[Dict[str, Dict[str, int]]]
         vendor: Optional[str]
         vendor_www: Optional[str]
         lab: Optional[str]
@@ -100,6 +100,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         revoked_link: Optional[str]
         sw_versions: Optional[str]
         product_url: Optional[str]
+        connections: List[str]
 
         def __post_init__(self):
             self.date_validation = [parser.parse(x).date() for x in
@@ -131,6 +132,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         cert_id: int
         keywords: Dict
         algorithms: List
+        connections: List[str]
 
         @property
         def dgst(self):
@@ -153,9 +155,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @dataclass(eq=True)
     class Processed(ComplexSerializableType):
-        keywords: Optional[Dict]
-        algorithms: Dict
-        connections: List
+        keywords: Optional[Dict[str, Dict]]
+        algorithms: Dict[str, Dict]
+        connections: List[str]
+        unmatched_algs: int
 
         @property
         def dgst(self):
@@ -219,26 +222,27 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
              'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
              'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
              'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
-             'mentioned_certs': [], 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
+             'mentioned_certs': {}, 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
              'hw_versions': None, 'fw_versions': None, 'sw_versions': None, 'product_url': None}
 
         return d
 
     @staticmethod
-    def parse_caveat(current_text: str) -> List:
+    def parse_caveat(current_text: str) -> Dict[str, Dict[str, int]]:
         """
         Parses content of "Caveat" of FIPS CMVP .html file
         :param current_text: text of "Caveat"
-        :return: list of all found algorithm IDs
+        :return: dictionary of all found algorithm IDs
         """
-        ids_found = []
-        r_key = r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+)"
+        ids_found = {}
+        r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
         for m in re.finditer(r_key, current_text):
-            if r_key in ids_found and m.group() in ids_found[0]:
-                ids_found[0][m.group()]['count'] += 1
+            if m.group('word') and m.group('word').lower() in {'rsa', 'shs', 'dsa', 'pkcs', 'aes'}:
+                continue
+            if m.group('id') in ids_found:
+                ids_found[m.group('id')]['count'] += 1
             else:
-                ids_found.append(
-                    {r"(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)(?P<id>\d+?})": {m.group(): {'count': 1}}})
+                ids_found[m.group('id')] = {'count': 1}
 
         return ids_found
 
@@ -258,7 +262,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for m in re.finditer(reg, current_text):
             set_items.add(m.group())
 
-        return [{"Certificate": list(set_items)}]
+        return [{"Certificate": list(set_items)}] if len(set_items) > 0 else []
 
     @staticmethod
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict]:
@@ -271,9 +275,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         trs = element.find_all('tr')
         for tr in trs:
             tds = tr.find_all('td')
+            cert = FIPSCertificate.extract_algorithm_certificates(tds[1].text)
             found_items.append(
                 {'Name': tds[0].text,
-                 'Certificate': FIPSCertificate.extract_algorithm_certificates(tds[1].text)[0]['Certificate'],
+                 'Certificate': cert[0]['Certificate'] if cert != [] else [],
                  'Links': [str(x) for x in tds[1].find_all('a')],
                  'Raw': str(tr)})
 
@@ -292,8 +297,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['mentioned_certs'] += FIPSCertificate.parse_caveat(
-                    content)
+                html_items_found['mentioned_certs'].update(FIPSCertificate.parse_caveat(
+                    content))
 
             elif 'FIPS Algorithms' in title:
                 html_items_found['algorithms'] += FIPSCertificate.parse_table(
@@ -447,15 +452,18 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    items_found['revoked_reason'] if 'revoked_reason' in items_found else None,
                                    items_found['revoked_link'] if 'revoked_link' in items_found else None,
                                    items_found['sw_versions'] if 'sw_versions' in items_found else None,
-                                   items_found['product_url']) if 'product_url' in items_found else None,
+                                   items_found['product_url'] if 'product_url' in items_found else None,
+                                   []
+                               ),  # connections
                                FIPSCertificate.PdfScan(
                                    items_found['cert_id'],
                                    {} if not initialized else initialized.pdf_scan.keywords,
-                                   [] if not initialized else initialized.pdf_scan.algorithms
-        ),
-            FIPSCertificate.Processed(None, {}, []),
-            state
-        )
+                                   [] if not initialized else initialized.pdf_scan.algorithms,
+                                   []  # connections
+                               ),
+                               FIPSCertificate.Processed(None, {}, [], 0),
+                               state
+                               )
 
     @staticmethod
     def convert_pdf_file(tup: Tuple['FIPSCertificate', Path, Path]) -> 'FIPSCertificate':
@@ -470,6 +478,17 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 cert.state.txt_state = True
         return cert
 
+
+    @staticmethod
+    def _declare_state(text: str):
+        """
+        If less then half of the text is formed of alphabet characters,
+        we declare the security policy as "non-parsable"
+        :param text: security policy content
+        :return: True if parsable, otherwise False
+        """
+        return len(text) * 0.5 <= len(''.join(filter(str.isalpha, text)))
+
     @staticmethod
     def find_keywords(cert: 'FIPSCertificate') -> Tuple[Optional[Dict], 'FIPSCertificate']:
         if not cert.state.txt_state:
@@ -480,8 +499,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing else text
 
-        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse),
-                                                                 cert.web_scan.algorithms)
+        cert.state.txt_state = FIPSCertificate._declare_state(text)
+
+        if config.ignore_first_page:
+            text_to_parse = text_to_parse[text_to_parse.index(""):]
+
+        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse))
 
         save_modified_cert_file(cert.state.fragment_path.with_suffix(
             '.fips.txt'), fips_text, unicode_error)
@@ -516,16 +539,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for web_alg in alg_list:
                 if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
                     not_found.append(web_alg)
-        logger.error(
-            f"For cert {cert.dgst}:\n\tNOT FOUND: {len(not_found)}\n"
-            f"\tFOUND: {sum([len(a['Certificate']) for a in cert.web_scan.algorithms]) - len(not_found)}")
-        logger.error(f"Not found: {not_found}")
         return len(not_found)
 
     @staticmethod
     def remove_platforms(text_to_parse: str):
-        pat = re.compile(
-            r"(?:modification|revision|change) history\n[\s\S]*?", re.IGNORECASE)
+        pat = re.compile(r"(?:(?:modification|revision|change) history|version control)\n[\s\S]*?", re.IGNORECASE)
         for match in pat.finditer(text_to_parse):
             text_to_parse = text_to_parse.replace(
                 match.group(), 'x' * len(match.group()))
@@ -533,7 +551,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def parse_cert_file_common(text_to_parse: str, whole_text_with_newlines: str,
-                               search_rules: Dict) -> Tuple[Optional[Dict], str]:
+                               search_rules: Dict) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
         # apply all rules
         items_found_all = {}
         for rule_group in search_rules.keys():
@@ -601,10 +619,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, whole_text_with_newlines
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str, algorithms: List[Dict]) \
-            -> Tuple[Optional[Dict], str]:
+    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
         # apply all rules
         items_found_all: Dict = {}
+
         for rule_group in fips_rules.keys():
             if rule_group not in items_found_all:
                 items_found_all[rule_group] = {}
@@ -636,21 +654,27 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, text_to_parse
 
     @staticmethod
-    def analyze_tables(cert: 'FIPSCertificate') -> Tuple[bool, 'FIPSCertificate', List]:
+    def analyze_tables(tup: Tuple['FIPSCertificate', bool]) -> Tuple[bool, 'FIPSCertificate', List]:
+        cert, precision = tup
+        if not (precision and cert.state.tables_done) \
+                or (precision and cert.processed.unmatched_algs < config.cert_threshold['value']):
+            return cert.state.tables_done, cert, []
+
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
         with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
+        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold['value']  # bool value
 
         lst: List = []
         if tables:
             try:
-                data = read_pdf(cert_file, pages=tables, silent=True)
+                data = read_pdf(cert_file, pages='all' if all_pages else tables, silent=True)
             except Exception as e:
                 try:
                     logger.error(e)
                     helpers.repair_pdf(cert_file)
-                    data = read_pdf(cert_file, pages=tables, silent=True)
+                    data = read_pdf(cert_file, pages='all' if all_pages else tables, silent=True)
 
                 except Exception as ex:
                     logger.error(ex)
@@ -660,12 +684,12 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             for df in data:
                 for col in range(len(df.columns)):
                     if 'cert' in df.columns[col].lower() or 'algo' in df.columns[col].lower():
-                        lst += FIPSCertificate.extract_algorithm_certificates(
+                        tmp =  FIPSCertificate.extract_algorithm_certificates(
                             df.iloc[:, col].to_string(index=False), True)
-
+                        lst += tmp if tmp != [{"Certificate": []}] else []
                 # Parse again if someone picks not so descriptive column names
-                lst += FIPSCertificate.extract_algorithm_certificates(
-                    df.to_string(index=False))
+                tmp = FIPSCertificate.extract_algorithm_certificates(df.to_string(index=False))
+                lst += tmp if tmp != [{"Certificate": []}] else []
         return True, cert, lst
 
     def _create_alg_set(self) -> Set:
@@ -680,9 +704,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return
 
         self.processed.keywords = copy.deepcopy(self.pdf_scan.keywords)
+        # TODO figure out why can't I delete this
         if self.web_scan.mentioned_certs:
-            for item in self.web_scan.mentioned_certs:
-                self.processed.keywords['rules_cert_id'].update(item)
+            for item, value in self.web_scan.mentioned_certs.items():
+                self.processed.keywords['rules_cert_id'].update({'caveat_item': {item: value}})
 
         alg_set = self._create_alg_set()
 
@@ -713,5 +738,543 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @staticmethod
     def get_compare(vendor: str):
         vendor_split = vendor.replace(',', '') \
-            .replace('-', ' ').replace('+', ' ').replace('®', '').split()
-        return vendor_split[0] if len(vendor_split) > 0 else vendor
+            .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
+        return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
+
+
+class CommonCriteriaCert(Certificate, ComplexSerializableType):
+    cc_url = 'http://www.commoncriteriaportal.org'
+    empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
+
+    @dataclass(eq=True, frozen=True)
+    class MaintainanceReport(ComplexSerializableType):
+        """
+        Object for holding maintainance reports.
+        """
+        maintainance_date: date
+        maintainance_title: str
+        maintainance_report_link: str
+        maintainance_st_link: str
+
+        def __post_init__(self):
+            super().__setattr__('maintainance_report_link',
+                                helpers.sanitize_link(self.maintainance_report_link))
+            super().__setattr__('maintainance_st_link',
+                                helpers.sanitize_link(self.maintainance_st_link))
+            super().__setattr__('maintainance_title',
+                                helpers.sanitize_string(self.maintainance_title))
+            super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
+
+        def to_dict(self):
+            return copy.deepcopy(self.__dict__)
+
+        @classmethod
+        def from_dict(cls, dct):
+            return cls(*tuple(dct.values()))
+
+        def __lt__(self, other):
+            return self.maintainance_date < other.maintainance_date
+
+    @dataclass(eq=True, frozen=True)
+    class ProtectionProfile(ComplexSerializableType):
+        """
+        Object for holding protection profiles.
+        """
+        pp_name: str
+        pp_link: Optional[str]
+
+        def __post_init__(self):
+            super().__setattr__('pp_name', helpers.sanitize_string(self.pp_name))
+            super().__setattr__('pp_link', helpers.sanitize_link(self.pp_link))
+
+        def to_dict(self):
+            return copy.deepcopy(self.__dict__)
+
+        @classmethod
+        def from_dict(cls, dct):
+            return cls(*tuple(dct.values()))
+
+        def __lt__(self, other):
+            return self.pp_name < other.pp_name
+
+    @dataclass(init=False)
+    class InternalState(ComplexSerializableType):
+        st_link_ok: bool
+        report_link_ok: bool
+        st_convert_ok: bool
+        report_convert_ok: bool
+        st_extract_ok: bool
+        report_extract_ok: bool
+        st_pdf_path: Path
+        report_pdf_path: Path
+        st_txt_path: Path
+        report_txt_path: Path
+        errors: Optional[List[str]]
+
+        def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
+                     st_convert_ok: bool = True, report_convert_ok: bool = True,
+                     st_extract_ok: bool = True, report_extract_ok: bool = True,
+                     errors: Optional[List[str]] = None):
+            self.st_link_ok = st_link_ok
+            self.report_link_ok = report_link_ok
+            self.st_convert_ok = st_convert_ok
+            self.report_convert_ok = report_convert_ok
+            self.st_extract_ok = st_extract_ok
+            self.report_extract_ok = report_extract_ok
+
+            if errors is None:
+                self.errors = []
+            else:
+                self.errors = errors
+
+        def to_dict(self):
+            return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
+                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok,
+                    'st_extract_ok': self.st_extract_ok, 'report_extract_ok': self.report_extract_ok,
+                    'errors': self.errors}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, bool]):
+            return cls(*tuple(dct.values()))
+
+    @dataclass(init=False)
+    class PdfData(ComplexSerializableType):
+        report_metadata: Dict[str, str]
+        st_metadata: Dict[str, str]
+        report_frontpage: Dict[str, str]
+        st_frontpage: Dict[str, str]
+        report_keywords: Dict[str, str]
+        st_keywords: Dict[str, str]
+
+        def __init__(self, report_metadata: Optional[Dict[str, str]] = None,
+                     st_metadata: Optional[Dict[str, str]] = None,
+                     report_frontpage: Optional[Dict[str, str]] = None, st_frontpage: Optional[Dict[str, str]] = None,
+                     report_keywords: Optional[Dict[str, str]] = None, st_keywords: Optional[Dict[str, str]] = None):
+            self.report_metadata = report_metadata
+            self.st_metadata = st_metadata
+            self.report_frontpage = report_frontpage
+            self.st_frontpage = st_frontpage
+            self.report_keywords = report_keywords
+            self.st_keywords = st_keywords
+
+        def to_dict(self):
+            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata,
+                    'report_frontpage': self.report_frontpage,
+                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
+                    'st_keywords': self.st_keywords}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, bool]):
+            return cls(*tuple(dct.values()))
+
+    @dataclass(init=False)
+    class Heuristics(ComplexSerializableType):
+        extracted_versions: List[str]
+        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+        cpe_matches: Optional[List[Tuple[float, CPE]]]
+        verified_cpe_matches: Optional[List[CPE]]
+        related_cves: Optional[List[str]]
+        labeled: bool
+
+        def __init__(self,
+                     extracted_versions: Optional[List[str]] = None,
+                     cpe_matches: Optional[List[str]] = None,
+                     verified_cpe_matches: Optional[List[str]] = None,
+                     related_cves: Optional[List[CVE]] = None,
+                     labeled: bool = False):
+            self.extracted_versions = extracted_versions
+            self.cpe_matches = cpe_matches
+            self.cpe_candidate_vendors = None
+            self.verified_cpe_matches = verified_cpe_matches
+            self.related_cves = related_cves
+            self.labeled = labeled
+
+        def to_dict(self):
+            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'labeled': self.labeled}
+
+        @classmethod
+        def from_dict(cls, dct: Dict[str, str]):
+            return cls(*tuple(dct.values()))
+
+    pandas_columns = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level',
+                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link',
+                      'manufacturer_web', 'extracted_versions', 'cpe_matches', 'verified_cpe_matches',
+                      'related_cves']
+
+    def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
+                 security_level: Union[str, set], not_valid_before: date,
+                 not_valid_after: date, report_link: str, st_link: str, src: str, cert_link: Optional[str],
+                 manufacturer_web: Optional[str],
+                 protection_profiles: set,
+                 maintainance_updates: set,
+                 state: Optional[InternalState],
+                 pdf_data: Optional[PdfData],
+                 heuristics: Optional[Heuristics]):
+        super().__init__()
+
+        self.status = status
+        self.category = category
+        self.name = helpers.sanitize_string(name)
+        self.manufacturer = helpers.sanitize_string(manufacturer)
+        self.scheme = scheme
+        self.security_level = helpers.sanitize_security_levels(security_level)
+        self.not_valid_before = helpers.sanitize_date(not_valid_before)
+        self.not_valid_after = helpers.sanitize_date(not_valid_after)
+        self.report_link = helpers.sanitize_link(report_link)
+        self.st_link = helpers.sanitize_link(st_link)
+        self.src = src
+        self.cert_link = helpers.sanitize_link(cert_link)
+        self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
+        self.protection_profiles = protection_profiles
+        self.maintainance_updates = maintainance_updates
+
+        if state is None:
+            state = self.InternalState()
+        self.state = state
+
+        if pdf_data is None:
+            pdf_data = self.PdfData()
+        self.pdf_data = pdf_data
+
+        if heuristics is None:
+            heuristics = self.Heuristics()
+        self.heuristics = heuristics
+
+    @property
+    def dgst(self) -> str:
+        """
+        Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
+        """
+        return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
+
+    def __str__(self):
+        return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
+
+    def to_pandas_tuple(self):
+        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level,\
+               self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
+               self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
+               self.heuristics.related_cves
+
+
+    def merge(self, other: 'CommonCriteriaCert'):
+        """
+        Merges with other CC certificate. Assuming they come from different sources, e.g., csv and html.
+        Assuming that html source has better protection profiles, they overwrite CSV info
+        On other values (apart from maintainances, see TODO below) the sanity checks are made.
+        """
+        if self != other:
+            logger.warning(
+                f'Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}')
+
+        for att, val in vars(self).items():
+            if not val:
+                setattr(self, att, getattr(other, att))
+            elif self.src == 'csv' and other.src == 'html' and att == 'protection_profiles':
+                setattr(self, att, getattr(other, att))
+            elif self.src == 'csv' and other.src == 'html' and att == 'maintainance_updates':
+                # TODO Fix me: This is a simplification. At the moment html contains more reliable info
+                setattr(self, att, getattr(other, att))
+            elif att == 'src':
+                pass  # This is expected
+            elif att == 'state':
+                setattr(self, att, getattr(other, att))
+            else:
+                if getattr(self, att) != getattr(other, att):
+                    logger.warning(
+                        f'When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}')
+        if self.src != other.src:
+            self.src = self.src + ' + ' + other.src
+
+    @classmethod
+    def from_dict(cls, dct: Dict) -> 'CommonCriteriaCert':
+        new_dct = dct.copy()
+        new_dct['maintainance_updates'] = set(dct['maintainance_updates'])
+        new_dct['protection_profiles'] = set(dct['protection_profiles'])
+        return super(cls, CommonCriteriaCert).from_dict(new_dct)
+
+    @classmethod
+    def from_html_row(cls, row: Tag, status: str, category: str) -> 'CommonCriteriaCert':
+        """
+        Creates a CC certificate from html row
+        """
+
+        def _get_name(cell: Tag) -> str:
+            return list(cell.stripped_strings)[0]
+
+        def _get_manufacturer(cell: Tag) -> Optional[str]:
+            if lst := list(cell.stripped_strings):
+                return lst[0]
+            else:
+                return None
+
+        def _get_scheme(cell: Tag) -> str:
+            return list(cell.stripped_strings)[0]
+
+        def _get_security_level(cell: Tag) -> set:
+            return set(cell.stripped_strings)
+
+        def _get_manufacturer_web(cell: Tag) -> Optional[str]:
+            for link in cell.find_all('a'):
+                if link is not None and link.get('title') == 'Vendor\'s web site' and link.get('href') != 'http://':
+                    return link.get('href')
+            return None
+
+        def _get_protection_profiles(cell: Tag) -> set:
+            protection_profiles = set()
+            for link in list(cell.find_all('a')):
+                if link.get('href') is not None and '/ppfiles/' in link.get('href'):
+                    protection_profiles.add(CommonCriteriaCert.ProtectionProfile(str(link.contents[0]),
+                                                                                 CommonCriteriaCert.cc_url + link.get(
+                                                                                     'href')))
+            return protection_profiles
+
+        def _get_date(cell: Tag) -> date:
+            text = cell.get_text()
+            extracted_date = datetime.strptime(
+                text, '%Y-%m-%d').date() if text else None
+            return extracted_date
+
+        def _get_report_st_links(cell: Tag) -> (str, str):
+            links = cell.find_all('a')
+            # TODO: Exception checks
+            assert links[1].get('title').startswith('Certification Report')
+            assert links[2].get('title').startswith('Security Target')
+
+            report_link = CommonCriteriaCert.cc_url + links[1].get('href')
+            security_target_link = CommonCriteriaCert.cc_url + \
+                                   links[2].get('href')
+
+            return report_link, security_target_link
+
+        def _get_cert_link(cell: Tag) -> Optional[str]:
+            links = cell.find_all('a')
+            return CommonCriteriaCert.cc_url + links[0].get('href') if links else None
+
+        def _get_maintainance_div(cell: Tag) -> Optional[Tag]:
+            divs = cell.find_all('div')
+            for d in divs:
+                if d.find('div') and d.stripped_strings and list(d.stripped_strings)[0] == 'Maintenance Report(s)':
+                    return d
+            return None
+
+        def _get_maintainance_updates(main_div: Tag) -> set:
+            possible_updates = list(main_div.find_all('li'))
+            maintainance_updates = set()
+            for u in possible_updates:
+                text = list(u.stripped_strings)[0]
+                main_date = datetime.strptime(text.split(
+                    ' ')[0], '%Y-%m-%d').date() if text else None
+                main_title = text.split('– ')[1]
+                main_report_link = None
+                main_st_link = None
+                links = u.find_all('a')
+                for l in links:
+                    if l.get('title').startswith('Maintenance Report:'):
+                        main_report_link = CommonCriteriaCert.cc_url + \
+                                           l.get('href')
+                    elif l.get('title').startswith('Maintenance ST'):
+                        main_st_link = CommonCriteriaCert.cc_url + \
+                                       l.get('href')
+                    else:
+                        logger.error('Unknown link in Maintenance part!')
+                maintainance_updates.add(
+                    CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
+            return maintainance_updates
+
+        cells = list(row.find_all('td'))
+        if len(cells) != 7:
+            logger.error('Unexpected number of cells in CC html row.')
+            raise
+
+        name = _get_name(cells[0])
+        manufacturer = _get_manufacturer(cells[1])
+        manufacturer_web = _get_manufacturer_web(cells[1])
+        scheme = _get_scheme(cells[6])
+        security_level = _get_security_level(cells[5])
+        protection_profiles = _get_protection_profiles(cells[0])
+        not_valid_before = _get_date(cells[3])
+        not_valid_after = _get_date(cells[4])
+        report_link, st_link = _get_report_st_links(cells[0])
+        cert_link = _get_cert_link(cells[2])
+
+        maintainance_div = _get_maintainance_div(cells[0])
+        maintainances = _get_maintainance_updates(
+            maintainance_div) if maintainance_div else set()
+
+        return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
+                   report_link,
+                   st_link, 'html', cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
+
+    def set_local_paths(self,
+                        report_pdf_dir: Optional[Union[str, Path]],
+                        st_pdf_dir: Optional[Union[str, Path]],
+                        report_txt_dir: Optional[Union[str, Path]],
+                        st_txt_dir: Optional[Union[str, Path]]):
+        if report_pdf_dir is not None:
+            self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + '.pdf')
+        if st_pdf_dir is not None:
+            self.state.st_pdf_path = Path(st_pdf_dir) / (self.dgst + '.pdf')
+        if report_txt_dir is not None:
+            self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + '.txt')
+        if st_txt_dir is not None:
+            self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
+
+    @property
+    def best_cpe_match(self):
+        clean = [x for x in self.cpe_matching if len(x[0]) > 5]
+        cpe_match_ranking = [x[1] for x in clean]
+        argmax = cpe_match_ranking.index(max(cpe_match_ranking))
+        return clean[argmax]
+
+    @staticmethod
+    def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
+        if exit_code != requests.codes.ok:
+            error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
+            logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
+            cert.state.report_link_ok = False
+            cert.state.errors.append(error_msg)
+        return cert
+
+    @staticmethod
+    def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        if exit_code != requests.codes.ok:
+            error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
+            logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
+            cert.state.st_link_ok = False
+            cert.state.errors.append(error_msg)
+        return cert
+
+    def path_is_corrupted(self, local_path):
+        return not local_path.exists() or local_path.stat().st_size < constants.MIN_CORRECT_CERT_SIZE
+
+    @staticmethod
+    def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path, ['-raw'])
+        if exit_code != constants.RETURNCODE_OK:
+            error_msg = 'failed to convert report pdf->txt'
+            logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
+            cert.state.report_convert_ok = False
+            cert.state.errors.append(error_msg)
+        return cert
+
+    @staticmethod
+    def convert_target_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path, ['-raw'])
+        if exit_code != constants.RETURNCODE_OK:
+            error_msg = 'failed to convert security target pdf->txt'
+            logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
+            cert.state.st_convert_ok = False
+            cert.state.errors.append(error_msg)
+        return cert
+
+    @staticmethod
+    def extract_st_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            cert.state.errors.append(response)
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_metadata(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            cert.state.errors.append(response)
+        return cert
+
+    @staticmethod
+    def extract_st_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.st_frontpage = dict()
+
+        response_anssi, cert.pdf_data.st_frontpage['anssi'] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
+        response_bsi, cert.pdf_data.st_frontpage['bsi'] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
+
+        if response_anssi != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            cert.state.errors.append(response_anssi)
+        if response_bsi != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            cert.state.errors.append(response_bsi)
+
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_frontpage(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        cert.pdf_data.report_frontpage = dict()
+        response_bsi, cert.pdf_data.report_frontpage['bsi'] = helpers.search_only_headers_bsi(
+            cert.state.report_txt_path)
+        response_anssi, cert.pdf_data.report_frontpage['anssi'] = helpers.search_only_headers_anssi(
+            cert.state.report_txt_path)
+
+        if response_anssi != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            cert.state.errors.append(response_anssi)
+        if response_bsi != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            cert.state.errors.append(response_bsi)
+
+        return cert
+
+    @staticmethod
+    def extract_report_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        response, cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+        return cert
+
+    @staticmethod
+    def extract_st_pdf_keywords(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            cert.state.errors.append(response)
+        return cert
+
+    def compute_heuristics_version(self):
+        """
+        Will extract possible versions from the name
+        """
+        at_least_something = r'(\b(\d)+\b)'
+        just_numbers = r'(\d{1,5})(\.\d{1,5})'
+
+        without_version = r'(' + just_numbers + r'+)'
+        long_version = r'(' + r'(\bversion)\s*' + just_numbers + r'+)'
+        short_version = r'(' + r'\bv\s*' + just_numbers + r'+)'
+        full_regex_string = r'|'.join([without_version, short_version, long_version])
+        normalizer = r'(\d+\.*)+'
+
+        matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, self.name, re.IGNORECASE)])
+        if not matched_strings:
+            matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, self.name, re.IGNORECASE)])
+
+        if matched_strings:
+            self.heuristics.extracted_versions = [re.search(normalizer, x).group() for x in matched_strings]
+        else:
+            self.heuristics.extracted_versions = ['-']
+
+    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        """
+        With the help of the CPE dataset, will find CPE vendors that could match the given certificate vendor
+        """
+        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
+
+    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        self.compute_heuristics_cpe_vendors(cpe_dataset)
+        self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
+                                                                  self.heuristics.cpe_candidate_vendors,
+                                                                  self.heuristics.extracted_versions,
+                                                                  n_max_matches=constants.CPE_MAX_MATCHES,
+                                                                  threshold=constants.CPE_MATCHING_THRESHOLD)
+
+    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
+        if self.heuristics.verified_cpe_matches:
+            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
+            related_cves = list(filter(lambda x: x is not None, related_cves))
+            if related_cves:
+                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
+        else:
+            self.heuristics.related_cves = None

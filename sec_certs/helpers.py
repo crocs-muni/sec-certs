@@ -138,8 +138,15 @@ def find_tables_iterative(file_text: str) -> List[int]:
             current_page += 1
         if line.startswith('Table ') or line.startswith('Exhibit'):
             pages.add(current_page)
+            pages.add(current_page + 1)
+            if current_page > 2:
+                pages.add(current_page - 1)
     if not pages:
         logger.warning('No pages found')
+    for page in pages:
+        if page > current_page - 1:
+            return list(pages - {page})
+
     return list(pages)
 
 
@@ -502,12 +509,15 @@ def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, Dict[str, 
     return constants.RETURNCODE_OK, processed_result
 
 
-def analyze_matched_algs(data: Dict):
+def plot_dataframe_graph(data: Dict, label: str, file_name: str, density: bool = False, cumulative: bool = False, bins: int = 50, log: bool = True, show: bool = True):
     pd_data = pd.Series(data)
-    pd_data.hist(bins=50)
-    plt.show()
+    pd_data.hist(bins=bins, label=label, density=density, cumulative=cumulative)
+    plt.savefig(file_name)
+    if show:
+        plt.show()
 
-    sorted_data = pd_data.value_counts(ascending=True)
+    if log:
+        sorted_data = pd_data.value_counts(ascending=True)
 
     logging.info(sorted_data.where(sorted_data > 1).dropna())
 

@@ -1,0 +1,513 @@
+{
+    "_type": "FIPSAlgorithmDataset",
+    "certs": {
+        "2351": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2351",
+                "date": "9/21/2018",
+                "implementation": "Apple CoreCrypto Kernel Module v9.0 for ARM (iOS12, A11 Bionic, Assembler_VNG)",
+                "type": "DRBG",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2351",
+                "date": "11/27/2015",
+                "implementation": "Apple iOS CoreCrypto Kernel Module (Optimized SHA, A6)",
+                "type": "HMAC",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2351",
+                "date": "1/27/2017",
+                "implementation": "OpenSSL using assembler for AES and SHA",
+                "type": "RSA",
+                "vendor": "Canonical Ltd."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2351",
+                "date": "1/19/2017",
+                "implementation": "Junos FIPS Version Junos 15.1 X49 - Dataplane_CN7020",
+                "type": "TDES",
+                "vendor": "Juniper Networks, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2351",
+                "date": "3/8/2013",
+                "implementation": "Samsung OpenSSL Cryptographic Module",
+                "type": "AES",
+                "vendor": "Samsung Electronics Co., Ltd"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2351",
+                "date": "3/7/2014",
+                "implementation": "Symantec PGP Cryptographic Engine",
+                "type": "SHS",
+                "vendor": "Symantec Corporation"
+            }
+        ],
+        "2352": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2352",
+                "date": "9/21/2018",
+                "implementation": "Apple CoreCrypto Kernel Module v9.0 for ARM (iOS12, A10X Fusion, Assembler_VNG)",
+                "type": "DRBG",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2352",
+                "date": "3/8/2013",
+                "implementation": "AES-256 Core",
+                "type": "AES",
+                "vendor": "Altera Canada"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2352",
+                "date": "11/27/2015",
+                "implementation": "Apple iOS CoreCrypto Kernel Module (Optimized SHA, A6X)",
+                "type": "HMAC",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2352",
+                "date": "1/27/2017",
+                "implementation": "OpenSSL using support from Power ISA 2.07 for AES and SHA",
+                "type": "RSA",
+                "vendor": "Canonical Ltd."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2352",
+                "date": "1/19/2017",
+                "implementation": "Junos FIPS Version Junos 15.1 X49 - Dataplane_CN7130",
+                "type": "TDES",
+                "vendor": "Juniper Networks, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2352",
+                "date": "3/21/2014",
+                "implementation": "Karnak SHA in Hardware",
+                "type": "SHS",
+                "vendor": "Seagate Technology, LLC."
+            }
+        ],
+        "2600": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2600",
+                "date": "12/15/2017",
+                "implementation": "Apple iOS CoreCrypto v8 Kernel Module (Generic Software Implementation)",
+                "type": "TDES",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2600",
+                "date": "6/10/2016",
+                "implementation": "IOS Common Cryptographic Module (IC2M) Algorithm Module",
+                "type": "HMAC",
+                "vendor": "Cisco Systems, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2600",
+                "date": "8/16/2013",
+                "implementation": "Blade System Virtual Connect",
+                "type": "AES",
+                "vendor": "Hewlett-Packard Development Company, L.P."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2600",
+                "date": "12/5/2014",
+                "implementation": "Cryptographic Security Kernel",
+                "type": "SHS",
+                "vendor": "IBM Corporation"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2600",
+                "date": "9/1/2017",
+                "implementation": "IBM z/OS(R) Cryptographic Services System SSL - 31bit",
+                "type": "RSA",
+                "vendor": "IBM Corporation"
+            }
+        ],
+        "2601": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2601",
+                "date": "12/5/2014",
+                "implementation": "SHA256 Library on Canon MFP Security Chip",
+                "type": "SHS",
+                "vendor": "Canon Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2601",
+                "date": "8/16/2013",
+                "implementation": "Dell AppAssure Crypto Library",
+                "type": "AES",
+                "vendor": "Dell, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2601",
+                "date": "6/10/2016",
+                "implementation": "EFJ Communication Cryptographic Library",
+                "type": "HMAC",
+                "vendor": "EFJohnson Technologies"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2601",
+                "date": "9/1/2017",
+                "implementation": "IBM z/OS(R) Cryptographic Services System SSL - 64bit",
+                "type": "RSA",
+                "vendor": "IBM Corporation"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2601",
+                "date": "12/22/2017",
+                "implementation": "Oracle Linux 7 GnuTLS C Implementation",
+                "type": "TDES",
+                "vendor": "Oracle Corporation"
+            }
+        ],
+        "2602": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2602",
+                "date": "12/22/2017",
+                "implementation": "Apple tvOS CoreCrypto Kernel Module v8.0 (Generic Software Implementation)",
+                "type": "TDES",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2602",
+                "date": "6/10/2016",
+                "implementation": "FIPS-ALGORITHMS.1.5.0v",
+                "type": "HMAC",
+                "vendor": "Mercury Systems"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2602",
+                "date": "8/16/2013",
+                "implementation": "RSA BSAFE\u00ae Crypto-J Software Module",
+                "type": "AES",
+                "vendor": "RSA Security, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2602",
+                "date": "12/5/2014",
+                "implementation": "SHA Library",
+                "type": "SHS",
+                "vendor": "Sage Microelectronics Corp"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2602",
+                "date": "9/1/2017",
+                "implementation": "Bouncy Castle FIPS Java API",
+                "type": "RSA",
+                "vendor": "Legion of the Bouncy Castle Inc."
+            }
+        ],
+        "2700": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2700",
+                "date": "3/13/2015",
+                "implementation": "Apple OSX CoreCrypto Module (Generic, Xeon)",
+                "type": "SHS",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2700",
+                "date": "10/21/2016",
+                "implementation": "Axway OpenSSL",
+                "type": "HMAC",
+                "vendor": "Axway Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2700",
+                "date": "11/30/2017",
+                "implementation": "Brocade Fabric OS FIPS Cryptographic Module",
+                "type": "RSA",
+                "vendor": "Brocade Communications Systems LLC"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2700",
+                "date": "3/30/2018",
+                "implementation": "Junos OS 17.4R1-S1 - Dataplane",
+                "type": "TDES",
+                "vendor": "Juniper Networks, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2700",
+                "date": "11/29/2013",
+                "implementation": "VMware NSS Cryptographic Module",
+                "type": "AES",
+                "vendor": "VMware, Inc."
+            }
+        ],
+        "2701": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2701",
+                "date": "3/30/2018",
+                "implementation": "Security Builder GSE-J Crypto Core",
+                "type": "TDES",
+                "vendor": "BlackBerry Certicom"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2701",
+                "date": "11/30/2017",
+                "implementation": "ngfips_rsa",
+                "type": "RSA",
+                "vendor": "Cavium, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2701",
+                "date": "10/28/2016",
+                "implementation": "Cisco_SSL_Implementation-1",
+                "type": "HMAC",
+                "vendor": "Cisco Systems, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2701",
+                "date": "3/13/2015",
+                "implementation": "RSA BSAFE\u00ae Crypto-J JSAFE and JCE Software Module",
+                "type": "SHS",
+                "vendor": "RSA, The Security Division of EMC"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2701",
+                "date": "11/29/2013",
+                "implementation": "VMware Cryptographic Module",
+                "type": "AES",
+                "vendor": "VMware, Inc."
+            }
+        ],
+        "2702": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "2702",
+                "date": "3/30/2018",
+                "implementation": "Security Builder GSE-J Crypto Core",
+                "type": "TDES",
+                "vendor": "BlackBerry Certicom"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2702",
+                "date": "11/30/2017",
+                "implementation": "DELPHI RSA2048 Signature Verification Algorithm Implementation",
+                "type": "RSA",
+                "vendor": "DELPHI"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2702",
+                "date": "12/6/2013",
+                "implementation": "RSA BSAFE Crypto-J",
+                "type": "AES",
+                "vendor": "McAfee, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2702",
+                "date": "10/28/2016",
+                "implementation": "OpenSSL Crypto Library",
+                "type": "HMAC",
+                "vendor": "MikroM GmbH"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "2702",
+                "date": "3/13/2015",
+                "implementation": "OpenSSL FIPS Object Module",
+                "type": "SHS",
+                "vendor": "OpenSSL Validation Services, Inc."
+            }
+        ],
+        "3415": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "3415",
+                "date": "1/26/2018",
+                "implementation": "Apple Secure Key Store CoreCrypto Module (Generic Software Implementation)",
+                "type": "HMAC",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3415",
+                "date": "6/5/2015",
+                "implementation": "Motorola Solutions Subscriber \u00b5Mace AES256",
+                "type": "AES",
+                "vendor": "Motorola Solutions Inc"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3415",
+                "date": "11/18/2016",
+                "implementation": "Secure Parser Library",
+                "type": "SHS",
+                "vendor": "Security First Corp."
+            }
+        ],
+        "3426": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "3426",
+                "date": "6/11/2015",
+                "implementation": "Apple iOS CoreCrypto Module (KeyWrap A8 32 bit)",
+                "type": "AES",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3426",
+                "date": "12/2/2016",
+                "implementation": "Apple iOS CoreCrypto Module (Generic)",
+                "type": "SHS",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3426",
+                "date": "1/26/2018",
+                "implementation": "Apple Secure Key Store CoreCrypto Module (VNG)",
+                "type": "HMAC",
+                "vendor": "Apple Inc."
+            }
+        ],
+        "3427": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "3427",
+                "date": "12/2/2016",
+                "implementation": "Apple iOS CoreCrypto Module (Generic)",
+                "type": "SHS",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3427",
+                "date": "1/26/2018",
+                "implementation": "Forcepoint NGFW FIPS Java API",
+                "type": "HMAC",
+                "vendor": "Forcepoint"
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3427",
+                "date": "6/11/2015",
+                "implementation": "HP ESKM OpenSSL",
+                "type": "AES",
+                "vendor": "Hewlett Packard Enterprise"
+            }
+        ],
+        "3447": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "3447",
+                "date": "12/2/2016",
+                "implementation": "Apple OSX CoreCrypto Module (Optimized SHA nosse)",
+                "type": "SHS",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3447",
+                "date": "7/2/2015",
+                "implementation": "FireEye Algorithms Implementation",
+                "type": "AES",
+                "vendor": "FireEye, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3447",
+                "date": "2/9/2018",
+                "implementation": "OpenSSL (no AVX2/AVX/AESNI/SSSE3, x86_64, 64-bit library)",
+                "type": "HMAC",
+                "vendor": "Red Hat, Inc."
+            }
+        ],
+        "3451": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "3451",
+                "date": "12/2/2016",
+                "implementation": "Apple OSX CoreCrypto Module (Optimized SHA nosse)",
+                "type": "SHS",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3451",
+                "date": "7/2/2015",
+                "implementation": "OpenSSL FIPS Object Module",
+                "type": "AES",
+                "vendor": "OpenSSL Software Foundation, Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3451",
+                "date": "2/9/2018",
+                "implementation": "OpenSSL (no AVX2/AVX/AESNI, x86_64, 64-bit library)",
+                "type": "HMAC",
+                "vendor": "Red Hat, Inc."
+            }
+        ],
+        "3464": [
+            {
+                "_type": "Algorithm",
+                "cert_id": "3464",
+                "date": "12/9/2016",
+                "implementation": "Apple OSX CoreCrypto Module (Generic)",
+                "type": "SHS",
+                "vendor": "Apple Inc."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3464",
+                "date": "7/10/2015",
+                "implementation": "Security Builder Linux Kernel Crypto Core",
+                "type": "AES",
+                "vendor": "Certicom Corp."
+            },
+            {
+                "_type": "Algorithm",
+                "cert_id": "3464",
+                "date": "2/9/2018",
+                "implementation": "HPE Secure Encryption Engine v1.1",
+                "type": "HMAC",
+                "vendor": "Hewlett-Packard Development Company, L.P."
+            }
+        ]
+    }
+}

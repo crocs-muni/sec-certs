@@ -9,7 +9,7 @@ smallest_certificate_id_to_connect:
 year_difference_between_validations:
   description: During validation we don't connect certificates with validation dates
     difference higher than _this_
-  value: 5
+  value: 7
 use_text_with_newlines_during_parsing:
   description: During keyword search, search in text with newlines
   value: true
@@ -25,3 +25,10 @@ cc_cpe_max_matches:
 cc_latest_snapshot:
   description: Url from where to fetch the latest snapshot of fully processed CC dataset
   value: https://www.ajanovsky.cz/cc_latest_snapshot.json
+ignore_first_page:
+  description: During keyword search, first page usually contains addresses - ignore it.
+  value: true
+cert_threshold:
+  description: Used with --higher-precision-results. Determines the amount of mismatched algorithms to be considered faulty.
+  value: 5
+
