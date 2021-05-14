@@ -33,20 +33,15 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     dset.get_certs_from_web(json_file=json_file, redo=redo_web_scan)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
-    # Dump dataset into JSON
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')
 
     logging.info("Converting pdfs")
     dset.convert_all_pdfs()
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Extracting keywords now.")
     dset.extract_keywords(redo=redo_keyword_scan)
 
     logging.info(f'Finished extracting certificates for {len(dset.certs)} items.')
-    logging.info("Dumping dataset again...")
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
 
     logging.info("Searching for tables in pdfs")
 
@@ -64,11 +59,7 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     logging.info("finalizing results.")
     dset.finalize_results()
 
-    logging.info('dump again')
-    dset.to_json(dset.root_dir / 'fips_full_dataset.json')
-
     dset.plot_graphs(show=False)
-    dset.to_json(dset.root_dir / 'fips_mentioned.json')
     end = datetime.now()
     logging.info(f'The computation took {(end - start)} seconds.')
 

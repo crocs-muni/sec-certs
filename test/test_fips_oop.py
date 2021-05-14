@@ -11,7 +11,7 @@ from fips_test_utils import generate_html
 def _set_up_dataset(td, certs):
     dataset = FIPSDataset({}, Path(td), 'test_dataset', 'fips_test_dataset')
     generate_html(certs, td + '/test_search.html')
-    dataset.get_certs_from_web(test=td + '/test_search.html')
+    dataset.get_certs_from_web(test=td + '/test_search.html', update_json=False)
     return dataset
 
 

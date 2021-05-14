@@ -825,7 +825,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 not_available.append(i)
         return missing, not_available
 
-    def extract_keywords(self, redo=False):
+    def extract_keywords(self, redo=False, update_json: bool = True):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
 
         keywords = cert_processing.process_parallel(FIPSCertificate.find_keywords,
@@ -835,6 +835,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                                     use_threading=False)
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
+        
+        if update_json:
+            self.to_json(self.root_dir / 'fips_full_dataset.json')
 
     def match_algs(self) -> Dict:
         output = {}
@@ -883,7 +886,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                          constants.N_THREADS)
         return new_files
 
-    def convert_all_pdfs(self):
+    def convert_all_pdfs(self, update_json: bool = True):
         logger.info('Converting FIPS certificate reports to .txt')
         tuples = [
             (cert, self.policies_dir / f'{cert.cert_id}.pdf', self.policies_dir / f'{cert.cert_id}.pdf.txt')
@@ -891,6 +894,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             not cert.state.txt_state and (self.policies_dir / f'{cert.cert_id}.pdf').exists()
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, constants.N_THREADS)
+
+        if update_json:
+            self.to_json(self.root_dir / 'fips_full_dataset.json')
 
     def prepare_dataset(self, test: Optional[Path] = None):
         if test:
@@ -922,7 +928,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for entry in table:
             self.certs[entry.find('a').text] = None
 
-    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None, test: Optional[Path] = None):
+    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None, test: Optional[Path] = None, update_json: bool = True):
         def download_html_pages() -> List[str]:
             new_files = self.download_all_htmls()
             self.download_all_pdfs()
@@ -968,8 +974,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                                       (self.web_dir / cert_id).with_suffix('.html'),
                                       (self.fragments_dir / cert_id).with_suffix('.txt'), False, None, False),
                 cert, redo=redo)
+        
+        if update_json:
+            self.to_json(self.root_dir / 'fips_full_dataset.json')
 
-    def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
+    def extract_certs_from_tables(self, high_precision: bool, update_json: bool = True) -> List[Path]:
         """
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
@@ -986,6 +995,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for state, cert, algorithms in result:
             self.certs[cert.dgst].state.tables_done = state
             self.certs[cert.dgst].pdf_scan.algorithms += algorithms
+
+        if update_json:
+            self.to_json(self.root_dir / 'fips_full_dataset.json')
 
         return not_decoded
 
@@ -1006,91 +1018,123 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     new_algorithms.append({'Certificate': [algorithm]})
             certificate.processed.algorithms = new_algorithms
 
+                # returns True if candidates should _not_ be matched
+    def _compare_certs(self, current_certificate: 'FIPSCertificate', other_id: str):
+        cert_first = current_certificate.web_scan.date_validation[0].year
+        cert_last = current_certificate.web_scan.date_validation[-1].year
+        conn_first = self.certs[other_id].web_scan.date_validation[0].year
+        conn_last = self.certs[other_id].web_scan.date_validation[-1].year
+
+        return cert_first - conn_first > config.year_difference_between_validations['value'] \
+                and cert_last - conn_last > config.year_difference_between_validations['value'] \
+                or cert_first < conn_first
+
+    def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate):
+        for rule in current_cert.processed.keywords['rules_cert_id']:
+            matches = current_cert.processed.keywords['rules_cert_id'][rule]
+            current_cert.processed.keywords['rules_cert_id'][rule] = [cert_id for cert_id in matches if
+                                                                        self._validate_id(current_cert,
+                                                                                    cert_id.replace('Cert.', '')
+                                                                                        .replace('cert.', '')
+                                                                                        .lstrip("#CA0 "))
+                                                                            and cert_id != current_cert.cert_id]
+
+    def _validate_id(self, processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
+        if cert_candidate not in self.certs or not cert_candidate.isdecimal():
+            return False
+
+        # "< number" still needs to be used, because of some old certs being revalidated
+        if int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
+                self._compare_certs(processed_cert, cert_candidate):
+            return False
+        if cert_candidate not in self.algorithms.certs:
+            return True
+
+        for cert_alg in processed_cert.processed.algorithms:
+            for certificate in cert_alg['Certificate']:
+                curr_id = ''.join(filter(str.isdigit, certificate))
+                if curr_id == cert_candidate:
+                    return False
+
+        algs = self.algorithms.certs[cert_candidate]
+        for current_alg in algs:
+            if FIPSCertificate.get_compare(processed_cert.web_scan.vendor) == FIPSCertificate.get_compare(
+                    current_alg.vendor):
+                return False
+        return True
+
+    @staticmethod
+    def _find_connections(current_cert: FIPSCertificate):
+        current_cert.processed.connections = []
+        current_cert.web_scan.connections = []
+        current_cert.pdf_scan.connections = []
+        if not current_cert.state.file_status or not current_cert.processed.keywords:
+            return
+        if current_cert.processed.keywords['rules_cert_id'] == {}:
+            return
+        for rule in current_cert.processed.keywords['rules_cert_id']:
+            for cert in current_cert.processed.keywords['rules_cert_id'][rule]:
+                cert_id = ''.join(filter(str.isdigit, cert))
+                if cert_id not in current_cert.processed.connections:
+                    current_cert.processed.connections.append(cert_id)
+                    current_cert.pdf_scan.connections.append(cert_id)
+
+        # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
+        if current_cert.web_scan.mentioned_certs:
+            for item in current_cert.web_scan.mentioned_certs:
+                cert_id = ''.join(filter(str.isdigit, item))
+                if cert_id not in current_cert.processed.connections and cert_id != '':
+                    current_cert.processed.connections.append(cert_id)
+                    current_cert.web_scan.connections.append(cert_id)
+
     def validate_results(self):
         """
         Function that validates results and finds the final connection output
         """
-
-        def validate_id(processed_cert: FIPSCertificate, cert_candidate: str) -> bool:
-
-            # returns True if candidates should _not_ be matched
-            def compare_certs(current_certificate: 'FIPSCertificate', other_id: str):
-                cert_first = current_certificate.web_scan.date_validation[0].year
-                cert_last = current_certificate.web_scan.date_validation[-1].year
-                conn_first = self.certs[other_id].web_scan.date_validation[0].year
-                conn_last = self.certs[other_id].web_scan.date_validation[-1].year
-
-                return cert_first - conn_first > config.year_difference_between_validations['value'] \
-                       and cert_last - conn_last > config.year_difference_between_validations['value'] \
-                       or cert_first < conn_first
-
-            if cert_candidate not in self.certs or not cert_candidate.isdecimal():
-                return False
-
-            # "< number" still needs to be used, because of some old certs being revalidated
-            if int(cert_candidate) < config.smallest_certificate_id_to_connect['value'] or \
-                    compare_certs(processed_cert, cert_candidate):
-                return False
-            if cert_candidate not in self.algorithms.certs:
-                return True
-
-            for cert_alg in processed_cert.processed.algorithms:
-                for certificate in cert_alg['Certificate']:
-                    curr_id = ''.join(filter(str.isdigit, certificate))
-                    if curr_id == cert_candidate:
-                        return False
-
-            algs = self.algorithms.certs[cert_candidate]
-            for current_alg in algs:
-                if FIPSCertificate.get_compare(processed_cert.web_scan.vendor) == FIPSCertificate.get_compare(
-                        current_alg.vendor):
-                    return False
-            return True
-
-        broken_files = set()
-
         current_cert: FIPSCertificate
 
         for current_cert in self.certs.values():
             if not current_cert.state.txt_state:
                 continue
-
-            for rule in current_cert.processed.keywords['rules_cert_id']:
-                matches = current_cert.processed.keywords['rules_cert_id'][rule]
-                current_cert.processed.keywords['rules_cert_id'][rule] = [cert_id for cert_id in matches if
-                                                                          validate_id(current_cert,
-                                                                                      cert_id.replace('Cert.', '')
-                                                                                      .replace('cert.', '')
-                                                                                      .lstrip("#CA0 "))
-                                                                          and cert_id != current_cert.cert_id]
+            self._remove_false_positives_for_cert(current_cert)
 
         for current_cert in self.certs.values():
-            current_cert.processed.connections = []
-            current_cert.web_scan.connections = []
-            current_cert.pdf_scan.connections = []
-            if not current_cert.state.file_status or not current_cert.processed.keywords:
-                continue
-            if current_cert.processed.keywords['rules_cert_id'] == {}:
-                continue
-            for rule in current_cert.processed.keywords['rules_cert_id']:
-                for cert in current_cert.processed.keywords['rules_cert_id'][rule]:
-                    cert_id = ''.join(filter(str.isdigit, cert))
-                    if cert_id not in current_cert.processed.connections:
-                        current_cert.processed.connections.append(cert_id)
-                        current_cert.pdf_scan.connections.append(cert_id)
+            FIPSDataset._find_connections(current_cert)
 
-            # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
-            if current_cert.web_scan.mentioned_certs:
-                for item in current_cert.web_scan.mentioned_certs:
-                    cert_id = ''.join(filter(str.isdigit, item))
-                    if cert_id not in current_cert.processed.connections and cert_id != '':
-                        current_cert.processed.connections.append(cert_id)
-                        current_cert.web_scan.connections.append(cert_id)
-
-    def finalize_results(self):
+    def finalize_results(self, update_json: bool = True):
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
+
+        if update_json:
+            self.to_json(self.root_dir / 'fips_full_dataset.json')
+
+    def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
+        if self.certs[current_key].web_scan.vendor != highlighted_vendor:
+            return
+
+        dot.attr('node', color='red')
+        if self.certs[current_key].web_scan.status == 'Revoked':
+            dot.attr('node', color='grey32')
+        if self.certs[current_key].web_scan.status == 'Historical':
+            dot.attr('node', color='gold3')
+            
+    def _add_colored_node(self, dot: Digraph, current_key: str, highlighted_vendor: str):
+        dot.attr('node', color='lightgreen')
+        if self.certs[current_key].web_scan.status == 'Revoked':
+            dot.attr('node', color='lightgrey')
+        if self.certs[current_key].web_scan.status == 'Historical':
+            dot.attr('node', color='gold')
+        self._highlight_vendor_in_dot(dot, current_key, highlighted_vendor)
+        dot.node(current_key, label=current_key + '&#10;'
+                 + self.certs[current_key].web_scan.vendor
+                 + '&#10;'
+                 + (self.certs[current_key].web_scan.module_name if
+                    self.certs[current_key].web_scan.module_name else ''))
+
+    def _get_processed_list(self, connection_list: str, key: str):
+        attr = {'pdf': 'pdf_scan', 'web': 'web_scan', 'processed': 'processed'}[connection_list]
+        return getattr(self.certs[key], attr).connections
 
     def get_dot_graph(self, output_file_name: str, connection_list: str = 'processed',
                       highlighted_vendor: str = 'Red Hat®, Inc.', show: bool = True):
@@ -1111,40 +1155,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         dot.attr('graph', label='Dependencies', labelloc='t', fontsize='30')
         dot.attr('node', style='filled')
 
-        def found_interesting_cert(current_key):
-            if self.certs[current_key].web_scan.vendor == highlighted_vendor:
-                dot.attr('node', color='red')
-                if self.certs[current_key].web_scan.status == 'Revoked':
-                    dot.attr('node', color='grey32')
-                if self.certs[current_key].web_scan.status == 'Historical':
-                    dot.attr('node', color='gold3')
-
-        def color_check(current_key):
-            dot.attr('node', color='lightgreen')
-            if self.certs[current_key].web_scan.status == 'Revoked':
-                dot.attr('node', color='lightgrey')
-            if self.certs[current_key].web_scan.status == 'Historical':
-                dot.attr('node', color='gold')
-            found_interesting_cert(current_key)
-            dot.node(current_key,
-                     label=current_key +
-                           '&#10;' +
-                           self.certs[current_key].web_scan.vendor +
-                           '&#10;' +
-                           (self.certs[current_key].web_scan.module_name
-                            if self.certs[current_key].web_scan.module_name else ''))
-
-        def get_processed_list():
-            if connection_list == "pdf":
-                cert_list = self.certs[key].pdf_scan.connections
-
-            elif connection_list == "web":
-                cert_list = self.certs[key].web_scan.connections
-
-            else:
-                cert_list = self.certs[key].processed.connections
-            return cert_list
-
         keys = 0
         edges = 0
 
@@ -1152,23 +1162,23 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             if key == 'Not found' or not self.certs[key].state.file_status:
                 continue
 
-            processed = get_processed_list()
+            processed = self._get_processed_list(connection_list, key)
 
             if processed:
-                color_check(key)
+                self._add_colored_node(key)
                 keys += 1
             else:
                 single_dot.attr('node', color='lightblue')
-                found_interesting_cert(key)
+                self._highlight_vendor_in_dot(key)
                 single_dot.node(key, label=key + '\r\n' + self.certs[key].web_scan.vendor + (
                     '\r\n' + self.certs[key].web_scan.module_name if self.certs[key].web_scan.module_name else ''))
 
         for key in self.certs:
             if key == 'Not found' or not self.certs[key].state.file_status:
                 continue
-            processed = get_processed_list()
+            processed = self._get_processed_list(connection_list, key)
             for conn in processed:
-                color_check(conn)
+                self._add_colored_node(dot, conn, highlighted_vendor)
                 dot.edge(key, conn)
                 edges += 1
 
@@ -1218,6 +1228,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.get_dot_graph('web_only_graph', 'web', show=show)
         self.get_dot_graph('pdf_only_graph', 'pdf', show=show)
 
+
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
     def get_certs_from_web(self):
@@ -1247,6 +1258,22 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
         self.parse_html()
 
+    @staticmethod
+    def _extract_algorithm_information(elements, vendor, date, product, validation):
+        for elem in elements:
+            # td > a > (vendor or date)
+            attachments = elem.find_all('a')
+
+            if len(attachments) == 0:
+                vendor = elem.text.strip() if 'vendor-name' in elem['id'] else vendor
+                date = elem.text.strip() if 'validation-date' in elem['id'] else date
+                continue
+
+            for attachment in attachments:
+                product = elem.text.strip() if 'product-name' in attachment['id'] else product
+                validation = elem.text.strip() if 'validation-number' in attachment['id'] else validation
+        return vendor, date, product, validation
+
     def parse_html(self):
         def split_alg(alg_string):
             cert_type = alg_string.rstrip('0123456789')
@@ -1259,29 +1286,15 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
             table = html_soup.find('table', class_='table table-condensed publications-table table-bordered')
             tbody_contents = table.find('tbody').find_all('tr')
-            current_vendor = current_product = current_validation = current_date = ""
+            vendor = product = validation = date = ""
             for tr in tbody_contents:
                 elements = tr.find_all('td')
+                vendor, date, product, validation = FIPSAlgorithmDataset._extract_algorithm_information(
+                    elements, vendor, date, product, validation
+                )
 
-                for elem in elements:
-                    # td > a > (vendor or date)
-                    attachments = elem.find_all('a')
-                    if len(attachments) == 0:
-                        if 'vendor-name' in elem['id']:
-                            current_vendor = elem.text.strip()
-                        if 'validation-date' in elem['id']:
-                            current_date = elem.text.strip()
-                    else:
-                        for attachment in attachments:
-                            if 'product-name' in attachment['id']:
-                                current_product = elem.text.strip()
-                            if 'validation-number' in attachment['id']:
-                                current_validation = elem.text.strip()
-
-
-
-                alg_type, alg_id = split_alg(current_validation)
-                fips_alg = FIPSCertificate.Algorithm(alg_id, current_vendor, current_product, alg_type, current_date)
+                alg_type, alg_id = split_alg(validation)
+                fips_alg = FIPSCertificate.Algorithm(alg_id, vendor, product, alg_type, date)
                 if alg_id not in self.certs:
                     self.certs[alg_id] = []
                 self.certs[alg_id].append(fips_alg)

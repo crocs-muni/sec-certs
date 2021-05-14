@@ -178,7 +178,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         cert_id: int
         keywords: Dict
         algorithms: List
-        connections: List
+        connections: List[str]
 
         @property
         def dgst(self):
