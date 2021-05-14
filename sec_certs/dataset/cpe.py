@@ -144,6 +144,9 @@ class CPEDataset:
 
         return df
 
+    def get_cpes_from_title(self, title: str) -> List[CPE]:
+        return [cpe for cpe in self if cpe.title == title]
+
     def get_candidate_list_of_vendors(self, cert_vendor: str) -> Optional[List[str]]:
         """
         Will return List of CPE vendors that could match the cert_vendor.

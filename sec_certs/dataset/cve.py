@@ -10,10 +10,11 @@ import glob
 import tqdm
 import json
 
-from sec_certs.cert_processing import process_parallel
+from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.configuration import config
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +140,7 @@ class CVEDataset(ComplexSerializableType):
         logger.info(f'Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}')
         with tempfile.TemporaryDirectory() as tmp_dir:
             outpaths = [Path(tmp_dir) / Path(x).name.rstrip('.zip') for x in urls]
-            responses = list(zip(*helpers.download_parallel(list(zip(urls, outpaths)), num_threads=constants.N_THREADS)))[1]
+            responses = list(zip(*helpers.download_parallel(list(zip(urls, outpaths)), num_threads=config.n_threads)))[1]
 
             for o, u, r in zip(outpaths, urls, responses):
                 if r == constants.RESPONSE_OK:
@@ -164,7 +165,7 @@ class CVEDataset(ComplexSerializableType):
 
             all_cves = dict()
             logger.info(f'Downloaded required resources. Building CVEDataset from jsons.')
-            results = process_parallel(cls.from_nist_json, json_files, constants.N_THREADS, use_threading=False)
+            results = process_parallel(cls.from_nist_json, json_files, config.n_threads, use_threading=False)
             for r in results:
                 all_cves.update(r.cves)
         return cls(all_cves)

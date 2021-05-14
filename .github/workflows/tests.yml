@@ -1,5 +1,8 @@
 name: tests
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+
 
     
 jobs:
@@ -14,9 +17,9 @@ jobs:
           python-version: '3.8'
       - name: Install python dependencies
         run: pip install -r requirements.txt
-      - name : Install pytest and run scripts like Travis does
+      - name : Install pytest and run tests
         run: |
           pip install pytest
           pip install pytest-cov
           pip install ".[dev,test]"
-          pytest test
+          python3 -m unittest discover tests

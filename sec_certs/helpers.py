@@ -1,5 +1,6 @@
+import os
 import re
-from typing import Sequence, Tuple, Optional, Set, List, Dict
+from typing import Sequence, Tuple, Optional, Set, List, Dict, Hashable, Any
 import logging
 import pikepdf
 import requests
@@ -13,16 +14,19 @@ from datetime import date
 import numpy as np
 import pandas as pd
 import subprocess
-import sec_certs.constants as constants
-from enum import Enum
-from rapidfuzz import process, fuzz
-import matplotlib.pyplot as plt
+import copy
 
+
+from enum import Enum
+import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileReader
 
-import sec_certs.extract_certificates as extract_certificates
+import sec_certs.constants
+import sec_certs.constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
 from sec_certs.cert_rules import rules as cc_search_rules
+from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES, TAG_MATCH_MATCHES, \
+    FILE_ERRORS_STRATEGY, LINE_SEPARATOR
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +76,7 @@ def get_sha256_filepath(filepath):
 def sanitize_link(record: str) -> Union[str, None]:
     if not record:
         return None
-    return record.replace(':443', '').replace(' ', '%20')
+    return record.replace(':443', '').replace(' ', '%20').replace('http://', 'https://')
 
 
 def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:
@@ -318,7 +322,7 @@ def search_only_headers_anssi(filepath: Path):
     items_found = {}
 
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
 
         # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
         pos = whole_text.find('')
@@ -351,34 +355,34 @@ def search_only_headers_anssi(filepath: Path):
                 num_rules_hits[rule[1]] += 1  # add hit to this rule
                 match_groups = m.groups()
                 index_next_item = 0
-                items_found[constants.TAG_CERT_ID] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_CERT_ID] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[constants.TAG_CERT_ITEM] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_CERT_ITEM] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
                 if rule[0] == HEADER_TYPE.HEADER_MISSING_CERT_ITEM_VERSION:
                     items_found[constants.TAG_CERT_ITEM_VERSION] = ''
                 else:
-                    items_found[constants.TAG_CERT_ITEM_VERSION] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                    items_found[constants.TAG_CERT_ITEM_VERSION] = normalize_match_string(match_groups[index_next_item])
                     index_next_item += 1
 
                 if rule[0] == HEADER_TYPE.HEADER_MISSING_PROTECTION_PROFILES:
                     items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = ''
                 else:
-                    items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                    items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(match_groups[index_next_item])
                     index_next_item += 1
 
-                items_found[constants.TAG_CC_VERSION] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_CC_VERSION] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[constants.TAG_CC_SECURITY_LEVEL] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_CC_SECURITY_LEVEL] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[constants.TAG_DEVELOPER] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_DEVELOPER] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
 
-                items_found[constants.TAG_CERT_LAB] = extract_certificates.normalize_match_string(match_groups[index_next_item])
+                items_found[constants.TAG_CERT_LAB] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
     except Exception as e:
         error_msg = f'Failed to parse ANSSI frontpage headers from {filepath}; {e}'
@@ -411,7 +415,7 @@ def search_only_headers_bsi(filepath: Path):
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
 
         for rule in rules_certificate_preface:
             rule_and_sep = rule + REGEXEC_SEP
@@ -448,16 +452,16 @@ def search_only_headers_bsi(filepath: Path):
                 if end_pos != -1:
                     developer = developer[:end_pos]
 
-                items_found[constants.TAG_CERT_ID] = extract_certificates.normalize_match_string(cert_id)
-                items_found[constants.TAG_CERT_ITEM] = extract_certificates.normalize_match_string(certified_item)
-                items_found[constants.TAG_DEVELOPER] = extract_certificates.normalize_match_string(developer)
+                items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
+                items_found[constants.TAG_CERT_ITEM] = normalize_match_string(certified_item)
+                items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
                 items_found[constants.TAG_CERT_LAB] = 'BSI'
 
         # Process page with more detailed certificate info
         # PP Conformance, Functionality, Assurance
         rules_certificate_third = ['PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified']
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = extract_certificates.load_cert_file(filepath)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
 
         for rule in rules_certificate_third:
             rule_and_sep = rule + REGEXEC_SEP
@@ -472,9 +476,9 @@ def search_only_headers_bsi(filepath: Path):
                 cc_version = match_groups[1]
                 cc_security_level = match_groups[2]
 
-                items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = extract_certificates.normalize_match_string(ref_protection_profiles)
-                items_found[constants.TAG_CC_VERSION] = extract_certificates.normalize_match_string(cc_version)
-                items_found[constants.TAG_CC_SECURITY_LEVEL] = extract_certificates.normalize_match_string(cc_security_level)
+                items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(ref_protection_profiles)
+                items_found[constants.TAG_CC_VERSION] = normalize_match_string(cc_version)
+                items_found[constants.TAG_CC_SECURITY_LEVEL] = normalize_match_string(cc_security_level)
 
         # print('\n*** Certificates without detected preface:')
         # for file_name in files_without_match:
@@ -488,14 +492,21 @@ def search_only_headers_bsi(filepath: Path):
 
     return constants.RETURNCODE_OK, items_found
 
-def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
+
+def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, Dict[str, int]]]]:
     try:
-        result = extract_certificates.parse_cert_file(filepath, cc_search_rules, -1, extract_certificates.LINE_SEPARATOR)[0]
+        result = parse_cert_file(filepath, cc_search_rules, -1, sec_certs.constants.LINE_SEPARATOR)[0]
+
+        processed_result = {}
+        top_level_keys = list(result.keys())
+        for key in top_level_keys:
+            processed_result[key] = {key: val for key, val in gen_dict_extract(result[key])}
+
     except Exception as e:
         error_msg = f'Failed to parse keywords from: {filepath}; {e}'
         logger.error(error_msg)
         return error_msg, None
-    return constants.RETURNCODE_OK, result
+    return constants.RETURNCODE_OK, processed_result
 
 
 def plot_dataframe_graph(data: Dict, label: str, file_name: str, density: bool = False, cumulative: bool = False, bins: int = 50, log: bool = True, show: bool = True):
@@ -508,4 +519,187 @@ def plot_dataframe_graph(data: Dict, label: str, file_name: str, density: bool =
     if log:
         sorted_data = pd_data.value_counts(ascending=True)
 
-        logging.info(sorted_data.where(sorted_data > 1).dropna())
+    logging.info(sorted_data.where(sorted_data > 1).dropna())
+
+
+def is_in_dict(target_dict, path):
+    current_level = target_dict
+    for item in path:
+        if item not in current_level:
+            return False
+        else:
+            current_level = current_level[item]
+    return True
+
+
+def search_files(folder):
+    for root, dirs, files in os.walk(folder):
+        yield from [os.path.join(root, x) for x in files]
+
+
+def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_text):
+    if is_unicode_text:
+        write_file = open(target_file, "w", encoding="utf8", errors="replace")
+    else:
+        write_file = open(target_file, "w", errors="replace")
+
+    try:
+        write_file.write(modified_cert_file_text)
+    except UnicodeEncodeError as e:
+        print('UnicodeDecodeError while writing file fragments back')
+    finally:
+        write_file.close()
+
+
+def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
+    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        file_name, limit_max_lines, line_separator)
+
+    # apply all rules
+    items_found_all = {}
+    for rule_group in search_rules.keys():
+        if rule_group not in items_found_all:
+            items_found_all[rule_group] = {}
+
+        items_found = items_found_all[rule_group]
+
+        for rule in search_rules[rule_group]:
+            if type(rule) != str:
+                rule_str = rule.pattern
+                rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
+            else:
+                rule_str = rule
+                rule_and_sep = rule + REGEXEC_SEP
+
+            #matches_with_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text_with_newlines))
+            #matches_without_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text))
+            #for m in re.finditer(rule_and_sep, whole_text_with_newlines):
+            for m in re.finditer(rule_and_sep, whole_text):
+                # insert rule if at least one match for it was found
+                if rule not in items_found:
+                    items_found[rule_str] = {}
+
+                match = m.group()
+                match = normalize_match_string(match)
+
+                MAX_ALLOWED_MATCH_LENGTH = 300
+                match_len = len(match)
+                if match_len > MAX_ALLOWED_MATCH_LENGTH:
+                    print('WARNING: Excessive match with length of {} detected for rule {}'.format(match_len, rule))
+
+                if match not in items_found[rule_str]:
+                    items_found[rule_str][match] = {}
+                    items_found[rule_str][match][TAG_MATCH_COUNTER] = 0
+                    if APPEND_DETAILED_MATCH_MATCHES:
+                        items_found[rule_str][match][TAG_MATCH_MATCHES] = []
+                    # else:
+                    #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
+
+                items_found[rule_str][match][TAG_MATCH_COUNTER] += 1
+                match_span = m.span()
+                # estimate line in original text file
+                # line_number = get_line_number(lines, line_length_compensation, match_span[0])
+                # start index, end index, line number
+                # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
+                if APPEND_DETAILED_MATCH_MATCHES:
+                    items_found[rule_str][match][TAG_MATCH_MATCHES].append(
+                        [match_span[0], match_span[1]])
+
+    # highlight all found strings (by xxxxx) from the input text and store the rest
+    all_matches = []
+    for rule_group in items_found_all.keys():
+        items_found = items_found_all[rule_group]
+        for rule in items_found.keys():
+            for match in items_found[rule]:
+                all_matches.append(match)
+
+        # if AES string is removed before AES-128, -128 would be left in text => sort by length first
+        # sort before replacement based on the length of match
+        all_matches.sort(key=len, reverse=True)
+        for match in all_matches:
+            whole_text_with_newlines = whole_text_with_newlines.replace(
+                match, 'x' * len(match))
+
+    return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
+
+
+def normalize_match_string(match):
+    match = match.strip().rstrip('];.”":)(,').rstrip(os.sep).replace('  ', ' ')
+    return ''.join(filter(str.isprintable, match))
+
+
+def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
+    lines = []
+    was_unicode_decode_error = False
+    with open(file_name, 'r', errors=FILE_ERRORS_STRATEGY) as f:
+        try:
+            lines = f.readlines()
+        except UnicodeDecodeError:
+            f.close()
+            was_unicode_decode_error = True
+            print('  WARNING: UnicodeDecodeError, opening as utf8')
+
+            with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+                # coding failure, try line by line
+                line = ' '
+                while line:
+                    try:
+                        line = f2.readline()
+                        lines.append(line)
+                    except UnicodeDecodeError:
+                        # ignore error
+                        continue
+
+    whole_text = ''
+    whole_text_with_newlines = ''
+    # we will estimate the line for searched matches
+    # => we need to known how much lines were modified (removal of eoln..)
+    # for removed newline and for any added separator
+    line_length_compensation = 1 - len(LINE_SEPARATOR)
+    lines_included = 0
+    for line in lines:
+        if limit_max_lines != -1 and lines_included >= limit_max_lines:
+            break
+
+        whole_text_with_newlines += line
+        line = line.replace('\n', '')
+        whole_text += line
+        whole_text += line_separator
+        lines_included += 1
+
+    return whole_text, whole_text_with_newlines, was_unicode_decode_error
+
+
+def load_cert_html_file(file_name):
+    with open(file_name, 'r', errors=FILE_ERRORS_STRATEGY) as f:
+        try:
+            whole_text = f.read()
+        except UnicodeDecodeError:
+            f.close()
+            with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+                try:
+                    whole_text = f2.read()
+                except UnicodeDecodeError:
+                    print('### ERROR: failed to read file {}'.format(file_name))
+    return whole_text
+
+
+def gen_dict_extract(dct: Dict, searched_key: Hashable = 'count'):
+    """
+    Function to flatten dictionary with some serious limitations. We only expect to use it temporarily on dictionary
+    produced by extract_keywords that contains many layers. On the deepest level in that dictionary, 'some_match': {'count': frequency}.
+    The output of the function will be list of tuples ('some_match': frequency)
+    :param searched_key: key to search, 'count'
+    :param dct: Dictionary to search
+    :return: List of tuples
+    """
+    for key, value in dct.items():
+        if key == searched_key:
+            yield value
+        if isinstance(value, dict):
+            for result in gen_dict_extract(value, searched_key):
+                if isinstance(result, tuple):
+                    yield result
+                else:
+                    yield key, result
+

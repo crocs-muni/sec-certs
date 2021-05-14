@@ -1,22 +1,22 @@
 from enum import Enum
 
-N_THREADS = 8
 RESPONSE_OK = 200
 RETURNCODE_OK = 'ok'
 RETURNCODE_NOK = 'nok'
 REQUEST_TIMEOUT = 10
 
-CPE_MATCHING_THRESHOLD = 70
-CPE_MAX_MATCHES = 20
-
 MIN_CORRECT_CERT_SIZE = 5000
 
-LOGS_FILENAME = './cert_processing_log.txt'
+MIN_CC_HTML_SIZE = 5000000
+MIN_CC_CSV_SIZE = 700000
+MIN_CC_PP_DATASET_SIZE = 2500000
 
 class CertFramework(Enum):
     CC = 'Common Criteria'
     FIPS = 'FIPS'
 
+FIPS_BASE_URL = 'https://csrc.nist.gov'
+FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
 TAG_MATCH_COUNTER = 'count'
 TAG_MATCH_MATCHES = 'matches'
@@ -48,3 +48,7 @@ TAG_KEYWORDS = 'keywords'
 FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
 FIPS_ALG_URL = 'https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&page='
 
+FILE_ERRORS_STRATEGY = 'surrogateescape'
+STOP_ON_UNEXPECTED_NUMS = False
+APPEND_DETAILED_MATCH_MATCHES = False
+LINE_SEPARATOR = ' '

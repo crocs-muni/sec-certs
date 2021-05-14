@@ -22,6 +22,7 @@ setup(
         "Topic :: Security :: Cryptography",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research"
     ],
@@ -31,9 +32,10 @@ setup(
         "dev": ["mypy", "flake8"],
         "test": ["pytest", "coverage"]
     },
+    include_package_data=True,
     entry_points="""
         [console_scripts]
-        process-certs=sec_certs.entrypoints.process_certificates:main
+        cc-certs=cc_cli:main
         fips-certs=sec_certs.entrypoints.fips_certificates:main
     """
 )
