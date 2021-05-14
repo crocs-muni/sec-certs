@@ -9,11 +9,12 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/Docker%20Image%20CI?label=Docker%20build&style=flat-square)](https://hub.docker.com/repository/docker/seccerts/sec-certs)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/cc-feature-parity?filepath=notebooks%2Fcc_data_exploration.ipynb)
 
 ## Installation (CC)
 
-The tool requires several Python packages as well as the `pdftotext` binary somewhere on the `PATH`.
-[
+The tool requires `Python >=3.8` and `pdftotext` binary somewhere on the `PATH`.
+
 The stable release is published on [PyPi](https://pypi.org/project/sec-certs/) as well as on [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
 
 ```
@@ -26,52 +27,75 @@ or
 docker pull seccerts/sec-certs
 ```
 
-Alternatively, you can setup the tool for development in a virtual environment, e.g.:
-Install Python virtual environment (if not yet):
+Alternatively, you can setup the tool for development in virtual environment:
+
 ```
-python3 -m pip install --upgrade pip
-pip install virtualenv  
-```
-Setup new local one named 'virt' :
-```
-python3 -m venv virt
-. virt/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -e .
 ```
 
-## Examples
+## Usage
 
-Some examples are documented in [examples](https://github.com/crocs-muni/sec-certs/blob/master/examples/)
+There are two main steps in exploring the world of Common Criteria certificates:
 
-## Old API
+1. Processing all the certificates
+2. Data exploration
 
-The following steps will do a full extraction and analysis of CC certificates:
+For the first step, we currently provide CLI and our already processed fresh snapshot. For the second step, we provide simple API that can be used directly inside our Jupyter notebook or locally, at your machine. 
 
- 1. Make a directory in which the certificates will be downloaded and processing will take place.
-    The contents of the directory are under the control of the tool, and **may be overwritten**!
- 2. Run `python process_certificates.py --fresh --do-download-meta <dir>` to download certificate metadata from the Common Criteria portal.
- 3. Run `python process_certificates.py --fresh --do-extraction-meta <dir>` to extract metadata from the downloaded Common Criteria pages.
- 4. Run `python process_certificates.py --fresh --do-download-certs <dir>` to download the certificate and security target PDF files. This
-    step takes time as there is quite a lot of files. It also takes up a lot of space (around 5GB). It is done in parallel
-    and the number of threads can be changed with the `-t/--threads` switch (the default is 4).
- 5. Run `python process_certificates.py --fresh --do-pdftotext <dir>` to convert the PDF files to text.
- 6. Run `python process_certificates.py --fresh --do-extraction <dir>` to extract information from the certificates and security targets.
- 7. Run `python process_certificates.py --fresh --do-pairing <dir>`.
- 8. Run `python process_certificates.py --fresh --do-processing <dir>` to run various heuristics which will create post-processed section
-   `processed` for every certificate (results are stored in `certificate_data_complete_processed.json`).
- 9. Run `python process_certificates.py --fresh --do-analysis <dir>` to perform analysis of certificates (various graphs, statistics...).
- 10. Open, look and enjoy graphs like `num_certs_in_years.png` or `num_certs_eal_in_years.png`. For `certid_graph.dot.pdf` 
-     and other large graphs use Chrome to display as Adobe Acrobat Reader will fail to show whole graph. 
+### Explore data with MyBinder Jupyter notebook
 
+Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/cc-feature-parity?filepath=notebooks%2Fcc_data_exploration.ipynb).
 
-## Extending the analysis
+### Explore the latest snapshot locally
 
-The analysis can be extended in several ways:
- 1. Additional keywords can be extracted from PDF files (modify `cert_rules.py`)
- 2. Data from `certificate_data_complete.json` can be analyzed in a novel way - this is why this project was concieved at the first place.
- 3. Help to fix problems in data extraction - some PDF files are corrupted, there are many typos even in certificate IDs...
+In Python, run
 
-## How to run the application with a Docker container
+```python
+from sec_certs.dataset.common_criteria import CCDataset
+import pandas as pd
+
+dset = CCDataset.from_web_latest()  # now you can inspect the object, certificates are held in dset.certs
+df = dset.to_pandas()  # Or you can transform the object into Pandas dataframe
+dset.to_json(
+    './latest_cc_snapshot.json')  # You may want to store the snapshot as json, so that you don't have to download it again
+dset = CCDataset.from_json('./latest_cc_snapshot.json')  # you can now load your stored dataset again
+```
+
+### Process CC data with Python
+
+If you wish to fully process the Common Criteria (CC) data by yourself, you can do that as follows. Running
+
+```python
+cc-cli all --output ./cc_dataset
+```
+
+will fully process the Common Criteria dataset, which can take up to 6 hours to finish. You can select only same tasks to run. Calling `cc-cli --help` yields
+
+```
+Usage: cc_cli.py [OPTIONS] [all|build|download|convert|analyze|maintenances]...
+
+  Specify actions, sequence of one or more strings from the following list:
+  [all, build, download, convert, analyze] If 'all' is specified, all
+  actions run against the dataset. Otherwise, only selected actions will run
+  in the correct order.
+
+Options:
+  -o, --output DIRECTORY  Path where the output of the experiment will be
+                          stored. May overwrite existing content.
+
+  -c, --config FILE       Path to your own config yaml file that will override
+                          the default one.
+
+  -i, --input FILE        If set, the actions will be performed on a CC
+                          dataset loaded from JSON from the input path.
+
+  -s, --silent            If set, will not print to stdout
+  --help                  Show this message and exit.
+```
+
+### Process CC data with Docker 
 
  1. pull the image from the DockerHub repository : `docker pull seccerts/sec-certs`
  2. run `docker run --volume ./processed_data:/opt/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
