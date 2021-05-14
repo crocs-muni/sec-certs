@@ -15,6 +15,8 @@ class CertFramework(Enum):
     CC = 'Common Criteria'
     FIPS = 'FIPS'
 
+FIPS_BASE_URL = 'https://csrc.nist.gov'
+FIPS_MODULE_URL = 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/'
 
 TAG_MATCH_COUNTER = 'count'
 TAG_MATCH_MATCHES = 'matches'
