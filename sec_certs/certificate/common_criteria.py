@@ -169,7 +169,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             if not self.keywords_rules_cert_id:
                 return None
 
-            candidates = [(x, y['count']) for x, y in self.keywords_rules_cert_id.values()]
+            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.values()]
             candidates = sorted(candidates,  key=operator.itemgetter(1), reverse=True)
             return candidates[0][0]
 

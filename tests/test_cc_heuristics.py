@@ -97,21 +97,18 @@ class TestCommonCriteriaHeuristics(TestCase):
         extracted_keywords: Dict = self.cc_dset['ebd276cca70fd723'].pdf_data.st_keywords
 
         self.assertTrue('rules_security_level' in extracted_keywords)
-        self.assertEqual(list(extracted_keywords['rules_security_level'].values())[0]['EAL3']['count'], 1)
+        self.assertEqual(extracted_keywords['rules_security_level']['EAL3'], 1)
 
         self.assertTrue('rules_security_assurance_components' in extracted_keywords)
-        self.assertEqual(
-            list(extracted_keywords['rules_security_assurance_components'].values())[0]['ADV_ARC.1']['count'], 1)
-        self.assertEqual(
-            list(extracted_keywords['rules_security_assurance_components'].values())[0]['ADV_FSP.3']['count'], 1)
-        self.assertEqual(
-            list(extracted_keywords['rules_security_assurance_components'].values())[0]['ADV_TDS.2']['count'], 1)
+        self.assertEqual(extracted_keywords['rules_security_assurance_components']['ADV_ARC.1'], 1)
+        self.assertEqual(extracted_keywords['rules_security_assurance_components']['ADV_FSP.3'], 1)
+        self.assertEqual(extracted_keywords['rules_security_assurance_components']['ADV_TDS.2'], 1)
 
         self.assertTrue('rules_crypto_algs' in extracted_keywords)
-        self.assertEqual(list(extracted_keywords['rules_crypto_algs'].values())[0]['AES']['count'], 2)
+        self.assertEqual(extracted_keywords['rules_crypto_algs']['AES'], 2)
 
         self.assertTrue('rules_block_cipher_modes' in extracted_keywords)
-        self.assertEqual(list(extracted_keywords['rules_block_cipher_modes'].values())[0]['CBC']['count'], 2)
+        self.assertEqual(extracted_keywords['rules_block_cipher_modes']['CBC'], 2)
 
     def test_protection_profiles_matching(self):
         artificial_pp: ProtectionProfile = ProtectionProfile('Korean National Protection Profile for Single Sign On V1.0',

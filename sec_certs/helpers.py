@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Sequence, Tuple, Optional, Set, List, Dict
+from typing import Sequence, Tuple, Optional, Set, List, Dict, Hashable, Any
 import logging
 import pikepdf
 import requests
@@ -14,6 +14,7 @@ from datetime import date
 import numpy as np
 import pandas as pd
 import subprocess
+import copy
 
 
 from enum import Enum
@@ -485,14 +486,20 @@ def search_only_headers_bsi(filepath: Path):
     return constants.RETURNCODE_OK, items_found
 
 
-def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, str]]]:
+def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, Dict[str, int]]]]:
     try:
         result = parse_cert_file(filepath, cc_search_rules, -1, sec_certs.constants.LINE_SEPARATOR)[0]
+
+        processed_result = {}
+        top_level_keys = list(result.keys())
+        for key in top_level_keys:
+            processed_result[key] = {key: val for key, val in gen_dict_extract(result[key])}
+
     except Exception as e:
         error_msg = f'Failed to parse keywords from: {filepath}; {e}'
         logger.error(error_msg)
         return error_msg, None
-    return constants.RETURNCODE_OK, result
+    return constants.RETURNCODE_OK, processed_result
 
 
 def analyze_matched_algs(data: Dict):
@@ -652,6 +659,7 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
 
     return whole_text, whole_text_with_newlines, was_unicode_decode_error
 
+
 def load_cert_html_file(file_name):
     with open(file_name, 'r', errors=FILE_ERRORS_STRATEGY) as f:
         try:
@@ -664,3 +672,24 @@ def load_cert_html_file(file_name):
                 except UnicodeDecodeError:
                     print('### ERROR: failed to read file {}'.format(file_name))
     return whole_text
+
+
+def gen_dict_extract(dct: Dict, searched_key: Hashable = 'count'):
+    """
+    Function to flatten dictionary with some serious limitations. We only expect to use it temporarily on dictionary
+    produced by extract_keywords that contains many layers. On the deepest level in that dictionary, 'some_match': {'count': frequency}.
+    The output of the function will be list of tuples ('some_match': frequency)
+    :param searched_key: key to search, 'count'
+    :param dct: Dictionary to search
+    :return: List of tuples
+    """
+    for key, value in dct.items():
+        if key == searched_key:
+            yield value
+        if isinstance(value, dict):
+            for result in gen_dict_extract(value, searched_key):
+                if isinstance(result, tuple):
+                    yield result
+                else:
+                    yield key, result
+
