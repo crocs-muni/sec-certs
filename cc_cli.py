@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.command()
-@click.argument('actions', required=True, nargs=-1, type=click.Choice(['all', 'build', 'download', 'convert', 'analyze'], case_sensitive=False))
+@click.argument('actions', required=True, nargs=-1, type=click.Choice(['all', 'build', 'download', 'convert', 'analyze', 'maintenances'], case_sensitive=False))
 @click.option('-o', '--output', type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True),
               help='Path where the output of the experiment will be stored. May overwrite existing content.')
 @click.option('-c', '--config', 'configpath', default=None, type=click.Path(file_okay=True, dir_okay=False, writable=True, readable=True),
@@ -91,6 +91,11 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
             sys.exit(1)
         dset.extract_data()
         dset.compute_heuristics()
+
+    if 'maintenances' in actions:
+        if not dset.state.meta_sources_parsed:
+            print('Error: You want to process maintenance updates, but the data from commoncriteria.org was not parsed. You must use \'build\' action first.')
+            sys.exit(1)
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
