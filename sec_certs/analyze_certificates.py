@@ -313,6 +313,11 @@ def build_cert_references(filter_rules_group, all_items_found):
     # build list of references
     referenced_by = {}
     for cert_long_id in all_items_found.keys():
+        # handle FIPS
+        if 'FIPS Certificate' in all_items_found[cert_long_id]['frontpage_scan']:
+            referenced_by[cert_long_id] = copy.deepcopy(all_items_found[cert_long_id]['processed']['connections'])
+            continue
+
         # do not continue if no keywords were extracted ()
         if 'keywords_scan' not in all_items_found[cert_long_id].keys():
             continue
@@ -368,9 +373,15 @@ def build_cert_references(filter_rules_group, all_items_found):
 
 
 def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
+    handling_fips_items = False
     # build cert_id to item name mapping
     certid_info = {}
     for cert_long_id in all_items_found.keys():
+        if 'FIPS Certificate' in all_items_found[cert_long_id]['frontpage_scan']:
+            certid_info[cert_long_id] = cert_long_id
+            handling_fips_items = True
+            continue
+
         cert = all_items_found[cert_long_id]
         if is_in_dict(cert, ['processed', 'cert_id']):
             if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
@@ -383,6 +394,10 @@ def analyze_references_graph(filter_rules_group, all_items_found, filter_label):
     # build cert_id to cert_long_id mapping
     cert_id_to_long_id_mapping = {}
     for cert_long_id in all_items_found.keys():
+        if 'FIPS Certificate' in all_items_found[cert_long_id]['frontpage_scan']:
+            cert_id_to_long_id_mapping[cert_long_id] = cert_long_id
+            continue
+
         cert = all_items_found[cert_long_id]
         if is_in_dict(cert, ['processed', 'cert_id']):
             if is_in_dict(cert, ['frontpage_scan', 'cert_item']):
@@ -483,7 +498,10 @@ def plot_schemes_multi_line_graph(x_ticks, data, prominent_data, x_label, y_labe
 
         # change line type to prevent color repetitions
         num_lines_plotted += 1
-        color_index += 1
+        if color_index < len(GRAPHS_COLOR_PALETTE) - 1:
+            color_index += 1
+        else:
+            color_index = 0
 
     plt.rcParams.update({'font.size': 16})
     plt.legend(loc=2)
@@ -1125,28 +1143,30 @@ def transform_fips_to_cc_dict(all_cert_items_fips):
 
         cc_item = {}
         cc_item["csv_scan"] = {}
-        cc_item["frontpage_scan"] = {}
-        cc_item["keywords_scan"] = {}
-        cc_item["pdfmeta_scan"] = {}
-        cc_item["processed"] = {}
+        cc_item["frontpage_scan"] = {'FIPS Certificate': 1}
+        cc_item["keywords_scan"] = fips_item['pdf_scan']['keywords']
+        cc_item["pdfmeta_scan"] = fips_item['pdf_scan']
+        cc_item["processed"] = fips_item['processed']
 
-        cc_item["processed"]["cc_manufacturer_list"] = fips_item["vendor"]
-        cc_item['processed']['cc_manufacturer_simple_list'] = [fips_item["vendor"]]
+        fips_web_scan = fips_item['web_scan']
+
+        cc_item["processed"]["cc_manufacturer_list"] = fips_web_scan["vendor"]
+        cc_item['processed']['cc_manufacturer_simple_list'] = [fips_web_scan["vendor"]]
         cc_item["processed"]["cert_id"] = fips_item["cert_id"]
-        cc_item["processed"]["cert_lab"] = fips_item["lab"]
-        if fips_item["exceptions"] is None:
-            cc_item["processed"]["cc_security_level"] = 'Level ' + fips_item["level"]
+        cc_item["processed"]["cert_lab"] = fips_web_scan["lab"]
+        if fips_web_scan["exceptions"] is None:
+            cc_item["processed"]["cc_security_level"] = 'Level ' + fips_web_scan["level"]
         else:
-            cc_item["processed"]["cc_security_level"] = 'Level ' + fips_item["level"] + '+'
+            cc_item["processed"]["cc_security_level"] = 'Level ' + fips_web_scan["level"] + '+'
 
         cc_item['csv_scan']['cc_scheme'] = 'NIST'
-        cc_item["csv_scan"]["cc_certification_date"] = fips_item["date_validation"][0]
-        cc_item["csv_scan"]["cc_archived_date"] = fips_item["date_sunset"]
-        cc_item["csv_scan"]["cc_category"] = '{} {}'.format(fips_item["type"], fips_item["embodiment"])
+        cc_item["csv_scan"]["cc_certification_date"] = fips_web_scan["date_validation"][0]
+        cc_item["csv_scan"]["cc_archived_date"] = fips_web_scan["date_sunset"]
+        cc_item["csv_scan"]["cc_category"] = '{} {}'.format(fips_web_scan["module_type"], fips_web_scan["embodiment"])
 
         cc_item["processed"]["cc_security_level_augments"] = []
-        if fips_item["exceptions"]:
-            for exception in fips_item["exceptions"]:
+        if fips_web_scan["exceptions"]:
+            for exception in fips_web_scan["exceptions"]:
                 try:
                     ex_name, ex_level = exception.split(':')
                     ex_name = ex_name.strip()
