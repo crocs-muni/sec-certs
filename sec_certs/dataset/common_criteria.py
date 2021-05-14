@@ -92,11 +92,20 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def copy_dataset_contents(self, old_dset: 'CCDataset'):
         if old_dset.state.meta_sources_parsed:
-            shutil.copytree(old_dset.web_dir, self.web_dir)
+            try:
+                shutil.copytree(old_dset.web_dir, self.web_dir)
+            except FileNotFoundError as e:
+                logger.warning(f'Attempted to copy non-existing file: {e}')
         if old_dset.state.pdfs_downloaded:
-            shutil.copytree(old_dset.certs_dir, self.certs_dir)
+            try:
+                shutil.copytree(old_dset.certs_dir, self.certs_dir)
+            except FileNotFoundError as e:
+                logger.warning(f'Attempted to copy non-existing file: {e}')
         if old_dset.state.certs_analyzed:
-            shutil.copytree(old_dset.auxillary_datasets_dir, self.auxillary_datasets_dir)
+            try:
+                shutil.copytree(old_dset.auxillary_datasets_dir, self.auxillary_datasets_dir)
+            except FileNotFoundError as e:
+                logger.warning(f'Attempted to copy non-existing file: {e}')
 
     @property
     def web_dir(self) -> Path:
