@@ -87,15 +87,7 @@
                     "pp_ids": null
                 }
             ],
-            "maintainance_updates": [
-                {
-                    "_type": "MaintainanceReport",
-                    "maintainance_date": "2020-08-17",
-                    "maintainance_title": "SonicWall SonicOS Enhanced V6.5.4 with VPN and IPS on TZ and SOHO Appliances Security",
-                    "maintainance_report_link": "https://www.commoncriteriaportal.org/files/epfiles/st_vid11028-add1.pdf",
-                    "maintainance_st_link": "https://www.commoncriteriaportal.org/files/epfiles/st_vid11028-st-1.pdf"
-                }
-            ],
+            "maintainance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_link_ok": true,
