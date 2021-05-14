@@ -677,6 +677,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         compute_cert_labs()
         compute_cert_ids()
 
+        self.state.certs_analyzed = True
+
         if update_json is True:
             self.to_json(self.json_path)
 
