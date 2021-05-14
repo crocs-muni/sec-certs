@@ -36,6 +36,10 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
     if output:
         output = Path(output)
 
+    if not inputpath and not output:
+        print('Error: You did not specify path to load the dataset from, nor did you specify where dataset can be stored.')
+        sys.exit(1)
+
     if not silent:
         handlers.append(stream_handler)
 
