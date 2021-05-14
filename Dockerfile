@@ -1,5 +1,16 @@
 FROM ubuntu
 
+ARG NB_USER
+ARG NB_UID
+ENV USER ${NB_USER}
+ENV HOME /home/${NB_USER}
+
+RUN adduser --disabled-password \
+    --gecos "Default user" \
+    --uid ${NB_UID} \
+    ${NB_USER}
+WORKDIR ${HOME}
+
 #installing dependencies
 RUN apt-get update
 RUN apt-get install python3 -y
@@ -25,6 +36,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN cp /opt/sec-certs/requirements.txt .
 RUN pip install wheel
 RUN pip install -r requirements.txt
+RUN pip install --no-cache notebook
 #just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}
 
