@@ -23,9 +23,6 @@ class ProtectionProfile(ComplexSerializableType):
         super().__setattr__('pp_name', helpers.sanitize_string(self.pp_name))
         super().__setattr__('pp_link', helpers.sanitize_link(self.pp_link))
 
-    def to_dict(self):
-        return copy.deepcopy(self.__dict__)
-
     @classmethod
     def from_dict(cls, dct):
         new_dct = copy.deepcopy(dct)
