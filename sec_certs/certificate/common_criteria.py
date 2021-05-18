@@ -42,13 +42,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                                 helpers.sanitize_string(self.maintainance_title))
             super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct):
-            return cls(*tuple(dct.values()))
-
         def __lt__(self, other):
             return self.maintainance_date < other.maintainance_date
 
@@ -82,16 +75,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             else:
                 self.errors = errors
 
-        def to_dict(self):
-            return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
-                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok,
-                    'st_extract_ok': self.st_extract_ok, 'report_extract_ok': self.report_extract_ok,
-                    'errors': self.errors}
-
-        @classmethod
-        def from_dict(cls, dct: Dict[str, bool]):
-            return cls(*tuple(dct.values()))
-
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
         report_metadata: Dict[str, Any]
@@ -114,12 +97,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         def __bool__(self):
             return any([x is not None for x in vars(self)])
-
-        def to_dict(self):
-            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata,
-                    'report_frontpage': self.report_frontpage,
-                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
-                    'st_keywords': self.st_keywords}
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
@@ -177,10 +154,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def cert_id(self) -> Optional[str]:
             return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
-        @classmethod
-        def from_dict(cls, dct: Dict[str, bool]):
-            return cls(*tuple(dct.values()))
-
     @dataclass
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
@@ -195,15 +168,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
+        @property
+        def serialized_attributes(self) -> List[str]:
+            all_vars = copy.deepcopy(super().serialized_attributes)
+            all_vars.remove('cpe_candidate_vendors')
+            return all_vars
+
         def __post_init__(self):
             self.cpe_candidate_vendors = None
-
-        def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'labeled': self.labeled, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab, 'cert_id': self.cert_id}
-
-        @classmethod
-        def from_dict(cls, dct: Dict[str, str]):
-            return cls(*tuple(dct.values()))
 
     pandas_columns = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level',
                       'not_valid_before', 'not_valid_after', 'report_link', 'st_link',

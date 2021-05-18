@@ -36,12 +36,9 @@ class CPE(ComplexSerializableType):
             self.item_name = ' '.join(self.uri.split(':')[4].split('_'))
             self.version = self.uri.split(':')[5]
 
-    def to_dict(self):
-        return {'uri': self.uri, 'title': self.title}
-
-    @classmethod
-    def from_dict(cls, dct: Dict[str, str]):
-        return cls(*tuple(dct.values()))
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['uri', 'title']
 
     def __hash__(self):
         return hash(self.uri)

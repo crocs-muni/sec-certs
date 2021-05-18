@@ -1,21 +1,26 @@
 import json
 from datetime import date
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
+import copy
 
-from abc import ABC, abstractmethod
 
+class ComplexSerializableType:
+    # Ideally, the serialized_fields would be an class variable referencing itself, but that it virtually impossible
+    # to achieve without using metaclasses. Not to complicate the code, we choose instance variable.
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return list(self.__dict__.keys())
 
-class ComplexSerializableType(ABC):
+    def __init__(self, *args):
+        pass
+
+    def to_dict(self):
+        return {key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes}
+
     @classmethod
-    @abstractmethod
-    def to_dict(cls):
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
     def from_dict(cls, dct: Dict):
-        raise NotImplementedError
+        return cls(*(tuple(dct.values())))
 
 
 class CustomJSONEncoder(json.JSONEncoder):

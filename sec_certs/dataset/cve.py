@@ -28,13 +28,6 @@ class CVE(ComplexSerializableType):
         explotability_score: float
         impact_score: float
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct: Dict):
-            return cls(*tuple(dct.values()))
-
         @classmethod
         def from_nist_dict(cls, dct: Dict):
             """
@@ -56,13 +49,6 @@ class CVE(ComplexSerializableType):
     cve_id: str
     vulnerable_cpes: List[str]
     impact: Impact
-
-    def to_dict(self):
-        return copy.deepcopy(self.__dict__)
-
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        return cls(*tuple(dct.values()))
 
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> 'CVE':
@@ -102,12 +88,9 @@ class CVEDataset(ComplexSerializableType):
 
     cve_url: ClassVar[str] = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
 
-    def to_dict(self):
-        return copy.deepcopy({'cves': self.cves})
-
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        return cls(*tuple(dct.values()))
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['cves']
 
     def __post_init__(self):
         self.cpes_to_cve_lookup = dict()

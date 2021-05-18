@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from bs4 import BeautifulSoup
 
@@ -12,8 +12,8 @@ from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, 
 from sec_certs.certificate.fips import FIPSCertificate
 from sec_certs.configuration import config
 
-class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
 
+class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def get_certs_from_web(self):
         self.root_dir.mkdir(exist_ok=True)
         algs_paths, algs_urls = [], []
@@ -69,8 +69,9 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def download_all_pdfs(self):
         raise NotImplementedError('Not meant to be implemented')
 
-    def to_dict(self):
-        return {"certs": self.certs}
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['certs']
 
     @classmethod
     def from_dict(cls, dct: Dict):
