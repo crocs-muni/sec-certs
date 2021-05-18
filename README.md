@@ -46,7 +46,7 @@ For the first step, we currently provide CLI and our already processed fresh sna
 
 ### Explore data with MyBinder Jupyter notebook
 
-Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/cc-feature-parity?filepath=notebooks%2Fcc_data_exploration.ipynb).
+Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcc_data_exploration.ipynb).
 
 ### Explore the latest snapshot locally
 
