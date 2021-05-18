@@ -68,7 +68,7 @@ dset = CCDataset.from_json('./latest_cc_snapshot.json')  # you can now load your
 If you wish to fully process the Common Criteria (CC) data by yourself, you can do that as follows. Running
 
 ```python
-cc-cli all --output ./cc_dataset
+cc-certs all --output ./cc_dataset
 ```
 
 will fully process the Common Criteria dataset, which can take up to 6 hours to finish. You can select only same tasks to run. Calling `cc-cli --help` yields

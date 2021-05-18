@@ -33,9 +33,10 @@ setup(
         "test": ["pytest", "coverage"]
     },
     include_package_data=True,
-    entry_points="""
-        [console_scripts]
-        cc-certs=cc_cli:main
-        fips-certs=sec_certs.entrypoints.fips_certificates:main
-    """
+    entry_points={
+        'console_scripts': [
+            'cc-certs=cc_cli:main',
+            'fips-certs=sec_certs.entrypoints.fips_certificates:main'
+        ]
+    }
 )
