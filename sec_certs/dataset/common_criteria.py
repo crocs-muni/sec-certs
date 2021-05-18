@@ -34,15 +34,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         txt_data_extracted: bool = False
         certs_analyzed: bool = False
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
         def __bool__(self):
             return any(vars(self))
-
-        @classmethod
-        def from_dict(cls, dct: Dict[str, bool]):
-            return cls(*tuple(dct.values()))
 
     certs: Dict[str, 'CommonCriteriaCert']
 

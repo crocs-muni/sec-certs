@@ -13,7 +13,7 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 
 ## Installation (CC)
 
-The tool requires `Python >=3.8` and `pdftotext` binary somewhere on the `PATH`.
+The tool requires `Python >=3.8` and `pdftotext` binary somewhere on the `PATH` ([More info about pdftotext dependencies](https://pypi.org/project/pdftotext/)).
 
 The stable release is published on [PyPi](https://pypi.org/project/sec-certs/) as well as on [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
 
@@ -68,7 +68,7 @@ dset = CCDataset.from_json('./latest_cc_snapshot.json')  # you can now load your
 If you wish to fully process the Common Criteria (CC) data by yourself, you can do that as follows. Running
 
 ```python
-cc-cli all --output ./cc_dataset
+cc-certs all --output ./cc_dataset
 ```
 
 will fully process the Common Criteria dataset, which can take up to 6 hours to finish. You can select only same tasks to run. Calling `cc-cli --help` yields

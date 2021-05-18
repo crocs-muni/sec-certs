@@ -1,6 +1,7 @@
 import copy
 import logging
-from typing import Union, Optional, Set, Dict, ClassVar, List
+from abc import ABC
+from typing import Optional, Dict, List
 from datetime import date
 
 import sec_certs.helpers as helpers
@@ -11,9 +12,7 @@ from sec_certs.certificate.certificate import Certificate
 logger = logging.getLogger(__name__)
 
 
-class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert):
-    relevant_fields: ClassVar[List[str]] = ['name', 'report_link', 'st_link', 'state', 'pdf_data', 'heuristics', 'related_cert_digest', 'maintenance_date']
-
+class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ABC):
     def __init__(self, name: str, report_link: str, st_link: str,
                  state: Optional[CommonCriteriaCert.InternalState],
                  pdf_data: Optional[CommonCriteriaCert.PdfData],
@@ -27,15 +26,16 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert):
         self.maintenance_date = maintenance_date
 
     @property
+    def serialized_attributes(self) -> List[str]:
+        return ['name', 'report_link', 'st_link', 'state', 'pdf_data', 'heuristics', 'related_cert_digest', 'maintenance_date']
+
+    @property
     def dgst(self):
         return 'cert_' + self.related_cert_digest + '_update_' + helpers.get_first_16_bytes_sha256(self.name)
 
     @classmethod
     def from_dict(cls, dct: Dict) -> 'CommonCriteriaMaintenanceUpdate':
         return Certificate.from_dict(dct)
-
-    def to_dict(self):
-        return {key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.relevant_fields}
 
     @classmethod
     def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert):
