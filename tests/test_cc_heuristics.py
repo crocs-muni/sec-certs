@@ -25,8 +25,8 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset.process_protection_profiles()
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
-        cls.cc_dset.extract_data()
-        cls.cc_dset.compute_heuristics()
+        cls.cc_dset._extract_data()
+        cls.cc_dset._compute_heuristics()
 
         cls.cpes = [CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
                          "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2"),

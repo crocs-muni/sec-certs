@@ -47,8 +47,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
-        st_link_ok: bool
-        report_link_ok: bool
+        st_download_ok: bool
+        report_download_ok: bool
         st_convert_ok: bool
         report_convert_ok: bool
         st_extract_ok: bool
@@ -59,12 +59,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_txt_path: Path
         errors: Optional[List[str]]
 
-        def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
+        def __init__(self, st_download_ok: bool = True, report_download_ok: bool = True,
                      st_convert_ok: bool = True, report_convert_ok: bool = True,
                      st_extract_ok: bool = True, report_extract_ok: bool = True,
                      errors: Optional[List[str]] = None):
-            self.st_link_ok = st_link_ok
-            self.report_link_ok = report_link_ok
+            self.st_download_ok = st_download_ok
+            self.report_download_ok = report_download_ok
             self.st_convert_ok = st_convert_ok
             self.report_convert_ok = report_convert_ok
             self.st_extract_ok = st_extract_ok
@@ -74,6 +74,26 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 self.errors = []
             else:
                 self.errors = errors
+
+        def report_is_ok_to_download(self, fresh: bool = True):
+            return True if fresh else not self.report_download_ok
+
+        def st_is_ok_to_download(self, fresh: bool = True):
+            return True if fresh else not self.st_download_ok
+
+        def report_is_ok_to_convert(self, fresh: bool = True):
+            return self.report_download_ok if fresh else self.report_download_ok and not self.report_convert_ok
+
+        def st_is_ok_to_convert(self, fresh: bool = True):
+            return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
+
+        def report_is_ok_to_analyze(self, fresh: bool = True):
+            # Currently extract_ok watches two things at once: extraction of stuff from txt and heuristics
+            return self.report_convert_ok and self.report_extract_ok if fresh else self.report_convert_ok and not self.report_extract_ok
+
+        def st_is_ok_to_analyze(self, fresh: bool = True):
+            # Currently extract_ok watches two things at once: extraction of stuff from txt and heuristics
+            return self.st_convert_ok and self.st_extract_ok if fresh else self.st_convert_ok and not self.st_extract_ok
 
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
@@ -405,7 +425,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if exit_code != requests.codes.ok:
             error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
-            cert.state.report_link_ok = False
+            cert.state.report_download_ok = False
             cert.state.errors.append(error_msg)
         return cert
 
@@ -415,7 +435,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if exit_code != requests.codes.ok:
             error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
-            cert.state.st_link_ok = False
+            cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         return cert
 
