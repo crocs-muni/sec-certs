@@ -5,7 +5,6 @@
         "meta_sources_parsed": true,
         "pdfs_downloaded": false,
         "pdfs_converted": false,
-        "txt_data_extracted": false,
         "certs_analyzed": false
     },
     "timestamp": "2021-04-16 15:05:18.386794",
@@ -36,8 +35,8 @@
             "maintainance_updates": [],
             "state": {
                 "_type": "InternalState",
-                "st_link_ok": true,
-                "report_link_ok": true,
+                "st_download_ok": true,
+                "report_download_ok": true,
                 "st_convert_ok": true,
                 "report_convert_ok": true,
                 "st_extract_ok": true,

@@ -89,8 +89,7 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
         if not dset.state.pdfs_converted:
             print('Error: You want to process txt documents of certificates, but pdfs were not converted. You must use \'convert\' action first.')
             sys.exit(1)
-        dset.extract_data()
-        dset.compute_heuristics()
+        dset.analyze_certificates()
 
     if 'maintenances' in actions:
         if not dset.state.meta_sources_parsed:
