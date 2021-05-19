@@ -29,7 +29,7 @@ def serialize(func: callable):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
             raise ValueError('@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes.')
 
-        update_json = kwargs.pop('update_json', False)
+        update_json = kwargs.pop('update_json', True)
         func(*args, **kwargs)
 
         if update_json:
