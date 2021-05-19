@@ -12,6 +12,7 @@ import json
 
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
+from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
 from sec_certs.dataset.cpe import CPEDataset
@@ -742,12 +743,12 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         cpe_dset = self.prepare_cpe_dataset()
 
-        for annotation in [x for x in data if 'verified_cpe_match' in x]:
-            match_keys = annotation['verified_cpe_match']['choices']
-            if isinstance(match_keys, str):
-                match_keys = [match_keys]
-            match_keys = [x[1:] for x in match_keys]
-            cpes = itertools.chain.from_iterable([cpe_dset.get_cpes_from_title(annotation[x]) for x in match_keys])
+        logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
+        for annotation in tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
+            match_keys = annotation['verified_cpe_match']
+            match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
+            match_keys = [x.lstrip('$') for x in match_keys]
+            cpes = list(itertools.chain.from_iterable([cpe_dset.get_cpes_from_title(annotation[x]) for x in match_keys]))
             certs = self.get_certs_from_name(annotation['text'])
 
             for c in certs:

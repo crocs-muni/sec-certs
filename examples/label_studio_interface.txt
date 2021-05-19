@@ -1,0 +1,30 @@
+<View>
+  <Text name="text" value="$text"/>
+  <View style="box-shadow: 2px 2px 5px #999; padding: 20px; margin-top: 2em; border-radius: 5px;">
+    <Header value="Choose CPE match"/>
+    <Choices name="verified_cpe_match" toName="text" choice="multiple" showInLine="false">
+      <View classname="cls-name">
+        <Choice value="$option_1"/>
+      </View>
+      <Choice value="$option_2"/>
+      <Choice value="$option_3"/>
+      <Choice value="$option_4"/>
+      <Choice value="$option_5"/>
+      <Choice value="$option_6"/>
+      <Choice value="$option_7"/>
+      <Choice value="$option_8"/>
+      <Choice value="$option_9"/>
+      <Choice value="$option_10"/>
+      <Choice value="$option_11"/>
+      <Choice value="$option_12"/>
+      <Choice value="$option_13"/>
+      <Choice value="$option_14"/>
+      <Choice value="$option_15"/>
+      <Choice value="$option_16"/>
+      <Choice value="$option_17"/>
+      <Choice value="$option_18"/>
+      <Choice value="$option_19"/>
+      <Choice value="$option_20"/>
+    </Choices>
+  </View>
+</View>
