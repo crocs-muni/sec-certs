@@ -17,7 +17,7 @@ from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization import ComplexSerializableType, serialize
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
@@ -244,8 +244,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         if not keep_metadata:
             self.pp_dataset_path.unlink()
 
+    @serialize
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
-                           get_archived: bool = True, update_json: bool = True):
+                           get_archived: bool = True):
         """
         Parses all metadata about certificates
         """
@@ -268,9 +269,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.set_local_paths()
         self.state.meta_sources_parsed = True
-
-        if update_json is True:
-            self.to_json(self.json_path)
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
         """
@@ -449,7 +447,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
         cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, config.n_threads)
 
-    def download_all_pdfs(self, fresh: bool = True, update_json: bool = True):
+    @serialize
+    def download_all_pdfs(self, fresh: bool = True):
         if self.state.meta_sources_parsed is False:
             logger.error('Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.')
             return
@@ -469,9 +468,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.pdfs_downloaded = True
 
-        if update_json is True:
-            self.to_json(self.json_path)
-
     def _convert_reports_to_txt(self, fresh: bool = True):
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_convert(fresh)]
@@ -482,7 +478,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_convert(fresh)]
         cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf, certs_to_process, config.n_threads)
 
-    def convert_all_pdfs(self, fresh: bool = True, update_json: bool = True):
+    @serialize
+    def convert_all_pdfs(self, fresh: bool = True):
         if self.state.pdfs_downloaded is False:
             logger.info('Attempting to convert pdf while not having them downloaded. Returning.')
             return
@@ -501,9 +498,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             self._convert_targets_to_txt(False)
 
         self.state.pdfs_converted = True
-
-        if update_json is True:
-            self.to_json(self.json_path)
 
     def _extract_report_metadata(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
@@ -616,7 +610,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._compute_cert_labs()
         self._compute_cert_ids()
 
-    def analyze_certificates(self, update_json: bool = True, fresh: bool = True):
+    @serialize
+    def analyze_certificates(self, fresh: bool = True):
         if self.state.pdfs_converted is False:
             logger.info('Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning.')
             return
@@ -625,9 +620,6 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._compute_heuristics()
 
         self.state.certs_analyzed = True
-
-        if update_json is True:
-            self.to_json()
 
     def manually_verify_cpe_matches(self, update_json=True):
         def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
@@ -696,16 +688,14 @@ class CCDataset(Dataset, ComplexSerializableType):
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
 
+    @serialize
     def load_label_studio_labels(self, input_path: Union[str, Path]):
         with Path(input_path).open('r') as handle:
             data = json.load(handle)
 
         cpe_dset = self.prepare_cpe_dataset()
 
-        for annotation in data:
-            if 'verified_cpe_match' not in annotation:
-                continue
-
+        for annotation in [x for x in data if 'verified_cpe_match' in x]:
             match_keys = annotation['verified_cpe_match']['choices']
             if isinstance(match_keys, str):
                 match_keys = [match_keys]
@@ -715,6 +705,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = cpes
+
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
@@ -744,7 +735,7 @@ class CCDatasetMaintenanceUpdates(CCDataset):
     def __iter__(self) -> CommonCriteriaMaintenanceUpdate:
         yield from self.certs.values()
 
-    def _compute_heuristics(self, update_json=True, download_fresh_cpes: bool = False):
+    def _compute_heuristics(self, download_fresh_cpes: bool = False):
         raise NotImplementedError
 
     def compute_related_cves(self, download_fresh_cves: bool = False):

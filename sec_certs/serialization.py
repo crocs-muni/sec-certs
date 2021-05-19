@@ -23,6 +23,20 @@ class ComplexSerializableType:
         return cls(*(tuple(dct.values())))
 
 
+# Decorator for serialization
+def serialize(func: callable):
+    def inner_func(*args, **kwargs):
+        if not args or not issubclass(type(args[0]), ComplexSerializableType):
+            raise ValueError('@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes.')
+
+        update_json = kwargs.pop('update_json', False)
+        func(*args, **kwargs)
+
+        if update_json:
+            args[0].to_json()
+    return inner_func
+
+
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ComplexSerializableType):
