@@ -53,11 +53,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_convert_ok: bool
         st_extract_ok: bool
         report_extract_ok: bool
+        errors: Optional[List[str]]
+
         st_pdf_path: Path
         report_pdf_path: Path
         st_txt_path: Path
         report_txt_path: Path
-        errors: Optional[List[str]]
 
         def __init__(self, st_download_ok: bool = True, report_download_ok: bool = True,
                      st_convert_ok: bool = True, report_convert_ok: bool = True,
@@ -75,6 +76,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             else:
                 self.errors = errors
 
+        @property
+        def serialized_attributes(self) -> List[str]:
+            return ['st_download_ok', 'report_download_ok', 'st_convert_ok', 'report_convert_ok', 'st_extract_ok',
+                    'report_extract_ok', 'errors']
+
         def report_is_ok_to_download(self, fresh: bool = True):
             return True if fresh else not self.report_download_ok
 
@@ -88,12 +94,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
 
         def report_is_ok_to_analyze(self, fresh: bool = True):
-            # Currently extract_ok watches two things at once: extraction of stuff from txt and heuristics
-            return self.report_convert_ok and self.report_extract_ok if fresh else self.report_convert_ok and not self.report_extract_ok
+            if fresh is True:
+                return self.report_download_ok and self.report_convert_ok and self.report_extract_ok
+            else:
+                return self.report_download_ok and self.report_convert_ok and not self.report_extract_ok
 
         def st_is_ok_to_analyze(self, fresh: bool = True):
-            # Currently extract_ok watches two things at once: extraction of stuff from txt and heuristics
-            return self.st_convert_ok and self.st_extract_ok if fresh else self.st_convert_ok and not self.st_extract_ok
+            if fresh is True:
+                return self.st_download_ok and self.st_convert_ok and self.st_extract_ok
+            else:
+                return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
@@ -166,7 +176,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             if not self.keywords_rules_cert_id:
                 return None
 
-            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.values()]
+            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.items()]
             candidates = sorted(candidates,  key=operator.itemgetter(1), reverse=True)
             return candidates[0][0]
 

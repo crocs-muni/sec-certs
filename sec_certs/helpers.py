@@ -204,8 +204,8 @@ def extract_pdf_metadata(filepath: Path):
             metadata['pdf_is_encrypted'] = pdf.getIsEncrypted()
             metadata['pdf_number_of_pages'] = pdf.getNumPages()
 
-            for key, val in pdf.getDocumentInfo().items():
-                metadata[key] = str(val)
+            pdf_document_info = pdf.getDocumentInfo()
+            metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
 
     except Exception as e:
         error_msg = f'Failed to read metadata of {filepath}, error: {e}'
