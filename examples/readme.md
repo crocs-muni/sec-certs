@@ -74,7 +74,7 @@ We strongly suggest you try the process with `dset.manually_verify_cpe_matches(u
 
 Would you want to exit in the middle and return back after a while, just exit with CTRL+C. You can then label the rest of the unlabeled certificates with
 
-```
+```python
 dset = CCDataset.from_json('./my_debug_datset/cc_full_dataset.json')
 dset.manually_verify_cpe_matches()
 ```
