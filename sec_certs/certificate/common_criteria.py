@@ -94,12 +94,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
 
         def report_is_ok_to_analyze(self, fresh: bool = True):
-            # Currently extract_ok watches two things at once: extraction of stuff from txt and heuristics
-            return self.report_convert_ok and self.report_extract_ok if fresh else self.report_convert_ok and not self.report_extract_ok
+            if fresh is True:
+                return self.report_download_ok and self.report_convert_ok and self.report_extract_ok
+            else:
+                return self.report_download_ok and self.report_convert_ok and not self.report_extract_ok
 
         def st_is_ok_to_analyze(self, fresh: bool = True):
-            # Currently extract_ok watches two things at once: extraction of stuff from txt and heuristics
-            return self.st_convert_ok and self.st_extract_ok if fresh else self.st_convert_ok and not self.st_extract_ok
+            if fresh is True:
+                return self.st_download_ok and self.st_convert_ok and self.st_extract_ok
+            else:
+                return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
