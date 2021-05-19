@@ -13,7 +13,7 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 
 ## Installation (CC)
 
-The tool requires `Python >=3.8` and `pdftotext` binary somewhere on the `PATH` ([More info about pdftotext dependencies](https://pypi.org/project/pdftotext/)).
+The tool requires `Python >=3.8` and [pdftotext](https://www.xpdfreader.com/pdftotext-man.html) binary somewhere on the `PATH`.
 
 The stable release is published on [PyPi](https://pypi.org/project/sec-certs/) as well as on [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
 
