@@ -440,12 +440,18 @@ class CCDataset(Dataset, ComplexSerializableType):
     def _download_reports(self, fresh=True):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report, certs_to_process, config.n_threads)
+        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Downloading reports')
 
     def _download_targets(self, fresh=True):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, config.n_threads)
+        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Downloading targets')
 
     @serialize
     def download_all_pdfs(self, fresh: bool = True):
@@ -471,12 +477,18 @@ class CCDataset(Dataset, ComplexSerializableType):
     def _convert_reports_to_txt(self, fresh: bool = True):
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_convert(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.convert_report_pdf, certs_to_process, config.n_threads)
+        cert_processing.process_parallel(CommonCriteriaCert.convert_report_pdf,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Converting reports to txt')
 
     def _convert_targets_to_txt(self, fresh: bool = True):
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.st_is_ok_to_convert(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf, certs_to_process, config.n_threads)
+        cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Converting targets to txt')
 
     @serialize
     def convert_all_pdfs(self, fresh: bool = True):
@@ -506,12 +518,20 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _extract_report_metadata(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting report metadata')
         self.update_with_certs(processed_certs)
 
     def _extract_targets_metadata(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting target metadata')
         self.update_with_certs(processed_certs)
 
     def extract_pdf_metadata(self, fresh: bool = True):
@@ -521,12 +541,20 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _extract_report_frontpage(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting report frontpages')
         self.update_with_certs(processed_certs)
 
     def _extract_targets_frontpage(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting target frontpages')
         self.update_with_certs(processed_certs)
 
     def extract_pdf_frontpage(self, fresh: bool = True):
@@ -536,12 +564,20 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _extract_report_keywords(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting report keywords')
         self.update_with_certs(processed_certs)
 
     def _extract_targets_keywords(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting target keywords')
         self.update_with_certs(processed_certs)
 
     def extract_pdf_keywords(self, fresh: bool = True):
@@ -628,8 +664,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             return
 
         self._extract_data(fresh)
-        self.to_json()
-        # self._compute_heuristics()
+        self._compute_heuristics()
 
         self.state.certs_analyzed = True
 
@@ -717,7 +752,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = cpes
-
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
