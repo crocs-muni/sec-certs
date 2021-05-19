@@ -43,6 +43,11 @@ class Dataset(ABC):
     def json_path(self) -> Path:
         return self.root_dir / (self.name + '.json')
 
+    def __contains__(self, item):
+        if not issubclass(type(item), Certificate):
+            return False
+        return item.dgst in self.certs
+
     def __iter__(self):
         yield from self.certs.values()
 
