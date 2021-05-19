@@ -499,13 +499,20 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.pdfs_converted = True
 
+    def update_with_certs(self, certs: List[CommonCriteriaCert]):
+        if any([x not in self for x in certs]):
+            logger.warning('Updating dataset with certificates outside of the dataset!')
+        self.certs.update({x.dgst: x for x in certs})
+
     def _extract_report_metadata(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process, config.n_threads, use_threading=False)
+        self.update_with_certs(processed_certs)
 
     def _extract_targets_metadata(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process, config.n_threads, use_threading=False)
+        self.update_with_certs(processed_certs)
 
     def extract_pdf_metadata(self, fresh: bool = True):
         logger.info('Extracting pdf metadata from CC dataset')
@@ -514,11 +521,13 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _extract_report_frontpage(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process, config.n_threads, use_threading=False)
+        self.update_with_certs(processed_certs)
 
     def _extract_targets_frontpage(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process, config.n_threads, use_threading=False)
+        self.update_with_certs(processed_certs)
 
     def extract_pdf_frontpage(self, fresh: bool = True):
         logger.info('Extracting pdf frontpages from CC dataset.')
@@ -527,11 +536,13 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _extract_report_keywords(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process, config.n_threads, use_threading=False)
+        self.update_with_certs(processed_certs)
 
     def _extract_targets_keywords(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process, config.n_threads, use_threading=False)
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process, config.n_threads, use_threading=False)
+        self.update_with_certs(processed_certs)
 
     def extract_pdf_keywords(self, fresh: bool = True):
         logger.info('Extracting pdf keywords from CC dataset.')
@@ -617,7 +628,8 @@ class CCDataset(Dataset, ComplexSerializableType):
             return
 
         self._extract_data(fresh)
-        self._compute_heuristics()
+        self.to_json()
+        # self._compute_heuristics()
 
         self.state.certs_analyzed = True
 
