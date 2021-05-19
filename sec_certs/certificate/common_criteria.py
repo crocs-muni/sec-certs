@@ -53,11 +53,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_convert_ok: bool
         st_extract_ok: bool
         report_extract_ok: bool
+        errors: Optional[List[str]]
+
         st_pdf_path: Path
         report_pdf_path: Path
         st_txt_path: Path
         report_txt_path: Path
-        errors: Optional[List[str]]
 
         def __init__(self, st_download_ok: bool = True, report_download_ok: bool = True,
                      st_convert_ok: bool = True, report_convert_ok: bool = True,
@@ -74,6 +75,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 self.errors = []
             else:
                 self.errors = errors
+
+        @property
+        def serialized_attributes(self) -> List[str]:
+            return ['st_download_ok', 'report_download_ok', 'st_convert_ok', 'report_convert_ok', 'st_extract_ok',
+                    'report_extract_ok', 'errors']
 
         def report_is_ok_to_download(self, fresh: bool = True):
             return True if fresh else not self.report_download_ok
