@@ -33,6 +33,9 @@ setup(
         "test": ["pytest", "coverage"]
     },
     include_package_data=True,
+    package_data={
+        'sec_certs': ['settings.yaml']
+    },
     entry_points={
         'console_scripts': [
             'cc-certs=cc_cli:main',
