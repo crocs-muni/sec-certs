@@ -753,6 +753,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = cpes
+                c.heuristics.labeled = True
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
