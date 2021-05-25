@@ -748,7 +748,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             match_keys = annotation['verified_cpe_match']
             match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
             match_keys = [x.lstrip('$') for x in match_keys]
-            cpes = list(itertools.chain.from_iterable([cpe_dset.get_cpes_from_title(annotation[x]) for x in match_keys]))
+            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
             certs = self.get_certs_from_name(annotation['text'])
 
             for c in certs:
