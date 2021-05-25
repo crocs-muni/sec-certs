@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, Optional, Union, List, Tuple
 import json
 
+import numpy as np
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
@@ -63,6 +64,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
         df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
         df = df.astype({'category': 'category', 'status': 'category', 'scheme': 'category'})
+        df = df.fillna(value=np.nan)
 
         return df
 
