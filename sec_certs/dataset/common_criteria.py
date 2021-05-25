@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, Optional, Union, List, Tuple
 import json
 
+import numpy as np
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
@@ -63,6 +64,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
         df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
         df = df.astype({'category': 'category', 'status': 'category', 'scheme': 'category'})
+        df = df.fillna(value=np.nan)
 
         return df
 
@@ -748,11 +750,12 @@ class CCDataset(Dataset, ComplexSerializableType):
             match_keys = annotation['verified_cpe_match']
             match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
             match_keys = [x.lstrip('$') for x in match_keys]
-            cpes = list(itertools.chain.from_iterable([cpe_dset.get_cpes_from_title(annotation[x]) for x in match_keys]))
+            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
             certs = self.get_certs_from_name(annotation['text'])
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = cpes
+                c.heuristics.labeled = True
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]

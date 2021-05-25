@@ -36,6 +36,9 @@ class CPE(ComplexSerializableType):
             self.item_name = ' '.join(self.uri.split(':')[4].split('_'))
             self.version = self.uri.split(':')[5]
 
+    def __lt__(self, other: 'CPE'):
+        return self.title < other.title
+
     @property
     def serialized_attributes(self) -> List[str]:
         return ['uri', 'title']
@@ -65,6 +68,7 @@ class CPEDataset:
     cpes: Dict[str, CPE]
     vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
     vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
+    title_to_cpes: Dict[str, Set[CPE]] = field(init=False) # Look-up dict title: List of cert items
     vendors: Set[str] = field(init=False)
 
     cpe_xml_basename: ClassVar[str] = 'official-cpe-dictionary_v2.3.xml'
@@ -89,6 +93,7 @@ class CPEDataset:
         logging.info('CPE dataset: building lookup dictionaries.')
         self.vendor_to_versions = {x.vendor: set() for x in self}
         self.vendor_version_to_cpe = dict()
+        self.title_to_cpes = dict()
         self.vendors = set(self.vendor_to_versions.keys())
         for cpe in self:
             self.vendor_to_versions[cpe.vendor].add(cpe.version)
@@ -96,6 +101,10 @@ class CPEDataset:
                 self.vendor_version_to_cpe[(cpe.vendor, cpe.version)] = {cpe}
             else:
                 self.vendor_version_to_cpe[(cpe.vendor, cpe.version)].add(cpe)
+            if cpe.title not in self.title_to_cpes:
+                self.title_to_cpes[cpe.title] = {cpe}
+            else:
+                self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
     def from_json(cls, json_path: Union[str, Path]):
