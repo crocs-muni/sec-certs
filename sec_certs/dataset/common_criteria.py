@@ -719,7 +719,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         if not verified_cpe_rich_certs:
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
-        for cert in verified_cpe_rich_certs:
+
+        relevant_cpes = itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs])
+        relevant_cpes = set([x.uri for x in relevant_cpes])
+        cve_dset.filter_related_cpes(relevant_cpes)
+
+        for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
 
     def to_label_studio_json(self, output_path: Union[str, Path]):
