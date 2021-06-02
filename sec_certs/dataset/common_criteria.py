@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Dict, Optional, Union, List, Tuple, Set
 import json
 
 import numpy as np
@@ -16,7 +16,7 @@ from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
-from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cpe import CPEDataset, CPE
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, serialize
@@ -442,7 +442,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _download_reports(self, fresh=True):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
         cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report,
                                          certs_to_process,
                                          config.n_threads,
@@ -774,7 +774,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         update_dset._extract_data()
 
 
-class CCDatasetMaintenanceUpdates(CCDataset):
+class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """

@@ -1,18 +1,22 @@
 import copy
 import logging
 from abc import ABC
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, ClassVar
 from datetime import date
 
 import sec_certs.helpers as helpers
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
 from sec_certs.certificate.certificate import Certificate
+from sec_certs.serialization import ComplexSerializableType
 
 
 logger = logging.getLogger(__name__)
 
 
-class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ABC):
+class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableType):
+    pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'report_link', 'st_link', 'extracted_versions',
+                                           'related_cert_digest', 'maintenance_date']
+
     def __init__(self, name: str, report_link: str, st_link: str,
                  state: Optional[CommonCriteriaCert.InternalState],
                  pdf_data: Optional[CommonCriteriaCert.PdfData],

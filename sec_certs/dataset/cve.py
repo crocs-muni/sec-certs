@@ -9,6 +9,8 @@ import glob
 import json
 from dateutil.parser import isoparse
 
+import pandas as pd
+
 from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
@@ -49,6 +51,8 @@ class CVE(ComplexSerializableType):
     vulnerable_cpes: List[str]
     impact: Impact
     published_date: Optional[datetime.datetime]
+    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'base_score', 'severity', 'explotability_score',
+                                        'impact_score', 'published_date')
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[str], impact: Impact, published_date: str):
         super().__init__()
@@ -91,12 +95,15 @@ class CVE(ComplexSerializableType):
 
         return CVE(cve_id, vulnerable_cpes, impact, published_date)
 
+    def to_pandas_tuple(self):
+        return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
+                self.impact.explotability_score, self.impact.impact_score, self.published_date)
+
 
 @dataclass(eq=True)
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
     cpes_to_cve_lookup: Dict[str, List[CVE]] = field(init=False)
-
     cve_url: Final[str] = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
 
     @property
@@ -105,6 +112,7 @@ class CVEDataset(ComplexSerializableType):
 
     def __post_init__(self):
         self.cpes_to_cve_lookup = dict()
+        self.cves = {x.cve_id.upper(): x for x in self}
         for cve in self:
             for cpe in cve.vulnerable_cpes:
                 if not cpe in self.cpes_to_cve_lookup:
@@ -116,7 +124,7 @@ class CVEDataset(ComplexSerializableType):
         yield from self.cves.values()
 
     def __getitem__(self, item: str) -> CVE:
-        return self.cves.__getitem__(item.lower())
+        return self.cves.__getitem__(item.upper())
 
     def __setitem__(self, key: str, value: CVE):
         self.cves.__setitem__(key.lower(), value)
@@ -190,3 +198,9 @@ class CVEDataset(ComplexSerializableType):
         """
         for cve in self:
             cve.vulnerable_cpes = list(filter(lambda x: x in relevant_cpe_uris, cve.vulnerable_cpes))
+
+    def to_pandas(self) -> pd.DataFrame:
+        tuples = [x.to_pandas_tuple() for x in self]
+        cols = CVE.pandas_columns
+        df = pd.DataFrame(tuples, columns=cols)
+        return df.set_index('cve_id')
