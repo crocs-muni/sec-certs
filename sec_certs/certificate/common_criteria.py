@@ -261,7 +261,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
-        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level,\
+        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
                self.heuristics.related_cves

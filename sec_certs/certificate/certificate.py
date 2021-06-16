@@ -6,12 +6,12 @@ import json
 from abc import ABC, abstractmethod
 from typing import Union, TypeVar, Type
 
-from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
 
-class Certificate(ABC):
+class Certificate(ABC, ComplexSerializableType):
     T = TypeVar('T', bound='Certificate')
 
     def __init__(self, *args, **kwargs):
@@ -32,7 +32,7 @@ class Certificate(ABC):
         return self.dgst == other.dgst
 
     def to_dict(self):
-        return {**{'dgst': self.dgst}, **copy.deepcopy(self.__dict__)}
+        return {**{'dgst': self.dgst}, **{key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes}}
 
     @classmethod
     def from_dict(cls: Type[T], dct: dict) -> T:

@@ -19,7 +19,7 @@ from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.cpe import CPEDataset, CPE
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization import ComplexSerializableType, serialize
+from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
@@ -795,3 +795,28 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
     def compute_related_cves(self, download_fresh_cves: bool = False):
         raise NotImplementedError
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        input_path = Path(input_path)
+        with input_path.open('r') as handle:
+            dset = json.load(handle, cls=CustomJSONDecoder)
+        return dset
+
+    def to_pandas(self):
+        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
+        cols = CommonCriteriaMaintenanceUpdate.pandas_columns
+
+        df = pd.DataFrame(tuples, columns=cols)
+        df = df.set_index('dgst')
+        df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
+        df = df.fillna(value=np.nan)
+
+        return df
+
+    @classmethod
+    def from_web_latest(cls):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / 'cc_maintenances_latest_dataset.json'
+            helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)
+            return cls.from_json(dset_path)
