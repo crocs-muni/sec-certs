@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union, Any, Set
+from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
 
 import requests
 from bs4 import Tag
@@ -207,10 +207,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def __post_init__(self):
             self.cpe_candidate_vendors = None
 
-    pandas_columns = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level',
-                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link',
-                      'manufacturer_web', 'extracted_versions', 'cpe_matches', 'verified_cpe_matches',
-                      'related_cves']
+    pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
+                                        'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
+                                        'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
+                                        'verified_cpe_matches', 'related_cves']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -261,7 +261,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
-        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level,\
+        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
                self.heuristics.related_cves
@@ -431,7 +431,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
+        if not cert.report_link:
+            exit_code = 'No link'
+        else:
+            exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
         if exit_code != requests.codes.ok:
             error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
@@ -441,7 +444,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        if not cert.st_link:
+            exit_code = 'No link'
+        else:
+            exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
             error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)

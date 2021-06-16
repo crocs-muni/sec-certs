@@ -13,7 +13,8 @@
                 "severity": "MEDIUM",
                 "explotability_score": 3.9,
                 "impact_score": 1.4
-            }
+            },
+            "publishedDate": "2021-05-26T04:15Z"
         },
         "CVE-2019-4513": {
             "_type": "CVE",
@@ -27,7 +28,8 @@
                 "severity": "HIGH",
                 "explotability_score": 3.9,
                 "impact_score": 4.2
-            }
+            },
+            "publishedDate": "2000-05-26T04:15Z"
         }
     }
 }

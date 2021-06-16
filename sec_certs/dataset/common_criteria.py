@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Dict, Optional, Union, List, Tuple, Set
 import json
 
 import numpy as np
@@ -16,10 +16,10 @@ from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
-from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cpe import CPEDataset, CPE
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization import ComplexSerializableType, serialize
+from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
@@ -442,7 +442,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _download_reports(self, fresh=True):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
         cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report,
                                          certs_to_process,
                                          config.n_threads,
@@ -719,7 +719,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         if not verified_cpe_rich_certs:
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
-        for cert in verified_cpe_rich_certs:
+
+        relevant_cpes = itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs])
+        relevant_cpes = set([x.uri for x in relevant_cpes])
+        cve_dset.filter_related_cpes(relevant_cpes)
+
+        for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
 
     def to_label_studio_json(self, output_path: Union[str, Path]):
@@ -769,7 +774,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         update_dset._extract_data()
 
 
-class CCDatasetMaintenanceUpdates(CCDataset):
+class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
@@ -790,3 +795,28 @@ class CCDatasetMaintenanceUpdates(CCDataset):
 
     def compute_related_cves(self, download_fresh_cves: bool = False):
         raise NotImplementedError
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        input_path = Path(input_path)
+        with input_path.open('r') as handle:
+            dset = json.load(handle, cls=CustomJSONDecoder)
+        return dset
+
+    def to_pandas(self):
+        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
+        cols = CommonCriteriaMaintenanceUpdate.pandas_columns
+
+        df = pd.DataFrame(tuples, columns=cols)
+        df = df.set_index('dgst')
+        df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
+        df = df.fillna(value=np.nan)
+
+        return df
+
+    @classmethod
+    def from_web_latest(cls):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / 'cc_maintenances_latest_dataset.json'
+            helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)
+            return cls.from_json(dset_path)

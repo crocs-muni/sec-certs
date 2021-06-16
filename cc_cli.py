@@ -95,6 +95,7 @@ def main(configpath: Optional[str], actions: List[str], inputpath: Optional[Path
         if not dset.state.meta_sources_parsed:
             print('Error: You want to process maintenance updates, but the data from commoncriteria.org was not parsed. You must use \'build\' action first.')
             sys.exit(1)
+        dset.process_maintenance_updates()
 
     end = datetime.now()
     logger.info(f'The computation took {(end-start)} seconds.')
