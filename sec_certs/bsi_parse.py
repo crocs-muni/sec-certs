@@ -16,12 +16,16 @@ architecture of the BSI page we should use:
     Get a list of all <a> elements that have a <td class = * white-space-nowrap> as parent
 """
 
+"""
+https://www.bsi.bund.de/EN/Topics/Certification/certified_products/Archiv_reports.html?nn=513452
+this link leads to all of the certs before 2010, and gather links to all of their pdfs
+"""
+
 test_url = "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/Digitale_Signatur_Kartenlesegeraete/1046.html" \
            ";jsessionid=AF4A9C0B7D27992808B8EA8C426454BE.internet461?nn=513452 "
 
 root_url = "https://www.bsi.bund.de/EN/Topics/Certification/certified_products/digital_signature" \
            "/digital_signature_node.html "
-
 
 # root_page = requests.get(root_url)
 #
@@ -53,41 +57,7 @@ root_url = "https://www.bsi.bund.de/EN/Topics/Certification/certified_products/d
 # print(link_list)
 
 
-class BsiHandler(ComplexSerializableType):
-    """
-    Class used to retrieve the links for all products under a category
-    The handler will be on a page that contains the links to the archived certs
-    This class will then
-    """
-
-    root_url: str
-    link_list: list
-    soup: BeautifulSoup
-
-    def __init__(self, root_url):
-        self.root_url = root_url
-        self.soup = BeautifulSoup(requests.get(self.root_url).content, "html.parser")
-        self.link_list = []
-        self.archive_list = []
-
-    def parse(self):
-        # Iterating over the anchors to filter them
-
-        a_link_list = []
-        # Find the products displayed on the page
-        for a in self.soup.find_all('a', href=True, recursive=True):
-            if 'white-space-nowrap' in str(a.parent.get('class')):
-                a_link_list.append(a)
-        # Retrieve all the links from the anchor list in a proper format
-        for a in a_link_list:
-            self.link_list.append("https://www.bsi.bund.de/" + a['href'])
-
-        # Find the link to the archive pages
-        archive_link_list = []
-        for a in self.soup.find_all('a', href=True, recursive=True,
-                                    title=re.compile('Archive')):  # use of a regex to find the keyword
-            self.archive_list.append("https://www.bsi.bund.de/" + a['href'])
-
+HANDLER_LIST = []
 
 """
 Class used to browse BSI webpage -> get link to all categories
@@ -96,13 +66,17 @@ retrieve the links to the products
 """
 
 
-class BsiBrowser(BsiHandler):
-    handler_list: list[BsiHandler]
+class BsiBrowser(ComplexSerializableType):
+    url: str
+    handler_list: list
     link_list: list
 
     def __init__(self, url):
-        super().__init__(url)
+        self.root_url = root_url
+        self.soup = BeautifulSoup(requests.get(self.root_url).content, "html.parser")
+        self.link_list = []
         self.handler_list = []
+        self.archive_list = []
 
     def parse(self):
         """
@@ -118,13 +92,64 @@ class BsiBrowser(BsiHandler):
         for a in a_link_list:
             link = "https://www.bsi.bund.de/" + a['href']
             self.link_list.append(link)
+            handler = BsiHandler(link)
+            self.handler_list.append(handler)
+            # HANDLER_LIST.append(handler)
+
+
+class BsiHandler(BsiBrowser):
+    """
+    Class used to retrieve the links for all products under a category
+    """
+
+    url: str
+    link_list: list
+    soup: BeautifulSoup
+
+    def __init__(self, url):
+        self.url = url
+        self.soup = BeautifulSoup(requests.get(self.root_url).content, "html.parser")
+        self.link_list = []
+        self.handler_list = []
+
+    def parse(self):
+        # Iterating over the anchors to filter them
+
+        a_link_list = []
+        # Find the products displayed on the page
+        for a in self.soup.find_all('a', href=True, recursive=True):
+            if 'white-space-nowrap' in str(a.parent.get('class')):
+                a_link_list.append(a)
+        # Retrieve all the links from the anchor list in a proper format
+        for a in a_link_list:
+            self.link_list.append("https://www.bsi.bund.de/" + a['href'])
+
+        # -------------Finding the link to the archived certs---------------------------------------------
+        for a in self.soup.find_all('a', href=True, recursive=True,
+                                    title=re.compile('Archive')):  # use of a regex to find the keyword
+            self.link_list.append("https://www.bsi.bund.de/" + a['href'])
+        for link in self.link_list:
             self.handler_list.append(BsiHandler(link))
+        for handler in self.handler_list:
+            handler.parse()
+        # ------------------------------------------------------------------------------------------------
 
 
-"""
-To end the processing, a last class will be used with final links
-to retrieve simple data written on the page
-"""
+# class BsiArchive(BsiBrowser):
+#     """
+#     This class will be on the same level as handler, and will instantiate handlers one layer down
+#     """
+#
+#     def parse(self):
+#         for a in self.soup.find_all('a', href=True, recursive=True,
+#                                     title=re.compile('Archive')):  # use of a regex to find the keyword
+#             self.link_list.append("https://www.bsi.bund.de/" + a['href'])
+#         for link in self.link_list:
+#             self.handler_list.append(BsiHandler(link))
+
+
+# To end the processing, a last class will be used with final links
+# to retrieve simple data written on the page
 
 
 class Bsitmp(ComplexSerializableType):
@@ -168,7 +193,7 @@ def process(root_url: str):
 
 start = time.time()
 result = process(root_url)
-end = time.time()-start
+end = time.time() - start
 print(end)
 print(len(result))
 
@@ -190,4 +215,4 @@ testsoup = BeautifulSoup(requests.get(
     'https://www.bsi.bund.de/EN/Topics/Certification/certified_products/digital_signature/digital_signature_node.html').content,
                          "html.parser")
 
-archive_search(testsoup)
+# archive_search(testsoup)
