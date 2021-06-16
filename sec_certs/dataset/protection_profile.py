@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ProtectionProfileDataset:
-    static_dataset_url: ClassVar[str] = 'https://is.muni.cz/go/yodfo8'
+    static_dataset_url: ClassVar[str] = 'https://ajanovsky.cz/pp_data_complete_processed.json'
 
     pps: Dict[Tuple[str, str], ProtectionProfile]
 
