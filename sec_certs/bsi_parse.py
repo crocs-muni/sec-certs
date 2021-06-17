@@ -73,7 +73,7 @@ class BsiBrowser(ComplexSerializableType):
 
     def __init__(self, url):
         self.root_url = root_url
-        self.soup = BeautifulSoup(requests.get(self.root_url).content, "html.parser")
+        self.soup = BeautifulSoup(requests.get(self.url).content, "html.parser")
         self.link_list = []
         self.handler_list = []
         self.archive_list = []
