@@ -108,7 +108,7 @@ class BsiHandler(BsiBrowser):
 
     def __init__(self, url):
         self.url = url
-        self.soup = BeautifulSoup(requests.get(self.root_url).content, "html.parser")
+        self.soup = BeautifulSoup(requests.get(self.url).content, "html.parser")
         self.link_list = []
         self.handler_list = []
 
@@ -130,8 +130,9 @@ class BsiHandler(BsiBrowser):
             self.link_list.append("https://www.bsi.bund.de/" + a['href'])
         for link in self.link_list:
             self.handler_list.append(BsiHandler(link))
-        for handler in self.handler_list:
-            handler.parse()
+        if len(self.handler_list) != 0:
+            for handler in self.handler_list:
+                handler.parse()
         # ------------------------------------------------------------------------------------------------
 
 
@@ -161,6 +162,7 @@ class Bsitmp(ComplexSerializableType):
     valid_until: str
     soup: BeautifulSoup
     id: str
+    pdf_links: list[str]
 
     def __init__(self, url):
         # self.html_content = pd.read_html(url)
@@ -168,6 +170,9 @@ class Bsitmp(ComplexSerializableType):
         # self.valid_until = self.html_content[0].to_numpy()[4][1]
         self.soup = BeautifulSoup(requests.get(url).content, "html.parser")
         self.id = self.soup.find("meta", property='title')
+        self.pdf_links = []
+        for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf'):
+            self.pdf_links.append("https://www.bsi.bund.de/" + a['href'])
 
 
 subpage = Bsitmp(test_url)
@@ -176,8 +181,8 @@ subpage = Bsitmp(test_url)
 # print(subpage.certification_date)
 
 
-def process(root_url: str):
-    browser = BsiBrowser(root_url)
+def process(base_url: str):
+    browser = BsiBrowser(base_url)
     browser.parse()
     tmp_list = []
     for handler in browser.handler_list:
@@ -186,8 +191,10 @@ def process(root_url: str):
             temp = Bsitmp(url)
             # print(temp.html_content)
             tmp_list.append(temp)
-        for link in handler.archive_list:
-            arch_handler = BsiHandler(link)
+        for arch_handler in handler.handler_list:
+            for arch_url in arch_handler.link_list:
+                arch_temp = Bsitmp(arch_url)
+                tmp_list.append(arch_temp)
     return tmp_list
 
 
@@ -200,7 +207,7 @@ print(len(result))
 
 def archive_search(soup: BeautifulSoup):
     """
-    #TODO finish the traversal, according to the page achitecture, finding the <a> elements with a title containing
+    #TODO finish the traversal, according to the page architecture, finding the <a> elements with a title containing
     'Archive'
     The easiest way would be to run the search on each page with a handler
     """
