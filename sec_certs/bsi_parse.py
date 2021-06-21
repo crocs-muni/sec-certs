@@ -127,9 +127,7 @@ class BsiHandler(BsiBrowser):
         # -------------Finding the link to the archived certs---------------------------------------------
         for a in self.soup.find_all('a', href=True, recursive=True,
                                     title=re.compile('Archive')):  # use of a regex to find the keyword
-            self.link_list.append("https://www.bsi.bund.de/" + a['href'])
-        for link in self.link_list:
-            self.handler_list.append(BsiHandler(link))
+            self.handler_list.append(BsiHandler("https://www.bsi.bund.de/" + a['href']))
         if len(self.handler_list) != 0:
             for handler in self.handler_list:
                 handler.parse()
