@@ -27,37 +27,6 @@ test_url = "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/Digitale_Signat
 root_url = "https://www.bsi.bund.de/EN/Topics/Certification/certified_products/digital_signature" \
            "/digital_signature_node.html "
 
-# root_page = requests.get(root_url)
-#
-# root_html_content = pd.read_html(root_url).__str__()
-#
-# soup = BeautifulSoup(root_page.content, "html.parser")
-#
-# """
-# Class linked to the parents of the anchors we need
-# """
-# BSI_LINK_CLASS = {'odd', 'white-space-nowrap', 'even'}
-#
-# link_row_list = soup.find_all('a', href=True, recursive=True)
-#
-# a_link_list = []
-# """
-# Iterating over the anchors to filter them
-# """
-# for a in link_row_list:
-#     if 'white-space-nowrap' in str(a.parent.get('class')):
-#         a_link_list.append(a)
-# print(a_link_list)
-# link_list = []
-# """
-# Retrieve all the links from the anchor list in a proper format
-# """
-# for a in a_link_list:
-#     link_list.append("https://www.bsi.bund.de/" + a['href'])
-# print(link_list)
-
-
-HANDLER_LIST = []
 
 """
 Class used to browse BSI webpage -> get link to all categories
@@ -79,22 +48,11 @@ class BsiBrowser(ComplexSerializableType):
         self.archive_list = []
 
     def parse(self):
-        """
-        Iterating over the anchors to filter them
-        """
-        a_link_list = []
-        for a in self.soup.find_all('a', href=True, recursive=True):
-            if 'c-navigation-teaser' in str(a.get('class')):
-                a_link_list.append(a)
-        """
-        Retrieve all the links from the anchor list in a proper format
-        """
-        for a in a_link_list:
-            link = "https://www.bsi.bund.de/" + a['href']
-            self.link_list.append(link)
-            handler = BsiHandler(link)
-            self.handler_list.append(handler)
-            # HANDLER_LIST.append(handler)
+
+        self.handler_list = \
+            [BsiHandler("https://www.bsi.bund.de/" + a['href'])
+             for a in self.soup.find_all('a', href=True, recursive=True)
+             if 'c-navigation-teaser' in str(a.get('class'))]
 
 
 class BsiHandler(BsiBrowser):
@@ -113,38 +71,21 @@ class BsiHandler(BsiBrowser):
         self.handler_list = []
 
     def parse(self):
-        # Iterating over the anchors to filter them
 
-        a_link_list = []
-        # Find the products displayed on the page
-        for a in self.soup.find_all('a', href=True, recursive=True):
-            if 'white-space-nowrap' in str(a.parent.get('class')):
-                a_link_list.append(a)
-        # Retrieve all the links from the anchor list in a proper format
-        for a in a_link_list:
-            self.link_list.append("https://www.bsi.bund.de/" + a['href'])
+        self.link_list = \
+            ["https://www.bsi.bund.de/" + a['href'] for a in self.soup.find_all('a', href=True, recursive=True) if
+             'white-space-nowrap' in str(a.parent.get('class'))]
 
-        # -------------Finding the link to the archived certs---------------------------------------------
-        for a in self.soup.find_all('a', href=True, recursive=True,
-                                    title=re.compile('Archive')):  # use of a regex to find the keyword
-            self.handler_list.append(BsiHandler("https://www.bsi.bund.de/" + a['href']))
+        self.handler_list = \
+            [BsiHandler("https://www.bsi.bund.de/" + a['href'])
+             for a in self.soup.find_all('a', href=True, recursive=True, title=re.compile('Archive'))]
+
         if len(self.handler_list) != 0:
             for handler in self.handler_list:
                 handler.parse()
+
         # ------------------------------------------------------------------------------------------------
 
-
-# class BsiArchive(BsiBrowser):
-#     """
-#     This class will be on the same level as handler, and will instantiate handlers one layer down
-#     """
-#
-#     def parse(self):
-#         for a in self.soup.find_all('a', href=True, recursive=True,
-#                                     title=re.compile('Archive')):  # use of a regex to find the keyword
-#             self.link_list.append("https://www.bsi.bund.de/" + a['href'])
-#         for link in self.link_list:
-#             self.handler_list.append(BsiHandler(link))
 
 
 # To end the processing, a last class will be used with final links
@@ -168,15 +109,11 @@ class Bsitmp(ComplexSerializableType):
         # self.valid_until = self.html_content[0].to_numpy()[4][1]
         self.soup = BeautifulSoup(requests.get(url).content, "html.parser")
         self.id = self.soup.find("meta", property='title')
-        self.pdf_links = []
-        for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf'):
-            self.pdf_links.append("https://www.bsi.bund.de/" + a['href'])
-
-
-subpage = Bsitmp(test_url)
-
-
-# print(subpage.certification_date)
+        self.pdf_links = \
+            ["https://www.bsi.bund.de/" + a['href']
+             for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf')]
+        # for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf'):
+        #     self.pdf_links.append("https://www.bsi.bund.de/" + a['href'])
 
 
 def process(base_url: str):
@@ -201,23 +138,3 @@ result = process(root_url)
 end = time.time() - start
 print(end)
 print(len(result))
-
-
-def archive_search(soup: BeautifulSoup):
-    """
-    #TODO finish the traversal, according to the page architecture, finding the <a> elements with a title containing
-    'Archive'
-    The easiest way would be to run the search on each page with a handler
-    """
-    archive_link_list = []
-    for a in soup.find_all('a', href=True, recursive=True,
-                           title=re.compile('Archive')):  # use of a regex to find the keyword
-        archive_link_list.append("https://www.bsi.bund.de/" + a['href'])
-    print(archive_link_list)
-
-
-testsoup = BeautifulSoup(requests.get(
-    'https://www.bsi.bund.de/EN/Topics/Certification/certified_products/digital_signature/digital_signature_node.html').content,
-                         "html.parser")
-
-# archive_search(testsoup)
