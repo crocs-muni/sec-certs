@@ -11,7 +11,7 @@ architecture of the BSI page we should use:
     -The table with class "textualData link smallerFont"
     -1st <td> of each rows contains the link to the product's page and has a class
     -the link is in a <a> element
-    
+
     What I want to do:
     Get a list of all <a> elements that have a <td class = * white-space-nowrap> as parent
 """
@@ -48,11 +48,37 @@ class BsiBrowser(ComplexSerializableType):
         self.archive_list = []
 
     def parse(self):
+        """
+        Iterating over the anchors to filter them
+        """
+        a_link_list = []
+        for a in self.soup.find_all('a', href=True, recursive=True):
+            if 'c-navigation-teaser' in str(a.get('class')):
+                a_link_list.append(a)
+        """
+        Retrieve all the links from the anchor list in a proper format
+        """
+        for a in a_link_list:
+            link = "https://www.bsi.bund.de/" + a['href']
+            self.link_list.append(link)
+            handler = BsiHandler(link)
+            self.handler_list.append(handler)
+            # HANDLER_LIST.append(handler)
 
-        self.handler_list = \
-            [BsiHandler("https://www.bsi.bund.de/" + a['href'])
-             for a in self.soup.find_all('a', href=True, recursive=True)
-             if 'c-navigation-teaser' in str(a.get('class'))]
+    def process(self):
+        self.parse()
+        tmp_list = []
+        for handler in self.handler_list:
+            handler.parse()
+            for url in handler.link_list:
+                temp = BSICertificate(url)
+                # print(temp.html_content)
+                tmp_list.append(temp)
+            for arch_handler in handler.handler_list:
+                for arch_url in arch_handler.link_list:
+                    arch_temp = BSICertificate(arch_url)
+                    tmp_list.append(arch_temp)
+        return tmp_list
 
 
 class BsiHandler(BsiBrowser):
@@ -71,28 +97,45 @@ class BsiHandler(BsiBrowser):
         self.handler_list = []
 
     def parse(self):
+        # Iterating over the anchors to filter them
 
-        self.link_list = \
-            ["https://www.bsi.bund.de/" + a['href'] for a in self.soup.find_all('a', href=True, recursive=True) if
-             'white-space-nowrap' in str(a.parent.get('class'))]
+        a_link_list = []
+        # Find the products displayed on the page
+        for a in self.soup.find_all('a', href=True, recursive=True):
+            if 'white-space-nowrap' in str(a.parent.get('class')):
+                a_link_list.append(a)
+        # Retrieve all the links from the anchor list in a proper format
+        for a in a_link_list:
+            self.link_list.append("https://www.bsi.bund.de/" + a['href'])
 
-        self.handler_list = \
-            [BsiHandler("https://www.bsi.bund.de/" + a['href'])
-             for a in self.soup.find_all('a', href=True, recursive=True, title=re.compile('Archive'))]
-
+        # -------------Finding the link to the archived certs---------------------------------------------
+        for a in self.soup.find_all('a', href=True, recursive=True,
+                                    title=re.compile('Archive')):  # use of a regex to find the keyword
+            self.handler_list.append(BsiHandler("https://www.bsi.bund.de/" + a['href']))
         if len(self.handler_list) != 0:
             for handler in self.handler_list:
                 handler.parse()
-
         # ------------------------------------------------------------------------------------------------
 
+
+# class BsiArchive(BsiBrowser):
+#     """
+#     This class will be on the same level as handler, and will instantiate handlers one layer down
+#     """
+#
+#     def parse(self):
+#         for a in self.soup.find_all('a', href=True, recursive=True,
+#                                     title=re.compile('Archive')):  # use of a regex to find the keyword
+#             self.link_list.append("https://www.bsi.bund.de/" + a['href'])
+#         for link in self.link_list:
+#             self.handler_list.append(BsiHandler(link))
 
 
 # To end the processing, a last class will be used with final links
 # to retrieve simple data written on the page
 
 
-class Bsitmp(ComplexSerializableType):
+class BSICertificate(ComplexSerializableType):
     """
     a class that will contain essentials data to compare to CC certs
     """
@@ -109,32 +152,41 @@ class Bsitmp(ComplexSerializableType):
         # self.valid_until = self.html_content[0].to_numpy()[4][1]
         self.soup = BeautifulSoup(requests.get(url).content, "html.parser")
         self.id = self.soup.find("meta", property='title')
-        self.pdf_links = \
-            ["https://www.bsi.bund.de/" + a['href']
-             for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf')]
-        # for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf'):
-        #     self.pdf_links.append("https://www.bsi.bund.de/" + a['href'])
+        self.pdf_links = []
+        for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf'):
+            self.pdf_links.append("https://www.bsi.bund.de/" + a['href'])
 
 
-def process(base_url: str):
-    browser = BsiBrowser(base_url)
-    browser.parse()
-    tmp_list = []
-    for handler in browser.handler_list:
-        handler.parse()
-        for url in handler.link_list:
-            temp = Bsitmp(url)
-            # print(temp.html_content)
-            tmp_list.append(temp)
-        for arch_handler in handler.handler_list:
-            for arch_url in arch_handler.link_list:
-                arch_temp = Bsitmp(arch_url)
-                tmp_list.append(arch_temp)
-    return tmp_list
+subpage = BSICertificate(test_url)
+
+
+# print(subpage.certification_date)
+
+
+
 
 
 start = time.time()
-result = process(root_url)
+browser = BsiBrowser(root_url)
+result = browser.process()
 end = time.time() - start
 print(end)
 print(len(result))
+
+
+def archive_search(soup: BeautifulSoup):
+    """
+    #TODO finish the traversal, according to the page architecture, finding the <a> elements with a title containing
+    'Archive'
+    The easiest way would be to run the search on each page with a handler
+    """
+    archive_link_list = []
+    for a in soup.find_all('a', href=True, recursive=True,
+                           title=re.compile('Archive')):  # use of a regex to find the keyword
+        archive_link_list.append("https://www.bsi.bund.de/" + a['href'])
+    print(archive_link_list)
+
+
+testsoup = BeautifulSoup(requests.get(
+    'https://www.bsi.bund.de/EN/Topics/Certification/certified_products/digital_signature/digital_signature_node.html').content,
+                         "html.parser")
