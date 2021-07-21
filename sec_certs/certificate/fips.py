@@ -27,21 +27,21 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @dataclass(eq=True)
     class State(ComplexSerializableType):
-
-        @classmethod
-        def from_dict(cls, dct: Dict):
-            return cls(Path(dct['sp_path']), Path(dct['html_path']), Path(dct['fragment_path']), dct['tables_done'],
-                       dct['file_status'], dct['txt_state'])
-
-        def to_dict(self):
-            return self.__dict__
-
         sp_path: Path
         html_path: Path
         fragment_path: Path
         tables_done: bool
         file_status: Optional[bool]
         txt_state: bool
+
+        def __init__(self, sp_path: Union[str, Path], html_path: Union[str, Path], fragment_path: Union[str, Path],
+                     tables_done: bool, file_status: Optional[bool], txt_state: bool):
+            self.sp_path = Path(sp_path)
+            self.html_path = Path(html_path)
+            self.fragment_path = Path(fragment_path)
+            self.tables_done = tables_done
+            self.file_status = file_status
+            self.txt_state = txt_state
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
@@ -62,14 +62,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         def __str__(self):
             return str(self.type + ' algorithm #' + self.cert_id + ' created by ' + self.vendor)
-
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct: dict) -> 'FIPSCertificate.Algorithm':
-            return cls(dct['cert_id'], dct['vendor'], dct['implementation'], dct['type'],
-                       dct['date'])
 
     @dataclass(eq=True)
     class WebScan(ComplexSerializableType):
@@ -120,13 +112,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         def __str__(self):
             return str(self.module_name + ' created by ' + self.vendor)
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct: dict) -> 'FIPSCertificate.WebScan':
-            return cls(*tuple(dct.values()))
-
     @dataclass(eq=True)
     class PdfScan(ComplexSerializableType):
         cert_id: int
@@ -146,13 +131,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         def __str__(self):
             return str(self.cert_id)
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct: dict) -> 'FIPSCertificate.PdfScan':
-            return cls(*tuple(dct.values()))
-
     @dataclass(eq=True)
     class Processed(ComplexSerializableType):
         keywords: Optional[Dict[str, Dict]]
@@ -166,18 +144,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             # for each id
             return helpers.get_first_16_bytes_sha256(str(self.keywords))
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct: dict) -> 'FIPSCertificate.Processed':
-            return cls(*tuple(dct.values()))
-
     def __str__(self) -> str:
         return str(self.cert_id)
-
-    def to_dict(self) -> Dict:
-        return self.__dict__
 
     @property
     def dgst(self) -> str:
@@ -189,10 +157,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if exit_code != requests.codes.ok:
             logger.error(
                 f'Failed to download security policy from {cert[0]}, code: {exit_code}')
-
-    @classmethod
-    def from_dict(cls, dct: dict):
-        return cls(*tuple(dct.values()))
 
     def __init__(self, cert_id: str,
                  web_scan: 'FIPSCertificate.WebScan',

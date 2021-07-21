@@ -1,3 +1,4 @@
+import datetime
 import tempfile
 from unittest import TestCase
 from sec_certs.dataset.common_criteria import CCDataset
@@ -25,25 +26,29 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset.process_protection_profiles()
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
-        cls.cc_dset.extract_data()
-        cls.cc_dset.compute_heuristics()
+        cls.cc_dset._extract_data()
+        cls.cc_dset._compute_heuristics()
 
-        cls.cpes = [CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
-                         "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2"),
-                     CPE("cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
-                         "IBM Security Key Lifecycle Manager 2.6.0.1"),
-                     CPE("cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
-                         "Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress"),
-                     CPE("cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
-                         "Tracker Software PDF-XChange Lite Printer 6.0.320.0")]
+        cls.cpes = [
+            CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2"),
+            CPE("cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
+                "IBM Security Key Lifecycle Manager 2.6.0.1"),
+            CPE("cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
+                "Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress"),
+            CPE("cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
+                "Tracker Software PDF-XChange Lite Printer 6.0.320.0")
+        ]
         cls.cpe_dset = CPEDataset({x.uri: x for x in cls.cpes})
 
-        cls.cves = [CVE('CVE-2017-1732',
-                         ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
-                         CVE.Impact(5.3, 'MEDIUM', 3.9, 1.4)),
-                     CVE('CVE-2019-4513',
-                         ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
-                         CVE.Impact(8.2, 'HIGH', 3.9, 4.2))]
+        cls.cves = [
+            CVE('CVE-2017-1732',
+                ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
+                CVE.Impact(5.3, 'MEDIUM', 3.9, 1.4), '2021-05-26T04:15Z'),
+            CVE('CVE-2019-4513',
+                ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
+                CVE.Impact(8.2, 'HIGH', 3.9, 4.2), '2000-05-26T04:15Z')
+        ]
         cls.cve_dset = CVEDataset({x.cve_id: x for x in cls.cves})
 
     @classmethod
@@ -64,7 +69,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_cve_lookup_dicts(self):
         alt_lookup = {x: set(y) for x, y in self.cve_dset.cpes_to_cve_lookup.items()}
-        self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': {'CVE-2017-1732', 'CVE-2019-4513'}},
+        self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': set(self.cves)},
                          'The CVE lookup dicionary cve-> affected cpes does not match the template')
 
     def test_load_cve_dataset(self):
@@ -78,7 +83,7 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_find_related_cves(self):
         self.cc_dset['ebd276cca70fd723'].heuristics.verified_cpe_matches = [self.cpes[0]]
         self.cc_dset.compute_related_cves()
-        self.assertCountEqual([x.cve_id for x in self.cves], self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
+        self.assertCountEqual(self.cves, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):
         self.assertEqual(self.cc_dset['ebd276cca70fd723'].heuristics.extracted_versions, ['8.2'], 'The version extracted from the certificate does not match the template')

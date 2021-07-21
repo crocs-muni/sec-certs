@@ -40,13 +40,13 @@ def main():
     dset.convert_all_pdfs()
 
     # Extract data from txt files and update json
-    dset.extract_data()
+    dset._extract_data()
 
     # transform to pandas DataFrame
     df = dset.to_pandas()
 
     # Compute heuristics on the dataset
-    dset.compute_heuristics()
+    dset._compute_heuristics()
 
     # Manually verify CPE findings and compute related cves
     # dset.manually_verify_cpe_matches(update_json=True)

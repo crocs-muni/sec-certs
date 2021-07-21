@@ -7,17 +7,19 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Dict, Optional, Union, List, Tuple, Set
 import json
 
+import numpy as np
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
+from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
-from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cpe import CPEDataset, CPE
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
@@ -31,18 +33,10 @@ class CCDataset(Dataset, ComplexSerializableType):
         meta_sources_parsed: bool = False
         pdfs_downloaded: bool = False
         pdfs_converted: bool = False
-        txt_data_extracted: bool = False
         certs_analyzed: bool = False
-
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
 
         def __bool__(self):
             return any(vars(self))
-
-        @classmethod
-        def from_dict(cls, dct: Dict[str, bool]):
-            return cls(*tuple(dct.values()))
 
     certs: Dict[str, 'CommonCriteriaCert']
 
@@ -70,6 +64,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
         df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
         df = df.astype({'category': 'category', 'status': 'category', 'scheme': 'category'})
+        df = df.fillna(value=np.nan)
 
         return df
 
@@ -252,8 +247,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         if not keep_metadata:
             self.pp_dataset_path.unlink()
 
+    @serialize
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True,
-                           get_archived: bool = True, update_json: bool = True):
+                           get_archived: bool = True):
         """
         Parses all metadata about certificates
         """
@@ -276,9 +272,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.set_local_paths()
         self.state.meta_sources_parsed = True
-
-        if update_json is True:
-            self.to_json(self.json_path)
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, 'CommonCriteriaCert']:
         """
@@ -449,25 +442,22 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def _download_reports(self, fresh=True):
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-
-        if fresh is True:
-            certs_to_process = self.certs.values()
-        else:
-            certs_to_process = [x for x in self.certs.values() if not x.state.report_link_ok]
-
-        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report, certs_to_process, config.n_threads)
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
+        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_report,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Downloading reports')
 
     def _download_targets(self, fresh=True):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
+        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Downloading targets')
 
-        if fresh is True:
-            certs_to_process = self.certs.values()
-        else:
-            certs_to_process = [x for x in self.certs.values() if not x.state.st_link_ok]
-
-        cert_processing.process_parallel(CommonCriteriaCert.download_pdf_target, certs_to_process, config.n_threads)
-
-    def download_all_pdfs(self, fresh: bool = True, update_json: bool = True):
+    @serialize
+    def download_all_pdfs(self, fresh: bool = True):
         if self.state.meta_sources_parsed is False:
             logger.error('Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.')
             return
@@ -479,40 +469,32 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._download_targets(fresh)
 
         if fresh is True:
-            # Attempt to re-download once if some files are missing
-            if any(filter(lambda x: not x.state.report_link_ok, self.certs.values())):
-                logger.info('Attempting to re-download failed report links.')
-                self._download_reports(False)
+            logger.info('Attempting to re-download failed report links.')
+            self._download_reports(False)
 
-            if any(filter(lambda x: not x.state.st_link_ok, self.certs.values())):
-                logger.info('Attempting to re-download failed security target links.')
-                self._download_targets(False)
+            logger.info('Attempting to re-download failed security target links.')
+            self._download_targets(False)
 
         self.state.pdfs_downloaded = True
 
-        if update_json is True:
-            self.to_json(self.json_path)
-
     def _convert_reports_to_txt(self, fresh: bool = True):
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
-
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_link_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if
-                                x.state.report_link_ok and not x.state.report_convert_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.convert_report_pdf, certs_to_process, config.n_threads)
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_convert(fresh)]
+        cert_processing.process_parallel(CommonCriteriaCert.convert_report_pdf,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Converting reports to txt')
 
     def _convert_targets_to_txt(self, fresh: bool = True):
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if x.state.st_is_ok_to_convert(fresh)]
+        cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf,
+                                         certs_to_process,
+                                         config.n_threads,
+                                         progress_bar_desc='Converting targets to txt')
 
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_link_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_link_ok and not x.state.st_convert_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.convert_target_pdf, certs_to_process, config.n_threads)
-
-    def convert_all_pdfs(self, fresh: bool = True, update_json: bool = True):
+    @serialize
+    def convert_all_pdfs(self, fresh: bool = True):
         if self.state.pdfs_downloaded is False:
             logger.info('Attempting to convert pdf while not having them downloaded. Returning.')
             return
@@ -524,57 +506,59 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._convert_targets_to_txt(fresh)
 
         if fresh is True:
-            # Attempt to re-convert once if some files failed but downloads are ok
-            if any(filter(lambda x: x.state.report_link_ok and not x.state.report_convert_ok, self.certs.values())):
-                logger.info('Attempting to re-convert failed report pdfs')
-                self._convert_reports_to_txt(False)
-            if any(filter(lambda x: x.state.st_link_ok and not x.state.st_convert_ok, self.certs.values())):
-                logger.info('Attempting to re-convert failed target pdfs')
-                self._convert_targets_to_txt(False)
+            logger.info('Attempting to re-convert failed report pdfs')
+            self._convert_reports_to_txt(False)
+
+            logger.info('Attempting to re-convert failed target pdfs')
+            self._convert_targets_to_txt(False)
 
         self.state.pdfs_converted = True
 
-        if update_json is True:
-            self.to_json(self.json_path)
+    def update_with_certs(self, certs: List[CommonCriteriaCert]):
+        if any([x not in self for x in certs]):
+            logger.warning('Updating dataset with certificates outside of the dataset!')
+        self.certs.update({x.dgst: x for x in certs})
 
     def _extract_report_metadata(self, fresh: bool = True):
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if
-                                x.state.report_convert_ok and not x.state.report_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata, certs_to_process,
-                                         config.n_threads)
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_metadata,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting report metadata')
+        self.update_with_certs(processed_certs)
 
     def _extract_targets_metadata(self, fresh: bool = True):
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok and not x.state.st_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata, certs_to_process,
-                                         config.n_threads)
+        certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_metadata,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting target metadata')
+        self.update_with_certs(processed_certs)
 
     def extract_pdf_metadata(self, fresh: bool = True):
         logger.info('Extracting pdf metadata from CC dataset')
         self._extract_report_metadata(fresh)
         self._extract_targets_metadata(fresh)
 
-    def _extract_targets_frontpage(self, fresh: bool = True):
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok and not x.state.st_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage, certs_to_process,
-                                         config.n_threads)
-
     def _extract_report_frontpage(self, fresh: bool = True):
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if
-                                x.state.report_convert_ok and not x.state.report_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage, certs_to_process,
-                                         config.n_threads)
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_frontpage,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting report frontpages')
+        self.update_with_certs(processed_certs)
+
+    def _extract_targets_frontpage(self, fresh: bool = True):
+        certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_frontpage,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting target frontpages')
+        self.update_with_certs(processed_certs)
 
     def extract_pdf_frontpage(self, fresh: bool = True):
         logger.info('Extracting pdf frontpages from CC dataset.')
@@ -582,53 +566,44 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._extract_targets_frontpage(fresh)
 
     def _extract_report_keywords(self, fresh: bool = True):
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.report_convert_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if
-                                x.state.report_convert_ok and not x.state.report_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords, certs_to_process,
-                                         config.n_threads)
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_report_pdf_keywords,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting report keywords')
+        self.update_with_certs(processed_certs)
 
     def _extract_targets_keywords(self, fresh: bool = True):
-        if fresh is True:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok]
-        else:
-            certs_to_process = [x for x in self.certs.values() if x.state.st_convert_ok and not x.state.st_extract_ok]
-        cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords, certs_to_process,
-                                         config.n_threads)
+        certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(CommonCriteriaCert.extract_st_pdf_keywords,
+                                                           certs_to_process,
+                                                           config.n_threads,
+                                                           use_threading=False,
+                                                           progress_bar_desc='Extracting target keywords')
+        self.update_with_certs(processed_certs)
 
     def extract_pdf_keywords(self, fresh: bool = True):
         logger.info('Extracting pdf keywords from CC dataset.')
         self._extract_report_keywords(fresh)
         self._extract_targets_keywords(fresh)
 
-    def extract_data(self, fresh: bool = True, update_json: bool = True):
-        if self.state.pdfs_converted is False:
-            logger.info('Attempting to extract data from txt while not having the pdf->txt conversion done. Returning.')
-            return
-
+    def _extract_data(self, fresh: bool = True):
         logger.info('Extracting various stuff from converted txt filed from CC dataset.')
         self.extract_pdf_metadata(fresh)
         self.extract_pdf_frontpage(fresh)
         self.extract_pdf_keywords(fresh)
 
         if fresh is True:
-            if any(filter(lambda x: x.state.report_convert_ok and not x.state.report_extract_ok, self.certs.values())):
-                logger.info('Attempting to re-extract failed data from report txts')
-                self._extract_report_metadata(False)
-                self._extract_report_frontpage(False)
-                self._extract_report_keywords(False)
-            if any(filter(lambda x: x.state.st_convert_ok and not x.state.st_extract_ok, self.certs.values())):
-                logger.info('Attempting to re-extract failed data from ST txts')
-                self._extract_targets_metadata(False)
-                self._extract_targets_frontpage(False)
-                self._extract_targets_keywords(False)
+            logger.info('Attempting to re-extract failed data from report txts')
+            self._extract_report_metadata(False)
+            self._extract_report_frontpage(False)
+            self._extract_report_keywords(False)
 
-        self.state.txt_data_extracted = True
-
-        if update_json is True:
-            self.to_json(self.json_path)
+            logger.info('Attempting to re-extract failed data from ST txts')
+            self._extract_targets_metadata(False)
+            self._extract_targets_frontpage(False)
+            self._extract_targets_keywords(False)
 
     def prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
         logger.info('Preparing CPE dataset.')
@@ -656,37 +631,45 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         return cve_dataset
 
-    def compute_heuristics(self, update_json=True, download_fresh_cpes: bool = False):
-        def compute_candidate_versions():
-            logger.info('Computing heuristics: possible product versions in certificate name')
-            for cert in self:
-                cert.compute_heuristics_version()
+    def _compute_candidate_versions(self):
+        logger.info('Computing heuristics: possible product versions in certificate name')
+        for cert in self:
+            cert.compute_heuristics_version()
 
-        def compute_cpe_matches(cpe_dataset: CPEDataset):
-            logger.info('Computing heuristics: Finding CPE matches for certificates')
-            for cert in self:
-                cert.compute_heuristics_cpe_match(cpe_dataset)
-
-        def compute_cert_labs():
-            logger.info('Deriving information about laboratories involved in certification.')
-            for cert in self:
-                cert.compute_heuristics_cert_lab()
-
-        def compute_cert_ids():
-            logger.info('Deriving information about certificate ids from pdf scan.')
-            for cert in self:
-                cert.compute_heuristics_cert_id()
-
-        compute_candidate_versions()
+    def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
+        logger.info('Computing heuristics: Finding CPE matches for certificates')
         cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
-        compute_cpe_matches(cpe_dset)
-        compute_cert_labs()
-        compute_cert_ids()
+        for cert in self:
+            cert.compute_heuristics_cpe_match(cpe_dset)
+
+    def _compute_cert_labs(self):
+        logger.info('Deriving information about laboratories involved in certification.')
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
+        for cert in certs_to_process:
+            cert.compute_heuristics_cert_lab()
+
+    def _compute_cert_ids(self):
+        logger.info('Deriving information about certificate ids from pdf scan.')
+        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
+        for cert in certs_to_process:
+            cert.compute_heuristics_cert_id()
+
+    def _compute_heuristics(self):
+        self._compute_candidate_versions()
+        self._compute_cpe_matches()
+        self._compute_cert_labs()
+        self._compute_cert_ids()
+
+    @serialize
+    def analyze_certificates(self, fresh: bool = True):
+        if self.state.pdfs_converted is False:
+            logger.info('Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning.')
+            return
+
+        self._extract_data(fresh)
+        self._compute_heuristics()
 
         self.state.certs_analyzed = True
-
-        if update_json is True:
-            self.to_json(self.json_path)
 
     def manually_verify_cpe_matches(self, update_json=True):
         def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
@@ -736,7 +719,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         if not verified_cpe_rich_certs:
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
-        for cert in verified_cpe_rich_certs:
+
+        relevant_cpes = itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs])
+        relevant_cpes = set([x.uri for x in relevant_cpes])
+        cve_dset.filter_related_cpes(relevant_cpes)
+
+        for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
 
     def to_label_studio_json(self, output_path: Union[str, Path]):
@@ -755,25 +743,24 @@ class CCDataset(Dataset, ComplexSerializableType):
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
 
+    @serialize
     def load_label_studio_labels(self, input_path: Union[str, Path]):
         with Path(input_path).open('r') as handle:
             data = json.load(handle)
 
         cpe_dset = self.prepare_cpe_dataset()
 
-        for annotation in data:
-            if 'verified_cpe_match' not in annotation:
-                continue
-
-            match_keys = annotation['verified_cpe_match']['choices']
-            if isinstance(match_keys, str):
-                match_keys = [match_keys]
-            match_keys = [x[1:] for x in match_keys]
-            cpes = itertools.chain.from_iterable([cpe_dset.get_cpes_from_title(annotation[x]) for x in match_keys])
+        logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
+        for annotation in tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
+            match_keys = annotation['verified_cpe_match']
+            match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
+            match_keys = [x.lstrip('$') for x in match_keys]
+            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
             certs = self.get_certs_from_name(annotation['text'])
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = cpes
+                c.heuristics.labeled = True
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
@@ -784,10 +771,10 @@ class CCDataset(Dataset, ComplexSerializableType):
         update_dset.set_local_paths()
         update_dset.download_all_pdfs()
         update_dset.convert_all_pdfs()
-        update_dset.extract_data()
+        update_dset._extract_data()
 
 
-class CCDatasetMaintenanceUpdates(CCDataset):
+class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
@@ -803,8 +790,33 @@ class CCDatasetMaintenanceUpdates(CCDataset):
     def __iter__(self) -> CommonCriteriaMaintenanceUpdate:
         yield from self.certs.values()
 
-    def compute_heuristics(self, update_json=True, download_fresh_cpes: bool = False):
+    def _compute_heuristics(self, download_fresh_cpes: bool = False):
         raise NotImplementedError
 
     def compute_related_cves(self, download_fresh_cves: bool = False):
         raise NotImplementedError
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        input_path = Path(input_path)
+        with input_path.open('r') as handle:
+            dset = json.load(handle, cls=CustomJSONDecoder)
+        return dset
+
+    def to_pandas(self):
+        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
+        cols = CommonCriteriaMaintenanceUpdate.pandas_columns
+
+        df = pd.DataFrame(tuples, columns=cols)
+        df = df.set_index('dgst')
+        df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
+        df = df.fillna(value=np.nan)
+
+        return df
+
+    @classmethod
+    def from_web_latest(cls):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / 'cc_maintenances_latest_dataset.json'
+            helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)
+            return cls.from_json(dset_path)

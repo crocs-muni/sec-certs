@@ -9,11 +9,11 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/Docker%20Image%20CI?label=Docker%20build&style=flat-square)](https://hub.docker.com/repository/docker/seccerts/sec-certs)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/cc-feature-parity?filepath=notebooks%2Fcc_data_exploration.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcc_data_exploration.ipynb)
 
 ## Installation (CC)
 
-The tool requires `Python >=3.8` and `pdftotext` binary somewhere on the `PATH`.
+The tool requires `Python >=3.8` and [pdftotext](https://www.xpdfreader.com/pdftotext-man.html) binary somewhere on the `PATH`.
 
 The stable release is published on [PyPi](https://pypi.org/project/sec-certs/) as well as on [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
 
@@ -46,7 +46,7 @@ For the first step, we currently provide CLI and our already processed fresh sna
 
 ### Explore data with MyBinder Jupyter notebook
 
-Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/cc-feature-parity?filepath=notebooks%2Fcc_data_exploration.ipynb).
+Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcc_data_exploration.ipynb).
 
 ### Explore the latest snapshot locally
 
@@ -68,7 +68,7 @@ dset = CCDataset.from_json('./latest_cc_snapshot.json')  # you can now load your
 If you wish to fully process the Common Criteria (CC) data by yourself, you can do that as follows. Running
 
 ```python
-cc-cli all --output ./cc_dataset
+cc-certs all --output ./cc_dataset
 ```
 
 will fully process the Common Criteria dataset, which can take up to 6 hours to finish. You can select only same tasks to run. Calling `cc-cli --help` yields

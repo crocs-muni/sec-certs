@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union, Any, Set
+from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
 
 import requests
 from bs4 import Tag
@@ -42,36 +42,30 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                                 helpers.sanitize_string(self.maintainance_title))
             super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
 
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct):
-            return cls(*tuple(dct.values()))
-
         def __lt__(self, other):
             return self.maintainance_date < other.maintainance_date
 
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
-        st_link_ok: bool
-        report_link_ok: bool
+        st_download_ok: bool
+        report_download_ok: bool
         st_convert_ok: bool
         report_convert_ok: bool
         st_extract_ok: bool
         report_extract_ok: bool
+        errors: Optional[List[str]]
+
         st_pdf_path: Path
         report_pdf_path: Path
         st_txt_path: Path
         report_txt_path: Path
-        errors: Optional[List[str]]
 
-        def __init__(self, st_link_ok: bool = True, report_link_ok: bool = True,
+        def __init__(self, st_download_ok: bool = True, report_download_ok: bool = True,
                      st_convert_ok: bool = True, report_convert_ok: bool = True,
                      st_extract_ok: bool = True, report_extract_ok: bool = True,
                      errors: Optional[List[str]] = None):
-            self.st_link_ok = st_link_ok
-            self.report_link_ok = report_link_ok
+            self.st_download_ok = st_download_ok
+            self.report_download_ok = report_download_ok
             self.st_convert_ok = st_convert_ok
             self.report_convert_ok = report_convert_ok
             self.st_extract_ok = st_extract_ok
@@ -82,15 +76,34 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             else:
                 self.errors = errors
 
-        def to_dict(self):
-            return {'st_link_ok': self.st_link_ok, 'report_link_ok': self.report_link_ok,
-                    'st_convert_ok': self.st_convert_ok, 'report_convert_ok': self.report_convert_ok,
-                    'st_extract_ok': self.st_extract_ok, 'report_extract_ok': self.report_extract_ok,
-                    'errors': self.errors}
+        @property
+        def serialized_attributes(self) -> List[str]:
+            return ['st_download_ok', 'report_download_ok', 'st_convert_ok', 'report_convert_ok', 'st_extract_ok',
+                    'report_extract_ok', 'errors']
 
-        @classmethod
-        def from_dict(cls, dct: Dict[str, bool]):
-            return cls(*tuple(dct.values()))
+        def report_is_ok_to_download(self, fresh: bool = True):
+            return True if fresh else not self.report_download_ok
+
+        def st_is_ok_to_download(self, fresh: bool = True):
+            return True if fresh else not self.st_download_ok
+
+        def report_is_ok_to_convert(self, fresh: bool = True):
+            return self.report_download_ok if fresh else self.report_download_ok and not self.report_convert_ok
+
+        def st_is_ok_to_convert(self, fresh: bool = True):
+            return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
+
+        def report_is_ok_to_analyze(self, fresh: bool = True):
+            if fresh is True:
+                return self.report_download_ok and self.report_convert_ok and self.report_extract_ok
+            else:
+                return self.report_download_ok and self.report_convert_ok and not self.report_extract_ok
+
+        def st_is_ok_to_analyze(self, fresh: bool = True):
+            if fresh is True:
+                return self.st_download_ok and self.st_convert_ok and self.st_extract_ok
+            else:
+                return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
@@ -114,12 +127,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         def __bool__(self):
             return any([x is not None for x in vars(self)])
-
-        def to_dict(self):
-            return {'report_metadata': self.report_metadata, 'st_metadata': self.st_metadata,
-                    'report_frontpage': self.report_frontpage,
-                    'st_frontpage': self.st_frontpage, 'report_keywords': self.report_keywords,
-                    'st_keywords': self.st_keywords}
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
@@ -169,7 +176,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             if not self.keywords_rules_cert_id:
                 return None
 
-            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.values()]
+            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.items()]
             candidates = sorted(candidates,  key=operator.itemgetter(1), reverse=True)
             return candidates[0][0]
 
@@ -177,16 +184,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def cert_id(self) -> Optional[str]:
             return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
-        @classmethod
-        def from_dict(cls, dct: Dict[str, bool]):
-            return cls(*tuple(dct.values()))
-
     @dataclass
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
         labeled: bool = field(default=False)
-        verified_cpe_matches: Optional[List[CPE]] = field(default=None)
+        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
@@ -195,20 +198,19 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
+        @property
+        def serialized_attributes(self) -> List[str]:
+            all_vars = copy.deepcopy(super().serialized_attributes)
+            all_vars.remove('cpe_candidate_vendors')
+            return all_vars
+
         def __post_init__(self):
             self.cpe_candidate_vendors = None
 
-        def to_dict(self):
-            return {'extracted_versions': self.extracted_versions, 'cpe_matches': self.cpe_matches, 'labeled': self.labeled, 'verified_cpe_matches': self.verified_cpe_matches, 'related_cves': self.related_cves, 'cert_lab': self.cert_lab, 'cert_id': self.cert_id}
-
-        @classmethod
-        def from_dict(cls, dct: Dict[str, str]):
-            return cls(*tuple(dct.values()))
-
-    pandas_columns = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme', 'security_level',
-                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link',
-                      'manufacturer_web', 'extracted_versions', 'cpe_matches', 'verified_cpe_matches',
-                      'related_cves']
+    pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
+                                        'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
+                                        'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
+                                        'verified_cpe_matches', 'related_cves']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -259,7 +261,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
-        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level,\
+        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
                self.heuristics.related_cves
@@ -429,21 +431,27 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
+        if not cert.report_link:
+            exit_code = 'No link'
+        else:
+            exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
         if exit_code != requests.codes.ok:
             error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
-            cert.state.report_link_ok = False
+            cert.state.report_download_ok = False
             cert.state.errors.append(error_msg)
         return cert
 
     @staticmethod
     def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
-        exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        if not cert.st_link:
+            exit_code = 'No link'
+        else:
+            exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
             error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
-            cert.state.st_link_ok = False
+            cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         return cert
 

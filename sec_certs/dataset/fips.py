@@ -11,8 +11,7 @@ from graphviz import Digraph
 from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
 from sec_certs.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
+from sec_certs.serialization import ComplexSerializableType, serialize
 from sec_certs.certificate.fips import FIPSCertificate
 
 
@@ -68,7 +67,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 not_available.append(i)
         return missing, not_available
 
-    def pdf_scan(self, redo=False, update_json: bool = True):
+    @serialize
+    def extract_keywords(self, redo=False):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
 
         keywords = cert_processing.process_parallel(
@@ -79,9 +79,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         )
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
-
-        if update_json:
-            self.to_json(self.json_path)
 
     def match_algs(self) -> Dict:
         output = {}
@@ -134,17 +131,15 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads)
         return new_files
 
-    def convert_all_pdfs(self, update_json: bool = True):
-        logger.info("Converting FIPS certificate reports to .txt")
+    @serialize
+    def convert_all_pdfs(self):
+        logger.info('Converting FIPS certificate reports to .txt')
         tuples = [
             (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
             for cert in self.certs.values()
             if not cert.state.txt_state and (self.policies_dir / f"{cert.cert_id}.pdf").exists()
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, config.n_threads)
-
-        if update_json:
-            self.to_json(self.json_path)
 
     def prepare_dataset(self, test: Optional[Path] = None):
         if test:
@@ -199,10 +194,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if update_json:
             self.to_json(self.json_path)
 
-    def _update_html_results(self, json_file: Path):
-        dataset = self.from_json(json_file)
-        self.certs.update(dataset.certs)
-        self.algorithms = dataset.algorithms
+    @serialize
+    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None, test: Optional[Path] = None):
+        def download_html_pages() -> List[str]:
+            new_files = self.download_all_htmls()
+            self.download_all_pdfs()
+            return new_files
 
     def _append_new_certs_data(self) -> int:
         # we need to know the exact certificates downloaded, so we don't overwrite something already done
@@ -243,10 +240,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
             self.algorithms = aset
 
-        if update_json:
-            self.to_json(self.json_path)
-
-    def extract_certs_from_tables(self, high_precision: bool, update_json: bool = True) -> List[Path]:
+    @serialize
+    def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
         """
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
@@ -267,9 +262,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for state, cert, algorithms in result:
             self.certs[cert.dgst].state.tables_done = state
             self.certs[cert.dgst].pdf_scan.algorithms += algorithms
-
-        if update_json:
-            self.to_json(self.json_path)
 
         return not_decoded
 
@@ -381,13 +373,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for current_cert in self.certs.values():
             FIPSDataset._find_connections(current_cert)
 
-    def finalize_results(self, update_json: bool = True):
+    @serialize
+    def finalize_results(self):
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
-
-        if update_json:
-            self.to_json(self.json_path)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         if self.certs[current_key].web_scan.vendor != highlighted_vendor:
@@ -481,15 +471,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)
 
     def to_dict(self):
-        return {
-            "timestamp": self.timestamp,
-            "sha256_digest": self.sha256_digest,
-            "name": self.name,
-            "description": self.description,
-            "n_certs": len(self),
-            "certs": self.certs,
-            "algs": self.algorithms,
-        }
+        return {**super().to_dict(), **{'algs': self.algorithms}}
 
     @classmethod
     def from_dict(cls, dct: Dict):
@@ -500,18 +482,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             logger.error(
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
             )
-        return dset
-
-    def to_json(self, output_path: Union[str, Path]):
-        with Path(output_path).open("w") as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
-
-    @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        input_path = Path(input_path)
-        with input_path.open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        dset.root_dir = input_path.parent.absolute()
         return dset
 
     def group_vendors(self) -> Dict:

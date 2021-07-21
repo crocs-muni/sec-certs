@@ -25,6 +25,9 @@ cc_cpe_max_matches:
 cc_latest_snapshot:
   description: Url from where to fetch the latest snapshot of fully processed CC dataset
   value: https://www.ajanovsky.cz/cc_latest_snapshot.json
+cc_maintenances_latest_snapshot:
+  description: Url from where to fetch the latest snapshot of CC maintenance updates
+  value: https://www.ajanovsky.cz/cc_maintenances_latest_snapshot.json
 ignore_first_page:
   description: During keyword search, first page usually contains addresses - ignore it.
   value: true

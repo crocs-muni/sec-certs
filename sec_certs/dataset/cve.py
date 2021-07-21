@@ -1,14 +1,15 @@
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union, ClassVar
-import copy
+from typing import Dict, List,  Optional, Union, Final, Set
 import datetime
 from pathlib import Path
 import tempfile
 import zipfile
 import logging
 import glob
-import tqdm
 import json
+from dateutil.parser import isoparse
+
+import pandas as pd
 
 from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
@@ -19,7 +20,7 @@ from sec_certs.configuration import config
 logger = logging.getLogger(__name__)
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass(eq=True, init=False)
 class CVE(ComplexSerializableType):
     @dataclass(eq=True)
     class Impact(ComplexSerializableType):
@@ -27,13 +28,6 @@ class CVE(ComplexSerializableType):
         severity: str
         explotability_score: float
         impact_score: float
-
-        def to_dict(self):
-            return copy.deepcopy(self.__dict__)
-
-        @classmethod
-        def from_dict(cls, dct: Dict):
-            return cls(*tuple(dct.values()))
 
         @classmethod
         def from_nist_dict(cls, dct: Dict):
@@ -56,13 +50,19 @@ class CVE(ComplexSerializableType):
     cve_id: str
     vulnerable_cpes: List[str]
     impact: Impact
+    published_date: Optional[datetime.datetime]
+    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'base_score', 'severity', 'explotability_score',
+                                        'impact_score', 'published_date')
 
-    def to_dict(self):
-        return copy.deepcopy(self.__dict__)
+    def __init__(self, cve_id: str, vulnerable_cpes: List[str], impact: Impact, published_date: str):
+        super().__init__()
+        self.cve_id = cve_id
+        self.vulnerable_cpes = vulnerable_cpes
+        self.impact = impact
+        self.published_date = isoparse(published_date)
 
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        return cls(*tuple(dct.values()))
+    def __hash__(self):
+        return hash(self.cve_id)
 
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> 'CVE':
@@ -91,38 +91,40 @@ class CVE(ComplexSerializableType):
         cve_id = dct['cve']['CVE_data_meta']['ID']
         impact = cls.Impact.from_nist_dict(dct)
         vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
+        published_date = dct['publishedDate']
 
-        return CVE(cve_id, vulnerable_cpes, impact)
+        return CVE(cve_id, vulnerable_cpes, impact, published_date)
+
+    def to_pandas_tuple(self):
+        return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
+                self.impact.explotability_score, self.impact.impact_score, self.published_date)
 
 
 @dataclass(eq=True)
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
-    cpes_to_cve_lookup: Dict[str, List[str]] = field(init=False)
+    cpes_to_cve_lookup: Dict[str, List[CVE]] = field(init=False)
+    cve_url: Final[str] = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
 
-    cve_url: ClassVar[str] = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
-
-    def to_dict(self):
-        return copy.deepcopy({'cves': self.cves})
-
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        return cls(*tuple(dct.values()))
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['cves']
 
     def __post_init__(self):
         self.cpes_to_cve_lookup = dict()
+        self.cves = {x.cve_id.upper(): x for x in self}
         for cve in self:
             for cpe in cve.vulnerable_cpes:
                 if not cpe in self.cpes_to_cve_lookup:
-                    self.cpes_to_cve_lookup[cpe] = [cve.cve_id]
+                    self.cpes_to_cve_lookup[cpe] = [cve]
                 else:
-                    self.cpes_to_cve_lookup[cpe].append(cve.cve_id)
+                    self.cpes_to_cve_lookup[cpe].append(cve)
 
     def __iter__(self):
         yield from self.cves.values()
 
     def __getitem__(self, item: str) -> CVE:
-        return self.cves.__getitem__(item.lower())
+        return self.cves.__getitem__(item.upper())
 
     def __setitem__(self, key: str, value: CVE):
         self.cves.__setitem__(key.lower(), value)
@@ -130,12 +132,13 @@ class CVEDataset(ComplexSerializableType):
     def __len__(self) -> int:
         return len(self.cves)
 
-    def download_cves(self, output_path: str, start_year: int, end_year: int):
+    @classmethod
+    def download_cves(cls, output_path: str, start_year: int, end_year: int):
         output_path = Path(output_path)
         if not output_path.exists:
             output_path.mkdir()
 
-        urls = [self.cve_url + str(x) + '.json.zip' for x in range(start_year, end_year + 1)]
+        urls = [cls.cve_url + str(x) + '.json.zip' for x in range(start_year, end_year + 1)]
 
         logger.info(f'Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}')
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -165,7 +168,8 @@ class CVEDataset(ComplexSerializableType):
 
             all_cves = dict()
             logger.info(f'Downloaded required resources. Building CVEDataset from jsons.')
-            results = process_parallel(cls.from_nist_json, json_files, config.n_threads, use_threading=False)
+            results = process_parallel(cls.from_nist_json, json_files, config.n_threads, use_threading=False,
+                                       progress_bar_desc='Building CVEDataset from jsons')
             for r in results:
                 all_cves.update(r.cves)
         return cls(all_cves)
@@ -184,3 +188,19 @@ class CVEDataset(ComplexSerializableType):
         if not isinstance(cpe_uri, str):
             return None
         return self.cpes_to_cve_lookup.get(cpe_uri, None)
+
+    def filter_related_cpes(self, relevant_cpe_uris: Set[str]):
+        """
+        Since each of the CVEs is related to many CPEs, the dataset size explodes (serialized). For certificates,
+        only CPEs within certificate dataset are relevant. This function modifies all CVE elements. Specifically, it
+        deletes all CPE records unless they are part of relevant_cpe_uris.
+        :param relevant_cpe_uris: List of relevant CPE uris to keep in CVE dataset.
+        """
+        for cve in self:
+            cve.vulnerable_cpes = list(filter(lambda x: x in relevant_cpe_uris, cve.vulnerable_cpes))
+
+    def to_pandas(self) -> pd.DataFrame:
+        tuples = [x.to_pandas_tuple() for x in self]
+        cols = CVE.pandas_columns
+        df = pd.DataFrame(tuples, columns=cols)
+        return df.set_index('cve_id')
