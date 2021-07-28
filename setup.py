@@ -39,7 +39,7 @@ setup(
     entry_points={
         'console_scripts': [
             'cc-certs=cc_cli:main',
-            'fips-certs=sec_certs.entrypoints.fips_certificates:main'
+            'fips-certs=fips_cli:main'
         ]
     }
 )
