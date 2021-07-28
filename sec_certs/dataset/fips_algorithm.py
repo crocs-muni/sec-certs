@@ -79,6 +79,9 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
         dset = cls(certs, Path('../'), 'algorithms', 'algorithms used in dataset')
         return dset
 
+    def to_dict(self):
+       return self.__dict__ 
+
     def to_json(self, output_path: Union[str, Path]):
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder)

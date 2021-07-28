@@ -31,7 +31,6 @@ def serialize(func: callable):
 
         update_json = kwargs.pop('update_json', True)
         func(*args, **kwargs)
-
         if update_json:
             args[0].to_json()
     return inner_func
@@ -41,6 +40,8 @@ class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ComplexSerializableType):
             return {**{'_type': type(obj).__name__}, **obj.to_dict()}
+        if isinstance(obj, dict):
+            return obj
         if isinstance(obj, set):
             return sorted(list(obj))
         if isinstance(obj, frozenset):

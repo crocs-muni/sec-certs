@@ -30,7 +30,7 @@ def main(config_file, json_file, no_download_algs, redo_web_scan, redo_keyword_s
     # dset = FIPSDataset({}, Path('./fips_test_dataset'), 'small dataset', 'small dataset for keyword testing')
 
     # Load metadata for certificates from CSV and HTML sources
-    dset.get_certs_from_web(json_file=json_file, redo=redo_web_scan)
+    dset.get_certs_from_web(redo=redo_web_scan)
 
     logging.info(f'Finished parsing. Have dataset with {len(dset)} certificates.')
     logging.info(f'Dataset saved to {dset.root_dir}/fips_full_dataset.json')

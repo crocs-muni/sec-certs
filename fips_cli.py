@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-from typing import Optional, List
+from typing import Optional, List, Set
 import click
 from pathlib import Path
 import logging
 import sys
+import os
 from datetime import datetime
 
 from sec_certs.configuration import config
@@ -43,6 +44,14 @@ logger = logging.getLogger(__name__)
     type=click.Path(file_okay=True, dir_okay=False, writable=True, readable=True),
     help="If set, the actions will be performed on a CC dataset loaded from JSON from the input path.",
 )
+@click.option(
+    "-n",
+    "--name",
+    "json_name",
+    default=str(datetime.now().strftime("%d-%n-%Y-%H:%M:%S")) + '.json',
+    type=str,
+    help="Name of the json object to be created in the <<output>> directory. Defaults to timestamp.json."
+)
 @click.option("--no-download-algs", "no_download_algs", help="Don't fetch new algorithm implementations", is_flag=True)
 @click.option("--redo-web-scan", "redo_web_scan", help="Redo HTML webpage scan from scratch", is_flag=True)
 @click.option("--redo-keyword-scan", "redo_keyword_scan", help="Redo PDF keyword scan from scratch", is_flag=True)
@@ -55,7 +64,7 @@ logger = logging.getLogger(__name__)
 @click.option("-s", "--silent", is_flag=True, help="If set, will not print to stdout")
 def main(
     configpath: Optional[str],
-    actions: List[str],
+    actions: Set[str],
     inputpath: Optional[Path],
     output: Optional[Path],
     silent: bool,
@@ -63,6 +72,7 @@ def main(
     redo_web_scan: bool,
     redo_keyword_scan: bool,
     higher_precision_results: bool,
+    json_name: str,
 ):
     """
     Specify actions, sequence of one or more strings from the following list:
@@ -108,6 +118,8 @@ def main(
     stream_handler.setFormatter(formatter)
     handlers = [file_handler]
 
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+
     if output:
         output = Path(output)
 
@@ -131,25 +143,30 @@ def main(
             sys.exit(1)
         except ValueError as e:
             print(f"Error: Bad format of configuration file: {e}")
+    else:
+        print(f"Using default configuration file at {Path(script_dir) / 'sec_certs' / 'settings.yaml'}")
+        config.load(Path(script_dir) / 'sec_certs' / 'settings.yaml')
 
-    if "build" in actions and "new-run" in actions:
+    if "all" in actions and "new-run" in actions:
         print("Error: Only one of 'new-run' and 'all' can be specified.")
         sys.exit(1)
 
-    actions = (
+    r_actions = (
         {"convert", "web-scan", "pdf-scan", "table-search", "analysis", "graphs"}
         if "all" in actions or "new-run" in actions
         else set(actions)
     )
 
-    actions |= {"build"} if "new_run" in actions else {"update"} if "all" in actions else {}
-
+    r_actions |= {"build"} if "new-run" in actions else {"update"} if "all" in actions else set()
+    
+    actions = r_actions
     if "build" in actions and "update" in actions:
         print(
             "Error: 'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset."
         )
 
     if "build" in actions:
+        assert output
         if inputpath:
             print(
                 "warning: Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored."
@@ -157,10 +174,12 @@ def main(
         dset: FIPSDataset = FIPSDataset(
             certs={},
             root_dir=output,
-            name="FIPS Dataset",
-            description=f"Full CommonCriteria dataset snapshot {datetime.now().date()}",
+            name=json_name,
+            description=f"Full FIPS dataset snapshot {datetime.now().date()}",
         )
         dset.get_certs_from_web(no_download_algorithms=no_download_algs)
+        inputpath = dset.json_path
+        output = None
 
     # only 'build' can work without inputpath
     else:
@@ -177,11 +196,11 @@ def main(
         dset.root_dir = output
         dset.to_json(output)
 
-    if "convert" in actions:
-        dset.convert_all_pdfs()
-
     if "web-scan" in actions:
         dset.web_scan(redo=redo_web_scan)
+
+    if "convert" in actions:
+        dset.convert_all_pdfs()
 
     if "pdf-scan" in actions:
         dset.pdf_scan(redo=redo_keyword_scan)

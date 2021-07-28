@@ -11,11 +11,14 @@ from graphviz import Digraph
 from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
 from sec_certs.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
 from sec_certs.certificate.fips import FIPSCertificate
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
+    certs: Dict[str, FIPSCertificate]
+
     def __init__(
         self, certs: dict, root_dir: Path, name: str = "dataset name", description: str = "dataset_description"
     ):
@@ -47,11 +50,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     # After web scan, there should be a FIPSCertificate object created for every entry
     @property
     def successful_web_scan(self) -> bool:
-        return all(self.certs) and all(cert.web_scan for cert in self.certs)
+        return all(self.certs) and all(cert.web_scan for cert in self.certs.values())
 
     @property
     def successful_pdf_scan(self) -> bool:
-        return all(cert.pdf_scan for cert in self.certs)
+        return all(cert.pdf_scan for cert in self.certs.values())
 
     @property
     def json_path(self) -> Path:
@@ -68,7 +71,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         return missing, not_available
 
     @serialize
-    def extract_keywords(self, redo=False):
+    def pdf_scan(self, redo=False):
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
 
         keywords = cert_processing.process_parallel(
@@ -176,7 +179,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for entry in table:
             self.certs[entry.find("a").text] = None
 
-    def web_scan(self, redo: bool = False, update_json: bool = True):
+    @serialize
+    def web_scan(self, redo: bool = False):
         for cert_id, cert in self.certs.items():
             self.certs[cert_id] = FIPSCertificate.html_from_file(
                 self.web_dir / f"{cert_id}.html",
@@ -191,15 +195,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 cert,
                 redo=redo,
             )
-        if update_json:
-            self.to_json(self.json_path)
-
-    @serialize
-    def get_certs_from_web(self, redo: bool = False, json_file: Optional[Path] = None, test: Optional[Path] = None):
-        def download_html_pages() -> List[str]:
-            new_files = self.download_all_htmls()
-            self.download_all_pdfs()
-            return new_files
 
     def _append_new_certs_data(self) -> int:
         # we need to know the exact certificates downloaded, so we don't overwrite something already done
@@ -210,15 +205,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             self.certs[cert_id] = None
         return len(new_certs)
 
-    def update_dataset(self, json_file: Path):
-        self.prepare_dataset()
-        self._append_new_certs_data()
-        self._update_html_results(json_file)
-
+    @serialize
     def get_certs_from_web(
         self,
         test: Optional[Path] = None,
-        update_json: bool = True,
         no_download_algorithms: bool = False
     ):
         logger.info("Downloading required html files")
@@ -272,7 +262,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def unify_algorithms(self):
         certificate: FIPSCertificate
         for certificate in self.certs.values():
-            new_algorithms = []
+            new_algorithms: List[Dict] = []
             united_algorithms = [
                 x
                 for x in (certificate.web_scan.algorithms + certificate.pdf_scan.algorithms)
@@ -443,11 +433,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             processed = self._get_processed_list(connection_list, key)
 
             if processed:
-                self._add_colored_node(key)
+                self._add_colored_node(dot, key, highlighted_vendor)
                 keys += 1
             else:
                 single_dot.attr("node", color="lightblue")
-                self._highlight_vendor_in_dot(key)
+                self._highlight_vendor_in_dot(dot, key, highlighted_vendor)
                 single_dot.node(
                     key,
                     label=key
@@ -471,7 +461,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)
 
     def to_dict(self):
-        return {**super().to_dict(), **{'algs': self.algorithms}}
+        return {'timestamp': self.timestamp, 'sha256_digest': self.sha256_digest,
+                'name': self.name, 'description': self.description,
+            'n_certs': len(self), 'certs': self.certs, 'algs': self.algorithms}
 
     @classmethod
     def from_dict(cls, dct: Dict):
@@ -486,7 +478,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def group_vendors(self) -> Dict:
         vendors = {}
-        v = {x.vendor.lower() for x in self.certs.values()}
+        v = {x.web_scan.vendor.lower() for x in self.certs.values()}
         v = sorted(v, key=FIPSCertificate.get_compare)
         for prefix, a in groupby(v, key=FIPSCertificate.get_compare):
             vendors[prefix] = list(a)
