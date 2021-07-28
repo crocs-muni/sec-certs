@@ -72,6 +72,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @serialize
     def pdf_scan(self, redo=False):
+        logger.info("Entering PDF scan.")
+
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
 
         keywords = cert_processing.process_parallel(
@@ -181,6 +183,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @serialize
     def web_scan(self, redo: bool = False):
+        logger.info("Entering web scan.")
         for cert_id, cert in self.certs.items():
             self.certs[cert_id] = FIPSCertificate.html_from_file(
                 self.web_dir / f"{cert_id}.html",
@@ -236,6 +239,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
         """
+        logger.info("Entering table scan.")
         result = cert_processing.process_parallel(
             FIPSCertificate.analyze_tables,
             [

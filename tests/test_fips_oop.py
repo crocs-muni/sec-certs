@@ -5,20 +5,21 @@ from tempfile import TemporaryDirectory
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.configuration import config
-from fips_test_utils import generate_html
+from tests.fips_test_utils import generate_html
 
 
 def _set_up_dataset(td, certs):
     dataset = FIPSDataset({}, Path(td), 'test_dataset', 'fips_test_dataset')
     generate_html(certs, td + '/test_search.html')
-    dataset.get_certs_from_web(test=td + '/test_search.html', update_json=False)
+    dataset.get_certs_from_web(test=td + '/test_search.html', no_download_algorithms=True)
     return dataset
 
 
 def _set_up_dataset_for_full(td, certs):
     dataset = _set_up_dataset(td, certs)
+    dataset.web_scan()
     dataset.convert_all_pdfs()
-    dataset.extract_keywords()
+    dataset.pdf_scan()
     dataset.extract_certs_from_tables(high_precision=True)
     dataset.algorithms = FIPSAlgorithmDataset.from_json(Path(__file__).parent / 'data/test_fips_oop/algorithms.json')
     dataset.finalize_results()
