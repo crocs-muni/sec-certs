@@ -39,20 +39,25 @@ class BsiBrowser(ComplexSerializableType):
     url: str
     handler_list: list
     link_list: list
+    cert_dict: dict
 
-    def __init__(self, url):
+    def __init__(self, url, handler_list, link_list):
         self.url = url
         self.soup = BeautifulSoup(requests.get(self.url).content, "html.parser")
         self.link_list = []
         self.handler_list = []
-        self.archive_list = []
+        self.cert_dict = {}
+
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['handler_list', 'link_list']
 
     def parse(self):
         """
         Retrieve all the links from the anchor list in a proper format
         """
         self.handler_list = [
-            BsiHandler("https://www.bsi.bund.de/" + a['href'])
+            BsiHandler("https://www.bsi.bund.de/" + a['href'], [])
             for a in self.soup.find_all('a', href=True, recursive=True, class_='c-navigation-teaser')
         ]
 
@@ -61,16 +66,18 @@ class BsiBrowser(ComplexSerializableType):
         for handler in self.handler_list:
             handler.parse()
         tmp_list = [
-            BSICertificate(url)
+            BSICertificate(url, [], [])
             for handler in self.handler_list
             for url in handler.link_list
         ]
         tmp_list.extend(
-            [BSICertificate(arch_url)
+            [BSICertificate(arch_url, [], [])
              for handler in self.handler_list
              for arch_handler in handler.handler_list
              for arch_url in arch_handler.link_list]
         )
+        for cert in tmp_list:
+            self.cert_dict.update({cert.id:[cert.pdf_links]})
         return tmp_list
 
 
@@ -83,11 +90,15 @@ class BsiHandler(BsiBrowser):
     link_list: list
     soup: BeautifulSoup
 
-    def __init__(self, url):
+    def __init__(self,url, link_list):
         self.url = url
         self.soup = BeautifulSoup(requests.get(self.url).content, "html.parser")
         self.link_list = []
         self.handler_list = []
+
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['link_list']
 
     def parse(self):
         # Iterating over the anchors to filter them
@@ -99,7 +110,7 @@ class BsiHandler(BsiBrowser):
         ]
 
         self.handler_list = [
-            BsiHandler("https://www.bsi.bund.de/" + a['href'])
+            BsiHandler("https://www.bsi.bund.de/" + a['href'], [])
             for a in self.soup.find_all('a', href=True, recursive=True,
                                         title=re.compile('Archive'))
         ]
@@ -120,20 +131,25 @@ class BSICertificate(ComplexSerializableType):
     id: str
     pdf_links: List[str]
 
-    def __init__(self, url):
+    def __init__(self, url, html_content, pdf_links):
         self.soup = BeautifulSoup(requests.get(url).content, "html.parser")
-        self.id = self.soup.find("meta", property='title')
+        self.id = self.soup.find("title").contents
         self.pdf_links = [
             "https://www.bsi.bund.de/" + a['href']
             for a in self.soup.find_all('a', href=True, recursive=True, class_='RichTextDownloadLink Publication FTpdf')
         ]
 
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['html_content', 'pdf_links']
 
-subpage = BSICertificate(test_url)
+
+subpage = BSICertificate(test_url, [], [])
 
 start = time.time()
-browser = BsiBrowser(root_url)
+browser = BsiBrowser(root_url, [], [])
 result = browser.process()
 end = time.time() - start
+print(browser.cert_dict)
 print(end)
 print(len(result))
