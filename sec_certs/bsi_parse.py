@@ -77,7 +77,7 @@ class BsiBrowser(ComplexSerializableType):
              for arch_url in arch_handler.link_list]
         )
         for cert in tmp_list:
-            self.cert_dict.update({cert.id:[cert.pdf_links]})
+            self.cert_dict.update({cert.id[0]: tuple(cert.pdf_links)})
         return tmp_list
 
 
@@ -90,7 +90,7 @@ class BsiHandler(BsiBrowser):
     link_list: list
     soup: BeautifulSoup
 
-    def __init__(self,url, link_list):
+    def __init__(self, url, link_list):
         self.url = url
         self.soup = BeautifulSoup(requests.get(self.url).content, "html.parser")
         self.link_list = []
