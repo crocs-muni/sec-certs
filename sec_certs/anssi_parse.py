@@ -43,7 +43,7 @@ class AnssiBrowser(ComplexSerializableType):
                 AnssiHandler(SSI_PREFIX+a['href'], [], [])
                 for a in
                 self.soup.find('ul', class_='nav-categories').find_all("a")
-                if time.sleep(10) is None
+                if time.sleep(2) is None
             ]
 
     def process(self):
@@ -54,8 +54,10 @@ class AnssiBrowser(ComplexSerializableType):
             AnssiCertificate(url)
             for handler in self.handler_list
             for url in handler.link_list
-            if time.sleep(10) is None
+            if time.sleep(2) is None
         ]
+        for certs in results:
+            self.cert_dict.update({certs.key: certs.pdf_links})
         return results
 
 
@@ -81,11 +83,21 @@ class AnssiHandler(AnssiBrowser):
 
 class AnssiCertificate(ComplexSerializableType):
     url: str
+    key: str
     soup: BeautifulSoup
     pdf_links: List
 
     def __init__(self, url):
         self.soup = BeautifulSoup(requests.get(url).content, "html.parser")
+        #-------------------------------------------------------------------------------------------
+        """This section is retrieving the reference of the product's certificate (e.g. 2020/67)"""
+        self.key = self.soup.find(
+            'div', class_="ref-date"
+        ).find_all(
+            'span', recursive=True, class_="donnees")[0].contents[0]
+        #--------------------------------------------------------------------------------------------
+
+
         self.pdf_links = [
             SSI_PREFIX+a['href']
             for a in self.soup.find('div', class_="box-produit-telechargements").find_all('a')
@@ -95,3 +107,4 @@ class AnssiCertificate(ComplexSerializableType):
 browser = AnssiBrowser("https://www.ssi.gouv.fr/en/products/certified-products/", [], [])
 list = browser.process()
 print(list[0].pdf_links)
+print(browser.cert_dict[0])
