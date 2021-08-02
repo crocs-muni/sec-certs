@@ -199,16 +199,16 @@ def main(
     if 'update' in actions:
         dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True)
 
-    if "web-scan" in actions:
+    if "web-scan" in actions or "update" in actions:
         dset.web_scan(redo=redo_web_scan)
 
-    if "convert" in actions :
+    if "convert" in actions or "update" in actions:
         dset.convert_all_pdfs()
 
-    if "pdf-scan" in actions:
+    if "pdf-scan" in actions or "update" in actions:
         dset.pdf_scan(redo=redo_keyword_scan)
 
-    if "table-search" in actions:
+    if "table-search" in actions or "update" in actions:
         if not higher_precision_results:
             print(
                 "Info: You are using table search without higher precision results. It is advised to use the switch in the next run."
