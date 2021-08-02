@@ -196,10 +196,13 @@ def main(
         dset.root_dir = output
         dset.to_json(output)
 
+    if 'update' in actions:
+        dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True)
+
     if "web-scan" in actions:
         dset.web_scan(redo=redo_web_scan)
 
-    if "convert" in actions:
+    if "convert" in actions :
         dset.convert_all_pdfs()
 
     if "pdf-scan" in actions:
@@ -220,6 +223,7 @@ def main(
 
     end = datetime.now()
     logger.info(f"The computation took {(end-start)} seconds.")
+    dset.deprocess()
 
 
 if __name__ == "__main__":

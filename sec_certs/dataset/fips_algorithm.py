@@ -38,13 +38,14 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                                          config.n_threads)
 
         self.parse_html()
+        print(self.certs)
 
     def parse_html(self):
         def split_alg(alg_string):
             cert_type = alg_string.rstrip('0123456789')
             cert_id = alg_string[len(cert_type):]
             return cert_type.strip(), cert_id.strip()
-
+        
         for f in sec_certs.helpers.search_files(self.root_dir):
             with open(f, 'r', encoding='utf-8') as handle:
                 html_soup = BeautifulSoup(handle.read(), 'html.parser')
@@ -76,11 +77,13 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     @classmethod
     def from_dict(cls, dct: Dict):
         certs = dct['certs']
-        dset = cls(certs, Path('../'), 'algorithms', 'algorithms used in dataset')
+        directory = dct['_root_dir']
+        dset = cls(certs, Path(directory), 'algorithms', 'algorithms used in dataset')
         return dset
 
     def to_dict(self):
-       return self.__dict__ 
+        print(self.__dict__)
+        return self.__dict__ 
 
     def to_json(self, output_path: Union[str, Path]):
         with Path(output_path).open('w') as handle:

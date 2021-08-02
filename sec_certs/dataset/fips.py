@@ -146,7 +146,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, config.n_threads)
 
-    def prepare_dataset(self, test: Optional[Path] = None):
+    def prepare_dataset(self, test: Optional[Path] = None, update: bool = False):
         if test:
             html_files = [test]
         else:
@@ -166,20 +166,22 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         # Parse those files and get list of currently processable files (always)
         for f in html_files:
-            self._get_certificates_from_html(self.web_dir / f)
+            self._get_certificates_from_html(self.web_dir / f, update)
 
     def download_neccessary_files(self):
         self.download_all_htmls()
         self.download_all_pdfs()
 
-    def _get_certificates_from_html(self, html_file: Path) -> None:
+    def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> None:
         logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html.parser")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
         for entry in table:
-            self.certs[entry.find("a").text] = None
+            cert_id = entry.find("a").text
+            if cert_id not in self.certs:
+                self.certs[cert_id] = None
 
     @serialize
     def web_scan(self, redo: bool = False):
@@ -212,7 +214,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def get_certs_from_web(
         self,
         test: Optional[Path] = None,
-        no_download_algorithms: bool = False
+        no_download_algorithms: bool = False,
+        update: bool = False,
     ):
         logger.info("Downloading required html files")
 
@@ -221,17 +224,28 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.algs_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
-        self.prepare_dataset(test)
+        self.prepare_dataset(test, update)
 
         logger.info("Downloading certificate html and security policies")
         self.download_neccessary_files()
 
         if not no_download_algorithms:
-            aset = FIPSAlgorithmDataset({}, Path(self.root_dir / 'web/algorithms'), 'algorithms', 'sample algs')
+            aset = FIPSAlgorithmDataset({}, Path(self.root_dir / 'web' / 'algorithms'), 'algorithms', 'sample algs')
             aset.get_certs_from_web()
             logging.info(f'Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.')
 
             self.algorithms = aset
+
+    @serialize
+    def deprocess(self):
+        #TODO
+        logger.info("Removing 'processed' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something")
+        cert: FIPSCertificate
+        for cert in self.certs.values():
+            cert.processed = FIPSCertificate.Processed(None, {}, [], 0)
+
+        self.match_algs()
+
 
     @serialize
     def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
@@ -257,6 +271,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             self.certs[cert.dgst].state.tables_done = state
             self.certs[cert.dgst].pdf_scan.algorithms += algorithms
 
+        self.match_algs()
         return not_decoded
 
     def remove_algorithms_from_extracted_data(self):
@@ -369,6 +384,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @serialize
     def finalize_results(self):
+        logger.info("Entering 'analysis' and building connections between certificates.")
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
