@@ -34,4 +34,7 @@ ignore_first_page:
 cert_threshold:
   description: Used with --higher-precision-results. Determines the amount of mismatched algorithms to be considered faulty.
   value: 5
+fips_latest_snapshot:
+  description: Url for the latest snapshot of FIPS dataset
+  value: https://seccerts.org/static/fips_dset_ad8734a39b856ca1a1b7b073713872359bae7545.json
 

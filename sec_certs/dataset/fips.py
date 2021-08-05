@@ -1,4 +1,4 @@
-import json
+import tempfile
 import logging
 import os
 from itertools import groupby
@@ -204,6 +204,19 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 cert,
                 redo=redo,
             )
+
+    @classmethod
+    def from_web_latest(cls):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / 'fips_latest_dataset.json'
+            logger.info('Downloading the latest FIPS dataset.')
+            helpers.download_file(config.fips_latest_snapshot, dset_path)
+            dset: FIPSDataset = cls.from_json(dset_path)
+            logger.info('The dataset with %s certs and %s algorithms.', len(dset), len(dset.algorithms))
+            logger.info('The dataset does not contain the results of the dependency analysis - calculating them now...')
+            dset.finalize_results()
+            return dset
+
 
     def _append_new_certs_data(self) -> int:
         # we need to know the exact certificates downloaded, so we don't overwrite something already done
