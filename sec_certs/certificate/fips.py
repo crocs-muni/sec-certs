@@ -42,6 +42,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             self.tables_done = tables_done
             self.file_status = file_status
             self.txt_state = txt_state
+            
+    def set_local_paths(self, sp_dir: Optional[Union[str, Path]], html_dir: Optional[Union[str, Path]],
+                        fragment_dir: Optional[Union[str, Path]]):
+        if sp_dir is not None:
+            self.state.sp_path = (Path(sp_dir) / (self.dgst)).with_suffix('.pdf')
+        if html_dir is not None:
+            self.state.html_path = (Path(html_dir) / (self.dgst)).with_suffix(".html")
+        if fragment_dir is not None:
+            self.state.fragment_path = (Path(fragment_dir) / (self.dgst)).with_suffix('txt')
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):

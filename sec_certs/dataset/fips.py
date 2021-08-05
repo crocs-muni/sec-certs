@@ -217,6 +217,15 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             dset.finalize_results()
             return dset
 
+    def from_json(cls, input_path: Union[str, Path]):
+        dset = super().from_json(input_path)
+        dset.set_local_paths()
+        return dset
+
+    def set_local_paths(self):
+        cert: FIPSCertificate
+        for cert in self.certs:
+            cert.set_local_paths(self.policies_dir, self.web_dir, self.fragments_dir)
 
     def _append_new_certs_data(self) -> int:
         # we need to know the exact certificates downloaded, so we don't overwrite something already done
