@@ -22,8 +22,8 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
 RUN apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev poppler-utils -y
 RUN apt-get install libqpdf-dev -y
 RUN apt-get install pkg-config -y
-RUN apt-get install default-jdk 
-RUN apt-get install graphviz
+RUN apt-get install default-jdk -y
+RUN apt-get install graphviz -y
 #-----------------------------------------------------------------------------------------------
 
 
