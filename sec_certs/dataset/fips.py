@@ -89,6 +89,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         output = {}
         cert: FIPSCertificate
         for cert in self.certs.values():
+            # if the pdf has not been processed, no matching can be done
+            if not cert.pdf_scan.keywords or not cert.state.txt_state:
+                continue
+            
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
             cert.processed.unmatched_algs = output[cert.dgst]
 
@@ -270,8 +274,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for state, cert, algorithms in result:
             self.certs[cert.dgst].state.tables_done = state
             self.certs[cert.dgst].pdf_scan.algorithms += algorithms
-
-        self.match_algs()
         return not_decoded
 
     def remove_algorithms_from_extracted_data(self):

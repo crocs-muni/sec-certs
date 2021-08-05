@@ -189,6 +189,8 @@ def main(
 
     assert inputpath
     dset: FIPSDataset = FIPSDataset.from_json(inputpath)
+
+    print(f'Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.')
     if output:
         print(
             "Warning: You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)"

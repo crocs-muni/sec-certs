@@ -105,7 +105,6 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
         return dset
 
     def to_dict(self):
-        print(self.__dict__)
         return self.__dict__ 
 
     def to_json(self, output_path: Union[str, Path]):
