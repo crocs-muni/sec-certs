@@ -105,11 +105,26 @@ Options:
 
 ## Usage (FIPS)
 
-
-
 Currently, the main goal of the FIPS module is to find dependencies between the certified products. 
 
-#TODO MyBinder and online snapshot
+### MyBinder Jupyter Notebook
+
+Without the need of processing the data locally, you can use the online MyBinder Jupyter notebook:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/fips?filepath=.%2Fnotebooks%2Ffips_data.ipynb)
+
+
+### Explore the latest snapshot locally
+
+You can also explore the latest snapshot locally using Python:
+```py
+from sec_certs.dataset.fips import FIPSDataset
+
+dset: FIPSDataset = FIPSDataset.from_web_latest()  # to get the latest snapshot
+dset.to_json('./fips_dataset.json')  # to save the dataset
+new_dset = FIPSDataset.from_json('./fips_dataset.json')  # to load it from disk
+
+```
 
 ### Process FIPS data manually with Python
 
