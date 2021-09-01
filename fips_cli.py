@@ -135,6 +135,7 @@ def main(
     logging.basicConfig(level=logging.INFO, handlers=handlers)
     start = datetime.now()
 
+    # load config
     if configpath:
         try:
             config.load(Path(configpath))
@@ -160,6 +161,7 @@ def main(
     r_actions |= {"build"} if "new-run" in actions else {"update"} if "all" in actions else set()
     
     actions = r_actions
+
     if "build" in actions and "update" in actions:
         print(
             "Error: 'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset."
@@ -225,7 +227,6 @@ def main(
 
     end = datetime.now()
     logger.info(f"The computation took {(end-start)} seconds.")
-    dset.deprocess()
 
 
 if __name__ == "__main__":
