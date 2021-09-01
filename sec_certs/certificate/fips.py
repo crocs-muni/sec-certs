@@ -50,7 +50,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if html_dir is not None:
             self.state.html_path = (Path(html_dir) / (self.dgst)).with_suffix(".html")
         if fragment_dir is not None:
-            self.state.fragment_path = (Path(fragment_dir) / (self.dgst)).with_suffix('txt')
+            self.state.fragment_path = (Path(fragment_dir) / (self.dgst)).with_suffix('.txt')
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
