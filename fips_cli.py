@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
     "-o",
     "--output",
     type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True),
-    help="Path where the output of the experiment will be stored. May overwrite existing content.",
+    help="Path to the directory where the output of the 'build' or 'new-run' actions will be stored.",
 )
 @click.option(
     "-c",
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
     "--input",
     "inputpath",
     type=click.Path(file_okay=True, dir_okay=False, writable=True, readable=True),
-    help="If set, the actions will be performed on a CC dataset loaded from JSON from the input path.",
+    help="If set, the actions will be performed on a FIPS dataset loaded from JSON from the input path.",
 )
 @click.option(
     "-n",
@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
     "json_name",
     default=str(datetime.now().strftime("%d-%n-%Y-%H:%M:%S")) + '.json',
     type=str,
-    help="Name of the json object to be created in the <<output>> directory. Defaults to timestamp.json."
+    help="Name of the json object to be created in the <<output>> directory. Defaults to <<timestamp>>.json."
 )
 @click.option("--no-download-algs", "no_download_algs", help="Don't fetch new algorithm implementations", is_flag=True)
 @click.option("--redo-web-scan", "redo_web_scan", help="Redo HTML webpage scan from scratch", is_flag=True)
