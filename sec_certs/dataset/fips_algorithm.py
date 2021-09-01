@@ -100,7 +100,8 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     @classmethod
     def from_dict(cls, dct: Dict):
         certs = dct['certs']
-        directory = dct['_root_dir']
+        
+        directory = dct['_root_dir'] if '_root_dir' in dct else ''
         dset = cls(certs, Path(directory), 'algorithms', 'algorithms used in dataset')
         return dset
 
