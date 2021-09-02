@@ -4,6 +4,7 @@ import os
 from itertools import groupby
 from pathlib import Path
 from typing import ClassVar, Tuple, List, Dict, Optional, Union
+import json
 
 from bs4 import BeautifulSoup
 from graphviz import Digraph
@@ -436,6 +437,19 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         for cert in self:
             cert.compute_heuristics_cpe_match(cpe_dset)
+
+    def to_label_studio_json(self, output_path: Union[str, Path]):
+        lst = []
+        for cert in [x for x in self if x.processed.cpe_matches and not x.processed.labeled]:
+            dct = {'text': f'{str(cert.web_scan.module_name)} {str(cert.web_scan.hw_version)} {str(cert.web_scan.fw_version)}'}
+            candidates = [x[1].title for x in cert.processed.cpe_matches]
+            candidates += ['No good match'] * (config.cc_cpe_max_matches - len(candidates))
+            options = ['option_' + str(x) for x in range(1, 21)]
+            dct.update({o: c for o, c in zip(options, candidates)})
+            lst.append(dct)
+
+        with Path(output_path).open('w') as handle:
+            json.dump(lst, handle, indent=4)
 
     def validate_results(self):
         """
