@@ -543,26 +543,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return cert
 
     def compute_heuristics_version(self):
-        """
-        Will extract possible versions from the name
-        """
-        at_least_something = r'(\b(\d)+\b)'
-        just_numbers = r'(\d{1,5})(\.\d{1,5})'
-
-        without_version = r'(' + just_numbers + r'+)'
-        long_version = r'(' + r'(\bversion)\s*' + just_numbers + r'+)'
-        short_version = r'(' + r'\bv\s*' + just_numbers + r'+)'
-        full_regex_string = r'|'.join([without_version, short_version, long_version])
-        normalizer = r'(\d+\.*)+'
-
-        matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, self.name, re.IGNORECASE)])
-        if not matched_strings:
-            matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, self.name, re.IGNORECASE)])
-
-        if matched_strings:
-            self.heuristics.extracted_versions = [re.search(normalizer, x).group() for x in matched_strings]
-        else:
-            self.heuristics.extracted_versions = ['-']
+        self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         """

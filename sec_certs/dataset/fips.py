@@ -14,6 +14,7 @@ from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
 from sec_certs.certificate.fips import FIPSCertificate
+from sec_certs.dataset.cpe import CPEDataset
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
@@ -46,6 +47,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     @property
     def algs_dir(self) -> Path:
         return self.web_dir / "algorithms"
+
+    @property
+    def auxillary_datasets_dir(self) -> Path:
+        return self.root_dir / 'auxillary_datasets'
 
     # After web scan, there should be a FIPSCertificate object created for every entry
     @property
@@ -217,6 +222,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             dset.finalize_results()
             return dset
 
+    @classmethod
     def from_json(cls, input_path: Union[str, Path]):
         dset = super().from_json(input_path)
         dset.set_local_paths()
@@ -391,6 +397,39 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 if cert_id not in current_cert.processed.connections and cert_id != "":
                     current_cert.processed.connections.append(cert_id)
                     current_cert.web_scan.connections.append(cert_id)
+
+    @serialize
+    def compute_cpe_heuristics(self):
+        """
+        Computes stuff related to CPE matching
+        """
+        self._compute_candidate_versions()
+        self._compute_cpe_matches()
+
+    def _prepare_cpe_dataset(self, download_fresh_cpes):
+        logger.info('Preparing CPE dataset.')
+        if not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir(parents=True)
+
+        if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
+            cpe_dataset = CPEDataset.from_web()
+            cpe_dataset.to_json(str(self.cpe_dataset_path))
+        else:
+            cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
+
+        return cpe_dataset
+
+    def _compute_candidate_versions(self):
+        logger.info('Computing heuristics: possible product versions in certificate name')
+        for cert in self:
+            cert.compute_heuristics_version()
+
+    def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
+        logger.info('Computing heuristics: Finding CPE matches for certificates')
+        cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
+
+        for cert in self:
+            cert.compute_heuristics_cpe_match(cpe_dset)
 
     def validate_results(self):
         """

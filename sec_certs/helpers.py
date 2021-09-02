@@ -703,3 +703,21 @@ def gen_dict_extract(dct: Dict, searched_key: Hashable = 'count'):
                 else:
                     yield key, result
 
+def compute_heuristics_version(cert_name: str) -> List[str]:
+    """
+    Will extract possible versions from the name of certificate
+    """
+    at_least_something = r'(\b(\d)+\b)'
+    just_numbers = r'(\d{1,5})(\.\d{1,5})'
+
+    without_version = r'(' + just_numbers + r'+)'
+    long_version = r'(' + r'(\bversion)\s*' + just_numbers + r'+)'
+    short_version = r'(' + r'\bv\s*' + just_numbers + r'+)'
+    full_regex_string = r'|'.join([without_version, short_version, long_version])
+    normalizer = r'(\d+\.*)+'
+
+    matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)])
+    if not matched_strings:
+        matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
+
+    return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']

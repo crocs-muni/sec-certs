@@ -1,6 +1,6 @@
 import copy
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import ClassVar, Dict, Optional, Union, List, Tuple, Set, Pattern
@@ -18,6 +18,7 @@ from sec_certs.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
 from sec_certs.serialization import ComplexSerializableType
+from sec_certs.dataset.cpe import CPE, CPEDataset
 
 
 class FIPSCertificate(Certificate, ComplexSerializableType):
@@ -146,6 +147,22 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         algorithms: List[Dict[str, Dict]]
         connections: List[str]
         unmatched_algs: int
+
+        extracted_versions: List[str] = field(default=None)
+        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
+        labeled: bool = field(default=False)
+        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
+        related_cves: Optional[List[str]] = field(default=None)
+        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+
+        @property
+        def serialized_attributes(self) -> List[str]:
+            all_vars = copy.deepcopy(super().serialized_attributes)
+            all_vars.remove('cpe_candidate_vendors')
+            return all_vars
+
+        def __post_init__(self):
+            self.cpe_candidate_vendors = None
 
         @property
         def dgst(self):
@@ -711,3 +728,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
         return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
 
+    def compute_heuristics_version(self):
+        self.processed.extracted_versions = helpers.compute_heuristics_version(self.web_scan.module_name + ' ' + self.web_scan.hw_version + ' ' + self.web_scan.fw_version)
+
+    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        self.processed.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
+
+    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        self.compute_heuristics_cpe_vendors(cpe_dataset)
+        self.processed.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
+                                                                 self.processed.cpe_candidate_vendors,
+                                                                 self.processed.extracted_versions,
+                                                                 n_max_matches=config.cc_cpe_max_matches,
+                                                                 threshold=config.cc_cpe_matching_threshold)
