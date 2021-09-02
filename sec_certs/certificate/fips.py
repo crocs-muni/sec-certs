@@ -42,6 +42,15 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             self.tables_done = tables_done
             self.file_status = file_status
             self.txt_state = txt_state
+            
+    def set_local_paths(self, sp_dir: Optional[Union[str, Path]], html_dir: Optional[Union[str, Path]],
+                        fragment_dir: Optional[Union[str, Path]]):
+        if sp_dir is not None:
+            self.state.sp_path = (Path(sp_dir) / (self.dgst)).with_suffix('.pdf')
+        if html_dir is not None:
+            self.state.html_path = (Path(html_dir) / (self.dgst)).with_suffix(".html")
+        if fragment_dir is not None:
+            self.state.fragment_path = (Path(fragment_dir) / (self.dgst)).with_suffix('.txt')
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
@@ -134,7 +143,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @dataclass(eq=True)
     class Processed(ComplexSerializableType):
         keywords: Optional[Dict[str, Dict]]
-        algorithms: Dict[str, Dict]
+        algorithms: List[Dict[str, Dict]]
         connections: List[str]
         unmatched_algs: int
 
@@ -261,8 +270,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             elif 'caveat' in pairs[title]:
                 html_items_found[pairs[title]] = content
-                html_items_found['mentioned_certs'].update(FIPSCertificate.parse_caveat(
-                    content))
+                html_items_found['mentioned_certs'].update(FIPSCertificate.parse_caveat(content))
 
             elif 'FIPS Algorithms' in title:
                 html_items_found['algorithms'] += FIPSCertificate.parse_table(
@@ -359,7 +367,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found['cert_id'] = initialized.cert_id
             items_found['revoked_reason'] = None
             items_found['revoked_link'] = None
-            items_found['mentioned_certs'] = []
+            items_found['mentioned_certs'] = {}
             state.tables_done = initialized.state.tables_done
             state.file_status = initialized.state.file_status
             state.txt_state = initialized.state.txt_state
@@ -618,7 +626,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @staticmethod
     def analyze_tables(tup: Tuple['FIPSCertificate', bool]) -> Tuple[bool, 'FIPSCertificate', List]:
         cert, precision = tup
-        if not (precision and cert.state.tables_done) \
+        if (not precision and cert.state.tables_done) \
                 or (precision and cert.processed.unmatched_algs < config.cert_threshold):
             return cert.state.tables_done, cert, []
 

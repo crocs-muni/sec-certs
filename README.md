@@ -11,9 +11,10 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/Docker%20Image%20CI?label=Docker%20build&style=flat-square)](https://hub.docker.com/repository/docker/seccerts/sec-certs)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcc_data_exploration.ipynb)
 
-## Installation (CC)
+## Installation
 
-The tool requires `Python >=3.8` and [pdftotext](https://www.xpdfreader.com/pdftotext-man.html) binary somewhere on the `PATH`.
+The tool requires `Python >=3.8`. Alongside `Python`, [pdftotext](https://www.xpdfreader.com/pdftotext-man.html), [graphviz](https://graphviz.org/),
+and [java](https://www.java.com/en) binaries must be accessible somewhere on `PATH`.
 
 The stable release is published on [PyPi](https://pypi.org/project/sec-certs/) as well as on [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
 
@@ -35,7 +36,7 @@ source venv/bin/activate
 pip install -e .
 ```
 
-## Usage
+## Usage (CC)
 
 There are two main steps in exploring the world of Common Criteria certificates:
 
@@ -100,3 +101,127 @@ Options:
  1. pull the image from the DockerHub repository : `docker pull seccerts/sec-certs`
  2. run `docker run --volume ./processed_data:/opt/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
  3. All processed data will be in the `~/processed_data` directory
+
+
+## Usage (FIPS)
+
+Currently, the main goal of the FIPS module is to find dependencies between the certified products. 
+
+### MyBinder Jupyter Notebook
+
+Without the need of processing the data locally, you can use the online MyBinder Jupyter notebook:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/fips?filepath=.%2Fnotebooks%2Ffips_data.ipynb)
+
+
+### Explore the latest snapshot locally
+
+You can also explore the latest snapshot locally using Python:
+```py
+from sec_certs.dataset.fips import FIPSDataset
+
+dset: FIPSDataset = FIPSDataset.from_web_latest()  # to get the latest snapshot
+dset.to_json('./fips_dataset.json')  # to save the dataset
+new_dset = FIPSDataset.from_json('./fips_dataset.json')  # to load it from disk
+
+```
+
+### Process FIPS data manually with Python
+
+You can also process FIPS data manually using `fips-certs` in terminal after installation.
+You can also use the `fips_cli.py` script.
+
+Calling `fips-certs --help` outputs following:
+```
+Usage: fips-certs [OPTIONS] [new-run|all|build|convert|update|web-scan|pdf-
+                  scan|table-search|analysis|graphs]...
+
+  Specify actions, sequence of one or more strings from the following list:
+
+  ["new-run", "all", "build", "convert", "update", "web-scan", "pdf-scan",
+  "table-search", "analysis", "graphs"]
+
+  If 'new-run' is specified, a new dataset will be created and all the
+  actions will be run. If 'all' is specified, dataset will be updated and
+  all actions run against the dataset. Otherwise, only selected actions will
+  run in the correct order.
+
+  Dataset loading:
+
+      'build'         Create a skeleton of a new dataset from NIST pages.
+
+      'update'        Load a previously used dataset (created by 'build')
+      and update it with nonprocessed entries from NIST pages.
+
+      Both options download the files needed for analysis.
+
+  Analysis preparation:
+
+      'convert'       Convert all downloaded PDFs.
+
+      'web-scan'      Perform a scan of downloaded CMVP webpages.
+
+      'pdf-scan'      Perform a scan of downloaded CMVP security policy
+      documents - Keyword extraction.
+
+      'table-search'  Analyze algorithm implementation entries in tables in
+      security policy documents.
+
+      Analysis preparation actions are by default done only for
+      certificates, where each corresponding action failed.     This
+      behaviour can be changed using '--redo-*' options.     These actions
+      are also independent of each other.
+
+  Analysis:
+
+      'analysis'      Merge results from analysis preparation and find
+      dependencies between certificates.
+
+      'graphs'        Plot dependency graphs.
+
+Options:
+  -o, --output DIRECTORY      Path where the output of the experiment will be
+                              stored. May overwrite existing content.
+
+  -c, --config FILE           Path to your own config yaml file that will
+                              override the default one.
+
+  -i, --input FILE            If set, the actions will be performed on a CC
+                              dataset loaded from JSON from the input path.
+
+  -n, --name TEXT             Name of the json object to be created in the
+                              <<output>> directory. Defaults to
+                              timestamp.json.
+
+  --no-download-algs          Don't fetch new algorithm implementations
+  --redo-web-scan             Redo HTML webpage scan from scratch
+  --redo-keyword-scan         Redo PDF keyword scan from scratch
+  --higher-precision-results  Redo table search for certificates with high
+                              error rate. Behaviour undefined if used on a
+                              newly instantiated dataset.
+
+  -s, --silent                If set, will not print to stdout
+  --help                      Show this message and exit.
+```
+
+The *Analysis* part is designed to find dependecies between certificates.
+
+#### First run
+The first time you are using the FIPS module, use the following command:
+```
+fips-certs new-run --output <directory name> --name <dataset name>
+```
+where `<directory name>` is the name of the working directory of the FIPS module 
+(e.g. where all the metadata will be stored), and `<dataset name>` is the name of the resulting dataset.
+
+This will download a large amount of data (4-5 GB) and can take up to 4 hours to finish.
+
+#### Next runs
+
+When a dataset is successfully created using `new-run`, you can use the command `all` to update the dataset 
+(download latest files, redo scans for failed certificates, etc.). It is also **strongly advised** to use the `--higher-precision-results`
+switch on the **second run**. The following command should be used to update the dataset:
+```
+fips-certs all --input <path to the dataset>
+```
+where `<path to the dataset>` is the **path to the dataset file**, i.e. `<directory name>/<dataset name>.json` from the first run.
