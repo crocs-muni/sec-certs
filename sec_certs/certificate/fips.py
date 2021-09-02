@@ -729,15 +729,26 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
 
     def compute_heuristics_version(self):
-        self.processed.extracted_versions = helpers.compute_heuristics_version(self.web_scan.module_name + ' ' + self.web_scan.hw_version + ' ' + self.web_scan.fw_version)
+        versions_for_extraction = ''
+        if self.web_scan.module_name:
+            versions_for_extraction += f' {self.web_scan.module_name}'
+        if self.web_scan.hw_version:
+            versions_for_extraction += f' {self.web_scan.hw_version}'
+        if self.web_scan.fw_version:
+            versions_for_extraction += f' {self.web_scan.fw_version}'
+        self.processed.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         self.processed.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
 
     def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
         self.compute_heuristics_cpe_vendors(cpe_dataset)
-        self.processed.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
-                                                                 self.processed.cpe_candidate_vendors,
-                                                                 self.processed.extracted_versions,
-                                                                 n_max_matches=config.cc_cpe_max_matches,
-                                                                 threshold=config.cc_cpe_matching_threshold)
+
+        if not self.web_scan.module_name:
+            self.processed.cpe_matches = None
+        else:
+            self.processed.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
+                                                                     self.processed.cpe_candidate_vendors,
+                                                                     self.processed.extracted_versions,
+                                                                     n_max_matches=config.cc_cpe_max_matches,
+                                                                     threshold=config.cc_cpe_matching_threshold)

@@ -52,6 +52,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def auxillary_datasets_dir(self) -> Path:
         return self.root_dir / 'auxillary_datasets'
 
+    @property
+    def cpe_dataset_path(self) -> Path:
+        return self.auxillary_datasets_dir / 'cpe_dataset.json'
+
     # After web scan, there should be a FIPSCertificate object created for every entry
     @property
     def successful_web_scan(self) -> bool:
@@ -428,7 +432,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
         logger.info('Computing heuristics: Finding CPE matches for certificates')
-        cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
+        cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
 
         for cert in self:
             cert.compute_heuristics_cpe_match(cpe_dset)
