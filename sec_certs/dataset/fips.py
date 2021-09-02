@@ -86,6 +86,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             [cert for cert in self.certs.values() if not cert.pdf_scan.keywords or redo],
             config.n_threads,
             use_threading=False,
+            progress_bar_desc="Scanning PDF files"
         )
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
@@ -118,7 +119,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
         logging.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(
-            FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)), config.n_threads
+            FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)), config.n_threads, progress_bar_desc="Downloading PDF files"
         )
         self.new_files += len(sp_urls)
 
@@ -136,13 +137,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         logging.info(f"downloading {len(html_urls)} module html files")
         failed = cert_processing.process_parallel(
-            FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)), config.n_threads
+            FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)), config.n_threads, progress_bar_desc="Downloading HTML files"
         )
         failed = [c for c in failed if c]
 
         self.new_files += len(html_urls)
         logging.info(f"Download failed for {len(failed)} files. Retrying...")
-        cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads)
+        cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads, progress_bar_desc="Downloading HTML files again")
         return new_files
 
     @serialize
@@ -153,7 +154,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             for cert in self.certs.values()
             if not cert.state.txt_state and (self.policies_dir / f"{cert.cert_id}.pdf").exists()
         ]
-        cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, config.n_threads)
+        cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt")
 
     def prepare_dataset(self, test: Optional[Path] = None, update: bool = False):
         if test:
@@ -230,7 +231,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def set_local_paths(self):
         cert: FIPSCertificate
-        for cert in self.certs:
+        for cert in self.certs.values():
             cert.set_local_paths(self.policies_dir, self.web_dir, self.fragments_dir)
 
     def _append_new_certs_data(self) -> int:
@@ -296,6 +297,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             config.n_threads // 4,  # tabula already processes by parallel, so
             # it's counterproductive to use all threads
             use_threading=False,
+            progress_bar_desc="Searching tables"
         )
 
         not_decoded = [cert.state.sp_path for done, cert, _ in result if done is False]
