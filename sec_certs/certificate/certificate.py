@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from typing import Union, TypeVar, Type
 
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
+from sec_certs.dataset.cpe import CPEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -48,4 +49,14 @@ class Certificate(ABC, ComplexSerializableType):
         with Path(input_path).open('r') as handle:
             return json.load(handle, cls=CustomJSONDecoder)
 
+    @abstractmethod
+    def compute_heuristics_version(self):
+        raise NotImplementedError('Not meant to be implemented')
 
+    @abstractmethod
+    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        raise NotImplementedError('Not meant to be implemented')
+
+    @abstractmethod
+    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        raise NotImplementedError('Not meant to be implemented')

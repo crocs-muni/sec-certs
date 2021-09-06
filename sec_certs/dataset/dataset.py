@@ -15,6 +15,8 @@ import sec_certs.parallel_processing as cert_processing
 from sec_certs.certificate.certificate import Certificate
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
+from sec_certs.serialization import serialize
+from sec_certs.dataset.cpe import CPEDataset
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,18 @@ class Dataset(ABC):
         new_dir = Path(new_dir)
         new_dir.mkdir(exist_ok=True)
         self._root_dir = new_dir
+
+    @property
+    def web_dir(self) -> Path:
+        return self.root_dir / 'web'
+
+    @property
+    def auxillary_datasets_dir(self) -> Path:
+        return self.root_dir / 'auxillary_datasets'
+
+    @property
+    def cpe_dataset_path(self) -> Path:
+        return self.auxillary_datasets_dir / 'cpe_dataset.json'
 
     @property
     def json_path(self) -> Path:
@@ -126,4 +140,31 @@ class Dataset(ABC):
                     logger.error(f'Corrupted file at: {p}')
                     p.unlink()
 
+    def _prepare_cpe_dataset(self, download_fresh_cpes):
+        logger.info('Preparing CPE dataset.')
+        if not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir(parents=True)
 
+        if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
+            cpe_dataset = CPEDataset.from_web()
+            cpe_dataset.to_json(str(self.cpe_dataset_path))
+        else:
+            cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
+
+        return cpe_dataset
+
+    def _compute_candidate_versions(self):
+        logger.info('Computing heuristics: possible product versions in certificate name')
+        for cert in self:
+            cert.compute_heuristics_version()
+
+    def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
+        logger.info('Computing heuristics: Finding CPE matches for certificates')
+        cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
+        for cert in self:
+            cert.compute_heuristics_cpe_match(cpe_dset)
+
+    @serialize
+    def compute_cpe_heuristics(self):
+        self._compute_candidate_versions()
+        self._compute_cpe_matches()

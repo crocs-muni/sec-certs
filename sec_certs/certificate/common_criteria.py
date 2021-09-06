@@ -546,9 +546,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
-        """
-        With the help of the CPE dataset, will find CPE vendors that could match the given certificate vendor
-        """
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
 
     def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
