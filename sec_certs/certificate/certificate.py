@@ -29,6 +29,11 @@ class Certificate(ABC, ComplexSerializableType):
     def dgst(self):
         raise NotImplementedError('Not meant to be implemented')
 
+    @property
+    @abstractmethod
+    def label_studio_title(self):
+        raise NotImplementedError('Not meant to be implemented')
+
     def __eq__(self, other: 'Certificate') -> bool:
         return self.dgst == other.dgst
 

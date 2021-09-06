@@ -168,3 +168,16 @@ class Dataset(ABC):
     def compute_cpe_heuristics(self):
         self._compute_candidate_versions()
         self._compute_cpe_matches()
+
+    def to_label_studio_json(self, output_path: Union[str, Path]):
+        lst = []
+        for cert in [x for x in self if x.heuristics.cpe_matches and not x.heuristics.labeled]:
+            dct = {'text': cert.label_studio_title}
+            candidates = [x[1].title for x in cert.heuristics.cpe_matches]
+            candidates += ['No good match'] * (config.cc_cpe_max_matches - len(candidates))
+            options = ['option_' + str(x) for x in range(1, 21)]
+            dct.update({o: c for o, c in zip(options, candidates)})
+            lst.append(dct)
+
+        with Path(output_path).open('w') as handle:
+            json.dump(lst, handle, indent=4)

@@ -257,6 +257,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
+    @property
+    def label_studio_title(self):
+        return self.name
+
     def __str__(self):
         return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
 

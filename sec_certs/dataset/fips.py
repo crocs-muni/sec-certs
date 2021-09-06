@@ -93,7 +93,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 continue
             
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
-            cert.processed.unmatched_algs = output[cert.dgst]
+            cert.heuristics.unmatched_algs = output[cert.dgst]
 
         output = {k: v for k, v in output.items() if v != 0}
         return output
@@ -268,7 +268,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info("Removing 'processed' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something")
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.processed = FIPSCertificate.Processed(None, {}, [], 0)
+            cert.heuristics = FIPSCertificate.Heuristics(None, {}, [], 0)
 
         self.match_algs()
 
@@ -317,7 +317,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     new_algorithms.append(algorithm)
                 else:
                     new_algorithms.append({"Certificate": [algorithm]})
-            certificate.processed.algorithms = new_algorithms
+            certificate.heuristics.algorithms = new_algorithms
 
             # returns True if candidates should _not_ be matched
 
@@ -334,9 +334,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         )
 
     def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate):
-        for rule in current_cert.processed.keywords["rules_cert_id"]:
-            matches = current_cert.processed.keywords["rules_cert_id"][rule]
-            current_cert.processed.keywords["rules_cert_id"][rule] = [
+        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
+            matches = current_cert.heuristics.keywords["rules_cert_id"][rule]
+            current_cert.heuristics.keywords["rules_cert_id"][rule] = [
                 cert_id
                 for cert_id in matches
                 if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
@@ -355,7 +355,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if cert_candidate not in self.algorithms.certs:
             return True
 
-        for cert_alg in processed_cert.processed.algorithms:
+        for cert_alg in processed_cert.heuristics.algorithms:
             for certificate in cert_alg["Certificate"]:
                 curr_id = "".join(filter(str.isdigit, certificate))
                 if curr_id == cert_candidate:
@@ -371,40 +371,27 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @staticmethod
     def _find_connections(current_cert: FIPSCertificate):
-        current_cert.processed.connections = []
+        current_cert.heuristics.connections = []
         current_cert.web_scan.connections = []
         current_cert.pdf_scan.connections = []
-        if not current_cert.state.file_status or not current_cert.processed.keywords:
+        if not current_cert.state.file_status or not current_cert.heuristics.keywords:
             return
-        if current_cert.processed.keywords["rules_cert_id"] == {}:
+        if current_cert.heuristics.keywords["rules_cert_id"] == {}:
             return
-        for rule in current_cert.processed.keywords["rules_cert_id"]:
-            for cert in current_cert.processed.keywords["rules_cert_id"][rule]:
+        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
+            for cert in current_cert.heuristics.keywords["rules_cert_id"][rule]:
                 cert_id = "".join(filter(str.isdigit, cert))
-                if cert_id not in current_cert.processed.connections:
-                    current_cert.processed.connections.append(cert_id)
+                if cert_id not in current_cert.heuristics.connections:
+                    current_cert.heuristics.connections.append(cert_id)
                     current_cert.pdf_scan.connections.append(cert_id)
 
         # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
         if current_cert.web_scan.mentioned_certs:
             for item in current_cert.web_scan.mentioned_certs:
                 cert_id = "".join(filter(str.isdigit, item))
-                if cert_id not in current_cert.processed.connections and cert_id != "":
-                    current_cert.processed.connections.append(cert_id)
+                if cert_id not in current_cert.heuristics.connections and cert_id != "":
+                    current_cert.heuristics.connections.append(cert_id)
                     current_cert.web_scan.connections.append(cert_id)
-
-    def to_label_studio_json(self, output_path: Union[str, Path]):
-        lst = []
-        for cert in [x for x in self if x.processed.cpe_matches and not x.processed.labeled]:
-            dct = {'text': f'{str(cert.web_scan.module_name)} {str(cert.web_scan.hw_version)} {str(cert.web_scan.fw_version)}'}
-            candidates = [x[1].title for x in cert.processed.cpe_matches]
-            candidates += ['No good match'] * (config.cc_cpe_max_matches - len(candidates))
-            options = ['option_' + str(x) for x in range(1, 21)]
-            dct.update({o: c for o, c in zip(options, candidates)})
-            lst.append(dct)
-
-        with Path(output_path).open('w') as handle:
-            json.dump(lst, handle, indent=4)
 
     def validate_results(self):
         """
