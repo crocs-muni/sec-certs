@@ -103,10 +103,6 @@ class CCDataset(Dataset, ComplexSerializableType):
                 logger.warning(f'Attempted to copy non-existing file: {e}')
 
     @property
-    def web_dir(self) -> Path:
-        return self.root_dir / 'web'
-
-    @property
     def certs_dir(self) -> Path:
         return self.root_dir / 'certs'
 
@@ -135,16 +131,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         return self.targets_dir / 'txt'
 
     @property
-    def auxillary_datasets_dir(self) -> Path:
-        return self.root_dir / 'auxillary_datasets'
-
-    @property
     def cve_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / 'cve_dataset.json'
-
-    @property
-    def cpe_dataset_path(self) -> Path:
-        return self.auxillary_datasets_dir / 'cpe_dataset.json'
 
     @property
     def pp_dataset_path(self) -> Path:
@@ -605,19 +593,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             self._extract_targets_frontpage(False)
             self._extract_targets_keywords(False)
 
-    def prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
-        logger.info('Preparing CPE dataset.')
-        if not self.auxillary_datasets_dir.exists():
-            self.auxillary_datasets_dir.mkdir(parents=True)
-
-        if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
-            cpe_dataset = CPEDataset.from_web()
-            cpe_dataset.to_json(str(self.cpe_dataset_path))
-        else:
-            cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
-
-        return cpe_dataset
-
     def prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
         logger.info('Preparing CVE dataset.')
         if not self.auxillary_datasets_dir.exists():
@@ -630,17 +605,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
         return cve_dataset
-
-    def _compute_candidate_versions(self):
-        logger.info('Computing heuristics: possible product versions in certificate name')
-        for cert in self:
-            cert.compute_heuristics_version()
-
-    def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
-        logger.info('Computing heuristics: Finding CPE matches for certificates')
-        cpe_dset = self.prepare_cpe_dataset(download_fresh_cpes)
-        for cert in self:
-            cert.compute_heuristics_cpe_match(cpe_dset)
 
     def _compute_cert_labs(self):
         logger.info('Deriving information about laboratories involved in certification.')
@@ -655,8 +619,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             cert.compute_heuristics_cert_id()
 
     def _compute_heuristics(self):
-        self._compute_candidate_versions()
-        self._compute_cpe_matches()
+        self.compute_cpe_heuristics()
         self._compute_cert_labs()
         self._compute_cert_ids()
 
@@ -727,19 +690,6 @@ class CCDataset(Dataset, ComplexSerializableType):
         for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
 
-    def to_label_studio_json(self, output_path: Union[str, Path]):
-        lst = []
-        for cert in [x for x in self if x.heuristics.cpe_matches and not x.heuristics.labeled]:
-            dct = {'text': cert.name}
-            candidates = [x[1].title for x in cert.heuristics.cpe_matches]
-            candidates += ['No good match'] * (config.cc_cpe_max_matches - len(candidates))
-            options = ['option_' + str(x) for x in range(1, 21)]
-            dct.update({o: c for o, c in zip(options, candidates)})
-            lst.append(dct)
-
-        with Path(output_path).open('w') as handle:
-            json.dump(lst, handle, indent=4)
-
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
 
@@ -748,7 +698,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         with Path(input_path).open('r') as handle:
             data = json.load(handle)
 
-        cpe_dset = self.prepare_cpe_dataset()
+        cpe_dset = self._prepare_cpe_dataset()
 
         logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
         for annotation in tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):

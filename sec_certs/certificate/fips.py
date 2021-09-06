@@ -1,6 +1,6 @@
 import copy
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import ClassVar, Dict, Optional, Union, List, Tuple, Set, Pattern
@@ -18,6 +18,7 @@ from sec_certs.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
 from sec_certs.serialization import ComplexSerializableType
+from sec_certs.dataset.cpe import CPE, CPEDataset
 
 
 class FIPSCertificate(Certificate, ComplexSerializableType):
@@ -141,11 +142,27 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return str(self.cert_id)
 
     @dataclass(eq=True)
-    class Processed(ComplexSerializableType):
+    class Heuristics(ComplexSerializableType):
         keywords: Optional[Dict[str, Dict]]
         algorithms: List[Dict[str, Dict]]
         connections: List[str]
         unmatched_algs: int
+
+        extracted_versions: List[str] = field(default=None)
+        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
+        labeled: bool = field(default=False)
+        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
+        related_cves: Optional[List[str]] = field(default=None)
+        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+
+        @property
+        def serialized_attributes(self) -> List[str]:
+            all_vars = copy.deepcopy(super().serialized_attributes)
+            all_vars.remove('cpe_candidate_vendors')
+            return all_vars
+
+        def __post_init__(self):
+            self.cpe_candidate_vendors = None
 
         @property
         def dgst(self):
@@ -160,6 +177,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def dgst(self) -> str:
         return self.cert_id
 
+    @property
+    def label_studio_title(self):
+        return f'{str(self.web_scan.module_name)} {str(self.web_scan.hw_version)} {str(self.web_scan.fw_version)}'
+
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
         exit_code = helpers.download_file(*cert)
@@ -170,13 +191,13 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def __init__(self, cert_id: str,
                  web_scan: 'FIPSCertificate.WebScan',
                  pdf_scan: 'FIPSCertificate.PdfScan',
-                 processed: 'FIPSCertificate.Processed',
+                 heuristics: 'FIPSCertificate.Heuristics',
                  state: State):
         super().__init__()
         self.cert_id = cert_id
         self.web_scan = web_scan
         self.pdf_scan = pdf_scan
-        self.processed = processed
+        self.heuristics = heuristics
         self.state = state
 
     @staticmethod
@@ -371,7 +392,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             state.tables_done = initialized.state.tables_done
             state.file_status = initialized.state.file_status
             state.txt_state = initialized.state.txt_state
-            initialized.processed.connections = []
+            initialized.heuristics.connections = []
 
         if redo:
             items_found = FIPSCertificate.initialize_dictionary()
@@ -431,7 +452,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    [] if not initialized else initialized.pdf_scan.algorithms,
                                    []  # connections
                                ),
-                               FIPSCertificate.Processed(None, {}, [], 0),
+                               FIPSCertificate.Heuristics(None, {}, [], 0),
                                state
                                )
 
@@ -627,14 +648,14 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def analyze_tables(tup: Tuple['FIPSCertificate', bool]) -> Tuple[bool, 'FIPSCertificate', List]:
         cert, precision = tup
         if (not precision and cert.state.tables_done) \
-                or (precision and cert.processed.unmatched_algs < config.cert_threshold):
+                or (precision and cert.heuristics.unmatched_algs < config.cert_threshold):
             return cert.state.tables_done, cert, []
 
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix('.pdf.txt')
         with open(txt_file, 'r', encoding='utf-8') as f:
             tables = helpers.find_tables(f.read(), txt_file)
-        all_pages = precision and cert.processed.unmatched_algs > config.cert_threshold  # bool value
+        all_pages = precision and cert.heuristics.unmatched_algs > config.cert_threshold  # bool value
 
         lst: List = []
         if tables:
@@ -673,36 +694,36 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not self.pdf_scan.keywords:
             return
 
-        self.processed.keywords = copy.deepcopy(self.pdf_scan.keywords)
+        self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
         # TODO figure out why can't I delete this
         if self.web_scan.mentioned_certs:
             for item, value in self.web_scan.mentioned_certs.items():
-                self.processed.keywords['rules_cert_id'].update({'caveat_item': {item: value}})
+                self.heuristics.keywords['rules_cert_id'].update({'caveat_item': {item: value}})
 
         alg_set = self._create_alg_set()
 
-        for rule in self.processed.keywords['rules_cert_id']:
+        for rule in self.heuristics.keywords['rules_cert_id']:
             to_pop = set()
             rr = re.compile(rule)
-            for cert in self.processed.keywords['rules_cert_id'][rule]:
+            for cert in self.heuristics.keywords['rules_cert_id'][rule]:
                 if cert in alg_set:
                     to_pop.add(cert)
                     continue
-                for alg in self.processed.keywords['rules_fips_algorithms']:
-                    for found in self.processed.keywords['rules_fips_algorithms'][alg]:
+                for alg in self.heuristics.keywords['rules_fips_algorithms']:
+                    for found in self.heuristics.keywords['rules_fips_algorithms'][alg]:
                         if rr.search(found) \
                                 and rr.search(cert) \
                                 and rr.search(found).group('id') == rr.search(cert).group('id'):
                             to_pop.add(cert)
 
-                for alg_cert in self.processed.algorithms:
+                for alg_cert in self.heuristics.algorithms:
                     for cert_no in alg_cert['Certificate']:
                         if int(''.join(filter(str.isdigit, cert_no))) == int(''.join(filter(str.isdigit, cert))):
                             to_pop.add(cert)
             for r in to_pop:
-                self.processed.keywords['rules_cert_id'][rule].pop(r, None)
+                self.heuristics.keywords['rules_cert_id'][rule].pop(r, None)
 
-            self.processed.keywords['rules_cert_id'][rule].pop(
+            self.heuristics.keywords['rules_cert_id'][rule].pop(
                 self.cert_id, None)
 
     @staticmethod
@@ -711,3 +732,27 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             .replace('-', ' ').replace('+', ' ').replace('®', '').replace('(R)', '').split()
         return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
 
+    def compute_heuristics_version(self):
+        versions_for_extraction = ''
+        if self.web_scan.module_name:
+            versions_for_extraction += f' {self.web_scan.module_name}'
+        if self.web_scan.hw_version:
+            versions_for_extraction += f' {self.web_scan.hw_version}'
+        if self.web_scan.fw_version:
+            versions_for_extraction += f' {self.web_scan.fw_version}'
+        self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
+
+    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
+
+    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+        self.compute_heuristics_cpe_vendors(cpe_dataset)
+
+        if not self.web_scan.module_name:
+            self.heuristics.cpe_matches = None
+        else:
+            self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
+                                                                      self.heuristics.cpe_candidate_vendors,
+                                                                      self.heuristics.extracted_versions,
+                                                                      n_max_matches=config.cc_cpe_max_matches,
+                                                                      threshold=config.cc_cpe_matching_threshold)

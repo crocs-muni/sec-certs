@@ -4,6 +4,7 @@ import os
 from itertools import groupby
 from pathlib import Path
 from typing import ClassVar, Tuple, List, Dict, Optional, Union
+import json
 
 from bs4 import BeautifulSoup
 from graphviz import Digraph
@@ -14,6 +15,7 @@ from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
 from sec_certs.certificate.fips import FIPSCertificate
+from sec_certs.dataset.cpe import CPEDataset
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
@@ -26,10 +28,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.keywords = {}
         self.algorithms = None
         self.new_files = 0
-
-    @property
-    def web_dir(self) -> Path:
-        return self.root_dir / "web"
 
     @property
     def results_dir(self) -> Path:
@@ -95,7 +93,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 continue
             
             output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
-            cert.processed.unmatched_algs = output[cert.dgst]
+            cert.heuristics.unmatched_algs = output[cert.dgst]
 
         output = {k: v for k, v in output.items() if v != 0}
         return output
@@ -270,7 +268,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info("Removing 'processed' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something")
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.processed = FIPSCertificate.Processed(None, {}, [], 0)
+            cert.heuristics = FIPSCertificate.Heuristics(None, {}, [], 0)
 
         self.match_algs()
 
@@ -319,7 +317,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     new_algorithms.append(algorithm)
                 else:
                     new_algorithms.append({"Certificate": [algorithm]})
-            certificate.processed.algorithms = new_algorithms
+            certificate.heuristics.algorithms = new_algorithms
 
             # returns True if candidates should _not_ be matched
 
@@ -336,9 +334,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         )
 
     def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate):
-        for rule in current_cert.processed.keywords["rules_cert_id"]:
-            matches = current_cert.processed.keywords["rules_cert_id"][rule]
-            current_cert.processed.keywords["rules_cert_id"][rule] = [
+        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
+            matches = current_cert.heuristics.keywords["rules_cert_id"][rule]
+            current_cert.heuristics.keywords["rules_cert_id"][rule] = [
                 cert_id
                 for cert_id in matches
                 if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
@@ -357,7 +355,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if cert_candidate not in self.algorithms.certs:
             return True
 
-        for cert_alg in processed_cert.processed.algorithms:
+        for cert_alg in processed_cert.heuristics.algorithms:
             for certificate in cert_alg["Certificate"]:
                 curr_id = "".join(filter(str.isdigit, certificate))
                 if curr_id == cert_candidate:
@@ -373,26 +371,26 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @staticmethod
     def _find_connections(current_cert: FIPSCertificate):
-        current_cert.processed.connections = []
+        current_cert.heuristics.connections = []
         current_cert.web_scan.connections = []
         current_cert.pdf_scan.connections = []
-        if not current_cert.state.file_status or not current_cert.processed.keywords:
+        if not current_cert.state.file_status or not current_cert.heuristics.keywords:
             return
-        if current_cert.processed.keywords["rules_cert_id"] == {}:
+        if current_cert.heuristics.keywords["rules_cert_id"] == {}:
             return
-        for rule in current_cert.processed.keywords["rules_cert_id"]:
-            for cert in current_cert.processed.keywords["rules_cert_id"][rule]:
+        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
+            for cert in current_cert.heuristics.keywords["rules_cert_id"][rule]:
                 cert_id = "".join(filter(str.isdigit, cert))
-                if cert_id not in current_cert.processed.connections:
-                    current_cert.processed.connections.append(cert_id)
+                if cert_id not in current_cert.heuristics.connections:
+                    current_cert.heuristics.connections.append(cert_id)
                     current_cert.pdf_scan.connections.append(cert_id)
 
         # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
         if current_cert.web_scan.mentioned_certs:
             for item in current_cert.web_scan.mentioned_certs:
                 cert_id = "".join(filter(str.isdigit, item))
-                if cert_id not in current_cert.processed.connections and cert_id != "":
-                    current_cert.processed.connections.append(cert_id)
+                if cert_id not in current_cert.heuristics.connections and cert_id != "":
+                    current_cert.heuristics.connections.append(cert_id)
                     current_cert.web_scan.connections.append(cert_id)
 
     def validate_results(self):
