@@ -2,15 +2,24 @@ import yaml
 from typing import Union, Any
 from pathlib import Path
 from importlib_resources import files
+import jsonschema
+import json
+import os
 
 import sec_certs
 
 
 class Configuration(object):
-    # TODO: Should raise ValueError on unvalidated config
     def load(self, filepath: Union[str, Path]):
         with Path(filepath).open('r') as file:
             state = yaml.load(file, Loader=yaml.FullLoader)
+
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+
+        with open(Path(script_dir) / 'settings-schema.json', 'r') as file:
+            schema = json.loads(file.read())
+
+        jsonschema.validate(state, schema)
 
         for k, v in state.items():
             setattr(self, k, v)
