@@ -9,7 +9,7 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/Docker%20Image%20CI?label=Docker%20build&style=flat-square)](https://hub.docker.com/repository/docker/seccerts/sec-certs)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcc_data_exploration.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcpe_cve.ipynb)
 
 ## Installation
 
@@ -47,7 +47,7 @@ For the first step, we currently provide CLI and our already processed fresh sna
 
 ### Explore data with MyBinder Jupyter notebook
 
-Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcc_data_exploration.ipynb).
+Most probably, you don't want to process fresh snapshot of Common Criteria certificates by yourself. Instead, you can use our results and explore them using [online Jupyter notebook](https://mybinder.org/v2/gh/crocs-muni/sec-certs/dev?filepath=notebooks%2Fcpe_cve.ipynb).
 
 ### Explore the latest snapshot locally
 
