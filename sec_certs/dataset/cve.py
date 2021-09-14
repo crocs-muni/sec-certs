@@ -49,15 +49,22 @@ class CVE(ComplexSerializableType):
 
     cve_id: str
     vulnerable_cpes: List[str]
+    vulnerable_certs: List[str]
     impact: Impact
     published_date: Optional[datetime.datetime]
-    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'base_score', 'severity', 'explotability_score',
-                                        'impact_score', 'published_date')
+    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
+                                        'explotability_score', 'impact_score', 'published_date')
 
-    def __init__(self, cve_id: str, vulnerable_cpes: List[str], impact: Impact, published_date: str):
+    def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
+                 published_date: str):
         super().__init__()
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
+
+        self.vulnerable_certs = vulnerable_certs
+        if not self.vulnerable_certs:
+            self.vulnerable_certs = []
+
         self.impact = impact
         self.published_date = isoparse(published_date)
 
@@ -91,9 +98,10 @@ class CVE(ComplexSerializableType):
         cve_id = dct['cve']['CVE_data_meta']['ID']
         impact = cls.Impact.from_nist_dict(dct)
         vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
+        vulnerable_certs = None
         published_date = dct['publishedDate']
 
-        return CVE(cve_id, vulnerable_cpes, impact, published_date)
+        return CVE(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date)
 
     def to_pandas_tuple(self):
         return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
