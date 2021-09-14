@@ -674,6 +674,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         if update_json is True:
             self.to_json()
 
+    @serialize
     def compute_related_cves(self, download_fresh_cves: bool = False):
         logger.info('Retrieving related CVEs to verified CPE matches')
         cve_dset = self.prepare_cve_dataset(download_fresh_cves)

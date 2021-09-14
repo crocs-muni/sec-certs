@@ -1,3 +1,4 @@
+import copy
 import datetime
 import tempfile
 from unittest import TestCase
@@ -44,10 +45,14 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cves = [
             CVE('CVE-2017-1732',
                 ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
-                CVE.Impact(5.3, 'MEDIUM', 3.9, 1.4), '2021-05-26T04:15Z'),
+                None,
+                CVE.Impact(5.3, 'MEDIUM', 3.9, 1.4),
+                '2021-05-26T04:15Z'),
             CVE('CVE-2019-4513',
                 ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
-                CVE.Impact(8.2, 'HIGH', 3.9, 4.2), '2000-05-26T04:15Z')
+                None,
+                CVE.Impact(8.2, 'HIGH', 3.9, 4.2),
+                '2000-05-26T04:15Z')
         ]
         cls.cve_dset = CVEDataset({x.cve_id: x for x in cls.cves})
 
@@ -83,7 +88,12 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_find_related_cves(self):
         self.cc_dset['ebd276cca70fd723'].heuristics.verified_cpe_matches = [self.cpes[0]]
         self.cc_dset.compute_related_cves()
-        self.assertCountEqual(self.cves, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
+
+        evaluated_cves = copy.deepcopy(self.cves)
+        for cve in evaluated_cves:
+            cve.vulnerable_certs = ['ebd276cca70fd723']
+
+        self.assertCountEqual(evaluated_cves, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):
         self.assertEqual(self.cc_dset['ebd276cca70fd723'].heuristics.extracted_versions, ['8.2'], 'The version extracted from the certificate does not match the template')

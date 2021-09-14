@@ -7,6 +7,7 @@
             "vulnerable_cpes": [
                 "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
             ],
+            "vulnerable_certs": null,
             "impact": {
                 "_type": "Impact",
                 "base_score": 5.3,
@@ -22,6 +23,7 @@
             "vulnerable_cpes": [
                 "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
             ],
+            "vulnerable_certs": null,
             "impact": {
                 "_type": "Impact",
                 "base_score": 8.2,
