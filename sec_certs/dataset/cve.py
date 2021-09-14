@@ -104,7 +104,7 @@ class CVE(ComplexSerializableType):
         return CVE(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date)
 
     def to_pandas_tuple(self):
-        return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
+        return (self.cve_id, self.vulnerable_cpes, self.vulnerable_certs, self.impact.base_score, self.impact.severity,
                 self.impact.explotability_score, self.impact.impact_score, self.published_date)
 
 
