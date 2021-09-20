@@ -1,3 +1,5 @@
+"""FIPS commands."""
+
 from datetime import datetime
 import json
 

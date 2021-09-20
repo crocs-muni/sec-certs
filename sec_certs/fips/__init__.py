@@ -1,8 +1,7 @@
-import atexit
 import json
 import sentry_sdk
 from werkzeug.local import Local
-from flask import Blueprint
+from flask import Blueprint, current_app
 
 from .. import mongo
 from ..utils import create_graph

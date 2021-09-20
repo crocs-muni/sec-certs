@@ -56,7 +56,7 @@ def _update(file, remove, collection, certs_path, mapper):
     click.echo("Updating...")
     for doc in tqdm(cert_data.values()):
         collection.replace_one({"_id": doc["_id"]}, doc, True)
-    click.echo(f"Updated")
+    click.echo("Updated")
 
 
 def _create(collection_name, text_attr):

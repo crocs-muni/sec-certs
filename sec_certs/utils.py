@@ -1,14 +1,17 @@
 import random
 from functools import total_ordering
+from typing import Any, Union
 
 import networkx as nx
-from flask import abort, jsonify, render_template
+from flask import jsonify, Response
 from flask_paginate import Pagination as FlaskPagination
-from networkx import node_link_data
+from networkx import node_link_data, DiGraph
 from networkx.algorithms.components import weakly_connected_components
 
 
 class Pagination(FlaskPagination):
+    """A pagination class that allows for a custom url_callback."""
+
     def __init__(self, found=0, **kwargs):
         self.url_callback = kwargs.get("url_callback", None)
         super().__init__(found, **kwargs)
@@ -22,8 +25,12 @@ class Pagination(FlaskPagination):
 
 @total_ordering
 class Smallest(object):
+    """An object that is smaller than everything else (except itself)."""
     def __lt__(self, other):
-        return True
+        if isinstance(other, Smallest):
+            return False
+        else:
+            return True
 
     def __eq__(self, other):
         if isinstance(other, Smallest):
@@ -37,8 +44,12 @@ smallest = Smallest()
 
 @total_ordering
 class Biggest(object):
+    """An object that is bigger than everything else (except itself)."""
     def __gt__(self, other):
-        return True
+        if isinstance(other, Biggest):
+            return False
+        else:
+            return True
 
     def __eq__(self, other):
         if isinstance(other, Biggest):
@@ -50,13 +61,15 @@ class Biggest(object):
 biggest = Biggest()
 
 
-def send_json_attachment(data):
+def send_json_attachment(data) -> Response:
+    """Send a JSON as an attachment."""
     resp = jsonify(data)
     resp.headers['Content-Disposition'] = 'attachment'
     return resp
 
 
-def create_graph(references):
+def create_graph(references) -> tuple[DiGraph, list[DiGraph], dict[str, Any]]:
+    """Create a graph out of references."""
     graph = nx.DiGraph()
     for key, value in references.items():
         graph.add_node(value["hashid"], certid=key, name=value["name"], href=value["href"], type=value["type"])
@@ -74,7 +87,8 @@ def create_graph(references):
     return graph, graphs, graph_map
 
 
-def network_graph_func(graphs):
+def network_graph_func(graphs) -> Response:
+    """Create a randomized JSON out of graph components."""
     nodes = []
     edges = []
     for graph in graphs:
@@ -89,34 +103,11 @@ def network_graph_func(graphs):
     return send_json_attachment(network)
 
 
-def entry_func(hashid, data, template_name):
-    if hashid in data.keys():
-        cert = data[hashid]
-        return render_template(template_name, cert=cert, hashid=hashid)
-    else:
-        return abort(404)
-
-
-def entry_json_func(hashid, data):
-    if hashid in data.keys():
-        return send_json_attachment(data[hashid])
-    else:
-        return abort(404)
-
-
-def entry_graph_json_func(hashid, data, graph_map):
-    if hashid in data.keys():
-        if hashid in graph_map.keys():
-            graph = graph_map[hashid]
-            network = node_link_data(graph)
-        else:
-            network = {}
-        return send_json_attachment(network)
-    else:
-        return abort(404)
-
-
-def remove_dots(data):
+def remove_dots(data: Union[dict, list]) -> Union[dict, list]:
+    """
+    Recursively replace the dots with `\uff0e` in the keys of the `data`.
+    Needed because MongoDB cannot handle dots in dict keys.
+    """
     if isinstance(data, dict):
         ks = list(data.keys())
         for key in ks:
@@ -130,6 +121,10 @@ def remove_dots(data):
 
 
 def add_dots(data):
+    """
+    Recursively replace `\uff0e` dots with dots in the keys of the `data`.
+    Needed because MongoDB cannot handle dots in dict keys.
+    """
     if isinstance(data, dict):
         ks = list(data.keys())
         for key in ks:

@@ -1,3 +1,5 @@
+"""FIPS views."""
+
 import random
 import re
 from operator import itemgetter
@@ -24,7 +26,7 @@ def types():
 
 @fips.route("/")
 def index():
-    return render_template("fips/index.html.jinja2", title=f"FIPS 140 | seccerts.org")
+    return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org")
 
 
 @fips.route("/network/")
@@ -125,7 +127,7 @@ def process_search(req, callback=None):
     )
     return {
         "pagination": pagination,
-        "certs": cursor[(page - 1) * per_page : page * per_page],
+        "certs": cursor[(page - 1) * per_page: page * per_page],
         "categories": categories,
         "q": q,
         "page": page,

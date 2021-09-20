@@ -1,3 +1,5 @@
+"""Common Criteria views."""
+
 import random
 import re
 from operator import itemgetter
@@ -17,39 +19,46 @@ from . import (cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis,
 
 @cc.app_template_global("get_cc_sar")
 def get_cc_sar(sar):
+    """Get the long name for a SAR."""
     return cc_sars.get(sar, None)
 
 
 @cc.route("/sars.json")
 @cache.cached(60 * 60)
 def sars():
+    """Endpoint with CC SAR JSON."""
     return send_json_attachment(cc_sars)
 
 
 @cc.app_template_global("get_cc_sfr")
 def get_cc_sfr(sfr):
+    """Get the long name for a SFR."""
     return cc_sfrs.get(sfr, None)
 
 
 @cc.route("/sfrs.json")
 @cache.cached(60 * 60)
 def sfrs():
+    """Endpoint with CC SFR JSON."""
     return send_json_attachment(cc_sfrs)
 
 
 @cc.app_template_global("get_cc_category")
 def get_cc_category(name):
+    """Get the long name for the CC category."""
     return cc_categories.get(name, None)
 
 
 @cc.route("/categories.json")
 @cache.cached(60 * 60)
 def categories():
+    """Endpoint with CC categories JSON."""
     return send_json_attachment(cc_categories)
 
 
 @cc.route("/")
 def index():
+    """Common criteria index."""
     return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org")
 
 

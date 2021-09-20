@@ -74,6 +74,7 @@ def set_sentry_user():
 
 @app.template_global("country_to_flag")
 def to_flag(code):
+    """Turn a country code to an emoji flag."""
     if code == "UK":
         code = "GB"
     return flag(code)
@@ -81,6 +82,7 @@ def to_flag(code):
 
 @app.template_global("blueprint_url_prefix")
 def blueprint_prefix():
+    """The url_prefix of the current blueprint."""
     return current_app.blueprints[request.blueprint].url_prefix
 
 

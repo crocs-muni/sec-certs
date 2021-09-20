@@ -1,9 +1,7 @@
-import atexit
 import json
 import sentry_sdk
-from datetime import datetime
 from werkzeug.local import Local
-from flask import Blueprint
+from flask import Blueprint, current_app
 
 from .. import mongo
 from ..utils import create_graph
@@ -53,13 +51,15 @@ def load_cc_data():
                 "href": url_for("cc.entry", hashid=hashid),
                 "type": cc_categories[cert["csv_scan"]["cc_category"]]["id"]
             }
-
+            # Process references
             if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and "keywords_scan" in cert and \
                     cert["keywords_scan"]["rules_cert_id"]:
+                # Add references from cert
                 items = sum(map(lambda x: list(x.keys()), cert["keywords_scan"]["rules_cert_id"].values()), [])
                 reference["refs"].extend(items)
             if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and "st_keywords_scan" in cert and \
                     cert["st_keywords_scan"]["rules_cert_id"]:
+                # Add references from security target
                 items = sum(map(lambda x: list(x.keys()), cert["st_keywords_scan"]["rules_cert_id"].values()), [])
                 reference["refs"].extend(items)
             cc_references[cert_id] = reference
@@ -124,6 +124,7 @@ def _update_cc_data():
 
 
 def get_cc_graphs():
+    """Get Common Criteria graphs."""
     _update_cc_data()
     return cc_local.graphs
 

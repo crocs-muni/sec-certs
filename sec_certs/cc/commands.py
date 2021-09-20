@@ -1,3 +1,5 @@
+"""Common Criteria commands."""
+
 import json
 import html
 import codecs
