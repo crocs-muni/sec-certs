@@ -1,7 +1,5 @@
 import json
-from sys import stdout
 
-import bson
 from hashlib import blake2b
 from operator import itemgetter
 
