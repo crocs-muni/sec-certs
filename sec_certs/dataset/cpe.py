@@ -26,6 +26,7 @@ class CPE(ComplexSerializableType):
     version: str
     vendor: str
     item_name: str
+    pandas_columns: ClassVar[List[str]] = ['uri', 'vendor', 'item_name', 'version', 'title']
 
     def __init__(self, uri: Optional[str] = None, title: Optional[str] = None):
         self.uri = uri
@@ -42,6 +43,10 @@ class CPE(ComplexSerializableType):
     @property
     def serialized_attributes(self) -> List[str]:
         return ['uri', 'title']
+
+    @property
+    def pandas_tuple(self):
+        return self.uri, self.vendor, self.item_name, self.version, self.title
 
     def __hash__(self):
         return hash(self.uri)
@@ -143,8 +148,8 @@ class CPEDataset:
         if not self.cpes:
             return None
         else:
-            columns = list(CPE.__annotations__.keys())
-            data = [list(x.__dict__.values()) for x in self]
+            columns = CPE.pandas_columns
+            data = [x.pandas_tuple for x in self]
             df = pd.DataFrame(data, columns=columns)
             df = df.set_index('uri')
 
