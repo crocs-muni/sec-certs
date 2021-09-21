@@ -721,3 +721,6 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
         matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
 
     return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
+
+def tokenize(string: str, keywords: Set[str]) -> str:
+    return ' '.join([x for x in string.lower().split(' ') if x in keywords])
