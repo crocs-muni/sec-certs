@@ -8,14 +8,17 @@ import logging
 import glob
 import json
 from dateutil.parser import isoparse
+import copy
 
 import pandas as pd
+import numpy as np
 
 from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,11 +55,14 @@ class CVE(ComplexSerializableType):
     vulnerable_certs: List[str]
     impact: Impact
     published_date: Optional[datetime.datetime]
+    description: str
+    tokenized: Optional[str]
+
     pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
-                                        'explotability_score', 'impact_score', 'published_date')
+                                        'explotability_score', 'impact_score', 'published_date', 'description')
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
-                 published_date: str):
+                 published_date: str, description: str, tokenized=None):
         super().__init__()
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
@@ -67,9 +73,17 @@ class CVE(ComplexSerializableType):
 
         self.impact = impact
         self.published_date = isoparse(published_date)
+        self.description = description
+        self.tokenized = tokenized
 
     def __hash__(self):
         return hash(self.cve_id)
+
+    @property
+    def serialized_attributes(self) -> List[str]:
+        all_vars = copy.deepcopy(super().serialized_attributes)
+        all_vars.remove('tokenized')
+        return all_vars
 
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> 'CVE':
@@ -101,11 +115,16 @@ class CVE(ComplexSerializableType):
         vulnerable_certs = None
         published_date = dct['publishedDate']
 
-        return CVE(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date)
+        description = dct['cve']['description']['description_data'][0]['value']
+
+        return cls(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date, description)
 
     def to_pandas_tuple(self):
         return (self.cve_id, self.vulnerable_cpes, self.vulnerable_certs, self.impact.base_score, self.impact.severity,
-                self.impact.explotability_score, self.impact.impact_score, self.published_date)
+                self.impact.explotability_score, self.impact.impact_score, self.published_date, self.description)
+
+    def tokenize(self, keywords: Set[str]):
+        self.tokenized = helpers.tokenize(self.description, keywords)
 
 
 @dataclass(eq=True)
