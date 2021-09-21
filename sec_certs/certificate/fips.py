@@ -183,7 +183,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 + 'Module name: ' + str(self.web_scan.module_name) + '\n' \
                 + 'HW version: ' + str(self.web_scan.hw_version) + '\n' \
                 + 'FW version: ' + str(self.web_scan.fw_version)
-        # return f'{str(self.web_scan.module_name)} {str(self.web_scan.hw_version)} {str(self.web_scan.fw_version)}'
 
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
