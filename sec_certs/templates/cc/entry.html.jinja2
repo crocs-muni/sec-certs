@@ -34,6 +34,9 @@
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="alert alert-warning d-sm-none" role="alert">
+                  <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+            </div>
     <div>
 	<h1>{{ cert["csv_scan"]["cert_item_name"]|default("") }}</h1>
 

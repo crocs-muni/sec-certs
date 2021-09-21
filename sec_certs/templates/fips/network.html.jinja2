@@ -3,7 +3,10 @@
 {% from "utils.html.jinja2" import render_network %}
 {% block content %}
     <h1 class="mb-4">FIPS 140</h1>
+    <div class="alert alert-warning d-sm-none" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+    </div>
     <div class="border">
-    {{ render_network(url, url_for(".types")) }}
+        {{ render_network(url, url_for(".types")) }}
     </div>
 {% endblock %}

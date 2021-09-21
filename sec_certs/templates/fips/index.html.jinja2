@@ -17,8 +17,8 @@
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
-            <div class="row mb-3 justify-content-start">
-                <div class="col-5">
+            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
+                <div class="col-sm-10 col-md-5 order-1 order-md-0">
                     <h1>FIPS 140</h1>
                     <p class="lead">All of the certificates are sourced from the NIST CMVP (Cryptographic Module Validation Program) portal
                 at
@@ -29,16 +29,15 @@
                 These listings were crawled (along with the certificates and security targets themselves) to
                 gather the data provided here.</p>
                 </div>
-                <div class="col-5 d-flex justify-content-center">
+                <div class="col-5 d-flex justify-content-md-center align-items-md-center order-0 order-md-1">
                     <img src="{{ url_for("static", filename="img/fips_logo.svg") }}" alt="seccerts"
-                         class="align-self-center"
                          style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); width: 10em"/>
                 </div>
             </div>
         </div>
     <div class="row bg-dark p-3">
             <div class="col-10 mx-auto">
-                <div class="row my-5 row-cols-1 row-cols-lg-4">
+                <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
                     <div class="col">
                         <div class="card h-100">
                             <div class="card-body">

@@ -65,8 +65,8 @@
             </form>
         </div>
     </nav>
-    <div id="page-content-wrapper">
-        <div id="content" class="container-fluid">
+    <div id="page-content-wrapper" class="container-fluid">
+        <div id="content">
             {% if crumbs %}
                 <div class="col-10 mx-auto px-3 pt-3 pb-2 fw-lighter">
                     {%- for breadcrumb in breadcrumbs -%}
@@ -77,20 +77,23 @@
             {% endif %}
             {% block content %}
             {% endblock %}
+            <footer>
+                <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
+                    <div class="col-5 col-sm-4 col-md-3 col-lg-2">
+                        <a href="https://crocs.fi.muni.cz">
+                            <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
+                                 alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
+                        </a>
+                    </div>
+                    <div class="col-5 col-sm-4 col-md-3 col-lg-2">
+                        <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs"
+                                                             target="_blank" rel="noopener">Github</a>.</p>
+                        <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
+                    </div>
+                </div>
+            </footer>
         </div>
-        <footer>
-            <div class="row justify-content-center my-5">
-                <div class="col-2 text-end">
-                    <a href="https://crocs.fi.muni.cz">
-                        <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}" alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
-                    </a>
-                </div>
-                <div class="col-2">
-                    <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener">Github</a>.</p>
-                    <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
-                </div>
-            </div>
-        </footer>
+
     </div>
 
 </div>

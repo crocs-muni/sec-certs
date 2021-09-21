@@ -3,7 +3,6 @@
  }
 
 #page-content-wrapper {
-  min-width: 100vw;
   margin-top: 57px;
 }
 
@@ -19,18 +18,6 @@
   border-radius: .75rem;
 }
 
-#logo {
-  margin-top: calc(100vh - 29rem);
-  padding-left: 2rem;
-  padding-right: 2rem;
-  width: 15rem;
-  position: fixed;
-}
-
-#logo img {
-  width: 100%;
-}
-
 .anchor {
     padding-top: 57px;
     margin-top: -57px;
@@ -41,7 +28,7 @@
 }
 
 .name-list li:before {
-    font-family: 'FontAwesome';
+    font-family: 'Font Awesome 5 Free Solid';
     content: '\f007';
     margin: 0 10px 0 -25px;
     color: black;

@@ -2,8 +2,8 @@
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
-            <div class="row mb-3 justify-content-between">
-                <div class="col-5">
+            <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
+                <div class="col-12 col-sm-5 order-1 order-sm-0">
                     <h1>Security Certifications</h1>
                     <p class="lead fw-light pt-2">
                         This site presents ongoing research on the landscape of Security Certifications focusing on
@@ -12,15 +12,19 @@
                         and the site is expected to change.
                     </p>
                 </div>
-                <div class="col-7">
+                <div class="col-12 col-sm-7 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
                     <img src="{{ url_for("static", filename="img/logo.svg") }}" alt="seccerts"
+                         class="d-none d-xl-block"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
+                    <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="seccerts"
+                         class="d-xl-none"
                          style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
                 </div>
             </div>
 
-            <div class="row my-5 row-cols-1 row-cols-lg-4">
+            <div class="row my-5 g-4 row-cols-1 row-cols-lg-4">
                 <div class="col">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h4 class="card-title">Common Criteria</h4>
                             <p class="card-text">Want to explore Common Criteria certificates?</p>
@@ -29,7 +33,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h4 class="card-title">Protection Profiles</h4>
                             <p class="card-text">Want to explore Protection Profiles of Common Criteria
@@ -39,7 +43,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h4 class="card-title">FIPS 140</h4>
                             <p class="card-text">Want to explore FIPS 140-2 and 140-3 certificates?</p>
@@ -48,7 +52,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h4 class="card-title">About</h4>
                             <p class="card-text">Want to learn more about our research?</p>
