@@ -140,7 +140,7 @@ class Dataset(ABC):
                     logger.error(f'Corrupted file at: {p}')
                     p.unlink()
 
-    def _prepare_cpe_dataset(self, download_fresh_cpes):
+    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False):
         logger.info('Preparing CPE dataset.')
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
