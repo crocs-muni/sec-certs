@@ -3,7 +3,7 @@ from flag import flag
 from celery import Celery, Task
 from flask import Flask, current_app, render_template, request
 from flask_assets import Environment as Assets
-from flask_breadcrumbs import Breadcrumbs
+from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_debugtoolbar import DebugToolbarExtension
@@ -98,10 +98,12 @@ app.register_blueprint(fips)
 
 
 @app.route("/")
+@register_breadcrumb(app, ".", "Home")
 def index():
     return render_template("index.html.jinja2")
 
 
 @app.route("/about")
+@register_breadcrumb(app, ".about", "About")
 def about():
     return render_template("about.html.jinja2")

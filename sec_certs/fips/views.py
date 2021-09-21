@@ -6,6 +6,7 @@ from operator import itemgetter
 
 import pymongo
 from flask import abort, current_app, redirect, render_template, request, url_for
+from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
 from .. import mongo, cache
@@ -25,11 +26,14 @@ def types():
 
 
 @fips.route("/")
+@register_breadcrumb(fips, ".", "FIPS 140")
 def index():
     return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org")
 
 
 @fips.route("/network/")
+@fips.route("/")
+@register_breadcrumb(fips, ".network", "References")
 def network():
     return render_template(
         "fips/network.html.jinja2",
@@ -137,6 +141,7 @@ def process_search(req, callback=None):
 
 
 @fips.route("/search/")
+@register_breadcrumb(fips, ".search", "Search")
 def search():
     res = process_search(request)
     return render_template(
@@ -156,6 +161,7 @@ def search_pagination():
 
 
 @fips.route("/analysis/")
+@register_breadcrumb(fips, ".analysis", "Analysis")
 def analysis():
     return render_template("fips/analysis.html.jinja2")
 
@@ -167,6 +173,7 @@ def rand():
 
 
 @fips.route("/<string(length=20):hashid>/")
+@register_breadcrumb(fips, ".entry", "", dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}])
 def entry(hashid):
     doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:

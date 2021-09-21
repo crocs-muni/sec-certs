@@ -8,6 +8,7 @@ import pymongo
 import sentry_sdk
 from flask import (abort, current_app, redirect, render_template, request,
                    url_for)
+from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
 from .. import mongo, cache
@@ -57,12 +58,14 @@ def categories():
 
 
 @cc.route("/")
+@register_breadcrumb(cc, ".", "Common Criteria")
 def index():
     """Common criteria index."""
     return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org")
 
 
 @cc.route("/network/")
+@register_breadcrumb(cc, ".network", "References")
 def network():
     return render_template("cc/network.html.jinja2", url=url_for(".network_graph"),
                            title="Common Criteria network | seccerts.org")
@@ -148,6 +151,7 @@ def process_search(req, callback=None):
 
 
 @cc.route("/search/")
+@register_breadcrumb(cc, ".search", "Search")
 def search():
     res = process_search(request)
     return render_template("cc/search.html.jinja2", **res,
@@ -164,6 +168,7 @@ def search_pagination():
 
 
 @cc.route("/analysis/")
+@register_breadcrumb(cc, ".analysis", "Analysis")
 def analysis():
     return render_template("cc/analysis.html.jinja2", analysis=get_cc_analysis())
 
@@ -175,6 +180,7 @@ def rand():
 
 
 @cc.route("/<string(length=20):hashid>/")
+@register_breadcrumb(cc, ".entry", "", dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}])
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})

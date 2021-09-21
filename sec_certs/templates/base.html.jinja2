@@ -67,6 +67,14 @@
     </nav>
     <div id="page-content-wrapper">
         <div id="content" class="container-fluid">
+            {% if crumbs %}
+                <div class="col-10 mx-auto px-3 pt-3 pb-2 fw-lighter">
+                    {%- for breadcrumb in breadcrumbs -%}
+                        <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+                        {{ '/ ' if not loop.last }}
+                    {%- endfor -%}
+                </div>
+            {% endif %}
             {% block content %}
             {% endblock %}
         </div>
