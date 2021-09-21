@@ -23,7 +23,7 @@ from sec_certs.configuration import config
 logger = logging.getLogger(__name__)
 
 
-@dataclass(eq=True, init=False)
+@dataclass(init=False)
 class CVE(ComplexSerializableType):
     @dataclass(eq=True)
     class Impact(ComplexSerializableType):
@@ -79,6 +79,11 @@ class CVE(ComplexSerializableType):
     def __hash__(self):
         return hash(self.cve_id)
 
+    def __eq__(self, other):
+        if not isinstance(other, CVE):
+            return False
+        return self.cve_id == other.cve_id
+
     @property
     def serialized_attributes(self) -> List[str]:
         all_vars = copy.deepcopy(super().serialized_attributes)
@@ -125,6 +130,11 @@ class CVE(ComplexSerializableType):
 
     def tokenize(self, keywords: Set[str]):
         self.tokenized = helpers.tokenize(self.description, keywords)
+
+    def to_brief_dict(self, keywords: Set[str]):
+        if not self.tokenized:
+            self.tokenize(keywords)
+        return {'cve_id': self.cve_id, 'description': self.description, 'tokenized': self.tokenized}
 
 
 @dataclass(eq=True)
