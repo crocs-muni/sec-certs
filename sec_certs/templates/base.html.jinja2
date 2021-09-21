@@ -12,7 +12,8 @@
                 "lib/bootstrap.min.css", "lib/fontawesome.min.css", "lib/metropolis.css" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}">
         {% endassets %}
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap"
+              rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
         {% assets output="gen/libs.js",
                 "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js" %}
@@ -20,93 +21,70 @@
         {% endassets %}
         <!-- Matomo -->
         <script type="text/javascript">
-          var _paq = window._paq = window._paq || [];
-          /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-          _paq.push(['trackPageView']);
-          _paq.push(['enableLinkTracking']);
-          (function() {
-            var u="https://fadmin.fi.muni.cz/piwik/";
-            _paq.push(['setTrackerUrl', u+'matomo.php']);
-            _paq.push(['setSiteId', '44']);
-            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-            g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-          })();
+            var _paq = window._paq = window._paq || [];
+            /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function () {
+                var u = "https://fadmin.fi.muni.cz/piwik/";
+                _paq.push(['setTrackerUrl', u + 'matomo.php']);
+                _paq.push(['setSiteId', '44']);
+                var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+                g.type = 'text/javascript';
+                g.async = true;
+                g.src = u + 'matomo.js';
+                s.parentNode.insertBefore(g, s);
+            })();
         </script>
-        <noscript><p><img src="https://fadmin.fi.muni.cz/piwik/matomo.php?idsite=44&rec=1" style="border:0;" alt="" /></p></noscript>
+        <noscript><p><img src="https://fadmin.fi.muni.cz/piwik/matomo.php?idsite=44&rec=1" style="border:0;" alt=""/>
+        </p></noscript>
         <!-- End Matomo Code -->
-        <meta name="google-site-verification" content="eW6ZAStAlQUFlO_OP8odanoJp_yXBTvIqvlVScyTu3g" />
+        <meta name="google-site-verification" content="eW6ZAStAlQUFlO_OP8odanoJp_yXBTvIqvlVScyTu3g"/>
     {% endblock %}
 </head>
 
 <body data-spy="scroll" data-target="#navbar" data-offset="57" class="position-relative">
 <div class="d-flex" id="wrapper">
-    <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light border-bottom fixed-top">
+    <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for("index") }}">seccerts.org</a>
-        <!--
-        <button class="btn btn-secondary" id="menu-toggle">Toggle Menu</button>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse"
-                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-            -->
-
+            <a class="navbar-brand" href="{{ url_for("index") }}">seccerts.org</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-                    <!--
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                    -->
                     {% block navbar %}
                     {% endblock %}
-                    <!--
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Dropdown
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </li>
-                    -->
                 </ul>
             </div>
+            <form class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
+            </form>
         </div>
     </nav>
-    <div class="bg-light border-right" id="sidebar-wrapper">
-        {% set active_page = active_page|default('') %}
-        <div class="sidebar-heading"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt="seccerts"/></div>
-        <div class="list-group list-group-flush">
-            <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'index' %}item-active{% endif %}">Index</a>
-            <a href="{{ url_for('cc.index') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'cc' %}item-active{% endif %}">Common
-                Criteria</a>
-            <a href="{{ url_for('pp.index') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'pp' %}item-active{% endif %}">Protection
-                Profiles</a>
-            <a href="{{ url_for('fips.index') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'fips' %}item-active{% endif %}">FIPS 140</a>
-            <a href="{{ url_for('methodology') }}" class="list-group-item list-group-item-action bg-light {% if active_page == 'methodology' %}item-active{% endif %}">Methodology</a>
-        </div>
-        <div id="logo">
-            <a href="https://crocs.fi.muni.cz">
-                <img src="{{ url_for('static', filename='img/crocs_claim.svg') }}"
-                     alt="Centre for Research on Cryptography and Security"/>
-            </a>
-        </div>
-    </div>
     <div id="page-content-wrapper">
         <div id="content" class="container-fluid">
             {% block content %}
             {% endblock %}
         </div>
+        <footer>
+            <div class="row justify-content-center my-5">
+                <div class="col-2 text-end">
+                    <a href="https://crocs.fi.muni.cz">
+                        <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}" alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener">Github</a>.</p>
+                    <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
+                </div>
+            </div>
+        </footer>
     </div>
+
 </div>
 <script>
     $("#menu-toggle").click(function (e) {
@@ -118,5 +96,4 @@
     });
 </script>
 </body>
-
 </html>

@@ -102,6 +102,6 @@ def index():
     return render_template("index.html.jinja2")
 
 
-@app.route("/methodology")
-def methodology():
-    return render_template("methodology.html.jinja2")
+@app.route("/about")
+def about():
+    return render_template("about.html.jinja2")

@@ -2,10 +2,10 @@
 {% set active_page = "cc" %}
 {% block navbar %}
     <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".network") }}">Graph</a>
+        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
+        <a class="nav-link" href="{{ url_for(".network") }}">References</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
@@ -15,61 +15,73 @@
     </li>
 {% endblock %}
 {% block content %}
-    <h1>Common Criteria</h1>
-    <div class="row">
-        <div class="col-sm-6">
-            <p class="lead">This page focuses on Common Criteria certificates.</p>
-
-            <p>All of the certificates are sourced from the Common Criteria portal at
-                <a href="https://www.commoncriteriaportal.org/" target="_blank">www.commoncriteriaportal.org <i
-                        class="fas fa-external-link-alt"></i></a>.
-                The site provides a CSV file and a HTML listing of the certified products with some metadata.
-                These listings were crawled (along with the certificates and security targets themselves) to
-                gather the data provided here.</p>
-        </div>
-    </div>
-    <div class="row mt-5 mb-5">
-        <div class="col-sm-6">
-            <div class="card bg-light">
-                <img class="card-img-top" src="{{ url_for('static', filename='img/cc_network.png') }}" alt="Graph">
-                <div class="card-body">
-                    <h5 class="card-title">Graph</h5>
-                    <p class="card-text">View an interactive graph of references in Common Criteria certificates.</p>
-                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i class="fas fa-project-diagram fa-fw"></i> Go</a>
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="row mb-3 justify-content-start">
+                <div class="col-5">
+                    <h1>Common Criteria</h1>
+                    <p class="lead">All of the certificates are sourced from the Common Criteria portal at
+                        <a href="https://www.commoncriteriaportal.org/" target="_blank">www.commoncriteriaportal.org <i
+                                class="fas fa-external-link-alt"></i></a>.
+                        The site provides a CSV file and a HTML listing of the certified products with some metadata.
+                        These listings were crawled (along with the certificates and security targets themselves) to
+                        gather the data provided here.</p>
+                </div>
+                <div class="col-5 d-flex justify-content-center">
+                    <img src="{{ url_for("static", filename="img/cc_logo.svg") }}" alt="seccerts"
+                         class="align-self-center"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); width: 10em"/>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
-            <div class="card bg-light">
-                <img class="card-img-top" src="{{ url_for('static', filename='img/cc_search.png') }}" alt="Search">
-                <div class="card-body">
-                    <h5 class="card-title">Search</h5>
-                    <p class="card-text">Search and browse through the certificates and our extracted metadata.</p>
-                    <a href="{{ url_for(".search") }}" class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Go</a>
+        <div class="row bg-dark p-3">
+            <div class="col-10 mx-auto">
+                <div class="row my-5 row-cols-1 row-cols-lg-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Search</h4>
+                                <p class="card-text">Search and browse through the certificates and our extracted
+                                    metadata.</p>
+                                <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
+                                        class="fas fa-search fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">References</h4>
+                                <p class="card-text">Explore an interactive graph of references in Common Criteria
+                                    certificates.</p>
+                                <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
+                                        class="fas fa-network-wired fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Analysis</h4>
+                                <p class="card-text">View a part of our results of our analysis of the Common Criteria
+                                    certificate data.</p>
+                                <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
+                                        class="fas fa-chart-line fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Random</h4>
+                                <p class="card-text">Look at a random Common Criteria certificate.</p>
+                                <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
+                                        class="fas fa-dice fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row mt-5 mb-5">
-        <div class="col-sm-6">
-            <div class="card bg-light">
-                <img class="card-img-top" src="{{ url_for('static', filename='img/cc_analysis1.png') }}" alt="Graph">
-                <div class="card-body">
-                    <h5 class="card-title">Analysis</h5>
-                    <p class="card-text">View a part of our results of our analysis of the Common Criteria certificate data.</p>
-                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i class="fas fa-chart-line fa-fw"></i> Go</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="card bg-light">
-                <img class="card-img-top" src="{{ url_for('static', filename='img/cc_random.png') }}" alt="Graph">
-                <div class="card-body">
-                    <h5 class="card-title">Random</h5>
-                    <p class="card-text">See a random Common Criteria certificate.</p>
-                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i class="fas fa-dice fa-fw"></i> Go</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 {% endblock %}

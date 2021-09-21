@@ -32,6 +32,8 @@
         </li>
 {% endblock %}
 {% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
     <div>
 	<h1>{{ cert["csv_scan"]["cert_item_name"]|default("") }}</h1>
 
@@ -168,8 +170,8 @@
 
     <div class="mt-5 mb-5">
 		<h2 class="anchor" id="raw-data-head">Raw data
-		<button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-placement="top" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
-		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
+		<button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+		<a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
 		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
@@ -188,4 +190,6 @@
 		});
 	</script>
     </div>
+        </div>
+    </main>
 {% endblock %}

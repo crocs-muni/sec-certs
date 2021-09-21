@@ -1,6 +1,8 @@
 {% extends "base.html.jinja2" %}
 {% set active_page = "cc" %}
 {% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
     <h1 class="mb-4">Common Criteria</h1>
     <div class="row mt-4 mb-4">
         <div class="col border ml-3 mr-3">
@@ -121,4 +123,7 @@
 
         renderCertified(certifiedData, catData);
     </script>
+        </div>
+    </main>
+
 {% endblock %}

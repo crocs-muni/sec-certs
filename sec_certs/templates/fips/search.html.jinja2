@@ -2,6 +2,8 @@
 {% set active_page = "fips" %}
 {% from "fips/utils.html.jinja2" import render_pagination %}
 {% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
     <h1>FIPS 140</h1>
     <div class="card mt-3 mt-4 mb-4">
         <div class="card-body container">
@@ -104,4 +106,6 @@
         });
     </script>
     {{ render_pagination(pagination, certs, search=True) }}
+        </div>
+    </main>
 {% endblock %}

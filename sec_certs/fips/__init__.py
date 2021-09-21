@@ -1,6 +1,6 @@
 import json
+from contextvars import ContextVar
 import sentry_sdk
-from werkzeug.local import Local
 from flask import Blueprint, current_app
 
 from .. import mongo
@@ -9,17 +9,15 @@ from ..utils import create_graph
 fips = Blueprint("fips", __name__, url_prefix="/fips")
 fips.cli.short_help = "FIPS 140 commands."
 
-fips_local = Local()
-fips_local.graphs = []
-fips_local.map = {}
-fips_local.changes = None
+fips_mem_graphs = ContextVar("fips_graphs")
+fips_mem_map = ContextVar("fips_map")
+fips_mem_changes = ContextVar("fips_changes")
+
 with fips.open_resource("types.json") as f:
     fips_types = json.load(f)
 
 
 def load_fips_data():
-    global fips_local
-
     with sentry_sdk.start_span(op="fips.load", description="Load FIPS data"):
         data = mongo.db.fips.find({}, {
             "_id": 1,
@@ -40,22 +38,18 @@ def load_fips_data():
     with sentry_sdk.start_span(op="fips.load", description="Compute FIPS graph"):
         fips_graph, fips_graphs, fips_map = create_graph(fips_references)
         del fips_graph
-    fips_local.graphs = fips_graphs
-    fips_local.map = fips_map
-
-
-@fips.before_app_first_request
-def _init_fips_data():
-    global fips_local
-    fips_local.graphs = []
-    fips_local.map = {}
-    fips_local.changes = mongo.db.fips.watch()
-    load_fips_data()
+        fips_mem_graphs.set(fips_graphs)
+        fips_mem_map.set(fips_map)
 
 
 def _update_fips_data():
     do_update = False
-    while fips_local and fips_local.changes.alive and fips_local.changes.try_next():
+    changes = fips_mem_changes.get(None)
+    if changes is None:
+        changes = mongo.db.fips.watch()
+        fips_mem_changes.set(changes)
+        do_update = True
+    while changes and changes.alive and changes.try_next():
         do_update = True
     if do_update:
         load_fips_data()
@@ -63,12 +57,12 @@ def _update_fips_data():
 
 def get_fips_graphs():
     _update_fips_data()
-    return fips_local.graphs
+    return fips_mem_graphs.get()
 
 
 def get_fips_map():
     _update_fips_data()
-    return fips_local.map
+    return fips_mem_map.get()
 
 
 from .commands import *

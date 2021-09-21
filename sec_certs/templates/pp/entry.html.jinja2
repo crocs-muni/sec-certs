@@ -7,6 +7,8 @@
     </title>
 {% endblock %}
 {% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
     <div>
 	<h1>{{ profile["csv_scan"]["cc_pp_name"]|default("") }}</h1>
 
@@ -99,4 +101,6 @@
 	{% endif %}
 
     </div>
+        </div>
+    </main>
 {% endblock %}
