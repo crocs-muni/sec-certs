@@ -19,11 +19,15 @@ Flask-Breadcrumbs==0.5.1
 Flask-Caching==1.10.1
 Flask-Cors==3.0.10
 Flask-DebugToolbar==0.11.0
+Flask-Login==0.5.0
+Flask-Mail==0.9.1
 Flask-Menu==0.7.2
 flask-paginate==0.8.1
+Flask-Principal==0.4.0
 Flask-PyMongo==2.3.0
 flask-redis==0.4.0
 flask-shell-ipython==0.4.1
+Flask-WTF==0.15.1
 ipython==7.27.0
 ipython-genutils==0.2.0
 itsdangerous==2.0.1
@@ -60,3 +64,4 @@ vine==5.0.0
 wcwidth==0.2.5
 webassets==2.0
 Werkzeug==2.0.1
+WTForms==2.3.3

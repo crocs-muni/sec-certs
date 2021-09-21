@@ -67,6 +67,23 @@
     </nav>
     <div id="page-content-wrapper" class="container-fluid">
         <div id="content">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    <div class="flashes col-10 mx-auto p-3">
+                        {% for category, message in messages %}
+                            {% if category == "message" %}
+                                <div class="alert alert-primary">{{ message }}</div>
+                            {% elif category == "error" %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% elif category == "info" %}
+                                <div class="alert alert-info">{{ message }}</div>
+                            {% elif category == "warning" %}
+                                <div class="alert alert-warnning">{{ message }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
             {% if crumbs %}
                 <div class="col-10 mx-auto px-3 pt-3 pb-2 fw-lighter">
                     {%- for breadcrumb in breadcrumbs -%}
@@ -89,6 +106,11 @@
                         <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs"
                                                              target="_blank" rel="noopener">Github</a>.</p>
                         <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
+                        {% if current_user.is_authenticated %}
+                            <p class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;" title="Lemme out"><i class="fas fa-sign-out-alt"></i></a></p>
+                        {% else %}
+                            <p class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;" title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></p>
+                        {% endif %}
                     </div>
                 </div>
             </footer>

@@ -8,7 +8,8 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from tqdm import tqdm
 
-from . import mongo
+from . import mongo, app
+from .admin.user import hash_password, User
 from .utils import add_dots, remove_dots
 
 
@@ -77,3 +78,5 @@ def _query(query, projection, collection):
     docs = collection.find(query, projection=projection)
     for doc in docs:
         print(json.dumps(add_dots(doc), indent=2))
+
+

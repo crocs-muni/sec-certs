@@ -9,10 +9,11 @@ from flask_cors import CORS
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
+from flask_login import LoginManager
+from flask_principal import Principal
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
-
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -63,6 +64,11 @@ cors = CORS(app, origins="")
 
 breadcrumbs = Breadcrumbs(app)
 
+login = LoginManager(app)
+login.login_view = "admin.login"
+
+principal = Principal(app)
+
 
 @app.before_request
 def set_sentry_user():
@@ -95,6 +101,10 @@ app.register_blueprint(pp)
 from .fips import fips
 
 app.register_blueprint(fips)
+
+from .admin import admin
+
+app.register_blueprint(admin)
 
 
 @app.route("/")
