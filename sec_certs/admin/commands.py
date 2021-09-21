@@ -15,5 +15,23 @@ def add_user(username, password, email, role):
         return
     pwhash = hash_password(password)
     user = User(username, pwhash, email, role)
-    id = mongo.db.users.insert_one(user.dict)
-    click.echo(f"User added _id={id}")
+    res = mongo.db.users.insert_one(user.dict)
+    click.echo(f"User added _id={res.inserted_id}")
+
+
+@app.cli.command("del-user", help="Delete a user.")
+@click.option("-u", "--username", required=True)
+def del_user(username):
+    user = User.get(username)
+    if not user:
+        click.echo("User does not exist,")
+        return
+    if click.confirm(f"Do you really want to delete user {username}?"):
+        mongo.db.users.delete_one({"username": username})
+        click.echo(f"User deleted")
+
+
+@app.cli.command("list-users", help="List users.")
+def list_users():
+    for doc in mongo.db.users.find({}):
+        print(doc)

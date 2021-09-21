@@ -1,11 +1,22 @@
 from flask import render_template, current_app, flash, redirect, url_for, session
 from flask_login import login_user, logout_user, login_required
-from flask_principal import identity_changed, Identity, AnonymousIdentity
+from flask_principal import identity_changed, Identity, AnonymousIdentity, Permission, RoleNeed
 from flask_breadcrumbs import register_breadcrumb
 
 from . import admin
 from .forms import LoginForm
 from .user import User
+
+
+admin_permission = Permission(RoleNeed('admin'))
+
+
+@admin.route("/")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".", "Admin")
+def index():
+    return render_template("admin/index.html.jinja2")
 
 
 @admin.route("/login", methods=["GET", "POST"])
@@ -19,7 +30,10 @@ def login():
                 login_user(user, form.remember_me.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
                 flash("You've been successfully logged in.", "info")
-                return redirect(url_for("index"))
+                if admin_permission.can():
+                    return redirect(url_for(".index"))
+                else:
+                    return redirect(url_for(".index"))
             else:
                 flash("Bad.", "error")
     return render_template("admin/login.html.jinja2", form=form)
