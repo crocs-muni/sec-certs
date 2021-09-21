@@ -1,6 +1,6 @@
-from flask import render_template, current_app, flash, redirect, url_for
+from flask import render_template, current_app, flash, redirect, url_for, session
 from flask_login import login_user, logout_user, login_required
-from flask_principal import identity_changed, Identity
+from flask_principal import identity_changed, Identity, AnonymousIdentity
 from flask_breadcrumbs import register_breadcrumb
 
 from . import admin
@@ -29,5 +29,9 @@ def login():
 @login_required
 def logout():
     logout_user()
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+    identity_changed.send(current_app._get_current_object(),
+                          identity=AnonymousIdentity())
     flash("You've been successfully logged out.", "info")
     return redirect(url_for("index"))
