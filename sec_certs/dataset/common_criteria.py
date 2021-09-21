@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
 from sec_certs.dataset.cpe import CPEDataset, CPE
-from sec_certs.dataset.cve import CVEDataset
+from sec_certs.dataset.cve import CVEDataset, CVE
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
@@ -724,6 +724,13 @@ class CCDataset(Dataset, ComplexSerializableType):
         update_dset.convert_all_pdfs()
         update_dset._extract_data()
 
+    def generate_cert_name_keywords(self) -> Set[str]:
+        df = self.to_pandas()
+        certificate_names = set(df['name'])
+        keywords = set(itertools.chain.from_iterable([x.lower().split(' ') for x in certificate_names]))
+        keywords.add('1.02.013')
+        return {x for x in keywords if len(x) > config.minimal_token_length}
+
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
@@ -760,6 +767,8 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
         df = pd.DataFrame(tuples, columns=cols)
         df = df.set_index('dgst')
+        df.index.name = 'dgst'
+
         df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
         df = df.fillna(value=np.nan)
 
