@@ -43,14 +43,15 @@ def load_fips_data():
 
 
 def _update_fips_data():
-    do_update = False
-    changes = fips_mem_changes.get(None)
-    if changes is None:
-        changes = mongo.db.fips.watch()
-        fips_mem_changes.set(changes)
-        do_update = True
-    while changes and changes.alive and changes.try_next():
-        do_update = True
+    with sentry_sdk.start_span(op="fips.check", description="Check FIPS staleness"):
+        do_update = False
+        changes = fips_mem_changes.get(None)
+        if changes is None:
+            changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
+            fips_mem_changes.set(changes)
+            do_update = True
+        while changes and changes.alive and changes.try_next():
+            do_update = True
     if do_update:
         load_fips_data()
 

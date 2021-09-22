@@ -104,14 +104,15 @@ def load_cc_data():
 
 
 def _update_cc_data():
-    do_update = False
-    changes = cc_mem_changes.get(None)
-    if changes is None:
-        changes = mongo.db.cc.watch()
-        cc_mem_changes.set(changes)
-        do_update = True
-    while changes and changes.alive and changes.try_next():
-        do_update = True
+    with sentry_sdk.start_span(op="cc.check", description="Check CC staleness"):
+        do_update = False
+        changes = cc_mem_changes.get(None)
+        if changes is None:
+            changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
+            cc_mem_changes.set(changes)
+            do_update = True
+        while changes is not None and changes.alive and changes.try_next():
+            do_update = True
     if do_update:
         load_cc_data()
 
