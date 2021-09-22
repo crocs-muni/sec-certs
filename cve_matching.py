@@ -8,7 +8,8 @@ from sec_certs.model.cve_matching import VulnClassifier
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import PredefinedSplit
-
+from numpy.lib.recfunctions import stack_arrays
+import sec_certs.helpers as helpers
 
 def main():
     logging.basicConfig(level=logging.INFO)
@@ -21,10 +22,14 @@ def main():
     keywords = cc_dset.generate_cert_name_keywords()
 
     cve_dset: CVEDataset = CVEDataset.from_json(cc_dset.cve_dataset_path)
-    vulnerabilities = [x for x in cve_dset]
+    x_train, y_train = cve_dset.get_x_y()
+    x_valid, y_valid = cc_dset.get_x_y([x.dgst for x in validation_certs])
+    x_train = helpers.tokenize_dataset(x_train, keywords)
+    x_valid = helpers.tokenize_dataset(x_valid, keywords)
+    x_train, y_train = helpers.filter_shortly_described_cves(x_train, y_train)
 
     classifier = VulnClassifier(keywords)
-    classifier.fit(vulnerabilities)
+    classifier.fit(x_train, y_train)
 
     scorer = make_scorer(compute_precision)
 
@@ -33,14 +38,13 @@ def main():
         'n_tokens': [20, 25, 30]
     }
 
-    cert_names = [x.name for x in validation_certs]
-    validation_fold = [-1] * len(vulnerabilities) + [0] * len(cert_names)
+    validation_fold = [-1] * len(x_train) + [0] * len(x_valid)
     ps = PredefinedSplit(validation_fold)
-    full_dataset = vulnerabilities + cert_names
+    x_all = stack_arrays((x_train, x_valid), autoconvert=True, usemask=False)
+    y_all = stack_arrays((y_train, y_valid), autoconvert=True, usemask=False)
 
-    y_true = get_y_true(validation_certs)
     clf = GridSearchCV(classifier, param_grid=grid_search_dict, scoring=scorer, verbose=4, cv=ps, refit=False)
-    clf.fit(full_dataset, [0] * len(vulnerabilities) + y_true)
+    clf.fit(x_all, y_all)
 
     end = datetime.datetime.now()
     print(f'The computation took {(end - start)} seconds.')

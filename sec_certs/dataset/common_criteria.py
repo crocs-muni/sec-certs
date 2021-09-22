@@ -731,6 +731,16 @@ class CCDataset(Dataset, ComplexSerializableType):
         keywords.add('1.02.013')
         return {x for x in keywords if len(x) > config.minimal_token_length}
 
+    def get_x_y(self, digests: Optional[List[str]] = None) -> Tuple[np.ndarray, np.ndarray]:
+        if not digests:
+            digests = [x.dgst for x in self]
+
+        x = [x.name for x in self if x.dgst in digests]
+        y = [[y.cve_id for y in x.heuristics.related_cves] for x in self if x.dgst in digests]
+        map(lambda x: x if x else 'None', y)
+
+        return np.array(x), np.array([np.array(z) for z in y], dtype='object')
+
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """

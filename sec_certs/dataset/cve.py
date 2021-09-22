@@ -241,3 +241,6 @@ class CVEDataset(ComplexSerializableType):
         cols = CVE.pandas_columns
         df = pd.DataFrame(tuples, columns=cols)
         return df.set_index('cve_id')
+
+    def get_x_y(self):
+        return np.array([x.description for x in self]), np.array([np.array([x.cve_id]) for x in self], dtype='object')

@@ -722,5 +722,14 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
 
     return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
 
+def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.array:
+    return np.array([tokenize(x, keywords) for x in dset])
+
 def tokenize(string: str, keywords: Set[str]) -> str:
-    return ' '.join([x for x in string.lower().split(' ') if x in keywords])
+    return ' '.join([x for x in string.split(' ') if x.lower() in keywords])
+
+
+def filter_shortly_described_cves(x, y):
+    n_tokens = np.array(list(map(lambda item: len(item.split(' ')), x)))
+    indices = np.where(n_tokens > 5)
+    return np.array(x)[indices], np.array(y)[indices]
