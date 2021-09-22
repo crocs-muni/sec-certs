@@ -1,3 +1,5 @@
+from typing import List
+
 from flask_login import UserMixin, current_user
 from flask_principal import identity_loaded, UserNeed, RoleNeed
 from .. import login, app, mongo
@@ -9,7 +11,7 @@ def hash_password(password):
 
 
 class User(UserMixin):
-    def __init__(self, username: str, pwhash: str, email: str, roles: list[str]):
+    def __init__(self, username: str, pwhash: str, email: str, roles: List[str]):
         self.username = username
         self.pwhash = pwhash
         self.email = email
