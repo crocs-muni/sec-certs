@@ -1,6 +1,6 @@
 import random
 from functools import total_ordering
-from typing import Any, Union
+from typing import Any, Union, Tuple, List, Dict
 
 import networkx as nx
 from flask import jsonify, Response
@@ -68,7 +68,7 @@ def send_json_attachment(data) -> Response:
     return resp
 
 
-def create_graph(references) -> tuple[DiGraph, list[DiGraph], dict[str, Any]]:
+def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
     """Create a graph out of references."""
     graph = nx.DiGraph()
     for key, value in references.items():
