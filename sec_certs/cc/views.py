@@ -184,8 +184,19 @@ def rand():
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})
+        profiles = {}
+        if "processed" in doc and "cc_pp_id" in doc["processed"]:
+            found = mongo.db.pp.find_one({"processed.cc_pp_csvid": doc["processed"]["cc_pp_id"]})
+            if found:
+                profiles[doc["processed"]["cc_pp_id"]] = add_dots(found)
+        if "csv_scan" in doc and "cc_protection_profiles" in doc["csv_scan"]:
+            ids = doc["csv_scan"]["cc_protection_profiles"].split(",")
+            for id in ids:
+                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": id})
+                if found:
+                    profiles[id] = add_dots(found)
     if doc:
-        return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid)
+        return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, profiles=profiles)
     else:
         return abort(404)
 

@@ -1,4 +1,6 @@
+import html
 import json
+from datetime import datetime
 
 import click
 
@@ -7,10 +9,24 @@ from ..commands import _add, _create, _drop, _query, _update
 from . import pp
 
 
+def pp_mapper(profile):
+    if "csv_scan" in profile:
+        cs = profile["csv_scan"]
+        if "cc_archived_date" in cs:
+            cs["cc_archived_date"] = datetime.strptime(cs["cc_archived_date"], "%m/%d/%Y") if cs[
+                "cc_archived_date"] else None
+        if "cc_certification_date" in cs:
+            cs["cc_certification_date"] = datetime.strptime(cs["cc_certification_date"], "%m/%d/%Y") if cs[
+                "cc_certification_date"] else None
+        if "cc_pp_name" in cs:
+            cs["cc_pp_name"] = html.unescape(cs["cc_pp_name"])
+    return profile
+
+
 @pp.cli.command("import", help="Import protection profiles.")
 @click.argument("file", type=click.File())
 def add(file):
-    _add(file, mongo.db.pp, None)
+    _add(file, mongo.db.pp, None, pp_mapper)
 
 
 @pp.cli.command("update", help="Update protection profiles.")
@@ -19,7 +35,7 @@ def add(file):
 )
 @click.argument("file", type=click.File())
 def update(file, remove):
-    _update(file, remove, mongo.db.pp, None)
+    _update(file, remove, mongo.db.pp, None, pp_mapper)
 
 
 @pp.cli.command("create", help="Create the DB of protection profiles.")

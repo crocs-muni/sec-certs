@@ -33,7 +33,7 @@ def login():
                 if admin_permission.can():
                     return redirect(url_for(".index"))
                 else:
-                    return redirect(url_for(".index"))
+                    return redirect(url_for("index"))
             else:
                 flash("Bad.", "error")
     return render_template("admin/login.html.jinja2", form=form)

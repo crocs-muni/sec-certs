@@ -8,8 +8,7 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from tqdm import tqdm
 
-from . import mongo, app
-from .admin.user import hash_password, User
+from . import mongo
 from .utils import add_dots, remove_dots
 
 

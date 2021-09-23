@@ -1,10 +1,32 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
+{% set search = True %}
 {% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
     {{ profile["csv_scan"]["cc_pp_name"]|default("") + " | seccerts.org" }}
     </title>
+{% endblock %}
+{% block navbar %}
+    {{ super() }}
+    {% if "csv_scan" in profile %}
+        <li class="nav-item">
+            <a class="nav-link" href="#csv-info">CSV</a>
+        </li>
+    {% endif %}
+    {% if "frontpage_scan" in profile %}
+        <li class="nav-item">
+            <a class="nav-link" href="#frontpage-info">Frontpage</a>
+        </li>
+    {% endif %}
+    {% if "keywords_scan" in profile or "st_keywords_scan" in profile or "processed" in profile %}
+        <li class="nav-item">
+            <a class="nav-link" href="#doc-info">Document</a>
+        </li>
+    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="#raw-data-head">Raw data</a>
+    </li>
 {% endblock %}
 {% block content %}
     <main>
@@ -38,7 +60,6 @@
 		<b>Security level:</b>
 		{{ profile["csv_scan"]["cc_security_level"] }}
 		<br/>
-        {# TODO: Parse maintenance reports! #}
 
 		<div class="mt-2 mb-2">
 			<a class="btn btn-primary" role="button" href="{{ profile['csv_scan']['link_pp_report'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
@@ -102,6 +123,32 @@
 		{% endif %}
 		</div>
 	{% endif %}
+
+        <div class="mt-5 mb-5">
+            <h2 class="anchor" id="raw-data-head">Raw data
+                <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
+                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                        title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+                <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
+                   style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                   title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
+            <pre id="raw-data" class="listing collapse mt-3"><code>{{ profile|tojson(indent=2) }}</code></pre>
+        </div>
+        <script>
+            $(function () {
+                let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                new bootstrap.Tooltip($("#raw-data-button").get(0));
+            });
+            $('#raw-data').on('show.bs.collapse', function () {
+                $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
+            });
+            $('#raw-data').on('hide.bs.collapse', function () {
+                $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
+            });
+        </script>
 
     </div>
         </div>

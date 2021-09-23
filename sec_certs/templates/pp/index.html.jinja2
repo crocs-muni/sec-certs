@@ -1,13 +1,82 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
+{% set search = True %}
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".network") }}">References</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".rand") }}">Random</a>
+    </li>
+{% endblock %}
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
-            <h1 class="mb-4">Protection Profiles</h1>
-            <div class="row">
-                <div class="col-sm-6">
-                    <p class="lead"><i class="fas fa-hammer fa-spin"></i> There is no content here, but we are working
-                        on it.</p>
+            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
+                <div class="col-sm-10 col-md-5 order-1 order-md-0">
+                    <h1>Protection Profiles</h1>
+                    <p class="lead">The protection profiles are collected from the Common Criteria portal
+                        <a href="https://www.commoncriteriaportal.org/" target="_blank">www.commoncriteriaportal.org <i
+                                class="fas fa-external-link-alt"></i></a>.</p>
+                </div>
+                <div class="col-5 d-flex justify-content-md-center align-items-md-center order-0 order-md-1">
+                    <img src="{{ url_for("static", filename="img/cc_logo.svg") }}" alt="seccerts"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); width: 10em"/>
+                </div>
+            </div>
+        </div>
+        <div class="row bg-dark p-3">
+            <div class="col-10 mx-auto">
+                <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Search</h4>
+                                <p class="card-text">Search and browse through the Protection Profiles and our extracted
+                                    metadata.</p>
+                                <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
+                                        class="fas fa-search fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">References</h4>
+                                <p class="card-text">Explore an interactive graph of references of Common Criteria
+                                    certificates and Protection Profiles.</p>
+                                <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
+                                        class="fas fa-network-wired fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Analysis</h4>
+                                <p class="card-text">View a part of our results of our analysis of the Protection Profile
+                                    data.</p>
+                                <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
+                                        class="fas fa-chart-line fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Random</h4>
+                                <p class="card-text">Look at a random Common Criteria Protection Profile.</p>
+                                <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
+                                        class="fas fa-dice fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

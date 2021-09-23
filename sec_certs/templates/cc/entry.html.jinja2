@@ -1,5 +1,6 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
+{% set search = True %}
 {% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category %}
 {% from "utils.html.jinja2" import render_network %}
 {% block title %}
@@ -69,6 +70,13 @@
 		{% if cert["csv_scan"]["cc_protection_profiles"] %}
 		<b>Protection profiles:</b>
 		{{ cert["csv_scan"]["cc_protection_profiles"] }}
+            {% if profiles %}
+                <ul>
+                {% for id, profile in profiles.items() %}
+                    <li><a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ id }}</a></li>
+                {% endfor %}
+                </ul>
+            {% endif %}
 		<br/>
 		{% endif %}
 		{# TODO: Parse maintenance reports! #}	

@@ -1,0 +1,47 @@
+{% from "cc/utils.html.jinja2" import render_category, render_status %}
+
+{% macro render_pagination(pagination, profiles, search=False) %}
+    <div id="pagination">
+    {% if search %}
+        <span style="text-align: center">{{ pagination.info }}</span>
+    {% endif %}
+    <div class="mt-4 mb-4">
+		{{ pagination.links }}
+	</div>
+	<table class="border mb-4">
+        <col style="width:15%">
+		<col style="width:64%">
+		<col style="width:5%">
+		<col style="width:8%">
+		<col style="width:8%">
+		<thead>
+			<tr class="border-bottom">
+                <th class="pl-1">ID</th>
+				<th>Name</th>
+				<th>Status</th>
+				<th>Certification date</th>
+				<th>Archive date</th>
+			</tr>
+		</thead>
+	{% for profile in profiles %}
+        {% set idd = profile["processed"]["cc_pp_csvid"][0] if profile["processed"]["cc_pp_csvid"] else "" %}
+        {% set name = profile["csv_scan"]["cc_pp_name"] %}
+        {% set status = profile["csv_scan"]["cert_status"] %}
+        {% set hashid = profile["_id"] %}
+        {% set cert_date = profile["csv_scan"]["cc_certification_date"] %}
+        {% set archive_date = profile["csv_scan"]["cc_archived_date"] %}
+        {% set category = profile["csv_scan"]["cc_category"] %}
+		<tr>
+        <td class="pl-1">{{ render_category(category) }}&nbsp;{{ idd }}</td>
+		<td><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
+		<td>{{ render_status(status) }}</td>
+		<td>{{ cert_date.strftime("%m/%d/%Y") if cert_date else "" }}</td>
+		<td>{{ archive_date.strftime("%m/%d/%Y") if archive_date else "" }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<div class="mb-4">
+		{{ pagination.links }}
+	</div>
+    </div>
+{%- endmacro %}
