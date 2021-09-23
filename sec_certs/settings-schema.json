@@ -1,0 +1,123 @@
+{
+    "title": "settings for sec-certs",
+    "type": "object",
+    "properties": {
+        "log_filepath": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "smallest_certificate_id_to_connect": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number",
+                    "minimum": 1
+                }
+            }
+        },
+        "year_difference_between_validations": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "use_text_with_newlines_during_parsing": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "n_threads": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number",
+                    "minimum": 1
+                }
+            }
+        },
+        "cc_cpe_matching_threshold": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                }
+            }
+        },
+        "cc_cpe_max_matches": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                }
+            }
+        },
+        "cc_latest_snapshot": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "cc_maintenances_latest_snapshot": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "ignore_first_page": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "cert_threshold": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "fips_latest_snapshot": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "required": [
+        "log_filepath",
+        "smallest_certificate_id_to_connect",
+        "year_difference_between_validations",
+        "use_text_with_newlines_during_parsing",
+        "n_threads",
+        "cc_cpe_matching_threshold",
+        "cc_cpe_max_matches",
+        "cc_latest_snapshot",
+        "cc_maintenances_latest_snapshot",
+        "ignore_first_page",
+        "cert_threshold",
+        "fips_latest_snapshot"
+    ]
+}
