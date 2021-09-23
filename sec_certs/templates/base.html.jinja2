@@ -60,8 +60,8 @@
                 </ul>
             </div>
             {% if search %}
-            <form class="d-flex">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="d-flex" action="{{ url_for(".search") }}" method="get">
+                <input class="form-control me-2" type="search" placeholder="Search" name="q" aria-label="Search">
                 <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
             </form>
             {% endif %}
