@@ -84,6 +84,16 @@ class CVE(ComplexSerializableType):
             return False
         return self.cve_id == other.cve_id
 
+    def __lt__(self, other):
+        if not isinstance(other, CVE):
+            raise ValueError(f'Cannot compare CVE with {type(other)} type.')
+        self_year = int(self.cve_id.split('-')[1])
+        self_id = int(self.cve_id.split('-')[2])
+        other_year = int(other.cve_id.split('-')[1])
+        other_id = int(other.cve_id.split('-')[2])
+
+        return self_year < other_year if self_year != other_year else self_id < other_id
+
     @property
     def serialized_attributes(self) -> List[str]:
         all_vars = copy.deepcopy(super().serialized_attributes)

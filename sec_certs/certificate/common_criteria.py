@@ -190,7 +190,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
         labeled: bool = field(default=False)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
-        related_cves: Optional[List[CVE]] = field(default=None)
+        related_cves: Optional[Set[CVE]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
 
@@ -565,12 +565,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
             related_cves = list(filter(lambda x: x is not None, related_cves))
             if related_cves:
-                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
-
-                for cve in self.heuristics.related_cves:
-                    cve.vulnerable_certs.append(self.dgst)
-
-
+                self.heuristics.related_cves = set(itertools.chain.from_iterable(related_cves))
         else:
             self.heuristics.related_cves = None
 
@@ -585,3 +580,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             logger.error('Cannot compute certificate id when pdf files were not processed.')
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
+
+    def get_cve_labels(self):
+        if not self.heuristics.related_cves:
+            return 'None'
+        else:
+            return [x.cve_id for x in self.heuristics.related_cves]

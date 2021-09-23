@@ -736,9 +736,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             digests = [x.dgst for x in self]
 
         x = [x.name for x in self if x.dgst in digests]
-        y = [[y.cve_id for y in x.heuristics.related_cves] for x in self if x.dgst in digests]
-        map(lambda x: x if x else 'None', y)
-
+        y = [x.get_cve_labels() for x in self if x.dgst in digests]
         return np.array(x), np.array([np.array(z) for z in y], dtype='object')
 
 
