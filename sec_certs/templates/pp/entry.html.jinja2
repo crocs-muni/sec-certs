@@ -125,6 +125,30 @@
 	{% endif %}
 
         <div class="mt-5 mb-5">
+            <h2 class="anchor" id="reference-graph">References
+                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="Information automatically extracted from the certificate, security target and protection profile documents. Might contain errors.">?</span>
+            </h2>
+            <div>
+                {% if certs %}
+                    <ul>
+                    {% for cert in certs %}
+                        {% if "csv_scan" in cert and "cert_item_name" in cert["csv_scan"] %}
+                            {% set cname = cert["csv_scan"]["cert_item_name"] %}
+                        {% else %}
+                            {% set cname = cert["_id"] %}
+                        {% endif %}
+                        <li>
+                        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cname }}</a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-5 mb-5">
             <h2 class="anchor" id="raw-data-head">Raw data
                 <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
                         style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"

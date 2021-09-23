@@ -121,8 +121,17 @@ def search_pagination():
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
         doc = mongo.db.pp.find_one({"_id": hashid})
+        certs = []
+        if "processed" in doc and "cc_pp_csvid" in doc["processed"]:
+            ids = doc["processed"]["cc_pp_csvid"]
+            if ids:
+                re_q = ".*" + re.escape(ids[0]) + ".*"
+                docs = mongo.db.cc.find({"$or":
+                                             [{"csv_scan.cc_protection_profiles": {"$regex": re_q, "$options": "i"}},
+                                              {"processed.cc_pp_id": {"$regex": re_q, "$options": "i"}}]})
+                certs = list(map(add_dots, docs))
     if doc:
-        return render_template("pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid)
+        return render_template("pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid, certs=certs)
     else:
         return abort(404)
 
