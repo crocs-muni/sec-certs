@@ -43,7 +43,7 @@
     {% if "csv_scan" in profile %}
 		<div class="mt-5 mb-5">
 		<h2 class="anchor" id="csv-info">CSV information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the CSV protection profile database provided by the Common Criteria portal.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the CSV protection profile database provided by the Common Criteria portal.">?</span></h2>
 		<b>Status:</b>{{ render_status(profile["csv_scan"]["cert_status"]) }}<br/>
 
 		<b>Certification date:</b>
@@ -74,7 +74,7 @@
 	{% if "frontpage_scan" in profile %}
 		<div class="mt-5 mb-5">
 		<h2 class="anchor" id="frontpage-info">Frontpage information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the frontpage of the protection profile document.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the frontpage of the protection profile document.">?</span></h2>
 
 		{% if "cert_id" in profile["frontpage_scan"] %}
 		<b>Protection Profile ID:</b>
@@ -102,7 +102,7 @@
     {% if "keywords_scan" in profile or "processed" in profile %}
 		<div class="mt-5 mb-5">
 		<h2 class="anchor" id="doc-info">Document information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
 		{% if "processed" in profile %}
 			{% if "cc_pp_csvid" in profile["processed"] %}
 				<b>Protection Profile ID:</b>
@@ -129,7 +129,7 @@
 
         <div class="mt-5 mb-5">
             <h2 class="anchor" id="reference-graph">References
-                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary"
+                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                       data-bs-toggle="tooltip" data-bs-placement="top"
                       title="Information automatically extracted from the certificate, security target and protection profile documents. Might contain errors.">?</span>
             </h2>

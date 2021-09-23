@@ -37,7 +37,7 @@
     {% if "web_scan" in cert %}
         <div>
             <h2 id="web-info" class="mt-5 anchor">Webpage information
-            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
+            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
             <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
             {% if cert["web_scan"]["historical_reason"] %}
                 <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
@@ -115,7 +115,7 @@
 	{% if "keywords" in cert %}
 	<div>
 		<h2 id="doc-info" class="mt-5">Document information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
 		
 		<h3 class="mt-4">Security policy
         {% if cert["web_scan"]["security_policy_www"] %}<a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
@@ -128,7 +128,7 @@
 
     <div class="mt-5 mb-5">
         <h2 class="anchor" id="reference-graph">References
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge badge-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
+		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-toggle="tooltip" data-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
         <div class="border">
         {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for(".types"), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
         </div>
