@@ -14,7 +14,7 @@ class Configuration(object):
         with Path(filepath).open('r') as file:
             state = yaml.load(file, Loader=yaml.FullLoader)
 
-        script_dir = os.path.dirname(os.path.realpath(__file__))
+        script_dir = Path(__file__).parent
 
         with open(Path(script_dir) / 'settings-schema.json', 'r') as file:
             schema = json.loads(file.read())
