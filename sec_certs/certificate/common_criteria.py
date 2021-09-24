@@ -583,6 +583,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def get_cve_labels(self):
         if not self.heuristics.related_cves:
-            return 'None'
+            return ['None']
         else:
             return [x.cve_id for x in self.heuristics.related_cves]
