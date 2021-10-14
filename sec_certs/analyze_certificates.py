@@ -18,6 +18,7 @@ from tabulate import tabulate
 from . import sanity
 from .constants import *
 from .cert_rules import rules_security_functional_components, rules_security_assurance_components, rules_cc_claims
+from .cert_rules import rules_javacard
 
 plt.rcdefaults()
 
@@ -603,6 +604,10 @@ def analyze_cert_years_frequency(all_cert_items, filter_label, force_plot_end_ye
         item_name = item[:item.find('\\.')]
         target_keywords[item_name] = []
         target_keywords[item_name].append(['keywords_scan', 'rules_cc_claims', item])
+    # JavaCard versions
+    target_keywords['javacard'] = []
+    target_keywords['javacard'].append(['keywords_scan', 'rules_javacard', r'(?:Java Card|JavaCard) [2-3]\.[0-9](?:\.[0-9]|)'])
+    target_keywords['javacard'].append(['keywords_scan', 'rules_javacard',  r'(?:Java Card|JavaCard) \(version [2-3]\.[0-9](?:\.[0-9]|)\)'])
 
 
 
@@ -1022,15 +1027,19 @@ def generate_dot_graphs(all_items_found, filter_label, highlight_certs_id=None):
     # link between device and its javacard version
     print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, True, highlight_certs_id)
 
+    # link between certificates and their protection profiles based on csv_scan
+    #print_dot_graph(['rules_javacard'], all_items_found, filter_label, 'cert_javacard_graph.dot', False, False, highlight_certs_id)
+
     #    print_dot_graph(['rules_security_level'], all_items_found, filter_label, 'cert_security_level_graph.dot', True)
     #    print_dot_graph(['rules_crypto_libs'], all_items_found, filter_label, 'cert_crypto_libs_graph.dot', False)
     #    print_dot_graph(['rules_vendor'], all_items_found, filter_label, 'rules_vendor.dot', False)
     #    print_dot_graph(['rules_crypto_algs'], all_items_found, filter_label, 'rules_crypto_algs.dot', False)
-    #    print_dot_graph(['rules_protection_profiles'], all_items_found, filter_label, 'rules_protection_profiles.dot', False)
+    print_dot_graph(['rules_protection_profiles'], all_items_found, filter_label, 'rules_protection_profiles.dot',
+                    True, False, highlight_certs_id)
     #    print_dot_graph(['rules_defenses'], all_items_found, filter_label, 'rules_defenses.dot', False)
 
 
-def do_all_analysis(all_cert_items, filter_label, highlight_certs_id = None):
+def do_all_analysis(all_cert_items, filter_label, highlight_certs_id=None):
     analyze_cert_years_frequency(all_cert_items, filter_label)
     analyze_references_graph(['rules_cert_id'], all_cert_items, filter_label)
     analyze_eal_frequency(all_cert_items, filter_label)
