@@ -33,6 +33,7 @@ plt.rcdefaults()
 
 # if True, then exception is raised when unexpect intermediate number is obtained
 # Used as sanity check during development to detect sudden drop in number of extracted features
+#APPEND_DETAILED_MATCH_MATCHES = True
 APPEND_DETAILED_MATCH_MATCHES = False
 VERBOSE = False
 
@@ -166,7 +167,8 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
         for rule in search_rules[rule_group]:
             if type(rule) != str:
                 rule_str = rule.pattern
-                rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
+                #rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
+                rule_and_sep = rule  # if someone provided already precompiled regex, leave it as it is
             else:
                 rule_str = rule
                 rule_and_sep = rule + REGEXEC_SEP
@@ -176,7 +178,7 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
             #for m in re.finditer(rule_and_sep, whole_text_with_newlines):
             for m in re.finditer(rule_and_sep, whole_text):
                 # insert rule if at least one match for it was found
-                if rule not in items_found:
+                if rule_str not in items_found:
                     items_found[rule_str] = {}
 
                 match = m.group()
@@ -209,8 +211,8 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
     all_matches = []
     for rule_group in items_found_all.keys():
         items_found = items_found_all[rule_group]
-        for rule in items_found.keys():
-            for match in items_found[rule]:
+        for rule_name in items_found.keys():
+            for match in items_found[rule_name]:
                 all_matches.append(match)
 
         # if AES string is removed before AES-128, -128 would be left in text => sort by length first
@@ -1081,6 +1083,34 @@ def extract_keywords(params):
             target_file, modified_cert_file[0], modified_cert_file[1])
 
     return file_name, result
+
+
+def extract_certificates_keywords_parallel_certid(walk_dir: Path, fragments_dir: Path, file_prefix, rules_to_search,
+                                               num_threads: int):
+    # find certid matches with position
+    matches = extract_certificates_keywords_parallel(walk_dir, fragments_dir, file_prefix, rules_to_search, num_threads)
+
+    CTX_PREV_CHARS = 300
+    CTX_NEXT_CHARS = 300
+    # extract context for matched items
+    for file in matches.keys():
+        #with open
+        file_name = walk_dir / file
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(file_name)
+
+        len_file = len(whole_text)
+        for rule in matches[file]['rules_cert_id']:
+            for match in matches[file]['rules_cert_id'][rule]:
+                matches[file]['rules_cert_id'][rule][match]['matches_text'] = []
+                for position in matches[file]['rules_cert_id'][rule][match]['matches']:
+                    start_index = position[0] - CTX_PREV_CHARS
+                    if start_index < 0: start_index = 0
+                    end_index = position[1] + CTX_NEXT_CHARS
+                    if end_index >= len_file:
+                        end_index = len_file - 1
+                    context = whole_text[start_index:end_index]
+                    matches[file]['rules_cert_id'][rule][match]['matches_text'].append(context)
+    return matches
 
 
 def extract_certificates_keywords_parallel(walk_dir: Path, fragments_dir: Path, file_prefix, rules_to_search, num_threads: int):
