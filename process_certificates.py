@@ -292,10 +292,10 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
         # load cpe items if not already
         if os.path.isfile(results_dir / 'cpe_processed.json'):
             with open(results_dir / 'cpe_processed.json') as json_file:
-                all_cert_items = json.load(json_file)
+                all_cpe_items = json.load(json_file)
         else:
             all_cpe_items = do_extract_cpe_items(results_dir)
-            print('Total CPE items found={}'.format(len(cpe_items)))
+            print('Total CPE items found={}'.format(len(all_cpe_items)))
             with open(results_dir / "cpe_processed.json", "w") as write_file:
                 json.dump(all_cpe_items, write_file, indent=4, sort_keys=True)
 
@@ -306,8 +306,8 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
                 certs_to_cpe = json.load(json_file)
         else:
             # match cpe to certificates
-            certs_to_cpe, cpe_to_certs = do_process_cpe_to_certs((all_cpe_items, all_cert_items))
-            #certs_to_cpe, cpe_to_certs = do_process_cpe_to_certs_parallel(cpe_items, all_cert_items, threads)
+            #certs_to_cpe, cpe_to_certs = do_process_cpe_to_certs((all_cpe_items, all_cert_items, 1, True))
+            certs_to_cpe, cpe_to_certs = do_process_cpe_to_certs_parallel2(all_cpe_items, all_cert_items, threads * 3)
 
             print('Total CPEs with matching certificate(s) = {}'.format(len(cpe_to_certs)))
             with open(results_dir / "cpe_to_certs.json", "w") as write_file:
@@ -316,13 +316,22 @@ def main(directory, do_complete_extraction: bool, do_download_meta: bool, do_ext
             with open(results_dir / "certs_to_cpe.json", "w") as write_file:
                 json.dump(certs_to_cpe, write_file, indent=4, sort_keys=True)
 
-        do_analyze_cpe_certs(cpe_to_certs, certs_to_cpe, all_cpe_items, all_cert_items)
+        single_match_certs_cpe = do_analyze_cpe_certs(cpe_to_certs, certs_to_cpe, all_cpe_items, all_cert_items)
+        with open(results_dir / "certs_to_cpe_single_match.json", "w") as write_file:
+            json.dump(single_match_certs_cpe, write_file, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
     main()
 
-
+    # separate certificates references to devices from same/different vendor (=> who is mostly using a who is mostly used)
+    # add graph showing EAL level per schemes (e.g., is BSI certifying higher than Spain?)
+    # add graph showing EAL levels for protection profiles in time
+    # try to find same products between CC and FIPS
+    # plot certs to protection profiles
+    # compute vulns from certs_to_cpe_single_match.json
+    # heatmap - variable in time. E.g., certificate validity time based on the date of certificate
+    # add keyword_rules as json to be loadable
     # TODO
     # plot SFRs based on whole classes, not only all together
     # for SARs, filter out values required by base EAL (so consider only augmented items)

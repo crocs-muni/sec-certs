@@ -1334,10 +1334,26 @@ def do_analyze_cpe_certs(cpe_to_certs: dict, certs_to_cpe: dict, all_cpe_items: 
     print('Top 20 most common CPE vendors')
     for vendor_id in vendors_sorted_count[0:20]:
         print(vendor_id)
+    # print('Short name vendors')
+    # for vendor_id in vendors_sorted_count:
+    #     if len(vendor_id[0]) <= 3:
+    #         print(vendor_id)
 
-    #
+
+
     # analyze paired cpe to certs
+    single_match_certs_cpe = {}
     for cert_key in certs_to_cpe.keys():
         cert = all_cert_items[cert_key]
         for cpe_key in certs_to_cpe[cert_key]:
-            print('{}\t{} ==> {}\t{}'.format(cert_key, cert['csv_scan']['cert_item_name'], cpe_key, all_cpe_items[cpe_key]['title']))
+            print('{}\t{} ==> {}\t{}'.format(cert_key, cert['csv_scan']['cert_item_name'], cpe_key,
+                                             all_cpe_items[cpe_key]['title']))
+            if len(certs_to_cpe[cert_key]) == 1:  # print only matches with single item
+                if len(cpe_to_certs[cpe_key]) == 1:
+                    single_match_certs_cpe[cert_key] = cpe_key
+                    #print('{}\t{} ==> {}\t{}'.format(cert_key, cert['csv_scan']['cert_item_name'], cpe_key, all_cpe_items[cpe_key]['title']))
+                #else:
+                    #print('{} matches multiple certificates'.format(cpe_key))
+
+    print('Number of certificates with single matching CPE = {}'.format(len(single_match_certs_cpe.keys())))
+    return single_match_certs_cpe
