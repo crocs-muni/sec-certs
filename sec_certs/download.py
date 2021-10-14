@@ -12,13 +12,16 @@ CC_WEB_URL = 'https://www.commoncriteriaportal.org'
 
 
 def download_file(url: str, output: Path) -> int:
-    r = requests.get(url, allow_redirects=True)
-    try:
-        with open(output, "wb") as f:
-            f.write(r.content)
-    except (OSError, ConnectionError) as e:
-        print('ERROR: Failed to download {} with {}'.format(url, e))
-    return r.status_code
+    if not os.path.exists(output):
+        r = requests.get(url, allow_redirects=True)
+        try:
+            with open(output, "wb") as f:
+                f.write(r.content)
+        except (OSError, ConnectionError) as e:
+            print('ERROR: Failed to download {} with {}'.format(url, e))
+        return r.status_code
+    else:
+        return 200
 
 
 def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
