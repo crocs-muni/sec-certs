@@ -500,6 +500,19 @@ rules['rules_technical_reports'] = rules_technical_reports
 rules['rules_device_id'] = rules_device_id
 rules.update(common_rules)
 
+rules_certidctx = {}
+rules_certidctx['rules_cert_id'] = rules_cert_id
+#rules_certidctx['rules_cert_id_ctx'] = []
+#for rule in rules_cert_id:
+#    rule_ctx = r'.{0,300}' + rule + r'.{0,300}'
+#    rules_certidctx['rules_cert_id_ctx'].append(rule_ctx)
+
+
+for rule in rules_certidctx:
+    for current_rule in range(len(rules_certidctx[rule])):
+        #print(rules_certidctx[rule][current_rule])
+        rules_certidctx[rule][current_rule] = re.compile(rules_certidctx[rule][current_rule])
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            For FIPS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
