@@ -726,8 +726,7 @@ def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.array:
     return np.array([tokenize(x, keywords) for x in dset])
 
 def tokenize(string: str, keywords: Set[str]) -> str:
-    return ' '.join([x for x in string.split(' ') if x.lower() in keywords])
-
+    return ' '.join([x for x in string.split() if x.lower() in keywords])
 
 def filter_shortly_described_cves(x, y):
     n_tokens = np.array(list(map(lambda item: len(item.split(' ')), x)))
