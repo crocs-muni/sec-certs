@@ -14,18 +14,6 @@ import tqdm
 
 logger = logging.getLogger(__name__)
 
-
-def binarize_labels(cve_dset: CVEDataset, instances: List[List[CVE]]) -> np.array:
-    cve_indexes = {x.cve_id: index for index, x in enumerate(cve_dset)}
-    matrix = []
-    for instance in instances:
-        positive_indicies = [cve_indexes[x] for x in [y.cve_id for y in instance]]
-        row_vector = np.zeros(len(cve_dset))
-        row_vector[positive_indicies] = 1
-        matrix.append(row_vector)
-    return np.array(matrix)
-
-
 def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
     with Path(filepath).open('r') as handle:
         data = json.load(handle)
@@ -54,79 +42,32 @@ def compute_precision(y: np.array, y_pred: np.array, **kwargs):
             prec.append(len(set_true.intersection(set_pred)) / len(set_true))
     return np.mean(prec)
 
-
-def compute_promising_ratio(y: np.array, y_pred: np.array):
-    """
-    Computes number of matched vulnerabilities that have lower distance from a certificate than the
-    first already discovered vulnerability (any from y). If no new vulnerability with such property was identified,
-    0 is assigned instead. Assumes that vulnerabilities are ordered by their similarity to given certificate.
-    """
-    if len(y_pred) > 200:
-        logger.warning('Promising matches metric should be computed only on certificates with ground-truth-verified vulnerability.')
-
-    n_promising = []
-    for instance, ground_truth_vulns in zip(y_pred, y):
-        known_before = np.array(list(map(lambda x: x in set(ground_truth_vulns), instance)))
-        true_indices = np.where(known_before)
-        if true_indices[0].size > 0 and true_indices[0][0] != 0:
-            n_promising.append(true_indices[0][0])
-        else:
-            n_promising.append(0)
-
-    return np.mean(n_promising)
-
-
-def prepare_classification_report(cert_names, y_pred, y_true, distances, cve_dataset, keywords, classifier, out_path):
-    def get_cve_representation(cve_dataset, cve_id, keywords, classifier):
-        if cve_id == 'None':
-            return None,
-        else:
-            return {
-                'cve_id': cve_id,
-                'description': cve_dataset[cve_id].description,
-                'tokenized': helpers.tokenize(cve_dataset[cve_id].description, keywords),
-                'tfidf': classifier.prepare_df_from_description(helpers.tokenize(cve_dataset[cve_id].description, keywords))['TF-IDF'].to_dict(),
-            }
+def cpe_evaluate_classifier(x_valid, y_pred, y_true, outpath):
+    precision = compute_precision(y_true, y_pred)
 
     correctly_classified = []
     badly_classified = []
-    results = {'correctly_classified': correctly_classified, 'badly_classified': badly_classified}
+    n_new_certs_with_match = 0
+    n_newly_identified = 0
 
-    for crt, prediction, ground_truth, dis in tqdm.tqdm(zip(cert_names, y_pred, y_true, distances), desc='Preparing classification report', total=len(cert_names)):
-        record = {'certificate_name': crt,
-                  'tokenized': helpers.tokenize(crt, keywords),
-                  'tfidf': classifier.prepare_df_from_description(crt)['TF-IDF'].to_dict(),
-                  'distances': dis,
-                  'predicted_cves': [get_cve_representation(cve_dataset, cve_id, keywords, classifier) for cve_id in prediction],
-                  'true_cves': [get_cve_representation(cve_dataset, cve_id, keywords, classifier) for cve_id in ground_truth]}
-        if set(ground_truth).issubset(set(prediction)):
+    for (vendor, cert_name), predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_true):
+        record = {'certificate_name': cert_name,
+                  'vendor': vendor,
+                  'heuristic version': helpers.compute_heuristics_version(cert_name),
+                  'predicted_cpes': list(predicted_cpes),
+                  'manually_assigned_cpes': list(verified_cpes)
+                  }
+        if set(verified_cpes).issubset(set(predicted_cpes)):
             correctly_classified.append(record)
         else:
             badly_classified.append(record)
 
-    with Path(out_path).open('w') as handle:
+        if len(verified_cpes) == 1 and len(predicted_cpes) > 1:
+            n_new_certs_with_match += 1
+        n_newly_identified += len(set(predicted_cpes) - set(verified_cpes))
+
+    results = {'Precision': precision, 'n_new_certs_with_match': n_new_certs_with_match, 'n_newly_identified': n_newly_identified, 'correctly_classified': correctly_classified, 'badly_classified': badly_classified}
+    print(f'While keeping precision: {precision}, the classifier identified {n_newly_identified} new CPE matches (Found match for {n_new_certs_with_match} certificates that were previously unmatched) compared to baseline.')
+
+    with Path(outpath).open('w') as handle:
         json.dump(results, handle, indent=4)
-
-
-# def prepare_classification_report(cert_names: List[str], y_pred: List[List[CVE]], y_true: List[List[CVE]],
-#                                   keywords: Set[str],
-#                                   distances: Optional[List[List[float]]],
-#                                   out_filepath: Optional[Union[str, Path]] = None):
-#     correctly_classified = []
-#     badly_classified = []
-#     results = {'correctly_classified': correctly_classified, 'badly_classified': badly_classified}
-#
-#     for index, cert in enumerate(cert_names):
-#         outcome = {'certificate name': cert, 'prediction': [x.to_brief_dict(keywords) for x in y_pred[index]],
-#                    'ground_truth': [x.to_brief_dict(keywords) for x in y_true[index]]}
-#         if distances:
-#             outcome['distances'] = distances[index]
-#
-#         if set(y_true[index]).issubset(set(y_pred[index])):
-#             correctly_classified.append(outcome)
-#         else:
-#             badly_classified.append(outcome)
-#
-#     if out_filepath:
-#         with Path(out_filepath).open('w') as handle:
-#             json.dump(results, handle, indent=4, cls=CustomJSONEncoder)
