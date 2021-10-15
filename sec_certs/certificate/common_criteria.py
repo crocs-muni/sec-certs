@@ -7,8 +7,10 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
 
+
 import requests
 from bs4 import Tag
+import numpy as np
 
 from sec_certs import helpers, constants as constants
 from sec_certs.certificate.certificate import Certificate, logger
@@ -17,7 +19,6 @@ from sec_certs.dataset.cve import CVE, CVEDataset
 from sec_certs.serialization import ComplexSerializableType
 from sec_certs.certificate.protection_profile import ProtectionProfile
 from sec_certs.configuration import config
-
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
@@ -193,7 +194,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         related_cves: Optional[Set[CVE]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
-
         # manufacturer_list: Optional[List[str]]
 
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
@@ -586,3 +586,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             return ['None']
         else:
             return [x.cve_id for x in self.heuristics.related_cves]
+
+    def get_x(self):
+        return self.manufacturer, self.name
+
+    def get_y(self):
+        return np.array([x.uri for x in self.heuristics.verified_cpe_matches] if self.heuristics.verified_cpe_matches else ['None'],  dtype='object')
