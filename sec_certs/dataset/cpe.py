@@ -51,6 +51,11 @@ class CPE(ComplexSerializableType):
     def __hash__(self):
         return hash(self.uri)
 
+    def __eq__(self, other):
+        if not isinstance(other, CPE):
+            return False
+        return self.uri == other.uri
+
 
 def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
     """
@@ -90,6 +95,11 @@ class CPEDataset:
 
     def __len__(self) -> int:
         return len(self.cpes)
+
+    def __contains__(self, item: CPE) -> bool:
+        if not isinstance(item, CPE):
+            raise ValueError(f'{item} is not of CPE class')
+        return item.uri in self.cpes.keys()
 
     def __post_init__(self):
         """
@@ -159,9 +169,12 @@ class CPEDataset:
         return [cpe for cpe in self if cpe.title == title]
 
     def get_candidate_list_of_vendors(self, cert_vendor: str) -> Optional[List[str]]:
+        def contains_two_independent_vendors(string: str) -> bool:
+            return len(string.split(', ')) == 2
         """
         Will return List of CPE vendors that could match the cert_vendor.
         """
+
         result = set()
         if not isinstance(cert_vendor, str):
             return None
@@ -169,13 +182,67 @@ class CPEDataset:
         if ' / ' in cert_vendor:
             chain = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(' / ')]
             chain = [x for x in chain if x]
-            return list(set(itertools.chain(*chain)))
+            result = list(set(itertools.chain(*chain)))
+            if not result:
+                return None
+            return result
+
+        if '/ ' in cert_vendor:
+            chain_one = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split('/ ')]
+            chain_one = [x for x in chain_one if x]
+            result = list(set(itertools.chain(*chain_one)))
+            if not result:
+                return None
+            return result
+
+        if ' /' in cert_vendor:
+            chain_one = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(' /')]
+            chain_one = [x for x in chain_one if x]
+            result = list(set(itertools.chain(*chain_one)))
+            if not result:
+                return None
+            return result
+
         if lower in self.vendors:
             result.add(lower)
-        if ' ' in lower and (y := lower.split(' ')[0]) in self.vendors:
-            result.add(y)
+
+        if contains_two_independent_vendors(lower):
+            chain = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(', ')]
+            chain = [x for x in chain if x]
+            result = list(set(itertools.chain(*chain)))
+            if not result:
+                return None
+            return result
+
+        tokenized = lower.split()
+
+        if tokenized[0] in self.vendors:
+            result.add(tokenized[0])
+
         if ',' in lower and (y := lower.split(',')[0]) in self.vendors:
             result.add(y)
+
+        if len(tokenized) > 1 and tokenized[0] + tokenized[1] in self.vendors:
+            result.add(tokenized[0] + tokenized[1])
+
+        # Below are completely manual fixes
+
+        if 'hewlett' in tokenized or 'hewlett-packard' in tokenized:
+            result.add('hp')
+
+        if 'thales' in tokenized:
+            result.add('thalesesecurity')
+            result.add('thalesgroup')
+
+        if 'stmicroelectronics' in tokenized:
+            result.add('st')
+
+        if 'athena' in tokenized and 'smartcard' in tokenized:
+            result.add('athena-scs')
+
+        if tokenized[0] == 'the' and not result:
+            result = self.get_candidate_list_of_vendors(' '.join(tokenized[1:]))
+
         if not result:
             return None
         return list(result)
@@ -243,7 +310,7 @@ class CPEDataset:
             # possibly filter short titles to avoid false positives
             # reasonable_matches = list(filter(lambda x: len(x[1].item_name) > 4, reasonable_matches))
 
-            return reasonable_matches[:n_max_matches]
+            return reasonable_matches
 
         if not reasonable_matches and not relax_version:
             return self.get_cpe_matches(cert_name, cert_candidate_cpe_vendors, ['-'], relax_version=True, n_max_matches=n_max_matches, threshold=threshold)
