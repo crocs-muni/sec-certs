@@ -55,14 +55,13 @@ class CVE(ComplexSerializableType):
     vulnerable_certs: List[str]
     impact: Impact
     published_date: Optional[datetime.datetime]
-    description: str
     tokenized: Optional[str]
 
     pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
                                         'explotability_score', 'impact_score', 'published_date', 'description')
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
-                 published_date: str, description: str, tokenized=None):
+                 published_date: str, tokenized=None):
         super().__init__()
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
@@ -73,7 +72,6 @@ class CVE(ComplexSerializableType):
 
         self.impact = impact
         self.published_date = isoparse(published_date)
-        self.description = description
         self.tokenized = tokenized
 
     def __hash__(self):
@@ -136,16 +134,7 @@ class CVE(ComplexSerializableType):
 
     def to_pandas_tuple(self):
         return (self.cve_id, self.vulnerable_cpes, self.vulnerable_certs, self.impact.base_score, self.impact.severity,
-                self.impact.explotability_score, self.impact.impact_score, self.published_date, self.description)
-
-    def tokenize(self, keywords: Set[str]):
-        self.tokenized = helpers.tokenize(self.description, keywords)
-
-    def to_brief_dict(self, keywords: Set[str]):
-        if not self.tokenized:
-            self.tokenize(keywords)
-        return {'cve_id': self.cve_id, 'description': self.description, 'tokenized': self.tokenized}
-
+                self.impact.explotability_score, self.impact.impact_score, self.published_date)
 
 @dataclass(eq=True)
 class CVEDataset(ComplexSerializableType):
@@ -251,6 +240,3 @@ class CVEDataset(ComplexSerializableType):
         cols = CVE.pandas_columns
         df = pd.DataFrame(tuples, columns=cols)
         return df.set_index('cve_id')
-
-    def get_x_y(self):
-        return np.array([x.description for x in self]), np.array([np.array([x.cve_id]) for x in self], dtype='object')
