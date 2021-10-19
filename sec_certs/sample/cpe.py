@@ -23,8 +23,8 @@ class CPE(ComplexSerializableType):
                  end_version: Optional[Tuple[str, str]] = None):
         self.uri = uri
         self.title = title
-        self.start_version = start_version
-        self.end_version = end_version
+        self.start_version = tuple(start_version) if start_version else None
+        self.end_version = tuple(end_version) if start_version else None
 
         if self.uri:
             self.vendor = ' '.join(self.uri.split(':')[3].split('_'))

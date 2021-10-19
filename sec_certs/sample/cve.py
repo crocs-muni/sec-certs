@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Final
 from dateutil.parser import isoparse
 
 from sec_certs.serialization import ComplexSerializableType
-
+from sec_certs.sample.cpe import CPE
 
 @dataclass(init=False)
 class CVE(ComplexSerializableType):
@@ -88,8 +88,8 @@ class CVE(ComplexSerializableType):
         """
         Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
         """
-        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> List[str]:
-            def get_vulnerable_cpes_from_node(node: Dict) -> List[str]:
+        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> List[CPE]:
+            def get_vulnerable_cpes_from_node(node: Dict) -> List[CPE]:
                 cpe_uris = []
                 if 'children' in node:
                     for child in node['children']:
@@ -98,7 +98,24 @@ class CVE(ComplexSerializableType):
                     lst = node['cpe_match']
                     for x in lst:
                         if x['vulnerable']:
-                            cpe_uris.append(x['cpe23Uri'])
+                            cpe_uri = x['cpe23Uri']
+
+                            if 'versionStartIncluding' in x:
+                                version_start = ('including', x['versionStartIncluding'])
+                            elif 'versionStartExcluding' in x:
+                                version_start = ('excluding', x['versionStartExcluding'])
+                            else:
+                                version_start = None
+
+                            if 'versionEndIncluding' in x:
+                                version_end = ('including', x['versionEndIncluding'])
+                            elif 'versionEndExcluding' in x:
+                                version_end = ('excluding', x['versionEndExcluding'])
+                            else:
+                                version_end = None
+
+                            cpe_uris.append(CPE(cpe_uri, start_version=version_start, end_version=version_end))
+
                 return cpe_uris
 
             vulnerable_cpes = []
