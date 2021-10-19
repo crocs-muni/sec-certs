@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, List, Optional
+from typing import ClassVar, List, Optional, Tuple
 
 from sec_certs.serialization import ComplexSerializableType
 
@@ -11,11 +11,20 @@ class CPE(ComplexSerializableType):
     version: str
     vendor: str
     item_name: str
+    start_version: Optional[Tuple[str, str]]
+    end_version: Optional[Tuple[str, str]]
+
+    # TODO: Start and End versions not yet serialized
     pandas_columns: ClassVar[List[str]] = ['uri', 'vendor', 'item_name', 'version', 'title']
 
-    def __init__(self, uri: Optional[str] = None, title: Optional[str] = None):
+    def __init__(self, uri: Optional[str] = None,
+                 title: Optional[str] = None,
+                 start_version: Optional[Tuple[str, str]] = None,
+                 end_version: Optional[Tuple[str, str]] = None):
         self.uri = uri
         self.title = title
+        self.start_version = start_version
+        self.end_version = end_version
 
         if self.uri:
             self.vendor = ' '.join(self.uri.split(':')[3].split('_'))
@@ -27,7 +36,7 @@ class CPE(ComplexSerializableType):
 
     @property
     def serialized_attributes(self) -> List[str]:
-        return ['uri', 'title']
+        return ['uri', 'title', 'start_version', 'end_version']
 
     @property
     def pandas_tuple(self):
