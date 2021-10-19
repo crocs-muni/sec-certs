@@ -14,7 +14,7 @@ from sec_certs.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
-from sec_certs.certificate.fips import FIPSCertificate
+from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.dataset.cpe import CPEDataset
 
 
@@ -141,7 +141,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @serialize
     def convert_all_pdfs(self):
-        logger.info('Converting FIPS certificate reports to .txt')
+        logger.info('Converting FIPS sample reports to .txt')
         tuples = [
             (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
             for cert in self.certs.values()
@@ -176,7 +176,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.download_all_pdfs()
 
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> None:
-        logger.info(f"Getting certificate ids from {html_file}")
+        logger.info(f"Getting sample ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html.parser")
 
@@ -252,7 +252,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         # Download files containing all available module certs (always)
         self.prepare_dataset(test, update)
 
-        logger.info("Downloading certificate html and security policies")
+        logger.info("Downloading sample html and security policies")
         self.download_neccessary_files()
 
         if not no_download_algorithms:

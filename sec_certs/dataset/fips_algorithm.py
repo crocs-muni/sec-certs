@@ -9,7 +9,7 @@ import sec_certs.helpers
 from sec_certs import helpers as helpers, constants as constants, parallel_processing as cert_processing
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
-from sec_certs.certificate.fips import FIPSCertificate
+from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.configuration import config
 
 

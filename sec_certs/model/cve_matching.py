@@ -8,7 +8,7 @@ from sklearn.base import BaseEstimator
 from sklearn.neighbors import NearestNeighbors
 import seaborn as sns
 import sec_certs.helpers as helpers
-from sec_certs.dataset.cve import CVE
+from sec_certs.sample.cve import CVE
 
 
 class VulnClassifier(BaseEstimator):

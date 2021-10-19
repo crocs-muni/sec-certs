@@ -1,6 +1,6 @@
 from sklearn.base import BaseEstimator
 from typing import Dict, Tuple, Set, List, Optional, Union
-from sec_certs.dataset.cpe import CPE
+from sec_certs.sample.cpe import CPE
 import sec_certs.helpers as helpers
 import tqdm
 import itertools
@@ -191,10 +191,10 @@ class CPEClassifier(BaseEstimator):
 
     def get_candidate_vendor_version_pairs(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[Tuple[str, str]]]:
         """
-        Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given certificate
+        Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given sample
         Parameters
-        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a certificate
-        :param cert_candidate_versions: List of versions heuristically extracted from the certificate name
+        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
+        :param cert_candidate_versions: List of versions heuristically extracted from the sample name
         :return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
 

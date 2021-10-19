@@ -12,7 +12,7 @@ import sec_certs.helpers as helpers
 import sec_certs.constants as constants
 import sec_certs.parallel_processing as cert_processing
 
-from sec_certs.certificate.certificate import Certificate
+from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
 from sec_certs.serialization import serialize
@@ -154,7 +154,7 @@ class Dataset(ABC):
         return cpe_dataset
 
     def _compute_candidate_versions(self):
-        logger.info('Computing heuristics: possible product versions in certificate name')
+        logger.info('Computing heuristics: possible product versions in sample name')
         for cert in self:
             cert.compute_heuristics_version()
 

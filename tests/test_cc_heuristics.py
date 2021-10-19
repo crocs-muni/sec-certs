@@ -3,10 +3,12 @@ import datetime
 import tempfile
 from unittest import TestCase
 from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
-from sec_certs.certificate.protection_profile import ProtectionProfile
-from sec_certs.dataset.cpe import CPEDataset, CPE
-from sec_certs.dataset.cve import CVEDataset, CVE
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.cve import CVE
 from pathlib import Path
 from typing import ClassVar, Dict
 import shutil
@@ -98,7 +100,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         self.assertCountEqual(evaluated_cves, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):
-        self.assertEqual(self.cc_dset['ebd276cca70fd723'].heuristics.extracted_versions, ['8.2'], 'The version extracted from the certificate does not match the template')
+        self.assertEqual(self.cc_dset['ebd276cca70fd723'].heuristics.extracted_versions, ['8.2'], 'The version extracted from the sample does not match the template')
         new_cert = CommonCriteriaCert('', '', 'IDOneClassIC Card : ID-One Cosmo 64 RSA v5.4 and applet IDOneClassIC v1.0 embedded on P5CT072VOP', '', '',
                                       '', None, None, '', '', '', '', set(), set(), None, None, None)
         new_cert.compute_heuristics_version()

@@ -92,7 +92,7 @@ def sanitize_string(record: str) -> Union[str, None]:
     if not record:
         return None
     else:
-        # TODO: There is a certificate with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
+        # TODO: There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
         string = html.unescape(html.unescape(record)).replace('\n', '')
         return ' '.join(string.split())
 
@@ -457,7 +457,7 @@ def search_only_headers_bsi(filepath: Path):
                 items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
                 items_found[constants.TAG_CERT_LAB] = 'BSI'
 
-        # Process page with more detailed certificate info
+        # Process page with more detailed sample info
         # PP Conformance, Functionality, Assurance
         rules_certificate_third = ['PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified']
 
@@ -705,7 +705,7 @@ def gen_dict_extract(dct: Dict, searched_key: Hashable = 'count'):
 
 def compute_heuristics_version(cert_name: str) -> List[str]:
     """
-    Will extract possible versions from the name of certificate
+    Will extract possible versions from the name of sample
     """
     at_least_something = r'(\b(\d)+\b)'
     just_numbers = r'(\d{1,5})(\.\d{1,5})'

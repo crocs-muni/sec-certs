@@ -4,57 +4,19 @@ import json
 from typing import Optional, List, Dict, Tuple, Set, Union, ClassVar
 import itertools
 import re
-from rapidfuzz import process, fuzz
+from rapidfuzz import fuzz
 import tempfile
 from pathlib import Path
 import zipfile
 import operator
 
 import sec_certs.helpers as helpers
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.sample.cpe import CPE
 
 import pandas as pd
 import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass(init=False)
-class CPE(ComplexSerializableType):
-    uri: str
-    title: str
-    version: str
-    vendor: str
-    item_name: str
-    pandas_columns: ClassVar[List[str]] = ['uri', 'vendor', 'item_name', 'version', 'title']
-
-    def __init__(self, uri: Optional[str] = None, title: Optional[str] = None):
-        self.uri = uri
-        self.title = title
-
-        if self.uri:
-            self.vendor = ' '.join(self.uri.split(':')[3].split('_'))
-            self.item_name = ' '.join(self.uri.split(':')[4].split('_'))
-            self.version = self.uri.split(':')[5]
-
-    def __lt__(self, other: 'CPE'):
-        return self.title < other.title
-
-    @property
-    def serialized_attributes(self) -> List[str]:
-        return ['uri', 'title']
-
-    @property
-    def pandas_tuple(self):
-        return self.uri, self.vendor, self.item_name, self.version, self.title
-
-    def __hash__(self):
-        return hash(self.uri)
-
-    def __eq__(self, other):
-        if not isinstance(other, CPE):
-            return False
-        return self.uri == other.uri
 
 
 def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
@@ -249,10 +211,10 @@ class CPEDataset:
 
     def get_candidate_vendor_version_pairs(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[Tuple[str, str]]]:
         """
-        Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given certificate
+        Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given sample
         Parameters
-        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a certificate
-        :param cert_candidate_versions: List of versions heuristically extracted from the certificate name
+        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
+        :param cert_candidate_versions: List of versions heuristically extracted from the sample name
         :return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
 
@@ -273,7 +235,8 @@ class CPEDataset:
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs
 
-    def get_candidate_cpe_items(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[CPE]]:
+    def get_candidate_cpe_items(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[
+        CPE]]:
         candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(cert_candidate_cpe_vendors, cert_candidate_versions)
 
         if not candidate_vendor_version_pairs:

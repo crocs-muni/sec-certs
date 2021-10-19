@@ -16,15 +16,17 @@ from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
-from sec_certs.dataset.cpe import CPEDataset, CPE
-from sec_certs.dataset.cve import CVEDataset, CVE
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.cve import CVE
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.configuration import config
-from sec_certs.certificate.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
+from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 
 
 class CCDataset(Dataset, ComplexSerializableType):
@@ -450,7 +452,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.error('Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.')
             return
 
-        logger.info('Downloading CC certificate reports')
+        logger.info('Downloading CC sample reports')
         self._download_reports(fresh)
 
         logger.info('Downloading CC security targets')
@@ -487,7 +489,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.info('Attempting to convert pdf while not having them downloaded. Returning.')
             return
 
-        logger.info('Converting CC certificate reports to .txt')
+        logger.info('Converting CC sample reports to .txt')
         self._convert_reports_to_txt(fresh)
 
         logger.info('Converting CC security targets to .txt')
@@ -613,7 +615,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             cert.compute_heuristics_cert_lab()
 
     def _compute_cert_ids(self):
-        logger.info('Deriving information about certificate ids from pdf scan.')
+        logger.info('Deriving information about sample ids from pdf scan.')
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         for cert in certs_to_process:
             cert.compute_heuristics_cert_id()

@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 
 class TestCommonCriteriaHeuristics(TestCase):

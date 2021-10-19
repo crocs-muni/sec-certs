@@ -13,12 +13,15 @@ from bs4 import Tag
 import numpy as np
 
 from sec_certs import helpers, constants as constants
-from sec_certs.certificate.certificate import Certificate, logger
-from sec_certs.dataset.cpe import CPE, CPEDataset
-from sec_certs.dataset.cve import CVE, CVEDataset
+from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.cve import CVE
 from sec_certs.serialization import ComplexSerializableType
-from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.configuration import config
+
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
@@ -253,7 +256,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @property
     def dgst(self) -> str:
         """
-        Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
+        Computes the primary key of the sample using first 16 bytes of SHA-256 digest
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
@@ -272,7 +275,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """
-        Merges with other CC certificate. Assuming they come from different sources, e.g., csv and html.
+        Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
         On other values (apart from maintainances, see TODO below) the sanity checks are made.
         """
@@ -304,7 +307,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @classmethod
     def from_html_row(cls, row: Tag, status: str, category: str) -> 'CommonCriteriaCert':
         """
-        Creates a CC certificate from html row
+        Creates a CC sample from html row
         """
 
         def _get_name(cell: Tag) -> str:
@@ -571,13 +574,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:
-            logger.error('Cannot compute certificate lab when pdf files were not processed.')
+            logger.error('Cannot compute sample lab when pdf files were not processed.')
             return
         self.heuristics.cert_lab = self.pdf_data.cert_lab
 
     def compute_heuristics_cert_id(self):
         if not self.pdf_data:
-            logger.error('Cannot compute certificate id when pdf files were not processed.')
+            logger.error('Cannot compute sample id when pdf files were not processed.')
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
 

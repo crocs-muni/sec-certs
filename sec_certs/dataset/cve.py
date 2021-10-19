@@ -7,134 +7,18 @@ import zipfile
 import logging
 import glob
 import json
-from dateutil.parser import isoparse
-import copy
 
 import pandas as pd
-import numpy as np
 
 from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
+from sec_certs.sample.cve import CVE
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.configuration import config
 
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass(init=False)
-class CVE(ComplexSerializableType):
-    @dataclass(eq=True)
-    class Impact(ComplexSerializableType):
-        base_score: float
-        severity: str
-        explotability_score: float
-        impact_score: float
-
-        @classmethod
-        def from_nist_dict(cls, dct: Dict):
-            """
-            Will load Impact from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
-            """
-            if not dct['impact']:
-                return cls(0, '', 0, 0)
-            elif 'baseMetricV3' in dct['impact']:
-                return cls(dct['impact']['baseMetricV3']['cvssV3']['baseScore'],
-                           dct['impact']['baseMetricV3']['cvssV3']['baseSeverity'],
-                           dct['impact']['baseMetricV3']['exploitabilityScore'],
-                           dct['impact']['baseMetricV3']['impactScore'])
-            elif 'baseMetricV2' in dct['impact']:
-                return cls(dct['impact']['baseMetricV2']['cvssV2']['baseScore'],
-                           dct['impact']['baseMetricV2']['severity'],
-                           dct['impact']['baseMetricV2']['exploitabilityScore'],
-                           dct['impact']['baseMetricV2']['impactScore'])
-
-    cve_id: str
-    vulnerable_cpes: List[str]
-    vulnerable_certs: List[str]
-    impact: Impact
-    published_date: Optional[datetime.datetime]
-    tokenized: Optional[str]
-
-    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
-                                        'explotability_score', 'impact_score', 'published_date', 'description')
-
-    def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
-                 published_date: str, tokenized=None):
-        super().__init__()
-        self.cve_id = cve_id
-        self.vulnerable_cpes = vulnerable_cpes
-
-        self.vulnerable_certs = vulnerable_certs
-        if not self.vulnerable_certs:
-            self.vulnerable_certs = []
-
-        self.impact = impact
-        self.published_date = isoparse(published_date)
-        self.tokenized = tokenized
-
-    def __hash__(self):
-        return hash(self.cve_id)
-
-    def __eq__(self, other):
-        if not isinstance(other, CVE):
-            return False
-        return self.cve_id == other.cve_id
-
-    def __lt__(self, other):
-        if not isinstance(other, CVE):
-            raise ValueError(f'Cannot compare CVE with {type(other)} type.')
-        self_year = int(self.cve_id.split('-')[1])
-        self_id = int(self.cve_id.split('-')[2])
-        other_year = int(other.cve_id.split('-')[1])
-        other_id = int(other.cve_id.split('-')[2])
-
-        return self_year < other_year if self_year != other_year else self_id < other_id
-
-    @property
-    def serialized_attributes(self) -> List[str]:
-        all_vars = copy.deepcopy(super().serialized_attributes)
-        all_vars.remove('tokenized')
-        return all_vars
-
-    @classmethod
-    def from_nist_dict(cls, dct: Dict) -> 'CVE':
-        """
-        Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
-        """
-        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> List[str]:
-            def get_vulnerable_cpes_from_node(node: Dict) -> List[str]:
-                cpe_uris = []
-                if 'children' in node:
-                    for child in node['children']:
-                        cpe_uris += get_vulnerable_cpes_from_node(child)
-                if 'cpe_match' in node:
-                    lst = node['cpe_match']
-                    for x in lst:
-                        if x['vulnerable']:
-                            cpe_uris.append(x['cpe23Uri'])
-                return cpe_uris
-
-            vulnerable_cpes = []
-            for node in dct['configurations']['nodes']:
-                vulnerable_cpes.extend(get_vulnerable_cpes_from_node(node))
-
-            return vulnerable_cpes
-
-        cve_id = dct['cve']['CVE_data_meta']['ID']
-        impact = cls.Impact.from_nist_dict(dct)
-        vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
-        vulnerable_certs = None
-        published_date = dct['publishedDate']
-
-        description = dct['cve']['description']['description_data'][0]['value']
-
-        return cls(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date, description)
-
-    def to_pandas_tuple(self):
-        return (self.cve_id, self.vulnerable_cpes, self.vulnerable_certs, self.impact.base_score, self.impact.severity,
-                self.impact.explotability_score, self.impact.impact_score, self.published_date)
 
 @dataclass(eq=True)
 class CVEDataset(ComplexSerializableType):
@@ -228,7 +112,7 @@ class CVEDataset(ComplexSerializableType):
     def filter_related_cpes(self, relevant_cpe_uris: Set[str]):
         """
         Since each of the CVEs is related to many CPEs, the dataset size explodes (serialized). For certificates,
-        only CPEs within certificate dataset are relevant. This function modifies all CVE elements. Specifically, it
+        only CPEs within sample dataset are relevant. This function modifies all CVE elements. Specifically, it
         deletes all CPE records unless they are part of relevant_cpe_uris.
         :param relevant_cpe_uris: List of relevant CPE uris to keep in CVE dataset.
         """
