@@ -1,109 +1,164 @@
 {
     "title": "settings for sec-certs",
     "type": "object",
+    "definitions": {
+        "settings_string_entry": {
+            "required": [
+                "description",
+                "value"
+            ],
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "settings_boolean_entry": {
+            "type": "object",
+            "required": [
+                "description",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "settings_number_entry": {
+            "type": "object",
+            "required": [
+                "description",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "settings_url_entry": {
+            "type": "object",
+            "required": [
+                "description",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^(https?|http?)://",
+                    "minLength": 1,
+                    "maxLength": 255
+                }
+            }
+        }
+    },
     "properties": {
         "log_filepath": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
+            "$ref": "#/definitions/settings_string_entry"
         },
         "smallest_certificate_id_to_connect": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "number",
-                    "minimum": 1
-                }
-            }
+            "$ref": "#/definitions/settings_number_entry"
         },
         "year_difference_between_validations": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "number",
-                    "minimum": 0
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 0
+                        }
+                    }
                 }
-            }
+            ]
         },
         "use_text_with_newlines_during_parsing": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "boolean"
-                }
-            }
+            "$ref": "#/definitions/settings_boolean_entry"
         },
         "n_threads": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "number",
-                    "minimum": 1
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 1
+                        }
+                    }
                 }
-            }
+            ]
         },
         "cc_cpe_matching_threshold": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 100
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 0,
+                            "maximum": 100
+                        }
+                    }
                 }
-            }
+            ]
         },
         "cc_cpe_max_matches": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "number",
-                    "exclusiveMinimum": 0
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "exclusiveMinimum": 0
+                        }
+                    }
                 }
-            }
+            ]
         },
         "cc_latest_snapshot": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
+            "$ref": "#/definitions/settings_url_entry"
         },
         "cc_maintenances_latest_snapshot": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
+            "$ref": "#/definitions/settings_url_entry"
         },
         "ignore_first_page": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "boolean"
-                }
-            }
+            "$ref": "#/definitions/settings_boolean_entry"
         },
         "cert_threshold": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "number",
-                    "minimum": 0
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 0
+                        }
+                    }
                 }
-            }
+            ]
         },
         "fips_latest_snapshot": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
+            "$ref": "#/definitions/settings_url_entry"
         }
     },
     "required": [
