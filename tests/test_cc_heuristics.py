@@ -77,7 +77,7 @@ class TestCommonCriteriaHeuristics(TestCase):
                          'The CPE lookup dictionary (vendor,version)->cpe does not match the template.')
 
     def test_cve_lookup_dicts(self):
-        alt_lookup = {x: set(y) for x, y in self.cve_dset.cpes_to_cve_lookup.items()}
+        alt_lookup = {x: set(y) for x, y in self.cve_dset.cpe_to_cve_ids_lookup.items()}
         self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': set(self.cves)},
                          'The CVE lookup dicionary cve-> affected cpes does not match the template')
 

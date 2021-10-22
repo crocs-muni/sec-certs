@@ -9,29 +9,16 @@ import tempfile
 from pathlib import Path
 import zipfile
 import operator
+import tqdm
 
 import sec_certs.helpers as helpers
 from sec_certs.sample.cpe import CPE
+from sec_certs.dataset.cve import CVEDataset
 
 import pandas as pd
 import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
-
-
-def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
-    """
-    Will parse CPE XML file into dictionary cpe_uri: cpe_title and dump the dict into json
-    """
-    logger.info(f'Extracting dictionary cpe_uri:cpe_title from {input_xml_filepath} to {output_filepath}')
-    root = ET.parse(input_xml_filepath).getroot()
-    dct = {}
-    for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
-        title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title').text
-        cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item').attrib['name']
-        dct[cpe_uri] = title
-    with open(output_filepath, 'w') as handle:
-        json.dump(dct, handle, indent=4)
 
 
 # TODO: Make this ComplexSerializableType
@@ -40,7 +27,7 @@ class CPEDataset:
     cpes: Dict[str, CPE]
     vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
     vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
-    title_to_cpes: Dict[str, Set[CPE]] = field(init=False) # Look-up dict title: List of cert items
+    title_to_cpes: Dict[str, Set[CPE]] = field(init=False)  # Look-up dict title: List of cert items
     vendors: Set[str] = field(init=False)
 
     cpe_xml_basename: ClassVar[str] = 'official-cpe-dictionary_v2.3.xml'
@@ -127,155 +114,17 @@ class CPEDataset:
 
         return df
 
-    def get_cpes_from_title(self, title: str) -> List[CPE]:
-        return [cpe for cpe in self if cpe.title == title]
+    # TODO: This should have some usage. Being called prior to automatic CPE matching
+    def enhance_with_cpes_from_cve_dataset(self, cve_dset: Union[CVEDataset, str, Path]):
+        if isinstance(cve_dset, (str, Path)):
+            cve_dset = CVEDataset.from_json(cve_dset)
 
-    def get_candidate_list_of_vendors(self, cert_vendor: str) -> Optional[List[str]]:
-        def contains_two_independent_vendors(string: str) -> bool:
-            return len(string.split(', ')) == 2
-        """
-        Will return List of CPE vendors that could match the cert_vendor.
-        """
+        all_cpes_in_cve_dset = set(itertools.chain.from_iterable([cve.vulnerable_cpes for cve in cve_dset]))
 
-        result = set()
-        if not isinstance(cert_vendor, str):
-            return None
-        lower = cert_vendor.lower()
-        if ' / ' in cert_vendor:
-            chain = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(' / ')]
-            chain = [x for x in chain if x]
-            result = list(set(itertools.chain(*chain)))
-            if not result:
-                return None
-            return result
+        old_len = len(self.cpes)
 
-        if '/ ' in cert_vendor:
-            chain_one = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split('/ ')]
-            chain_one = [x for x in chain_one if x]
-            result = list(set(itertools.chain(*chain_one)))
-            if not result:
-                return None
-            return result
+        for cpe in tqdm.tqdm(all_cpes_in_cve_dset, desc='Enriching CPE dataset with new CPEs'):
+            if cpe not in self:
+                self[cpe.uri] = cpe
 
-        if ' /' in cert_vendor:
-            chain_one = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(' /')]
-            chain_one = [x for x in chain_one if x]
-            result = list(set(itertools.chain(*chain_one)))
-            if not result:
-                return None
-            return result
-
-        if lower in self.vendors:
-            result.add(lower)
-
-        if contains_two_independent_vendors(lower):
-            chain = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(', ')]
-            chain = [x for x in chain if x]
-            result = list(set(itertools.chain(*chain)))
-            if not result:
-                return None
-            return result
-
-        tokenized = lower.split()
-
-        if tokenized[0] in self.vendors:
-            result.add(tokenized[0])
-
-        if ',' in lower and (y := lower.split(',')[0]) in self.vendors:
-            result.add(y)
-
-        if len(tokenized) > 1 and tokenized[0] + tokenized[1] in self.vendors:
-            result.add(tokenized[0] + tokenized[1])
-
-        # Below are completely manual fixes
-
-        if 'hewlett' in tokenized or 'hewlett-packard' in tokenized:
-            result.add('hp')
-
-        if 'thales' in tokenized:
-            result.add('thalesesecurity')
-            result.add('thalesgroup')
-
-        if 'stmicroelectronics' in tokenized:
-            result.add('st')
-
-        if 'athena' in tokenized and 'smartcard' in tokenized:
-            result.add('athena-scs')
-
-        if tokenized[0] == 'the' and not result:
-            result = self.get_candidate_list_of_vendors(' '.join(tokenized[1:]))
-
-        if not result:
-            return None
-        return list(result)
-
-    def get_candidate_vendor_version_pairs(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[Tuple[str, str]]]:
-        """
-        Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given sample
-        Parameters
-        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
-        :param cert_candidate_versions: List of versions heuristically extracted from the sample name
-        :return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
-        """
-
-        def is_cpe_version_among_cert_versions(cpe_version: str, cert_versions: List[str]) -> bool:
-            just_numbers = r'(\d{1,5})(\.\d{1,5})' # TODO: The use of this should be double-checked
-            for v in cert_versions:
-                if (v.startswith(cpe_version) and re.search(just_numbers, cpe_version)) or cpe_version.startswith(v):
-                    return True
-            return False
-
-        if not cert_candidate_cpe_vendors:
-            return None
-
-        candidate_vendor_version_pairs: List[Tuple[str, str]] = []
-        for vendor in cert_candidate_cpe_vendors:
-            viable_cpe_versions = self.vendor_to_versions[vendor]
-            matched_cpe_versions = [x for x in viable_cpe_versions if is_cpe_version_among_cert_versions(x, cert_candidate_versions)]
-            candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
-        return candidate_vendor_version_pairs
-
-    def get_candidate_cpe_items(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[
-        CPE]]:
-        candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(cert_candidate_cpe_vendors, cert_candidate_versions)
-
-        if not candidate_vendor_version_pairs:
-            return []
-
-        return list(itertools.chain.from_iterable([self.vendor_version_to_cpe[x] for x in candidate_vendor_version_pairs]))
-
-    def get_cpe_matches(self, cert_name: str, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str], relax_version: bool = False, n_max_matches=10, threshold: int = 60) -> Optional[List[Tuple[float, CPE]]]:
-        replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
-
-        def sanitize_matched_string(string: str):
-            string = string.replace('®', '').replace('™', '').lower()
-            return replace_non_letter_non_numbers_with_space.sub(' ', string)
-        candidates = self.get_candidate_cpe_items(cert_candidate_cpe_vendors, cert_candidate_versions)
-
-        sanitized_cert_name = sanitize_matched_string(cert_name)
-        reasonable_matches = []
-        for c in candidates:
-            sanitized_title = sanitize_matched_string(c.title)
-            sanitized_item_name = sanitize_matched_string(c.item_name)
-            set_match_title = fuzz.token_set_ratio(sanitized_cert_name, sanitized_title)
-            partial_match_title = fuzz.partial_ratio(sanitized_cert_name, sanitized_title)
-            set_match_item = fuzz.token_set_ratio(sanitized_cert_name, sanitized_item_name)
-            partial_match_item = fuzz.partial_ratio(sanitized_cert_name, sanitized_item_name)
-
-            potential = max([set_match_title, partial_match_title, set_match_item, partial_match_item])
-
-            if potential > threshold:
-                reasonable_matches.append((potential, c))
-
-        if reasonable_matches:
-            reasonable_matches = sorted(reasonable_matches, key=operator.itemgetter(0), reverse=True)
-
-            # possibly filter short titles to avoid false positives
-            # reasonable_matches = list(filter(lambda x: len(x[1].item_name) > 4, reasonable_matches))
-
-            return reasonable_matches
-
-        if not reasonable_matches and not relax_version:
-            return self.get_cpe_matches(cert_name, cert_candidate_cpe_vendors, ['-'], relax_version=True, n_max_matches=n_max_matches, threshold=threshold)
-
-        return None
+        logger.info(f'Enriched the CPE dataset with {len(self.cpes) - old_len} new CPE records.')

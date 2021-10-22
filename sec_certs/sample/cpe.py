@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import ClassVar, List, Optional, Tuple
-
 from sec_certs.serialization import ComplexSerializableType
 
 
@@ -14,8 +13,7 @@ class CPE(ComplexSerializableType):
     start_version: Optional[Tuple[str, str]]
     end_version: Optional[Tuple[str, str]]
 
-    # TODO: Start and End versions not yet serialized
-    pandas_columns: ClassVar[List[str]] = ['uri', 'vendor', 'item_name', 'version', 'title']
+    pandas_columns: ClassVar[List[str]] = ['uri', 'vendor', 'item_name', 'version', 'title', 'start_version', 'end_version']
 
     def __init__(self, uri: Optional[str] = None,
                  title: Optional[str] = None,
@@ -24,7 +22,7 @@ class CPE(ComplexSerializableType):
         self.uri = uri
         self.title = title
         self.start_version = tuple(start_version) if start_version else None
-        self.end_version = tuple(end_version) if start_version else None
+        self.end_version = tuple(end_version) if end_version else None
 
         if self.uri:
             self.vendor = ' '.join(self.uri.split(':')[3].split('_'))
@@ -43,9 +41,7 @@ class CPE(ComplexSerializableType):
         return self.uri, self.vendor, self.item_name, self.version, self.title
 
     def __hash__(self):
-        return hash(self.uri)
+        return hash((self.uri, self.start_version, self.end_version))
 
     def __eq__(self, other):
-        if not isinstance(other, CPE):
-            return False
-        return self.uri == other.uri
+        return isinstance(other, self.__class__) and self.uri == other.uri and self.start_version == other.start_version and self.end_version == other.end_version

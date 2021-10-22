@@ -194,7 +194,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
         labeled: bool = field(default=False)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
-        related_cves: Optional[Set[CVE]] = field(default=None)
+        related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
         # manufacturer_list: Optional[List[str]]
@@ -344,7 +344,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 text, '%Y-%m-%d').date() if text else None
             return extracted_date
 
-        def _get_report_st_links(cell: Tag) -> (str, str):
+        def _get_report_st_links(cell: Tag) -> [str, str]:
             links = cell.find_all('a')
             # TODO: Exception checks
             assert links[1].get('title').startswith('Certification Report')
@@ -565,7 +565,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:
-            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
+            related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x.uri) for x in self.heuristics.verified_cpe_matches]
             related_cves = list(filter(lambda x: x is not None, related_cves))
             if related_cves:
                 self.heuristics.related_cves = set(itertools.chain.from_iterable(related_cves))
@@ -583,15 +583,3 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             logger.error('Cannot compute sample id when pdf files were not processed.')
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
-
-    def get_cve_labels(self):
-        if not self.heuristics.related_cves:
-            return ['None']
-        else:
-            return [x.cve_id for x in self.heuristics.related_cves]
-
-    def get_x(self):
-        return self.manufacturer, self.name
-
-    def get_y(self):
-        return np.array([x.uri for x in self.heuristics.verified_cpe_matches] if self.heuristics.verified_cpe_matches else ['None'],  dtype='object')

@@ -606,6 +606,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         else:
             cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
+        cve_dataset.build_lookup_dict()
         return cve_dataset
 
     def _compute_cert_labs(self):
@@ -636,46 +637,6 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.certs_analyzed = True
 
-    def manually_verify_cpe_matches(self, update_json=True):
-        def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
-            n_certs_to_verify = len(certificates_to_verify)
-            for i, x in enumerate(certificates_to_verify):
-                print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
-                for index, c in enumerate(x.heuristics.cpe_matches):
-                    print(f'\t- {[index]}: {c[1].vendor} {c[1].title} CPE-URI: {c[1].uri}')
-                print(f'\t- [A]: All are fitting')
-                print(f'\t- [X]: No fitting match')
-                inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
-
-                if 'X' not in inpts and 'x' not in inpts:
-                    if 'A' in inpts or 'a' in inpts:
-                        inpts = [x for x in range(0, len(x.heuristics.cpe_matches))]
-                    try:
-                        inpts = [int(x) for x in inpts]
-                        if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
-                            raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
-                    except ValueError as e:
-                        logger.error(f'Bad input from user, repeating instance: {e}')
-                        print(f'Bad input from user, repeating instance: {e}')
-                        time.sleep(0.05)
-                        verify_certs([x])
-                    else:
-                        matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
-                        self[x.dgst].heuristics.verified_cpe_matches = matches
-
-                if i != 0 and not i % 10 and update_json:
-                    print(f'Saving progress.')
-                    self.to_json()
-                self[x.dgst].heuristics.labeled = True
-
-        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if (x.heuristics.cpe_matches and not x.heuristics.labeled)]
-        logger.info('Manually verifying CPE matches')
-        time.sleep(0.05)  # easier than flushing the logger
-        verify_certs(certs_to_verify)
-
-        if update_json is True:
-            self.to_json()
-
     @serialize
     def compute_related_cves(self, download_fresh_cves: bool = False):
         logger.info('Retrieving related CVEs to verified CPE matches')
@@ -686,12 +647,15 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
 
-        relevant_cpes = itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs])
-        relevant_cpes = set([x.uri for x in relevant_cpes])
+        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs]))
         cve_dset.filter_related_cpes(relevant_cpes)
 
         for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
+
+        n_vulnerable = len([x for x in verified_cpe_rich_certs if x.heuristics.related_cves])
+        n_vulnerabilities = sum([len(x.heuristics.related_cves) for x in verified_cpe_rich_certs if x.heuristics.related_cves])
+        logger.info(f'In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates.')
 
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
@@ -732,14 +696,6 @@ class CCDataset(Dataset, ComplexSerializableType):
         keywords = set(itertools.chain.from_iterable([x.lower().split(' ') for x in certificate_names]))
         keywords.add('1.02.013')
         return {x for x in keywords if len(x) > config.minimal_token_length}
-
-    def get_x_y(self, digests: Optional[List[str]] = None) -> Tuple[np.ndarray, np.ndarray]:
-        if not digests:
-            digests = [x.dgst for x in self]
-
-        x = [x.name for x in self if x.dgst in digests]
-        y = [x.get_cve_labels() for x in self if x.dgst in digests]
-        return np.array(x), np.array([np.array(z) for z in y], dtype='object')
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):

@@ -1,5 +1,5 @@
-import copy
 import datetime
+import itertools
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Final
 
@@ -7,6 +7,7 @@ from dateutil.parser import isoparse
 
 from sec_certs.serialization import ComplexSerializableType
 from sec_certs.sample.cpe import CPE
+
 
 @dataclass(init=False)
 class CVE(ComplexSerializableType):
@@ -36,28 +37,20 @@ class CVE(ComplexSerializableType):
                            dct['impact']['baseMetricV2']['impactScore'])
 
     cve_id: str
-    vulnerable_cpes: List[str]
+    vulnerable_cpes: List[CPE]
     vulnerable_certs: List[str]
     impact: Impact
     published_date: Optional[datetime.datetime]
-    tokenized: Optional[str]
 
     pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
                                         'explotability_score', 'impact_score', 'published_date', 'description')
 
-    def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
-                 published_date: str, tokenized=None):
-        super().__init__()
+    def __init__(self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str):
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
 
-        self.vulnerable_certs = vulnerable_certs
-        if not self.vulnerable_certs:
-            self.vulnerable_certs = []
-
         self.impact = impact
         self.published_date = isoparse(published_date)
-        self.tokenized = tokenized
 
     def __hash__(self):
         return hash(self.cve_id)
@@ -77,12 +70,6 @@ class CVE(ComplexSerializableType):
 
         return self_year < other_year if self_year != other_year else self_id < other_id
 
-    @property
-    def serialized_attributes(self) -> List[str]:
-        all_vars = copy.deepcopy(super().serialized_attributes)
-        all_vars.remove('tokenized')
-        return all_vars
-
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> 'CVE':
         """
@@ -100,16 +87,16 @@ class CVE(ComplexSerializableType):
                         if x['vulnerable']:
                             cpe_uri = x['cpe23Uri']
 
-                            if 'versionStartIncluding' in x:
+                            if 'versionStartIncluding' in x and x['versionStartIncluding']:
                                 version_start = ('including', x['versionStartIncluding'])
-                            elif 'versionStartExcluding' in x:
+                            elif 'versionStartExcluding' in x and x['versionStartExcluding']:
                                 version_start = ('excluding', x['versionStartExcluding'])
                             else:
                                 version_start = None
 
-                            if 'versionEndIncluding' in x:
+                            if 'versionEndIncluding' in x and x['versionEndIncluding']:
                                 version_end = ('including', x['versionEndIncluding'])
-                            elif 'versionEndExcluding' in x:
+                            elif 'versionEndExcluding' in x and x['versionEndExcluding']:
                                 version_end = ('excluding', x['versionEndExcluding'])
                             else:
                                 version_end = None
@@ -118,22 +105,15 @@ class CVE(ComplexSerializableType):
 
                 return cpe_uris
 
-            vulnerable_cpes = []
-            for node in dct['configurations']['nodes']:
-                vulnerable_cpes.extend(get_vulnerable_cpes_from_node(node))
-
-            return vulnerable_cpes
+            return list(itertools.chain.from_iterable([get_vulnerable_cpes_from_node(x) for x in dct['configurations']['nodes']]))
 
         cve_id = dct['cve']['CVE_data_meta']['ID']
         impact = cls.Impact.from_nist_dict(dct)
         vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
-        vulnerable_certs = None
         published_date = dct['publishedDate']
 
-        description = dct['cve']['description']['description_data'][0]['value']
-
-        return cls(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date, description)
+        return cls(cve_id, vulnerable_cpes, impact, published_date)
 
     def to_pandas_tuple(self):
-        return (self.cve_id, self.vulnerable_cpes, self.vulnerable_certs, self.impact.base_score, self.impact.severity,
+        return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
                 self.impact.explotability_score, self.impact.impact_score, self.published_date)
