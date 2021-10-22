@@ -11,10 +11,10 @@ from dateutil import parser
 from tabula import read_pdf
 
 import sec_certs.constants
-from sec_certs import helpers, dataset, constants as constants
+from sec_certs import helpers, constants as constants
 from sec_certs.cert_rules import fips_common_rules, REGEXEC_SEP, fips_rules
 from sec_certs.certificate.certificate import Certificate, logger
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
 from sec_certs.serialization import ComplexSerializableType

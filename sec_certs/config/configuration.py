@@ -1,12 +1,8 @@
 import yaml
-from typing import Union, Any
+from typing import Union
 from pathlib import Path
-from importlib_resources import files
 import jsonschema
 import json
-import os
-
-import sec_certs
 
 
 class Configuration(object):
@@ -16,10 +12,13 @@ class Configuration(object):
 
         script_dir = Path(__file__).parent
 
-        with open(Path(script_dir) / 'settings-schema.json', 'r') as file:
+        with (Path(script_dir) / 'settings-schema.json').open('r') as file:
             schema = json.loads(file.read())
 
-        jsonschema.validate(state, schema)
+        try:
+            jsonschema.validate(state, schema)
+        except jsonschema.exceptions.ValidationError as e:
+            print(f'{e}\n\nIn file {filepath}')
 
         for k, v in state.items():
             setattr(self, k, v)
@@ -31,6 +30,6 @@ class Configuration(object):
         return object.__getattribute__(self, key)
 
 
-config_path = files(sec_certs).joinpath('settings.yaml')
+config_path = Path(__file__).parent / 'settings.yaml'
 config = Configuration()
 config.load(config_path)

@@ -15,7 +15,7 @@ from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 
 logger = logging.getLogger(__name__)
 
