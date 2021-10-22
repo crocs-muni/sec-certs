@@ -3,19 +3,17 @@ import logging
 import os
 from itertools import groupby
 from pathlib import Path
-from typing import ClassVar, Tuple, List, Dict, Optional, Union
-import json
+from typing import Tuple, List, Dict, Optional, Union
 
 from bs4 import BeautifulSoup
 from graphviz import Digraph
 
 from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
 from sec_certs.sample.fips import FIPSCertificate
-from sec_certs.dataset.cpe import CPEDataset
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):

@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple, Set
+from typing import Dict, Optional, Union, List, Tuple
 import json
 
 import numpy as np
@@ -15,17 +15,13 @@ import pandas as pd
 from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
 
-from sec_certs import helpers as helpers, parallel_processing as cert_processing, constants as constants
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.cpe import CPE
+from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.cve import CVE
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.configuration import config
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 
 

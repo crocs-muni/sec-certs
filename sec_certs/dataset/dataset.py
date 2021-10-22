@@ -14,7 +14,7 @@ import sec_certs.parallel_processing as cert_processing
 
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 from sec_certs.serialization import serialize
 from sec_certs.dataset.cpe import CPEDataset
 

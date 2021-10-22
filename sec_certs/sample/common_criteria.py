@@ -1,7 +1,6 @@
 import copy
 import itertools
 import operator
-import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
@@ -20,7 +19,8 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cve import CVE
 from sec_certs.serialization import ComplexSerializableType
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
+
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
