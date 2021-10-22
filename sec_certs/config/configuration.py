@@ -1,16 +1,24 @@
 import yaml
-from typing import Union, Any
+from typing import Union
 from pathlib import Path
-from importlib_resources import files
-
-import sec_certs
+import jsonschema
+import json
 
 
 class Configuration(object):
-    # TODO: Should raise ValueError on unvalidated config
     def load(self, filepath: Union[str, Path]):
         with Path(filepath).open('r') as file:
             state = yaml.load(file, Loader=yaml.FullLoader)
+
+        script_dir = Path(__file__).parent
+
+        with (Path(script_dir) / 'settings-schema.json').open('r') as file:
+            schema = json.loads(file.read())
+
+        try:
+            jsonschema.validate(state, schema)
+        except jsonschema.exceptions.ValidationError as e:
+            print(f'{e}\n\nIn file {filepath}')
 
         for k, v in state.items():
             setattr(self, k, v)
@@ -22,6 +30,6 @@ class Configuration(object):
         return object.__getattribute__(self, key)
 
 
-config_path = files(sec_certs).joinpath('settings.yaml')
+config_path = Path(__file__).parent / 'settings.yaml'
 config = Configuration()
 config.load(config_path)

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 from tests.fips_test_utils import generate_html
 
 

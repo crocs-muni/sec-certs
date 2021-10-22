@@ -34,7 +34,7 @@ setup(
     },
     include_package_data=True,
     package_data={
-        'sec_certs': ['settings.yaml']
+        'sec_certs': ['settings.yaml', 'settings-schema.json']
     },
     entry_points={
         'console_scripts': [

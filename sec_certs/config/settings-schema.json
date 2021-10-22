@@ -1,0 +1,178 @@
+{
+    "title": "settings for sec-certs",
+    "type": "object",
+    "definitions": {
+        "settings_string_entry": {
+            "required": [
+                "description",
+                "value"
+            ],
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "settings_boolean_entry": {
+            "type": "object",
+            "required": [
+                "description",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "settings_number_entry": {
+            "type": "object",
+            "required": [
+                "description",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "settings_url_entry": {
+            "type": "object",
+            "required": [
+                "description",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^(https?|http?)://",
+                    "minLength": 1,
+                    "maxLength": 255
+                }
+            }
+        }
+    },
+    "properties": {
+        "log_filepath": {
+            "$ref": "#/definitions/settings_string_entry"
+        },
+        "smallest_certificate_id_to_connect": {
+            "$ref": "#/definitions/settings_number_entry"
+        },
+        "year_difference_between_validations": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 0
+                        }
+                    }
+                }
+            ]
+        },
+        "use_text_with_newlines_during_parsing": {
+            "$ref": "#/definitions/settings_boolean_entry"
+        },
+        "n_threads": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "cc_cpe_matching_threshold": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 0,
+                            "maximum": 100
+                        }
+                    }
+                }
+            ]
+        },
+        "cc_cpe_max_matches": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "exclusiveMinimum": 0
+                        }
+                    }
+                }
+            ]
+        },
+        "cc_latest_snapshot": {
+            "$ref": "#/definitions/settings_url_entry"
+        },
+        "cc_maintenances_latest_snapshot": {
+            "$ref": "#/definitions/settings_url_entry"
+        },
+        "ignore_first_page": {
+            "$ref": "#/definitions/settings_boolean_entry"
+        },
+        "cert_threshold": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/settings_number_entry"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "minimum": 0
+                        }
+                    }
+                }
+            ]
+        },
+        "fips_latest_snapshot": {
+            "$ref": "#/definitions/settings_url_entry"
+        }
+    },
+    "required": [
+        "log_filepath",
+        "smallest_certificate_id_to_connect",
+        "year_difference_between_validations",
+        "use_text_with_newlines_during_parsing",
+        "n_threads",
+        "cc_cpe_matching_threshold",
+        "cc_cpe_max_matches",
+        "cc_latest_snapshot",
+        "cc_maintenances_latest_snapshot",
+        "ignore_first_page",
+        "cert_threshold",
+        "fips_latest_snapshot"
+    ]
+}

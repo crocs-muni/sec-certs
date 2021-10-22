@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 
 from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 
 logger = logging.getLogger(__name__)
 
