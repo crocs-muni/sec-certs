@@ -105,7 +105,7 @@
                 }
             ]
         },
-        "cc_cpe_matching_threshold": {
+        "cpe_n_matching_threshold": {
             "allOf": [
                 {
                     "$ref": "#/definitions/settings_number_entry"
@@ -120,7 +120,7 @@
                 }
             ]
         },
-        "cc_cpe_max_matches": {
+        "cpe_n_max_matches": {
             "allOf": [
                 {
                     "$ref": "#/definitions/settings_number_entry"
