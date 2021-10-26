@@ -635,7 +635,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         return referenced_by_indirect.get(cert, None)
 
     def _compute_affected_ids(self):
-        referenced_by_direct, referenced_by_indirect = build_cert_references(self.certs)
+        referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
 
         for cert in self:
             current_cert_id = cert.pdf_data.cert_id
@@ -663,7 +663,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         return filter_indirect
 
     def _compute_affecting_ids(self):
-        referenced_by_direct, referenced_by_indirect = build_cert_references(self.certs)
+        referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
 
         for cert in self:
             current_cert_id = cert.pdf_data.cert_id
