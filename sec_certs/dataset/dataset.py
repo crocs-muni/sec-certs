@@ -106,7 +106,8 @@ class Dataset(ABC):
         input_path = Path(input_path)
         with input_path.open('r') as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
-        dset.root_dir = input_path.parent.absolute()
+        # FIXME - throwing AttributeError
+        #  dset.root_dir = input_path.parent.absolute()
         return dset
 
     @abstractmethod

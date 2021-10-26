@@ -176,7 +176,8 @@ class CCDataset(Dataset, ComplexSerializableType):
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
         dset = super().from_json(input_path)
-        dset.set_local_paths()
+        # FIXME - throwing AttributeError
+        #  dset.set_local_paths()
         return dset
 
     @classmethod
@@ -625,32 +626,49 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._compute_affected_ids()
         self._compute_affecting_ids()
 
-    def _get_affected_directly(self, cert, referenced_by_direct):
-        if cert in referenced_by_direct:
-            return referenced_by_direct[cert]
-        return None
+    @staticmethod
+    def _get_affected_directly(cert, referenced_by_direct):
+        return referenced_by_direct.get(cert, None)
 
-    def _get_affected_indirectly(self,cert, referenced_by_indirect):
-        if cert in referenced_by_indirect:
-            return referenced_by_indirect[cert]
-        return None
+    @staticmethod
+    def _get_affected_indirectly(cert, referenced_by_indirect):
+        return referenced_by_indirect.get(cert, None)
 
     def _compute_affected_ids(self):
         referenced_by_direct, referenced_by_indirect = build_cert_references(self.certs)
 
         for cert in self:
-            cert.heuristics.affected_direct = self._get_affected_directly(cert.pdf_data.cert_id, referenced_by_direct)
-            cert.heuristics.affected_indirect = self._get_affected_indirectly(cert.pdf_data.cert_id, referenced_by_indirect)
+            current_cert_id = cert.pdf_data.cert_id
+            cert.heuristics.affected_direct = CCDataset._get_affected_directly(current_cert_id, referenced_by_direct)
+            cert.heuristics.affected_indirect = CCDataset._get_affected_indirectly(current_cert_id, referenced_by_indirect)
 
-    def _find_affecting_certs(self, cert) -> Set:
-        pass # TODO - continue here
+    @staticmethod
+    def _get_affecting_directly(cert, referenced_by_direct) -> Set:
+        filter_direct = set()
+
+        for cert_id in referenced_by_direct:
+            if cert in referenced_by_direct[cert_id]:
+                filter_direct.add(cert_id)
+
+        return filter_direct
+
+    @staticmethod
+    def _get_affecting_indirectly(cert, referenced_by_indirect) -> Set:
+        filter_indirect = set()
+
+        for cert_id in referenced_by_indirect:
+            if cert in referenced_by_indirect[cert_id]:
+                filter_indirect.add(cert_id)
+
+        return filter_indirect
 
     def _compute_affecting_ids(self):
         referenced_by_direct, referenced_by_indirect = build_cert_references(self.certs)
 
         for cert in self:
-            cert.heuristics.affecting_direct, \
-            cert.heuristics.affecting_indirect = self._find_affecting_certs(cert)  # TODO - add this field to to_pandas method
+            current_cert_id = cert.pdf_data.cert_id
+            cert.heuristics.affecting_direct = CCDataset._get_affecting_directly(current_cert_id, referenced_by_direct)
+            cert.heuristics.affecting_indirect = CCDataset._get_affecting_indirectly(current_cert_id, referenced_by_indirect)
 
     @serialize
     def analyze_certificates(self, fresh: bool = True):
