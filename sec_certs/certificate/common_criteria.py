@@ -130,11 +130,17 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
-            return self.report_frontpage['bsi']
+            if self.report_frontpage is None:
+                return None
+
+            return self.report_frontpage.get('bsi', None)
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
-            return self.report_frontpage['anssi']
+            if self.report_frontpage is None:
+                return None
+
+            return self.report_frontpage.get('anssi', None)
 
         @property
         def cert_lab(self) -> Optional[List[str]]:
@@ -148,10 +154,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_cert_id(self) -> Optional[str]:
+            if self.bsi_data is None:
+                return None
+
             return self.bsi_data.get('cert_id', None)
 
         @property
         def anssi_cert_id(self) -> Optional[str]:
+            if self.anssi_data is None:
+                return None
+
             return self.anssi_data.get('cert_id', None)
 
         @property
@@ -166,7 +178,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            return self.report_keywords['rules_cert_id']
+            if self.report_keywords is None:
+                return None
+
+            return self.report_keywords.get('rules_cert_id', None)
+
 
         @property
         def keywords_cert_id(self) -> Optional[str]:
@@ -194,6 +210,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
 
+        affected_direct: Set = field(default=None)
+        affected_indirect: Set = field(default=None)
+        affecting_direct: Set = field(default=None)
+        affecting_indirect: Set = field(default=None)
+
         # manufacturer_list: Optional[List[str]]
 
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
@@ -210,7 +231,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
                                         'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
-                                        'verified_cpe_matches', 'related_cves']
+                                        'verified_cpe_matches', 'related_cves', "affected_direct", "affected_indirect",
+                                        "affecting_direct", "affecting_indirect"]
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -262,7 +284,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.name
 
     def __str__(self):
-        return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
+        # TODO - if some of the values is None -> TypeError is raised
+        return str(self.manufacturer) + ' ' + str(self.name) + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
         return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \

@@ -9,7 +9,7 @@ from pathlib import Path
 from tqdm import tqdm
 import hashlib
 import html
-from typing import Union
+from typing import Union, List
 from datetime import date
 import numpy as np
 import pandas as pd
@@ -721,3 +721,47 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
         matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
 
     return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
+
+
+def build_cert_references(certificates):
+    referenced_by = {}
+
+    for cert in certificates:
+        if cert.pdf_data.report_keywords is None:
+            continue
+
+        this_cert_id = None
+        if cert.pdf_data.processed_cert_id is not None:
+            this_cert_id = cert.pdf_data.processed_cert_id
+
+        # Direct reference
+        for cert_id in cert.pdf_data.report_keywords["rules_cert_id"]:
+            if cert_id != this_cert_id and this_cert_id is not None:
+                if cert_id not in referenced_by:
+                    referenced_by[cert_id] = []
+                if this_cert_id not in referenced_by[cert_id]:
+                    referenced_by[cert_id].append(this_cert_id)
+
+    referenced_by_indirect = {}
+
+    for cert_id in referenced_by.keys():
+        referenced_by_indirect[cert_id] = set()
+        for item in referenced_by[cert_id]:
+            referenced_by_indirect[cert_id].add(item)
+
+    new_change_detected = True
+    while new_change_detected:
+        new_change_detected = False
+        certs_id_list = referenced_by.keys()
+        
+        for cert_id in certs_id_list:
+            tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
+            for referencing in tmp_referenced_by_indirect_nums:
+                if referencing in referenced_by.keys():
+                    tmp_referencing = referenced_by_indirect[referencing].copy()
+                    for in_referencing in tmp_referencing:
+                        if in_referencing not in referenced_by_indirect[cert_id]:
+                            new_change_detected = True
+                            referenced_by_indirect[cert_id].add(in_referencing)
+
+    return referenced_by, referenced_by_indirect

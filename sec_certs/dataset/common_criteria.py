@@ -625,20 +625,29 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._compute_affected_ids()
         self._compute_affecting_ids()
 
-    def _find_affected_certs(self, cert) -> Set:
-        # TODO - reimplement Petrs algorithm
-        pass
+    def _get_affected_directly(self, cert, referenced_by_direct):
+        if cert in referenced_by_direct:
+            return referenced_by_direct[cert]
+        return None
+
+    def _get_affected_indirectly(self,cert, referenced_by_indirect):
+        if cert in referenced_by_indirect:
+            return referenced_by_indirect[cert]
+        return None
 
     def _compute_affected_ids(self):
+        referenced_by_direct, referenced_by_indirect = build_cert_references(self.certs)
+
         for cert in self:
-            cert.heuristics.affected_direct, \
-            cert.heuristics.affected_indirect = self._find_affected_certs(cert)  # TODO - add this field to to_pandas method
+            cert.heuristics.affected_direct = self._get_affected_directly(cert.pdf_data.cert_id, referenced_by_direct)
+            cert.heuristics.affected_indirect = self._get_affected_indirectly(cert.pdf_data.cert_id, referenced_by_indirect)
 
     def _find_affecting_certs(self, cert) -> Set:
-        # TODO - reimplement Petrs algorithm
-        pass
+        pass # TODO - continue here
 
     def _compute_affecting_ids(self):
+        referenced_by_direct, referenced_by_indirect = build_cert_references(self.certs)
+
         for cert in self:
             cert.heuristics.affecting_direct, \
             cert.heuristics.affecting_indirect = self._find_affecting_certs(cert)  # TODO - add this field to to_pandas method
