@@ -726,16 +726,16 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
 def build_cert_references(certificates):
     referenced_by = {}
 
-    for cert_digest in certificates:
-        if certificates[cert_digest].pdf_data.report_keywords is None:
+    for cert_obj in certificates.values():
+        if cert_obj.pdf_data.report_keywords is None:
             continue
 
         this_cert_id = None
-        if certificates[cert_digest].pdf_data.processed_cert_id is not None:
-            this_cert_id = certificates[cert_digest].pdf_data.processed_cert_id
+        if cert_obj.pdf_data.processed_cert_id is not None:
+            this_cert_id = cert_obj.pdf_data.processed_cert_id
 
         # Direct reference
-        for cert_id in certificates[cert_digest].pdf_data.report_keywords["rules_cert_id"]:
+        for cert_id in cert_obj.pdf_data.report_keywords["rules_cert_id"]:
             if cert_id != this_cert_id and this_cert_id is not None:
                 if cert_id not in referenced_by:
                     referenced_by[cert_id] = []
