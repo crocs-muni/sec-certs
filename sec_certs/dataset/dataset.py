@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union
+from typing import Dict, Collection, Union, Optional
 
 import json
 from abc import ABC, abstractmethod
@@ -179,7 +179,7 @@ class Dataset(ABC):
         for cert in self:
             cert.compute_heuristics_version()
 
-    def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
+    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> CPEClassifier:
         logger.info('Computing heuristics: Finding CPE matches for certificates')
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
         if not cpe_dset.was_enhanced_with_vuln_cpes:
@@ -192,10 +192,13 @@ class Dataset(ABC):
         for cert in tqdm.tqdm(self, desc='Predicting CPE matches with the classifier'):
             cert.compute_heuristics_cpe_match(clf)
 
+        return clf
+
     @serialize
-    def compute_cpe_heuristics(self):
+    def compute_cpe_heuristics(self) -> CPEClassifier:
         self._compute_candidate_versions()
-        self._compute_cpe_matches()
+        return self._compute_cpe_matches()
+
 
     def to_label_studio_json(self, output_path: Union[str, Path]):
         lst = []
