@@ -20,7 +20,10 @@ class ComplexSerializableType:
 
     @classmethod
     def from_dict(cls, dct: Dict):
-        return cls(*(tuple(dct.values())))
+        try:
+            return cls(*(tuple(dct.values())))
+        except TypeError as e:
+            raise TypeError(f'Dict: {dct}') from e
 
     def to_json(self, output_path: Union[str, Path] = None):
         if not output_path:
@@ -42,9 +45,10 @@ def serialize(func: callable):
             raise ValueError('@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes.')
 
         update_json = kwargs.pop('update_json', True)
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         if update_json:
             args[0].to_json()
+        return result
     return inner_func
 
 
