@@ -1,7 +1,7 @@
 import json
 from datetime import date
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Union
 import copy
 
 
@@ -22,6 +22,18 @@ class ComplexSerializableType:
     def from_dict(cls, dct: Dict):
         return cls(*(tuple(dct.values())))
 
+    def to_json(self, output_path: Union[str, Path] = None):
+        if not output_path:
+            output_path = self.json_path
+        with Path(output_path).open('w') as handle:
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        input_path = Path(input_path)
+        with input_path.open('r') as handle:
+            obj = json.load(handle, cls=CustomJSONDecoder)
+        return obj
 
 # Decorator for serialization
 def serialize(func: callable):

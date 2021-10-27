@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Dict, Optional, Union, List, Tuple, Set
 import json
 
 import numpy as np
@@ -23,6 +23,7 @@ from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
+from sec_certs.config.configuration import config
 
 
 class CCDataset(Dataset, ComplexSerializableType):
@@ -127,10 +128,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     @property
     def targets_txt_dir(self) -> Path:
         return self.targets_dir / 'txt'
-
-    @property
-    def cve_dataset_path(self) -> Path:
-        return self.auxillary_datasets_dir / 'cve_dataset.json'
 
     @property
     def pp_dataset_path(self) -> Path:
@@ -591,20 +588,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             self._extract_targets_frontpage(False)
             self._extract_targets_keywords(False)
 
-    def prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
-        logger.info('Preparing CVE dataset.')
-        if not self.auxillary_datasets_dir.exists():
-            self.auxillary_datasets_dir.mkdir(parents=True)
-
-        if not self.cve_dataset_path.exists() or download_fresh_cves is True:
-            cve_dataset = CVEDataset.from_web()
-            cve_dataset.to_json(str(self.cve_dataset_path))
-        else:
-            cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
-
-        cve_dataset.build_lookup_dict()
-        return cve_dataset
-
     def _compute_cert_labs(self):
         logger.info('Deriving information about laboratories involved in certification.')
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
@@ -636,7 +619,7 @@ class CCDataset(Dataset, ComplexSerializableType):
     @serialize
     def compute_related_cves(self, download_fresh_cves: bool = False):
         logger.info('Retrieving related CVEs to verified CPE matches')
-        cve_dset = self.prepare_cve_dataset(download_fresh_cves)
+        cve_dset = self._prepare_cve_dataset(download_fresh_cves)
 
         verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
         if not verified_cpe_rich_certs:

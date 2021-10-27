@@ -5,6 +5,7 @@ from typing import Dict, Collection, Union
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
+import tqdm
 
 import requests
 
@@ -17,6 +18,8 @@ from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.config.configuration import config
 from sec_certs.serialization import serialize
 from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.model.cpe_matching import CPEClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +55,10 @@ class Dataset(ABC):
     @property
     def cpe_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / 'cpe_dataset.json'
+
+    @property
+    def cve_dataset_path(self) -> Path:
+        return self.auxillary_datasets_dir / 'cve_dataset.json'
 
     @property
     def json_path(self) -> Path:
@@ -146,12 +153,26 @@ class Dataset(ABC):
             self.auxillary_datasets_dir.mkdir(parents=True)
 
         if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
-            cpe_dataset = CPEDataset.from_web()
+            cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
             cpe_dataset.to_json(str(self.cpe_dataset_path))
         else:
             cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
 
         return cpe_dataset
+
+    def _prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
+        logger.info('Preparing CVE dataset.')
+        if not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir(parents=True)
+
+        if not self.cve_dataset_path.exists() or download_fresh_cves is True:
+            cve_dataset = CVEDataset.from_web()
+            cve_dataset.to_json(str(self.cve_dataset_path))
+        else:
+            cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
+
+        cve_dataset.build_lookup_dict()
+        return cve_dataset
 
     def _compute_candidate_versions(self):
         logger.info('Computing heuristics: possible product versions in sample name')
@@ -161,8 +182,15 @@ class Dataset(ABC):
     def _compute_cpe_matches(self, download_fresh_cpes: bool = False):
         logger.info('Computing heuristics: Finding CPE matches for certificates')
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
-        for cert in self:
-            cert.compute_heuristics_cpe_match(cpe_dset)
+        if not cpe_dset.was_enhanced_with_vuln_cpes:
+            cve_dset = self._prepare_cve_dataset(False)
+            cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)
+
+        clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
+        clf.fit([x for x in cpe_dset])
+
+        for cert in tqdm.tqdm(self, desc='Predicting CPE matches with the classifier'):
+            cert.compute_heuristics_cpe_match(clf)
 
     @serialize
     def compute_cpe_heuristics(self):

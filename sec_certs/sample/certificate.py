@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from typing import Union, TypeVar, Type
 
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
-from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.model.cpe_matching import CPEClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +59,9 @@ class Certificate(ABC, ComplexSerializableType):
         raise NotImplementedError('Not meant to be implemented')
 
     @abstractmethod
-    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
         raise NotImplementedError('Not meant to be implemented')
 
     @abstractmethod
-    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         raise NotImplementedError('Not meant to be implemented')

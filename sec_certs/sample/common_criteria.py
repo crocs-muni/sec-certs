@@ -20,6 +20,7 @@ from sec_certs.sample.cve import CVE
 from sec_certs.serialization import ComplexSerializableType
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.config.configuration import config
+from sec_certs.model.cpe_matching import CPEClassifier
 
 
 
@@ -191,7 +192,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @dataclass
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
-        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
+        cpe_matches: Optional[Set[CPE]] = field(default=None)
         labeled: bool = field(default=False)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
@@ -429,13 +430,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if st_txt_dir is not None:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
 
-    @property
-    def best_cpe_match(self):
-        clean = [x for x in self.cpe_matching if len(x[0]) > 5]
-        cpe_match_ranking = [x[1] for x in clean]
-        argmax = cpe_match_ranking.index(max(cpe_match_ranking))
-        return clean[argmax]
-
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         if not cert.report_link:
@@ -461,9 +455,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         return cert
-
-    def path_is_corrupted(self, local_path):
-        return not local_path.exists() or local_path.stat().st_size < constants.MIN_CORRECT_CERT_SIZE
 
     @staticmethod
     def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
@@ -552,16 +543,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def compute_heuristics_version(self):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
-    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
-        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
+    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
+        # TODO: This method probably can be deleted.
+        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)
 
-    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
-        self.compute_heuristics_cpe_vendors(cpe_dataset)
-        self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
-                                                                  self.heuristics.cpe_candidate_vendors,
-                                                                  self.heuristics.extracted_versions,
-                                                                  n_max_matches=config.cc_cpe_max_matches,
-                                                                  threshold=config.cc_cpe_matching_threshold)
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert((self.manufacturer, self.name))
 
     def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:

@@ -15,6 +15,7 @@ import sec_certs.model.evaluation as evaluation
 
 logger = logging.getLogger(__name__)
 
+
 class CPEClassifier(BaseEstimator):
     # Validation dataset should be obtained directly from certificates
     # predict should return CPE uris afaik
@@ -24,8 +25,9 @@ class CPEClassifier(BaseEstimator):
     title_to_cpes_: Dict[str, Set[CPE]]  # Look-up dict title: List of cert items
     vendors_: Set[str]
 
-    def __init__(self, match_threshold: int = 80):
+    def __init__(self, match_threshold: int = 80, n_max_matches: int = 10):
         self.match_threshold = match_threshold
+        self.n_max_matches = n_max_matches
 
     def fit(self, X: List[CPE], y: List[str] = None):
         self.clean_lookup_structures()
@@ -42,7 +44,7 @@ class CPEClassifier(BaseEstimator):
         self.vendor_to_versions_ = {x.vendor: set() for x in X}
         self.vendors_ = set(self.vendor_to_versions_.keys())
 
-        for cpe in tqdm.tqdm(X, desc='Building lookup structures.'):
+        for cpe in tqdm.tqdm(X, desc='Fitting the CPE classifier'):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
@@ -53,13 +55,10 @@ class CPEClassifier(BaseEstimator):
             else:
                 self.title_to_cpes_[cpe.title].add(cpe)
 
-    # TODO: Implement return_distances=True
     def predict(self, X: List[Tuple[str, str]]) -> List[List[str]]:
         return [self.predict_single_cert(x) for x in tqdm.tqdm(X, desc='Predicting')]
 
-    def predict_single_cert(self, crt: Tuple[str, str]) -> List[str]:
-        N_MAX_MATCHES = 10
-        RELAX_VERSION = False
+    def predict_single_cert(self, crt: Tuple[str, str]) -> Optional[List[str]]:
         replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
 
         def sanitize_matched_string(string: str):
@@ -79,11 +78,7 @@ class CPEClassifier(BaseEstimator):
         reasonable_matches = []
 
         for c in candidates:
-            if c.title:
-                sanitized_title = sanitize_matched_string(c.title)
-            else:
-                sanitized_title = sanitize_matched_string(c.vendor + ' ' + c.item_name + ' ' + c.version)
-
+            sanitized_title = sanitize_matched_string(c.title) if c.title else sanitize_matched_string(c.vendor + ' ' + c.item_name + ' ' + c.version)
             sanitized_item_name = sanitize_matched_string(c.item_name)
             cert_stripped_manufacturer = strip_manufacturer_and_version(sanitized_cert_name, candidate_vendors, candidate_versions)
 
@@ -104,10 +99,10 @@ class CPEClassifier(BaseEstimator):
             # possibly filter short titles to avoid false positives
             # reasonable_matches = list(filter(lambda x: len(x[1].item_name) > 4, reasonable_matches))
 
-            return [x[1].uri for x in reasonable_matches[:N_MAX_MATCHES]]
+            return [x[1].uri for x in reasonable_matches[:self.n_max_matches]]
             # return reasonable_matches[:N_MAX_MATCHES]
 
-        return ['None']
+        return None
 
         # TODO: Fix version with relaxation
         # if RELAX_VERSION and not reasonable_matches:

@@ -32,9 +32,12 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset._extract_data()
         cls.cc_dset._compute_heuristics()
 
+
+        cpe_single_sign_on = CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2")
+
         cls.cpes = [
-            CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
-                "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2"),
+            cpe_single_sign_on,
             CPE("cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
                 "IBM Security Key Lifecycle Manager 2.6.0.1"),
             CPE("cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
@@ -42,22 +45,20 @@ class TestCommonCriteriaHeuristics(TestCase):
             CPE("cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
                 "Tracker Software PDF-XChange Lite Printer 6.0.320.0")
         ]
-        cls.cpe_dset = CPEDataset({x.uri: x for x in cls.cpes})
+        cls.cpe_dset = CPEDataset(True, Path('../'), {x.uri: x for x in cls.cpes})
 
         cls.cves = [
             CVE('CVE-2017-1732',
-                ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
-                None,
+                [cpe_single_sign_on],
                 CVE.Impact(5.3, 'MEDIUM', 3.9, 1.4),
                 '2021-05-26T04:15Z',
-                'IBM Security Access Manager for Enterprise Single Sign-On 8.2.2 does not set the secure attribute on authorization tokens or session cookies. Attackers may be able to get the cookie values by sending a http:// link to a user or by planting this link in a site the user goes to. The cookie will be sent to the insecure link and the attacker can then obtain the cookie value by snooping the traffic. IBM X-Force ID: 134913.'),
+                ),
             CVE('CVE-2019-4513',
-                ['cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*'],
-                None,
+                [cpe_single_sign_on],
                 CVE.Impact(8.2, 'HIGH', 3.9, 4.2),
-                '2000-05-26T04:15Z',
-                'IBM Security Access Manager for Enterprise Single Sign-On 8.2.2 is vulnerable to an XML External Entity Injection (XXE) attack when processing XML data. A remote attacker could exploit this vulnerability to expose sensitive information or consume memory resources. IBM X-Force ID: 164555.')
-        ]
+                '2000-05-26T04:15Z'
+                )
+            ]
         cls.cve_dset = CVEDataset({x.cve_id: x for x in cls.cves})
 
     @classmethod

@@ -17,13 +17,8 @@ def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
 def compute_precision(y: np.array, y_pred: np.array, **kwargs):
     prec = []
     for true, pred in zip(y, y_pred):
-        set_pred = set(pred)
-        if 'None' in set_pred:
-            set_pred.remove('None')
-        set_true = set(true)
-        if 'None' in set_true:
-            set_true.remove('None')
-
+        set_pred = set(pred) if pred else set()
+        set_true = set(true) if true else set()
         if set_pred and not set_true:
             prec.append(0)
         elif not set_true and not set_pred:

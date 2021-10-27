@@ -14,6 +14,7 @@ import tqdm
 import sec_certs.helpers as helpers
 from sec_certs.sample.cpe import CPE
 from sec_certs.dataset.cve import CVEDataset
+from sec_certs.serialization import ComplexSerializableType, serialize
 
 import pandas as pd
 import xml.etree.ElementTree as ET
@@ -21,9 +22,10 @@ import xml.etree.ElementTree as ET
 logger = logging.getLogger(__name__)
 
 
-# TODO: Make this ComplexSerializableType
 @dataclass
-class CPEDataset:
+class CPEDataset(ComplexSerializableType):
+    was_enhanced_with_vuln_cpes: bool
+    _json_path: Path
     cpes: Dict[str, CPE]
     vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
     vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
@@ -50,6 +52,10 @@ class CPEDataset:
             raise ValueError(f'{item} is not of CPE class')
         return item.uri in self.cpes.keys()
 
+    @property
+    def serialized_attributes(self) -> List[str]:
+        return ['was_enhanced_with_vuln_cpes', 'json_path', 'cpes']
+
     def __post_init__(self):
         """
         Will build look-up dictionaries that are used for fast matching
@@ -71,17 +77,7 @@ class CPEDataset:
                 self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
-    def from_json(cls, json_path: Union[str, Path]):
-        with Path(json_path).open('r') as handle:
-            data = json.load(handle)
-        return cls({x: CPE(x, y) for x, y in data.items()})
-
-    def to_json(self, json_path: str):
-        with open(json_path, 'w') as handle:
-            json.dump({x: y.title for x, y in self.cpes.items()}, handle, indent=4)
-
-    @classmethod
-    def from_web(cls):
+    def from_web(cls, json_path: Union[str, Path]):
         with tempfile.TemporaryDirectory() as tmp_dir:
             xml_path = Path(tmp_dir) / cls.cpe_xml_basename
             zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + '.zip')
@@ -90,10 +86,10 @@ class CPEDataset:
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(tmp_dir)
 
-            return cls.from_xml(xml_path)
+            return cls.from_xml(xml_path, json_path)
 
     @classmethod
-    def from_xml(cls, xml_path: Union[str, Path]):
+    def from_xml(cls, xml_path: Union[str, Path], json_path: Union[str, Path]):
         logger.info('Loading CPE dataset from XML.')
         root = ET.parse(xml_path).getroot()
         dct = {}
@@ -101,7 +97,17 @@ class CPEDataset:
             title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title').text
             cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item').attrib['name']
             dct[cpe_uri] = CPE(cpe_uri, title)
-        return cls(dct)
+        return cls(False, Path(json_path), dct)
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        dset = super().from_json(input_path)
+        dset._json_path = input_path
+        return dset
+
+    @classmethod
+    def from_dict(cls, dct: Dict):
+        return cls(dct['was_enhanced_with_vuln_cpes'], Path('../'), dct['cpes'])
 
     def to_pandas(self):
         if not self.cpes:
@@ -114,7 +120,7 @@ class CPEDataset:
 
         return df
 
-    # TODO: This should have some usage. Being called prior to automatic CPE matching
+    @serialize
     def enhance_with_cpes_from_cve_dataset(self, cve_dset: Union[CVEDataset, str, Path]):
         if isinstance(cve_dset, (str, Path)):
             cve_dset = CVEDataset.from_json(cve_dset)
@@ -128,3 +134,4 @@ class CPEDataset:
                 self[cpe.uri] = cpe
 
         logger.info(f'Enriched the CPE dataset with {len(self.cpes) - old_len} new CPE records.')
+        self.was_enhanced_with_vuln_cpes = True
