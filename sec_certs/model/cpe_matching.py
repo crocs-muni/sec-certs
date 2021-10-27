@@ -12,6 +12,7 @@ import json
 import logging
 
 import sec_certs.model.evaluation as evaluation
+from sec_certs.serialization import CustomJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ class CPEClassifier(BaseEstimator):
             else:
                 self.title_to_cpes_[cpe.title].add(cpe)
 
-    def predict(self, X: List[Tuple[str, str]]) -> List[List[str]]:
+    def predict(self, X: List[Tuple[str, str]]) -> List[Optional[List[str]]]:
         return [self.predict_single_cert(x) for x in tqdm.tqdm(X, desc='Predicting')]
 
     def predict_single_cert(self, crt: Tuple[str, str]) -> Optional[List[str]]:
@@ -224,20 +225,24 @@ class CPEClassifier(BaseEstimator):
         n_newly_identified = 0
 
         for (vendor, cert_name), predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
+            verified_cpes_set = set(verified_cpes) if verified_cpes else set()
+            predicted_cpes_set = set(predicted_cpes) if predicted_cpes else set()
+
             record = {'certificate_name': cert_name,
                       'vendor': vendor,
                       'heuristic version': helpers.compute_heuristics_version(cert_name),
-                      'predicted_cpes': list(predicted_cpes),
-                      'manually_assigned_cpes': list(verified_cpes)
+                      'predicted_cpes': predicted_cpes_set,
+                      'manually_assigned_cpes': verified_cpes_set
                       }
-            if set(verified_cpes).issubset(set(predicted_cpes)):
+
+            if verified_cpes_set.issubset(predicted_cpes_set):
                 correctly_classified.append(record)
             else:
                 badly_classified.append(record)
 
-            if len(verified_cpes) == 1 and len(predicted_cpes) > 1:
+            if not verified_cpes_set and predicted_cpes_set:
                 n_new_certs_with_match += 1
-            n_newly_identified += len(set(predicted_cpes) - set(verified_cpes))
+            n_newly_identified += len(predicted_cpes_set - verified_cpes_set)
 
         results = {'Precision': precision, 'n_new_certs_with_match': n_new_certs_with_match,
                    'n_newly_identified': n_newly_identified, 'correctly_classified': correctly_classified,
@@ -246,4 +251,4 @@ class CPEClassifier(BaseEstimator):
 
         if outpath:
             with Path(outpath).open('w') as handle:
-                json.dump(results, handle, indent=4)
+                json.dump(results, handle, indent=4, cls=CustomJSONEncoder)

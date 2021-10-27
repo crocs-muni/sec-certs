@@ -21,7 +21,7 @@ def compute_precision(y: np.array, y_pred: np.array, **kwargs):
         set_true = set(true) if true else set()
         if set_pred and not set_true:
             prec.append(0)
-        elif not set_true and not set_pred:
+        elif not set_pred and not set_true:
             prec.append(1)
         else:
             prec.append(len(set_true.intersection(set_pred)) / len(set_true))
