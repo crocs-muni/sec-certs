@@ -177,7 +177,7 @@ class CCDataset(Dataset, ComplexSerializableType):
     def from_json(cls, input_path: Union[str, Path]):
         dset = super().from_json(input_path)
         # FIXME - throwing AttributeError
-        #  dset.set_local_paths()
+        dset.set_local_paths()
         return dset
 
     @classmethod

@@ -59,6 +59,10 @@
         "verified_cpe_matches": null,
         "related_cves": null,
         "cert_lab": null,
-        "cert_id": null
+        "cert_id": null,
+        "affected_direct": null,
+        "affected_indirect": null,
+        "affecting_direct": null,
+        "affecting_indirect": null
     }
 }
