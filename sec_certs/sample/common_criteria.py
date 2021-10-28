@@ -548,7 +548,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
-        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert((self.manufacturer, self.name))
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
 
     def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:

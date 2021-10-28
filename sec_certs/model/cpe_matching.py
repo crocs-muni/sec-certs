@@ -15,12 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 class CPEClassifier(BaseEstimator):
-    # Validation dataset should be obtained directly from certificates
-    # predict should return CPE uris afaik
-    cpes_: Dict[str, CPE]
-    vendor_to_versions_: Dict[str, Set[str]]  # Look-up dict cpe_vendor: list of viable versions
-    vendor_version_to_cpe_: Dict[Tuple[str, str], Set[CPE]]  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
-    title_to_cpes_: Dict[str, Set[CPE]]  # Look-up dict title: List of cert items
+    """
+    Class that can predict CPE matches for certificate instances.
+    Adheres to sklearn BaseEstimator interface.
+    Fit method is called on list of CPEs and build two look-up dictionaries, see description of attributes.
+    """
+    vendor_to_versions_: Dict[str, Set[str]]  # Key: CPE vendor, Value: versions of all CPE records of that vendor
+    vendor_version_to_cpe_: Dict[Tuple[str, str], Set[CPE]] # Key: (CPE vendor, version), Value: All CPEs that are of (vendor, version)
     vendors_: Set[str]
 
     def __init__(self, match_threshold: int = 80, n_max_matches: int = 10):
@@ -28,167 +29,121 @@ class CPEClassifier(BaseEstimator):
         self.n_max_matches = n_max_matches
 
     def fit(self, X: List[CPE], y: List[str] = None):
-        self.clean_lookup_structures()
         self.build_lookup_structures(X)
         return self
 
-    def clean_lookup_structures(self):
-        self.vendor_to_versions_ = dict()
-        self.vendor_version_to_cpe_ = dict()
-        self.title_to_cpes_ = dict()
-        self.vendors_ = set()
+    @staticmethod
+    def filter_short_cpes(cpes: List[CPE]):
+        return list(filter(lambda x: len(x.item_name) > 3, cpes))
 
     def build_lookup_structures(self, X: List[CPE]):
-        self.vendor_to_versions_ = {x.vendor: set() for x in X}
+        sufficiently_long_cpes = self.filter_short_cpes(X)
+        self.vendor_to_versions_ = {x.vendor: set() for x in sufficiently_long_cpes}
         self.vendors_ = set(self.vendor_to_versions_.keys())
+        self.vendor_version_to_cpe_ = dict()
 
-        for cpe in tqdm.tqdm(X, desc='Fitting the CPE classifier'):
+        for cpe in tqdm.tqdm(sufficiently_long_cpes, desc='Fitting the CPE classifier'):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
             else:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)].add(cpe)
-            if cpe.title not in self.title_to_cpes_:
-                self.title_to_cpes_[cpe.title] = {cpe}
-            else:
-                self.title_to_cpes_[cpe.title].add(cpe)
 
-    def predict(self, X: List[Tuple[str, str]]) -> List[Optional[List[str]]]:
-        return [self.predict_single_cert(x) for x in tqdm.tqdm(X, desc='Predicting')]
+    def predict(self, X: List[Tuple[str, str, str]]) -> List[Optional[List[str]]]:
+        """
+        Will predict CPE uris for List of Tuples (vendor, product name, identified versions in product name)
+        @param X: tuples (vendor, product name, identified versions in product name)
+        @return: List of CPE uris that correspond to given input, None if nothing was found.
+        """
+        return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm.tqdm(X, desc='Predicting')]
 
-    def predict_single_cert(self, crt: Tuple[str, str]) -> Optional[List[str]]:
-        replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
+    def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]]) -> Optional[List[str]]:
+        sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
+        sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
+        candidate_vendors = self.new_get_candidate_list_of_vendors(sanitized_vendor)
 
-        def sanitize_matched_string(string: str):
-            string = string.replace('®', '').replace('™', '').lower()
-            return replace_non_letter_non_numbers_with_space.sub(' ', string)
-
-        def strip_manufacturer_and_version(string: str, manufacturers: List[str], versions: List[str]):
-            for x in manufacturers + versions:
-                string = string.lower().replace(sanitize_matched_string(x.lower()), '').strip()
-            return string
-
-        candidate_vendors = self.get_candidate_list_of_vendors(crt[0])
-        candidate_versions = helpers.compute_heuristics_version(crt[1])
-        candidates = self.get_candidate_cpe_matches(candidate_vendors, candidate_versions)
-
-        sanitized_cert_name = sanitize_matched_string(crt[1])
-        reasonable_matches = []
-
-        for c in candidates:
-            sanitized_title = sanitize_matched_string(c.title) if c.title else sanitize_matched_string(c.vendor + ' ' + c.item_name + ' ' + c.version)
-            sanitized_item_name = sanitize_matched_string(c.item_name)
-            cert_stripped_manufacturer = strip_manufacturer_and_version(sanitized_cert_name, candidate_vendors, candidate_versions)
-
-            set_match_title = fuzz.token_set_ratio(sanitized_cert_name, sanitized_title)
-            partial_match_title = fuzz.partial_ratio(sanitized_cert_name, sanitized_title)
-
-            set_match_item = fuzz.token_set_ratio(cert_stripped_manufacturer, sanitized_item_name)
-            partial_match_item = fuzz.partial_ratio(cert_stripped_manufacturer, sanitized_item_name)
-
-            potential = max([set_match_title, partial_match_title, set_match_item, partial_match_item])
-
-            if potential >= self.match_threshold:
-                reasonable_matches.append((potential, c))
-
-        if reasonable_matches:
-            reasonable_matches = sorted(reasonable_matches, key=operator.itemgetter(0), reverse=True)
-
-            # possibly filter short titles to avoid false positives
-            # reasonable_matches = list(filter(lambda x: len(x[1].item_name) > 4, reasonable_matches))
-
-            return [x[1].uri for x in reasonable_matches[:self.n_max_matches]]
-            # return reasonable_matches[:N_MAX_MATCHES]
-
-        return None
+        candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
+        ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions) for cpe in candidates]
+        final_matches = list(filter(lambda x: x[0] > self.match_threshold, zip(ratings, candidates)))
+        return [x[1].uri for x in final_matches[:self.n_max_matches]] if final_matches else None
 
         # TODO: Fix version with relaxation
         # if RELAX_VERSION and not reasonable_matches:
         #     return self.get_cpe_matches(cert_name, cert_candidate_cpe_vendors, ['-'], relax_version=True, n_max_matches=n_max_matches, threshold=threshold)
 
-    def get_candidate_list_of_vendors(self, manufacturer: str):
-        def contains_two_independent_vendors(string: str) -> bool:
-            return len(string.split(', ')) == 2
+    def compute_best_match(self, cpe: CPE, product_name, candidate_vendors, versions):
+        sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version)
+        sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
+        cert_stripped_manufacturer = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
+
+        token_set_ratio_on_title = fuzz.token_set_ratio(product_name, sanitized_title)
+        token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped_manufacturer, sanitized_item_name)
+        partial_ratio_on_title = fuzz.partial_ratio(product_name, sanitized_title)
+        partial_ratio_on_item_name = fuzz.partial_ratio(cert_stripped_manufacturer, sanitized_item_name)
+        return max([token_set_ratio_on_title, partial_ratio_on_title, token_set_ratio_on_item_name, partial_ratio_on_item_name])
+
+    @staticmethod
+    def _fully_sanitize_string(string: str) -> str:
+        return CPEClassifier._replace_special_chars_with_space(CPEClassifier._discard_trademark_symbols(string.lower()))
+
+    @staticmethod
+    def _replace_special_chars_with_space(string: str) -> str:
+        replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
+        return replace_non_letter_non_numbers_with_space.sub(' ', string)
+
+    @staticmethod
+    def _discard_trademark_symbols(string: str) -> str:
+        return string.replace('®', '').replace('™', '')
+
+    @staticmethod
+    def _strip_manufacturer_and_version(string: str, manufacturers: List[str], versions: List[str]):
+        for x in manufacturers + versions:
+            string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), '').strip()
+        return string
+
+    def get_candidate_list_of_vendors(self, manufacturer: str) -> Optional[List[str]]:
+        if not manufacturer:
+            return None
 
         result = set()
-        if not isinstance(manufacturer, str):
-            return None
-        lower = manufacturer.lower()
-        if ' / ' in manufacturer:
-            chain = [self.get_candidate_list_of_vendors(x) for x in manufacturer.split(' / ')]
-            chain = [x for x in chain if x]
-            result = list(set(itertools.chain(*chain)))
-            if not result:
-                return None
-            return result
+        splits = re.compile(r'[,/]').findall(manufacturer)
 
-        if '/ ' in manufacturer:
-            chain_one = [self.get_candidate_list_of_vendors(x) for x in manufacturer.split('/ ')]
-            chain_one = [x for x in chain_one if x]
-            result = list(set(itertools.chain(*chain_one)))
-            if not result:
-                return None
-            return result
+        if splits:
+            vendor_tokens = set(itertools.chain.from_iterable([[x.strip() for x in manufacturer.split(s)] for s in splits]))
+            result = [self.get_candidate_list_of_vendors(x) for x in vendor_tokens]
+            result = list(set(itertools.chain.from_iterable([x for x in result if x])))
+            return result if result else None
 
-        if ' /' in manufacturer:
-            chain_one = [self.get_candidate_list_of_vendors(x) for x in manufacturer.split(' /')]
-            chain_one = [x for x in chain_one if x]
-            result = list(set(itertools.chain(*chain_one)))
-            if not result:
-                return None
-            return result
+        if manufacturer in self.vendors_:
+            result.add(manufacturer)
 
-        if lower in self.vendors_:
-            result.add(lower)
-
-        if contains_two_independent_vendors(lower):
-            chain = [self.get_candidate_list_of_vendors(x) for x in manufacturer.split(', ')]
-            chain = [x for x in chain if x]
-            result = list(set(itertools.chain(*chain)))
-            if not result:
-                return None
-            return result
-
-        tokenized = lower.split()
-
+        tokenized = manufacturer.split()
         if tokenized[0] in self.vendors_:
             result.add(tokenized[0])
-
-        if ',' in lower and (y := lower.split(',')[0]) in self.vendors_:
-            result.add(y)
-
         if len(tokenized) > 1 and tokenized[0] + tokenized[1] in self.vendors_:
             result.add(tokenized[0] + tokenized[1])
 
         # Below are completely manual fixes
-
-        if 'hewlett' in tokenized or 'hewlett-packard' in tokenized:
+        if 'hewlett' in tokenized or 'hewlett-packard' in tokenized or manufacturer == 'hewlett packard':
             result.add('hp')
-
         if 'thales' in tokenized:
             result.add('thalesesecurity')
             result.add('thalesgroup')
-
         if 'stmicroelectronics' in tokenized:
             result.add('st')
-
         if 'athena' in tokenized and 'smartcard' in tokenized:
             result.add('athena-scs')
-
         if tokenized[0] == 'the' and not result:
             result = self.get_candidate_list_of_vendors(' '.join(tokenized[1:]))
 
-        if not result:
-            return None
-        return list(result)
+        return list(result) if result else None
 
     def get_candidate_vendor_version_pairs(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[Tuple[str, str]]]:
         """
-        Given parameters, will return Pairs (cpe_vendor, cpe_version) that should are relevant to a given sample
-        Parameters
-        :param cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
-        :param cert_candidate_versions: List of versions heuristically extracted from the sample name
-        :return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
+        Given parameters, will return Pairs (cpe_vendor, cpe_version) that are relevant to a given sample
+        @param cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
+        @param cert_candidate_versions: List of versions heuristically extracted from the sample name
+        @return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
 
         def is_cpe_version_among_cert_versions(cpe_version: str, cert_versions: List[str]) -> bool:
@@ -208,6 +163,12 @@ class CPEClassifier(BaseEstimator):
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs
 
-    def get_candidate_cpe_matches(self, candidate_vendors, candidate_versions):
+    def get_candidate_cpe_matches(self, candidate_vendors: List[str], candidate_versions: List[str]):
+        """
+        Given List of candidate vendors and candidate versions found in certificate, candidate CPE matches are found
+        @param candidate_vendors: List of version strings that were found in the certificate
+        @param candidate_versions: List of vendor strings that were found in the certificate
+        @return:
+        """
         candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(candidate_vendors, candidate_versions)
         return list(itertools.chain.from_iterable([self.vendor_version_to_cpe_[x] for x in candidate_vendor_version_pairs])) if candidate_vendor_version_pairs else []
