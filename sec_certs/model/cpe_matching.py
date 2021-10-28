@@ -11,9 +11,6 @@ from pathlib import Path
 import json
 import logging
 
-import sec_certs.model.evaluation as evaluation
-from sec_certs.serialization import CustomJSONEncoder
-
 logger = logging.getLogger(__name__)
 
 
@@ -214,41 +211,3 @@ class CPEClassifier(BaseEstimator):
     def get_candidate_cpe_matches(self, candidate_vendors, candidate_versions):
         candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(candidate_vendors, candidate_versions)
         return list(itertools.chain.from_iterable([self.vendor_version_to_cpe_[x] for x in candidate_vendor_version_pairs])) if candidate_vendor_version_pairs else []
-
-    def evaluate(self, x_valid, y_valid, outpath: Optional[Union[Path, str]]):
-        y_pred = self.predict(x_valid)
-        precision = evaluation.compute_precision(y_valid, y_pred)
-
-        correctly_classified = []
-        badly_classified = []
-        n_new_certs_with_match = 0
-        n_newly_identified = 0
-
-        for (vendor, cert_name), predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
-            verified_cpes_set = set(verified_cpes) if verified_cpes else set()
-            predicted_cpes_set = set(predicted_cpes) if predicted_cpes else set()
-
-            record = {'certificate_name': cert_name,
-                      'vendor': vendor,
-                      'heuristic version': helpers.compute_heuristics_version(cert_name),
-                      'predicted_cpes': predicted_cpes_set,
-                      'manually_assigned_cpes': verified_cpes_set
-                      }
-
-            if verified_cpes_set.issubset(predicted_cpes_set):
-                correctly_classified.append(record)
-            else:
-                badly_classified.append(record)
-
-            if not verified_cpes_set and predicted_cpes_set:
-                n_new_certs_with_match += 1
-            n_newly_identified += len(predicted_cpes_set - verified_cpes_set)
-
-        results = {'Precision': precision, 'n_new_certs_with_match': n_new_certs_with_match,
-                   'n_newly_identified': n_newly_identified, 'correctly_classified': correctly_classified,
-                   'badly_classified': badly_classified}
-        logger.info(f'While keeping precision: {precision}, the classifier identified {n_newly_identified} new CPE matches (Found match for {n_new_certs_with_match} certificates that were previously unmatched) compared to baseline.')
-
-        if outpath:
-            with Path(outpath).open('w') as handle:
-                json.dump(results, handle, indent=4, cls=CustomJSONEncoder)

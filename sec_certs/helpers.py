@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import subprocess
 import copy
+from packaging.version import VERSION_PATTERN
 
 
 from enum import Enum
@@ -719,6 +720,8 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)])
     if not matched_strings:
         matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
+    # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
+    # return identified_versions if identified_versions else ['-']
 
     return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
 
