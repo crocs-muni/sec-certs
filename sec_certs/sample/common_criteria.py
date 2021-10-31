@@ -192,7 +192,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @dataclass
     class Heuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
-        cpe_matches: Optional[Set[CPE]] = field(default=None)
+        cpe_matches: Optional[Set[str]] = field(default=None)
         labeled: bool = field(default=False)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
@@ -551,8 +551,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
 
     def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
-        if self.heuristics.verified_cpe_matches:
-            related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x.uri) for x in self.heuristics.verified_cpe_matches]
+        if self.heuristics.cpe_matches:
+            related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x) for x in self.heuristics.cpe_matches]
             related_cves = list(filter(lambda x: x is not None, related_cves))
             if related_cves:
                 self.heuristics.related_cves = set(itertools.chain.from_iterable(related_cves))

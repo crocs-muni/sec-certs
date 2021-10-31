@@ -60,6 +60,7 @@ class TestCommonCriteriaHeuristics(TestCase):
                 )
             ]
         cls.cve_dset = CVEDataset({x.cve_id: x for x in cls.cves})
+        cls.cve_dset.build_lookup_dict()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -67,6 +68,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_load_cpe_dataset(self):
         json_cpe_dset = CPEDataset.from_json(self.data_dir_path / 'auxillary_datasets' / 'cpe_dataset.json')
+        json_cpe_dset._json_path = Path('../')
         self.assertEqual(self.cpe_dset, json_cpe_dset, 'CPE template dataset does not match CPE dataset loaded from json.')
 
     def test_cpe_lookup_dicts(self):
@@ -79,7 +81,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_cve_lookup_dicts(self):
         alt_lookup = {x: set(y) for x, y in self.cve_dset.cpe_to_cve_ids_lookup.items()}
-        self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': set(self.cves)},
+        self.assertEqual(alt_lookup, {'cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*': {x.cve_id for x in self.cves}},
                          'The CVE lookup dicionary cve-> affected cpes does not match the template')
 
     def test_load_cve_dataset(self):
@@ -87,18 +89,13 @@ class TestCommonCriteriaHeuristics(TestCase):
         self.assertEqual(self.cve_dset, json_cve_dset, 'CVE template dataset does not match CVE dataset loaded from json.')
 
     def test_match_cpe(self):
-        self.assertTrue(self.cpes[0] in [x[1] for x in self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches], 'The CPE matching algorithm did not find the right CPE.')
+        self.assertTrue(self.cpes[0].uri in self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches, 'The CPE matching algorithm did not find the right CPE.')
         self.assertTrue(len(self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches) == 1, 'Exactly one CPE match should be found.')
 
     def test_find_related_cves(self):
-        self.cc_dset['ebd276cca70fd723'].heuristics.verified_cpe_matches = [self.cpes[0]]
+        self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches = [self.cpes[0].uri]
         self.cc_dset.compute_related_cves()
-
-        evaluated_cves = copy.deepcopy(self.cves)
-        for cve in evaluated_cves:
-            cve.vulnerable_certs = ['ebd276cca70fd723']
-
-        self.assertCountEqual(evaluated_cves, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
+        self.assertEqual({x.cve_id for x in self.cves}, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):
         self.assertEqual(self.cc_dset['ebd276cca70fd723'].heuristics.extracted_versions, ['8.2'], 'The version extracted from the sample does not match the template')

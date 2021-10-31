@@ -5,9 +5,14 @@
             "_type": "CVE",
             "cve_id": "CVE-2017-1732",
             "vulnerable_cpes": [
-                "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
+                {
+                    "_type": "CPE",
+                    "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                    "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
+                    "start_version": null,
+                    "end_version": null
+                }
             ],
-            "vulnerable_certs": null,
             "impact": {
                 "_type": "Impact",
                 "base_score": 5.3,
@@ -15,16 +20,20 @@
                 "explotability_score": 3.9,
                 "impact_score": 1.4
             },
-            "publishedDate": "2021-05-26T04:15Z",
-            "description": "IBM Security Access Manager for Enterprise Single Sign-On 8.2.2 does not set the secure attribute on authorization tokens or session cookies. Attackers may be able to get the cookie values by sending a http:// link to a user or by planting this link in a site the user goes to. The cookie will be sent to the insecure link and the attacker can then obtain the cookie value by snooping the traffic. IBM X-Force ID: 134913."
+            "publishedDate": "2021-05-26T04:15Z"
         },
         "CVE-2019-4513": {
             "_type": "CVE",
             "cve_id": "CVE-2019-4513",
             "vulnerable_cpes": [
-                "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
+                {
+                    "_type": "CPE",
+                    "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                    "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
+                    "start_version": null,
+                    "end_version": null
+                }
             ],
-            "vulnerable_certs": null,
             "impact": {
                 "_type": "Impact",
                 "base_score": 8.2,
@@ -32,8 +41,7 @@
                 "explotability_score": 3.9,
                 "impact_score": 4.2
             },
-            "publishedDate": "2000-05-26T04:15Z",
-            "description": "IBM Security Access Manager for Enterprise Single Sign-On 8.2.2 is vulnerable to an XML External Entity Injection (XXE) attack when processing XML data. A remote attacker could exploit this vulnerability to expose sensitive information or consume memory resources. IBM X-Force ID: 164555."
+            "publishedDate": "2000-05-26T04:15Z"
         }
     }
 }

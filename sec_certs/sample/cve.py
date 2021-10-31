@@ -38,7 +38,6 @@ class CVE(ComplexSerializableType):
 
     cve_id: str
     vulnerable_cpes: List[CPE]
-    vulnerable_certs: List[str]
     impact: Impact
     published_date: Optional[datetime.datetime]
 
@@ -48,7 +47,6 @@ class CVE(ComplexSerializableType):
     def __init__(self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str):
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
-
         self.impact = impact
         self.published_date = isoparse(published_date)
 

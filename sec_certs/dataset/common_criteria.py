@@ -621,12 +621,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         logger.info('Retrieving related CVEs to verified CPE matches')
         cve_dset = self._prepare_cve_dataset(download_fresh_cves)
 
-        verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
+        verified_cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
         if not verified_cpe_rich_certs:
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
 
-        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs]))
+        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in verified_cpe_rich_certs]))
         cve_dset.filter_related_cpes(relevant_cpes)
 
         for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):

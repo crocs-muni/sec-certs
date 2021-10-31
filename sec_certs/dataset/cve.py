@@ -23,7 +23,7 @@ from sec_certs.config.configuration import config
 logger = logging.getLogger(__name__)
 
 
-@dataclass(eq=True)
+@dataclass
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
     cpe_to_cve_ids_lookup: Dict[str, List[str]] = field(init=False)
@@ -45,6 +45,9 @@ class CVEDataset(ComplexSerializableType):
 
     def __len__(self) -> int:
         return len(self.cves)
+
+    def __eq__(self, other: 'CVEDataset'):
+        return isinstance(other, CVEDataset) and self.cves == other.cves
 
     def build_lookup_dict(self):
         """
