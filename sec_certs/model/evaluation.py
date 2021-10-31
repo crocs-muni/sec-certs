@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import logging
-from typing import List, Set,Union, Optional
+from typing import List, Set, Union, Optional
 
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.fips import FIPSCertificate

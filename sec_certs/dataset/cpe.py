@@ -101,7 +101,7 @@ class CPEDataset(ComplexSerializableType):
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
-        dset = super().from_json(input_path)
+        dset = ComplexSerializableType.from_json(input_path)
         dset._json_path = input_path
         return dset
 

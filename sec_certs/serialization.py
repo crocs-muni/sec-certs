@@ -23,7 +23,7 @@ class ComplexSerializableType:
         try:
             return cls(*(tuple(dct.values())))
         except TypeError as e:
-            raise TypeError(f'Dict: {dct}') from e
+            raise TypeError(f'Dict: {dct} on {cls.__mro__}') from e
 
     def to_json(self, output_path: Union[str, Path] = None):
         if not output_path:

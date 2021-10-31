@@ -170,7 +170,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
-        dset = super().from_json(input_path)
+        dset = Dataset.from_json(input_path)
         dset.set_local_paths()
         return dset
 

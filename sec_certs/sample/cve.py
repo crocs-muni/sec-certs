@@ -41,8 +41,8 @@ class CVE(ComplexSerializableType):
     impact: Impact
     published_date: Optional[datetime.datetime]
 
-    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
-                                        'explotability_score', 'impact_score', 'published_date', 'description')
+    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'base_score', 'severity',
+                                        'explotability_score', 'impact_score', 'published_date')
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str):
         self.cve_id = cve_id
