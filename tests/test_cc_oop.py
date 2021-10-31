@@ -132,8 +132,9 @@ class TestCommonCriteriaOOP(TestCase):
                             'The dataset serialized to json differs from a template.')
 
     def test_cert_from_json(self):
+        new_cert = CommonCriteriaCert.from_json(self.test_data_dir / 'fictional_cert.json')
         self.assertEqual(self.fictional_cert,
-                         CommonCriteriaCert.from_json(self.test_data_dir / 'fictional_cert.json'),
+                         new_cert,
                          'The certificate serialized from json differs from a template.')
 
     def test_dataset_from_json(self):

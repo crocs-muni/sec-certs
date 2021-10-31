@@ -723,7 +723,7 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
 
 
-def build_cert_references(certificates):
+def build_cert_references(certificates: Dict):
     referenced_by = {}
 
     for cert_obj in certificates.values():

@@ -130,17 +130,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
-            if self.report_frontpage is None:
-                return None
-
-            return self.report_frontpage.get('bsi', None)
+            return self.report_frontpage.get('bsi', None) if self.report_frontpage else None
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
-            if self.report_frontpage is None:
-                return None
-
-            return self.report_frontpage.get('anssi', None)
+            return self.report_frontpage.get('anssi', None) if self.report_frontpage else None
 
         @property
         def cert_lab(self) -> Optional[List[str]]:
@@ -154,17 +148,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_cert_id(self) -> Optional[str]:
-            if self.bsi_data is None:
-                return None
-
-            return self.bsi_data.get('cert_id', None)
+            return self.bsi_data.get('cert_id', None) if self.bsi_data else None
 
         @property
         def anssi_cert_id(self) -> Optional[str]:
-            if self.anssi_data is None:
-                return None
-
-            return self.anssi_data.get('cert_id', None)
+            return self.anssi_data.get('cert_id', None) if self.anssi_data else None
 
         @property
         def processed_cert_id(self) -> Optional[str]:
@@ -178,10 +166,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            if self.report_keywords is None:
-                return None
-
-            return self.report_keywords.get('rules_cert_id', None)
+            return self.report_keywords.get('rules_cert_id', None) if self.report_keywords else None
 
 
         @property
@@ -231,8 +216,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
                                         'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
-                                        'verified_cpe_matches', 'related_cves', "affected_direct", "affected_indirect",
-                                        "affecting_direct", "affecting_indirect"]
+                                        'verified_cpe_matches', 'related_cves', 'affected_direct', 'affected_indirect',
+                                        'affecting_direct', 'affecting_indirect']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,

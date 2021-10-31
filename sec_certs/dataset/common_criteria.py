@@ -176,7 +176,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
         dset = super().from_json(input_path)
-        # FIXME - throwing AttributeError
         dset.set_local_paths()
         return dset
 
@@ -627,11 +626,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._compute_affecting_ids()
 
     @staticmethod
-    def _get_affected_directly(cert, referenced_by_direct):
+    def _get_affected_directly(cert: str, referenced_by_direct: Dict):
         return referenced_by_direct.get(cert, None)
 
     @staticmethod
-    def _get_affected_indirectly(cert, referenced_by_indirect):
+    def _get_affected_indirectly(cert: str, referenced_by_indirect: Dict):
         return referenced_by_indirect.get(cert, None)
 
     def _compute_affected_ids(self):
@@ -643,7 +642,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             cert.heuristics.affected_indirect = CCDataset._get_affected_indirectly(current_cert_id, referenced_by_indirect)
 
     @staticmethod
-    def _get_affecting_directly(cert, referenced_by_direct) -> Set:
+    def _get_affecting_directly(cert: str, referenced_by_direct: Dict) -> Set:
         filter_direct = set()
 
         for cert_id in referenced_by_direct:
@@ -653,7 +652,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         return filter_direct
 
     @staticmethod
-    def _get_affecting_indirectly(cert, referenced_by_indirect) -> Set:
+    def _get_affecting_indirectly(cert: str, referenced_by_indirect: Dict) -> Set:
         filter_indirect = set()
 
         for cert_id in referenced_by_indirect:
@@ -662,7 +661,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         return filter_indirect
 
-    def _compute_affecting_ids(self):
+    def _compute_affecting_ids(self) -> None:
         referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
 
         for cert in self:
