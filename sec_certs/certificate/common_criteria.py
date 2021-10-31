@@ -195,10 +195,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
 
-        affected_direct: Set = field(default=None)
-        affected_indirect: Set = field(default=None)
-        affecting_direct: Set = field(default=None)
-        affecting_indirect: Set = field(default=None)
+        directly_affected_by: Set = field(default=None)
+        indirectly_affected_by: Set = field(default=None)
+        directly_affecting: Set = field(default=None)
+        indirectly_affecting: Set = field(default=None)
 
         # manufacturer_list: Optional[List[str]]
 
@@ -216,8 +216,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
                                         'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
-                                        'verified_cpe_matches', 'related_cves', 'affected_direct', 'affected_indirect',
-                                        'affecting_direct', 'affecting_indirect']
+                                        'verified_cpe_matches', 'related_cves', 'directly_affected_by',
+                                        'indirectly_affected_by', 'directly_affecting', 'indirectly_affecting']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
