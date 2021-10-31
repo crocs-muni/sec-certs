@@ -52,7 +52,7 @@ class Certificate(ABC, ComplexSerializableType):
     @classmethod
     def from_json(cls, input_path: Union[Path, str]):
         with Path(input_path).open('r') as handle:
-            return json.load(handle, cls=CustomJSONDecoder)
+            return json.load(handle, csl=CustomJSONDecoder)
 
     @abstractmethod
     def compute_heuristics_version(self):
