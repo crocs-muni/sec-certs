@@ -723,6 +723,13 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
 
 
+def _update_direct_references(referenced_by: Dict, cert_id: str, this_cert_id: str) -> None:
+    if cert_id not in referenced_by:
+        referenced_by[cert_id] = []
+    if this_cert_id not in referenced_by[cert_id]:
+        referenced_by[cert_id].append(this_cert_id)
+
+
 def build_cert_references(certificates: Dict):
     referenced_by = {}
 
@@ -737,10 +744,7 @@ def build_cert_references(certificates: Dict):
         # Direct reference
         for cert_id in cert_obj.pdf_data.report_keywords["rules_cert_id"]:
             if cert_id != this_cert_id and this_cert_id is not None:
-                if cert_id not in referenced_by:
-                    referenced_by[cert_id] = []
-                if this_cert_id not in referenced_by[cert_id]:
-                    referenced_by[cert_id].append(this_cert_id)
+                _update_direct_references(referenced_by, cert_id, this_cert_id)
 
     referenced_by_indirect = {}
 
@@ -759,9 +763,9 @@ def build_cert_references(certificates: Dict):
             for referencing in tmp_referenced_by_indirect_nums:
                 if referencing in referenced_by.keys():
                     tmp_referencing = referenced_by_indirect[referencing].copy()
-                    for in_referencing in tmp_referencing:
-                        if in_referencing not in referenced_by_indirect[cert_id]:
-                            new_change_detected = True
-                            referenced_by_indirect[cert_id].add(in_referencing)
+                    newly_discovered_references = [x for x in tmp_referencing if
+                                                   x not in referenced_by_indirect[cert_id]]
+                    referenced_by_indirect[cert_id].update(newly_discovered_references)
+                    new_change_detected = True if newly_discovered_references else False
 
     return referenced_by, referenced_by_indirect
