@@ -199,7 +199,6 @@ class Dataset(ABC):
         self._compute_candidate_versions()
         return self._compute_cpe_matches()
 
-
     def to_label_studio_json(self, output_path: Union[str, Path]):
         lst = []
         for cert in [x for x in self if x.heuristics.cpe_matches and not x.heuristics.labeled]:

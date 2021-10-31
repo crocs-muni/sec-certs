@@ -10,6 +10,7 @@ import operator
 from pathlib import Path
 import json
 import logging
+from packaging.version import parse
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class CPEClassifier(BaseEstimator):
     def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]]) -> Optional[List[str]]:
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
-        candidate_vendors = self.new_get_candidate_list_of_vendors(sanitized_vendor)
+        candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
 
         candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
         ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions) for cpe in candidates]
@@ -74,12 +75,12 @@ class CPEClassifier(BaseEstimator):
     def compute_best_match(self, cpe: CPE, product_name, candidate_vendors, versions):
         sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version)
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
-        cert_stripped_manufacturer = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
+        cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
         token_set_ratio_on_title = fuzz.token_set_ratio(product_name, sanitized_title)
-        token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped_manufacturer, sanitized_item_name)
+        token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped, sanitized_item_name)
         partial_ratio_on_title = fuzz.partial_ratio(product_name, sanitized_title)
-        partial_ratio_on_item_name = fuzz.partial_ratio(cert_stripped_manufacturer, sanitized_item_name)
+        partial_ratio_on_item_name = fuzz.partial_ratio(cert_stripped, sanitized_item_name)
         return max([token_set_ratio_on_title, partial_ratio_on_title, token_set_ratio_on_item_name, partial_ratio_on_item_name])
 
     @staticmethod
@@ -96,7 +97,7 @@ class CPEClassifier(BaseEstimator):
         return string.replace('®', '').replace('™', '')
 
     @staticmethod
-    def _strip_manufacturer_and_version(string: str, manufacturers: List[str], versions: List[str]):
+    def _strip_manufacturer_and_version(string: str, manufacturers: List[str], versions: List[str]) -> str:
         for x in manufacturers + versions:
             string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), '').strip()
         return string
@@ -161,6 +162,17 @@ class CPEClassifier(BaseEstimator):
             viable_cpe_versions = self.vendor_to_versions_[vendor]
             matched_cpe_versions = [x for x in viable_cpe_versions if is_cpe_version_among_cert_versions(x, cert_candidate_versions)]
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
+        return candidate_vendor_version_pairs
+
+    def new_get_candidate_vendor_version_pairs(self, cert_cpe_vendors, cert_versions):
+        if not cert_cpe_vendors:
+            return None
+
+        candidate_vendor_version_pairs = []
+        for vendor in cert_cpe_vendors:
+            viable_cpe_versions = {parse(x) for x in self.vendor_to_versions_[vendor]}
+            intersection = viable_cpe_versions.intersection({parse(x) for x in cert_versions})
+            candidate_vendor_version_pairs.extend([(vendor, str(x)) for x in intersection])
         return candidate_vendor_version_pairs
 
     def get_candidate_cpe_matches(self, candidate_vendors: List[str], candidate_versions: List[str]):
