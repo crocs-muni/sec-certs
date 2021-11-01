@@ -201,7 +201,7 @@ class Dataset(ABC):
 
     def to_label_studio_json(self, output_path: Union[str, Path]):
         lst = []
-        for cert in [x for x in self if x.heuristics.cpe_matches and not x.heuristics.labeled]:
+        for cert in [x for x in self if x.heuristics.cpe_matches]:
             dct = {'text': cert.label_studio_title}
             candidates = [x[1].title for x in cert.heuristics.cpe_matches]
             candidates += ['No good match'] * (config.cc_cpe_max_matches - len(candidates))
