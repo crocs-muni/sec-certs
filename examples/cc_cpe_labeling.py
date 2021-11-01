@@ -19,8 +19,8 @@ def main():
 
     dset = CCDataset({}, Path('./my_debug_datset'), 'cc_full_dataset', 'Full CC dataset')
     dset.get_certs_from_web(to_download=True)
-    dset._compute_heuristics()
-    dset.manually_verify_cpe_matches()
+    dset.compute_cpe_heuristics()
+    dset.compute_related_cves()
 
     logger.info(f'{dset.json_path} should now contain fully labeled dataset.')
 
