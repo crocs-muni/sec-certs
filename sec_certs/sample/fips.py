@@ -151,7 +151,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         unmatched_algs: int
 
         extracted_versions: List[str] = field(default=None)
-        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
+        cpe_matches: Optional[Set[str]] = field(default=None)
         labeled: bool = field(default=False)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)

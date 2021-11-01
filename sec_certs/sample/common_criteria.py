@@ -193,7 +193,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     class CCHeuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
-        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
+        verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)

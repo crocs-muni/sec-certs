@@ -1,11 +1,12 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union, Optional
+from typing import Dict, Collection, Union, Optional, List
 
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 import tqdm
+import itertools
 
 import requests
 
@@ -211,3 +212,31 @@ class Dataset(ABC):
 
         with Path(output_path).open('w') as handle:
             json.dump(lst, handle, indent=4)
+
+    @serialize
+    def load_label_studio_labels(self, input_path: Union[str, Path]):
+        with Path(input_path).open('r') as handle:
+            data = json.load(handle)
+
+        cpe_dset = self._prepare_cpe_dataset()
+
+        logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
+        for annotation in tqdm.tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
+            match_keys = annotation['verified_cpe_match']
+            match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
+            match_keys = [x.lstrip('$') for x in match_keys]
+            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
+
+            # distinguish between FIPS and CC
+            if '\n' in annotation['text']:
+                cert_name = annotation['text'].split('\nModule name: ')[1].split('\n')[0]
+            else:
+                cert_name = annotation['text']
+
+            certs = self.get_certs_from_name(cert_name)
+
+            for c in certs:
+                c.heuristics.verified_cpe_matches = {x.uri for x in cpes}
+
+    def get_certs_from_name(self, name: str) -> List[Certificate]:
+        raise NotImplementedError('Not meant to be implemented by the base class.')

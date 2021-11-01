@@ -58,21 +58,22 @@ class CPEClassifier(BaseEstimator):
         """
         return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm.tqdm(X, desc='Predicting')]
 
-    def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]]) -> Optional[List[str]]:
+    def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]], relax_version=True) -> Optional[List[str]]:
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
 
         candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
         ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions) for cpe in candidates]
-        final_matches = list(filter(lambda x: x[0] > self.match_threshold, zip(ratings, candidates)))
+        threshold = self.match_threshold if not relax_version else 100
+        final_matches = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
+
+        if relax_version and not final_matches:
+            return self.predict_single_cert(vendor, product_name, ['-'], relax_version=False)
+
         return [x[1].uri for x in final_matches[:self.n_max_matches]] if final_matches else None
 
-        # TODO: Fix version with relaxation
-        # if RELAX_VERSION and not reasonable_matches:
-        #     return self.get_cpe_matches(cert_name, cert_candidate_cpe_vendors, ['-'], relax_version=True, n_max_matches=n_max_matches, threshold=threshold)
-
-    def compute_best_match(self, cpe: CPE, product_name, candidate_vendors, versions):
+    def compute_best_match(self, cpe: CPE, product_name: str, candidate_vendors: str, versions: Optional[List[str]]) -> float:
         sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version)
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
         cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)

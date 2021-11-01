@@ -639,24 +639,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
 
-    @serialize
-    def load_label_studio_labels(self, input_path: Union[str, Path]):
-        with Path(input_path).open('r') as handle:
-            data = json.load(handle)
-
-        cpe_dset = self._prepare_cpe_dataset()
-
-        logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
-        for annotation in tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
-            match_keys = annotation['verified_cpe_match']
-            match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
-            match_keys = [x.lstrip('$') for x in match_keys]
-            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
-            certs = self.get_certs_from_name(annotation['text'])
-
-            for c in certs:
-                c.heuristics.verified_cpe_matches = cpes
-
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
         updates = list(itertools.chain.from_iterable([CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]))

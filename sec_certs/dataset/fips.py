@@ -56,6 +56,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def json_path(self) -> Path:
         return self.root_dir / (self.name + '.json')
 
+    def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
+        return [crt for crt in self if crt.web_scan.name == module_name]
+
     def find_empty_pdfs(self) -> Tuple[List, List]:
         missing = []
         not_available = []
@@ -171,7 +174,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def download_neccessary_files(self):
         self.download_all_htmls()
-        self.download_all_pdfs()
+        # self.download_all_pdfs()
 
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> None:
         logger.info(f"Getting sample ids from {html_file}")
