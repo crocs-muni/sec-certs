@@ -52,7 +52,7 @@
         "st_keywords": null
     },
     "heuristics": {
-        "_type": "Heuristics",
+        "_type": "CCHeuristics",
         "extracted_versions": null,
         "cpe_matches": null,
         "labeled": false,
