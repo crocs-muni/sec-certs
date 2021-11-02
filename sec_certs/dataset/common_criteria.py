@@ -169,12 +169,6 @@ class CCDataset(Dataset, ComplexSerializableType):
         return [(x, self.web_dir / y) for y, x in self.csv_products.items() if 'archived' in y]
 
     @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        dset = Dataset.from_json(input_path)
-        dset.set_local_paths()
-        return dset
-
-    @classmethod
     def from_web_latest(cls):
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / 'cc_latest_dataset.json'

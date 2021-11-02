@@ -213,12 +213,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             dset.finalize_results()
             return dset
 
-    @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        dset = super().from_json(input_path)
-        dset.set_local_paths()
-        return dset
-
     def set_local_paths(self):
         cert: FIPSCertificate
         for cert in self.certs.values():

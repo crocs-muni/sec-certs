@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CPEDataset(ComplexSerializableType):
     was_enhanced_with_vuln_cpes: bool
-    _json_path: Path
+    json_path: Path
     cpes: Dict[str, CPE]
     vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
     vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
@@ -102,7 +102,7 @@ class CPEDataset(ComplexSerializableType):
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
         dset = ComplexSerializableType.from_json(input_path)
-        dset._json_path = input_path
+        dset.json_path = input_path
         return dset
 
     @classmethod

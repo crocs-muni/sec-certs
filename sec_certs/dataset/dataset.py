@@ -15,7 +15,7 @@ import sec_certs.constants as constants
 import sec_certs.parallel_processing as cert_processing
 
 from sec_certs.sample.certificate import Certificate
-from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
 from sec_certs.config.configuration import config
 from sec_certs.serialization import serialize
 from sec_certs.dataset.cpe import CPEDataset
@@ -25,7 +25,7 @@ from sec_certs.model.cpe_matching import CPEClassifier
 logger = logging.getLogger(__name__)
 
 
-class Dataset(ABC):
+class Dataset(ABC, ComplexSerializableType):
     def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
         self._root_dir = root_dir
@@ -102,20 +102,15 @@ class Dataset(ABC):
                 f'The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed}).')
         return dset
 
-    def to_json(self, output_path: Union[str, Path] = None):
-        if not output_path:
-            output_path = self.json_path
-
-        with Path(output_path).open('w') as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
-
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
-        input_path = Path(input_path)
-        with input_path.open('r') as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        dset.root_dir = input_path.parent.absolute()
+        dset = ComplexSerializableType.from_json(input_path)
+        dset.root_dir = Path(input_path).parent.absolute()
+        dset.set_local_paths()
         return dset
+
+    def set_local_paths(self):
+        raise NotImplementedError('Not meant to be implemented by the base class.')
 
     @abstractmethod
     def get_certs_from_web(self):

@@ -68,7 +68,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_load_cpe_dataset(self):
         json_cpe_dset = CPEDataset.from_json(self.data_dir_path / 'auxillary_datasets' / 'cpe_dataset.json')
-        json_cpe_dset._json_path = Path('../')
+        json_cpe_dset.json_path = Path('../')
         self.assertEqual(self.cpe_dset, json_cpe_dset, 'CPE template dataset does not match CPE dataset loaded from json.')
 
     def test_cpe_lookup_dicts(self):

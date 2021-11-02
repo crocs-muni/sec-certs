@@ -1,7 +1,7 @@
 import json
 from datetime import date
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 import copy
 
 
@@ -25,8 +25,10 @@ class ComplexSerializableType:
         except TypeError as e:
             raise TypeError(f'Dict: {dct} on {cls.__mro__}') from e
 
-    def to_json(self, output_path: Union[str, Path] = None):
+    def to_json(self, output_path: Optional[Union[str, Path]] = None):
         if not output_path:
+            if not hasattr(self, 'json_path'):
+                raise ValueError(f'The object {self} of type {self.__class__} does not have json_path attribute but to_json() was called without an argument.')
             output_path = self.json_path
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
@@ -37,6 +39,7 @@ class ComplexSerializableType:
         with input_path.open('r') as handle:
             obj = json.load(handle, cls=CustomJSONDecoder)
         return obj
+
 
 # Decorator for serialization
 def serialize(func: callable):
