@@ -52,10 +52,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def successful_pdf_scan(self) -> bool:
         return all(cert.pdf_scan for cert in self.certs.values())
 
-    @property
-    def json_path(self) -> Path:
-        return self.root_dir / (self.name + '.json')
-
     def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
         return [crt for crt in self if crt.web_scan.name == module_name]
 
