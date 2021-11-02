@@ -18,6 +18,7 @@ def _set_up_dataset(td, certs):
 def _set_up_dataset_for_full(td, certs):
     dataset = _set_up_dataset(td, certs)
     dataset.web_scan()
+    dataset.download_all_pdfs()
     dataset.convert_all_pdfs()
     dataset.pdf_scan()
     dataset.extract_certs_from_tables(high_precision=True)
@@ -58,10 +59,8 @@ class TestFipsOOP(TestCase):
             self.assertEqual(set(dataset.certs['3651'].heuristics.connections), {'3615'})
             self.assertEqual(set(dataset.certs['3093'].heuristics.connections), {'3090', '3091'})
             self.assertEqual(set(dataset.certs['3090'].heuristics.connections), {'3089'})
-            self.assertEqual(set(dataset.certs['3197'].heuristics.connections),
-                             {x for x in ['3195', '3096', '3196', '3644', '3651']})
-            self.assertEqual(set(dataset.certs['3196'].heuristics.connections),
-                             {x for x in ['3194', '3091', '3480', '3615']})
+            self.assertEqual(set(dataset.certs['3197'].heuristics.connections), {x for x in ['3195', '3096', '3196', '3644', '3651']})
+            self.assertEqual(set(dataset.certs['3196'].heuristics.connections), {x for x in ['3194', '3091', '3480', '3615']})
             self.assertEqual(set(dataset.certs['3089'].heuristics.connections), set())
             self.assertEqual(set(dataset.certs['3195'].heuristics.connections), {'3194', '3091', '3480'})
             self.assertEqual(set(dataset.certs['3480'].heuristics.connections), {'3089'})
