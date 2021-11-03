@@ -20,7 +20,10 @@ class ComplexSerializableType:
 
     @classmethod
     def from_dict(cls, dct: Dict):
-        return cls(*(tuple(dct.values())))
+        try:
+            return cls(*(tuple(dct.values())))
+        except TypeError as e:
+            raise TypeError(f'Dict: {dct} with mro: {cls.__mro__}') from e
 
 
 # Decorator for serialization

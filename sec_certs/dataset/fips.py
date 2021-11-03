@@ -268,7 +268,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         logger.info("Removing 'processed' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something")
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.heuristics = FIPSCertificate.Heuristics(None, {}, [], 0)
+            cert.heuristics = FIPSCertificate.FIPSHeuristics(None, {}, [], 0)
 
         self.match_algs()
 

@@ -16,7 +16,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     def __init__(self, name: str, report_link: str, st_link: str,
                  state: Optional[CommonCriteriaCert.InternalState],
                  pdf_data: Optional[CommonCriteriaCert.PdfData],
-                 heuristics: Optional[CommonCriteriaCert.Heuristics],
+                 heuristics: Optional[CommonCriteriaCert.CCHeuristics],
                  related_cert_digest: str,
                  maintenance_date: date):
         super().__init__('', '', name, '', '', '', None, None,

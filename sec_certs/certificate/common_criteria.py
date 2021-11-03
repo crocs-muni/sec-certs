@@ -186,7 +186,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
     @dataclass
-    class Heuristics(ComplexSerializableType):
+    class CCHeuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
         labeled: bool = field(default=False)
@@ -227,7 +227,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  maintainance_updates: Set[MaintainanceReport],
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
-                 heuristics: Optional[Heuristics]):
+                 heuristics: Optional[CCHeuristics]):
         super().__init__()
 
         self.status = status
@@ -254,7 +254,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.pdf_data = pdf_data
 
         if heuristics is None:
-            heuristics = self.Heuristics()
+            heuristics = self.CCHeuristics()
         self.heuristics = heuristics
 
     @property
