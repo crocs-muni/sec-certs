@@ -53,7 +53,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         return all(cert.pdf_scan for cert in self.certs.values())
 
     def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
-        return [crt for crt in self if crt.web_scan.name == module_name]
+        return [crt for crt in self if crt.web_scan.module_name == module_name]
 
     def find_empty_pdfs(self) -> Tuple[List, List]:
         missing = []

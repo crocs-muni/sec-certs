@@ -220,7 +220,8 @@ class Dataset(ABC, ComplexSerializableType):
             match_keys = annotation['verified_cpe_match']
             match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
             match_keys = [x.lstrip('$') for x in match_keys]
-            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
+            predicted_annotations = [annotation[x] for x in match_keys if annotation[x] != 'No good match']
+            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[x] for x in predicted_annotations]))
 
             # distinguish between FIPS and CC
             if '\n' in annotation['text']:
@@ -231,7 +232,7 @@ class Dataset(ABC, ComplexSerializableType):
             certs = self.get_certs_from_name(cert_name)
 
             for c in certs:
-                c.heuristics.verified_cpe_matches = {x.uri for x in cpes}
+                c.heuristics.verified_cpe_matches = {x.uri for x in cpes} if cpes else None
 
     def get_certs_from_name(self, name: str) -> List[Certificate]:
         raise NotImplementedError('Not meant to be implemented by the base class.')
