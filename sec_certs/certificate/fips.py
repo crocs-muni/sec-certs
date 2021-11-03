@@ -155,6 +155,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         related_cves: Optional[List[str]] = field(default=None)
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
+        directly_affected_by: Set = field(default=None)
+        indirectly_affected_by: Set = field(default=None)
+        directly_affecting: Set = field(default=None)
+        indirectly_affecting: Set = field(default=None)
+
         @property
         def serialized_attributes(self) -> List[str]:
             all_vars = copy.deepcopy(super().serialized_attributes)

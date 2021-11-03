@@ -62,7 +62,7 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "directly_affected_by": null,
-                "indirecly_affected_by": null,
+                "indirectly_affected_by": null,
                 "directly_affecting": null,
                 "indirectly_affecting": null
             }
@@ -120,7 +120,7 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "directly_affected_by": null,
-                "indirecly_affected_by": null,
+                "indirectly_affected_by": null,
                 "directly_affecting": null,
                 "indirectly_affecting": null
             }
