@@ -236,3 +236,26 @@ class Dataset(ABC, ComplexSerializableType):
 
     def get_certs_from_name(self, name: str) -> List[Certificate]:
         raise NotImplementedError('Not meant to be implemented by the base class.')
+
+    @serialize
+    def compute_related_cves(self, download_fresh_cves: bool = False):
+        logger.info('Retrieving related CVEs to verified CPE matches')
+        cve_dset = self._prepare_cve_dataset(download_fresh_cves)
+
+        verified_cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
+        if not verified_cpe_rich_certs:
+            logger.error(
+                'No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
+            return
+
+        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in verified_cpe_rich_certs]))
+        cve_dset.filter_related_cpes(relevant_cpes)
+
+        for cert in tqdm.tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
+            cert.compute_heuristics_related_cves(cve_dset)
+
+        n_vulnerable = len([x for x in verified_cpe_rich_certs if x.heuristics.related_cves])
+        n_vulnerabilities = sum(
+            [len(x.heuristics.related_cves) for x in verified_cpe_rich_certs if x.heuristics.related_cves])
+        logger.info(
+            f'In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates.')

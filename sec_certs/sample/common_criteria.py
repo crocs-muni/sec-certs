@@ -549,15 +549,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
 
-    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
-        if self.heuristics.cpe_matches:
-            related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x) for x in self.heuristics.cpe_matches]
-            related_cves = list(filter(lambda x: x is not None, related_cves))
-            if related_cves:
-                self.heuristics.related_cves = set(itertools.chain.from_iterable(related_cves))
-        else:
-            self.heuristics.related_cves = None
-
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:
             logger.error('Cannot compute sample lab when pdf files were not processed.')

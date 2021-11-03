@@ -2,18 +2,22 @@ import logging
 from pathlib import Path
 import copy
 import json
+import itertools
 
 from abc import ABC, abstractmethod
-from typing import Union, TypeVar, Type
+from typing import Union, TypeVar, Type, Any
 
 from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.dataset.cve import CVEDataset
 
 logger = logging.getLogger(__name__)
 
 
 class Certificate(ABC, ComplexSerializableType):
     T = TypeVar('T', bound='Certificate')
+
+    heuristics: Any
 
     def __init__(self, *args, **kwargs):
         pass
@@ -65,3 +69,12 @@ class Certificate(ABC, ComplexSerializableType):
     @abstractmethod
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         raise NotImplementedError('Not meant to be implemented')
+
+    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
+        if self.heuristics.cpe_matches:
+            related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x) for x in self.heuristics.cpe_matches]
+            related_cves = list(filter(lambda x: x is not None, related_cves))
+            if related_cves:
+                self.heuristics.related_cves = set(itertools.chain.from_iterable(related_cves))
+        else:
+            self.heuristics.related_cves = None
