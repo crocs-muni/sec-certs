@@ -221,7 +221,20 @@ class Dataset(ABC, ComplexSerializableType):
             match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
             match_keys = [x.lstrip('$') for x in match_keys]
             predicted_annotations = [annotation[x] for x in match_keys if annotation[x] != 'No good match']
-            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes.get(x, []) for x in predicted_annotations]))
+
+            cpes = set()
+            for x in predicted_annotations:
+                if x not in cpe_dset.title_to_cpes:
+                    print(f'Error: {x} not in dataset')
+                else:
+                    to_update = cpe_dset.title_to_cpes[x]
+                    if to_update and not cpes:
+                        cpes = to_update
+                    elif to_update and cpes:
+                        cpes = cpes.update(to_update)
+
+
+            # cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes.get(x, []) for x in predicted_annotations]))
 
             # distinguish between FIPS and CC
             if '\n' in annotation['text']:
@@ -242,7 +255,9 @@ class Dataset(ABC, ComplexSerializableType):
         Prior to CVE matching, it is wise to expand the database of automatic CPE matches with those that were manually assigned.
         """
         for cert in self:
-            if cert.heuristics.verified_cpe_matches:
+            if not cert.heuristics.cpe_matches and cert.heuristics.verified_cpe_matches:
+                cert.heuristics.cpe_matches = cert.heuristics.verified_cpe_matches
+            elif cert.heuristics.cpe_matches and cert.heuristics.verified_cpe_matches:
                 cert.heuristics.cpe_matches = cert.heuristics.cpe_matches.union(cert.heuristics.verified_cpe_matches)
 
     @serialize

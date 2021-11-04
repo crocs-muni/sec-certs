@@ -50,7 +50,7 @@ def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid:
         vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_scan.vendor
         record = {'certificate_name': cert_name,
                   'vendor': vendor,
-                  'heuristic version': helpers.compute_heuristics_version(cert_name),
+                  'heuristic version': helpers.compute_heuristics_version(cert_name) if cert_name else None,
                   'predicted_cpes': predicted_cpes_set,
                   'manually_assigned_cpes': verified_cpes_set
                   }
