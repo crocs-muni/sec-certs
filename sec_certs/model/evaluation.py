@@ -16,9 +16,7 @@ logger = logging.getLogger(__name__)
 
 def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
     with Path(filepath).open('r') as handle:
-        data = json.load(handle)
-    return set(data.keys())
-
+        return set(json.load(handle))
 
 def compute_precision(y: np.array, y_pred: np.array, **kwargs):
     prec = []
