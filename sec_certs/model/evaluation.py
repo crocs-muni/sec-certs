@@ -18,6 +18,7 @@ def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
     with Path(filepath).open('r') as handle:
         return set(json.load(handle))
 
+
 def compute_precision(y: np.array, y_pred: np.array, **kwargs):
     prec = []
     for true, pred in zip(y, y_pred):

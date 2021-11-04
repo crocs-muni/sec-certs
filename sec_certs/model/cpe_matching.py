@@ -58,7 +58,7 @@ class CPEClassifier(BaseEstimator):
         """
         return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm.tqdm(X, desc='Predicting')]
 
-    def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]], relax_version=True) -> Optional[List[str]]:
+    def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]], relax_version: bool = True) -> Optional[List[str]]:
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)

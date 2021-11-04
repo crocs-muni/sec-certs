@@ -210,8 +210,6 @@ class Dataset(ABC, ComplexSerializableType):
 
     @serialize
     def load_label_studio_labels(self, input_path: Union[str, Path]):
-
-
         with Path(input_path).open('r') as handle:
             data = json.load(handle)
 
