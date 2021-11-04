@@ -8511,7 +8511,7 @@
         "option_17": "Juniper JUNOS 18.1 R1",
         "option_18": "Juniper Junos 18.1 R1",
         "option_19": "Juniper JUNOS 18.1",
-        "option_20": "Juniper JunOS 18.1 R3-s1",
+        "option_20": "Juniper JUNOS 18.1 R3-S1",
         "verified_cpe_match": {
             "choices": [
                 "$option_4",
@@ -8784,7 +8784,7 @@
         "option_17": "Juniper JUNOS 18.1 R1",
         "option_18": "Juniper Junos 18.1 R1",
         "option_19": "Juniper JUNOS 18.1",
-        "option_20": "Juniper JunOS 18.1 R3-s1",
+        "option_20": "Juniper JUNOS 18.1 R3-S1",
         "verified_cpe_match": {
             "choices": [
                 "$option_17",
@@ -21233,7 +21233,7 @@
         "option_17": "Juniper JUNOS 18.1 R1",
         "option_18": "Juniper Junos 18.1 R1",
         "option_19": "Juniper JUNOS 18.1",
-        "option_20": "Juniper JunOS 18.1 R3-s1",
+        "option_20": "Juniper JUNOS 18.1 R3-S1",
         "verified_cpe_match": {
             "choices": [
                 "$option_10",
@@ -21263,7 +21263,7 @@
         "option_17": "Juniper JUNOS 18.1 R1",
         "option_18": "Juniper Junos 18.1 R1",
         "option_19": "Juniper JUNOS 18.1",
-        "option_20": "Juniper JunOS 18.1 R3-s1",
+        "option_20": "Juniper JUNOS 18.1 R3-S1",
         "verified_cpe_match": {
             "choices": [
                 "$option_4",
