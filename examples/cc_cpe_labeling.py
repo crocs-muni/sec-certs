@@ -4,6 +4,7 @@ from pathlib import Path
 
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.config.configuration import config
+from sec_certs.model.evaluation import get_validation_dgsts, evaluate
 
 logger = logging.getLogger(__name__)
 
@@ -17,10 +18,24 @@ def main():
     logging.basicConfig(level=logging.INFO, handlers=[file_handler, stream_handler])
     start = datetime.now()
 
-    dset = CCDataset({}, Path('./my_debug_datset'), 'cc_full_dataset', 'Full CC dataset')
+    # Fetch dataset metadata from CC Website, don't download nor parse PDFS
+    dset = CCDataset({}, Path('./my_debug_dataset'), 'cc_full_dataset', 'Full CC dataset')
     dset.get_certs_from_web(to_download=True)
+
+    # Automatically match CPEs and CVEs
     dset.compute_cpe_heuristics()
     dset.compute_related_cves()
+
+    # Load dataset of ground truth CPE labels
+    dset.load_label_studio_labels(Path(__file__).parent.parent / 'data/manual_cpe_labels/cc.json')
+
+    # Limit dataset only to validation part
+    validation_dgsts = get_validation_dgsts(Path(__file__).parent.parent / 'data/validation_test_split/cc/validation.json')
+    validation_certs = [x for x in dset if x.dgst in validation_dgsts]
+
+    # Evaluate CPE matching performance metrics (on validation set) and dump classification report into json
+    y_valid = [(x.heuristics.verified_cpe_matches) for x in validation_certs]
+    evaluate(validation_certs, y_valid, './my_debug_dataset/classification_report.json')
 
     logger.info(f'{dset.json_path} should now contain fully labeled dataset.')
 
