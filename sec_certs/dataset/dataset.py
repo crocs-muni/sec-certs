@@ -210,6 +210,8 @@ class Dataset(ABC, ComplexSerializableType):
 
     @serialize
     def load_label_studio_labels(self, input_path: Union[str, Path]):
+
+
         with Path(input_path).open('r') as handle:
             data = json.load(handle)
 
@@ -221,7 +223,7 @@ class Dataset(ABC, ComplexSerializableType):
             match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
             match_keys = [x.lstrip('$') for x in match_keys]
             predicted_annotations = [annotation[x] for x in match_keys if annotation[x] != 'No good match']
-            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[x] for x in predicted_annotations]))
+            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes.get(x, []) for x in predicted_annotations]))
 
             # distinguish between FIPS and CC
             if '\n' in annotation['text']:
