@@ -258,7 +258,7 @@ class Dataset(ABC, ComplexSerializableType):
             if not cert.heuristics.cpe_matches and cert.heuristics.verified_cpe_matches:
                 cert.heuristics.cpe_matches = cert.heuristics.verified_cpe_matches
             elif cert.heuristics.cpe_matches and cert.heuristics.verified_cpe_matches:
-                cert.heuristics.cpe_matches = cert.heuristics.cpe_matches.union(cert.heuristics.verified_cpe_matches)
+                cert.heuristics.cpe_matches = set(cert.heuristics.cpe_matches).union(set(cert.heuristics.verified_cpe_matches))
 
     @serialize
     def compute_related_cves(self, download_fresh_cves: bool = False):
