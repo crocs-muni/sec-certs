@@ -168,7 +168,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
             return self.report_keywords.get('rules_cert_id', None) if self.report_keywords else None
 
-
         @property
         def keywords_cert_id(self) -> Optional[str]:
             """
@@ -194,11 +193,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         related_cves: Optional[List[CVE]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
-
-        directly_affected_by: Set = field(default=None)
-        indirectly_affected_by: Set = field(default=None)
-        directly_affecting: Set = field(default=None)
-        indirectly_affecting: Set = field(default=None)
+        directly_affected_by: Optional[List] = field(default=None)
+        indirectly_affected_by: Optional[Set] = field(default=None)
+        directly_affecting: Optional[Set] = field(default=None)
+        indirectly_affecting: Optional[Set] = field(default=None)
 
         # manufacturer_list: Optional[List[str]]
 
