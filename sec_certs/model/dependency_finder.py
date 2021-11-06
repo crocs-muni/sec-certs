@@ -1,7 +1,10 @@
-from typing import List, Set
+from typing import List, Set, Dict
 
 
 class DependencyFinder:
+
+    dependencies = {}
+
     @staticmethod
     def _update_direct_references(referenced_by: Dict, cert_id: str, this_cert_id: str) -> None:
         if cert_id not in referenced_by:
@@ -24,7 +27,7 @@ class DependencyFinder:
             # Direct reference
             for cert_id in cert_obj.pdf_data.report_keywords["rules_cert_id"]:
                 if cert_id != this_cert_id and this_cert_id is not None:
-                    _update_direct_references(referenced_by, cert_id, this_cert_id)
+                    DependencyFinder._update_direct_references(referenced_by, cert_id, this_cert_id)
 
         referenced_by_indirect = {}
 
@@ -82,7 +85,29 @@ class DependencyFinder:
     def fit(certificates: Dict) -> None:
         referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(certificates)
 
+        for dgst in certificates:
+            cert_id = certificates[dgst].pdf_data.cert_id
 
+            if not cert_id:
+                continue
+
+            # init
+            DependencyFinder.dependencies[dgst] = {}
+
+            DependencyFinder.dependencies[dgst]["directly_affected_by"] = \
+                DependencyFinder._get_affected_directly(cert_id, referenced_by_direct)
+
+            DependencyFinder.dependencies[dgst]["indirectly_affected_by"] = \
+                DependencyFinder._get_affected_indirectly(cert_id, referenced_by_indirect)
+
+            DependencyFinder.dependencies[dgst]["directly_affecting"] = \
+                DependencyFinder._get_affecting_directly(cert_id, referenced_by_direct)
+
+            DependencyFinder.dependencies[dgst]["indirectly_affecting"] = \
+                DependencyFinder._get_affecting_indirectly(cert_id, referenced_by_indirect)
+
+        print()
+    
 
     @staticmethod
     def predict(cert) -> Set:
