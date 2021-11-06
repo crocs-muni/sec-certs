@@ -140,8 +140,8 @@ class TestCommonCriteriaHeuristics(TestCase):
         heuristics = self.cc_dset['ebd276cca70fd723'].heuristics
         self.assertEqual(heuristics.directly_affected_by, None)
         self.assertEqual(heuristics.indirectly_affected_by, None)
-        self.assertEqual(heuristics.directly_affecting, set())
-        self.assertEqual(heuristics.indirectly_affecting, set())
+        self.assertEqual(heuristics.directly_affecting, None)
+        self.assertEqual(heuristics.indirectly_affecting, None)
 
     def test_dependency_dataset(self):
         assert True
