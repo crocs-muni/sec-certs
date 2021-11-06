@@ -25,6 +25,7 @@ from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
 from sec_certs.configuration import config
 from sec_certs.certificate.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
+from sec_certs.model.dependency_finder import DependencyFinder
 
 
 class CCDataset(Dataset, ComplexSerializableType):
@@ -622,16 +623,19 @@ class CCDataset(Dataset, ComplexSerializableType):
         self.compute_cpe_heuristics()
         self._compute_cert_labs()
         self._compute_cert_ids()
-        self._compute_affected_ids()
-        self._compute_affecting_ids()
+        self._compute_dependencies()
+        #self._compute_affected_ids()
+        #self._compute_affecting_ids()
 
-    @staticmethod
-    def _get_affected_directly(cert: str, referenced_by_direct: Dict):
-        return referenced_by_direct.get(cert, None)
+    def _compute_dependencies(self):
+        finder = DependencyFinder()
+        finder.fit([x for x in self])
 
-    @staticmethod
-    def _get_affected_indirectly(cert: str, referenced_by_indirect: Dict):
-        return referenced_by_indirect.get(cert, None)
+    def _populate_dependencies(self, finder):
+        self.CCHeuristics.directly_affecting = finder.some_method1()
+        self.CCHeuristics.indirectly_affecting = finder.some_method2()
+        self.CCHeuristics.directly_affected_by = finder.some_method3()
+        self.CCHeuristics.indirectly_affected_by = finder.some_method4()
 
     def _compute_affected_ids(self):
         referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
@@ -645,28 +649,8 @@ class CCDataset(Dataset, ComplexSerializableType):
                 cert.CCHeuristics.indirectly_affected_by = CCDataset._get_affected_indirectly(current_cert_id,
                                                                                               referenced_by_indirect)
 
-    @staticmethod
-    def _get_affecting_directly(cert: str, referenced_by_direct: Dict) -> Set:
-        filter_direct = set()
-
-        for cert_id in referenced_by_direct:
-            if cert in referenced_by_direct[cert_id]:
-                filter_direct.add(cert_id)
-
-        return filter_direct
-
-    @staticmethod
-    def _get_affecting_indirectly(cert: str, referenced_by_indirect: Dict) -> Set:
-        filter_indirect = set()
-
-        for cert_id in referenced_by_indirect:
-            if cert in referenced_by_indirect[cert_id]:
-                filter_indirect.add(cert_id)
-
-        return filter_indirect
-
     def _compute_affecting_ids(self) -> None:
-        referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
+        # referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
 
         for cert in self:
             current_cert_id = cert.pdf_data.cert_id
