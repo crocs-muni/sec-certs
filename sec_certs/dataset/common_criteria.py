@@ -638,8 +638,11 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         for cert in self:
             current_cert_id = cert.pdf_data.cert_id
-            cert.heuristics.affected_direct = CCDataset._get_affected_directly(current_cert_id, referenced_by_direct)
-            cert.heuristics.affected_indirect = CCDataset._get_affected_indirectly(current_cert_id, referenced_by_indirect)
+            if current_cert_id is not None:
+                cert.heuristics.directly_affected_by = CCDataset._get_affected_directly(current_cert_id,
+                                                                                        referenced_by_direct)
+                cert.heuristics.indirectly_affected_by = CCDataset._get_affected_indirectly(current_cert_id,
+                                                                                            referenced_by_indirect)
 
     @staticmethod
     def _get_affecting_directly(cert: str, referenced_by_direct: Dict) -> Set:
@@ -666,8 +669,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         for cert in self:
             current_cert_id = cert.pdf_data.cert_id
-            cert.heuristics.affecting_direct = CCDataset._get_affecting_directly(current_cert_id, referenced_by_direct)
-            cert.heuristics.affecting_indirect = CCDataset._get_affecting_indirectly(current_cert_id, referenced_by_indirect)
+            cert.heuristics.directly_affecting = CCDataset._get_affecting_directly(current_cert_id, referenced_by_direct)
+            cert.heuristics.indirectly_affecting = CCDataset._get_affecting_indirectly(current_cert_id, referenced_by_indirect)
 
     @serialize
     def analyze_certificates(self, fresh: bool = True):

@@ -134,3 +134,14 @@ class TestCommonCriteriaHeuristics(TestCase):
                                                            frozenset(['KECS-PP-0822-2017 SSO V1.0']))
         self.cc_dset.process_protection_profiles(to_download=False)
         self.assertSetEqual(self.cc_dset['ebd276cca70fd723'].protection_profiles, {expected_pp})
+
+    def test_single_record_dependency_heuristics(self):
+        # Single record in daset is not affecting nor affected by other records
+        heuristics = self.cc_dset['ebd276cca70fd723'].heuristics
+        self.assertEqual(heuristics.directly_affected_by, None)
+        self.assertEqual(heuristics.indirectly_affected_by, None)
+        self.assertEqual(heuristics.directly_affecting, set())
+        self.assertEqual(heuristics.indirectly_affecting, set())
+
+    def test_dependency_dataset(self):
+        assert True
