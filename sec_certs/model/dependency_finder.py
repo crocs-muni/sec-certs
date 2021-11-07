@@ -1,9 +1,10 @@
-from typing import List, Set, Dict
+from typing import List, Set, Dict, Tuple
 
 
 class DependencyFinder:
 
-    dependencies = {}
+    def __init__(self):
+        self.dependencies = {}
 
     @staticmethod
     def _update_direct_references(referenced_by: Dict, cert_id: str, this_cert_id: str) -> None:
@@ -13,7 +14,7 @@ class DependencyFinder:
             referenced_by[cert_id].append(this_cert_id)
 
     @staticmethod
-    def _build_cert_references(certificates: Dict):
+    def _build_cert_references(certificates: Dict) -> Tuple[Dict, Dict]:
         referenced_by = {}
 
         for cert_obj in certificates.values():
@@ -74,41 +75,43 @@ class DependencyFinder:
         return filter_indirect
 
     @staticmethod
-    def _get_affected_directly(cert: str, referenced_by_direct: Dict):
+    def _get_affected_directly(cert: str, referenced_by_direct: Dict) -> List:
         return referenced_by_direct.get(cert, None)
 
     @staticmethod
-    def _get_affected_indirectly(cert: str, referenced_by_indirect: Dict):
+    def _get_affected_indirectly(cert: str, referenced_by_indirect: Dict) -> Set:
         return referenced_by_indirect.get(cert, None)
 
-    @staticmethod
-    def fit(certificates: Dict) -> None:
+    def fit(self, certificates: Dict) -> None:
         referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(certificates)
 
         for dgst in certificates:
             cert_id = certificates[dgst].pdf_data.cert_id
+            self.dependencies[dgst] = {}
 
             if not cert_id:
                 continue
 
-            # init
-            DependencyFinder.dependencies[dgst] = {}
-
-            DependencyFinder.dependencies[dgst]["directly_affected_by"] = \
+            self.dependencies[dgst]["directly_affected_by"] = \
                 DependencyFinder._get_affected_directly(cert_id, referenced_by_direct)
 
-            DependencyFinder.dependencies[dgst]["indirectly_affected_by"] = \
+            self.dependencies[dgst]["indirectly_affected_by"] = \
                 DependencyFinder._get_affected_indirectly(cert_id, referenced_by_indirect)
 
-            DependencyFinder.dependencies[dgst]["directly_affecting"] = \
+            self.dependencies[dgst]["directly_affecting"] = \
                 DependencyFinder._get_affecting_directly(cert_id, referenced_by_direct)
 
-            DependencyFinder.dependencies[dgst]["indirectly_affecting"] = \
+            self.dependencies[dgst]["indirectly_affecting"] = \
                 DependencyFinder._get_affecting_indirectly(cert_id, referenced_by_indirect)
 
-        print()
-    
+    def get_directly_affected_by(self, dgst: str) -> List:
+        return self.dependencies[dgst].get("directly_affected_by", None)
 
-    @staticmethod
-    def predict(cert) -> Set:
-        pass
+    def get_indirectly_affected_by(self, dgst: str) -> Set:
+        return self.dependencies[dgst].get("indirectly_affected_by", None)
+
+    def get_directly_affecting(self, dgst: str) -> Set:
+        return self.dependencies[dgst].get("directly_affecting", None)
+
+    def get_indirectly_affecting(self, dgst: str) -> Set:
+        return self.dependencies[dgst].get("indirectly_affecting", None)

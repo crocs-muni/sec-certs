@@ -629,34 +629,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         finder = DependencyFinder()
         finder.fit(self.certs)
 
-    def _populate_dependencies(self, finder):
-        self.CCHeuristics.directly_affecting = finder.some_method1()
-        self.CCHeuristics.indirectly_affecting = finder.some_method2()
-        self.CCHeuristics.directly_affected_by = finder.some_method3()
-        self.CCHeuristics.indirectly_affected_by = finder.some_method4()
-    #
-    # def _compute_affected_ids(self):
-    #     # referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
-    #
-    #     for cert in self:
-    #         current_cert_id = cert.pdf_data.cert_id
-    #         if current_cert_id is not None:
-    #             cert.CCHeuristics.directly_affected_by = CCDataset._get_affected_directly(current_cert_id,
-    #                                                                                       referenced_by_direct)
-    #
-    #             cert.CCHeuristics.indirectly_affected_by = CCDataset._get_affected_indirectly(current_cert_id,
-    #                                                                                           referenced_by_indirect)
-    #
-    # def _compute_affecting_ids(self) -> None:
-    #     # referenced_by_direct, referenced_by_indirect = helpers.build_cert_references(self.certs)
-    #
-    #     for cert in self:
-    #         current_cert_id = cert.pdf_data.cert_id
-    #         if current_cert_id is not None:
-    #             cert.CCHeuristics.directly_affecting = CCDataset._get_affecting_directly(current_cert_id,
-    #                                                                                      referenced_by_direct)
-    #             cert.CCHeuristics.indirectly_affecting = CCDataset._get_affecting_indirectly(current_cert_id,
-    #                                                                                          referenced_by_indirect)
+        for dgst in self.certs:
+            self.certs[dgst].CCHeuristics.directly_affecting = finder.get_directly_affecting(dgst)
+            self.certs[dgst].CCHeuristics.indirectly_affecting = finder.get_indirectly_affecting(dgst)
+            self.certs[dgst].CCHeuristics.directly_affected_by = finder.get_directly_affected_by(dgst)
+            self.certs[dgst].CCHeuristics.indirectly_affected_by = finder.get_indirectly_affected_by(dgst)
 
     @serialize
     def analyze_certificates(self, fresh: bool = True):
