@@ -1,7 +1,7 @@
 import json
 from datetime import date
 from pathlib import Path
-from typing import Dict, List
+from typing import Callable, Dict, List
 import copy
 
 
@@ -24,7 +24,7 @@ class ComplexSerializableType:
 
 
 # Decorator for serialization
-def serialize(func: callable):
+def serialize(func: Callable):
     def inner_func(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
             raise ValueError('@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes.')

@@ -1,12 +1,13 @@
 from tqdm import tqdm
 from multiprocessing.pool import Pool, ThreadPool
-from typing import Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional, Union
 import time
 
 
 def process_parallel(func: Callable, items: Iterable, max_workers: int, callback: Optional[Callable] = None,
                      use_threading: bool = True, progress_bar: bool = True, unpack: bool = False,
                      progress_bar_desc: Optional[str] = None):
+    pool: Union[Pool, ThreadPool]
     if use_threading is True:
         pool = ThreadPool(max_workers)
     else:
