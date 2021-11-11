@@ -193,10 +193,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         related_cves: Optional[List[CVE]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
-        directly_affected_by: Optional[List] = field(default=None)
-        indirectly_affected_by: Optional[Set] = field(default=None)
-        directly_affecting: Optional[Set] = field(default=None)
-        indirectly_affecting: Optional[Set] = field(default=None)
+        directly_affected_by: Optional[List[str]] = field(default=None)
+        indirectly_affected_by: Optional[Set[str]] = field(default=None)
+        directly_affecting: Optional[Set[str]] = field(default=None)
+        indirectly_affecting: Optional[Set[str]] = field(default=None)
 
         # manufacturer_list: Optional[List[str]]
 
