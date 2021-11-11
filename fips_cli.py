@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
     required=True,
     nargs=-1,
     type=click.Choice(
-        ["new-run", "all", "build", "convert", "update", "web-scan", "pdf-scan", "table-search", "analysis", "graphs"],
+        ["new-run", "all", "build", "convert", "update", "pdf-scan", "table-search", "analysis", "graphs"],
         case_sensitive=False,
     ),
 )
@@ -77,7 +77,7 @@ def main(
     """
     Specify actions, sequence of one or more strings from the following list:
 
-    ["new-run", "all", "build", "convert", "update", "web-scan", "pdf-scan", "table-search", "analysis", "graphs"]
+    ["new-run", "all", "build", "convert", "update", "pdf-scan", "table-search", "analysis", "graphs"]
 
     If 'new-run' is specified, a new dataset will be created and all the actions will be run.
     If 'all' is specified, dataset will be updated and all actions run against the dataset.
@@ -94,8 +94,6 @@ def main(
     Analysis preparation:
 
         'convert'       Convert all downloaded PDFs.
-
-        'web-scan'      Perform a scan of downloaded CMVP webpages.
 
         'pdf-scan'      Perform a scan of downloaded CMVP security policy documents - Keyword extraction.
 
@@ -153,7 +151,7 @@ def main(
         sys.exit(1)
 
     r_actions = (
-        {"convert", "web-scan", "pdf-scan", "table-search", "analysis", "graphs"}
+        {"convert", "pdf-scan", "table-search", "analysis", "graphs"}
         if "all" in actions or "new-run" in actions
         else set(actions)
     )
@@ -201,11 +199,8 @@ def main(
         dset.to_json(output)
 
     if 'update' in actions:
-        dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True)
-
-    if "web-scan" in actions or "update" in actions:
-        dset.web_scan(redo=redo_web_scan)
-
+        dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True, redo_web_scan=redo_web_scan)
+        
     if "convert" in actions or "update" in actions:
         dset.convert_all_pdfs()
 
