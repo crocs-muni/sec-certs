@@ -47,7 +47,7 @@ class ProtectionProfileDataset:
         return cls(dct)
 
     @classmethod
-    def from_web(cls, store_dataset_path: Optional[Union[str, Path]]):
+    def from_web(cls, store_dataset_path: Optional[Path]):
         logger.info(f'Downloading static PP dataset from: {cls.static_dataset_url}')
         if not store_dataset_path:
             tmp = tempfile.TemporaryDirectory()

@@ -34,7 +34,9 @@ class Certificate(ABC, ComplexSerializableType):
     def label_studio_title(self):
         raise NotImplementedError('Not meant to be implemented')
 
-    def __eq__(self, other: 'Certificate') -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Certificate):
+            return NotImplemented
         return self.dgst == other.dgst
 
     def to_dict(self):

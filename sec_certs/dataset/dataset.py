@@ -74,7 +74,9 @@ class Dataset(ABC):
     def __len__(self) -> int:
         return len(self.certs)
 
-    def __eq__(self, other: 'Dataset') -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Dataset):
+            return NotImplemented
         return self.certs == other.certs
 
     def __str__(self) -> str:
