@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass(init=False)
 class CPE(ComplexSerializableType):
-    uri: str
-    title: str
+    uri: Optional[str]
+    title: Optional[str]
     version: str
     vendor: str
     item_name: str
@@ -37,6 +37,7 @@ class CPE(ComplexSerializableType):
             self.version = self.uri.split(':')[5]
 
     def __lt__(self, other: 'CPE'):
+        assert self.title is not None and other.title is not None
         return self.title < other.title
 
     @property
@@ -55,8 +56,13 @@ def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
     root = ET.parse(input_xml_filepath).getroot()
     dct = {}
     for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
-        title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title').text
-        cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item').attrib['name']
+        found_title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title')
+        assert found_title is not None
+        title = found_title.text
+        
+        found_cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item')
+        assert found_cpe_uri is not None 
+        cpe_uri = found_cpe_uri.attrib['name']
         dct[cpe_uri] = title
     with open(output_filepath, 'w') as handle:
         json.dump(dct, handle, indent=4)
@@ -134,8 +140,14 @@ class CPEDataset:
         root = ET.parse(xml_path).getroot()
         dct = {}
         for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
-            title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title').text
-            cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item').attrib['name']
+            found_title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title')
+            assert found_title is not None
+            title = found_title.text
+            
+            found_cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item')
+            assert found_cpe_uri is not None
+            cpe_uri = found_cpe_uri.attrib['name']
+            
             dct[cpe_uri] = CPE(cpe_uri, title)
         return cls(dct)
 
@@ -162,8 +174,8 @@ class CPEDataset:
             return None
         lower = cert_vendor.lower()
         if ' / ' in cert_vendor:
-            chain = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(' / ')]
-            chain = [x for x in chain if x]
+            chain_aux = [self.get_candidate_list_of_vendors(x) for x in cert_vendor.split(' / ')]
+            chain = [x for x in chain_aux if x is not None]
             return list(set(itertools.chain(*chain)))
         if lower in self.vendors:
             result.add(lower)
@@ -201,7 +213,7 @@ class CPEDataset:
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs
 
-    def get_candidate_cpe_items(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> Optional[List[CPE]]:
+    def get_candidate_cpe_items(self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]) -> List[CPE]:
         candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(cert_candidate_cpe_vendors, cert_candidate_versions)
 
         if not candidate_vendor_version_pairs:
@@ -220,6 +232,8 @@ class CPEDataset:
         sanitized_cert_name = sanitize_matched_string(cert_name)
         reasonable_matches = []
         for c in candidates:
+            assert c.title is not None
+            
             sanitized_title = sanitize_matched_string(c.title)
             sanitized_item_name = sanitize_matched_string(c.item_name)
             set_match_title = fuzz.token_set_ratio(sanitized_cert_name, sanitized_title)

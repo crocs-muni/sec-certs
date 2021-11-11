@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union, Final, Set
+from typing import Dict, List,  Optional, Tuple, Union, Final, Set
 import datetime
 from pathlib import Path
 import tempfile
@@ -49,10 +49,10 @@ class CVE(ComplexSerializableType):
 
     cve_id: str
     vulnerable_cpes: List[str]
-    vulnerable_certs: List[str]
+    vulnerable_certs: Optional[List[str]]
     impact: Impact
     published_date: Optional[datetime.datetime]
-    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
+    pandas_columns: Final[Tuple[str, ...]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
                                         'explotability_score', 'impact_score', 'published_date')
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
@@ -141,8 +141,8 @@ class CVEDataset(ComplexSerializableType):
         return len(self.cves)
 
     @classmethod
-    def download_cves(cls, output_path: str, start_year: int, end_year: int):
-        output_path = Path(output_path)
+    def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
+        output_path = Path(output_path_str)
         if not output_path.exists:
             output_path.mkdir()
 
@@ -192,7 +192,7 @@ class CVEDataset(ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 
-    def get_cves_for_cpe(self, cpe_uri: str) -> Optional[List[str]]:
+    def get_cves_for_cpe(self, cpe_uri: str) -> Optional[List[CVE]]:
         if not isinstance(cpe_uri, str):
             return None
         return self.cpes_to_cve_lookup.get(cpe_uri, None)
