@@ -17,7 +17,6 @@ def _set_up_dataset(td, certs):
 
 def _set_up_dataset_for_full(td, certs):
     dataset = _set_up_dataset(td, certs)
-    dataset.web_scan()
     dataset.convert_all_pdfs()
     dataset.pdf_scan()
     dataset.extract_certs_from_tables(high_precision=True)
