@@ -31,7 +31,7 @@ from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES
 logger = logging.getLogger(__name__)
 
 
-def download_file(url: str, output: Path) -> int:
+def download_file(url: str, output: Path) -> Union[str, int]:
     try:
         r = requests.get(url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT)
         if r.status_code == requests.codes.ok:
@@ -79,13 +79,14 @@ def sanitize_link(record: str) -> Union[str, None]:
     return record.replace(':443', '').replace(' ', '%20').replace('http://', 'https://')
 
 
-def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:
+def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Optional[date]:
     if pd.isnull(record):
         return None
-    elif isinstance(record, pd.Timestamp):
+    if isinstance(record, pd.Timestamp):
         return record.date()
-    else:
-        return record
+    
+    assert isinstance(record, date)
+    return record
 
 
 def sanitize_string(record: str) -> Union[str, None]:
@@ -170,8 +171,8 @@ def find_tables(txt: str, file_name: Path) -> Optional[List]:
 
     # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
     logger.info(f'parsing tables in {file_name}')
-    rb = find_tables_iterative(txt)
-    return rb if rb else None
+    table_page_indices = find_tables_iterative(txt)
+    return table_page_indices if table_page_indices else None
 
 
 def repair_pdf(file: Path):
@@ -319,7 +320,7 @@ def search_only_headers_anssi(filepath: Path):
     for rule in rules_certificate_preface:
         num_rules_hits[rule[1]] = 0
 
-    items_found = {}
+    items_found = {} # type: ignore # noqa
 
     try:
         whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
@@ -410,7 +411,7 @@ def search_only_headers_bsi(filepath: Path):
         '(BSI-DSZ-CC-.+?) zu (.+?) der (.*)',
     ]
 
-    items_found = {}
+    items_found = {} # type: ignore # noqa
     no_match_yet = True
 
     try:
@@ -493,7 +494,7 @@ def search_only_headers_bsi(filepath: Path):
     return constants.RETURNCODE_OK, items_found
 
 
-def extract_keywords(filepath: Path) -> Tuple[int, Optional[Dict[str, Dict[str, int]]]]:
+def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
     try:
         result = parse_cert_file(filepath, cc_search_rules, -1, sec_certs.constants.LINE_SEPARATOR)[0]
 
@@ -720,4 +721,10 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     if not matched_strings:
         matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
 
-    return [re.search(normalizer, x).group() for x in matched_strings] if matched_strings else ['-']
+    matched = []
+    for x in matched_strings:
+        found = re.search(normalizer, x)
+        assert found is not None
+        matched.append(found.group())
+        
+    return matched if matched_strings else ['-']

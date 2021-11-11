@@ -340,7 +340,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 text, '%Y-%m-%d').date() if text else None
             return extracted_date
 
-        def _get_report_st_links(cell: Tag) -> (str, str):
+        def _get_report_st_links(cell: Tag) -> Tuple[str, str]:
             links = cell.find_all('a')
             # TODO: Exception checks
             assert links[1].get('title').startswith('Certification Report')
