@@ -138,7 +138,7 @@ Usage: fips-certs [OPTIONS] [new-run|all|build|convert|update|web-scan|pdf-
 
   Specify actions, sequence of one or more strings from the following list:
 
-  ["new-run", "all", "build", "convert", "update", "web-scan", "pdf-scan",
+  ["new-run", "all", "build", "convert", "update", "pdf-scan",
   "table-search", "analysis", "graphs"]
 
   If 'new-run' is specified, a new dataset will be created and all the
@@ -158,8 +158,6 @@ Usage: fips-certs [OPTIONS] [new-run|all|build|convert|update|web-scan|pdf-
   Analysis preparation:
 
       'convert'       Convert all downloaded PDFs.
-
-      'web-scan'      Perform a scan of downloaded CMVP webpages.
 
       'pdf-scan'      Perform a scan of downloaded CMVP security policy
       documents - Keyword extraction.
