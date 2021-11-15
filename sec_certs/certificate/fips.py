@@ -142,7 +142,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return str(self.cert_id)
 
     @dataclass(eq=True)
-    class Heuristics(ComplexSerializableType):
+    class FIPSHeuristics(ComplexSerializableType):
         keywords: Optional[Dict[str, Dict]]
         algorithms: List[Dict[str, Dict]]
         connections: List[str]
@@ -154,6 +154,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+
+        directly_affected_by: Set = field(default=None)
+        indirectly_affected_by: Set = field(default=None)
+        directly_affecting: Set = field(default=None)
+        indirectly_affecting: Set = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -195,7 +200,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def __init__(self, cert_id: str,
                  web_scan: 'FIPSCertificate.WebScan',
                  pdf_scan: 'FIPSCertificate.PdfScan',
-                 heuristics: 'FIPSCertificate.Heuristics',
+                 heuristics: 'FIPSCertificate.FIPSHeuristics',
                  state: State):
         super().__init__()
         self.cert_id = cert_id
@@ -456,7 +461,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    [] if not initialized else initialized.pdf_scan.algorithms,
                                    []  # connections
                                ),
-                               FIPSCertificate.Heuristics(None, {}, [], 0),
+                               FIPSCertificate.FIPSHeuristics(None, {}, [], 0),
                                state
                                )
 

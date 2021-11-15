@@ -134,3 +134,27 @@ class TestCommonCriteriaHeuristics(TestCase):
                                                            frozenset(['KECS-PP-0822-2017 SSO V1.0']))
         self.cc_dset.process_protection_profiles(to_download=False)
         self.assertSetEqual(self.cc_dset['ebd276cca70fd723'].protection_profiles, {expected_pp})
+
+    def test_single_record_dependency_heuristics(self):
+        # Single record in daset is not affecting nor affected by other records
+        heuristics = self.cc_dset['ebd276cca70fd723'].heuristics
+        self.assertEqual(heuristics.directly_affected_by, None)
+        self.assertEqual(heuristics.indirectly_affected_by, None)
+        self.assertEqual(heuristics.directly_affecting, None)
+        self.assertEqual(heuristics.indirectly_affecting, None)
+
+    def test_dependency_dataset(self):
+        parent_dir = Path(__file__).parent
+        dependency_dataset = CCDataset.from_json(Path(parent_dir, "data/test_cc_oop/dependency_dataset.json"))
+        dependency_dataset._compute_dependencies()
+        test_cert = None
+
+        for cert in dependency_dataset:
+            if cert.pdf_data.cert_id == "BSI-DSZ-CC-0370-2006":
+                test_cert = cert
+                break
+
+        self.assertEqual(test_cert.CCHeuristics.directly_affected_by, ["BSI-DSZ-CC-0370-2006"])
+        self.assertEqual(test_cert.CCHeuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
+        self.assertEqual(test_cert.CCHeuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.CCHeuristics.indirectly_affecting, {"BSI-DSZ-CC-0268-2005"})

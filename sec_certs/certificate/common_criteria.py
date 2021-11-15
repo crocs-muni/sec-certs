@@ -129,11 +129,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
-            return self.report_frontpage['bsi']
+            return self.report_frontpage.get('bsi', None) if self.report_frontpage else None
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
-            return self.report_frontpage['anssi']
+            return self.report_frontpage.get('anssi', None) if self.report_frontpage else None
 
         @property
         def cert_lab(self) -> Optional[List[str]]:
@@ -147,11 +147,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_cert_id(self) -> Optional[str]:
-            return self.bsi_data.get('cert_id', None)
+            return self.bsi_data.get('cert_id', None) if self.bsi_data else None
 
         @property
         def anssi_cert_id(self) -> Optional[str]:
-            return self.anssi_data.get('cert_id', None)
+            return self.anssi_data.get('cert_id', None) if self.anssi_data else None
 
         @property
         def processed_cert_id(self) -> Optional[str]:
@@ -165,7 +165,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            return self.report_keywords['rules_cert_id']
+            return self.report_keywords.get('rules_cert_id', None) if self.report_keywords else None
 
         @property
         def keywords_cert_id(self) -> Optional[str]:
@@ -184,7 +184,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
     @dataclass
-    class Heuristics(ComplexSerializableType):
+    class CCHeuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
         labeled: bool = field(default=False)
@@ -192,6 +192,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         related_cves: Optional[List[CVE]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
+        directly_affected_by: Optional[List[str]] = field(default=None)
+        indirectly_affected_by: Optional[Set[str]] = field(default=None)
+        directly_affecting: Optional[Set[str]] = field(default=None)
+        indirectly_affecting: Optional[Set[str]] = field(default=None)
 
         # manufacturer_list: Optional[List[str]]
 
@@ -209,7 +213,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
                                         'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
-                                        'verified_cpe_matches', 'related_cves']
+                                        'verified_cpe_matches', 'related_cves', 'directly_affected_by',
+                                        'indirectly_affected_by', 'directly_affecting', 'indirectly_affecting']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
                  security_level: Union[str, set], not_valid_before: date,
@@ -219,7 +224,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                  maintainance_updates: Set[MaintainanceReport],
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
-                 heuristics: Optional[Heuristics]):
+                 heuristics: Optional[CCHeuristics]):
         super().__init__()
 
         self.status = status
@@ -246,7 +251,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.pdf_data = pdf_data
 
         if heuristics is None:
-            heuristics = self.Heuristics()
+            heuristics = self.CCHeuristics()
         self.heuristics = heuristics
 
     @property
@@ -261,13 +266,15 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.name
 
     def __str__(self):
-        return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
+        # TODO - if some of the values is None -> TypeError is raised
+        return str(self.manufacturer) + ' ' + str(self.name) + ' dgst: ' + self.dgst
 
     def to_pandas_tuple(self):
         return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
-               self.heuristics.related_cves
+               self.heuristics.related_cves, self.heuristics.affected_direct, self.heuristics.affected_indirect, \
+               self.heuristics.affecting_direct, self.heuristics.affecting_indirect
 
     def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """
