@@ -233,7 +233,18 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         test: Optional[Path] = None,
         no_download_algorithms: bool = False,
         update: bool = False,
+        redo_web_scan = False
     ):
+        """Downloads HTML search pages, parses them, populates the dataset,
+        and performs `web-scan` - extracting information from CMVP pages for 
+        each certificate.
+
+        Args:
+            test (Optional[Path], optional): Path to dataset used in testing. Defaults to None.
+            no_download_algorithms (bool, optional): Whether to reuse CAVP algorithm dataset. Defaults to False.
+            update (bool, optional): Whether to update dataset with new entries. Defaults to False.
+            redo_web_scan (bool, optional): Whether to redo the `web-scan` functionality. Defaults to False.
+        """
         logger.info("Downloading required html files")
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
@@ -252,6 +263,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             logging.info(f'Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.')
 
             self.algorithms = aset
+        
+        self.web_scan(redo=redo_web_scan)
 
     @serialize
     def deprocess(self):

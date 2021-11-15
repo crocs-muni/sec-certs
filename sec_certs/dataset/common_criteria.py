@@ -24,6 +24,7 @@ from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.config.configuration import config
+from sec_certs.model.dependency_finder import DependencyFinder
 
 
 class CCDataset(Dataset, ComplexSerializableType):
@@ -598,11 +599,23 @@ class CCDataset(Dataset, ComplexSerializableType):
         self.compute_cpe_heuristics()
         self._compute_cert_labs()
         self._compute_cert_ids()
+        self._compute_dependencies()
+
+    def _compute_dependencies(self):
+        finder = DependencyFinder()
+        finder.fit(self.certs)
+
+        for dgst in self.certs:
+            self.certs[dgst].CCHeuristics.directly_affecting = finder.get_directly_affecting(dgst)
+            self.certs[dgst].CCHeuristics.indirectly_affecting = finder.get_indirectly_affecting(dgst)
+            self.certs[dgst].CCHeuristics.directly_affected_by = finder.get_directly_affected_by(dgst)
+            self.certs[dgst].CCHeuristics.indirectly_affected_by = finder.get_indirectly_affected_by(dgst)
 
     @serialize
     def analyze_certificates(self, fresh: bool = True):
         if self.state.pdfs_converted is False:
-            logger.info('Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning.')
+            logger.info(
+                'Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning.')
             return
 
         self._extract_data(fresh)
@@ -617,7 +630,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         verified_cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
         if not verified_cpe_rich_certs:
-            logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
+            logger.error(
+                'No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
 
         relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in verified_cpe_rich_certs]))
@@ -635,7 +649,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
-        updates = list(itertools.chain.from_iterable([CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]))
+        updates = list(itertools.chain.from_iterable(
+            [CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]))
         update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates({x.dgst: x for x in updates},
                                                                                root_dir=self.certs_dir / 'maintenance',
                                                                                name='Maintainance updates')
@@ -656,6 +671,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
+
     def __init__(self, certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[CCDataset.DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description, state)

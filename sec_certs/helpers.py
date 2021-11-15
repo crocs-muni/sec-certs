@@ -9,7 +9,7 @@ from pathlib import Path
 from tqdm import tqdm
 import hashlib
 import html
-from typing import Union
+from typing import Union, List
 from datetime import date
 import numpy as np
 import pandas as pd

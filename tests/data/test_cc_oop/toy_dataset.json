@@ -59,7 +59,11 @@
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": null,
-                "cert_id": null
+                "cert_id": null,
+                "directly_affected_by": null,
+                "indirectly_affected_by": null,
+                "directly_affecting": null,
+                "indirectly_affecting": null
             }
         },
         {
@@ -112,7 +116,11 @@
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": null,
-                "cert_id": null
+                "cert_id": null,
+                "directly_affected_by": null,
+                "indirectly_affected_by": null,
+                "directly_affecting": null,
+                "indirectly_affecting": null
             }
         }
     ]
