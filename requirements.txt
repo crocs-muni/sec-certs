@@ -28,4 +28,5 @@ urllib3==1.26.5
 rapidfuzz==1.1.1
 pyyaml
 importlib-resources==5.1.2
+scikit-learn
 jsonschema==3.2.0

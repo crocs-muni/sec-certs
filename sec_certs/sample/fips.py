@@ -13,12 +13,15 @@ from tabula import read_pdf
 import sec_certs.constants
 from sec_certs import helpers, constants as constants
 from sec_certs.cert_rules import fips_common_rules, REGEXEC_SEP, fips_rules
-from sec_certs.certificate.certificate import Certificate, logger
+
+from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
 from sec_certs.serialization import ComplexSerializableType
-from sec_certs.dataset.cpe import CPE, CPEDataset
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.model.cpe_matching import CPEClassifier
 
 
 class FIPSCertificate(Certificate, ComplexSerializableType):
@@ -149,8 +152,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         unmatched_algs: int
 
         extracted_versions: List[str] = field(default=None)
-        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
-        labeled: bool = field(default=False)
+        cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
@@ -188,7 +190,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 + 'Module name: ' + str(self.web_scan.module_name) + '\n' \
                 + 'HW version: ' + str(self.web_scan.hw_version) + '\n' \
                 + 'FW version: ' + str(self.web_scan.fw_version)
-        # return f'{str(self.web_scan.module_name)} {str(self.web_scan.hw_version)} {str(self.web_scan.fw_version)}'
 
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
@@ -751,17 +752,14 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             versions_for_extraction += f' {self.web_scan.fw_version}'
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
+    # TODO: This function is probably safe to delete
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
 
-    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
-        self.compute_heuristics_cpe_vendors(cpe_dataset)
-
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         if not self.web_scan.module_name:
             self.heuristics.cpe_matches = None
         else:
-            self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
-                                                                      self.heuristics.cpe_candidate_vendors,
-                                                                      self.heuristics.extracted_versions,
-                                                                      n_max_matches=config.cc_cpe_max_matches,
-                                                                      threshold=config.cc_cpe_matching_threshold)
+            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.web_scan.vendor,
+                                                                             self.web_scan.module_name,
+                                                                             self.heuristics.extracted_versions)

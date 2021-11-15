@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Dict, Optional, Union, List, Tuple, Set
 import json
 
 import numpy as np
@@ -19,11 +19,11 @@ from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.config.configuration import config
-from sec_certs.certificate.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.model.dependency_finder import DependencyFinder
 
 
@@ -131,10 +131,6 @@ class CCDataset(Dataset, ComplexSerializableType):
         return self.targets_dir / 'txt'
 
     @property
-    def cve_dataset_path(self) -> Path:
-        return self.auxillary_datasets_dir / 'cve_dataset.json'
-
-    @property
     def pp_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / 'pp_dataset.json'
 
@@ -172,12 +168,6 @@ class CCDataset(Dataset, ComplexSerializableType):
     @property
     def archived_csv_tuples(self) -> List[Tuple[str, Path]]:
         return [(x, self.web_dir / y) for y, x in self.csv_products.items() if 'archived' in y]
-
-    @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        dset = super().from_json(input_path)
-        dset.set_local_paths()
-        return dset
 
     @classmethod
     def from_web_latest(cls):
@@ -450,7 +440,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.error('Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.')
             return
 
-        logger.info('Downloading CC certificate reports')
+        logger.info('Downloading CC sample reports')
         self._download_reports(fresh)
 
         logger.info('Downloading CC security targets')
@@ -487,7 +477,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.info('Attempting to convert pdf while not having them downloaded. Returning.')
             return
 
-        logger.info('Converting CC certificate reports to .txt')
+        logger.info('Converting CC sample reports to .txt')
         self._convert_reports_to_txt(fresh)
 
         logger.info('Converting CC security targets to .txt')
@@ -593,19 +583,6 @@ class CCDataset(Dataset, ComplexSerializableType):
             self._extract_targets_frontpage(False)
             self._extract_targets_keywords(False)
 
-    def prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
-        logger.info('Preparing CVE dataset.')
-        if not self.auxillary_datasets_dir.exists():
-            self.auxillary_datasets_dir.mkdir(parents=True)
-
-        if not self.cve_dataset_path.exists() or download_fresh_cves is True:
-            cve_dataset = CVEDataset.from_web()
-            cve_dataset.to_json(str(self.cve_dataset_path))
-        else:
-            cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
-
-        return cve_dataset
-
     def _compute_cert_labs(self):
         logger.info('Deriving information about laboratories involved in certification.')
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
@@ -613,7 +590,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             cert.compute_heuristics_cert_lab()
 
     def _compute_cert_ids(self):
-        logger.info('Deriving information about certificate ids from pdf scan.')
+        logger.info('Deriving information about sample ids from pdf scan.')
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         for cert in certs_to_process:
             cert.compute_heuristics_cert_id()
@@ -646,88 +623,29 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.certs_analyzed = True
 
-    def manually_verify_cpe_matches(self, update_json=True):
-        def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
-            n_certs_to_verify = len(certificates_to_verify)
-            for i, x in enumerate(certificates_to_verify):
-                print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
-                for index, c in enumerate(x.heuristics.cpe_matches):
-                    print(f'\t- {[index]}: {c[1].vendor} {c[1].title} CPE-URI: {c[1].uri}')
-                print(f'\t- [A]: All are fitting')
-                print(f'\t- [X]: No fitting match')
-                inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
-
-                if 'X' not in inpts and 'x' not in inpts:
-                    if 'A' in inpts or 'a' in inpts:
-                        inpts = [x for x in range(0, len(x.heuristics.cpe_matches))]
-                    try:
-                        inpts = [int(x) for x in inpts]
-                        if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
-                            raise ValueError(
-                                f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
-                    except ValueError as e:
-                        logger.error(f'Bad input from user, repeating instance: {e}')
-                        print(f'Bad input from user, repeating instance: {e}')
-                        time.sleep(0.05)
-                        verify_certs([x])
-                    else:
-                        matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
-                        self[x.dgst].heuristics.verified_cpe_matches = matches
-
-                if i != 0 and not i % 10 and update_json:
-                    print(f'Saving progress.')
-                    self.to_json()
-                self[x.dgst].heuristics.labeled = True
-
-        certs_to_verify: List[CommonCriteriaCert] = [x for x in self if
-                                                     (x.heuristics.cpe_matches and not x.heuristics.labeled)]
-        logger.info('Manually verifying CPE matches')
-        time.sleep(0.05)  # easier than flushing the logger
-        verify_certs(certs_to_verify)
-
-        if update_json is True:
-            self.to_json()
-
     @serialize
     def compute_related_cves(self, download_fresh_cves: bool = False):
         logger.info('Retrieving related CVEs to verified CPE matches')
-        cve_dset = self.prepare_cve_dataset(download_fresh_cves)
+        cve_dset = self._prepare_cve_dataset(download_fresh_cves)
 
-        verified_cpe_rich_certs = [x for x in self if x.heuristics.verified_cpe_matches]
+        verified_cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
         if not verified_cpe_rich_certs:
             logger.error(
                 'No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
 
-        relevant_cpes = itertools.chain.from_iterable(
-            [x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs])
-        relevant_cpes = set([x.uri for x in relevant_cpes])
+        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in verified_cpe_rich_certs]))
         cve_dset.filter_related_cpes(relevant_cpes)
 
         for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
 
+        n_vulnerable = len([x for x in verified_cpe_rich_certs if x.heuristics.related_cves])
+        n_vulnerabilities = sum([len(x.heuristics.related_cves) for x in verified_cpe_rich_certs if x.heuristics.related_cves])
+        logger.info(f'In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates.')
+
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
-
-    @serialize
-    def load_label_studio_labels(self, input_path: Union[str, Path]):
-        with Path(input_path).open('r') as handle:
-            data = json.load(handle)
-
-        cpe_dset = self._prepare_cpe_dataset()
-
-        logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
-        for annotation in tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
-            match_keys = annotation['verified_cpe_match']
-            match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
-            match_keys = [x.lstrip('$') for x in match_keys]
-            cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes[annotation[x]] for x in match_keys]))
-            certs = self.get_certs_from_name(annotation['text'])
-
-            for c in certs:
-                c.heuristics.verified_cpe_matches = cpes
-                c.heuristics.labeled = True
 
     def process_maintenance_updates(self):
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
@@ -740,6 +658,13 @@ class CCDataset(Dataset, ComplexSerializableType):
         update_dset.download_all_pdfs()
         update_dset.convert_all_pdfs()
         update_dset._extract_data()
+
+    def generate_cert_name_keywords(self) -> Set[str]:
+        df = self.to_pandas()
+        certificate_names = set(df['name'])
+        keywords = set(itertools.chain.from_iterable([x.lower().split(' ') for x in certificate_names]))
+        keywords.add('1.02.013')
+        return {x for x in keywords if len(x) > config.minimal_token_length}
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
@@ -778,6 +703,8 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
         df = pd.DataFrame(tuples, columns=cols)
         df = df.set_index('dgst')
+        df.index.name = 'dgst'
+
         df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
         df = df.fillna(value=np.nan)
 

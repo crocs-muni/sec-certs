@@ -6,16 +6,22 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
 
+
 import requests
 from bs4 import Tag
+import numpy as np
 
 from sec_certs import helpers, constants as constants
-from sec_certs.certificate.certificate import Certificate, logger
-from sec_certs.dataset.cpe import CPE, CPEDataset
-from sec_certs.dataset.cve import CVE, CVEDataset
+from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.cve import CVE
 from sec_certs.serialization import ComplexSerializableType
-from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.config.configuration import config
+from sec_certs.model.cpe_matching import CPEClassifier
+
 
 
 class CommonCriteriaCert(Certificate, ComplexSerializableType):
@@ -186,10 +192,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @dataclass
     class CCHeuristics(ComplexSerializableType):
         extracted_versions: List[str] = field(default=None)
-        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
-        labeled: bool = field(default=False)
-        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
-        related_cves: Optional[List[CVE]] = field(default=None)
+        cpe_matches: Optional[Set[str]] = field(default=None)
+        verified_cpe_matches: Optional[Set[str]] = field(default=None)
+        related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
         directly_affected_by: Optional[List[str]] = field(default=None)
@@ -257,7 +262,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @property
     def dgst(self) -> str:
         """
-        Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
+        Computes the primary key of the sample using first 16 bytes of SHA-256 digest
         """
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
@@ -278,7 +283,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """
-        Merges with other CC certificate. Assuming they come from different sources, e.g., csv and html.
+        Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
         On other values (apart from maintainances, see TODO below) the sanity checks are made.
         """
@@ -310,7 +315,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @classmethod
     def from_html_row(cls, row: Tag, status: str, category: str) -> 'CommonCriteriaCert':
         """
-        Creates a CC certificate from html row
+        Creates a CC sample from html row
         """
 
         def _get_name(cell: Tag) -> str:
@@ -347,7 +352,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 text, '%Y-%m-%d').date() if text else None
             return extracted_date
 
-        def _get_report_st_links(cell: Tag) -> (str, str):
+        def _get_report_st_links(cell: Tag) -> [str, str]:
             links = cell.find_all('a')
             # TODO: Exception checks
             assert links[1].get('title').startswith('Certification Report')
@@ -432,13 +437,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         if st_txt_dir is not None:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
 
-    @property
-    def best_cpe_match(self):
-        clean = [x for x in self.cpe_matching if len(x[0]) > 5]
-        cpe_match_ranking = [x[1] for x in clean]
-        argmax = cpe_match_ranking.index(max(cpe_match_ranking))
-        return clean[argmax]
-
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
         if not cert.report_link:
@@ -464,9 +462,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         return cert
-
-    def path_is_corrupted(self, local_path):
-        return not local_path.exists() or local_path.stat().st_size < constants.MIN_CORRECT_CERT_SIZE
 
     @staticmethod
     def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
@@ -555,39 +550,21 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def compute_heuristics_version(self):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
-    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
-        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
+    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
+        # TODO: This method probably can be deleted.
+        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)
 
-    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
-        self.compute_heuristics_cpe_vendors(cpe_dataset)
-        self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
-                                                                  self.heuristics.cpe_candidate_vendors,
-                                                                  self.heuristics.extracted_versions,
-                                                                  n_max_matches=config.cc_cpe_max_matches,
-                                                                  threshold=config.cc_cpe_matching_threshold)
-
-    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
-        if self.heuristics.verified_cpe_matches:
-            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
-            related_cves = list(filter(lambda x: x is not None, related_cves))
-            if related_cves:
-                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
-
-                for cve in self.heuristics.related_cves:
-                    cve.vulnerable_certs.append(self.dgst)
-
-
-        else:
-            self.heuristics.related_cves = None
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
 
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:
-            logger.error('Cannot compute certificate lab when pdf files were not processed.')
+            logger.error('Cannot compute sample lab when pdf files were not processed.')
             return
         self.heuristics.cert_lab = self.pdf_data.cert_lab
 
     def compute_heuristics_cert_id(self):
         if not self.pdf_data:
-            logger.error('Cannot compute certificate id when pdf files were not processed.')
+            logger.error('Cannot compute sample id when pdf files were not processed.')
             return
         self.heuristics.cert_id = self.pdf_data.cert_id

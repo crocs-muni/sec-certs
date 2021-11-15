@@ -105,7 +105,7 @@
                 }
             ]
         },
-        "cc_cpe_matching_threshold": {
+        "cpe_n_matching_threshold": {
             "allOf": [
                 {
                     "$ref": "#/definitions/settings_number_entry"
@@ -120,7 +120,7 @@
                 }
             ]
         },
-        "cc_cpe_max_matches": {
+        "cpe_n_max_matches": {
             "allOf": [
                 {
                     "$ref": "#/definitions/settings_number_entry"
@@ -167,8 +167,8 @@
         "year_difference_between_validations",
         "use_text_with_newlines_during_parsing",
         "n_threads",
-        "cc_cpe_matching_threshold",
-        "cc_cpe_max_matches",
+        "cpe_matching_threshold",
+        "cpe_n_max_matches",
         "cc_latest_snapshot",
         "cc_maintenances_latest_snapshot",
         "ignore_first_page",

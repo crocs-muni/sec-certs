@@ -60,7 +60,6 @@
                 "cpe_matches": null,
                 "verified_cpe_matches": null,
                 "related_cves": null,
-                "labeled": false,
                 "cert_lab": null,
                 "cert_id": null
             }

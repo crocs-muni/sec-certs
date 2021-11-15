@@ -16,12 +16,12 @@ use_text_with_newlines_during_parsing:
 n_threads:
   description: How many threads to use for parallel computations
   value: 8
-cc_cpe_matching_threshold:
+cpe_matching_threshold:
   description: Level of required string similarity between CPE and certificate name on CC CPE matching, 0-100. Lower values yield more false negatives, higher values more false positives
-  value: 70
-cc_cpe_max_matches:
+  value: 100
+cpe_n_max_matches:
   description: Maximum number of candidate CPE items that may be related to given certificate, >0
-  value: 20
+  value: 10
 cc_latest_snapshot:
   description: Url from where to fetch the latest snapshot of fully processed CC dataset
   value: https://www.ajanovsky.cz/cc_latest_snapshot.json
@@ -37,4 +37,6 @@ cert_threshold:
 fips_latest_snapshot:
   description: Url for the latest snapshot of FIPS dataset
   value: https://seccerts.org/static/fips_dset_ad8734a39b856ca1a1b7b073713872359bae7545.json
-
+minimal_token_length:
+  description: Minimal length of a string that will be considered as a token during keyword extraction in CVE matching
+  value: 3

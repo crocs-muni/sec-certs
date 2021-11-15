@@ -1,5 +1,6 @@
+import itertools
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union, Final, Set
+from typing import Dict, List,  Optional, Union, Final, Set, Tuple
 import datetime
 from pathlib import Path
 import tempfile
@@ -7,126 +8,31 @@ import zipfile
 import logging
 import glob
 import json
-from dateutil.parser import isoparse
+import tqdm
 
 import pandas as pd
 
 from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
+from sec_certs.sample.cve import CVE
+from sec_certs.sample.cpe import CPE
 from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.config.configuration import config
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass(eq=True, init=False)
-class CVE(ComplexSerializableType):
-    @dataclass(eq=True)
-    class Impact(ComplexSerializableType):
-        base_score: float
-        severity: str
-        explotability_score: float
-        impact_score: float
-
-        @classmethod
-        def from_nist_dict(cls, dct: Dict):
-            """
-            Will load Impact from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
-            """
-            if not dct['impact']:
-                return cls(0, '', 0, 0)
-            elif 'baseMetricV3' in dct['impact']:
-                return cls(dct['impact']['baseMetricV3']['cvssV3']['baseScore'],
-                           dct['impact']['baseMetricV3']['cvssV3']['baseSeverity'],
-                           dct['impact']['baseMetricV3']['exploitabilityScore'],
-                           dct['impact']['baseMetricV3']['impactScore'])
-            elif 'baseMetricV2' in dct['impact']:
-                return cls(dct['impact']['baseMetricV2']['cvssV2']['baseScore'],
-                           dct['impact']['baseMetricV2']['severity'],
-                           dct['impact']['baseMetricV2']['exploitabilityScore'],
-                           dct['impact']['baseMetricV2']['impactScore'])
-
-    cve_id: str
-    vulnerable_cpes: List[str]
-    vulnerable_certs: List[str]
-    impact: Impact
-    published_date: Optional[datetime.datetime]
-    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'vulnerable_certs', 'base_score', 'severity',
-                                        'explotability_score', 'impact_score', 'published_date')
-
-    def __init__(self, cve_id: str, vulnerable_cpes: List[str], vulnerable_certs: Optional[List[str]], impact: Impact,
-                 published_date: str):
-        super().__init__()
-        self.cve_id = cve_id
-        self.vulnerable_cpes = vulnerable_cpes
-
-        self.vulnerable_certs = vulnerable_certs
-        if not self.vulnerable_certs:
-            self.vulnerable_certs = []
-
-        self.impact = impact
-        self.published_date = isoparse(published_date)
-
-    def __hash__(self):
-        return hash(self.cve_id)
-
-    @classmethod
-    def from_nist_dict(cls, dct: Dict) -> 'CVE':
-        """
-        Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
-        """
-        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> List[str]:
-            def get_vulnerable_cpes_from_node(node: Dict) -> List[str]:
-                cpe_uris = []
-                if 'children' in node:
-                    for child in node['children']:
-                        cpe_uris += get_vulnerable_cpes_from_node(child)
-                if 'cpe_match' in node:
-                    lst = node['cpe_match']
-                    for x in lst:
-                        if x['vulnerable']:
-                            cpe_uris.append(x['cpe23Uri'])
-                return cpe_uris
-
-            vulnerable_cpes = []
-            for node in dct['configurations']['nodes']:
-                vulnerable_cpes.extend(get_vulnerable_cpes_from_node(node))
-
-            return vulnerable_cpes
-
-        cve_id = dct['cve']['CVE_data_meta']['ID']
-        impact = cls.Impact.from_nist_dict(dct)
-        vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
-        vulnerable_certs = None
-        published_date = dct['publishedDate']
-
-        return CVE(cve_id, vulnerable_cpes, vulnerable_certs, impact, published_date)
-
-    def to_pandas_tuple(self):
-        return (self.cve_id, self.vulnerable_cpes, self.vulnerable_certs, self.impact.base_score, self.impact.severity,
-                self.impact.explotability_score, self.impact.impact_score, self.published_date)
-
-
-@dataclass(eq=True)
+@dataclass
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
-    cpes_to_cve_lookup: Dict[str, List[CVE]] = field(init=False)
+    cpe_to_cve_ids_lookup: Dict[str, List[str]] = field(init=False)
     cve_url: Final[str] = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-'
+    cpe_match_feed_url: Final[str] = 'https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip'
 
     @property
     def serialized_attributes(self) -> List[str]:
         return ['cves']
-
-    def __post_init__(self):
-        self.cpes_to_cve_lookup = dict()
-        self.cves = {x.cve_id.upper(): x for x in self}
-        for cve in self:
-            for cpe in cve.vulnerable_cpes:
-                if not cpe in self.cpes_to_cve_lookup:
-                    self.cpes_to_cve_lookup[cpe] = [cve]
-                else:
-                    self.cpes_to_cve_lookup[cpe].append(cve)
 
     def __iter__(self):
         yield from self.cves.values()
@@ -139,6 +45,33 @@ class CVEDataset(ComplexSerializableType):
 
     def __len__(self) -> int:
         return len(self.cves)
+
+    def __eq__(self, other: 'CVEDataset'):
+        return isinstance(other, CVEDataset) and self.cves == other.cves
+
+    def build_lookup_dict(self):
+        """
+        Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
+        feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
+        to add corner cases and manual fixes. According to our investigation, the suffereing CPEs are:
+            - CPE(uri='cpe:2.3:a:arubanetworks:airwave:*:*:*:*:*:*:*:*', title=None, version='*', vendor='arubanetworks', item_name='airwave', start_version=None, end_version=('excluding', '8.2.0.0'))
+            - CPE(uri='cpe:2.3:a:bayashi:dopvcomet\\*:0009:b:*:*:*:*:*:*', title=None, version='0009', vendor='bayashi', item_name='dopvcomet\\*', start_version=None, end_version=None)
+            - CPE(uri='cpe:2.3:a:bayashi:dopvstar\\*:0091:*:*:*:*:*:*:*', title=None, version='0091', vendor='bayashi', item_name='dopvstar\\*', start_version=None, end_version=None)
+        """
+        self.cpe_to_cve_ids_lookup = dict()
+        self.cves = {x.cve_id.upper(): x for x in self}
+
+        logger.info('Getting CPE matching dictionary from NIST.gov')
+        matching_dict = self.get_nist_cpe_matching_dict()
+
+        for cve in tqdm.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
+            # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
+            vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+            for cpe in vulnerable_configurations:
+                if cpe.uri not in self.cpe_to_cve_ids_lookup:
+                    self.cpe_to_cve_ids_lookup[cpe.uri] = [cve.cve_id]
+                else:
+                    self.cpe_to_cve_ids_lookup[cpe.uri].append(cve.cve_id)
 
     @classmethod
     def download_cves(cls, output_path: str, start_year: int, end_year: int):
@@ -168,7 +101,9 @@ class CVEDataset(ComplexSerializableType):
         return cls({x.cve_id: x for x in cves})
 
     @classmethod
-    def from_web(cls, start_year: int = 2002, end_year: int = datetime.datetime.now().year):
+    def from_web(cls,
+                 start_year: int = 2002,
+                 end_year: int = datetime.datetime.now().year):
         logger.info(f'Building CVE dataset from nist.gov website.')
         with tempfile.TemporaryDirectory() as tmp_dir:
             cls.download_cves(tmp_dir, start_year, end_year)
@@ -180,6 +115,7 @@ class CVEDataset(ComplexSerializableType):
                                        progress_bar_desc='Building CVEDataset from jsons')
             for r in results:
                 all_cves.update(r.cves)
+
         return cls(all_cves)
 
     def to_json(self, output_path: str):
@@ -192,23 +128,72 @@ class CVEDataset(ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 
-    def get_cves_for_cpe(self, cpe_uri: str) -> Optional[List[str]]:
+    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[List[str]]:
         if not isinstance(cpe_uri, str):
             return None
-        return self.cpes_to_cve_lookup.get(cpe_uri, None)
+        return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
 
-    def filter_related_cpes(self, relevant_cpe_uris: Set[str]):
+    def filter_related_cpes(self, relevant_cpes: Set[CPE]):
         """
         Since each of the CVEs is related to many CPEs, the dataset size explodes (serialized). For certificates,
-        only CPEs within certificate dataset are relevant. This function modifies all CVE elements. Specifically, it
+        only CPEs within sample dataset are relevant. This function modifies all CVE elements. Specifically, it
         deletes all CPE records unless they are part of relevant_cpe_uris.
-        :param relevant_cpe_uris: List of relevant CPE uris to keep in CVE dataset.
+        :param relevant_cpes: List of relevant CPEs to keep in CVE dataset.
         """
+        total_deleted_cpes = 0
+        cve_ids_to_delete = []
         for cve in self:
-            cve.vulnerable_cpes = list(filter(lambda x: x in relevant_cpe_uris, cve.vulnerable_cpes))
+            n_cpes_orig = len(cve.vulnerable_cpes)
+            cve.vulnerable_cpes = list(filter(lambda x: x in relevant_cpes, cve.vulnerable_cpes))
+            total_deleted_cpes += (n_cpes_orig - len(cve.vulnerable_cpes))
+            if not cve.vulnerable_cpes:
+                cve_ids_to_delete.append(cve.cve_id)
+
+        for cve_id in cve_ids_to_delete:
+            del self.cves[cve_id]
+        logger.info(f'Totally deleted {total_deleted_cpes} irrelevant CPEs and {len(cve_ids_to_delete)} CVEs from CVEDataset.')
 
     def to_pandas(self) -> pd.DataFrame:
         tuples = [x.to_pandas_tuple() for x in self]
         cols = CVE.pandas_columns
         df = pd.DataFrame(tuples, columns=cols)
         return df.set_index('cve_id')
+
+    def get_nist_cpe_matching_dict(self):
+        def parse_key_cpe(field: Dict) -> CPE:
+            start_version = None
+            if 'versionStartIncluding' in field:
+                start_version = ('including', field['versionStartIncluding'])
+            elif 'versionStartExcluding' in field:
+                start_version = ('excluding', field['versionStartExcluding'])
+
+            end_version = None
+            if 'versionEndIncluding' in field:
+                end_version = ('including', field['versionEndIncluding'])
+            elif 'versionEndExcluding' in field:
+                end_version = ('excluding', field['versionEndExcluding'])
+
+            return CPE(field['cpe23Uri'], start_version=start_version, end_version=end_version)
+
+        def parse_values_cpe(field: Dict) -> List[CPE]:
+            return [CPE(x['cpe23Uri']) for x in field['cpe_name']]
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            filename = Path(self.cpe_match_feed_url).name
+            download_path = Path(tmp_dir) / filename
+            unzipped_path = Path(tmp_dir) / filename.rstrip('.zip')
+            helpers.download_file(self.cpe_match_feed_url, download_path)
+
+            with zipfile.ZipFile(download_path, 'r') as zip_handle:
+                zip_handle.extractall(tmp_dir)
+
+            with unzipped_path.open('r') as handle:
+                match_data = json.load(handle)
+
+        mapping_dict = dict()
+        for match in tqdm.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):
+            key = parse_key_cpe(match)
+            value = parse_values_cpe(match)
+            mapping_dict[key] = value if value else [key]
+
+        return mapping_dict

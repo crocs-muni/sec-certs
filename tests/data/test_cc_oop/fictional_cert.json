@@ -55,7 +55,6 @@
         "_type": "CCHeuristics",
         "extracted_versions": null,
         "cpe_matches": null,
-        "labeled": false,
         "verified_cpe_matches": null,
         "related_cves": null,
         "cert_lab": null,

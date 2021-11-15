@@ -3,7 +3,7 @@ from typing import Optional, Dict, List, ClassVar, Tuple
 from datetime import date
 
 import sec_certs.helpers as helpers
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.serialization import ComplexSerializableType
 
 logger = logging.getLogger(__name__)

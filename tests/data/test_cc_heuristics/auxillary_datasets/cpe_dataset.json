@@ -1,0 +1,35 @@
+{
+    "_type": "CPEDataset",
+    "was_enhanced_with_vuln_cpes": true,
+    "cpes": {
+        "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*": {
+            "_type": "CPE",
+            "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+            "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
+            "start_version": null,
+            "end_version": null
+        },
+        "cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*": {
+            "_type": "CPE",
+            "uri": "cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
+            "title": "IBM Security Key Lifecycle Manager 2.6.0.1",
+            "start_version": null,
+            "end_version": null
+        },
+        "cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*": {
+            "_type": "CPE",
+            "uri": "cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
+            "title": "Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress",
+            "start_version": null,
+            "end_version": null
+        },
+        "cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*": {
+            "_type": "CPE",
+            "uri": "cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
+            "title": "Tracker Software PDF-XChange Lite Printer 6.0.320.0",
+            "start_version": null,
+            "end_version": null
+        }
+    }
+}
+

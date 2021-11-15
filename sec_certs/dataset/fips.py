@@ -13,7 +13,7 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
-from sec_certs.certificate.fips import FIPSCertificate
+from sec_certs.sample.fips import FIPSCertificate
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
@@ -52,9 +52,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def successful_pdf_scan(self) -> bool:
         return all(cert.pdf_scan for cert in self.certs.values())
 
-    @property
-    def json_path(self) -> Path:
-        return self.root_dir / (self.name + '.json')
+    def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
+        return [crt for crt in self if crt.web_scan.module_name == module_name]
 
     def find_empty_pdfs(self) -> Tuple[List, List]:
         missing = []
@@ -139,7 +138,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     @serialize
     def convert_all_pdfs(self):
-        logger.info('Converting FIPS certificate reports to .txt')
+        logger.info('Converting FIPS sample reports to .txt')
         tuples = [
             (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
             for cert in self.certs.values()
@@ -171,10 +170,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def download_neccessary_files(self):
         self.download_all_htmls()
-        self.download_all_pdfs()
+        # self.download_all_pdfs()
 
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> None:
-        logger.info(f"Getting certificate ids from {html_file}")
+        logger.info(f"Getting sample ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html.parser")
 
@@ -213,12 +212,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             logger.info('The dataset does not contain the results of the dependency analysis - calculating them now...')
             dset.finalize_results()
             return dset
-
-    @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        dset = super().from_json(input_path)
-        dset.set_local_paths()
-        return dset
 
     def set_local_paths(self):
         cert: FIPSCertificate
@@ -261,7 +254,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         # Download files containing all available module certs (always)
         self.prepare_dataset(test, update)
 
-        logger.info("Downloading certificate html and security policies")
+        logger.info("Downloading sample html and security policies")
         self.download_neccessary_files()
 
         if not no_download_algorithms:
