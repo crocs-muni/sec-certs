@@ -1,5 +1,5 @@
 from typing import List, Set, Dict, Tuple, Union, Optional
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 Certificates = Dict[str, CommonCriteriaCert]
 ReferencedByDirect = Dict[str, List[str]]

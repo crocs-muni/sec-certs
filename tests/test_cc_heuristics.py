@@ -13,11 +13,11 @@ from pathlib import Path
 from typing import ClassVar, Dict
 import shutil
 
-import tests.data.test_cpe_cve
+import tests.data.test_cc_heuristics
 
 
 class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cpe_cve.__path__[0]) / 'vulnerable_dataset.json'
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / 'vulnerable_dataset.json'
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
 
     @classmethod
@@ -146,8 +146,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         self.assertEqual(heuristics.indirectly_affecting, None)
 
     def test_dependency_dataset(self):
-        parent_dir = Path(__file__).parent
-        dependency_dataset = CCDataset.from_json(Path(parent_dir, "data/test_cc_oop/dependency_dataset.json"))
+        dependency_dataset = CCDataset.from_json(self.data_dir_path / 'dependency_dataset.json')
         dependency_dataset._compute_dependencies()
         test_cert = None
 
