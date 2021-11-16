@@ -195,6 +195,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
+        related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
         directly_affected_by: Optional[List[str]] = field(default=None)
@@ -278,8 +279,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
-               self.heuristics.related_cves, self.heuristics.affected_direct, self.heuristics.affected_indirect, \
-               self.heuristics.affecting_direct, self.heuristics.affecting_indirect
+               self.heuristics.related_cves, self.heuristics.directly_affected_by, self.heuristics.indirectly_affected_by, \
+               self.heuristics.directly_affecting, self.heuristics.indirectly_affecting
 
     def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """
