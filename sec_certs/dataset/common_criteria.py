@@ -596,10 +596,11 @@ class CCDataset(Dataset, ComplexSerializableType):
             cert.compute_heuristics_cert_id()
 
     def _compute_heuristics(self):
-        self.compute_cpe_heuristics()
         self._compute_cert_labs()
         self._compute_cert_ids()
         self._compute_dependencies()
+        self.compute_cpe_heuristics()
+        self.compute_related_cves()
 
     def _compute_dependencies(self):
         finder = DependencyFinder()

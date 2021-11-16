@@ -418,6 +418,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
+        self.compute_cpe_heuristics()
+        self.compute_related_cves()
+
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         if self.certs[current_key].web_scan.vendor != highlighted_vendor:
             return
