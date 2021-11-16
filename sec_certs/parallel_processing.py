@@ -7,15 +7,9 @@ import time
 def process_parallel(func: Callable, items: Iterable, max_workers: int, callback: Optional[Callable] = None,
                      use_threading: bool = True, progress_bar: bool = True, unpack: bool = False,
                      progress_bar_desc: Optional[str] = None):
-    if use_threading is True:
-        pool = ThreadPool(max_workers)
-    else:
-        pool = Pool(max_workers)
 
-    if unpack is False:
-        results = [pool.apply_async(func, (i, ), callback=callback) for i in items]
-    else:
-        results = [pool.apply_async(func, (*i, ), callback=callback) for i in items]
+    pool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
+    results = [pool.apply_async(func, (*i,), callback=callback) for i in items] if unpack else [pool.apply_async(func, (i, ), callback=callback) for i in items]
 
     if progress_bar is True and items:
         bar = tqdm(total=len(results), desc=progress_bar_desc)
