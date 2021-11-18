@@ -1,3 +1,4 @@
+import datetime
 import tempfile
 import logging
 import os
@@ -17,14 +18,14 @@ from sec_certs.certificate.fips import FIPSCertificate
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
-    certs: Dict[str, FIPSCertificate]
+    certs: Dict[str, Optional[FIPSCertificate]] # type: ignore # noqa
 
     def __init__(
         self, certs: dict, root_dir: Path, name: str = "dataset name", description: str = "dataset_description"
     ):
         super().__init__(certs, root_dir, name, description)
-        self.keywords = {}
-        self.algorithms = None
+        self.keywords: Dict[str, Dict] = {}
+        self.algorithms: Optional[FIPSAlgorithmDataset] = None
         self.new_files = 0
 
     @property
@@ -46,11 +47,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     # After web scan, there should be a FIPSCertificate object created for every entry
     @property
     def successful_web_scan(self) -> bool:
-        return all(self.certs) and all(cert.web_scan for cert in self.certs.values())
+        return all(self.certs) and all(cert.web_scan for cert in self.certs.values() if cert is not None)
 
     @property
     def successful_pdf_scan(self) -> bool:
-        return all(cert.pdf_scan for cert in self.certs.values())
+        return all(cert.pdf_scan for cert in self.certs.values() if cert is not None)
 
     @property
     def json_path(self) -> Path:
@@ -84,8 +85,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def match_algs(self) -> Dict:
         output = {}
-        cert: FIPSCertificate
         for cert in self.certs.values():
+            if cert is None:
+                raise RuntimeError("Building dataset probably failed - this should not be happening.")
             # if the pdf has not been processed, no matching can be done
             if not cert.pdf_scan.keywords or not cert.state.txt_state:
                 continue
@@ -151,18 +153,18 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if test:
             html_files = [test]
         else:
-            html_files = ["fips_modules_active.html", "fips_modules_historical.html", "fips_modules_revoked.html"]
+            html_files = [Path("fips_modules_active.html"), Path("fips_modules_historical.html"), Path("fips_modules_revoked.html")]
             helpers.download_file(
                 "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
-                self.web_dir / "fips_modules_active.html",
+                Path(self.web_dir / "fips_modules_active.html"),
             )
             helpers.download_file(
                 "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
-                self.web_dir / "fips_modules_historical.html",
+                Path(self.web_dir / "fips_modules_historical.html"),
             )
             helpers.download_file(
                 "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
-                self.web_dir / "fips_modules_revoked.html",
+                Path(self.web_dir / "fips_modules_revoked.html"),
             )
 
         # Parse those files and get list of currently processable files (always)
@@ -296,7 +298,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             [
                 (cert, high_precision)
                 for cert in self.certs.values()
-                if (not cert.state.tables_done or high_precision) and cert.state.txt_state
+                if cert is not None and (not cert.state.tables_done or high_precision) and cert.state.txt_state
             ],
             config.n_threads // 4,  # tabula already processes by parallel, so
             # it's counterproductive to use all threads
@@ -306,8 +308,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         not_decoded = [cert.state.sp_path for done, cert, _ in result if done is False]
         for state, cert, algorithms in result:
-            self.certs[cert.dgst].state.tables_done = state
-            self.certs[cert.dgst].pdf_scan.algorithms += algorithms
+            certificate = self.certs[cert.dgst]
+            if certificate is None:
+                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
+            certificate.state.tables_done = state
+            certificate.pdf_scan.algorithms += algorithms
         return not_decoded
 
     def remove_algorithms_from_extracted_data(self):
@@ -333,18 +338,29 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             # returns True if candidates should _not_ be matched
 
     def _compare_certs(self, current_certificate: "FIPSCertificate", other_id: str):
-        cert_first = current_certificate.web_scan.date_validation[0].year
-        cert_last = current_certificate.web_scan.date_validation[-1].year
-        conn_first = self.certs[other_id].web_scan.date_validation[0].year
-        conn_last = self.certs[other_id].web_scan.date_validation[-1].year
+        other_cert = self.certs[other_id]
+        if current_certificate.web_scan.date_validation is None \
+            or other_cert is None or other_cert.web_scan.date_validation is None:
+                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
+            
+        cert_first = current_certificate.web_scan.date_validation[0]
+        cert_last = current_certificate.web_scan.date_validation[-1]
+        conn_first = other_cert.web_scan.date_validation[0]
+        conn_last = other_cert.web_scan.date_validation[-1]
+        
+        if not isinstance(cert_first, datetime.datetime) or not isinstance(cert_last, datetime.datetime)\
+            or not isinstance(conn_first, datetime.datetime) or not isinstance(conn_last, datetime.datetime):
+                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
         return (
-            cert_first - conn_first > config.year_difference_between_validations
-            and cert_last - conn_last > config.year_difference_between_validations
-            or cert_first < conn_first
+            cert_first.year - conn_first.year > config.year_difference_between_validations
+            and cert_last.year - conn_last.year > config.year_difference_between_validations
+            or cert_first.year < conn_first.year
         )
 
     def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate):
+        if current_cert.heuristics.keywords is None:
+            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         for rule in current_cert.heuristics.keywords["rules_cert_id"]:
             matches = current_cert.heuristics.keywords["rules_cert_id"][rule]
             current_cert.heuristics.keywords["rules_cert_id"][rule] = [
@@ -363,6 +379,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             processed_cert, cert_candidate
         ):
             return False
+        
+        if self.algorithms is None:
+            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
+        
         if cert_candidate not in self.algorithms.certs:
             return True
 
@@ -374,6 +394,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         algs = self.algorithms.certs[cert_candidate]
         for current_alg in algs:
+            if current_alg.vendor is None or processed_cert.web_scan.vendor is None:
+                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
+
             if FIPSCertificate.get_compare(processed_cert.web_scan.vendor) == FIPSCertificate.get_compare(
                 current_alg.vendor
             ):
@@ -426,29 +449,36 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.validate_results()
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
-        if self.certs[current_key].web_scan.vendor != highlighted_vendor:
+        current_cert = self.certs[current_key]
+        if current_cert is None:
+            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
+        
+        if current_cert.web_scan.vendor != highlighted_vendor:
             return
 
         dot.attr("node", color="red")
-        if self.certs[current_key].web_scan.status == "Revoked":
+        if current_cert.web_scan.status == "Revoked":
             dot.attr("node", color="grey32")
-        if self.certs[current_key].web_scan.status == "Historical":
+        if current_cert.web_scan.status == "Historical":
             dot.attr("node", color="gold3")
 
     def _add_colored_node(self, dot: Digraph, current_key: str, highlighted_vendor: str):
+        current_cert = self.certs[current_key]
+        if current_cert is None:
+            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         dot.attr("node", color="lightgreen")
-        if self.certs[current_key].web_scan.status == "Revoked":
+        if current_cert.web_scan.status == "Revoked":
             dot.attr("node", color="lightgrey")
-        if self.certs[current_key].web_scan.status == "Historical":
+        if current_cert.web_scan.status == "Historical":
             dot.attr("node", color="gold")
         self._highlight_vendor_in_dot(dot, current_key, highlighted_vendor)
         dot.node(
             current_key,
             label=current_key
             + "&#10;"
-            + self.certs[current_key].web_scan.vendor
+            + current_cert.web_scan.vendor if current_cert.web_scan.vendor is not None else ""
             + "&#10;"
-            + (self.certs[current_key].web_scan.module_name if self.certs[current_key].web_scan.module_name else ""),
+            + (current_cert.web_scan.module_name if current_cert.web_scan.module_name else ""),
         )
 
     def _get_processed_list(self, connection_list: str, key: str):
@@ -483,7 +513,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         edges = 0
 
         for key in self.certs:
-            if key == "Not found" or not self.certs[key].state.file_status:
+            cert = self.certs[key]
+            if cert is None:
+                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
+            
+            if key == "Not found" or not cert.state.file_status:
                 continue
 
             processed = self._get_processed_list(connection_list, key)
@@ -498,12 +532,16 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     key,
                     label=key
                     + "\r\n"
-                    + self.certs[key].web_scan.vendor
-                    + ("\r\n" + self.certs[key].web_scan.module_name if self.certs[key].web_scan.module_name else ""),
+                    + cert.web_scan.vendor if cert.web_scan.vendor is not None else ""
+                    + ("\r\n" + cert.web_scan.module_name if cert.web_scan.module_name else ""),
                 )
 
         for key in self.certs:
-            if key == "Not found" or not self.certs[key].state.file_status:
+            cert = self.certs[key]
+            if cert is None:
+                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
+            
+            if key == "Not found" or not cert.state.file_status:
                 continue
             processed = self._get_processed_list(connection_list, key)
             for conn in processed:
@@ -534,9 +572,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def group_vendors(self) -> Dict:
         vendors = {}
-        v = {x.web_scan.vendor.lower() for x in self.certs.values()}
-        v = sorted(v, key=FIPSCertificate.get_compare)
-        for prefix, a in groupby(v, key=FIPSCertificate.get_compare):
+        v = {x.web_scan.vendor.lower() for x in self.certs.values() if x is not None and x.web_scan.vendor is not None}
+        v_sorted = sorted(v, key=FIPSCertificate.get_compare)
+        for prefix, a in groupby(v_sorted, key=FIPSCertificate.get_compare):
             vendors[prefix] = list(a)
 
         return vendors

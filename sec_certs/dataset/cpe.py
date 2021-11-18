@@ -38,7 +38,7 @@ class CPE(ComplexSerializableType):
 
     def __lt__(self, other: 'CPE'):
         if self.title is None or other.title is None:
-            raise RuntimeError(f"Title is unspecified during comparation of certs {self.dgst} and {other.dgst}")
+            raise RuntimeError(f"Title is unspecified during comparation of CPEs.")
         return self.title < other.title
 
     @property

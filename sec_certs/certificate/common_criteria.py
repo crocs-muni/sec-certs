@@ -130,13 +130,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
             if self.report_frontpage is None:
-                raise RuntimeError(f"Frontpage for cert {self.dgst} is not found - this should not be happening.")
+                raise RuntimeError(f"Frontpage is not found - this should not be happening.")
             return self.report_frontpage['bsi']
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
             if self.report_frontpage is None:
-                raise RuntimeError(f"Frontpage for cert {self.dgst} is not found - this should not be happening.")
+                raise RuntimeError(f"Frontpage is not found - this should not be happening.")
             return self.report_frontpage['anssi']
 
         @property
@@ -151,14 +151,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_cert_id(self) -> Optional[str]:
-            if self.report_frontpage is None:
-                raise RuntimeError(f"BSI data for cert {self.dgst} not found - this should not be happening.")
+            if self.bsi_data is None:
+                raise RuntimeError(f"BSI data not found - this should not be happening.")
             return self.bsi_data.get('cert_id', None)
 
         @property
         def anssi_cert_id(self) -> Optional[str]:
-            if self.report_frontpage is None:
-                raise RuntimeError(f"ANSSI data for cert {self.dgst} not found - this should not be happening.")
+            if self.anssi_data is None:
+                raise RuntimeError(f"ANSSI data not found - this should not be happening.")
             return self.anssi_data.get('cert_id', None)
 
         @property
@@ -174,7 +174,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
             if self.report_keywords is None:
-                raise RuntimeError(f"Keywords reports for cert {self.dgst} not found - this should not be happening.")
+                raise RuntimeError(f"Keywords reports not found - this should not be happening.")
             return self.report_keywords['rules_cert_id']
 
         @property
@@ -591,6 +591,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
         self.compute_heuristics_cpe_vendors(cpe_dataset)
+        
+        if self.name is None or self.heuristics.cpe_candidate_vendors is None \
+            or self.heuristics.extracted_versions is None:
+                raise RuntimeError(f"Missing information in CPE matching for cert {self.dgst}.")
+        
         self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
                                                                   self.heuristics.cpe_candidate_vendors,
                                                                   self.heuristics.extracted_versions,
@@ -599,12 +604,15 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
         if self.heuristics.verified_cpe_matches:
-            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches]
-            related_cves = list(filter(lambda x: x is not None, related_cves))
-            if related_cves:
-                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves))
+            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches if x.uri is not None]
+            related_cves_: List[List[CVE]] = [x for x in related_cves if x is not None]
+
+            if related_cves_:
+                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves_))
 
                 for cve in self.heuristics.related_cves:
+                    if cve.vulnerable_certs is None:
+                        cve.vulnerable_certs = []
                     cve.vulnerable_certs.append(self.dgst)
 
 
