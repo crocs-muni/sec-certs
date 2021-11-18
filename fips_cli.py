@@ -7,7 +7,7 @@ import sys
 import os
 from datetime import datetime
 
-from sec_certs.configuration import config
+from sec_certs.config.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
 
 logger = logging.getLogger(__name__)
@@ -143,8 +143,8 @@ def main(
         except ValueError as e:
             print(f"Error: Bad format of configuration file: {e}")
     else:
-        print(f"Using default configuration file at {Path(script_dir) / 'sec_certs' / 'settings.yaml'}")
-        config.load(Path(script_dir) / 'sec_certs' / 'settings.yaml')
+        print(f"Using default configuration file at {Path(script_dir) / 'sec_certs' / 'config' / 'settings.yaml'}")
+        config.load(Path(script_dir) / 'sec_certs' / 'config' / 'settings.yaml')
 
     if "all" in actions and "new-run" in actions:
         print("Error: Only one of 'new-run' and 'all' can be specified.")

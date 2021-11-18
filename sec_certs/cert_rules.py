@@ -521,4 +521,4 @@ fips_rules: Dict[str, List[Pattern[str]]] = {}
 for rule in fips_rules_base:
     fips_rules[rule] = []
     for current_rule in range(len(fips_rules_base[rule])):
-        fips_rules[rule].append(re.compile(fips_rules[rule][current_rule]))
+        fips_rules[rule].append(re.compile(fips_rules_base[rule][current_rule]))
