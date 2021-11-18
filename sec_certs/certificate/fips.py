@@ -529,7 +529,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 all_algorithms.add(''.join(filter(str.isdigit, x)))
         not_found = []
         
-        assert cert.web_scan.algorithms is not None
+        if cert.web_scan.algorithms is None:
+            raise RuntimeError(f"Algorithms were not found for cert {cert.dgst} - this should not be happening.")
         
         for alg_list in [a['Certificate'] for a in cert.web_scan.algorithms]:
             for web_alg in alg_list:
@@ -692,7 +693,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def _create_alg_set(self) -> Set:
         result: Set[str] = set()
         
-        assert self.web_scan.algorithms is not None
+        if self.web_scan.algorithms is None:
+            raise RuntimeError(f"Algorithms were not found for cert {self.dgst} - this should not be happening.")
         
         for alg in self.web_scan.algorithms:
             result.update(cert for cert in alg['Certificate'])
@@ -752,7 +754,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
-        assert self.web_scan.vendor is not None
+        if self.web_scan.vendor is None:
+            raise RuntimeError(f"Vendor for cert {self.dgst} not found - this should not be happening.")
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
 
     def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
@@ -761,7 +764,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not self.web_scan.module_name:
             self.heuristics.cpe_matches = None
         else:
-            assert self.heuristics.cpe_candidate_vendors is not None and self.heuristics.extracted_versions is not None
+            if self.heuristics.cpe_candidate_vendors is None or self.heuristics.extracted_versions is None:
+                raise RuntimeError(f"Heuristics computation for cert {self.dgst} failed - this should not be happening.")
             self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
                                                                       self.heuristics.cpe_candidate_vendors,
                                                                       self.heuristics.extracted_versions,

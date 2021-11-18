@@ -27,10 +27,10 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         """
         Object for holding maintainance reports.
         """
-        maintainance_date: date
-        maintainance_title: str
-        maintainance_report_link: str
-        maintainance_st_link: str
+        maintainance_date: Optional[date]
+        maintainance_title: Optional[str]
+        maintainance_report_link: Optional[str]
+        maintainance_st_link: Optional[str]
 
         def __post_init__(self):
             super().__setattr__('maintainance_report_link',
@@ -106,12 +106,12 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @dataclass(init=False)
     class PdfData(ComplexSerializableType):
-        report_metadata: Dict[str, Any]
-        st_metadata: Dict[str, Any]
-        report_frontpage: Dict[str, Dict[str, Any]]
-        st_frontpage: Dict[str, Dict[str, Any]]
-        report_keywords: Dict[str, Any]
-        st_keywords: Dict[str, Any]
+        report_metadata: Optional[Dict[str, Any]]
+        st_metadata: Optional[Dict[str, Any]]
+        report_frontpage: Optional[Dict[str, Dict[str, Any]]]
+        st_frontpage: Optional[Dict[str, Dict[str, Any]]]
+        report_keywords: Optional[Dict[str, Any]]
+        st_keywords: Optional[Dict[str, Any]]
 
         def __init__(self, report_metadata: Optional[Dict[str, Any]] = None,
                      st_metadata: Optional[Dict[str, Any]] = None,
@@ -129,10 +129,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
+            if self.report_frontpage is None:
+                raise RuntimeError(f"Frontpage for cert {self.dgst} is not found - this should not be happening.")
             return self.report_frontpage['bsi']
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
+            if self.report_frontpage is None:
+                raise RuntimeError(f"Frontpage for cert {self.dgst} is not found - this should not be happening.")
             return self.report_frontpage['anssi']
 
         @property
@@ -147,10 +151,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_cert_id(self) -> Optional[str]:
+            if self.report_frontpage is None:
+                raise RuntimeError(f"BSI data for cert {self.dgst} not found - this should not be happening.")
             return self.bsi_data.get('cert_id', None)
 
         @property
         def anssi_cert_id(self) -> Optional[str]:
+            if self.report_frontpage is None:
+                raise RuntimeError(f"ANSSI data for cert {self.dgst} not found - this should not be happening.")
             return self.anssi_data.get('cert_id', None)
 
         @property
@@ -165,6 +173,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
+            if self.report_keywords is None:
+                raise RuntimeError(f"Keywords reports for cert {self.dgst} not found - this should not be happening.")
             return self.report_keywords['rules_cert_id']
 
         @property
@@ -185,7 +195,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @dataclass
     class Heuristics(ComplexSerializableType):
-        extracted_versions: List[str] = field(default=None)
+        extracted_versions: Optional[List[str]] = field(default=None)
         cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
         labeled: bool = field(default=False)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
@@ -211,9 +221,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
                                         'verified_cpe_matches', 'related_cves']
 
-    def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
-                 security_level: Union[str, set], not_valid_before: date,
-                 not_valid_after: date, report_link: str, st_link: str, cert_link: Optional[str],
+    def __init__(self, status: str, category: str, name: str, manufacturer: Optional[str], scheme: str,
+                 security_level: Union[str, set], not_valid_before: Optional[date],
+                 not_valid_after: Optional[date], report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: Set[ProtectionProfile],
                  maintainance_updates: Set[MaintainanceReport],
@@ -254,6 +264,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         """
         Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
         """
+        if not (self.name is not None and self.report_link is not None and self.category is not None):
+            raise RuntimeError("Certificate digest can't be computed, because information is missing.")
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
     @property
@@ -334,7 +346,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                     protection_profiles.add(ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get('href')))
             return protection_profiles
 
-        def _get_date(cell: Tag) -> date:
+        def _get_date(cell: Tag) -> Optional[date]:
             text = cell.get_text()
             extracted_date = datetime.strptime(
                 text, '%Y-%m-%d').date() if text else None
@@ -434,6 +446,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code: Union[str, int]
         if not cert.report_link:
             exit_code = 'No link'
         else:
@@ -442,11 +455,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
             cert.state.report_download_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
     @staticmethod
     def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code: Union[str, int]
         if not cert.st_link:
             exit_code = 'No link'
         else:
@@ -455,6 +471,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.st_download_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -468,6 +486,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             error_msg = 'failed to convert report pdf->txt'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.report_convert_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -478,6 +498,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             error_msg = 'failed to convert security target pdf->txt'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.st_convert_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -486,6 +508,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -494,6 +518,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -506,9 +532,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_anssi)
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_bsi)
 
         return cert
@@ -523,9 +553,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_anssi)
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_bsi)
 
         return cert
@@ -542,6 +576,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -549,6 +585,8 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
+        if self.manufacturer is None:
+            raise RuntimeError(f"Manufacturer not set for cert {self.dgst} - this should not be happening.")
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
 
     def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):

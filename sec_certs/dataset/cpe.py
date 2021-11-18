@@ -37,7 +37,8 @@ class CPE(ComplexSerializableType):
             self.version = self.uri.split(':')[5]
 
     def __lt__(self, other: 'CPE'):
-        assert self.title is not None and other.title is not None
+        if self.title is None or other.title is None:
+            raise RuntimeError(f"Title is unspecified during comparation of certs {self.dgst} and {other.dgst}")
         return self.title < other.title
 
     @property
@@ -57,11 +58,13 @@ def build_cpe_uri_to_title_dict(input_xml_filepath: str, output_filepath: str):
     dct = {}
     for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
         found_title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title')
-        assert found_title is not None
+        if found_title is None:
+            raise RuntimeError("Title is not found during cpe dict building - this should not be happening")
         title = found_title.text
         
         found_cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item')
-        assert found_cpe_uri is not None 
+        if found_cpe_uri is None:
+            raise RuntimeError("CPE uri is not found during cpe dict building - this should not be happening")
         cpe_uri = found_cpe_uri.attrib['name']
         dct[cpe_uri] = title
     with open(output_filepath, 'w') as handle:
@@ -141,11 +144,13 @@ class CPEDataset:
         dct = {}
         for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
             found_title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title')
-            assert found_title is not None
+            if found_title is None:
+                raise RuntimeError("Title is not found during building CPE dataset from xml - this should not be happening")
             title = found_title.text
             
             found_cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item')
-            assert found_cpe_uri is not None
+            if found_cpe_uri is None:
+                raise RuntimeError("CPE uri is not found during building CPE dataset from xml - this should not be happening")
             cpe_uri = found_cpe_uri.attrib['name']
             
             dct[cpe_uri] = CPE(cpe_uri, title)
@@ -232,7 +237,8 @@ class CPEDataset:
         sanitized_cert_name = sanitize_matched_string(cert_name)
         reasonable_matches = []
         for c in candidates:
-            assert c.title is not None
+            if c.title is None:
+                raise RuntimeError("Candidate title is not found - this should not be happening.")
             
             sanitized_title = sanitize_matched_string(c.title)
             sanitized_item_name = sanitize_matched_string(c.item_name)

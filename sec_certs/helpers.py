@@ -86,7 +86,8 @@ def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Optional[
     if isinstance(record, pd.Timestamp):
         return record.date()
     
-    assert isinstance(record, date)
+    if not isinstance(record, date):
+        raise NotImplemented
     return record
 
 
@@ -725,7 +726,8 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     matched = []
     for x in matched_strings:
         found = re.search(normalizer, x)
-        assert found is not None
+        if found is None:
+            raise RuntimeError("Nothing was found in match string - this should not be happening.")
         matched.append(found.group())
         
     return matched if matched_strings else ['-']
