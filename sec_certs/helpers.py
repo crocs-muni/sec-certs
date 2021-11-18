@@ -14,7 +14,7 @@ from datetime import date
 import numpy as np
 import pandas as pd
 import subprocess
-import copy
+import time
 
 
 from enum import Enum
@@ -31,8 +31,9 @@ from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES
 logger = logging.getLogger(__name__)
 
 
-def download_file(url: str, output: Path) -> Union[str, int]:
+def download_file(url: str, output: Path, delay: float = 0) -> Union[str, int]:
     try:
+        time.sleep(delay)
         r = requests.get(url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT)
         if r.status_code == requests.codes.ok:
             with output.open("wb") as f:
@@ -73,7 +74,7 @@ def get_sha256_filepath(filepath):
     return hash_sha256.hexdigest()
 
 
-def sanitize_link(record: str) -> Union[str, None]:
+def sanitize_link(record: Optional[str]) -> Optional[str]:
     if not record:
         return None
     return record.replace(':443', '').replace(' ', '%20').replace('http://', 'https://')
@@ -89,7 +90,7 @@ def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Optional[
     return record
 
 
-def sanitize_string(record: str) -> Union[str, None]:
+def sanitize_string(record: Optional[str]) -> Optional[str]:
     if not record:
         return None
     else:

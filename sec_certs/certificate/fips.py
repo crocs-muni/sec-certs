@@ -187,7 +187,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
-        exit_code = helpers.download_file(*cert)
+        exit_code = helpers.download_file(*cert, delay=1)
         if exit_code != requests.codes.ok:
             logger.error(
                 f'Failed to download security policy from {cert[0]}, code: {exit_code}')
@@ -206,7 +206,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
-        exit_code = helpers.download_file(*cert)
+        exit_code = helpers.download_file(*cert, delay=1)
         if exit_code != requests.codes.ok:
             logger.error(
                 f'Failed to download html page from {cert[0]}, code: {exit_code}')
