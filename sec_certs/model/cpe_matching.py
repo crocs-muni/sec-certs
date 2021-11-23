@@ -131,8 +131,7 @@ class CPEClassifier(BaseEstimator):
 
     @staticmethod
     def _replace_special_chars_with_space(string: str) -> str:
-        replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
-        return replace_non_letter_non_numbers_with_space.sub(' ', string)
+        return re.sub(r'[^a-zA-Z0-9 \n\.]', ' ', string)
 
     @staticmethod
     def _discard_trademark_symbols(string: str) -> str:
