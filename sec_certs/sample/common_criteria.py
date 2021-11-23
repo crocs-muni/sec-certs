@@ -110,25 +110,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             else:
                 return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
-    @dataclass(init=False)
+    @dataclass
     class PdfData(ComplexSerializableType):
-        report_metadata: Dict[str, Any]
-        st_metadata: Dict[str, Any]
-        report_frontpage: Dict[str, Dict[str, Any]]
-        st_frontpage: Dict[str, Dict[str, Any]]
-        report_keywords: Dict[str, Any]
-        st_keywords: Dict[str, Any]
-
-        def __init__(self, report_metadata: Optional[Dict[str, Any]] = None,
-                     st_metadata: Optional[Dict[str, Any]] = None,
-                     report_frontpage: Optional[Dict[str, Dict[str, Any]]] = None, st_frontpage: Optional[Dict[str, Dict[str, Any]]] = None,
-                     report_keywords: Optional[Dict[str, Any]] = None, st_keywords: Optional[Dict[str, Any]] = None):
-            self.report_metadata = report_metadata
-            self.st_metadata = st_metadata
-            self.report_frontpage = report_frontpage
-            self.st_frontpage = st_frontpage
-            self.report_keywords = report_keywords
-            self.st_keywords = st_keywords
+        report_metadata: Optional[Dict[str, Any]] = field(default=None)
+        st_metadata: Optional[Dict[str, Any]] = field(default=None)
+        report_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
+        st_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
+        report_keywords: Optional[Dict[str, Any]] = field(default=None)
+        st_keywords: Optional[Dict[str, Any]] = field(default=None)
 
         def __bool__(self):
             return any([x is not None for x in vars(self)])
