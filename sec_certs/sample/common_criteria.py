@@ -1,30 +1,23 @@
 import copy
-import itertools
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
+from typing import Optional, List, Dict, Union, Any, Set, ClassVar
 
 
 import requests
 from bs4 import Tag
-import numpy as np
 
 from sec_certs import helpers, constants as constants
 from sec_certs.sample.certificate import Certificate, logger
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.cpe import CPE
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.cve import CVE
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.config.configuration import config
 from sec_certs.model.cpe_matching import CPEClassifier
 
 
-
-class CommonCriteriaCert(Certificate, ComplexSerializableType):
+class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
     empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
@@ -184,7 +177,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
-        related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
         directly_affected_by: Optional[List[str]] = field(default=None)
@@ -260,16 +252,17 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def label_studio_title(self):
         return self.name
 
-    def __str__(self):
-        # TODO - if some of the values is None -> TypeError is raised
-        return str(self.manufacturer) + ' ' + str(self.name) + ' dgst: ' + self.dgst
-
-    def to_pandas_tuple(self):
+    @property
+    def pandas_tuple(self):
         return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
                self.heuristics.related_cves, self.heuristics.directly_affected_by, self.heuristics.indirectly_affected_by, \
                self.heuristics.directly_affecting, self.heuristics.indirectly_affecting
+
+    def __str__(self):
+        # TODO - if some of the values is None -> TypeError is raised
+        return str(self.manufacturer) + ' ' + str(self.name) + ' dgst: ' + self.dgst
 
     def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """

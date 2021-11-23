@@ -6,7 +6,7 @@ from typing import List, Set, Union, Optional
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.sample.cpe import CPE
-from sec_certs.serialization import CustomJSONEncoder
+from sec_certs.serialization.json import CustomJSONEncoder
 import sec_certs.helpers as helpers
 
 import numpy as np

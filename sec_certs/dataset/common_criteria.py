@@ -3,7 +3,6 @@ import itertools
 import locale
 import shutil
 import tempfile
-import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -16,9 +15,8 @@ from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing
-from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
+from sec_certs.serialization.json import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -55,10 +53,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         return {**{'state': self.state}, **super().to_dict()}
 
     def to_pandas(self):
-        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
-        cols = CommonCriteriaCert.pandas_columns
-
-        df = pd.DataFrame(tuples, columns=cols)
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaCert.pandas_columns)
         df = df.set_index('dgst')
 
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
@@ -699,10 +694,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         return dset
 
     def to_pandas(self):
-        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
-        cols = CommonCriteriaMaintenanceUpdate.pandas_columns
-
-        df = pd.DataFrame(tuples, columns=cols)
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaMaintenanceUpdate.pandas_columns)
         df = df.set_index('dgst')
         df.index.name = 'dgst'
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union, Optional, List
+from typing import Dict, Collection, Union, List
 
 import json
 from abc import ABC, abstractmethod
@@ -15,9 +15,9 @@ import sec_certs.constants as constants
 import sec_certs.parallel_processing as cert_processing
 
 from sec_certs.sample.certificate import Certificate
-from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.config.configuration import config
-from sec_certs.serialization import serialize
+from sec_certs.serialization.json import serialize
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier

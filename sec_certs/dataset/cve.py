@@ -1,6 +1,6 @@
 import itertools
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union, Final, Set, Tuple
+from typing import Dict, List,  Optional, Union, Final, Set
 import datetime
 from pathlib import Path
 import tempfile
@@ -17,7 +17,7 @@ import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.cpe import CPE
-from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.config.configuration import config
 
 logger = logging.getLogger(__name__)
@@ -154,9 +154,7 @@ class CVEDataset(ComplexSerializableType):
         logger.info(f'Totally deleted {total_deleted_cpes} irrelevant CPEs and {len(cve_ids_to_delete)} CVEs from CVEDataset.')
 
     def to_pandas(self) -> pd.DataFrame:
-        tuples = [x.to_pandas_tuple() for x in self]
-        cols = CVE.pandas_columns
-        df = pd.DataFrame(tuples, columns=cols)
+        df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
         return df.set_index('cve_id')
 
     def get_nist_cpe_matching_dict(self):

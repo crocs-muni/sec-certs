@@ -1,16 +1,17 @@
 import datetime
 import itertools
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Final
+from typing import Dict, List, Optional, ClassVar
 
 from dateutil.parser import isoparse
 
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.sample.cpe import CPE
 
 
 @dataclass(init=False)
-class CVE(ComplexSerializableType):
+class CVE(PandasSerializableType, ComplexSerializableType):
     @dataclass(eq=True)
     class Impact(ComplexSerializableType):
         base_score: float
@@ -41,8 +42,8 @@ class CVE(ComplexSerializableType):
     impact: Impact
     published_date: Optional[datetime.datetime]
 
-    pandas_columns: Final[List[str]] = ('cve_id', 'vulnerable_cpes', 'base_score', 'severity',
-                                        'explotability_score', 'impact_score', 'published_date')
+    pandas_columns: ClassVar[List[str]] = ['cve_id', 'vulnerable_cpes', 'base_score', 'severity',
+                                        'explotability_score', 'impact_score', 'published_date']
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str):
         self.cve_id = cve_id
@@ -67,6 +68,11 @@ class CVE(ComplexSerializableType):
         other_id = int(other.cve_id.split('-')[2])
 
         return self_year < other_year if self_year != other_year else self_id < other_id
+
+    @property
+    def pandas_tuple(self):
+        return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
+                self.impact.explotability_score, self.impact.impact_score, self.published_date)
 
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> 'CVE':
@@ -111,7 +117,3 @@ class CVE(ComplexSerializableType):
         published_date = dct['publishedDate']
 
         return cls(cve_id, vulnerable_cpes, impact, published_date)
-
-    def to_pandas_tuple(self):
-        return (self.cve_id, self.vulnerable_cpes, self.impact.base_score, self.impact.severity,
-                self.impact.explotability_score, self.impact.impact_score, self.published_date)

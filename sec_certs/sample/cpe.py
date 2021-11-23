@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from typing import ClassVar, List, Optional, Tuple
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.serialization.pandas import PandasSerializableType
 
 
 @dataclass(init=False)
-class CPE(ComplexSerializableType):
+class CPE(PandasSerializableType, ComplexSerializableType):
     uri: str
     title: str
     version: str
