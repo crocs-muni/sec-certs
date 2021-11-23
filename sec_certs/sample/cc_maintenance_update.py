@@ -33,6 +33,10 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     def dgst(self):
         return 'cert_' + self.related_cert_digest + '_update_' + helpers.get_first_16_bytes_sha256(self.name)
 
+    @property
+    def pandas_tuple(self) -> Tuple:
+        return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])
+
     @classmethod
     def from_dict(cls, dct: Dict) -> 'CommonCriteriaMaintenanceUpdate':
         dct.pop('dgst')
@@ -42,6 +46,3 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert):
         return [cls(x.maintainance_title, x.maintainance_report_link, x.maintainance_st_link,
                     None, None, None, cert.dgst, x.maintainance_date) for x in cert.maintainance_updates]
-
-    def to_pandas_tuple(self) -> Tuple:
-        return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])
