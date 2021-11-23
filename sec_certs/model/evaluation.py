@@ -35,14 +35,16 @@ def compute_precision(y: np.array, y_pred: np.array, **kwargs):
 
 def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid: List[Optional[List[CPE]]], outpath: Optional[Union[Path, str]]):
     y_pred = [x.heuristics.cpe_matches for x in x_valid]
-    precision = compute_precision(y_valid, y_pred)
+    y_valid_uris = [[x.uri for x in y] if y else None for y in y_valid]
+
+    precision = compute_precision(y_valid_uris, y_pred)
 
     correctly_classified = []
     badly_classified = []
     n_new_certs_with_match = 0
     n_newly_identified = 0
 
-    for cert, predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
+    for cert, predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid_uris):
         verified_cpes_set = set(verified_cpes) if verified_cpes else set()
         predicted_cpes_set = set(predicted_cpes) if predicted_cpes else set()
 
