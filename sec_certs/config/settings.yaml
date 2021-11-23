@@ -21,7 +21,7 @@ cpe_matching_threshold:
   value: 100
 cpe_n_max_matches:
   description: Maximum number of candidate CPE items that may be related to given certificate, >0
-  value: 10
+  value: 100
 cc_latest_snapshot:
   description: Url from where to fetch the latest snapshot of fully processed CC dataset
   value: https://www.ajanovsky.cz/cc_latest_snapshot.json
