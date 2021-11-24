@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union, List
+from typing import Dict, Collection, Union, List, Tuple
 
 import json
 from abc import ABC, abstractmethod
@@ -156,7 +156,7 @@ class Dataset(ABC, ComplexSerializableType):
 
         return cpe_dataset
 
-    def _prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
+    def _prepare_cve_dataset(self, download_fresh_cves: bool = False, download_nist_cpe_matching_dict: bool = True) -> CVEDataset:
         logger.info('Preparing CVE dataset.')
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
@@ -167,7 +167,7 @@ class Dataset(ABC, ComplexSerializableType):
         else:
             cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
-        cve_dataset.build_lookup_dict()
+        cve_dataset.build_lookup_dict(download_nist_cpe_matching_dict)
         return cve_dataset
 
     def _compute_candidate_versions(self):
@@ -175,7 +175,7 @@ class Dataset(ABC, ComplexSerializableType):
         for cert in self:
             cert.compute_heuristics_version()
 
-    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> CPEClassifier:
+    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> Tuple[CPEClassifier, CPEDataset]:
         logger.info('Computing heuristics: Finding CPE matches for certificates')
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
         if not cpe_dset.was_enhanced_with_vuln_cpes:
@@ -188,10 +188,10 @@ class Dataset(ABC, ComplexSerializableType):
         for cert in tqdm.tqdm(self, desc='Predicting CPE matches with the classifier'):
             cert.compute_heuristics_cpe_match(clf)
 
-        return clf
+        return clf, cpe_dset
 
     @serialize
-    def compute_cpe_heuristics(self) -> CPEClassifier:
+    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset]:
         self._compute_candidate_versions()
         return self._compute_cpe_matches()
 

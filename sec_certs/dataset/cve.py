@@ -49,7 +49,7 @@ class CVEDataset(ComplexSerializableType):
     def __eq__(self, other: 'CVEDataset'):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
-    def build_lookup_dict(self):
+    def build_lookup_dict(self, download_nist_mapping: bool = True):
         """
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
         feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
@@ -62,11 +62,16 @@ class CVEDataset(ComplexSerializableType):
         self.cves = {x.cve_id.upper(): x for x in self}
 
         logger.info('Getting CPE matching dictionary from NIST.gov')
-        matching_dict = self.get_nist_cpe_matching_dict()
+
+        if download_nist_mapping:
+            matching_dict = self.get_nist_cpe_matching_dict()
 
         for cve in tqdm.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
-            vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+            if download_nist_mapping:
+                vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+            else:
+                vulnerable_configurations = cve.vulnerable_cpes
             for cpe in vulnerable_configurations:
                 if cpe.uri not in self.cpe_to_cve_ids_lookup:
                     self.cpe_to_cve_ids_lookup[cpe.uri] = [cve.cve_id]

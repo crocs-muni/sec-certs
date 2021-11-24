@@ -590,12 +590,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         for cert in certs_to_process:
             cert.compute_heuristics_cert_id()
 
-    def _compute_heuristics(self):
+    def _compute_heuristics(self, download_nist_cpe_matching_dict: bool = True):
         self._compute_cert_labs()
         self._compute_cert_ids()
         self._compute_dependencies()
         self.compute_cpe_heuristics()
-        self.compute_related_cves()
+        self.compute_related_cves(download_nist_cpe_matching_dict=download_nist_cpe_matching_dict)
 
     def _compute_dependencies(self):
         finder = DependencyFinder()
@@ -620,9 +620,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         self.state.certs_analyzed = True
 
     @serialize
-    def compute_related_cves(self, download_fresh_cves: bool = False):
+    def compute_related_cves(self, download_fresh_cves: bool = False, download_nist_cpe_matching_dict: bool = True):
         logger.info('Retrieving related CVEs to verified CPE matches')
-        cve_dset = self._prepare_cve_dataset(download_fresh_cves)
+        cve_dset = self._prepare_cve_dataset(download_fresh_cves, download_nist_cpe_matching_dict)
 
         verified_cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
         if not verified_cpe_rich_certs:
