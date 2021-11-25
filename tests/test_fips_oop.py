@@ -32,7 +32,7 @@ def _set_up_dataset_for_full(td, certs, cpe_dset_path: Union[str, Path] = None, 
     dataset.pdf_scan()
     dataset.extract_certs_from_tables(high_precision=True)
     dataset.algorithms = FIPSAlgorithmDataset.from_json(Path(__file__).parent / 'data/test_fips_oop/algorithms.json')
-    dataset.finalize_results(download_nist_cpe_matching_dict=False)
+    dataset.finalize_results(use_nist_cpe_matching_dict=False)
     return dataset
 
 

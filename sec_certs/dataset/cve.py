@@ -182,7 +182,9 @@ class CVEDataset(ComplexSerializableType):
         def parse_values_cpe(field: Dict) -> List[CPE]:
             return [CPE(x['cpe23Uri']) for x in field['cpe_name']]
 
+        logger.debug('Attempting to get NIST mapping file.')
         if not input_filepath or not input_filepath.is_file():
+            logger.debug('NIST mapping file not available, going to download.')
             with tempfile.TemporaryDirectory() as tmp_dir:
                 filename = Path(self.cpe_match_feed_url).name
                 download_path = Path(tmp_dir) / filename
@@ -192,10 +194,13 @@ class CVEDataset(ComplexSerializableType):
                 with zipfile.ZipFile(download_path, 'r') as zip_handle:
                     zip_handle.extractall(tmp_dir)
                 if input_filepath:
-                    shutil.copy(unzipped_path, input_filepath)
+                    logger.debug(f'Copying attained NIST mapping file to {input_filepath}')
+                    shutil.move(unzipped_path, input_filepath)
+        else:
+            unzipped_path = input_filepath
 
-            with unzipped_path.open('r') as handle:
-                match_data = json.load(handle)
+        with unzipped_path.open('r') as handle:
+            match_data = json.load(handle)
 
         mapping_dict = dict()
         for match in tqdm.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):

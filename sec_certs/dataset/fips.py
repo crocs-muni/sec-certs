@@ -412,14 +412,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             FIPSDataset._find_connections(current_cert)
 
     @serialize
-    def finalize_results(self, download_nist_cpe_matching_dict: bool = True):
+    def finalize_results(self, use_nist_cpe_matching_dict: bool = True):
         logger.info("Entering 'analysis' and building connections between certificates.")
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
         self.compute_cpe_heuristics()
-        self.compute_related_cves(download_nist_cpe_matching_dict=download_nist_cpe_matching_dict)
+        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         if self.certs[current_key].web_scan.vendor != highlighted_vendor:
