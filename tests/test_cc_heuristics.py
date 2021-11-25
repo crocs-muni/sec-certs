@@ -30,7 +30,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
         cls.cc_dset._extract_data()
-        cls.cc_dset._compute_heuristics(download_nist_cpe_matching_dict=False)
+        cls.cc_dset._compute_heuristics(use_nist_cpe_matching_dict=False)
 
 
         cpe_single_sign_on = CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
@@ -60,7 +60,7 @@ class TestCommonCriteriaHeuristics(TestCase):
                 )
             ]
         cls.cve_dset = CVEDataset({x.cve_id: x for x in cls.cves})
-        cls.cve_dset.build_lookup_dict(download_nist_mapping=False)
+        cls.cve_dset.build_lookup_dict(use_nist_mapping=False)
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -590,12 +590,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         for cert in certs_to_process:
             cert.compute_heuristics_cert_id()
 
-    def _compute_heuristics(self, download_nist_cpe_matching_dict: bool = True):
+    def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True):
         self._compute_cert_labs()
         self._compute_cert_ids()
         self._compute_dependencies()
         self.compute_cpe_heuristics()
-        self.compute_related_cves(download_nist_cpe_matching_dict=download_nist_cpe_matching_dict)
+        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
 
     def _compute_dependencies(self):
         finder = DependencyFinder()

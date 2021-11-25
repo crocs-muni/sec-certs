@@ -9,6 +9,7 @@ import logging
 import glob
 import json
 import tqdm
+import shutil
 
 import pandas as pd
 
@@ -49,7 +50,7 @@ class CVEDataset(ComplexSerializableType):
     def __eq__(self, other: 'CVEDataset'):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
-    def build_lookup_dict(self, download_nist_mapping: bool = True):
+    def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Optional[Path] = None):
         """
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
         feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
@@ -63,12 +64,12 @@ class CVEDataset(ComplexSerializableType):
 
         logger.info('Getting CPE matching dictionary from NIST.gov')
 
-        if download_nist_mapping:
-            matching_dict = self.get_nist_cpe_matching_dict()
+        if use_nist_mapping:
+            matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
         for cve in tqdm.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
-            if download_nist_mapping:
+            if use_nist_mapping:
                 vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
             else:
                 vulnerable_configurations = cve.vulnerable_cpes
@@ -162,7 +163,7 @@ class CVEDataset(ComplexSerializableType):
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
         return df.set_index('cve_id')
 
-    def get_nist_cpe_matching_dict(self):
+    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Union[str, Path]]):
         def parse_key_cpe(field: Dict) -> CPE:
             start_version = None
             if 'versionStartIncluding' in field:
@@ -181,14 +182,17 @@ class CVEDataset(ComplexSerializableType):
         def parse_values_cpe(field: Dict) -> List[CPE]:
             return [CPE(x['cpe23Uri']) for x in field['cpe_name']]
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            filename = Path(self.cpe_match_feed_url).name
-            download_path = Path(tmp_dir) / filename
-            unzipped_path = Path(tmp_dir) / filename.rstrip('.zip')
-            helpers.download_file(self.cpe_match_feed_url, download_path)
+        if not input_filepath or not input_filepath.is_file():
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                filename = Path(self.cpe_match_feed_url).name
+                download_path = Path(tmp_dir) / filename
+                unzipped_path = Path(tmp_dir) / filename.rstrip('.zip')
+                helpers.download_file(self.cpe_match_feed_url, download_path)
 
-            with zipfile.ZipFile(download_path, 'r') as zip_handle:
-                zip_handle.extractall(tmp_dir)
+                with zipfile.ZipFile(download_path, 'r') as zip_handle:
+                    zip_handle.extractall(tmp_dir)
+                if input_filepath:
+                    shutil.copy(unzipped_path, input_filepath)
 
             with unzipped_path.open('r') as handle:
                 match_data = json.load(handle)

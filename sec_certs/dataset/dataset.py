@@ -62,6 +62,10 @@ class Dataset(ABC, ComplexSerializableType):
         return self.auxillary_datasets_dir / 'cve_dataset.json'
 
     @property
+    def nist_cve_cpe_matching_dset_path(self) -> Path:
+        return self.auxillary_datasets_dir / 'nvdcpematch-1.0.json'
+
+    @property
     def json_path(self) -> Path:
         return self.root_dir / (self.name + '.json')
 
@@ -156,7 +160,7 @@ class Dataset(ABC, ComplexSerializableType):
 
         return cpe_dataset
 
-    def _prepare_cve_dataset(self, download_fresh_cves: bool = False, download_nist_cpe_matching_dict: bool = True) -> CVEDataset:
+    def _prepare_cve_dataset(self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True) -> CVEDataset:
         logger.info('Preparing CVE dataset.')
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
@@ -167,7 +171,7 @@ class Dataset(ABC, ComplexSerializableType):
         else:
             cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
-        cve_dataset.build_lookup_dict(download_nist_cpe_matching_dict)
+        cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
 
     def _compute_candidate_versions(self):
@@ -261,9 +265,9 @@ class Dataset(ABC, ComplexSerializableType):
                 cert.heuristics.cpe_matches = set(cert.heuristics.cpe_matches).union(set(cert.heuristics.verified_cpe_matches))
 
     @serialize
-    def compute_related_cves(self, download_fresh_cves: bool = False, download_nist_cpe_matching_dict: bool = True):
+    def compute_related_cves(self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True):
         logger.info('Retrieving related CVEs to verified CPE matches')
-        cve_dset = self._prepare_cve_dataset(download_fresh_cves, download_nist_cpe_matching_dict)
+        cve_dset = self._prepare_cve_dataset(download_fresh_cves, use_nist_cpe_matching_dict)
 
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
