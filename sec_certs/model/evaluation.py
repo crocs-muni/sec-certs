@@ -5,8 +5,8 @@ from typing import List, Set, Union, Optional
 
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.fips import FIPSCertificate
-from sec_certs.sample.cpe import CPE
-from sec_certs.serialization import CustomJSONEncoder
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.serialization.json import CustomJSONEncoder
 import sec_certs.helpers as helpers
 
 import numpy as np
@@ -33,7 +33,7 @@ def compute_precision(y: np.array, y_pred: np.array, **kwargs):
     return np.mean(prec)
 
 
-def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid: List[Optional[List[CPE]]], outpath: Optional[Union[Path, str]]):
+def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid: List[Optional[List[str]]], outpath: Optional[Union[Path, str]], cpe_dset: CPEDataset):
     y_pred = [x.heuristics.cpe_matches for x in x_valid]
     precision = compute_precision(y_valid, y_pred)
 
@@ -44,15 +44,18 @@ def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid:
 
     for cert, predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
         verified_cpes_set = set(verified_cpes) if verified_cpes else set()
+        verified_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes_set}
         predicted_cpes_set = set(predicted_cpes) if predicted_cpes else set()
+        predicted_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes_set}
+
 
         cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_scan.module_name
         vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_scan.vendor
         record = {'certificate_name': cert_name,
                   'vendor': vendor,
                   'heuristic version': helpers.compute_heuristics_version(cert_name) if cert_name else None,
-                  'predicted_cpes': predicted_cpes_set,
-                  'manually_assigned_cpes': verified_cpes_set
+                  'predicted_cpes': predicted_cpes_dict,
+                  'manually_assigned_cpes': verified_cpes_dict
                   }
 
         if verified_cpes_set.issubset(predicted_cpes_set):

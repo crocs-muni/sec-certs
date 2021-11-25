@@ -1,6 +1,6 @@
 import itertools
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union, Final, Set, Tuple
+from typing import Dict, List,  Optional, Union, Final, Set
 import datetime
 from pathlib import Path
 import tempfile
@@ -9,6 +9,7 @@ import logging
 import glob
 import json
 import tqdm
+import shutil
 
 import pandas as pd
 
@@ -17,7 +18,7 @@ import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.cpe import CPE
-from sec_certs.serialization import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.config.configuration import config
 
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class CVEDataset(ComplexSerializableType):
     def __eq__(self, other: 'CVEDataset'):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
-    def build_lookup_dict(self):
+    def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Optional[Path] = None):
         """
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
         feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
@@ -62,11 +63,16 @@ class CVEDataset(ComplexSerializableType):
         self.cves = {x.cve_id.upper(): x for x in self}
 
         logger.info('Getting CPE matching dictionary from NIST.gov')
-        matching_dict = self.get_nist_cpe_matching_dict()
+
+        if use_nist_mapping:
+            matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
         for cve in tqdm.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
-            vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+            if use_nist_mapping:
+                vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+            else:
+                vulnerable_configurations = cve.vulnerable_cpes
             for cpe in vulnerable_configurations:
                 if cpe.uri not in self.cpe_to_cve_ids_lookup:
                     self.cpe_to_cve_ids_lookup[cpe.uri] = [cve.cve_id]
@@ -154,12 +160,10 @@ class CVEDataset(ComplexSerializableType):
         logger.info(f'Totally deleted {total_deleted_cpes} irrelevant CPEs and {len(cve_ids_to_delete)} CVEs from CVEDataset.')
 
     def to_pandas(self) -> pd.DataFrame:
-        tuples = [x.to_pandas_tuple() for x in self]
-        cols = CVE.pandas_columns
-        df = pd.DataFrame(tuples, columns=cols)
+        df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
         return df.set_index('cve_id')
 
-    def get_nist_cpe_matching_dict(self):
+    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Union[str, Path]]):
         def parse_key_cpe(field: Dict) -> CPE:
             start_version = None
             if 'versionStartIncluding' in field:
@@ -178,17 +182,25 @@ class CVEDataset(ComplexSerializableType):
         def parse_values_cpe(field: Dict) -> List[CPE]:
             return [CPE(x['cpe23Uri']) for x in field['cpe_name']]
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            filename = Path(self.cpe_match_feed_url).name
-            download_path = Path(tmp_dir) / filename
-            unzipped_path = Path(tmp_dir) / filename.rstrip('.zip')
-            helpers.download_file(self.cpe_match_feed_url, download_path)
+        logger.debug('Attempting to get NIST mapping file.')
+        if not input_filepath or not input_filepath.is_file():
+            logger.debug('NIST mapping file not available, going to download.')
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                filename = Path(self.cpe_match_feed_url).name
+                download_path = Path(tmp_dir) / filename
+                unzipped_path = Path(tmp_dir) / filename.rstrip('.zip')
+                helpers.download_file(self.cpe_match_feed_url, download_path)
 
-            with zipfile.ZipFile(download_path, 'r') as zip_handle:
-                zip_handle.extractall(tmp_dir)
+                with zipfile.ZipFile(download_path, 'r') as zip_handle:
+                    zip_handle.extractall(tmp_dir)
+                if input_filepath:
+                    logger.debug(f'Copying attained NIST mapping file to {input_filepath}')
+                    shutil.move(unzipped_path, input_filepath)
+        else:
+            unzipped_path = input_filepath
 
-            with unzipped_path.open('r') as handle:
-                match_data = json.load(handle)
+        with unzipped_path.open('r') as handle:
+            match_data = json.load(handle)
 
         mapping_dict = dict()
         for match in tqdm.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):

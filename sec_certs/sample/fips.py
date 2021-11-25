@@ -18,7 +18,7 @@ from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.sample.cpe import CPE
 from sec_certs.model.cpe_matching import CPEClassifier

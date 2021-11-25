@@ -7,7 +7,7 @@ import itertools
 from abc import ABC, abstractmethod
 from typing import Union, TypeVar, Type, Any
 
-from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
+from sec_certs.serialization.json import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.dataset.cve import CVEDataset
 

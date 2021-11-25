@@ -131,8 +131,7 @@ class CPEClassifier(BaseEstimator):
 
     @staticmethod
     def _replace_special_chars_with_space(string: str) -> str:
-        replace_non_letter_non_numbers_with_space = re.compile(r"(?ui)\W")
-        return replace_non_letter_non_numbers_with_space.sub(' ', string)
+        return re.sub(r'[^a-zA-Z0-9 \n\.]', ' ', string)
 
     @staticmethod
     def _discard_trademark_symbols(string: str) -> str:
@@ -194,7 +193,9 @@ class CPEClassifier(BaseEstimator):
         @return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
 
-        def is_cpe_version_among_cert_versions(cpe_version: str, cert_versions: List[str]) -> bool:
+        def is_cpe_version_among_cert_versions(cpe_version: Optional[str], cert_versions: List[str]) -> bool:
+            if not cpe_version:
+                return False
             just_numbers = r'(\d{1,5})(\.\d{1,5})' # TODO: The use of this should be double-checked
             for v in cert_versions:
                 if (v.startswith(cpe_version) and re.search(just_numbers, cpe_version)) or cpe_version.startswith(v):
@@ -206,7 +207,7 @@ class CPEClassifier(BaseEstimator):
 
         candidate_vendor_version_pairs: List[Tuple[str, str]] = []
         for vendor in cert_candidate_cpe_vendors:
-            viable_cpe_versions = self.vendor_to_versions_[vendor]
+            viable_cpe_versions = self.vendor_to_versions_.get(vendor, set())
             matched_cpe_versions = [x for x in viable_cpe_versions if is_cpe_version_among_cert_versions(x, cert_candidate_versions)]
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs

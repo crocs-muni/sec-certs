@@ -30,7 +30,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
         cls.cc_dset._extract_data()
-        cls.cc_dset._compute_heuristics()
+        cls.cc_dset._compute_heuristics(use_nist_cpe_matching_dict=False)
 
 
         cpe_single_sign_on = CPE("cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
@@ -60,7 +60,7 @@ class TestCommonCriteriaHeuristics(TestCase):
                 )
             ]
         cls.cve_dset = CVEDataset({x.cve_id: x for x in cls.cves})
-        cls.cve_dset.build_lookup_dict()
+        cls.cve_dset.build_lookup_dict(use_nist_mapping=False)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -94,7 +94,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_find_related_cves(self):
         self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches = [self.cpes[0].uri]
-        self.cc_dset.compute_related_cves()
+        self.cc_dset.compute_related_cves(download_nist_cpe_matching_dict = False)
         self.assertEqual({x.cve_id for x in self.cves}, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):

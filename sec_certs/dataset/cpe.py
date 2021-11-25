@@ -1,20 +1,16 @@
 from dataclasses import dataclass, field
 import logging
-import json
-from typing import Optional, List, Dict, Tuple, Set, Union, ClassVar
+from typing import List, Dict, Tuple, Set, Union, ClassVar
 import itertools
-import re
-from rapidfuzz import fuzz
 import tempfile
 from pathlib import Path
 import zipfile
-import operator
 import tqdm
 
 import sec_certs.helpers as helpers
 from sec_certs.sample.cpe import CPE
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.serialization import ComplexSerializableType, serialize
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 
 import pandas as pd
 import xml.etree.ElementTree as ET
@@ -110,14 +106,8 @@ class CPEDataset(ComplexSerializableType):
         return cls(dct['was_enhanced_with_vuln_cpes'], Path('../'), dct['cpes'])
 
     def to_pandas(self):
-        if not self.cpes:
-            return None
-        else:
-            columns = CPE.pandas_columns
-            data = [x.pandas_tuple for x in self]
-            df = pd.DataFrame(data, columns=columns)
-            df = df.set_index('uri')
-
+        df = pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns)
+        df = df.set_index('uri')
         return df
 
     @serialize

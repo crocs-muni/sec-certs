@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union, Optional, List
+from typing import Dict, Collection, Union, List, Tuple
 
 import json
 from abc import ABC, abstractmethod
@@ -15,9 +15,9 @@ import sec_certs.constants as constants
 import sec_certs.parallel_processing as cert_processing
 
 from sec_certs.sample.certificate import Certificate
-from sec_certs.serialization import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.config.configuration import config
-from sec_certs.serialization import serialize
+from sec_certs.serialization.json import serialize
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
@@ -60,6 +60,10 @@ class Dataset(ABC, ComplexSerializableType):
     @property
     def cve_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / 'cve_dataset.json'
+
+    @property
+    def nist_cve_cpe_matching_dset_path(self) -> Path:
+        return self.auxillary_datasets_dir / 'nvdcpematch-1.0.json'
 
     @property
     def json_path(self) -> Path:
@@ -156,7 +160,7 @@ class Dataset(ABC, ComplexSerializableType):
 
         return cpe_dataset
 
-    def _prepare_cve_dataset(self, download_fresh_cves: bool = False) -> CVEDataset:
+    def _prepare_cve_dataset(self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True) -> CVEDataset:
         logger.info('Preparing CVE dataset.')
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
@@ -167,7 +171,7 @@ class Dataset(ABC, ComplexSerializableType):
         else:
             cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
-        cve_dataset.build_lookup_dict()
+        cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
 
     def _compute_candidate_versions(self):
@@ -175,7 +179,7 @@ class Dataset(ABC, ComplexSerializableType):
         for cert in self:
             cert.compute_heuristics_version()
 
-    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> CPEClassifier:
+    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> Tuple[CPEClassifier, CPEDataset]:
         logger.info('Computing heuristics: Finding CPE matches for certificates')
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
         if not cpe_dset.was_enhanced_with_vuln_cpes:
@@ -188,10 +192,10 @@ class Dataset(ABC, ComplexSerializableType):
         for cert in tqdm.tqdm(self, desc='Predicting CPE matches with the classifier'):
             cert.compute_heuristics_cpe_match(clf)
 
-        return clf
+        return clf, cpe_dset
 
     @serialize
-    def compute_cpe_heuristics(self) -> CPEClassifier:
+    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset]:
         self._compute_candidate_versions()
         return self._compute_cpe_matches()
 
@@ -261,12 +265,16 @@ class Dataset(ABC, ComplexSerializableType):
                 cert.heuristics.cpe_matches = set(cert.heuristics.cpe_matches).union(set(cert.heuristics.verified_cpe_matches))
 
     @serialize
-    def compute_related_cves(self, download_fresh_cves: bool = False):
+    def compute_related_cves(self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True):
         logger.info('Retrieving related CVEs to verified CPE matches')
-        cve_dset = self._prepare_cve_dataset(download_fresh_cves)
+        cve_dset = self._prepare_cve_dataset(download_fresh_cves, use_nist_cpe_matching_dict)
 
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
+
+        if not cpe_rich_certs:
+            logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
+            return
 
         relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in cpe_rich_certs]))
         cve_dset.filter_related_cpes(relevant_cpes)
@@ -277,5 +285,4 @@ class Dataset(ABC, ComplexSerializableType):
         n_vulnerable = len([x for x in cpe_rich_certs if x.heuristics.related_cves])
         n_vulnerabilities = sum(
             [len(x.heuristics.related_cves) for x in cpe_rich_certs if x.heuristics.related_cves])
-        logger.info(
-            f'In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates.')
+        logger.info(f'In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates.')

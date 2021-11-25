@@ -3,7 +3,7 @@ import logging
 import os
 from itertools import groupby
 from pathlib import Path
-from typing import Tuple, List, Dict, Optional, Union
+from typing import Tuple, List, Dict, Optional
 
 from bs4 import BeautifulSoup
 from graphviz import Digraph
@@ -12,7 +12,7 @@ from sec_certs import constants as constants, parallel_processing as cert_proces
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.serialization import ComplexSerializableType, serialize
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.sample.fips import FIPSCertificate
 
 
@@ -412,14 +412,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             FIPSDataset._find_connections(current_cert)
 
     @serialize
-    def finalize_results(self):
+    def finalize_results(self, use_nist_cpe_matching_dict: bool = True):
         logger.info("Entering 'analysis' and building connections between certificates.")
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
 
         self.compute_cpe_heuristics()
-        self.compute_related_cves()
+        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         if self.certs[current_key].web_scan.vendor != highlighted_vendor:

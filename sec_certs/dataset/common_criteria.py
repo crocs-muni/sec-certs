@@ -3,7 +3,6 @@ import itertools
 import locale
 import shutil
 import tempfile
-import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -16,9 +15,8 @@ from bs4 import Tag, BeautifulSoup
 from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing
-from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
+from sec_certs.serialization.json import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -55,10 +53,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         return {**{'state': self.state}, **super().to_dict()}
 
     def to_pandas(self):
-        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
-        cols = CommonCriteriaCert.pandas_columns
-
-        df = pd.DataFrame(tuples, columns=cols)
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaCert.pandas_columns)
         df = df.set_index('dgst')
 
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
@@ -595,12 +590,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         for cert in certs_to_process:
             cert.compute_heuristics_cert_id()
 
-    def _compute_heuristics(self):
+    def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True):
         self._compute_cert_labs()
         self._compute_cert_ids()
         self._compute_dependencies()
         self.compute_cpe_heuristics()
-        self.compute_related_cves()
+        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
 
     def _compute_dependencies(self):
         finder = DependencyFinder()
@@ -623,27 +618,6 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._compute_heuristics()
 
         self.state.certs_analyzed = True
-
-    @serialize
-    def compute_related_cves(self, download_fresh_cves: bool = False):
-        logger.info('Retrieving related CVEs to verified CPE matches')
-        cve_dset = self._prepare_cve_dataset(download_fresh_cves)
-
-        verified_cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
-        if not verified_cpe_rich_certs:
-            logger.error(
-                'No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
-            return
-
-        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in verified_cpe_rich_certs]))
-        cve_dset.filter_related_cpes(relevant_cpes)
-
-        for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
-            cert.compute_heuristics_related_cves(cve_dset)
-
-        n_vulnerable = len([x for x in verified_cpe_rich_certs if x.heuristics.related_cves])
-        n_vulnerabilities = sum([len(x.heuristics.related_cves) for x in verified_cpe_rich_certs if x.heuristics.related_cves])
-        logger.info(f'In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates.')
 
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
@@ -699,10 +673,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         return dset
 
     def to_pandas(self):
-        tuples = [x.to_pandas_tuple() for x in self.certs.values()]
-        cols = CommonCriteriaMaintenanceUpdate.pandas_columns
-
-        df = pd.DataFrame(tuples, columns=cols)
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaMaintenanceUpdate.pandas_columns)
         df = df.set_index('dgst')
         df.index.name = 'dgst'
 
