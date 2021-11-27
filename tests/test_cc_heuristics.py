@@ -94,7 +94,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_find_related_cves(self):
         self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches = [self.cpes[0].uri]
-        self.cc_dset.compute_related_cves(download_nist_cpe_matching_dict = False)
+        self.cc_dset.compute_related_cves(use_nist_cpe_matching_dict=False)
         self.assertEqual({x.cve_id for x in self.cves}, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):
@@ -142,8 +142,8 @@ class TestCommonCriteriaHeuristics(TestCase):
         heuristics = self.cc_dset['ebd276cca70fd723'].heuristics
         self.assertEqual(heuristics.directly_affected_by, None)
         self.assertEqual(heuristics.indirectly_affected_by, None)
-        self.assertEqual(heuristics.directly_affecting, None)
-        self.assertEqual(heuristics.indirectly_affecting, None)
+        self.assertEqual(heuristics.directly_affecting, set())
+        self.assertEqual(heuristics.indirectly_affecting, set())
 
     def test_dependency_dataset(self):
         dependency_dataset = CCDataset.from_json(self.data_dir_path / 'dependency_dataset.json')
@@ -151,11 +151,11 @@ class TestCommonCriteriaHeuristics(TestCase):
         test_cert = None
 
         for cert in dependency_dataset:
-            if cert.pdf_data.cert_id == "BSI-DSZ-CC-0370-2006":
+            if cert.dgst == "692e91451741ef49":
                 test_cert = cert
                 break
 
-        self.assertEqual(test_cert.CCHeuristics.directly_affected_by, ["BSI-DSZ-CC-0370-2006"])
-        self.assertEqual(test_cert.CCHeuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
-        self.assertEqual(test_cert.CCHeuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
-        self.assertEqual(test_cert.CCHeuristics.indirectly_affecting, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.directly_affected_by, ["BSI-DSZ-CC-0370-2006"])
+        self.assertEqual(test_cert.heuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
+        self.assertEqual(test_cert.heuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.indirectly_affecting, {"BSI-DSZ-CC-0268-2005"})

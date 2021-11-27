@@ -320,7 +320,7 @@
                 }
             },
             "heuristics": {
-                "_type": "Heuristics",
+                "_type": "CCHeuristics",
                 "extracted_versions": [
                     "10.1.5"
                 ],
@@ -671,7 +671,7 @@
                 }
             },
             "heuristics": {
-                "_type": "Heuristics",
+                "_type": "CCHeuristics",
                 "extracted_versions": [
                     "9.1.6"
                 ],
@@ -1023,7 +1023,7 @@
                 }
             },
             "heuristics": {
-                "_type": "Heuristics",
+                "_type": "CCHeuristics",
                 "extracted_versions": [
                     "8.1.10"
                 ],
