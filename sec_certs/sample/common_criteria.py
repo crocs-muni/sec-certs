@@ -197,7 +197,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         def __post_init__(self):
             self.cpe_candidate_vendors = None
 
-    pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
+    pandas_columns: ClassVar[List[str]] = ['dgst', 'cert_id', 'name', 'status', 'category', 'manufacturer', 'scheme',
                                         'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
                                         'verified_cpe_matches', 'related_cves', 'directly_affected_by',
@@ -254,11 +254,11 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @property
     def pandas_tuple(self):
-        return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
-               self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
-               self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
-               self.heuristics.related_cves, self.heuristics.directly_affected_by, self.heuristics.indirectly_affected_by, \
-               self.heuristics.directly_affecting, self.heuristics.indirectly_affecting
+        return self.dgst, self.heuristics.cert_id, self.name, self.status, self.category, self.manufacturer, self.scheme, \
+               self.security_level, self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, \
+               self.manufacturer_web, self.heuristics.extracted_versions, self.heuristics.cpe_matches, \
+               self.heuristics.verified_cpe_matches, self.heuristics.related_cves, self.heuristics.directly_affected_by, \
+               self.heuristics.indirectly_affected_by, self.heuristics.directly_affecting, self.heuristics.indirectly_affecting
 
     def __str__(self):
         # TODO - if some of the values is None -> TypeError is raised
