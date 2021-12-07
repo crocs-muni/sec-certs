@@ -98,9 +98,6 @@ class CPEClassifier(BaseEstimator):
         @param relax_title: bool
         @return:
         """
-        if product_name == 'VMware® ESXi 4.0 Update 1 and vCenter Server 4.0 Update 1':
-            print('geee')
-
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
@@ -223,11 +220,17 @@ class CPEClassifier(BaseEstimator):
         """
 
         def is_cpe_version_among_cert_versions(cpe_version: Optional[str], cert_versions: List[str]) -> bool:
+            def simple_startswith(seeked_version: str, checked_string: str) -> bool:
+                if seeked_version == checked_string:
+                    return True
+                else:
+                    return checked_string.startswith(seeked_version) and not checked_string[len(seeked_version)].isdigit()
+
             if not cpe_version:
                 return False
             just_numbers = r'(\d{1,5})(\.\d{1,5})' # TODO: The use of this should be double-checked
             for v in cert_versions:
-                if (v.startswith(cpe_version) and re.search(just_numbers, cpe_version)) or cpe_version.startswith(v):
+                if (simple_startswith(v, cpe_version) and re.search(just_numbers, cpe_version)) or simple_startswith(cpe_version, v):
                     return True
             return False
 

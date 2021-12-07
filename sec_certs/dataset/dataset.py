@@ -13,6 +13,7 @@ import requests
 import sec_certs.helpers as helpers
 import sec_certs.constants as constants
 import sec_certs.parallel_processing as cert_processing
+from sec_certs.sample.cpe import CPE
 
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import ComplexSerializableType
@@ -180,6 +181,16 @@ class Dataset(ABC, ComplexSerializableType):
             cert.compute_heuristics_version()
 
     def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> Tuple[CPEClassifier, CPEDataset]:
+        def filter_condition(cpe: CPE) -> bool:
+            """
+            Filters out very weak CPE matches that don't improve our database.
+            """
+            if cpe.title and (cpe.version == '-' or cpe.version == '*') and not any(char.isdigit() for char in cpe.title):
+                return False
+            elif not cpe.title and (cpe.version == '-' or cpe.version == '*') and not any(char.isdigit() for char in cpe.item_name):
+                return False
+            return True
+
         logger.info('Computing heuristics: Finding CPE matches for certificates')
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
         if not cpe_dset.was_enhanced_with_vuln_cpes:
@@ -187,7 +198,7 @@ class Dataset(ABC, ComplexSerializableType):
             cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)
 
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
-        clf.fit([x for x in cpe_dset])
+        clf.fit([x for x in cpe_dset if filter_condition(x)])
 
         for cert in tqdm.tqdm(self, desc='Predicting CPE matches with the classifier'):
             cert.compute_heuristics_cpe_match(clf)
