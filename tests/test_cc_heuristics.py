@@ -94,7 +94,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_find_related_cves(self):
         self.cc_dset['ebd276cca70fd723'].heuristics.cpe_matches = [self.cpes[0].uri]
-        self.cc_dset.compute_related_cves(download_nist_cpe_matching_dict = False)
+        self.cc_dset.compute_related_cves(use_nist_cpe_matching_dict = False)
         self.assertEqual({x.cve_id for x in self.cves}, self.cc_dset['ebd276cca70fd723'].heuristics.related_cves, 'The computed CVEs do not match the excpected CVEs')
 
     def test_version_extraction(self):
