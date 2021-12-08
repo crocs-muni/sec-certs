@@ -1,4 +1,4 @@
-![](sec_certs/static/img/logo.svg)
+![](sec_certs_page/static/img/logo.svg)
 
 # seccerts.org page
 
@@ -43,7 +43,7 @@ tool, thus one has to import this JSON data into MongoDB and keep it up-to-date.
 has specific commands behind the `flask cc,fips,pp` subcommands like:
 
 ```shell
-$ env FLASK_APP=sec_certs FLASK_ENV=development flask --help
+$ env FLASK_APP=sec_certs_page FLASK_ENV=development flask --help
 ...
 cc      Common Criteria commands.
 fips    FIPS 140 commands.
@@ -51,7 +51,7 @@ pp      Protection Profile commands.
 ```
 and
 ```shell
-$ env FLASK_APP=sec_certs FLASK_ENV=development flask cc --help
+$ env FLASK_APP=sec_certs_page FLASK_ENV=development flask cc --help
 ...
 Commands:
   create  Create the DB of CC certs.
@@ -63,10 +63,10 @@ Commands:
 
 A typical use of these commands would be to first create the database and then import freshly generated certificates into it:
 ```shell
-$ env FLASK_APP=sec_certs FLASK_ENV=development flask cc create
+$ env FLASK_APP=sec_certs_page FLASK_ENV=development flask cc create
 Creating...
 Created
-$ env FLASK_APP=sec_certs FLASK_ENV=development flask cc import cc_certificates.json
+$ env FLASK_APP=sec_certs_page FLASK_ENV=development flask cc import cc_certificates.json
 Loading certs...
 Loaded
 Inserting...
@@ -76,5 +76,5 @@ Inserted 123 certs
 Afterwards, one can update the database of certificates with an updated dump from the tool
 (beware that the ID which identifies a certificate/document is its name or ID number in case of FIPS):
 ```shell
-$ env FLASK_APP=sec_certs FLASK_ENV=development flask cc update cc_certificates_new.json
+$ env FLASK_APP=sec_certs_page FLASK_ENV=development flask cc update cc_certificates_new.json
 ```

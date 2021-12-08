@@ -6,5 +6,5 @@
 __pycache__/
 *.pyc
 
-sec_certs/static/gen/
+sec_certs_page/static/gen/
 .webassets-cache/
