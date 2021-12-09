@@ -57,7 +57,7 @@ class TestCommonCriteriaOOP(TestCase):
                                           None)
 
         pp = ProtectionProfile('sample_pp', 'https://sample.pp')
-        update = CommonCriteriaCert.MaintainanceReport(date(1900, 1, 1), 'Sample maintainance', 'https://maintainance.up', 'https://maintainance.up')
+        update = CommonCriteriaCert.MaintenanceReport(date(1900, 1, 1), 'Sample maintenance', 'https://maintenance.up', 'https://maintenance.up')
         self.fictional_cert = CommonCriteriaCert('archived',
                                                  'Sample category',
                                                  'Sample certificate name',

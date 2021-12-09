@@ -23,13 +23,13 @@
             "pp_ids": null
         }
     ],
-    "maintainance_updates": [
+    "maintenance_updates": [
         {
-            "_type": "MaintainanceReport",
-            "maintainance_date": "1900-01-01",
-            "maintainance_title": "Sample maintainance",
-            "maintainance_report_link": "https://maintainance.up",
-            "maintainance_st_link": "https://maintainance.up"
+            "_type": "MaintenanceReport",
+            "maintenance_date": "1900-01-01",
+            "maintenance_title": "Sample maintenance",
+            "maintenance_report_link": "https://maintenance.up",
+            "maintenance_st_link": "https://maintenance.up"
         }
     ],
     "state": {
