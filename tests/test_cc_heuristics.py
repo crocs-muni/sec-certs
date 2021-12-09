@@ -148,13 +148,8 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_dependency_dataset(self):
         dependency_dataset = CCDataset.from_json(self.data_dir_path / 'dependency_dataset.json')
         dependency_dataset._compute_dependencies()
-        test_cert = None
-
-        for cert in dependency_dataset:
-            if cert.dgst == "692e91451741ef49":
-                test_cert = cert
-                break
-
+        test_cert = dependency_dataset["692e91451741ef49"]
+        
         self.assertEqual(test_cert.heuristics.directly_affected_by, ["BSI-DSZ-CC-0370-2006"])
         self.assertEqual(test_cert.heuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
         self.assertEqual(test_cert.heuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
