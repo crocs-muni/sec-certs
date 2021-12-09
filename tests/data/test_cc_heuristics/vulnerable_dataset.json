@@ -32,7 +32,7 @@
             "cert_link": null,
             "manufacturer_web": "http://www.ibm.com",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,

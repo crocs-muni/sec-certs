@@ -32,7 +32,7 @@
             "cert_link": "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
             "manufacturer_web": "https://www.netiq.com/",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -89,7 +89,7 @@
                     "pp_ids": null
                 }
             ],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,

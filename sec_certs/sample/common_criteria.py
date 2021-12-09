@@ -22,26 +22,26 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
-    class MaintainanceReport(ComplexSerializableType):
+    class MaintenanceReport(ComplexSerializableType):
         """
-        Object for holding maintainance reports.
+        Object for holding maintenance reports.
         """
-        maintainance_date: date
-        maintainance_title: str
-        maintainance_report_link: str
-        maintainance_st_link: str
+        maintenance_date: date
+        maintenance_title: str
+        maintenance_report_link: str
+        maintenance_st_link: str
 
         def __post_init__(self):
-            super().__setattr__('maintainance_report_link',
-                                helpers.sanitize_link(self.maintainance_report_link))
-            super().__setattr__('maintainance_st_link',
-                                helpers.sanitize_link(self.maintainance_st_link))
-            super().__setattr__('maintainance_title',
-                                helpers.sanitize_string(self.maintainance_title))
-            super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
+            super().__setattr__('maintenance_report_link',
+                                helpers.sanitize_link(self.maintenance_report_link))
+            super().__setattr__('maintenance_st_link',
+                                helpers.sanitize_link(self.maintenance_st_link))
+            super().__setattr__('maintenance_title',
+                                helpers.sanitize_string(self.maintenance_title))
+            super().__setattr__('maintenance_date', helpers.sanitize_date(self.maintenance_date))
 
         def __lt__(self, other):
-            return self.maintainance_date < other.maintainance_date
+            return self.maintenance_date < other.maintenance_date
 
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
@@ -208,7 +208,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                  not_valid_after: date, report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: Set[ProtectionProfile],
-                 maintainance_updates: Set[MaintainanceReport],
+                 maintenance_updates: Set[MaintenanceReport],
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
                  heuristics: Optional[CCHeuristics]):
@@ -227,7 +227,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         self.cert_link = helpers.sanitize_link(cert_link)
         self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
-        self.maintainance_updates = maintainance_updates
+        self.maintenance_updates = maintenance_updates
 
         if state is None:
             state = self.InternalState()
@@ -268,7 +268,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
-        On other values (apart from maintainances, see TODO below) the sanity checks are made.
+        On other values (apart from maintenances, see TODO below) the sanity checks are made.
         """
         if self != other:
             logger.warning(
@@ -279,7 +279,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                 setattr(self, att, getattr(other, att))
             elif other_source == 'html' and att == 'protection_profiles':
                 setattr(self, att, getattr(other, att))
-            elif other_source == 'html' and att == 'maintainance_updates':
+            elif other_source == 'html' and att == 'maintenance_updates':
                 setattr(self, att, getattr(other, att))
             elif att == 'state':
                 setattr(self, att, getattr(other, att))
@@ -291,7 +291,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     @classmethod
     def from_dict(cls, dct: Dict) -> 'CommonCriteriaCert':
         new_dct = dct.copy()
-        new_dct['maintainance_updates'] = set(dct['maintainance_updates'])
+        new_dct['maintenance_updates'] = set(dct['maintenance_updates'])
         new_dct['protection_profiles'] = set(dct['protection_profiles'])
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
@@ -351,16 +351,16 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             links = cell.find_all('a')
             return CommonCriteriaCert.cc_url + links[0].get('href') if links else None
 
-        def _get_maintainance_div(cell: Tag) -> Optional[Tag]:
+        def _get_maintenance_div(cell: Tag) -> Optional[Tag]:
             divs = cell.find_all('div')
             for d in divs:
                 if d.find('div') and d.stripped_strings and list(d.stripped_strings)[0] == 'Maintenance Report(s)':
                     return d
             return None
 
-        def _get_maintainance_updates(main_div: Tag) -> set:
+        def _get_maintenance_updates(main_div: Tag) -> set:
             possible_updates = list(main_div.find_all('li'))
-            maintainance_updates = set()
+            maintenance_updates = set()
             for u in possible_updates:
                 text = list(u.stripped_strings)[0]
                 main_date = datetime.strptime(text.split(
@@ -378,9 +378,9 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                                        l.get('href')
                     else:
                         logger.error('Unknown link in Maintenance part!')
-                maintainance_updates.add(
-                    CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
-            return maintainance_updates
+                maintenance_updates.add(
+                    CommonCriteriaCert.MaintenanceReport(main_date, main_title, main_report_link, main_st_link))
+            return maintenance_updates
 
         cells = list(row.find_all('td'))
         if len(cells) != 7:
@@ -398,13 +398,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         report_link, st_link = _get_report_st_links(cells[0])
         cert_link = _get_cert_link(cells[2])
 
-        maintainance_div = _get_maintainance_div(cells[0])
-        maintainances = _get_maintainance_updates(
-            maintainance_div) if maintainance_div else set()
+        maintenance_div = _get_maintenance_div(cells[0])
+        maintenances = _get_maintenance_updates(
+            maintenance_div) if maintenance_div else set()
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
                    report_link,
-                   st_link, cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
+                   st_link, cert_link, manufacturer_web, protection_profiles, maintenances, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],

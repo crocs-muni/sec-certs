@@ -278,23 +278,23 @@ class CCDataset(Dataset, ComplexSerializableType):
             cert_status = 'archived'
 
         csv_header = ['category', 'cert_name', 'manufacturer', 'scheme', 'security_level', 'protection_profiles',
-                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintainance_date',
-                      'maintainance_title', 'maintainance_report_link', 'maintainance_st_link']
+                      'not_valid_before', 'not_valid_after', 'report_link', 'st_link', 'maintenance_date',
+                      'maintenance_title', 'maintenance_report_link', 'maintenance_st_link']
 
         # TODO: Now skipping bad lines, smarter heuristics to be built for dumb files
         df = pd.read_csv(file, engine='python', encoding='windows-1252', error_bad_lines=False)
         df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
 
-        df['is_maintainance'] = ~df.maintainance_title.isnull()
+        df['is_maintenance'] = ~df.maintenance_title.isnull()
         df = df.fillna(value='')
 
-        df[['not_valid_before', 'not_valid_after', 'maintainance_date']] = df[
-            ['not_valid_before', 'not_valid_after', 'maintainance_date']].apply(pd.to_datetime)
+        df[['not_valid_before', 'not_valid_after', 'maintenance_date']] = df[
+            ['not_valid_before', 'not_valid_after', 'maintenance_date']].apply(pd.to_datetime)
 
         df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(
             _get_primary_key_str(row)), axis=1)
-        df_base = df.loc[df.is_maintainance == False].copy()
-        df_main = df.loc[df.is_maintainance == True].copy()
+        df_base = df.loc[df.is_maintenance == False].copy()
+        df_main = df.loc[df.is_maintenance == True].copy()
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=['dgst']))
@@ -310,9 +310,9 @@ class CCDataset(Dataset, ComplexSerializableType):
                     df_base.itertuples()}
         updates = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
-            updates[x.dgst].add(CommonCriteriaCert.MaintainanceReport(x.maintainance_date.date(), x.maintainance_title,
-                                                                      x.maintainance_report_link,
-                                                                      x.maintainance_st_link))
+            updates[x.dgst].add(CommonCriteriaCert.MaintenanceReport(x.maintenance_date.date(), x.maintenance_title,
+                                                                      x.maintenance_report_link,
+                                                                      x.maintenance_st_link))
 
         certs = {
             x.dgst: CommonCriteriaCert(cert_status, x.category, x.cert_name, x.manufacturer, x.scheme, x.security_level,
@@ -623,12 +623,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         return [crt for crt in self if crt.name == cert_name]
 
     def process_maintenance_updates(self):
-        maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintainance_updates]
+        maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
         updates = list(itertools.chain.from_iterable(
             [CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]))
         update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates({x.dgst: x for x in updates},
                                                                                root_dir=self.certs_dir / 'maintenance',
-                                                                               name='Maintainance updates')
+                                                                               name='Maintenance updates')
         update_dset.set_local_paths()
         update_dset.download_all_pdfs()
         update_dset.convert_all_pdfs()
