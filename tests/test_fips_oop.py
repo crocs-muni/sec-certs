@@ -51,12 +51,11 @@ class TestFipsOOP(TestCase):
     def setUpClass(cls) -> None:
         config.load(cls.data_dir.parent / 'settings_test.yaml')
 
-    # FIXME - uncomment later - bug in this test - FileNotFound - bad parsing of "microsoft" string
-    # def test_size(self):
-    #     for certs in self.certs_to_parse:
-    #         with TemporaryDirectory() as tmp_dir:
-    #             dataset = _set_up_dataset(tmp_dir, certs)
-    #             self.assertEqual(len(dataset.certs), len(certs), "Wrong number of parsed certs")
+    def test_size(self):
+        for certs in self.certs_to_parse.values():
+            with TemporaryDirectory() as tmp_dir:
+                dataset = _set_up_dataset(tmp_dir, certs)
+                self.assertEqual(len(dataset.certs), len(certs), "Wrong number of parsed certs")
 
     def test_connections_microsoft(self):
         certs = self.certs_to_parse['microsoft']

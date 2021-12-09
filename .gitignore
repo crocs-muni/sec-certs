@@ -123,3 +123,6 @@ fips_test_dataset/
 # log
 cert_processing_log.txt
 ./cc_processing_log.txt
+
+# Example script may dump classification report into the folder
+examples/classification_report.json

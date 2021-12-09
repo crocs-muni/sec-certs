@@ -75,7 +75,13 @@ class CPEClassifier(BaseEstimator):
         """
         return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm.tqdm(X, desc='Predicting')]
 
-    def predict_single_cert(self, vendor: str, product_name: str, versions: Optional[List[str]], relax_version: bool = True) -> Optional[List[str]]:
+    def predict_single_cert(self,
+                            vendor: str,
+                            product_name: str,
+                            versions: Optional[List[str]],
+                            relax_version: bool = False,
+                            relax_title: bool = False
+                            ) -> Optional[List[str]]:
         """
         Predict List of CPE uris for triplet (vendor, product_name, list_of_version). The prediction is made as follows:
         1. Sanitize all strings
@@ -84,10 +90,12 @@ class CPEClassifier(BaseEstimator):
         4. Compute string similarity of the candidate CPE matches and certificate name
         5. Evaluate best string similarity, if above threshold, declare it a match.
         6. If no CPE item is matched, we tried again but relax version and check CPEs that don't have their version specified.
+        Also, we search for 100% CPE matches on item name instead of title.
         @param vendor: manufacturer of the certificate
         @param product_name: name of the certificate
         @param versions: List of versions that appear in the certificate name
         @param relax_version: bool, see step 6 above.
+        @param relax_title: bool
         @return:
         """
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
@@ -95,16 +103,22 @@ class CPEClassifier(BaseEstimator):
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
 
         candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
-        ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions) for cpe in candidates]
+        ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title) for cpe in candidates]
         threshold = self.match_threshold if not relax_version else 100
         final_matches = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
+        final_matches = [x[1].uri for x in final_matches[:self.n_max_matches]]
 
-        if relax_version and not final_matches:
-            return self.predict_single_cert(vendor, product_name, ['-'], relax_version=False)
 
-        return [x[1].uri for x in final_matches[:self.n_max_matches]] if final_matches else None
 
-    def compute_best_match(self, cpe: CPE, product_name: str, candidate_vendors: str, versions: Optional[List[str]]) -> float:
+        if not relax_title and not final_matches:
+            final_matches = self.predict_single_cert(vendor, product_name, versions, relax_version=relax_version, relax_title=True)
+
+        if not relax_version and not final_matches:
+            final_matches = self.predict_single_cert(vendor, product_name, ['-'], relax_version=True, relax_title=relax_title)
+
+        return final_matches if final_matches else None
+
+    def compute_best_match(self, cpe: CPE, product_name: str, candidate_vendors: List[str], versions: Optional[List[str]], relax_title: bool = False) -> float:
         """
         Tries several different settings in which string similarity between CPE and certificate name is tested.
         For definition of string similarity, see rapidfuzz package on GitHub. Both token set ratio and partial ratio are tested,
@@ -115,15 +129,27 @@ class CPEClassifier(BaseEstimator):
         @param versions: versions that appear in the certificate
         @return: Maximal value of the four string similarities discussed above.
         """
-        sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version)
+        if relax_title:
+            sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version + ' ' + cpe.update + ' ' + cpe.target_hw)
+        else:
+            if cpe.title:
+                sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title)
+            else:
+                return 0
+
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
         cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
         token_set_ratio_on_title = fuzz.token_set_ratio(product_name, sanitized_title)
-        token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped, sanitized_item_name)
         partial_ratio_on_title = fuzz.partial_ratio(product_name, sanitized_title)
-        partial_ratio_on_item_name = fuzz.partial_ratio(cert_stripped, sanitized_item_name)
-        return max([token_set_ratio_on_title, partial_ratio_on_title, token_set_ratio_on_item_name, partial_ratio_on_item_name])
+        ratings = [token_set_ratio_on_title, partial_ratio_on_title]
+
+        if relax_title:
+            token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped, sanitized_item_name)
+            partial_ratio_on_item_name = fuzz.partial_ratio(cert_stripped, sanitized_item_name)
+            ratings += [token_set_ratio_on_item_name, partial_ratio_on_item_name]
+
+        return max(ratings)
 
     @staticmethod
     def _fully_sanitize_string(string: str) -> str:
@@ -194,11 +220,17 @@ class CPEClassifier(BaseEstimator):
         """
 
         def is_cpe_version_among_cert_versions(cpe_version: Optional[str], cert_versions: List[str]) -> bool:
+            def simple_startswith(seeked_version: str, checked_string: str) -> bool:
+                if seeked_version == checked_string:
+                    return True
+                else:
+                    return checked_string.startswith(seeked_version) and not checked_string[len(seeked_version)].isdigit()
+
             if not cpe_version:
                 return False
             just_numbers = r'(\d{1,5})(\.\d{1,5})' # TODO: The use of this should be double-checked
             for v in cert_versions:
-                if (v.startswith(cpe_version) and re.search(just_numbers, cpe_version)) or cpe_version.startswith(v):
+                if (simple_startswith(v, cpe_version) and re.search(just_numbers, cpe_version)) or simple_startswith(cpe_version, v):
                     return True
             return False
 

@@ -38,6 +38,14 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return ['uri', 'title', 'start_version', 'end_version']
 
     @property
+    def update(self) -> str:
+        return ' '.join(self.uri.split(':')[6].split('_'))
+
+    @property
+    def target_hw(self) -> str:
+        return ' '.join(self.uri.split(':')[11].split('_'))
+
+    @property
     def pandas_tuple(self):
         return self.uri, self.vendor, self.item_name, self.version, self.title
 
