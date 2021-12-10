@@ -56,7 +56,7 @@ class CPEDataset(ComplexSerializableType):
         """
         Will build look-up dictionaries that are used for fast matching
         """
-        logging.info('CPE dataset: building lookup dictionaries.')
+        logger.info('CPE dataset: building lookup dictionaries.')
         self.vendor_to_versions = {x.vendor: set() for x in self}
         self.vendor_version_to_cpe = dict()
         self.title_to_cpes = dict()

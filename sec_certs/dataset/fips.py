@@ -16,6 +16,9 @@ from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.sample.fips import FIPSCertificate
 
 
+logger = logging.getLogger(__name__)
+
+
 class FIPSDataset(Dataset, ComplexSerializableType):
     certs: Dict[str, FIPSCertificate]
 
@@ -107,7 +110,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf"
                 )
                 sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
-        logging.info(f"downloading {len(sp_urls)} module pdf files")
+        logger.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(
             FIPSCertificate.download_security_policy, list(zip(sp_urls, sp_paths)), config.n_threads, progress_bar_desc="Downloading PDF files"
         )
@@ -125,14 +128,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 html_paths.append(self.web_dir / f"{cert_id}.html")
                 new_files.append(cert_id)
 
-        logging.info(f"downloading {len(html_urls)} module html files")
+        logger.info(f"downloading {len(html_urls)} module html files")
         failed = cert_processing.process_parallel(
             FIPSCertificate.download_html_page, list(zip(html_urls, html_paths)), config.n_threads, progress_bar_desc="Downloading HTML files"
         )
         failed = [c for c in failed if c]
 
         self.new_files += len(html_urls)
-        logging.info(f"Download failed for {len(failed)} files. Retrying...")
+        logger.info(f"Download failed for {len(failed)} files. Retrying...")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads, progress_bar_desc="Downloading HTML files again")
         return new_files
 
@@ -260,7 +263,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if not no_download_algorithms:
             aset = FIPSAlgorithmDataset({}, Path(self.root_dir / 'web' / 'algorithms'), 'algorithms', 'sample algs')
             aset.get_certs_from_web()
-            logging.info(f'Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.')
+            logger.info(f'Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.')
 
             self.algorithms = aset
         
@@ -507,7 +510,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 dot.edge(key, conn)
                 edges += 1
 
-        logging.info(f"rendering for {connection_list}: {keys} keys and {edges} edges")
+        logger.info(f"rendering for {connection_list}: {keys} keys and {edges} edges")
 
         dot.render(self.root_dir / (str(output_file_name) + "_connections"), view=show)
         single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)

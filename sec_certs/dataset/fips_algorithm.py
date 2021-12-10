@@ -13,6 +13,9 @@ from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.config.configuration import config
 
 
+logger = logging.getLogger(__name__)
+
+
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def get_certs_from_web(self):
         self.root_dir.mkdir(exist_ok=True)
@@ -36,7 +39,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
         # get the last page, always
         helpers.download_file(constants.FIPS_ALG_URL + num_pages['data-total-pages'],
                               self.root_dir / f"page{int(num_pages['data-total-pages'])}.html")
-        logging.info(f"downloading {len(algs_urls)} algs html files")
+        logger.info(f"downloading {len(algs_urls)} algs html files")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
                                          config.n_threads)
 

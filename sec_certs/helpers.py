@@ -520,7 +520,7 @@ def plot_dataframe_graph(data: Dict, label: str, file_name: str, density: bool =
     if log:
         sorted_data = pd_data.value_counts(ascending=True)
 
-    logging.info(sorted_data.where(sorted_data > 1).dropna())
+    logger.info(sorted_data.where(sorted_data > 1).dropna())
 
 
 def is_in_dict(target_dict, path):

@@ -333,7 +333,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         html_items_found['vendor'] = vendor_string
         if html_items_found['vendor'] == '':
-            logger.warning(f"WARNING: NO VENDOR FOUND {current_file}")
+            logger.warning(f"NO VENDOR FOUND {current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -344,10 +344,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['lab'] == '':
-            logger.warning(f"WARNING: NO LAB FOUND {current_file}")
+            logger.warning(f"NO LAB FOUND {current_file}")
 
         if html_items_found['nvlap_code'] == '':
-            logger.warning(f"WARNING: NO NVLAP CODE FOUND {current_file}")
+            logger.warning(f"NO NVLAP CODE FOUND {current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
@@ -580,7 +580,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     MAX_ALLOWED_MATCH_LENGTH = 300
                     match_len = len(match)
                     if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                        print('WARNING: Excessive match with length of {} detected for rule {}'.format(
+                        logger.warning('Excessive match with length of {} detected for rule {}'.format(
                             match_len, rule))
 
                     if match not in items_found[rule_str]:
