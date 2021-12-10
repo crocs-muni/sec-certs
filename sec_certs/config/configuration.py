@@ -23,6 +23,7 @@ class Configuration(object):
         for k, v in state.items():
             setattr(self, k, v)
 
+
     def __getattribute__(self, key):
         res = object.__getattribute__(self, key)
         if isinstance(res, dict) and 'value' in res:
@@ -30,6 +31,6 @@ class Configuration(object):
         return object.__getattribute__(self, key)
 
 
-config_path = Path(__file__).parent / 'settings.yaml'
+DEFAULT_CONFIG_PATH = Path(__file__).parent / 'settings.yaml'
 config = Configuration()
-config.load(config_path)
+config.load(DEFAULT_CONFIG_PATH)
