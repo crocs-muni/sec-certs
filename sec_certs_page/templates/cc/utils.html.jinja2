@@ -1,36 +1,39 @@
 {% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
-	{% set ns = namespace(render=False) %}
-	{% for heading, keyword in keyword_sources.items() %}
-		{% if keyword not in hidden and keyword_scan[keyword] %}
-			{% set ns.render = True %}
-		{% endif %}
-	{% endfor %}
-	{% if ns.render %}
-		<div class="card mt-1">
-			<div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
-			<h4 class="mb-0">
-				<button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false" aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
-				{{ card_name }}
-				</button>
-			</h4>
-			</div>
+    {% set ns = namespace(render=False) %}
+    {% for heading, keyword in keyword_sources.items() %}
+        {% if keyword not in hidden and keyword_scan[keyword] %}
+            {% set ns.render = True %}
+        {% endif %}
+    {% endfor %}
+    {% if ns.render %}
+        <div class="card mt-1">
+            <div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
+                <h4 class="mb-0">
+                    <button class="btn btn-link" data-bs-toggle="collapse"
+                            data-bs-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false"
+                            aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
+                        {{ card_name }}
+                    </button>
+                </h4>
+            </div>
 
-			<div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse" aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
-			<div class="card-body">
-				{% for heading, keyword in keyword_sources.items() %}
-					{% if keyword not in hidden and keyword_scan[keyword] %}
-						<h5 class="mt-2">{{ heading }}</h5>
-						{{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
-					{% endif %}
-				{% endfor %}
-			</div>
-			</div>
-		</div>
-	{% endif %}
+            <div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse"
+                 aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
+                <div class="card-body">
+                    {% for heading, keyword in keyword_sources.items() %}
+                        {% if keyword not in hidden and keyword_scan[keyword] %}
+                            <h5 class="mt-2">{{ heading }}</h5>
+                            {{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Algorithms": "rules_crypto_algs",
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Algorithms": "rules_crypto_algs",
 																		  "Engines": "rules_crypto_engines",
 																		  "Libraries": "rules_crypto_libraries",
 																		  "Elliptic Curves": "rules_ecc_curves",
@@ -38,7 +41,7 @@
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
 																	"JavaCard": "rules_javacard",
 																	"OS": "rules_os",
 																	"CPLC": "rules_cplc",
@@ -47,103 +50,137 @@
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Protection profiles": "rules_protection_profiles",
+    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Protection profiles": "rules_protection_profiles",
+                                                                        "Claims": "rules_cc_claims",
 																		"Security Assurance Requirements (SAR)": "rules_security_assurance_components",
 																		"Security Functional Requirements (SFR)": "rules_security_functional_components",
-																		"Security level": "rules_security_level"}, hidden, map_funcs) }}
+																		"Security level": "rules_security_level",
+																		"Defenses": "rules_defenses",
+																		"Vulnerabilities": "rules_vulnerabilities"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
 																  "Technical reports": "rules_technical_reports"}, hidden, map_funcs) }}
 {%- endmacro %}
 
+{% macro opt_line(name, key, obj) %}
+    {% if key in obj and obj[key] %}
+        <b>{{ name }}:</b> {{ obj[key] }}<br/>
+    {% endif %}
+{%- endmacro  %}
+
+{% macro render_pdf_meta(pdf_meta) %}
+    {{ opt_line("Title", "/Title", pdf_meta) }}
+    {{ opt_line("Subject", "/Subject", pdf_meta) }}
+    {{ opt_line("Keywords", "/Keywords", pdf_meta) }}
+    {{ opt_line("Author", "/Author", pdf_meta) }}
+    {{ opt_line("Creation date", "/CreationDate", pdf_meta) }}
+    {{ opt_line("Modification date", "/ModDate", pdf_meta) }}
+    {{ opt_line("Pages", "pdf_number_of_pages", pdf_meta) }}
+{%- endmacro %}
+
+{% macro render_frontpage(cert, doc_type) %}
+    {% if cert["pdf_data"][doc_type] %}
+        {% if cert["pdf_data"][doc_type]["anssi"] %}
+            {% set frontpage = cert["pdf_data"][doc_type]["anssi"] %}
+        {% elif cert["pdf_data"][doc_type]["bsi"] %}
+            {% set frontpage = cert["pdf_data"][doc_type]["bsi"] %}
+        {% endif %}
+        {% if frontpage %}
+            <h3 class="mt-3">Frontpage</h3>
+            {{ opt_line("Certificate ID", "cert_id", frontpage) }}
+            {{ opt_line("Certificated item", "cert_item", frontpage) }}
+            {{ opt_line("Certification lab", "cert_lab", frontpage) }}
+            {{ opt_line("Developer", "developer", frontpage) }}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
 {% macro double_join(rule_dict, separator=", ", map_func=None) %}
-	{% for value in rule_dict.values() %}
-		{%- for inside in value.keys() -%}
-			{%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
-		{%- endfor -%}
-		{%- if not loop.last -%}{{ separator }}{%- endif -%}
-	{% endfor %}
+    {% for key in rule_dict.keys() %}
+        {%- if map_func -%}{{ map_func(key) }}{%- else -%}{{ key }}{%- endif -%}
+        {%- if not loop.last -%}{{ separator }}{%- endif -%}
+    {% endfor %}
 {%- endmacro %}
 
 {% macro render_status(status) %}
-	{% if status == "active" %}
-	<span class="text-success"><i class="fas fa-check-square"></i> active</span>
-	{% elif status == "archived" %}
-	<span class="text-warning"><i class="fas fa-times-circle"></i> archived</span>
-	{% else %}
-	<span>{{ status }}</span>
-	{% endif %}
+    {% if status == "active" %}
+        <span class="text-success"><i class="fas fa-check-square"></i> active</span>
+    {% elif status == "archived" %}
+        <span class="text-warning"><i class="fas fa-times-circle"></i> archived</span>
+    {% else %}
+        <span>{{ status }}</span>
+    {% endif %}
 {%- endmacro %}
 
 {% macro render_category(category) %}
     <span title="{{ category }}">
     {% set cat = get_cc_category(category) %}
-    {% if cat %}
-        <i class="fas fa-fw {{ cat['icon'] }}"></i>
-    {% endif %}
+        {% if cat %}
+            <i class="fas fa-fw {{ cat['icon'] }}"></i>
+        {% endif %}
     </span>
 {%- endmacro %}
 
 {% macro render_sfrs(sfr) %}
-	{%- if get_cc_sfr(sfr) -%}
-		<abbr title="{{ get_cc_sfr(sfr) }}">{{ sfr }}</abbr>
-	{%- else -%}
-		{{ sfr }}
-	{%- endif -%}
+    {%- if get_cc_sfr(sfr) -%}
+        <abbr title="{{ get_cc_sfr(sfr) }}">{{ sfr }}</abbr>
+    {%- else -%}
+        {{ sfr }}
+    {%- endif -%}
 {%- endmacro %}
 
 {% macro render_sars(sar) %}
-	{%- if get_cc_sar(sar) -%}
-		<abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
-	{%- else -%}
-		{{ sar }}
-	{%- endif -%}
+    {%- if get_cc_sar(sar) -%}
+        <abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
+    {%- else -%}
+        {{ sar }}
+    {%- endif -%}
 {%- endmacro %}
 
 {% macro render_pagination(pagination, certs, search=False) %}
     <div id="pagination">
-    {% if search %}
-        <span style="text-align: center">{{ pagination.info }}</span>
-    {% endif %}
-    <div class="mt-4 mb-4">
-		{{ pagination.links }}
-	</div>
-	<table class="border mb-4">
-        <col style="width:15%">
-		<col style="width:64%">
-		<col style="width:5%">
-		<col style="width:8%">
-		<col style="width:8%">
-		<thead>
-			<tr class="border-bottom">
+        {% if search %}
+            <span style="text-align: center">{{ pagination.info }}</span>
+        {% endif %}
+        <div class="mt-4 mb-4">
+            {{ pagination.links }}
+        </div>
+        <table class="border mb-4">
+            <col style="width:15%">
+            <col style="width:64%">
+            <col style="width:5%">
+            <col style="width:8%">
+            <col style="width:8%">
+            <thead>
+            <tr class="border-bottom">
                 <th class="pl-1">ID</th>
-				<th>Name</th>
-				<th>Status</th>
-				<th>Certification date</th>
-				<th>Archive date</th>
-			</tr>
-		</thead>
-	{% for cert in certs %}
-        {% set idd = cert["processed"]["cert_id"] %}
-        {% set name = cert["csv_scan"]["cert_item_name"] %}
-        {% set status = cert["csv_scan"]["cert_status"] %}
-        {% set hashid = cert["_id"] %}
-        {% set cert_date = cert["csv_scan"]["cc_certification_date"] %}
-        {% set archive_date = cert["csv_scan"]["cc_archived_date"] %}
-        {% set category = cert["csv_scan"]["cc_category"] %}
-		<tr>
-        <td class="pl-1">{{ render_category(category) }}&nbsp;{{ idd }}</td>
-		<td><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
-		<td>{{ render_status(status) }}</td>
-		<td>{{ cert_date.strftime("%d-%m-%Y") if cert_date else "" }}</td>
-		<td>{{ archive_date.strftime("%d-%m-%Y") if archive_date else "" }}</td>
-		</tr>
-	{% endfor %}
-	</table>
-	<div class="mb-4">
-		{{ pagination.links }}
-	</div>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Certification date</th>
+                <th>Archive date</th>
+            </tr>
+            </thead>
+            {% for cert in certs %}
+                {% set idd = cert["heuristics"]["cert_id"] %}
+                {% set name = cert["name"] %}
+                {% set status = cert["status"] %}
+                {% set hashid = cert["_id"] %}
+                {% set cert_date = cert["not_valid_before"]|strptime("%Y-%m-%d") %}
+                {% set archive_date = cert["not_valid_after"]|strptime("%Y-%m-%d") %}
+                {% set category = cert["category"] %}
+                <tr>
+                    <td class="pl-1">{{ render_category(category) }}&nbsp;{{ idd }}</td>
+                    <td><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
+                    <td>{{ render_status(status) }}</td>
+                    <td>{{ cert_date|strftime("%d.%m.%Y") if cert_date else "" }}</td>
+                    <td>{{ archive_date|strftime("%d.%m.%Y") if archive_date else "" }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="mb-4">
+            {{ pagination.links }}
+        </div>
     </div>
 {%- endmacro %}

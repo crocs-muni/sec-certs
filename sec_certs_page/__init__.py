@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import sentry_sdk
 from flag import flag
 from celery import Celery, Task
@@ -90,6 +92,18 @@ def to_flag(code):
 def blueprint_prefix():
     """The url_prefix of the current blueprint."""
     return current_app.blueprints[request.blueprint].url_prefix
+
+
+@app.template_filter("strptime")
+def filter_strptime(dt, format):
+    return datetime.strptime(dt, format) if dt else None
+
+
+@app.template_filter("strftime")
+def filter_strftime(dt_obj, format):
+    if isinstance(dt_obj, datetime):
+        return dt_obj.strftime(format)
+    raise TypeError("Not a datetime")
 
 
 from .cc import cc

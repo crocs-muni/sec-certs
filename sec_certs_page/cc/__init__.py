@@ -1,5 +1,6 @@
 import json
 from contextvars import ContextVar
+from datetime import datetime
 
 import sentry_sdk
 from flask import Blueprint
@@ -28,38 +29,35 @@ def load_cc_data():
         # Extract references
         data = mongo.db.cc.find({}, {
             "_id": 1,
-            "csv_scan.cert_item_name": 1,
-            "csv_scan.cc_category": 1,
-            "csv_scan.cc_certification_date": 1,
-            "processed.cert_id": 1,
-            "keywords_scan.rules_cert_id": 1,
-            "st_keywords_scan.rules_cert_id": 1
+            "name": 1,
+            "category": 1,
+            "not_valid_before": 1,
+            "heuristics.cert_id": 1,
+            "pdf_data.st_keywords.rules_cert_id": 1,
+            "pdf_data.report_keywords.rules_cert_id": 1
         })
         cc_references = {}
         for cert in data:
             hashid = cert["_id"]
-            if "processed" in cert and "cert_id" in cert["processed"] and cert["processed"]["cert_id"] != "":
-                cert_id = cert["processed"]["cert_id"]
-            else:
+            cert_id = cert["heuristics"]["cert_id"]
+            if not cert_id:
                 continue
             reference = {
                 "hashid": hashid,
-                "name": cert["csv_scan"]["cert_item_name"],
+                "name": cert["name"],
                 "refs": [],
                 "href": url_for("cc.entry", hashid=hashid),
-                "type": cc_categories[cert["csv_scan"]["cc_category"]]["id"]
+                "type": cc_categories[cert["category"]]["id"]
             }
             # Process references
-            if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and "keywords_scan" in cert and \
-                    cert["keywords_scan"]["rules_cert_id"]:
+            if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and \
+                    cert["pdf_data"]["report_keywords"]["rules_cert_id"]:
                 # Add references from cert
-                items = sum(map(lambda x: list(x.keys()), cert["keywords_scan"]["rules_cert_id"].values()), [])
-                reference["refs"].extend(items)
-            if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and "st_keywords_scan" in cert and \
-                    cert["st_keywords_scan"]["rules_cert_id"]:
+                reference["refs"].extend(cert["pdf_data"]["report_keywords"]["rules_cert_id"].keys())
+            if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and \
+                    cert["pdf_data"]["st_keywords"]["rules_cert_id"]:
                 # Add references from security target
-                items = sum(map(lambda x: list(x.keys()), cert["st_keywords_scan"]["rules_cert_id"].values()), [])
-                reference["refs"].extend(items)
+                reference["refs"].extend(cert["pdf_data"]["st_keywords"]["rules_cert_id"].keys())
             cc_references[cert_id] = reference
 
     with sentry_sdk.start_span(op="cc.load", description="Compute CC graph"):
@@ -72,15 +70,15 @@ def load_cc_data():
         cc_analysis = {}
         cc_analysis["categories"] = {}
         for cert in data.clone():
-            cc_analysis["categories"].setdefault(cert["csv_scan"]["cc_category"], 0)
-            cc_analysis["categories"][cert["csv_scan"]["cc_category"]] += 1
+            cc_analysis["categories"].setdefault(cert["category"], 0)
+            cc_analysis["categories"][cert["category"]] += 1
         cc_analysis["categories"] = [{"name": key, "value": value} for key, value in cc_analysis["categories"].items()]
 
         cc_analysis["certified"] = {}
         for cert in data.clone():
-            cert_month = cert["csv_scan"]["cc_certification_date"].replace(day=1).strftime("%Y-%m-%d")
-            cc_analysis["certified"].setdefault(cert["csv_scan"]["cc_category"], [])
-            months = cc_analysis["certified"][cert["csv_scan"]["cc_category"]]
+            cert_month = datetime.strptime(cert["not_valid_before"], "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
+            cc_analysis["certified"].setdefault(cert["category"], [])
+            months = cc_analysis["certified"][cert["category"]]
             for month in months:
                 if month["date"] == cert_month:
                     month["value"] += 1
@@ -100,6 +98,7 @@ def load_cc_data():
                 if category not in month.keys():
                     month[category] = 0
         cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
+        print(cc_analysis["certified"])
         cc_mem_analysis.set(cc_analysis)
 
 
