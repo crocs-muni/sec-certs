@@ -20,11 +20,12 @@ def _load_certs(file, certs_path, mapper):
     if certs_path:
         for name in certs_path:
             certs = certs[name]
-    for key, val in tqdm(certs.items()):
-        val["_id"] = blake2b(key.encode(), digest_size=10).hexdigest()
-        certs[key] = remove_dots(mapper(val))
+    result = {}
+    for cert in tqdm(certs):
+        cert["_id"] = cert["dgst"]
+        result[cert["dgst"]] = remove_dots(mapper(cert) if mapper else cert)
     click.echo("Loaded certs")
-    return certs
+    return result
 
 
 def _add(file, collection, certs_path, mapper):
@@ -59,11 +60,11 @@ def _update(file, remove, collection, certs_path, mapper):
     click.echo("Updated")
 
 
-def _create(collection_name, text_attr):
+def _create(collection_name, text_attrs, sort_attrs):
     click.echo("Creating...")
     mongo.db.create_collection(collection_name)
-    mongo.db[collection_name].create_index([(text_attr, pymongo.TEXT)])
-    mongo.db[collection_name].create_index([(text_attr, pymongo.ASCENDING)])
+    mongo.db[collection_name].create_index([(text_attr, pymongo.TEXT) for text_attr in text_attrs])
+    mongo.db[collection_name].create_index([(sort_attr, pymongo.ASCENDING) for sort_attr in sort_attrs])
     click.echo("Created")
 
 

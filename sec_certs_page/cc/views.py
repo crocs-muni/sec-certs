@@ -82,18 +82,17 @@ def select_certs(q, cat, status, sort):
     query = {}
     projection = {
         "_id": 1,
-        "csv_scan.cert_item_name": 1,
-        "csv_scan.cert_status": 1,
-        "csv_scan.cc_certification_date": 1,
-        "csv_scan.cc_archived_date": 1,
-        "csv_scan.cc_category": 1,
-        "processed.cert_id": 1
+        "name": 1,
+        "status": 1,
+        "not_valid_before": 1,
+        "not_valid_after": 1,
+        "category": 1,
+        "heuristics.cert_id": 1
     }
 
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
-        re_q = ".*" + re.escape(q) + ".*"
-        query["$or"] = [{"$text": {"$search": q}}, {"csv_scan.cert_item_name": {"$regex": re_q, "$options": "i"}}]
+        query["$text"] = {"$search": q}
 
     if cat is not None:
         selected_cats = []
@@ -103,24 +102,24 @@ def select_certs(q, cat, status, sort):
                 category["selected"] = True
             else:
                 category["selected"] = False
-        query["csv_scan.cc_category"] = {"$in": selected_cats}
+        query["category"] = {"$in": selected_cats}
     else:
         for category in categories.values():
             category["selected"] = True
 
     if status is not None and status != "any":
-        query["csv_scan.cert_status"] = status
+        query["status"] = status
 
     cursor = mongo.db.cc.find(query, projection)
 
     if sort == "match" and q is not None and q != "":
-        cursor.sort([("score", {"$meta": "textScore"}), ("csv_scan.cert_item_name", pymongo.ASCENDING)])
+        cursor.sort([("score", {"$meta": "textScore"}), ("name", pymongo.ASCENDING)])
     elif sort == "cert_date":
-        cursor.sort([("csv_scan.cc_certification_date", pymongo.ASCENDING)])
+        cursor.sort([("not_valid_before", pymongo.ASCENDING)])
     elif sort == "archive_date":
-        cursor.sort([("csv_scan.cc_archived_date", pymongo.ASCENDING)])
+        cursor.sort([("not_valid_after", pymongo.ASCENDING)])
     else:
-        cursor.sort([("csv_scan.cert_item_name", pymongo.ASCENDING)])
+        cursor.sort([("name", pymongo.ASCENDING)])
 
     return cursor, categories
 
@@ -179,7 +178,7 @@ def rand():
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
 
 
-@cc.route("/<string(length=20):hashid>/")
+@cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(cc, ".entry", "", dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}])
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
@@ -187,22 +186,16 @@ def entry(hashid):
     if doc:
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
-            if "processed" in doc and "cc_pp_id" in doc["processed"]:
-                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": doc["processed"]["cc_pp_id"]})
+            for profile in doc["protection_profiles"]:
+                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile["pp_ids"]})
                 if found:
-                    profiles[doc["processed"]["cc_pp_id"]] = add_dots(found)
-            if "csv_scan" in doc and "cc_protection_profiles" in doc["csv_scan"]:
-                ids = doc["csv_scan"]["cc_protection_profiles"].split(",")
-                for id in ids:
-                    found = mongo.db.pp.find_one({"processed.cc_pp_csvid": id})
-                    if found:
-                        profiles[id] = add_dots(found)
+                    profiles[profile["pp_ids"]] = add_dots(found)
         return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, profiles=profiles)
     else:
         return abort(404)
 
 
-@cc.route("/<string(length=20):hashid>/graph.json")
+@cc.route("/<string(length=16):hashid>/graph.json")
 def entry_graph_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})
@@ -217,11 +210,32 @@ def entry_graph_json(hashid):
         return abort(404)
 
 
-@cc.route("/<string(length=20):hashid>/cert.json")
+@cc.route("/<string(length=16):hashid>/cert.json")
 def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(add_dots(doc))
+    else:
+        return abort(404)
+
+
+@cc.route("/id/<string:cert_id>")
+def entry_id(cert_id):
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.cc.find_one({"heuristics.cert_id": cert_id})
+    if doc:
+        return redirect(url_for("cc.entry", hashid=doc["_id"]))
+    else:
+        return abort(404)
+
+
+@cc.route("/name/<string:name>")
+def entry_name(name):
+    name = name.replace("_", " ")
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.cc.find_one({"name": name})
+    if doc:
+        return redirect(url_for("cc.entry", hashid=doc["_id"]))
     else:
         return abort(404)

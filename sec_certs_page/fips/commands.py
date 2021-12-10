@@ -39,7 +39,7 @@ def update(file, remove):
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")
 def create():
-    _create("fips", "web_scan.module_name")
+    _create("fips", ["web_scan.module_name"], [])
 
 
 @fips.cli.command("drop", help="Drop the DB of FIPS 140 certs.")

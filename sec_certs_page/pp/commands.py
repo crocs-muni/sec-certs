@@ -40,7 +40,7 @@ def update(file, remove):
 
 @pp.cli.command("create", help="Create the DB of protection profiles.")
 def create():
-    _create("pp", "csv_scan.cc_pp_name")
+    _create("pp", ["csv_scan.cc_pp_name"], [])
 
 
 @pp.cli.command("drop", help="Drop the DB of protection profiles.")
