@@ -124,8 +124,8 @@
 		<td>{{ render_status(status) }}</td>
 		<td>{{ level }}</td>
 		<td>{{ vendor }}</td>
-        <td>{% for date in cert_dates %}{{ date.strftime("%d-%m-%Y") }}<br/>{% endfor %}</td>
-        <td>{% if sunset_date %}{{ sunset_date.strftime("%d-%m-%Y") }}{% endif %}</td>
+        <td>{% for date in cert_dates %}{{ date|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}<br/>{% endfor %}</td>
+        <td>{% if sunset_date %}{{ sunset_date|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}{% endif %}</td>
 		</tr>
 	{% endfor %}
 	</table>

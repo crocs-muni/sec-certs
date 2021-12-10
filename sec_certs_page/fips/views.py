@@ -5,6 +5,7 @@ import re
 from operator import itemgetter
 
 import pymongo
+import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
@@ -32,7 +33,6 @@ def index():
 
 
 @fips.route("/network/")
-@fips.route("/")
 @register_breadcrumb(fips, ".network", "References")
 def network():
     return render_template(
@@ -65,14 +65,7 @@ def select_certs(q, cat, status, sort):
 
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
-        re_q = ".*" + re.escape(q) + ".*"
-        query["$or"] = [{"$text": {"$search": q}}, {"web_scan.module_name": {"$regex": re_q, "$options": "i"}}]
-        # TODO: Add the index on cert_id and enable this
-        # try:
-        #     iq = int(q)
-        #     query["$or"].append({"cert_id": iq})
-        # except:
-        #     pass
+        query["$text"] = {"$search": q}
 
     if cat is not None:
         selected_cats = []
@@ -172,10 +165,11 @@ def rand():
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
 
 
-@fips.route("/<string(length=20):hashid>/")
+@fips.route("/<string(length=16):hashid>/")
 @register_breadcrumb(fips, ".entry", "", dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}])
 def entry(hashid):
-    doc = mongo.db.fips.find_one({"_id": hashid})
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
         return render_template(
             "fips/entry.html.jinja2", cert=add_dots(doc), hashid=hashid
@@ -184,9 +178,10 @@ def entry(hashid):
         return abort(404)
 
 
-@fips.route("/<string(length=20):hashid>/graph.json")
+@fips.route("/<string(length=16):hashid>/graph.json")
 def entry_graph_json(hashid):
-    doc = mongo.db.fips.find_one({"_id": hashid})
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
         fips_map = get_fips_map()
         if hashid in fips_map.keys():
@@ -198,10 +193,32 @@ def entry_graph_json(hashid):
         return abort(404)
 
 
-@fips.route("/<string(length=20):hashid>/cert.json")
+@fips.route("/<string(length=16):hashid>/cert.json")
 def entry_json(hashid):
-    doc = mongo.db.fips.find_one({"_id": hashid})
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(add_dots(doc))
+    else:
+        return abort(404)
+
+
+@fips.route("/id/<string:cert_id>")
+def entry_id(cert_id):
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.fips.find_one({"cert_id": cert_id})
+    if doc:
+        return redirect(url_for("fips.entry", hashid=doc["_id"]))
+    else:
+        return abort(404)
+
+
+@fips.route("/name/<string:name>")
+def entry_name(name):
+    name = name.replace("_", " ")
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        doc = mongo.db.fips.find_one({"name": name})
+    if doc:
+        return redirect(url_for("fips.entry", hashid=doc["_id"]))
     else:
         return abort(404)

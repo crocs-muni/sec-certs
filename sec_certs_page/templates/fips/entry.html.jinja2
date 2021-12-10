@@ -5,7 +5,7 @@
 {% from "utils.html.jinja2" import render_network %}
 {% block title %}
     <title>
-    {{ cert["module_name"]|default("") + " | seccerts.org" }}
+    {{ cert["web_scan"]["module_name"]|default("") + " | seccerts.org" }}
     </title>
 {% endblock %}
 {% block navbar %}
@@ -13,11 +13,9 @@
     <li class="nav-item">
         <a class="nav-link" href="#web-info">Webpage</a>
     </li>
-    {% if "keywords" in cert %}
-        <li class="nav-item">
-            <a class="nav-link" href="#doc-info">Document</a>
-        </li>
-    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="#doc-info">Document</a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" href="#reference-graph">References</a>
     </li>
@@ -32,20 +30,20 @@
                   <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
 	<h1>{{ cert["web_scan"]["module_name"]|default("") }}</h1>
-    <br/>
+    {# <br/> #}
     <h2>Certificate #{{ cert["cert_id"] }}</h2>
     {% if "web_scan" in cert %}
-        <div>
-            <h2 id="web-info" class="mt-5 anchor">Webpage information
+        <div class="mt-5 mb-5">
+            <h2 id="web-info" class="anchor">Webpage information
             <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
             <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
             {% if cert["web_scan"]["historical_reason"] %}
                 <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
             {% endif %}
-            <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date.strftime("%d-%m-%Y") }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
+            <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
             {% if cert["web_scan"]["date_sunset"] %}
                 <b>Sunset date:</b>
-                {{ cert["web_scan"]["date_sunset"].strftime("%d-%m-%Y") }}<br/>
+                {{ cert["web_scan"]["date_sunset"]|strptime("%Y-%m-%d")|strftime("%d-%m-%Y") }}<br/>
             {% endif %}
             <b>Standard:</b> {{ cert["web_scan"]["standard"] }}<br/>
             <b>Security level:</b> {{ cert["web_scan"]["level"] }}<br/>
@@ -112,19 +110,17 @@
         </div>
     {% endif %}
 
-	{% if "keywords" in cert %}
-	<div>
-		<h2 id="doc-info" class="mt-5">Document information
+	<div class="mt-5 mb-5">
+		<h2 id="doc-info" class="anchor">Document information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
 		
 		<h3 class="mt-4">Security policy
         {% if cert["web_scan"]["security_policy_www"] %}<a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
-		{{ cryptography_keywords(cert["processed"]["keywords"], "policy") }}
-		{{ device_keywords(cert["processed"]["keywords"], "policy") }}
-		{{ security_keywords(cert["processed"]["keywords"], "policy") }}
-		{{ other_keywords(cert["processed"]["keywords"], "policy") }}
+		{{ cryptography_keywords(cert["heuristics"]["keywords"], "policy") }}
+		{{ device_keywords(cert["heuristics"]["keywords"], "policy") }}
+		{{ security_keywords(cert["heuristics"]["keywords"], "policy") }}
+		{{ other_keywords(cert["heuristics"]["keywords"], "policy") }}
 	</div>
-	{% endif %}
 
     <div class="mt-5 mb-5">
         <h2 class="anchor" id="reference-graph">References

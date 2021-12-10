@@ -2,7 +2,7 @@ import json
 
 from hashlib import blake2b
 from operator import itemgetter
-
+from pprint import pformat
 import click
 import pymongo
 from pymongo.errors import BulkWriteError
@@ -21,9 +21,12 @@ def _load_certs(file, certs_path, mapper):
         for name in certs_path:
             certs = certs[name]
     result = {}
-    for cert in tqdm(certs):
-        cert["_id"] = cert["dgst"]
-        result[cert["dgst"]] = remove_dots(mapper(cert) if mapper else cert)
+    for cert in tqdm(certs.values() if isinstance(certs, dict) else certs):
+        if "dgst" in cert and len(cert["dgst"]) == 16:
+            cert["_id"] = cert["dgst"]
+        else:
+            cert["_id"] = blake2b(cert["cert_id"].encode(), digest_size=8).hexdigest()
+        result[cert["_id"]] = remove_dots(mapper(cert) if mapper else cert)
     click.echo("Loaded certs")
     return result
 
@@ -63,8 +66,10 @@ def _update(file, remove, collection, certs_path, mapper):
 def _create(collection_name, text_attrs, sort_attrs):
     click.echo("Creating...")
     mongo.db.create_collection(collection_name)
-    mongo.db[collection_name].create_index([(text_attr, pymongo.TEXT) for text_attr in text_attrs])
-    mongo.db[collection_name].create_index([(sort_attr, pymongo.ASCENDING) for sort_attr in sort_attrs])
+    if text_attrs:
+        mongo.db[collection_name].create_index([(text_attr, pymongo.TEXT) for text_attr in text_attrs])
+    if sort_attrs:
+        mongo.db[collection_name].create_index([(sort_attr, pymongo.ASCENDING) for sort_attr in sort_attrs])
     click.echo("Created")
 
 
@@ -80,3 +85,11 @@ def _query(query, projection, collection):
         print(json.dumps(add_dots(doc), indent=2))
 
 
+def _status(collection):
+    click.echo(collection)
+    click.echo("## Indexes ##")
+    click.echo(pformat(collection.index_information()))
+    click.echo("## Options ##")
+    click.echo(pformat(collection.options()))
+    click.echo("## Number of certs ##")
+    click.echo(collection.estimated_document_count())

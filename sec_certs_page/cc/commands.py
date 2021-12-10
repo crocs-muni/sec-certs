@@ -6,7 +6,7 @@ import click
 
 from .. import mongo
 from . import cc
-from ..commands import _add, _update, _create, _drop, _query
+from ..commands import _add, _update, _create, _drop, _query, _status
 
 
 @cc.cli.command("import", help="Import CC certs.")
@@ -39,3 +39,8 @@ def drop():
 @click.argument("query", type=json.loads)
 def query(query, projection):
     _query(query, projection, mongo.db.cc)
+
+
+@cc.cli.command("status", help="Print status information for the MongoDB collection.")
+def status():
+    _status(mongo.db.cc)

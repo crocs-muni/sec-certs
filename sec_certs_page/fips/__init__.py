@@ -24,12 +24,12 @@ def load_fips_data():
             "cert_id": 1,
             "web_scan.module_name": 1,
             "web_scan.module_type": 1,
-            "processed.connections": 1
+            "heuristics.connections": 1
         })
         fips_references = {str(cert["cert_id"]): {
             "hashid": cert["_id"],
             "name": cert["web_scan"]["module_name"],
-            "refs": cert["processed"]["connections"],
+            "refs": cert["heuristics"]["connections"],
             "href": url_for("fips.entry", hashid=cert["_id"]),
             "type": fips_types[cert["web_scan"]["module_type"]]["id"] if cert["web_scan"][
                                                                              "module_type"] in fips_types else ""
