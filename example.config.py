@@ -39,3 +39,10 @@ CC_GRAPH = "CERT_ONLY"
 
 # Number of items per page in the search listing.
 SEARCH_ITEMS_PER_PAGE = 20
+
+# Schedule for the periodic update tasks.
+UPDATE_TASK_SCHEDULE = {
+    # minute, hour, day_of_week, day_of_month, month_of_year
+    "cc": (15, 0, "*", "*", "*"),
+    "fips": (30, 0, "*", "*", "*")
+}

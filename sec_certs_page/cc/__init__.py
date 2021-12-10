@@ -3,9 +3,10 @@ from contextvars import ContextVar
 from datetime import datetime
 
 import sentry_sdk
+from celery.schedules import crontab
 from flask import Blueprint
 
-from .. import mongo
+from .. import mongo, celery
 from ..utils import create_graph
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
@@ -98,7 +99,6 @@ def load_cc_data():
                 if category not in month.keys():
                     month[category] = 0
         cc_analysis["certified"] = list(sorted(certified, key=lambda x: x["date"]))
-        print(cc_analysis["certified"])
         cc_mem_analysis.set(cc_analysis)
 
 
@@ -136,3 +136,10 @@ def get_cc_analysis():
 
 from .commands import *
 from .views import *
+from .tasks import update_data
+
+
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(crontab(*current_app.config["UPDATE_TASK_SCHEDULE"]["cc"]),
+                             update_data.s(), name="Update CC data.")

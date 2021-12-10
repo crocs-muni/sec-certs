@@ -65,3 +65,4 @@ wcwidth==0.2.5
 webassets==2.0
 Werkzeug==2.0.1
 WTForms==2.3.3
+-e git+ssh://git@github.com/crocs-muni/sec-certs.git#egg=sec_certs
