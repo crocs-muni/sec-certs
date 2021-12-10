@@ -193,14 +193,14 @@ class CVEDataset(ComplexSerializableType):
 
                 with zipfile.ZipFile(download_path, 'r') as zip_handle:
                     zip_handle.extractall(tmp_dir)
+                with unzipped_path.open('r') as handle:
+                    match_data = json.load(handle)
                 if input_filepath:
                     logger.debug(f'Copying attained NIST mapping file to {input_filepath}')
                     shutil.move(unzipped_path, input_filepath)
         else:
-            unzipped_path = input_filepath
-
-        with unzipped_path.open('r') as handle:
-            match_data = json.load(handle)
+            with input_filepath.open('r') as handle:
+                match_data = json.load(handle)
 
         mapping_dict = dict()
         for match in tqdm.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):
