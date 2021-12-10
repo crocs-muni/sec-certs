@@ -272,7 +272,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     @serialize
     def deprocess(self):
         #TODO
-        logger.info("Removing 'processed' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something")
+        logger.info("Removing 'heuristics' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something")
         cert: FIPSCertificate
         for cert in self.certs.values():
             cert.heuristics = FIPSCertificate.FIPSHeuristics(None, {}, [], 0)
@@ -451,13 +451,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         )
 
     def _get_processed_list(self, connection_list: str, key: str):
-        attr = {"pdf": "pdf_scan", "web": "web_scan", "processed": "processed"}[connection_list]
+        attr = {"pdf": "pdf_scan", "web": "web_scan", "heuristics": "heuristics"}[connection_list]
         return getattr(self.certs[key], attr).connections
 
     def get_dot_graph(
         self,
         output_file_name: str,
-        connection_list: str = "processed",
+        connection_list: str = "heuristics",
         highlighted_vendor: str = "Red Hat®, Inc.",
         show: bool = True,
     ):
@@ -468,8 +468,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         :param show: display graph right on screen
         :param highlighted_vendor: vendor whose certificates should be highlighted in red color
         :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
-        :param connection_list: 'processed', 'web', or 'pdf' - plots a graph from this source
-                                default - processed
+        :param connection_list: 'heuristics', 'web', or 'pdf' - plots a graph from this source
+                                default - heuristics
         """
         dot = Digraph(comment="Certificate ecosystem")
         single_dot = Digraph(comment="Modules with no dependencies")
