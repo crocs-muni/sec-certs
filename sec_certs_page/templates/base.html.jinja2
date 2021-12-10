@@ -65,6 +65,11 @@
                 <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
             </form>
             {% endif %}
+            {% if is_admin() %}
+                <div class="mx-2">
+                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4" role="button"><i class="fa fa-user"></i> Admin</a>
+                </div>
+            {% endif %}
         </div>
     </nav>
     <div id="page-content-wrapper" class="container-fluid">

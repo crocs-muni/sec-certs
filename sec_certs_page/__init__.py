@@ -12,7 +12,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
 from flask_login import LoginManager
-from flask_principal import Principal
+from flask_principal import Principal, RoleNeed, Permission
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -104,6 +104,11 @@ def filter_strftime(dt_obj, format):
     if isinstance(dt_obj, datetime):
         return dt_obj.strftime(format)
     raise TypeError("Not a datetime")
+
+
+@app.template_global("is_admin")
+def is_admin():
+    return Permission(RoleNeed('admin')).can()
 
 
 from .cc import cc
