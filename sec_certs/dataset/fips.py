@@ -102,8 +102,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.policies_dir.mkdir(exist_ok=True)
 
         for cert_id in cert_ids:
-            if not (self.policies_dir / f"{cert_id}.pdf").exists()  or (cert_id in self.certs and
-                self.certs[cert_id] and not self.certs[cert_id].state.txt_state
+            if not (self.policies_dir / f"{cert_id}.pdf").exists()  or (cert_id in self.certs and not self.certs[cert_id].state.txt_state
             ):
                 sp_urls.append(
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf"
