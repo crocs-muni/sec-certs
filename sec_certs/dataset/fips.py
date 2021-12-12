@@ -178,11 +178,13 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> None:
         logger.info(f"Getting sample ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
-            html = BeautifulSoup(handle.read(), "html.parser")
+            soup = BeautifulSoup(handle.read(), 'html5lib')
 
-        table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
-        for entry in table:
-            cert_id = entry.find("a").text
+        tables = soup.find_all('table', id='searchResultsTable')
+        assert len(tables) == 1
+
+        for row in tables[0].tbody.find_all('tr'):
+            cert_id = row.find("a").text
             if cert_id not in self.certs:
                 self.certs[cert_id] = None
 

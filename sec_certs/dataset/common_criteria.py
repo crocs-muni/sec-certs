@@ -405,7 +405,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         cat_dict = {x: y for (x, y) in zip(cc_table_ids, cc_categories)}
 
         with file.open('r') as handle:
-            soup = BeautifulSoup(handle, 'html.parser')
+            soup = BeautifulSoup(handle, 'html5lib')
 
         certs = {}
         for key, val in cat_dict.items():
