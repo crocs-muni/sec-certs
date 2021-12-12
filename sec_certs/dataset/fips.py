@@ -87,8 +87,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def match_algs(self) -> Dict:
         output = {}
         for cert in self.certs.values():
-            if cert is None:
-                raise RuntimeError("Building dataset probably failed - this should not be happening.")
             # if the pdf has not been processed, no matching can be done
             if not cert.pdf_scan.keywords or not cert.state.txt_state:
                 continue
@@ -306,9 +304,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         not_decoded = [cert.state.sp_path for done, cert, _ in result if done is False]
         for state, cert, algorithms in result:
-            certificate = self.certs[cert.dgst]
-            if certificate is None:
-                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
+            certificate = self.certs[cert.dgst]        
             certificate.state.tables_done = state
             certificate.pdf_scan.algorithms += algorithms
         return not_decoded
@@ -448,8 +444,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         current_cert = self.certs[current_key]
-        if current_cert is None:
-            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         
         if current_cert.web_scan.vendor != highlighted_vendor:
             return
@@ -462,8 +456,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
     def _add_colored_node(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         current_cert = self.certs[current_key]
-        if current_cert is None:
-            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         dot.attr("node", color="lightgreen")
         if current_cert.web_scan.status == "Revoked":
             dot.attr("node", color="lightgrey")
@@ -480,7 +472,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         )
 
     def _get_processed_list(self, connection_list: str, key: str):
-        attr = {"pdf": "pdf_scan", "web": "web_scan", "processed": "processed"}[connection_list]
+        attr = {"pdf": "pdf_scan", "web": "web_scan", "processed": "heuristics"}[connection_list]
         return getattr(self.certs[key], attr).connections
 
     def get_dot_graph(
@@ -512,8 +504,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         for key in self.certs:
             cert = self.certs[key]
-            if cert is None:
-                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
             
             if key == "Not found" or not cert.state.file_status:
                 continue
@@ -536,8 +526,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         for key in self.certs:
             cert = self.certs[key]
-            if cert is None:
-                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
             
             if key == "Not found" or not cert.state.file_status:
                 continue
