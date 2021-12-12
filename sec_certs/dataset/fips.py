@@ -97,12 +97,12 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         output = {k: v for k, v in output.items() if v != 0}
         return output
 
-    def download_all_pdfs(self):
+    def download_all_pdfs(self, cert_ids: Set[str]):
         sp_paths, sp_urls = [], []
         self.policies_dir.mkdir(exist_ok=True)
 
-        for cert_id in list(self.certs.keys()):
-            if not (self.policies_dir / f"{cert_id}.pdf").exists() or (
+        for cert_id in cert_ids:
+            if not (self.policies_dir / f"{cert_id}.pdf").exists()  or (cert_id in self.certs and
                 self.certs[cert_id] and not self.certs[cert_id].state.txt_state
             ):
                 sp_urls.append(
@@ -115,11 +115,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         )
         self.new_files += len(sp_urls)
 
-    def download_all_htmls(self) -> List[str]:
+    def download_all_htmls(self, cert_ids: Set[str]) -> List[str]:
         html_paths, html_urls = [], []
         new_files = []
         self.web_dir.mkdir(exist_ok=True)
-        for cert_id in self.certs.keys():
+        for cert_id in cert_ids:
             if not (self.web_dir / f"{cert_id}.html").exists():
                 html_urls.append(
                     f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}"
@@ -134,8 +134,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         failed = [c for c in failed if c]
 
         self.new_files += len(html_urls)
-        logging.info(f"Download failed for {len(failed)} files. Retrying...")
-        cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads, progress_bar_desc="Downloading HTML files again")
+        if len(failed) != 0:
+            logging.info(f"Download failed for {len(failed)} files. Retrying...")
+            cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads, progress_bar_desc="Downloading HTML files again")
         return new_files
 
     @serialize
@@ -173,9 +174,9 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             
         return cert_ids
 
-    def download_neccessary_files(self):
-        self.download_all_htmls()
-        self.download_all_pdfs()
+    def download_neccessary_files(self, cert_ids: Set[str]):
+        self.download_all_htmls(cert_ids)
+        self.download_all_pdfs(cert_ids)
 
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
         logger.info(f"Getting certificate ids from {html_file}")
@@ -260,7 +261,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         cert_ids = self.prepare_dataset(test, update)
 
         logger.info("Downloading certificate html and security policies")
-        self.download_neccessary_files()
+        self.download_neccessary_files(cert_ids)
 
         if not no_download_algorithms:
             aset = FIPSAlgorithmDataset({}, Path(self.root_dir / 'web' / 'algorithms'), 'algorithms', 'sample algs')
