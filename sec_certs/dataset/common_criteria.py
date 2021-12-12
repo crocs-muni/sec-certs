@@ -6,7 +6,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple, Set
+from typing import Dict, Optional, Union, List, Tuple, Set, ClassVar
 import json
 
 import numpy as np
@@ -129,40 +129,42 @@ class CCDataset(Dataset, ComplexSerializableType):
     def pp_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / 'pp_dataset.json'
 
-    html_products = {
-        'cc_products_active.html': 'https://www.commoncriteriaportal.org/products/',
-        'cc_products_archived.html': 'https://www.commoncriteriaportal.org/products/index.cfm?archived=1',
+    BASE_URL: ClassVar[str] = 'https://www.commoncriteriaportal.org'
+
+    HTML_PRODUCTS_URL = {
+        'cc_products_active.html': BASE_URL + '/products/',
+        'cc_products_archived.html': BASE_URL + '/products/index.cfm?archived=1',
     }
-    html_labs = {'cc_labs.html': 'https://www.commoncriteriaportal.org/labs'}
-    csv_products = {
-        'cc_products_active.csv': 'https://www.commoncriteriaportal.org/products/certified_products.csv',
-        'cc_products_archived.csv': 'https://www.commoncriteriaportal.org/products/certified_products-archived.csv',
+    HTML_LABS_URL = {'cc_labs.html': BASE_URL + '/labs'}
+    CSV_PRODUCTS_URL = {
+        'cc_products_active.csv': BASE_URL + '/products/certified_products.csv',
+        'cc_products_archived.csv': BASE_URL + '/products/certified_products-archived.csv',
     }
-    html_pp = {
-        'cc_pp_active.html': 'https://www.commoncriteriaportal.org/pps/',
-        'cc_pp_collaborative.html': 'https://www.commoncriteriaportal.org/pps/collaborativePP.cfm?cpp=1',
-        'cc_pp_archived.html': 'https://www.commoncriteriaportal.org/pps/index.cfm?archived=1',
+    PP_URL = {
+        'cc_pp_active.html': BASE_URL + '/pps/',
+        'cc_pp_collaborative.html': BASE_URL + '/pps/collaborativePP.cfm?cpp=1',
+        'cc_pp_archived.html': BASE_URL + '/pps/index.cfm?archived=1',
     }
-    csv_pp = {
-        'cc_pp_active.csv': 'https://www.commoncriteriaportal.org/pps/pps.csv',
-        'cc_pp_archived.csv': 'https://www.commoncriteriaportal.org/pps/pps-archived.csv'
+    PP_CSV = {
+        'cc_pp_active.csv': BASE_URL + '/pps/pps.csv',
+        'cc_pp_archived.csv': BASE_URL + '/pps/pps-archived.csv'
     }
 
     @property
     def active_html_tuples(self) -> List[Tuple[str, Path]]:
-        return [(x, self.web_dir / y) for y, x in self.html_products.items() if 'active' in y]
+        return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if 'active' in y]
 
     @property
     def archived_html_tuples(self) -> List[Tuple[str, Path]]:
-        return [(x, self.web_dir / y) for y, x in self.html_products.items() if 'archived' in y]
+        return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if 'archived' in y]
 
     @property
     def active_csv_tuples(self) -> List[Tuple[str, Path]]:
-        return [(x, self.web_dir / y) for y, x in self.csv_products.items() if 'active' in y]
+        return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if 'active' in y]
 
     @property
     def archived_csv_tuples(self) -> List[Tuple[str, Path]]:
-        return [(x, self.web_dir / y) for y, x in self.csv_products.items() if 'archived' in y]
+        return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if 'archived' in y]
 
     @classmethod
     def from_web_latest(cls):
@@ -250,7 +252,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Creates dictionary of new certificates from csv sources.
         """
-        csv_sources = self.csv_products.keys()
+        csv_sources = self.CSV_PRODUCTS_URL.keys()
         csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
         csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
 
@@ -267,6 +269,12 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Using pandas, this parses a single CSV file.
         """
+        def map_ip_to_hostname(url: str) -> str:
+            if not url:
+                return url
+            tokens = url.split('/')
+            relative_path = '/' + '/'.join(tokens[3:])
+            return CCDataset.BASE_URL + relative_path
 
         def _get_primary_key_str(row: Tag):
             prim_key = row['category'] + row['cert_name'] + row['report_link']
@@ -293,8 +301,15 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         df['dgst'] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(
             _get_primary_key_str(row)), axis=1)
+
         df_base = df.loc[df.is_maintenance == False].copy()
         df_main = df.loc[df.is_maintenance == True].copy()
+
+        df_base.report_link = df_base.report_link.map(map_ip_to_hostname)
+        df_base.st_link = df_base.st_link.map(map_ip_to_hostname)
+
+        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname)
+        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname)
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=['dgst']))
@@ -327,7 +342,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Prepares dictionary of certificates from all html files.
         """
-        html_sources = self.html_products.keys()
+        html_sources = self.HTML_PRODUCTS_URL.keys()
         if get_active is False:
             html_sources = filter(lambda x: 'active' not in x, html_sources)
         if get_archived is False:
