@@ -61,24 +61,24 @@ class DependencyFinder:
         return referenced_by, referenced_by_indirect
 
     @staticmethod
-    def _get_affecting_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Set[str]:
+    def _get_affecting_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[Set[str]]:
         filter_direct = set()
 
         for cert_id in referenced_by_direct:
             if cert in referenced_by_direct[cert_id]:
                 filter_direct.add(cert_id)
 
-        return filter_direct
+        return filter_direct if filter_direct else None
 
     @staticmethod
-    def _get_affecting_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Set[str]:
+    def _get_affecting_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Optional[Set[str]]:
         filter_indirect = set()
 
         for cert_id in referenced_by_indirect:
             if cert in referenced_by_indirect[cert_id]:
                 filter_indirect.add(cert_id)
 
-        return filter_indirect
+        return filter_indirect if filter_indirect else None
 
     @staticmethod
     def _get_affected_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[List[str]]:
