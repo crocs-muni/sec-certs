@@ -9,12 +9,14 @@ from pathlib import Path
 from tqdm import tqdm
 import hashlib
 import html
-from typing import Union
+from typing import Union, List
 from datetime import date
 import numpy as np
 import pandas as pd
 import subprocess
 import time
+import copy
+from packaging.version import VERSION_PATTERN
 
 
 from enum import Enum
@@ -95,7 +97,7 @@ def sanitize_string(record: Optional[str]) -> Optional[str]:
     if not record:
         return None
     else:
-        # TODO: There is a certificate with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
+        # TODO: There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
         string = html.unescape(html.unescape(record)).replace('\n', '')
         return ' '.join(string.split())
 
@@ -460,7 +462,7 @@ def search_only_headers_bsi(filepath: Path):
                 items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
                 items_found[constants.TAG_CERT_LAB] = 'BSI'
 
-        # Process page with more detailed certificate info
+        # Process page with more detailed sample info
         # PP Conformance, Functionality, Assurance
         rules_certificate_third = ['PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified']
 
@@ -522,7 +524,7 @@ def plot_dataframe_graph(data: Dict, label: str, file_name: str, density: bool =
     if log:
         sorted_data = pd_data.value_counts(ascending=True)
 
-    logging.info(sorted_data.where(sorted_data > 1).dropna())
+    logger.info(sorted_data.where(sorted_data > 1).dropna())
 
 
 def is_in_dict(target_dict, path):
@@ -708,7 +710,7 @@ def gen_dict_extract(dct: Dict, searched_key: Hashable = 'count'):
 
 def compute_heuristics_version(cert_name: str) -> List[str]:
     """
-    Will extract possible versions from the name of certificate
+    Will extract possible versions from the name of sample
     """
     at_least_something = r'(\b(\d)+\b)'
     just_numbers = r'(\d{1,5})(\.\d{1,5})'
@@ -722,6 +724,8 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)])
     if not matched_strings:
         matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
+    # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
+    # return identified_versions if identified_versions else ['-']
 
     matched = []
     for x in matched_strings:
@@ -731,3 +735,14 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
         matched.append(found.group())
         
     return matched if matched_strings else ['-']
+
+def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.array:
+    return np.array([tokenize(x, keywords) for x in dset])
+
+def tokenize(string: str, keywords: Set[str]) -> str:
+    return ' '.join([x for x in string.split() if x.lower() in keywords])
+
+def filter_shortly_described_cves(x, y):
+    n_tokens = np.array(list(map(lambda item: len(item.split(' ')), x)))
+    indices = np.where(n_tokens > 5)
+    return np.array(x)[indices], np.array(y)[indices]

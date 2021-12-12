@@ -1,7 +1,7 @@
 import json
 from datetime import date
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Dict, List, Union, Optional, Callable
 import copy
 
 
@@ -20,7 +20,25 @@ class ComplexSerializableType:
 
     @classmethod
     def from_dict(cls, dct: Dict):
-        return cls(*(tuple(dct.values())))
+        try:
+            return cls(*(tuple(dct.values())))
+        except TypeError as e:
+            raise TypeError(f'Dict: {dct} on {cls.__mro__}') from e
+
+    def to_json(self, output_path: Optional[Union[str, Path]] = None):
+        if not output_path:
+            if not hasattr(self, 'json_path'):
+                raise ValueError(f'The object {self} of type {self.__class__} does not have json_path attribute but to_json() was called without an argument.')
+            output_path = self.json_path
+        with Path(output_path).open('w') as handle:
+            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+
+    @classmethod
+    def from_json(cls, input_path: Union[str, Path]):
+        input_path = Path(input_path)
+        with input_path.open('r') as handle:
+            obj = json.load(handle, cls=CustomJSONDecoder)
+        return obj
 
 
 # Decorator for serialization
@@ -30,9 +48,10 @@ def serialize(func: Callable):
             raise ValueError('@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes.')
 
         update_json = kwargs.pop('update_json', True)
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         if update_json:
             args[0].to_json()
+        return result
     return inner_func
 
 
@@ -69,3 +88,5 @@ class CustomJSONDecoder(json.JSONDecoder):
             return self.serializable_complex_types[complex_type].from_dict(obj)
 
         return obj
+
+    # TODO: Check if sets are deserialized as sets

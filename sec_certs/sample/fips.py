@@ -13,12 +13,15 @@ from tabula import read_pdf
 import sec_certs.constants
 from sec_certs import helpers, constants as constants
 from sec_certs.cert_rules import fips_common_rules, REGEXEC_SEP, fips_rules
-from sec_certs.certificate.certificate import Certificate, logger
+
+from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
-from sec_certs.serialization import ComplexSerializableType
-from sec_certs.dataset.cpe import CPE, CPEDataset
+from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.model.cpe_matching import CPEClassifier
 
 
 class FIPSCertificate(Certificate, ComplexSerializableType):
@@ -142,18 +145,22 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             return str(self.cert_id)
 
     @dataclass(eq=True)
-    class Heuristics(ComplexSerializableType):
+    class FIPSHeuristics(ComplexSerializableType):
         keywords: Optional[Dict[str, Dict]]
         algorithms: List[Dict[str, Dict]]
         connections: List[str]
         unmatched_algs: int
 
         extracted_versions: Optional[List[str]] = field(default=None)
-        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
-        labeled: bool = field(default=False)
+        cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+
+        directly_affected_by: Set = field(default=None)
+        indirectly_affected_by: Set = field(default=None)
+        directly_affecting: Set = field(default=None)
+        indirectly_affecting: Set = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -183,7 +190,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 + 'Module name: ' + str(self.web_scan.module_name) + '\n' \
                 + 'HW version: ' + str(self.web_scan.hw_version) + '\n' \
                 + 'FW version: ' + str(self.web_scan.fw_version)
-        # return f'{str(self.web_scan.module_name)} {str(self.web_scan.hw_version)} {str(self.web_scan.fw_version)}'
 
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
@@ -195,7 +201,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     def __init__(self, cert_id: str,
                  web_scan: 'FIPSCertificate.WebScan',
                  pdf_scan: 'FIPSCertificate.PdfScan',
-                 heuristics: 'FIPSCertificate.Heuristics',
+                 heuristics: 'FIPSCertificate.FIPSHeuristics',
                  state: State):
         super().__init__()
         self.cert_id = cert_id
@@ -325,7 +331,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         html_items_found['vendor'] = vendor_string
         if html_items_found['vendor'] == '':
-            logger.warning(f"WARNING: NO VENDOR FOUND {current_file}")
+            logger.warning(f"NO VENDOR FOUND {current_file}")
 
     @staticmethod
     def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path):
@@ -336,10 +342,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 'div', 'panel-body').children)[2].strip().split('\n')[1].strip()
 
         if html_items_found['lab'] == '':
-            logger.warning(f"WARNING: NO LAB FOUND {current_file}")
+            logger.warning(f"NO LAB FOUND {current_file}")
 
         if html_items_found['nvlap_code'] == '':
-            logger.warning(f"WARNING: NO NVLAP CODE FOUND {current_file}")
+            logger.warning(f"NO NVLAP CODE FOUND {current_file}")
 
     @staticmethod
     def parse_related_files(current_div: Tag, html_items_found: Dict):
@@ -454,7 +460,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    [] if not initialized else initialized.pdf_scan.algorithms,
                                    []  # connections
                                ),
-                               FIPSCertificate.Heuristics(None, [], [], 0),
+                               FIPSCertificate.FIPSHeuristics(None, {}, [], 0),
                                state
                                )
 
@@ -577,7 +583,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     MAX_ALLOWED_MATCH_LENGTH = 300
                     match_len = len(match)
                     if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                        print('WARNING: Excessive match with length of {} detected for rule {}'.format(
+                        logger.warning('Excessive match with length of {} detected for rule {}'.format(
                             match_len, rule))
 
                     if match not in items_found[rule_str]:
@@ -753,21 +759,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             versions_for_extraction += f' {self.web_scan.fw_version}'
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
+    # TODO: This function is probably safe to delete
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         if self.web_scan.vendor is None:
             raise RuntimeError(f"Vendor for cert {self.dgst} not found - this should not be happening.")
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
 
-    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
-        self.compute_heuristics_cpe_vendors(cpe_dataset)
-
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         if not self.web_scan.module_name:
             self.heuristics.cpe_matches = None
         else:
-            if self.heuristics.cpe_candidate_vendors is None or self.heuristics.extracted_versions is None:
-                raise RuntimeError(f"Heuristics computation for cert {self.dgst} failed - this should not be happening.")
-            self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.web_scan.module_name,
-                                                                      self.heuristics.cpe_candidate_vendors,
-                                                                      self.heuristics.extracted_versions,
-                                                                      n_max_matches=config.cc_cpe_max_matches,
-                                                                      threshold=config.cc_cpe_matching_threshold)
+            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.web_scan.vendor,
+                                                                             self.web_scan.module_name,
+                                                                             self.heuristics.extracted_versions)

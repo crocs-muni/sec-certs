@@ -4,7 +4,7 @@ import copy
 from typing import Dict
 import logging
 
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.serialization.json import ComplexSerializableType
 import sec_certs.helpers as helpers
 
 logger = logging.getLogger(__name__)

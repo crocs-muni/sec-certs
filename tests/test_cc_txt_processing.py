@@ -1,4 +1,4 @@
-import tests.data.test_cpe_cve
+import tests.data.test_cc_heuristics
 from unittest import TestCase
 from pathlib import Path
 from typing import ClassVar
@@ -6,11 +6,11 @@ import tempfile
 import shutil
 
 from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 
 class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cpe_cve.__path__[0]) / 'vulnerable_dataset.json'
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / 'vulnerable_dataset.json'
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
 
     @classmethod

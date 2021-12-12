@@ -32,7 +32,7 @@
             "cert_link": null,
             "manufacturer_web": "http://www.ibm.com",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -53,14 +53,13 @@
                 "st_keywords": null
             },
             "heuristics": {
-                "_type": "Heuristics",
+                "_type": "CCHeuristics",
                 "extracted_versions": [
                     "8.2"
                 ],
                 "cpe_matches": null,
                 "verified_cpe_matches": null,
                 "related_cves": null,
-                "labeled": false,
                 "cert_lab": null,
                 "cert_id": null
             }

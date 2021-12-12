@@ -32,7 +32,7 @@
             "cert_link": "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
             "manufacturer_web": "https://www.netiq.com/",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -53,14 +53,17 @@
                 "st_keywords": null
             },
             "heuristics": {
-                "_type": "Heuristics",
+                "_type": "CCHeuristics",
                 "extracted_versions": null,
                 "cpe_matches": null,
-                "labeled": false,
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": null,
-                "cert_id": null
+                "cert_id": null,
+                "directly_affected_by": null,
+                "indirectly_affected_by": null,
+                "directly_affecting": null,
+                "indirectly_affecting": null
             }
         },
         {
@@ -86,7 +89,7 @@
                     "pp_ids": null
                 }
             ],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -107,14 +110,17 @@
                 "st_keywords": null
             },
             "heuristics": {
-                "_type": "Heuristics",
+                "_type": "CCHeuristics",
                 "extracted_versions": null,
                 "cpe_matches": null,
-                "labeled": false,
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": null,
-                "cert_id": null
+                "cert_id": null,
+                "directly_affected_by": null,
+                "indirectly_affected_by": null,
+                "directly_affecting": null,
+                "indirectly_affecting": null
             }
         }
     ]

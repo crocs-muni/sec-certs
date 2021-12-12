@@ -3,8 +3,8 @@ from typing import Optional, Dict, List, ClassVar, Tuple
 from datetime import date
 
 import sec_certs.helpers as helpers
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
-from sec_certs.serialization import ComplexSerializableType
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     def __init__(self, name: str, report_link: str, st_link: str,
                  state: Optional[CommonCriteriaCert.InternalState],
                  pdf_data: Optional[CommonCriteriaCert.PdfData],
-                 heuristics: Optional[CommonCriteriaCert.Heuristics],
+                 heuristics: Optional[CommonCriteriaCert.CCHeuristics],
                  related_cert_digest: str,
                  maintenance_date: date):
         super().__init__('', '', name, '', '', '', None, None,
@@ -33,6 +33,10 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     def dgst(self):
         return 'cert_' + self.related_cert_digest + '_update_' + helpers.get_first_16_bytes_sha256(self.name)
 
+    @property
+    def pandas_tuple(self) -> Tuple:
+        return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])
+
     @classmethod
     def from_dict(cls, dct: Dict) -> 'CommonCriteriaMaintenanceUpdate':
         dct.pop('dgst')
@@ -48,5 +52,3 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
                 if (x.maintainance_title is not None and x.maintainance_report_link is not None\
                     and x.maintainance_st_link is not None and x.maintainance_date is not None)]
 
-    def to_pandas_tuple(self) -> Tuple:
-        return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])

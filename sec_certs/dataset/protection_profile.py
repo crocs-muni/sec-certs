@@ -6,7 +6,7 @@ import logging
 import tempfile
 
 import sec_certs.helpers as helpers
-from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 logger = logging.getLogger(__name__)
 

@@ -7,9 +7,13 @@ from bs4 import BeautifulSoup
 
 from sec_certs import helpers as helpers, constants as constants, parallel_processing as cert_processing
 from sec_certs.dataset.dataset import Dataset
-from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
-from sec_certs.certificate.fips import FIPSCertificate
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
+
+from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.config.configuration import config
+
+
+logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
@@ -37,7 +41,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
         # get the last page, always
         helpers.download_file(constants.FIPS_ALG_URL + num_pages['data-total-pages'],
                               self.root_dir / f"page{int(num_pages['data-total-pages'])}.html")
-        logging.info(f"downloading {len(algs_urls)} algs html files")
+        logger.info(f"downloading {len(algs_urls)} algs html files")
         cert_processing.process_parallel(FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)),
                                          config.n_threads)
 

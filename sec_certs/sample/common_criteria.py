@@ -1,31 +1,30 @@
 import copy
-import itertools
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
 
+
 import requests
 from bs4 import Tag
 
 from sec_certs import helpers, constants as constants
-from sec_certs.certificate.certificate import Certificate, logger
-from sec_certs.dataset.cpe import CPE, CPEDataset
-from sec_certs.dataset.cve import CVE, CVEDataset
-from sec_certs.serialization import ComplexSerializableType
-from sec_certs.certificate.protection_profile import ProtectionProfile
-from sec_certs.config.configuration import config
+from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.serialization.pandas import PandasSerializableType
+from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.model.cpe_matching import CPEClassifier
 
 
-class CommonCriteriaCert(Certificate, ComplexSerializableType):
+class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializableType):
     cc_url = 'http://www.commoncriteriaportal.org'
     empty_st_url = 'http://www.commoncriteriaportal.org/files/epfiles/'
 
     @dataclass(eq=True, frozen=True)
-    class MaintainanceReport(ComplexSerializableType):
+    class MaintenanceReport(ComplexSerializableType):
         """
-        Object for holding maintainance reports.
+        Object for holding maintenance reports.
         """
         maintainance_date: Optional[date]
         maintainance_title: Optional[str]
@@ -33,16 +32,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         maintainance_st_link: Optional[str]
 
         def __post_init__(self):
-            super().__setattr__('maintainance_report_link',
-                                helpers.sanitize_link(self.maintainance_report_link))
-            super().__setattr__('maintainance_st_link',
-                                helpers.sanitize_link(self.maintainance_st_link))
-            super().__setattr__('maintainance_title',
-                                helpers.sanitize_string(self.maintainance_title))
-            super().__setattr__('maintainance_date', helpers.sanitize_date(self.maintainance_date))
+            super().__setattr__('maintenance_report_link',
+                                helpers.sanitize_link(self.maintenance_report_link))
+            super().__setattr__('maintenance_st_link',
+                                helpers.sanitize_link(self.maintenance_st_link))
+            super().__setattr__('maintenance_title',
+                                helpers.sanitize_string(self.maintenance_title))
+            super().__setattr__('maintenance_date', helpers.sanitize_date(self.maintenance_date))
 
         def __lt__(self, other):
-            return self.maintainance_date < other.maintainance_date
+            return self.maintenance_date < other.maintenance_date
 
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
@@ -104,40 +103,25 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             else:
                 return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
-    @dataclass(init=False)
+    @dataclass
     class PdfData(ComplexSerializableType):
-        report_metadata: Optional[Dict[str, Any]]
-        st_metadata: Optional[Dict[str, Any]]
-        report_frontpage: Optional[Dict[str, Dict[str, Any]]]
-        st_frontpage: Optional[Dict[str, Dict[str, Any]]]
-        report_keywords: Optional[Dict[str, Any]]
-        st_keywords: Optional[Dict[str, Any]]
-
-        def __init__(self, report_metadata: Optional[Dict[str, Any]] = None,
-                     st_metadata: Optional[Dict[str, Any]] = None,
-                     report_frontpage: Optional[Dict[str, Dict[str, Any]]] = None, st_frontpage: Optional[Dict[str, Dict[str, Any]]] = None,
-                     report_keywords: Optional[Dict[str, Any]] = None, st_keywords: Optional[Dict[str, Any]] = None):
-            self.report_metadata = report_metadata
-            self.st_metadata = st_metadata
-            self.report_frontpage = report_frontpage
-            self.st_frontpage = st_frontpage
-            self.report_keywords = report_keywords
-            self.st_keywords = st_keywords
+        report_metadata: Optional[Dict[str, Any]] = field(default=None)
+        st_metadata: Optional[Dict[str, Any]] = field(default=None)
+        report_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
+        st_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
+        report_keywords: Optional[Dict[str, Any]] = field(default=None)
+        st_keywords: Optional[Dict[str, Any]] = field(default=None)
 
         def __bool__(self):
             return any([x is not None for x in vars(self)])
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
-            if self.report_frontpage is None:
-                raise RuntimeError(f"Frontpage is not found - this should not be happening.")
-            return self.report_frontpage['bsi']
+            return self.report_frontpage.get('bsi', None) if self.report_frontpage else None
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
-            if self.report_frontpage is None:
-                raise RuntimeError(f"Frontpage is not found - this should not be happening.")
-            return self.report_frontpage['anssi']
+            return self.report_frontpage.get('anssi', None) if self.report_frontpage else None
 
         @property
         def cert_lab(self) -> Optional[List[str]]:
@@ -151,15 +135,11 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def bsi_cert_id(self) -> Optional[str]:
-            if self.bsi_data is None:
-                raise RuntimeError(f"BSI data not found - this should not be happening.")
-            return self.bsi_data.get('cert_id', None)
+            return self.bsi_data.get('cert_id', None) if self.bsi_data else None
 
         @property
         def anssi_cert_id(self) -> Optional[str]:
-            if self.anssi_data is None:
-                raise RuntimeError(f"ANSSI data not found - this should not be happening.")
-            return self.anssi_data.get('cert_id', None)
+            return self.anssi_data.get('cert_id', None) if self.anssi_data else None
 
         @property
         def processed_cert_id(self) -> Optional[str]:
@@ -173,9 +153,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            if self.report_keywords is None:
-                raise RuntimeError(f"Keywords reports not found - this should not be happening.")
-            return self.report_keywords['rules_cert_id']
+            return self.report_keywords.get('rules_cert_id', None) if self.report_keywords else None
 
         @property
         def keywords_cert_id(self) -> Optional[str]:
@@ -194,14 +172,17 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
     @dataclass
-    class Heuristics(ComplexSerializableType):
-        extracted_versions: Optional[List[str]] = field(default=None)
-        cpe_matches: Optional[List[Tuple[float, CPE]]] = field(default=None)
-        labeled: bool = field(default=False)
-        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
-        related_cves: Optional[List[CVE]] = field(default=None)
+    class CCHeuristics(ComplexSerializableType):
+        extracted_versions: List[str] = field(default=None)
+        cpe_matches: Optional[Set[str]] = field(default=None)
+        verified_cpe_matches: Optional[Set[str]] = field(default=None)
+        related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
+        directly_affected_by: Optional[List[str]] = field(default=None)
+        indirectly_affected_by: Optional[Set[str]] = field(default=None)
+        directly_affecting: Optional[Set[str]] = field(default=None)
+        indirectly_affecting: Optional[Set[str]] = field(default=None)
 
         # manufacturer_list: Optional[List[str]]
 
@@ -219,17 +200,18 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     pandas_columns: ClassVar[List[str]] = ['dgst', 'name', 'status', 'category', 'manufacturer', 'scheme',
                                         'security_level', 'not_valid_before', 'not_valid_after', 'report_link',
                                         'st_link', 'manufacturer_web', 'extracted_versions', 'cpe_matches',
-                                        'verified_cpe_matches', 'related_cves']
+                                        'verified_cpe_matches', 'related_cves', 'directly_affected_by',
+                                        'indirectly_affected_by', 'directly_affecting', 'indirectly_affecting']
 
     def __init__(self, status: str, category: str, name: str, manufacturer: Optional[str], scheme: str,
                  security_level: Union[str, set], not_valid_before: Optional[date],
                  not_valid_after: Optional[date], report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
                  protection_profiles: Optional[Set[ProtectionProfile]],
-                 maintainance_updates: Optional[Set[MaintainanceReport]],
+                 maintenance_updates: Optional[Set[MaintenanceReport]],
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
-                 heuristics: Optional[Heuristics]):
+                 heuristics: Optional[CCHeuristics]):
         super().__init__()
 
         self.status = status
@@ -245,7 +227,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.cert_link = helpers.sanitize_link(cert_link)
         self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
-        self.maintainance_updates = maintainance_updates
+        self.maintenance_updates = maintenance_updates
 
         if state is None:
             state = self.InternalState()
@@ -256,13 +238,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         self.pdf_data = pdf_data
 
         if heuristics is None:
-            heuristics = self.Heuristics()
+            heuristics = self.CCHeuristics()
         self.heuristics = heuristics
 
     @property
     def dgst(self) -> str:
         """
-        Computes the primary key of the certificate using first 16 bytes of SHA-256 digest
+        Computes the primary key of the sample using first 16 bytes of SHA-256 digest
         """
         if not (self.name is not None and self.report_link is not None and self.category is not None):
             raise RuntimeError("Certificate digest can't be computed, because information is missing.")
@@ -272,20 +254,23 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def label_studio_title(self):
         return self.name
 
-    def __str__(self):
-        return self.manufacturer + ' ' + self.name + ' dgst: ' + self.dgst
-
-    def to_pandas_tuple(self):
+    @property
+    def pandas_tuple(self):
         return self.dgst, self.name, self.status, self.category, self.manufacturer, self.scheme, self.security_level, \
                self.not_valid_before, self.not_valid_after, self.report_link, self.st_link, self.manufacturer_web, \
                self.heuristics.extracted_versions, self.heuristics.cpe_matches, self.heuristics.verified_cpe_matches, \
-               self.heuristics.related_cves
+               self.heuristics.related_cves, self.heuristics.directly_affected_by, self.heuristics.indirectly_affected_by, \
+               self.heuristics.directly_affecting, self.heuristics.indirectly_affecting
+
+    def __str__(self):
+        # TODO - if some of the values is None -> TypeError is raised
+        return str(self.manufacturer) + ' ' + str(self.name) + ' dgst: ' + self.dgst
 
     def merge(self, other: 'CommonCriteriaCert', other_source: Optional[str] = None):
         """
-        Merges with other CC certificate. Assuming they come from different sources, e.g., csv and html.
+        Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
-        On other values (apart from maintainances, see TODO below) the sanity checks are made.
+        On other values (apart from maintenances, see TODO below) the sanity checks are made.
         """
         if self != other:
             logger.warning(
@@ -296,7 +281,7 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 setattr(self, att, getattr(other, att))
             elif other_source == 'html' and att == 'protection_profiles':
                 setattr(self, att, getattr(other, att))
-            elif other_source == 'html' and att == 'maintainance_updates':
+            elif other_source == 'html' and att == 'maintenance_updates':
                 setattr(self, att, getattr(other, att))
             elif att == 'state':
                 setattr(self, att, getattr(other, att))
@@ -308,14 +293,14 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     @classmethod
     def from_dict(cls, dct: Dict) -> 'CommonCriteriaCert':
         new_dct = dct.copy()
-        new_dct['maintainance_updates'] = set(dct['maintainance_updates'])
+        new_dct['maintenance_updates'] = set(dct['maintenance_updates'])
         new_dct['protection_profiles'] = set(dct['protection_profiles'])
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
     @classmethod
     def from_html_row(cls, row: Tag, status: str, category: str) -> 'CommonCriteriaCert':
         """
-        Creates a CC certificate from html row
+        Creates a CC sample from html row
         """
 
         def _get_name(cell: Tag) -> str:
@@ -368,16 +353,16 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             links = cell.find_all('a')
             return CommonCriteriaCert.cc_url + links[0].get('href') if links else None
 
-        def _get_maintainance_div(cell: Tag) -> Optional[Tag]:
+        def _get_maintenance_div(cell: Tag) -> Optional[Tag]:
             divs = cell.find_all('div')
             for d in divs:
                 if d.find('div') and d.stripped_strings and list(d.stripped_strings)[0] == 'Maintenance Report(s)':
                     return d
             return None
 
-        def _get_maintainance_updates(main_div: Tag) -> set:
+        def _get_maintenance_updates(main_div: Tag) -> set:
             possible_updates = list(main_div.find_all('li'))
-            maintainance_updates = set()
+            maintenance_updates = set()
             for u in possible_updates:
                 text = list(u.stripped_strings)[0]
                 main_date = datetime.strptime(text.split(
@@ -395,9 +380,9 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                                        l.get('href')
                     else:
                         logger.error('Unknown link in Maintenance part!')
-                maintainance_updates.add(
-                    CommonCriteriaCert.MaintainanceReport(main_date, main_title, main_report_link, main_st_link))
-            return maintainance_updates
+                maintenance_updates.add(
+                    CommonCriteriaCert.MaintenanceReport(main_date, main_title, main_report_link, main_st_link))
+            return maintenance_updates
 
         cells = list(row.find_all('td'))
         if len(cells) != 7:
@@ -415,13 +400,13 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
         report_link, st_link = _get_report_st_links(cells[0])
         cert_link = _get_cert_link(cells[2])
 
-        maintainance_div = _get_maintainance_div(cells[0])
-        maintainances = _get_maintainance_updates(
-            maintainance_div) if maintainance_div else set()
+        maintenance_div = _get_maintenance_div(cells[0])
+        maintenances = _get_maintenance_updates(
+            maintenance_div) if maintenance_div else set()
 
         return cls(status, category, name, manufacturer, scheme, security_level, not_valid_before, not_valid_after,
                    report_link,
-                   st_link, cert_link, manufacturer_web, protection_profiles, maintainances, None, None, None)
+                   st_link, cert_link, manufacturer_web, protection_profiles, maintenances, None, None, None)
 
     def set_local_paths(self,
                         report_pdf_dir: Optional[Union[str, Path]],
@@ -436,13 +421,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
             self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + '.txt')
         if st_txt_dir is not None:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + '.txt')
-
-    @property
-    def best_cpe_match(self):
-        clean = [x for x in self.cpe_matching if len(x[0]) > 5]
-        cpe_match_ranking = [x[1] for x in clean]
-        argmax = cpe_match_ranking.index(max(cpe_match_ranking))
-        return clean[argmax]
 
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
@@ -475,9 +453,6 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
                 cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
-
-    def path_is_corrupted(self, local_path):
-        return not local_path.exists() or local_path.stat().st_size < constants.MIN_CORRECT_CERT_SIZE
 
     @staticmethod
     def convert_report_pdf(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
@@ -584,49 +559,21 @@ class CommonCriteriaCert(Certificate, ComplexSerializableType):
     def compute_heuristics_version(self):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
-    def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
-        if self.manufacturer is None:
-            raise RuntimeError(f"Manufacturer not set for cert {self.dgst} - this should not be happening.")
-        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.manufacturer)
+    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
+        # TODO: This method probably can be deleted.
+        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)
 
-    def compute_heuristics_cpe_match(self, cpe_dataset: CPEDataset):
-        self.compute_heuristics_cpe_vendors(cpe_dataset)
-        
-        if self.name is None or self.heuristics.cpe_candidate_vendors is None \
-            or self.heuristics.extracted_versions is None:
-                raise RuntimeError(f"Missing information in CPE matching for cert {self.dgst}.")
-        
-        self.heuristics.cpe_matches = cpe_dataset.get_cpe_matches(self.name,
-                                                                  self.heuristics.cpe_candidate_vendors,
-                                                                  self.heuristics.extracted_versions,
-                                                                  n_max_matches=config.cc_cpe_max_matches,
-                                                                  threshold=config.cc_cpe_matching_threshold)
-
-    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
-        if self.heuristics.verified_cpe_matches:
-            related_cves = [cve_dataset.get_cves_for_cpe(x.uri) for x in self.heuristics.verified_cpe_matches if x.uri is not None]
-            related_cves_: List[List[CVE]] = [x for x in related_cves if x is not None]
-
-            if related_cves_:
-                self.heuristics.related_cves = list(itertools.chain.from_iterable(related_cves_))
-
-                for cve in self.heuristics.related_cves:
-                    if cve.vulnerable_certs is None:
-                        cve.vulnerable_certs = []
-                    cve.vulnerable_certs.append(self.dgst)
-
-
-        else:
-            self.heuristics.related_cves = None
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
 
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:
-            logger.error('Cannot compute certificate lab when pdf files were not processed.')
+            logger.error('Cannot compute sample lab when pdf files were not processed.')
             return
         self.heuristics.cert_lab = self.pdf_data.cert_lab
 
     def compute_heuristics_cert_id(self):
         if not self.pdf_data:
-            logger.error('Cannot compute certificate id when pdf files were not processed.')
+            logger.error('Cannot compute sample id when pdf files were not processed.')
             return
         self.heuristics.cert_id = self.pdf_data.cert_id

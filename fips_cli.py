@@ -7,7 +7,7 @@ import sys
 import os
 from datetime import datetime
 
-from sec_certs.config.configuration import config
+from sec_certs.config.configuration import config, DEFAULT_CONFIG_PATH
 from sec_certs.dataset.fips import FIPSDataset
 
 logger = logging.getLogger(__name__)
@@ -122,9 +122,7 @@ def main(
         output = Path(output)
 
     if not inputpath and not output:
-        print(
-            "Error: You did not specify path to load the dataset from, nor did you specify where dataset can be stored."
-        )
+        logger.error("You did not specify path to load the dataset from, nor did you specify where dataset can be stored.")
         sys.exit(1)
 
     if not silent:
@@ -138,16 +136,15 @@ def main(
         try:
             config.load(Path(configpath))
         except FileNotFoundError:
-            print("Error: Bad path to configuration file")
+            logger.error("Bad path to configuration file")
             sys.exit(1)
         except ValueError as e:
-            print(f"Error: Bad format of configuration file: {e}")
+            logger.error(f"Bad format of configuration file: {e}")
     else:
-        print(f"Using default configuration file at {Path(script_dir) / 'sec_certs' / 'config' / 'settings.yaml'}")
-        config.load(Path(script_dir) / 'sec_certs' / 'config' / 'settings.yaml')
+        logger.info(f"Using default configuration file at {DEFAULT_CONFIG_PATH}.")
 
     if "all" in actions and "new-run" in actions:
-        print("Error: Only one of 'new-run' and 'all' can be specified.")
+        logger.error("Only one of 'new-run' and 'all' can be specified.")
         sys.exit(1)
 
     r_actions = (
@@ -161,16 +158,12 @@ def main(
     actions = r_actions
 
     if "build" in actions and "update" in actions:
-        print(
-            "Error: 'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset."
-        )
+        logger.error("'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset.")
 
     if "build" in actions:
         assert output
         if inputpath:
-            print(
-                "warning: Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored."
-            )
+            logger.warning("Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored.")
         dset: FIPSDataset = FIPSDataset(
             certs={},
             root_dir=output,
@@ -184,7 +177,7 @@ def main(
     # only 'build' can work without inputpath
     else:
         if not inputpath:
-            print("Error: You must provide inputpath to previously generated dataset with 'build'")
+            logger.error("You must provide inputpath to previously generated dataset with 'build'")
             sys.exit(1)
 
     assert inputpath
@@ -192,11 +185,9 @@ def main(
     
     assert dset.algorithms
 
-    print(f'Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.')
+    logger.info(f'Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.')
     if output:
-        print(
-            "Warning: You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)"
-        )
+        logger.warning("You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)")
         dset.root_dir = output
         dset.to_json(output)
 
@@ -211,9 +202,7 @@ def main(
 
     if "table-search" in actions or "update" in actions:
         if not higher_precision_results:
-            print(
-                "Info: You are using table search without higher precision results. It is advised to use the switch in the next run."
-            )
+            logger.info("You are using table search without higher precision results. It is advised to use the switch in the next run.")
         dset.extract_certs_from_tables(high_precision=higher_precision_results)
 
     if "analysis" in actions:

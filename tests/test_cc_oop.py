@@ -9,8 +9,8 @@ import shutil
 import os
 
 from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.certificate.common_criteria import CommonCriteriaCert
-from sec_certs.certificate.protection_profile import ProtectionProfile
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.protection_profile import ProtectionProfile
 import sec_certs.helpers as helpers
 import sec_certs.constants as constants
 
@@ -57,7 +57,7 @@ class TestCommonCriteriaOOP(TestCase):
                                           None)
 
         pp = ProtectionProfile('sample_pp', 'https://sample.pp')
-        update = CommonCriteriaCert.MaintainanceReport(date(1900, 1, 1), 'Sample maintainance', 'https://maintainance.up', 'https://maintainance.up')
+        update = CommonCriteriaCert.MaintenanceReport(date(1900, 1, 1), 'Sample maintenance', 'https://maintenance.up', 'https://maintenance.up')
         self.fictional_cert = CommonCriteriaCert('archived',
                                                  'Sample category',
                                                  'Sample certificate name',
@@ -103,7 +103,7 @@ class TestCommonCriteriaOOP(TestCase):
             actual_report_pdf_hashes = {key: helpers.get_sha256_filepath(val.state.report_pdf_path) for key, val in dset.certs.items()}
             actual_target_pdf_hashes = {key: helpers.get_sha256_filepath(val.state.st_pdf_path) for key, val in dset.certs.items()}
 
-            self.assertEqual(actual_report_pdf_hashes, self.template_report_pdf_hashes, 'Hashes of downloaded pdfs (certificate report) do not the template')
+            self.assertEqual(actual_report_pdf_hashes, self.template_report_pdf_hashes, 'Hashes of downloaded pdfs (sample report) do not the template')
             self.assertEqual(actual_target_pdf_hashes, self.template_target_pdf_hashes, 'Hashes of downloaded pdfs (security target) do not match the template')
 
             self.assertTrue(dset['309ac2fd7f2dcf17'].state.report_txt_path.exists())
@@ -122,7 +122,7 @@ class TestCommonCriteriaOOP(TestCase):
             self.fictional_cert.to_json(tmp.name)
             self.assertTrue(filecmp.cmp(self.test_data_dir / 'fictional_cert.json',
                                         tmp.name),
-                            'The certificate serialized to json differs from a template.')
+                            'The sample serialized to json differs from a template.')
 
     def test_dataset_to_json(self):
         with NamedTemporaryFile('w') as tmp:
@@ -134,7 +134,7 @@ class TestCommonCriteriaOOP(TestCase):
     def test_cert_from_json(self):
         self.assertEqual(self.fictional_cert,
                          CommonCriteriaCert.from_json(self.test_data_dir / 'fictional_cert.json'),
-                         'The certificate serialized from json differs from a template.')
+                         'The sample serialized from json differs from a template.')
 
     def test_dataset_from_json(self):
         self.assertEqual(self.template_dataset,
@@ -166,7 +166,7 @@ class TestCommonCriteriaOOP(TestCase):
 
         self.assertEqual(len(dset), 2, 'The dataset should contain 2 files.')
 
-        self.assertTrue(self.crt_one in dset, 'The dataset does not contain the template certificate.')
+        self.assertTrue(self.crt_one in dset, 'The dataset does not contain the template sample.')
         self.assertEqual(dset, self.template_dataset, 'The loaded dataset does not match the template dataset.')
 
     def test_download_csv_html_files(self):
