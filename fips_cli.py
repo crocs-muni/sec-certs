@@ -114,7 +114,7 @@ def main(
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
-    handlers = [file_handler]
+    handlers: List[logging.StreamHandler] = [file_handler]
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -188,7 +188,9 @@ def main(
             sys.exit(1)
 
     assert inputpath
-    dset: FIPSDataset = FIPSDataset.from_json(inputpath)
+    dset = FIPSDataset.from_json(inputpath)
+    
+    assert dset.algorithms
 
     print(f'Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.')
     if output:

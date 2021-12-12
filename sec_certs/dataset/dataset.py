@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union
+from typing import Dict, Collection, Union, Mapping
 
 import json
 from abc import ABC, abstractmethod
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class Dataset(ABC):
-    def __init__(self, certs: Dict[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
+    def __init__(self, certs: Mapping[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description'):
         self._root_dir = root_dir
         self.timestamp = datetime.now()
@@ -69,7 +69,7 @@ class Dataset(ABC):
         return self.certs.__getitem__(item.lower())
 
     def __setitem__(self, key: str, value: 'Certificate'):
-        self.certs.__setitem__(key.lower(), value)
+        dict(self.certs).update({key.lower(): value})
 
     def __len__(self) -> int:
         return len(self.certs)

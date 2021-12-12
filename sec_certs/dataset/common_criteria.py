@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Dict, Iterator, Optional, Set, Union, List, Tuple, Mapping
 import json
 
 import numpy as np
@@ -20,6 +20,7 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.certificate.common_criteria import CommonCriteriaCert
+from sec_certs.certificate.certificate import Certificate
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.certificate.protection_profile import ProtectionProfile
 from sec_certs.config.configuration import config
@@ -38,8 +39,9 @@ class CCDataset(Dataset, ComplexSerializableType):
             return any(vars(self))
 
     certs: Dict[str, 'CommonCriteriaCert']
+    # TODO: Figure out how to type this. The problem is that this breaks covariance of the types, which mypy doesn't allow.
 
-    def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
+    def __init__(self, certs: Mapping[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description)
 
@@ -47,7 +49,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             state = self.DatasetInternalState()
         self.state = state
 
-    def __iter__(self) -> CommonCriteriaCert:
+    def __iter__(self) -> Iterator[CommonCriteriaCert]:
         yield from self.certs.values()
 
     def to_dict(self):
@@ -73,10 +75,10 @@ class CCDataset(Dataset, ComplexSerializableType):
         dset.state = copy.deepcopy(dct['state'])
         return dset
 
-    @Dataset.root_dir.setter
+    @Dataset.root_dir.setter # type: ignore
     def root_dir(self, new_dir: Union[str, Path]):
         old_dset = copy.deepcopy(self)
-        Dataset.root_dir.fset(self, new_dir)
+        Dataset.root_dir.fset(self, new_dir) # type: ignore
         self.set_local_paths()
 
         if self.state and old_dset.root_dir != Path('..'):
@@ -229,6 +231,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         pp_dataset = constructor[to_download](self.pp_dataset_path)
 
         for cert in self:
+            if cert.protection_profiles is None:
+                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
             cert.protection_profiles = {pp_dataset.pps.get((x.pp_name, x.pp_link), x) for x in cert.protection_profiles}
 
         if not keep_metadata:
@@ -264,7 +268,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Creates dictionary of new certificates from csv sources.
         """
-        csv_sources = self.csv_products.keys()
+        csv_sources = list(self.csv_products.keys())
         csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
         csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
 
@@ -322,7 +326,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         profiles = {x.dgst: set([ProtectionProfile(y) for y in
                                  helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in
                     df_base.itertuples()}
-        updates = {x.dgst: set() for x in df_base.itertuples()}
+        updates: Dict[str, Set] = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
             updates[x.dgst].add(CommonCriteriaCert.MaintainanceReport(x.maintainance_date.date(), x.maintainance_title,
                                                                       x.maintainance_report_link,
@@ -341,11 +345,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Prepares dictionary of certificates from all html files.
         """
-        html_sources = self.html_products.keys()
+        html_sources = list(self.html_products.keys())
         if get_active is False:
-            html_sources = filter(lambda x: 'active' not in x, html_sources)
+            html_sources = list(filter(lambda x: 'active' not in x, html_sources))
         if get_archived is False:
-            html_sources = filter(lambda x: 'archived' not in x, html_sources)
+            html_sources = list(filter(lambda x: 'archived' not in x, html_sources))
 
         new_certs = {}
         for file in html_sources:
@@ -636,20 +640,26 @@ class CCDataset(Dataset, ComplexSerializableType):
     def manually_verify_cpe_matches(self, update_json=True):
         def verify_certs(certificates_to_verify: List[CommonCriteriaCert]):
             n_certs_to_verify = len(certificates_to_verify)
+            
             for i, x in enumerate(certificates_to_verify):
                 print(f'\n[{i}/{n_certs_to_verify}] Vendor: {x.manufacturer}, Name: {x.name}')
+                
+                if x.heuristics.cpe_matches is None:
+                    raise RuntimeError(f"No CPE match for cert {x.dgst} - this should not be happening.")
+                
                 for index, c in enumerate(x.heuristics.cpe_matches):
                     print(f'\t- {[index]}: {c[1].vendor} {c[1].title} CPE-URI: {c[1].uri}')
+                    
                 print(f'\t- [A]: All are fitting')
                 print(f'\t- [X]: No fitting match')
                 inpts = input('Select fitting CPE matches (split with comma if choosing more):').strip().split(',')
 
                 if 'X' not in inpts and 'x' not in inpts:
                     if 'A' in inpts or 'a' in inpts:
-                        inpts = [x for x in range(0, len(x.heuristics.cpe_matches))]
+                        inpts_int = [x for x in range(0, len(x.heuristics.cpe_matches))]
                     try:
-                        inpts = [int(x) for x in inpts]
-                        if min(inpts) < 0 or max(inpts) > len(x.heuristics.cpe_matches) - 1:
+                        inpts_int = [int(x) for x in inpts]
+                        if min(inpts_int) < 0 or max(inpts_int) > len(x.heuristics.cpe_matches) - 1:
                             raise ValueError(f'Incorrect number chosen, choose in range 0-{len(x.heuristics.cpe_matches) - 1}')
                     except ValueError as e:
                         logger.error(f'Bad input from user, repeating instance: {e}')
@@ -657,7 +667,7 @@ class CCDataset(Dataset, ComplexSerializableType):
                         time.sleep(0.05)
                         verify_certs([x])
                     else:
-                        matches = [x.heuristics.cpe_matches[y][1] for y in inpts]
+                        matches = [x.heuristics.cpe_matches[y][1] for y in inpts_int]
                         self[x.dgst].heuristics.verified_cpe_matches = matches
 
                 if i != 0 and not i % 10 and update_json:
@@ -683,8 +693,8 @@ class CCDataset(Dataset, ComplexSerializableType):
             logger.error('No certificates with verified CPE match detected. You must run dset.manually_verify_cpe_matches() first. Returning.')
             return
 
-        relevant_cpes = itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs])
-        relevant_cpes = set([x.uri for x in relevant_cpes])
+        relevant_cpes_chain = itertools.chain.from_iterable([x.heuristics.verified_cpe_matches for x in verified_cpe_rich_certs if x.heuristics.verified_cpe_matches is not None])
+        relevant_cpes = set([x.uri for x in relevant_cpes_chain if x.uri is not None])
         cve_dset.filter_related_cpes(relevant_cpes)
 
         for cert in tqdm(verified_cpe_rich_certs, desc='Computing related CVES'):
@@ -698,7 +708,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         with Path(input_path).open('r') as handle:
             data = json.load(handle)
 
-        cpe_dset = self._prepare_cpe_dataset()
+        cpe_dset = self._prepare_cpe_dataset(False) # TODO missing positional argument, I'll pass "no" by default
 
         logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
         for annotation in tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
@@ -728,7 +738,10 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
-    def __init__(self, certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'], root_dir: Path, name: str = 'dataset name',
+    # TODO: Types
+    certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'] # type: ignore # noqa
+    def __init__(self, certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'], # type: ignore # noqa
+                 root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[CCDataset.DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description, state)
         self.state.meta_sources_parsed = True
@@ -737,7 +750,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def certs_dir(self) -> Path:
         return self.root_dir
 
-    def __iter__(self) -> CommonCriteriaMaintenanceUpdate:
+    def __iter__(self) -> Iterator[CommonCriteriaMaintenanceUpdate]:
         yield from self.certs.values()
 
     def _compute_heuristics(self, download_fresh_cpes: bool = False):

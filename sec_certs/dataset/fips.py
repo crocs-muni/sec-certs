@@ -4,13 +4,14 @@ import logging
 import os
 from itertools import groupby
 from pathlib import Path
-from typing import Tuple, List, Dict, Optional, Union
+from typing import Set, Tuple, List, Dict, Optional, Union, Mapping
 
 from bs4 import BeautifulSoup
 from graphviz import Digraph
 
 from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
 from sec_certs.config.configuration import config
+from sec_certs.certificate.certificate import Certificate
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization import ComplexSerializableType, serialize
@@ -18,10 +19,10 @@ from sec_certs.certificate.fips import FIPSCertificate
 
 
 class FIPSDataset(Dataset, ComplexSerializableType):
-    certs: Dict[str, Optional[FIPSCertificate]] # type: ignore # noqa
+    certs: Dict[str, FIPSCertificate]
 
     def __init__(
-        self, certs: dict, root_dir: Path, name: str = "dataset name", description: str = "dataset_description"
+        self, certs: Mapping[str, 'Certificate'], root_dir: Path, name: str = "dataset name", description: str = "dataset_description"
     ):
         super().__init__(certs, root_dir, name, description)
         self.keywords: Dict[str, Dict] = {}
@@ -149,7 +150,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         ]
         cert_processing.process_parallel(FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt")
 
-    def prepare_dataset(self, test: Optional[Path] = None, update: bool = False):
+    def prepare_dataset(self, test: Optional[Path] = None, update: bool = False) -> Set[str]:
         if test:
             html_files = [test]
         else:
@@ -168,28 +169,34 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             )
 
         # Parse those files and get list of currently processable files (always)
+        cert_ids: Set[str] = set()
         for f in html_files:
-            self._get_certificates_from_html(self.web_dir / f, update)
+            cert_ids |= self._get_certificates_from_html(self.web_dir / f, update)
+            
+        return cert_ids
 
     def download_neccessary_files(self):
         self.download_all_htmls()
         self.download_all_pdfs()
 
-    def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> None:
+    def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
         logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html.parser")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
+        entries: Set[str] = set()
         for entry in table:
             cert_id = entry.find("a").text
-            if cert_id not in self.certs:
-                self.certs[cert_id] = None
+            if cert_id not in entries:
+                entries.add(cert_id)
+        
+        return entries
 
     @serialize
-    def web_scan(self, redo: bool = False):
+    def web_scan(self, cert_ids: Set[str], redo: bool = False):
         logger.info("Entering web scan.")
-        for cert_id, cert in self.certs.items():
+        for cert_id in cert_ids:
             self.certs[cert_id] = FIPSCertificate.html_from_file(
                 self.web_dir / f"{cert_id}.html",
                 FIPSCertificate.State(
@@ -200,7 +207,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                     None,
                     False,
                 ),
-                cert,
+                self.certs[cert_id] if cert_id in self.certs else None,
                 redo=redo,
             )
 
@@ -226,16 +233,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         cert: FIPSCertificate
         for cert in self.certs.values():
             cert.set_local_paths(self.policies_dir, self.web_dir, self.fragments_dir)
-
-    def _append_new_certs_data(self) -> int:
-        # we need to know the exact certificates downloaded, so we don't overwrite something already done
-        new_certs = self.download_all_htmls()
-        self.download_all_pdfs()
-        logger.info(f"{self.new_files} needed to be downloaded")
-        for cert_id in new_certs:
-            self.certs[cert_id] = None
-        return len(new_certs)
-
+            
     @serialize
     def get_certs_from_web(
         self,
@@ -261,7 +259,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.algs_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
-        self.prepare_dataset(test, update)
+        cert_ids = self.prepare_dataset(test, update)
 
         logger.info("Downloading certificate html and security policies")
         self.download_neccessary_files()
@@ -273,7 +271,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
             self.algorithms = aset
         
-        self.web_scan(redo=redo_web_scan)
+        self.web_scan(cert_ids, redo=redo_web_scan)
 
     @serialize
     def deprocess(self):
