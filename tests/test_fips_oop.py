@@ -26,13 +26,13 @@ def _set_up_dataset_for_full(td, certs, cpe_dset_path: Union[str, Path] = None, 
     shutil.copyfile(cpe_dset_path, dataset.cpe_dataset_path)
     shutil.copyfile(cve_dset_path, dataset.cve_dataset_path)
 
-    dataset.web_scan()
-    dataset.download_all_pdfs()
+    dataset.web_scan(set(certs))
+    dataset.download_all_pdfs(set(certs))
     dataset.convert_all_pdfs()
     dataset.pdf_scan()
     dataset.extract_certs_from_tables(high_precision=True)
     dataset.algorithms = FIPSAlgorithmDataset.from_json(Path(__file__).parent / 'data/test_fips_oop/algorithms.json')
-    dataset.finalize_results(use_nist_cpe_matching_dict=False)
+    dataset.finalize_results(use_nist_cpe_matching_dict=False, perform_cpe_heuristics=False)
     return dataset
 
 

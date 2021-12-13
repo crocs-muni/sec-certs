@@ -157,10 +157,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         related_cves: Optional[List[str]] = field(default=None)
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
-        directly_affected_by: Set = field(default=None)
-        indirectly_affected_by: Set = field(default=None)
-        directly_affecting: Set = field(default=None)
-        indirectly_affecting: Set = field(default=None)
+        directly_affected_by: Optional[Set] = field(default=None)
+        indirectly_affected_by: Optional[Set] = field(default=None)
+        directly_affecting: Optional[Set] = field(default=None)
+        indirectly_affecting: Optional[Set] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -460,7 +460,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    [] if not initialized else initialized.pdf_scan.algorithms,
                                    []  # connections
                                ),
-                               FIPSCertificate.FIPSHeuristics(None, {}, [], 0),
+                               FIPSCertificate.FIPSHeuristics(None, [], [], 0),
                                state
                                )
 
@@ -759,16 +759,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             versions_for_extraction += f' {self.web_scan.fw_version}'
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
-    # TODO: This function is probably safe to delete
+    # TODO: This function is probably safe to delete // I'll not type it then - older API probably?
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         if self.web_scan.vendor is None:
             raise RuntimeError(f"Vendor for cert {self.dgst} not found - this should not be happening.")
-        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
+        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor) # type: ignore
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         if not self.web_scan.module_name:
             self.heuristics.cpe_matches = None
         else:
-            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.web_scan.vendor,
+            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.web_scan.vendor, # type: ignore
                                                                              self.web_scan.module_name,
                                                                              self.heuristics.extracted_versions)

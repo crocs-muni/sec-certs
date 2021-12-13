@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Union, List, Tuple, Mapping
+from typing import Dict, Collection, Optional, Set, Union, List, Tuple, Mapping
 
 import json
 from abc import ABC, abstractmethod
@@ -128,7 +128,7 @@ class Dataset(ABC):
         raise NotImplementedError('Not meant to be implemented by the base class.')
 
     @abstractmethod
-    def download_all_pdfs(self):
+    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None):
         raise NotImplementedError('Not meant to be implemented by the base class.')
 
     @staticmethod
@@ -189,7 +189,7 @@ class Dataset(ABC):
             """
             if cpe.title and (cpe.version == '-' or cpe.version == '*') and not any(char.isdigit() for char in cpe.title):
                 return False
-            elif not cpe.title and (cpe.version == '-' or cpe.version == '*') and not any(char.isdigit() for char in cpe.item_name):
+            elif not cpe.title and cpe.item_name and (cpe.version == '-' or cpe.version == '*') and not any(char.isdigit() for char in cpe.item_name):
                 return False
             return True
 
@@ -239,7 +239,7 @@ class Dataset(ABC):
             match_keys = [x.lstrip('$') for x in match_keys]
             predicted_annotations = [annotation[x] for x in match_keys if annotation[x] != 'No good match']
 
-            cpes = set()
+            cpes: Set[Optional[CPE]] = set()
             for x in predicted_annotations:
                 if x not in cpe_dset.title_to_cpes:
                     print(f'Error: {x} not in dataset')
@@ -248,7 +248,9 @@ class Dataset(ABC):
                     if to_update and not cpes:
                         cpes = to_update
                     elif to_update and cpes:
-                        cpes = cpes.update(to_update)
+                    # TODO: This was here like cpes = cpes.update(to_update), but update() does not return anything.
+                    # Did you try to hack something using that or was that just a typo?
+                        cpes.update(to_update)
 
 
             # cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes.get(x, []) for x in predicted_annotations]))
@@ -262,7 +264,7 @@ class Dataset(ABC):
             certs = self.get_certs_from_name(cert_name)
 
             for c in certs:
-                c.heuristics.verified_cpe_matches = {x.uri for x in cpes} if cpes else None
+                c.heuristics.verified_cpe_matches = {x.uri for x in cpes if x is not None} if cpes else None
 
     def get_certs_from_name(self, name: str) -> List[Certificate]:
         raise NotImplementedError('Not meant to be implemented by the base class.')

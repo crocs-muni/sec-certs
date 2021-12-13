@@ -6,12 +6,12 @@ from itertools import groupby
 from pathlib import Path
 
 from typing import Set, Tuple, List, Dict, Optional, Mapping
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
 from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
 from sec_certs.config.configuration import config
-from sec_certs.certificate.certificate import Certificate
+from sec_certs.sample.certificate import Certificate
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.serialization.json import ComplexSerializableType, serialize
@@ -57,7 +57,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def successful_pdf_scan(self) -> bool:
         return all(cert.pdf_scan for cert in self.certs.values() if cert is not None)
 
-    def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
+    def get_certs_from_name(self, module_name: str) -> List[Certificate]:
         return [crt for crt in self if crt.web_scan.module_name == module_name]
 
     def find_empty_pdfs(self) -> Tuple[List, List]:
@@ -99,10 +99,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         output = {k: v for k, v in output.items() if v != 0}
         return output
 
-    def download_all_pdfs(self, cert_ids: Set[str]):
+    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None):
         sp_paths, sp_urls = [], []
         self.policies_dir.mkdir(exist_ok=True)
-
+        if cert_ids is None:
+            raise RuntimeError("You need to provide cert ids to FIPS download PDFs functionality.")
         for cert_id in cert_ids:
             if not (self.policies_dir / f"{cert_id}.pdf").exists()  or (cert_id in self.certs and not self.certs[cert_id].state.txt_state
             ):
@@ -186,7 +187,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
         entries: Set[str] = set()
+        
         for entry in table:
+            if isinstance(entry, NavigableString):
+                continue
             cert_id = entry.find("a").text
             if cert_id not in entries:
                 entries.add(cert_id)
@@ -338,8 +342,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         conn_first = other_cert.web_scan.date_validation[0]
         conn_last = other_cert.web_scan.date_validation[-1]
         
-        if not isinstance(cert_first, datetime.datetime) or not isinstance(cert_last, datetime.datetime)\
-            or not isinstance(conn_first, datetime.datetime) or not isinstance(conn_last, datetime.datetime):
+        print(cert_first, cert_last, conn_first, conn_last)
+        
+        if not isinstance(cert_first, datetime.date) or not isinstance(cert_last, datetime.date)\
+            or not isinstance(conn_first, datetime.date) or not isinstance(conn_last, datetime.date):
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
         return (
@@ -432,14 +438,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             FIPSDataset._find_connections(current_cert)
 
     @serialize
-    def finalize_results(self, use_nist_cpe_matching_dict: bool = True):
+    def finalize_results(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):
         logger.info("Entering 'analysis' and building connections between certificates.")
         self.unify_algorithms()
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
-
-        self.compute_cpe_heuristics()
-        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
+        if perform_cpe_heuristics:
+            self.compute_cpe_heuristics()
+            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_key: str, highlighted_vendor: str):
         current_cert = self.certs[current_key]

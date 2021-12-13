@@ -44,11 +44,11 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
 
     @classmethod
     def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert):
-        if cert.maintainance_updates is None:
+        if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         
         return [cls(x.maintainance_title, x.maintainance_report_link, x.maintainance_st_link,
-                    None, None, None, cert.dgst, x.maintainance_date) for x in cert.maintainance_updates
+                    None, None, None, cert.dgst, x.maintainance_date) for x in cert.maintenance_updates
                 if (x.maintainance_title is not None and x.maintainance_report_link is not None\
                     and x.maintainance_st_link is not None and x.maintainance_date is not None)]
 

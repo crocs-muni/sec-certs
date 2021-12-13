@@ -638,7 +638,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.certs_analyzed = True
 
-    def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
+    def get_certs_from_name(self, cert_name: str) -> List[Certificate]:
         return [crt for crt in self if crt.name == cert_name]
 
     def process_maintenance_updates(self):
@@ -665,8 +665,9 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
-    # TODO: Types
-    certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'] 
+    # TODO: Types - if I use dictionary in CCDataset, I can't use more specific dictionary here (otherwise the CCDataset
+    # one would have to be a Mapping - not mutable)
+    certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'] # type: ignore
     def __init__(self, certs: Mapping[str, 'Certificate'],
                  root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[CCDataset.DatasetInternalState] = None):

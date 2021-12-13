@@ -736,7 +736,7 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
         
     return matched if matched_strings else ['-']
 
-def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.array:
+def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray: 
     return np.array([tokenize(x, keywords) for x in dset])
 
 def tokenize(string: str, keywords: Set[str]) -> str:

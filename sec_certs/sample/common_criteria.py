@@ -173,7 +173,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @dataclass
     class CCHeuristics(ComplexSerializableType):
-        extracted_versions: List[str] = field(default=None)
+        extracted_versions: Optional[List[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
@@ -561,10 +561,10 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
         # TODO: This method probably can be deleted.
-        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)
+        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer) # type: ignore
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
-        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)  # type: ignore
 
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:

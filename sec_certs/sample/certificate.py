@@ -5,7 +5,7 @@ import json
 import itertools
 
 from abc import ABC, abstractmethod
-from typing import Union, TypeVar, Type, Any
+from typing import Optional, Union, TypeVar, Type, Any
 
 from sec_certs.serialization.json import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
 from sec_certs.model.cpe_matching import CPEClassifier
@@ -51,7 +51,9 @@ class Certificate(ABC, ComplexSerializableType):
         dct.pop('dgst')
         return cls(*(tuple(dct.values())))
 
-    def to_json(self, output_path: Union[Path, str]):
+    def to_json(self, output_path: Optional[Union[str, Path]] = None):
+        if output_path is None:
+            raise RuntimeError(f"You tried to serialize an object ({type(self)}) that does not have implicit json path. Please provide json_path.")
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
@@ -77,6 +79,6 @@ class Certificate(ABC, ComplexSerializableType):
             related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x) for x in self.heuristics.cpe_matches]
             related_cves = list(filter(lambda x: x is not None, related_cves))
             if related_cves:
-                self.heuristics.related_cves = set(itertools.chain.from_iterable(related_cves))
+                self.heuristics.related_cves = set(itertools.chain.from_iterable([x for x in related_cves if x is not None]))
         else:
             self.heuristics.related_cves = None

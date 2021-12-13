@@ -26,10 +26,12 @@ class ComplexSerializableType:
             raise TypeError(f'Dict: {dct} on {cls.__mro__}') from e
 
     def to_json(self, output_path: Optional[Union[str, Path]] = None):
-        if not output_path:
+        if output_path is None:
             if not hasattr(self, 'json_path'):
                 raise ValueError(f'The object {self} of type {self.__class__} does not have json_path attribute but to_json() was called without an argument.')
-            output_path = self.json_path
+            output_path = self.json_path # type: ignore
+        if output_path is None:
+            raise ValueError(f'The object {self} of type {self.__class__} does not have json_path attribute but to_json() was called without an argument.')
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
