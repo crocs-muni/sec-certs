@@ -342,8 +342,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         conn_first = other_cert.web_scan.date_validation[0]
         conn_last = other_cert.web_scan.date_validation[-1]
         
-        print(cert_first, cert_last, conn_first, conn_last)
-        
         if not isinstance(cert_first, datetime.date) or not isinstance(cert_last, datetime.date)\
             or not isinstance(conn_first, datetime.date) or not isinstance(conn_last, datetime.date):
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
