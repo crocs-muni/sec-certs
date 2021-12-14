@@ -1,9 +1,10 @@
 from datetime import datetime
+from pathlib import Path
 
 import sentry_sdk
 from flag import flag
 from celery import Celery, Task
-from flask import Flask, current_app, render_template, request
+from flask import Flask, render_template, request
 from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from flask_caching import Cache
@@ -17,6 +18,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.logging import ignore_logger
+from sec_certs.config.configuration import config as tool_config
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -36,6 +38,8 @@ sentry_sdk.init(
 ignore_logger("sec_certs.helpers")
 ignore_logger("sec_certs.dataset.dataset")
 ignore_logger("sec_certs.sample.certificate")
+
+tool_config.load(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
 mongo = PyMongo(app)
 
@@ -96,7 +100,7 @@ def to_flag(code):
 @app.template_global("blueprint_url_prefix")
 def blueprint_prefix():
     """The url_prefix of the current blueprint."""
-    return current_app.blueprints[request.blueprint].url_prefix
+    return app.blueprints[request.blueprint].url_prefix
 
 
 @app.template_filter("strptime")

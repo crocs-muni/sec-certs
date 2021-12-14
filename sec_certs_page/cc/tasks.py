@@ -117,14 +117,15 @@ def update_data():
                         })
                 # TODO: Issue a task for sending the notifications for the run here.
     except Exception as e:
-        logging.error(str(e))
         end = datetime.now()
         mongo.db.cc_log.insert_one({
             "start_time": start,
             "end_time": end,
             "tool_version": tool_version,
             "length": len(dset),
-            "ok": False
+            "ok": False,
+            "error": str(e)
         })
+        raise e
     finally:
         rmtree(dset_path)

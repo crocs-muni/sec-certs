@@ -52,3 +52,6 @@ DATASET_PATH_CC = "cc_dataset"
 DATASET_PATH_CC_OUT = "cc.json"
 DATASET_PATH_FIPS = "fips_dataset"
 DATASET_PATH_FIPS_OUT = "fips.json"
+
+# Path for the sec-certs tool settings file inside the instance directory
+TOOL_SETTINGS_PATH = "settings.yaml"
