@@ -1,26 +1,26 @@
 from tqdm import tqdm
-from multiprocessing.pool import Pool, ThreadPool
+from concurrent.futures import ProcessPoolExecutor as ProcessPool, ThreadPoolExecutor as ThreadPool
+# from multiprocessing.pool import Pool, ThreadPool
 from typing import Callable, Iterable, Optional
 import time
 
 
-def process_parallel(func: Callable, items: Iterable, max_workers: int, callback: Optional[Callable] = None,
+def process_parallel(func: Callable, items: Iterable, max_workers: int,
                      use_threading: bool = True, progress_bar: bool = True, unpack: bool = False,
                      progress_bar_desc: Optional[str] = None):
 
-    pool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
-    results = [pool.apply_async(func, (*i,), callback=callback) for i in items] if unpack else [pool.apply_async(func, (i, ), callback=callback) for i in items]
+    pool = ThreadPool(max_workers) if use_threading else ProcessPool(max_workers)
+    results = [pool.submit(func, *i) for i in items] if unpack else [pool.submit(func, i) for i in items]
 
     if progress_bar is True and items:
         bar = tqdm(total=len(results), desc=progress_bar_desc)
-        while not all([x.ready() for x in results]):
-            done_count = len([x.ready() for x in results if x.ready()])
+        while not all(all_done := [x.done() for x in results]):
+            done_count = len(list(filter(lambda x: x, all_done)))
             bar.update(done_count - bar.n)
             time.sleep(1)
         bar.update(len(results) - bar.n)
         bar.close()
 
-    pool.close()
-    pool.join()
+    pool.shutdown()
 
-    return [r.get() for r in results]
+    return [r.result() for r in results]
