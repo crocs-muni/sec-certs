@@ -137,7 +137,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         self.new_files += len(html_urls)
         if len(failed) != 0:
-            logging.info(f"Download failed for {len(failed)} files. Retrying...")
+            logger.info(f"Download failed for {len(failed)} files. Retrying...")
             cert_processing.process_parallel(FIPSCertificate.download_html_page, failed, config.n_threads, progress_bar_desc="Downloading HTML files again")
         return new_files
 
