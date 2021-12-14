@@ -20,6 +20,12 @@ logging = get_task_logger(__name__)
 
 
 @celery.task(ignore_result=True)
+def notify(diff_id):
+    diff = mongo.db.cc_diff.find_one({"_id": diff_id})
+    pass
+
+
+@celery.task(ignore_result=True)
 def update_data():
     tool_version = get_distribution("sec-certs").version
     start = datetime.now()
@@ -46,7 +52,8 @@ def update_data():
                 "end_time": end,
                 "tool_version": tool_version,
                 "length": len(dset),
-                "ok": True
+                "ok": True,
+                "state": dset.state.to_dict()
             })
 
             old_ids = set(map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1})))
@@ -67,13 +74,14 @@ def update_data():
                         cert_data["_id"] = cert_data["dgst"]
                         cert_data = remove_dots(cert_data)
                         mongo.db.cc.insert_one(cert_data)
-                        mongo.db.cc_diff.insert_one({
+                        result = mongo.db.cc_diff.insert_one({
                             "run_id": update_result.inserted_id,
                             "dgst": id,
                             "timestamp": start,
                             "type": "new",
                             "diff": cert_data
                         })
+                        notify.delay(result.inserted_id)
                 with sentry_sdk.start_span(op="cc.db.updated", description="Process updated certs."):
                     for id in updated_ids:
                         # Process an updated cert, it can also be that a "removed" cert reappeared
@@ -83,39 +91,41 @@ def update_data():
                         cert_data["_id"] = cert_data["dgst"]
                         cert_data = remove_dots(cert_data)
                         # Find the last diff
-                        last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=("timestamp", DESCENDING))
+                        last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                         if cert_diff := diff(current_cert, cert_data):
                             # The cert changed, issue an update
                             mongo.db.cc.replace_one({"_id": id}, cert_data)
-                            mongo.db.cc_diff.insert_one({
+                            result = mongo.db.cc_diff.insert_one({
                                 "run_id": update_result.inserted_id,
                                 "dgst": id,
                                 "timestamp": start,
                                 "type": "change",
                                 "diff": cert_diff
                             })
+                            notify.delay(result.inserted_id)
                         elif last_diff and last_diff["type"] == "remove":
                             # The cert did not change but came back from being marked removed
-                            mongo.db.cc_diff.insert_one({
+                            result = mongo.db.cc_diff.insert_one({
                                 "run_id": update_result.inserted_id,
                                 "dgst": id,
                                 "timestamp": start,
                                 "type": "back"
                             })
+                            notify.delay(result.inserted_id)
                 with sentry_sdk.start_span(op="cc.db.removed", description="Process removed certs."):
                     for id in removed_ids:
                         # Find the last diff on this cert, if it is mark for removal, just continue
-                        last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=("timestamp", DESCENDING))
+                        last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                         if last_diff and last_diff["type"] == "remove":
                             continue
                         # Mark the removal (but only once)
-                        mongo.db.cc_diff.insert_one({
+                        result = mongo.db.cc_diff.insert_one({
                             "run_id": update_result.inserted_id,
                             "dgst": id,
                             "timestamp": start,
                             "type": "remove"
                         })
-                # TODO: Issue a task for sending the notifications for the run here.
+                        notify.delay(result.inserted_id)
     except Exception as e:
         end = datetime.now()
         mongo.db.cc_log.insert_one({
@@ -124,7 +134,8 @@ def update_data():
             "tool_version": tool_version,
             "length": len(dset),
             "ok": False,
-            "error": str(e)
+            "error": str(e),
+            "state": dset.state.to_dict()
         })
         raise e
     finally:

@@ -4,7 +4,7 @@ from pathlib import Path
 import sentry_sdk
 from flag import flag
 from celery import Celery, Task
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort, jsonify
 from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from flask_caching import Cache
@@ -139,6 +139,17 @@ app.register_blueprint(admin)
 @register_breadcrumb(app, ".", "Home")
 def index():
     return render_template("index.html.jinja2")
+
+
+@app.route("/feedback/", methods=["POST"])
+def feedback():
+    """Collect feedback from users."""
+    data = request.json
+    if set(data.keys()) != {"element", "comment", "path"}:
+        return abort(400)
+    data["ip"] = request.remote_addr
+    mongo.db.feedback.insert_one(data)
+    return jsonify({"status": "OK"})
 
 
 @app.route("/about")

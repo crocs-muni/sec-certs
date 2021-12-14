@@ -1,4 +1,4 @@
-{% extends "base.html.jinja2" %}
+{% extends "crowdsourced.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
 {% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category, render_pdf_meta, render_frontpage %}
@@ -44,57 +44,75 @@
     <div class="mt-5 mb-5">
 		<h2 class="anchor" id="csv-info">CSV information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the CSV certificate database provided by the Common Criteria portal.">?</span></h2>
-		<b>Status:</b>{{ render_status(cert["status"]) }}<br/>
+        <div data-cs-name="Certificate status">
+		    <b>Status:</b>{{ render_status(cert["status"]) }}<br/>
+        </div>
 
-		<b>Valid from:</b>
-		{{ cert["not_valid_before"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
-		<br/>
+        <div data-cs-name="Valid from">
+            <b>Valid from:</b>
+            {{ cert["not_valid_before"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
+            <br/>
+        </div>
 		{% if cert["not_valid_after"] %}
-		<b>Valid until:</b>
-		{{ cert["not_valid_after"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
-		<br/>
+        <div data-cs-name="Valid until">
+            <b>Valid until:</b>
+            {{ cert["not_valid_after"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
+            <br/>
+        </div>
 		{% endif %}
-		<b>Scheme:</b>
-		<span title="{{ cert['scheme'] }}">{{ country_to_flag(cert["scheme"]) }}</span>
-		<br/>
-		<b>Manufacturer:</b>
-		{% if cert["manufacturer_web"] %}
-            <a href="{{ cert["manufacturer_web"] }}" target="_blank" rel="noopener">{{ cert["manufacturer"] }}</a>
-        {% else %}
-            {{ cert["manufacturer"] }}
-        {% endif %}
-		<br/>
-		<b>Category:</b>
-		{{ render_category(cert["category"]) }} {{ cert["category"] }}
-		<br/>
-		<b>Security level:</b>
-        {% for level in cert["security_level"] %}
-		{{ level }}{%- if not loop.last -%}, {%- endif -%}
-        {% endfor %}
-		<br/>
-		{% if profiles %}
-		<b>Protection profiles:</b>
-            <ul>
-            {% for id, profile in profiles.items() %}
-                <li><a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ id }}</a></li>
+        <div data-cs-name="Certification scheme">
+            <b>Scheme:</b>
+            <span title="{{ cert['scheme'] }}">{{ country_to_flag(cert["scheme"]) }}</span>
+            <br/>
+        </div>
+        <div data-cs-name="Manufacturer">
+            <b>Manufacturer:</b>
+            {% if cert["manufacturer_web"] %}
+                <a href="{{ cert["manufacturer_web"] }}" target="_blank" rel="noopener">{{ cert["manufacturer"] }}</a>
+            {% else %}
+                {{ cert["manufacturer"] }}
+            {% endif %}
+            <br/>
+        </div>
+        <div data-cs-name="Category">
+            <b>Category:</b>
+            {{ render_category(cert["category"]) }} {{ cert["category"] }}
+            <br/>
+        </div>
+        <div data-cs-name="Security level">
+            <b>Security level:</b>
+            {% for level in cert["security_level"] %}
+            {{ level }}{%- if not loop.last -%}, {%- endif -%}
             {% endfor %}
-            </ul>
-		<br/>
+            <br/>
+        </div>
+		{% if profiles %}
+        <div data-cs-name="Security level">
+            <b>Protection profiles:</b>
+                <ul>
+                {% for id, profile in profiles.items() %}
+                    <li><a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ id }}</a></li>
+                {% endfor %}
+                </ul>
+            <br/>
+        </div>
 		{% endif %}
         {% if cert["maintenance_updates"] %}
-            <b>Maintenance updates:</b>
-            <ul>
-            {% for update in cert["maintenance_updates"] %}
-                <li>{{ update["maintenance_title"] }} ({{ update["maintenance_date"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }})
-                {% if update["maintenance_report_link"] %}
-                    <a href="{{ update["maintenance_report_link"] }}" target="_blank" rel="noopener">Certification report</a>
-                {% endif %}
-                {% if update["maintenance_st_link"] %}
-                    <a href="{{ update["maintenance_st_link"] }}" target="_blank" rel="noopener">Security target</a>
-                {% endif %}
-                </li>
-            {% endfor %}
-            </ul>
+            <div data-cs-name="Maintenance updates">
+                <b>Maintenance updates:</b>
+                <ul>
+                {% for update in cert["maintenance_updates"] %}
+                    <li>{{ update["maintenance_title"] }} ({{ update["maintenance_date"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }})
+                    {% if update["maintenance_report_link"] %}
+                        <a href="{{ update["maintenance_report_link"] }}" target="_blank" rel="noopener">Certification report</a>
+                    {% endif %}
+                    {% if update["maintenance_st_link"] %}
+                        <a href="{{ update["maintenance_st_link"] }}" target="_blank" rel="noopener">Security target</a>
+                    {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
         {% endif %}
 
 		<div class="mt-2 mb-2">
@@ -166,7 +184,8 @@
     </div>
 
     <div class="mt-5 mb-5">
-        <h2 class="anchor" id="updates">Updates</h2>
+        <h2 class="anchor" id="updates">Updates
+        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span></h2>
         <ul>
         {% for diff in diffs %}
             {% if diff["type"] == "new" %}

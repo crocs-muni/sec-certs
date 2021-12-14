@@ -22,8 +22,10 @@
                 <div class="card-body">
                     {% for heading, keyword in keyword_sources.items() %}
                         {% if keyword not in hidden and keyword_scan[keyword] %}
-                            <h5 class="mt-2">{{ heading }}</h5>
-                            {{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
+                            <div data-cs-name="{{ doc_prefix }} - {{ heading }}">
+                                <h5 class="mt-2">{{ heading }}</h5>
+                                {{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
+                            </div>
                         {% endif %}
                     {% endfor %}
                 </div>

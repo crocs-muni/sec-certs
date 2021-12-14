@@ -61,7 +61,7 @@ def categories():
 @register_breadcrumb(cc, ".", "Common Criteria")
 def index():
     """Common criteria index."""
-    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=("start_time", pymongo.DESCENDING))
+    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
     return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org", last_ok_run=last_ok_run)
 
 
@@ -205,7 +205,7 @@ def entry(hashid):
                 if found:
                     profiles[profile["pp_ids"]] = add_dots(found)
         with sentry_sdk.start_span(op="mongo", description="Find diffs"):
-            diffs = mongo.db.cc_diff.find({"dgst": hashid}, sort=("timestamp", pymongo.ASCENDING))
+            diffs = mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])
         return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, profiles=profiles, diffs=diffs)
     else:
         return abort(404)

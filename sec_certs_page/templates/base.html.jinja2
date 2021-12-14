@@ -85,7 +85,7 @@
                             {% elif category == "info" %}
                                 <div class="alert alert-info">{{ message }}</div>
                             {% elif category == "warning" %}
-                                <div class="alert alert-warnning">{{ message }}</div>
+                                <div class="alert alert-warning">{{ message }}</div>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -102,6 +102,7 @@
             {% block content %}
             {% endblock %}
             <footer>
+            {% block footer %}
                 <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
                     <div class="col-5 col-sm-4 col-md-3 col-lg-2">
                         <a href="https://crocs.fi.muni.cz">
@@ -120,17 +121,20 @@
                         {% endif %}
                     </div>
                 </div>
+                <div id="up-top">
+                    <a title="Back to top" aria-label="Back to top" href="#">
+                        <span id="up-top-icon" class="fa-stack fa-lg">
+                            <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                            <i class="fas fa-chevron-up fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </div>
+            {% endblock %}
             </footer>
         </div>
-
     </div>
-
 </div>
 <script>
-    $("#menu-toggle").click(function (e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
     $(function () {
         $('[data-bs-toggle="tooltip"]').tooltip()
     });

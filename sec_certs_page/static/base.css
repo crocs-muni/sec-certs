@@ -1,56 +1,104 @@
- #wrapper {
+#wrapper {
     overflow-x: hidden;
- }
+}
 
 #page-content-wrapper {
-  margin-top: 57px;
+    margin-top: 57px;
+}
+
+#up-top-icon {
+    font-size: small !important;
+    position: fixed;
+    bottom: 1.1%;
+    right: 0.7%;
+}
+
+#feedback {
+    position: fixed;
+    left: 0;
+    top: 25%;
+    margin-left: -3px;
+}
+
+@media screen and (max-width: 768px) {
+    #feedback {
+        display: none;
+    }
+}
+
+#feedback .card {
+    float: left;
+    width: 300px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    background-color: #FAFAFA;
+    transition: margin .25s ease;
+}
+
+#feedback .card.collapsed {
+    margin-left: -300px;
+}
+
+#feedback .btn-secondary {
+    float: right;
+    font-size: 1.5rem;
+    margin-top: 120px;
+    margin-left: -3.9rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+    background-color: #6c757d;
+    transform: rotate(90deg);
+}
+
+#feedback .btn-secondary:hover {
+    background-color: #505050;
 }
 
 .signin-wrapper {
-  display: flex;
-  align-items: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    min-height: 100vh;
 }
 
 .form-signin {
-  width: 100%;
-  max-width: 330px;
-  padding: 15px;
-  margin: auto;
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: auto;
 }
 
 .form-signin .checkbox {
-  font-weight: 400;
+    font-weight: 400;
 }
 
 .form-signin .form-floating:focus-within {
-  z-index: 2;
+    z-index: 2;
 }
 
 .form-signin input[type="email"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .feature-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  margin-bottom: 1rem;
-  font-size: 2rem;
-  color: #fff;
-  border-radius: .75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    color: #fff;
+    border-radius: .75rem;
 }
 
 .anchor {
@@ -59,7 +107,7 @@
 }
 
 .name-list {
-  list-style: none;
+    list-style: none;
 }
 
 .name-list li:before {
@@ -70,20 +118,20 @@
 }
 
 #content .listing {
-  padding: 1em;
-  border-radius: 0.5em;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background-color: rgba(0,0,0,.03)
+    padding: 1em;
+    border-radius: 0.5em;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, .03)
 }
 
 tr:nth-child(even) {
-  background-color: #f2f2f2;
+    background-color: #f2f2f2;
 }
 
 body {
-  font-family: "IBM Plex Sans", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";;
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";;
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+    font-weight: 600;
 }

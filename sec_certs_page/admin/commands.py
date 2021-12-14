@@ -40,7 +40,7 @@ def list_users():
 @app.cli.command("init-collections", help="Initialize the miscellaneous collections.")
 def init_collections():
     current = mongo.db.list_collection_names()
-    collections = {"cc_log", "cc_diff", "fips_log", "fips_diff", "pp_log", "pp_diff", "users"}
+    collections = {"cc_log", "cc_diff", "fips_log", "fips_diff", "pp_log", "pp_diff", "users", "feedback"}
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)
         click.echo(f"Created collection {collection}.")
