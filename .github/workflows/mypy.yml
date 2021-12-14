@@ -8,7 +8,7 @@ jobs:
       - name : Setup python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install python dependencies
         run: pip install -r requirements.txt
       - name: Install mypy and types
