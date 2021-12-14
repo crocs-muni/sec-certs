@@ -14,6 +14,8 @@ jobs:
       - name: Install mypy and types
         run: |
           pip install mypy
-          mypy --install-types
+          python3 -m pip install types-PyYAML
+          python3 -m pip install types-python-dateutil
+          python3 -m pip install types-requests
       - name: Run mypy
         run: mypy --ignore-missing-imports *.py sec_certs/
