@@ -82,9 +82,7 @@ class Dataset(ABC):
         return self.certs.__getitem__(item.lower())
 
     def __setitem__(self, key: str, value: 'Certificate'):
-        aux = dict(self.certs)
-        aux[key.lower()] = value
-        self.certs = aux
+        self.certs.__setitem__(key.lower(), value) # type: ignore
 
     def __len__(self) -> int:
         return len(self.certs)
