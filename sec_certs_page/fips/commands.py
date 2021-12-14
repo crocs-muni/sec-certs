@@ -9,10 +9,14 @@ from ..commands import _add, _create, _drop, _query, _update, _status
 from . import fips
 
 
+def mapper(cert):
+    return cert
+
+
 @fips.cli.command("import", help="Import FIPS 140 certs.")
 @click.argument("file", type=click.File())
 def add(file):
-    _add(file, mongo.db.fips, ["certs"], None)
+    _add(file, mongo.db.fips, ["certs"], mapper)
 
 
 @fips.cli.command("update", help="Update FIPS 140 certs.")
@@ -21,7 +25,7 @@ def add(file):
 )
 @click.argument("file", type=click.File())
 def update(file, remove):
-    _update(file, remove, mongo.db.fips, ["certs"], None)
+    _update(file, remove, mongo.db.fips, ["certs"], mapper)
 
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")

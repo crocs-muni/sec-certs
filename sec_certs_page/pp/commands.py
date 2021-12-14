@@ -5,7 +5,7 @@ from datetime import datetime
 import click
 
 from .. import mongo
-from ..commands import _add, _create, _drop, _query, _update
+from ..commands import _add, _create, _drop, _query, _update, _status
 from . import pp
 
 
@@ -53,3 +53,8 @@ def drop():
 @click.argument("query", type=json.loads)
 def query(query, projection):
     _query(query, projection, mongo.db.pp)
+
+
+@pp.cli.command("status", help="Print status information for the MongoDB collection.")
+def status():
+    _status(mongo.db.pp)

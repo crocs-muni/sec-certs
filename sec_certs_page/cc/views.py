@@ -1,13 +1,13 @@
 """Common Criteria views."""
 
 import random
-import re
 from operator import itemgetter
+from pathlib import Path
 
 import pymongo
 import sentry_sdk
 from flask import (abort, current_app, redirect, render_template, request,
-                   url_for)
+                   url_for, send_file)
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
@@ -61,12 +61,21 @@ def categories():
 @register_breadcrumb(cc, ".", "Common Criteria")
 def index():
     """Common criteria index."""
-    return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org")
+    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=("start_time", pymongo.DESCENDING))
+    return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org", last_ok_run=last_ok_run)
+
+
+@cc.route("/dataset.json")
+def dataset():
+    """Common criteria dataset API endpoint."""
+    return send_file(Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT"], as_attachment=True,
+                     mimetype="application/json", attachment_filename="dataset.json")
 
 
 @cc.route("/network/")
 @register_breadcrumb(cc, ".network", "References")
 def network():
+    """Common criteria references visualization."""
     return render_template("cc/network.html.jinja2", url=url_for(".network_graph"),
                            title="Common Criteria network | seccerts.org")
 
@@ -74,6 +83,7 @@ def network():
 @cc.route("/network/graph.json")
 @cache.cached(5 * 60)
 def network_graph():
+    """Common criteria references data."""
     return network_graph_func(get_cc_graphs())
 
 
@@ -152,6 +162,7 @@ def process_search(req, callback=None):
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():
+    """Common criteria search."""
     res = process_search(request)
     return render_template("cc/search.html.jinja2", **res,
                            title=f"Common Criteria [{res['q']}] ({res['page']}) | seccerts.org")
@@ -159,6 +170,7 @@ def search():
 
 @cc.route("/search/pagination/")
 def search_pagination():
+    """Common criteria search (raw pagination)."""
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
@@ -169,11 +181,13 @@ def search_pagination():
 @cc.route("/analysis/")
 @register_breadcrumb(cc, ".analysis", "Analysis")
 def analysis():
+    """Common criteria analysis results."""
     return render_template("cc/analysis.html.jinja2", analysis=get_cc_analysis())
 
 
 @cc.route("/random/")
 def rand():
+    """Common criteria random certificate."""
     current_ids = list(map(itemgetter("_id"), mongo.db.cc.find({}, ["_id"])))
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
 
@@ -190,7 +204,9 @@ def entry(hashid):
                 found = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile["pp_ids"]})
                 if found:
                     profiles[profile["pp_ids"]] = add_dots(found)
-        return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, profiles=profiles)
+        with sentry_sdk.start_span(op="mongo", description="Find diffs"):
+            diffs = mongo.db.cc_diff.find({"dgst": hashid}, sort=("timestamp", pymongo.ASCENDING))
+        return render_template("cc/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, profiles=profiles, diffs=diffs)
     else:
         return abort(404)
 

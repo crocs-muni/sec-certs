@@ -3,10 +3,11 @@
 import random
 import re
 from operator import itemgetter
+from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import abort, current_app, redirect, render_template, request, url_for
+from flask import abort, current_app, redirect, render_template, request, url_for, send_file
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
@@ -30,6 +31,12 @@ def types():
 @register_breadcrumb(fips, ".", "FIPS 140")
 def index():
     return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org")
+
+
+@fips.route("/dataset.json")
+def dataset():
+    return send_file(Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_OUT"], as_attachment=True,
+                     mimetype="application/json", attachment_filename="dataset.json")
 
 
 @fips.route("/network/")

@@ -46,3 +46,9 @@ UPDATE_TASK_SCHEDULE = {
     "cc": (15, 0, "*", "*", "*"),
     "fips": (30, 0, "*", "*", "*")
 }
+
+# Paths inside the instance directory where the CC and FIPS datasets will be stored and processed.
+DATASET_PATH_CC = "cc_dataset"
+DATASET_PATH_CC_OUT = "cc.json"
+DATASET_PATH_FIPS = "fips_dataset"
+DATASET_PATH_FIPS_OUT = "fips.json"

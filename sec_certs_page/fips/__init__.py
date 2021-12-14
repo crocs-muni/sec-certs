@@ -71,7 +71,9 @@ from .commands import *
 from .views import *
 from .tasks import update_data
 
+
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(crontab(*current_app.config["UPDATE_TASK_SCHEDULE"]["fips"]),
-                             update_data.s(), name="Update FIPS data.")
+    if current_app.config["UPDATE_TASK_SCHEDULE"]["fips"]:
+        sender.add_periodic_task(crontab(*current_app.config["UPDATE_TASK_SCHEDULE"]["fips"]),
+                                 update_data.s(), name="Update FIPS data.")

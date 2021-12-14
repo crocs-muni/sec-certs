@@ -16,6 +16,7 @@ from flask_principal import Principal, RoleNeed, Permission
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -31,6 +32,10 @@ sentry_sdk.init(
     sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
     traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"]
 )
+
+ignore_logger("sec_certs.helpers")
+ignore_logger("sec_certs.dataset.dataset")
+ignore_logger("sec_certs.sample.certificate")
 
 mongo = PyMongo(app)
 

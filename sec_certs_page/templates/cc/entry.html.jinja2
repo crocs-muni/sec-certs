@@ -26,6 +26,9 @@
         <a class="nav-link" href="#reference-graph">References</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="#updates">Updates</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="#raw-data-head">Raw data</a>
     </li>
 {% endblock %}
@@ -108,7 +111,7 @@
     </div>
 
     <div class="mt-5 mb-5">
-        <h2 class="anchor" id="report-info">Certificate report
+        <h2 class="anchor" id="report-info">Certification report
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the certificate report. Might contain errors.">?</span>
         {% if cert["report_link"] %}
             <a role="button" href="{{ cert['report_link'] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>
@@ -160,6 +163,31 @@
         <div class="border">
         {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for('.categories'), height=400, linkDistance=45, linkCharge=-140, highlight=[hashid]) }}
         </div>
+    </div>
+
+    <div class="mt-5 mb-5">
+        <h2 class="anchor" id="updates">Updates</h2>
+        <ul>
+        {% for diff in diffs %}
+            {% if diff["type"] == "new" %}
+                <li>
+                    The certificate was first processed.
+                </li>
+            {% elif diff["type"] == "change" %}
+                <li>
+                    The certificate data changed.
+                </li>
+            {% elif diff["type"] == "remove" %}
+                <li>
+                    The certificate became unavailable, either the certification report or the security target was unavailable during processing.
+                </li>
+            {% elif diff["type"] == "back" %}
+                <li>
+                    The certificate became available again.
+                </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
     </div>
 
     <div class="mt-5 mb-5">

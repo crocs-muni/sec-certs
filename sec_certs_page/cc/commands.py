@@ -9,10 +9,14 @@ from . import cc
 from ..commands import _add, _update, _create, _drop, _query, _status
 
 
+def mapper(cert):
+    return cert
+
+
 @cc.cli.command("import", help="Import CC certs.")
 @click.argument("file", type=click.File())
 def add(file):
-    _add(file, mongo.db.cc, ["certs"], None)
+    _add(file, mongo.db.cc, ["certs"], mapper)
 
 
 @cc.cli.command("update", help="Update CC certs.")
@@ -21,7 +25,7 @@ def add(file):
 )
 @click.argument("file", type=click.File())
 def update(file, remove):
-    _update(file, remove, mongo.db.cc, ["certs"], None)
+    _update(file, remove, mongo.db.cc, ["certs"], mapper)
 
 
 @cc.cli.command("create", help="Create the DB of CC certs.")

@@ -1,10 +1,11 @@
 import random
 import re
 from operator import itemgetter
+from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import render_template, abort, url_for, request, current_app, redirect
+from flask import render_template, abort, url_for, request, current_app, redirect, send_file
 from flask_breadcrumbs import register_breadcrumb
 
 from . import pp
@@ -23,6 +24,12 @@ def index():
 @register_breadcrumb(pp, ".network", "References")
 def network():
     return render_template("pp/network.html.jinja2")
+
+
+@pp.route("/dataset.json")
+def dataset():
+    return send_file(Path(current_app.instance_path) / "pp.json", as_attachment=True,
+                     mimetype="application/json", attachment_filename="dataset.json")
 
 
 def select_certs(q, cat, status, sort):

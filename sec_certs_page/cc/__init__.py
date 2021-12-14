@@ -1,6 +1,7 @@
 import json
 from contextvars import ContextVar
 from datetime import datetime
+import subprocess
 
 import sentry_sdk
 from celery.schedules import crontab
@@ -141,5 +142,6 @@ from .tasks import update_data
 
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(crontab(*current_app.config["UPDATE_TASK_SCHEDULE"]["cc"]),
-                             update_data.s(), name="Update CC data.")
+    if current_app.config["UPDATE_TASK_SCHEDULE"]["cc"]:
+        sender.add_periodic_task(crontab(*current_app.config["UPDATE_TASK_SCHEDULE"]["cc"]),
+                                 update_data.s(), name="Update CC data.")
