@@ -8,7 +8,6 @@ import zipfile
 import logging
 import glob
 import json
-import tqdm
 import shutil
 
 import pandas as pd
@@ -67,7 +66,7 @@ class CVEDataset(ComplexSerializableType):
         if use_nist_mapping:
             matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
-        for cve in tqdm.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
+        for cve in helpers.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
                 vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
@@ -203,7 +202,7 @@ class CVEDataset(ComplexSerializableType):
                 match_data = json.load(handle)
 
         mapping_dict = dict()
-        for match in tqdm.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):
+        for match in helpers.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):
             key = parse_key_cpe(match)
             value = parse_values_cpe(match)
             mapping_dict[key] = value if value else [key]

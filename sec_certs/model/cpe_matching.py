@@ -2,7 +2,6 @@ from sklearn.base import BaseEstimator
 from typing import Dict, Tuple, Set, List, Optional, Union
 from sec_certs.sample.cpe import CPE
 import sec_certs.helpers as helpers
-import tqdm
 import itertools
 import re
 from rapidfuzz import process, fuzz
@@ -60,7 +59,7 @@ class CPEClassifier(BaseEstimator):
         self.vendors_ = set(self.vendor_to_versions_.keys())
         self.vendor_version_to_cpe_ = dict()
 
-        for cpe in tqdm.tqdm(sufficiently_long_cpes, desc='Fitting the CPE classifier'):
+        for cpe in helpers.tqdm(sufficiently_long_cpes, desc='Fitting the CPE classifier'):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
@@ -73,7 +72,7 @@ class CPEClassifier(BaseEstimator):
         @param X: tuples (vendor, product name, identified versions in product name)
         @return: List of CPE uris that correspond to given input, None if nothing was found.
         """
-        return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm.tqdm(X, desc='Predicting')]
+        return [self.predict_single_cert(x[0], x[1], x[2]) for x in helpers.tqdm(X, desc='Predicting')]
 
     def predict_single_cert(self,
                             vendor: str,

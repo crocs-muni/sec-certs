@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from sec_certs.helpers import tqdm
 from multiprocessing.pool import Pool, ThreadPool
 from typing import Callable, Iterable, Optional
 import time

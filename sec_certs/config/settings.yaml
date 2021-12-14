@@ -40,3 +40,6 @@ fips_latest_snapshot:
 minimal_token_length:
   description: Minimal length of a string that will be considered as a token during keyword extraction in CVE matching
   value: 3
+enable_progress_bars:
+  description: Whether to enable pretty-printed progress bars while processing.
+  value: true
