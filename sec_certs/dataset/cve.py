@@ -199,7 +199,7 @@ class CVEDataset(ComplexSerializableType):
                     match_data = json.load(handle)
                 if input_filepath:
                     logger.debug(f'Copying attained NIST mapping file to {input_filepath}')
-                    shutil.move(unzipped_path, input_filepath)
+                    shutil.move(unzipped_path.as_posix(), input_filepath)
         else:
             with input_filepath.open('r') as handle:
                 match_data = json.load(handle)
