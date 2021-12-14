@@ -2,7 +2,6 @@
 {% block head %}
     {{ super() }}
     <script type="text/javascript">
-        let selected_nodes = null;
         let selected_node = null;
         let selection_id = null;
 
@@ -14,8 +13,7 @@
                 $("#feedback-panel").show(200);
                 $("body").css("cursor", "pointer");
                 selection_id = setInterval(function () {
-                    selected_nodes = $(":hover");
-                    $(selected_nodes.get().reverse()).each(function (i, e) {
+                    $($(":hover").get().reverse()).each(function (i, e) {
                         let node = $(e);
                         if (node.data("cs-name") !== undefined) {
                             if (selected_node) {
@@ -50,6 +48,9 @@
                         }),
                         success: function () {
                             $("#feedback-result").text("Feedback successfully sent, thank you!");
+                            selected_node = null;
+                            $("#feedback-selected-elem").text("");
+                            $("#feedback-text").val("");
                         },
                         error: function () {
                             $("#feedback-result").text("There was an error processing your feedback, sorry.");

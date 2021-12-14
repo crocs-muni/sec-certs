@@ -148,6 +148,8 @@ def feedback():
     if set(data.keys()) != {"element", "comment", "path"}:
         return abort(400)
     data["ip"] = request.remote_addr
+    data["timestamp"] = datetime.now()
+    data["useragent"] = request.user_agent.string
     mongo.db.feedback.insert_one(data)
     return jsonify({"status": "OK"})
 
