@@ -100,18 +100,11 @@ class CPEClassifier(BaseEstimator):
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
-
-        if candidate_vendors is None:
-            raise RuntimeError("Candidate vendors were not calculated successfully.")
-        if versions is None:
-            raise RuntimeError("Version were not calculated successfully.")
         candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
         ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title) for cpe in candidates]
         threshold = self.match_threshold if not relax_version else 100
         final_matches_aux: List[Tuple[float, CPE]] = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
         final_matches: Optional[List[str]] = [x[1].uri for x in final_matches_aux[:self.n_max_matches] if x[1].uri is not None]
-
-
 
         if not relax_title and not final_matches:
             final_matches = self.predict_single_cert(vendor, product_name, versions, relax_version=relax_version, relax_title=True)
@@ -133,17 +126,12 @@ class CPEClassifier(BaseEstimator):
         @return: Maximal value of the four string similarities discussed above.
         """
         if relax_title:
-            if cpe.title is None or cpe.vendor is None or cpe.item_name is None or cpe.version is None or cpe.update is None or cpe.target_hw is None:
-                raise RuntimeError(f"There was a problem in computing best match for CPE {cpe.title if cpe.title else cpe.item_name}")
             sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version + ' ' + cpe.update + ' ' + cpe.target_hw)
         else:
             if cpe.title:
                 sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title)
             else:
                 return 0
-
-        if cpe.item_name is None or versions is None:
-                raise RuntimeError(f"There was a problem in computing best match for CPE {cpe.title}")
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
         cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
