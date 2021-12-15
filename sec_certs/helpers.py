@@ -94,7 +94,7 @@ def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[dat
     elif isinstance(record, pd.Timestamp):
         return record.date()
     else:
-        return record
+        return record  # type: ignore
 
 
 def sanitize_string(record: Optional[str]) -> Optional[str]:

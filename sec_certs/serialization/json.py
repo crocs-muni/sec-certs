@@ -12,9 +12,6 @@ class ComplexSerializableType:
     def serialized_attributes(self) -> List[str]:
         return list(self.__dict__.keys())
 
-    def __init__(self, *args):
-        pass
-
     def to_dict(self):
         return {key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes}
 
@@ -28,7 +25,7 @@ class ComplexSerializableType:
     def to_json(self, output_path: Optional[Union[str, Path]] = None):
         if output_path is None and not hasattr(self, 'json_path'):
                 raise ValueError(f'The object {self} of type {self.__class__} does not have json_path attribute but to_json() was called without an argument.')
-        elif output_path is None and self.json_path is None:
+        elif output_path is None and self.json_path is None:  # type: ignore
             raise ValueError(f'The object {self} of type {self.__class__} does not have json_path attribute but to_json() was called without an argument.')
         elif output_path is None:
             output_path = self.json_path  # type: ignore
