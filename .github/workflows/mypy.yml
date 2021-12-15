@@ -1,5 +1,7 @@
-name: Code analysis using mypy
-on: [push]
+name: MyPy code analysis
+on:
+  push:
+  workflow_dispatch:
 jobs:
   run-mypy:
     runs-on: ubuntu-latest
