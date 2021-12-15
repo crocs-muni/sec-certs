@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, List, Optional, Tuple
+from typing import ClassVar, List, Optional, Tuple, Dict
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -22,8 +22,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
                  end_version: Optional[Tuple[str, str]] = None):
         self.uri = uri
         self.title = title
-        self.start_version = start_version if start_version else None
-        self.end_version = end_version if end_version else None
+        self.start_version = start_version
+        self.end_version = end_version
 
         if self.uri:
             self.vendor = ' '.join(self.uri.split(':')[3].split('_'))
@@ -34,6 +34,14 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         if self.title is None or other.title is None:
             raise RuntimeError("Cannot compare CPEs because title is missing.")
         return self.title < other.title
+
+    @classmethod
+    def from_dict(cls, dct: Dict):
+        if isinstance(dct['start_version'], list):
+            dct['start_version'] = tuple(dct['start_version'])
+        if isinstance(dct['end_version'], list):
+            dct['end_version'] = tuple(dct['end_version'])
+        return super().from_dict(dct)
 
     @property
     def serialized_attributes(self) -> List[str]:
