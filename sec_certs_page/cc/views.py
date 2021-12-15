@@ -68,7 +68,10 @@ def index():
 @cc.route("/dataset.json")
 def dataset():
     """Common criteria dataset API endpoint."""
-    return send_file(Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT"], as_attachment=True,
+    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT"]
+    if not dset_path.is_file():
+        return abort(404)
+    return send_file(dset_path, as_attachment=True,
                      mimetype="application/json", attachment_filename="dataset.json")
 
 

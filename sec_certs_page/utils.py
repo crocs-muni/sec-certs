@@ -1,5 +1,7 @@
 import random
+from datetime import date
 from functools import total_ordering
+from pathlib import Path
 from typing import Any, Union, Tuple, List, Dict
 
 import networkx as nx
@@ -7,6 +9,8 @@ from flask import jsonify, Response
 from flask_paginate import Pagination as FlaskPagination
 from networkx import node_link_data, DiGraph
 from networkx.algorithms.components import weakly_connected_components
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.serialization.json import ComplexSerializableType
 
 
 class Pagination(FlaskPagination):
@@ -135,3 +139,22 @@ def add_dots(data):
     elif isinstance(data, list):
         data = list(map(add_dots, data))
     return data
+
+
+def dictify_cert(cert: CommonCriteriaCert) -> dict:
+    def walk(obj):
+        if isinstance(obj, dict):
+            return {key: walk(value) for key, value in obj.items()}
+        elif isinstance(obj, (set, frozenset)):
+            return [walk(o) for o in sorted(obj)]
+        elif isinstance(obj, list):
+            return [walk(o) for o in obj]
+        elif isinstance(obj, (date, Path)):
+            return str(obj)
+        elif isinstance(obj, ComplexSerializableType):
+            return walk(obj.to_dict())
+        else:
+            return obj
+    cert_data = walk(cert)
+    cert_data["_id"] = cert_data["dgst"]
+    return remove_dots(cert_data)

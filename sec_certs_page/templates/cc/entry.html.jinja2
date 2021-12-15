@@ -190,19 +190,19 @@
         {% for diff in diffs %}
             {% if diff["type"] == "new" %}
                 <li>
-                    The certificate was first processed.
+                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
                 </li>
             {% elif diff["type"] == "change" %}
                 <li>
-                    The certificate data changed.
+                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
                 </li>
             {% elif diff["type"] == "remove" %}
                 <li>
-                    The certificate became unavailable, either the certification report or the security target was unavailable during processing.
+                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable, either the certification report or the security target was unavailable during processing.
                 </li>
             {% elif diff["type"] == "back" %}
                 <li>
-                    The certificate became available again.
+                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available again.
                 </li>
             {% endif %}
         {% endfor %}

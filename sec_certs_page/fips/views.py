@@ -30,12 +30,16 @@ def types():
 @fips.route("/")
 @register_breadcrumb(fips, ".", "FIPS 140")
 def index():
-    return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org")
+    last_ok_run = mongo.db.fips_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org", last_ok_run=last_ok_run)
 
 
 @fips.route("/dataset.json")
 def dataset():
-    return send_file(Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_OUT"], as_attachment=True,
+    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_OUT"]
+    if not dset_path.is_file():
+        return abort(404)
+    return send_file(dset_path, as_attachment=True,
                      mimetype="application/json", attachment_filename="dataset.json")
 
 
