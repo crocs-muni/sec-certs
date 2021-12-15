@@ -6,7 +6,7 @@ import pikepdf
 import requests
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from tqdm import tqdm
+from tqdm import tqdm as tqdm_original
 import hashlib
 import html
 from typing import Union, List
@@ -19,12 +19,14 @@ import copy
 from packaging.version import VERSION_PATTERN
 
 
+
 from enum import Enum
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileReader
 
 import sec_certs.constants
 import sec_certs.constants as constants
+from sec_certs.config.configuration import config
 from sec_certs.cert_rules import REGEXEC_SEP
 from sec_certs.cert_rules import rules as cc_search_rules
 from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES, TAG_MATCH_MATCHES, \
@@ -32,6 +34,10 @@ from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES
 
 logger = logging.getLogger(__name__)
 
+def tqdm(*args, **kwargs):
+    if "disable" in kwargs:
+        return tqdm_original(*args, **kwargs)
+    return tqdm_original(*args, **kwargs, disable=not config.enable_progress_bars)
 
 def download_file(url: str, output: Path, delay: float = 0) -> Union[str, int]:
     try:

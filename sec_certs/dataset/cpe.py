@@ -5,7 +5,6 @@ import itertools
 import tempfile
 from pathlib import Path
 import zipfile
-import tqdm
 
 import sec_certs.helpers as helpers
 from sec_certs.sample.cpe import CPE
@@ -129,7 +128,7 @@ class CPEDataset(ComplexSerializableType):
 
         old_len = len(self.cpes)
 
-        for cpe in tqdm.tqdm(all_cpes_in_cve_dset, desc='Enriching CPE dataset with new CPEs'):
+        for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc='Enriching CPE dataset with new CPEs'):
             if cpe not in self:
                 self[cpe.uri] = cpe
 

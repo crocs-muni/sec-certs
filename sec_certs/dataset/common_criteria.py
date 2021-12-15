@@ -12,7 +12,6 @@ import json
 import numpy as np
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
-from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.dataset import Dataset, logger
