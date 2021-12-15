@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
+    
+    certs: Dict[str, List] # type: ignore # noqa
     def get_certs_from_web(self):
         self.root_dir.mkdir(exist_ok=True)
         algs_paths, algs_urls = [], []
@@ -111,7 +113,9 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def to_dict(self):
         return self.__dict__ 
 
-    def to_json(self, output_path: Union[str, Path]):
+    def to_json(self, output_path: Union[str, Path] = None):
+        if not output_path:
+            output_path = self.json_path
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
 

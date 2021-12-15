@@ -1,6 +1,6 @@
 import itertools
 from dataclasses import dataclass, field
-from typing import Dict, List,  Optional, Union, Final, Set
+from typing import Dict, List,  Optional, Tuple, Union, Final, Set
 import datetime
 from pathlib import Path
 import tempfile
@@ -8,7 +8,6 @@ import zipfile
 import logging
 import glob
 import json
-import tqdm
 import shutil
 
 import pandas as pd
@@ -47,7 +46,7 @@ class CVEDataset(ComplexSerializableType):
     def __len__(self) -> int:
         return len(self.cves)
 
-    def __eq__(self, other: 'CVEDataset'):
+    def __eq__(self, other: object):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
     def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Optional[Path] = None):
@@ -67,7 +66,7 @@ class CVEDataset(ComplexSerializableType):
         if use_nist_mapping:
             matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
-        for cve in tqdm.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
+        for cve in helpers.tqdm(self, desc='Building-up lookup dictionaries for fast CVE matching'):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
                 vulnerable_configurations = itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
@@ -80,8 +79,8 @@ class CVEDataset(ComplexSerializableType):
                     self.cpe_to_cve_ids_lookup[cpe.uri].append(cve.cve_id)
 
     @classmethod
-    def download_cves(cls, output_path: str, start_year: int, end_year: int):
-        output_path = Path(output_path)
+    def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
+        output_path = Path(output_path_str)
         if not output_path.exists:
             output_path.mkdir()
 
@@ -124,7 +123,9 @@ class CVEDataset(ComplexSerializableType):
 
         return cls(all_cves)
 
-    def to_json(self, output_path: str):
+    def to_json(self, output_path: Optional[Union[str, Path]] = None):
+        if output_path is None:
+            raise RuntimeError(f"You tried to serialize an object ({type(self)}) that does not have implicit json path. Please provide json_path.")
         with Path(output_path).open('w') as handle:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
@@ -163,7 +164,7 @@ class CVEDataset(ComplexSerializableType):
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
         return df.set_index('cve_id')
 
-    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Union[str, Path]]):
+    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]):
         def parse_key_cpe(field: Dict) -> CPE:
             start_version = None
             if 'versionStartIncluding' in field:
@@ -181,7 +182,7 @@ class CVEDataset(ComplexSerializableType):
 
         def parse_values_cpe(field: Dict) -> List[CPE]:
             return [CPE(x['cpe23Uri']) for x in field['cpe_name']]
-
+        
         logger.debug('Attempting to get NIST mapping file.')
         if not input_filepath or not input_filepath.is_file():
             logger.debug('NIST mapping file not available, going to download.')
@@ -203,7 +204,7 @@ class CVEDataset(ComplexSerializableType):
                 match_data = json.load(handle)
 
         mapping_dict = dict()
-        for match in tqdm.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):
+        for match in helpers.tqdm(match_data['matches'], desc='parsing cpe matching (by NIST) dictionary'):
             key = parse_key_cpe(match)
             value = parse_values_cpe(match)
             mapping_dict[key] = value if value else [key]

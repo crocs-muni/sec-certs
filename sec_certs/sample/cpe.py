@@ -6,11 +6,11 @@ from sec_certs.serialization.pandas import PandasSerializableType
 
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
-    uri: str
-    title: str
-    version: str
-    vendor: str
-    item_name: str
+    uri: Optional[str]
+    title: Optional[str]
+    version: Optional[str]
+    vendor: Optional[str]
+    item_name: Optional[str]
     start_version: Optional[Tuple[str, str]]
     end_version: Optional[Tuple[str, str]]
 
@@ -22,8 +22,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
                  end_version: Optional[Tuple[str, str]] = None):
         self.uri = uri
         self.title = title
-        self.start_version = tuple(start_version) if start_version else None
-        self.end_version = tuple(end_version) if end_version else None
+        self.start_version = start_version if start_version else None
+        self.end_version = end_version if end_version else None
 
         if self.uri:
             self.vendor = ' '.join(self.uri.split(':')[3].split('_'))
@@ -31,6 +31,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
             self.version = self.uri.split(':')[5]
 
     def __lt__(self, other: 'CPE'):
+        if self.title is None or other.title is None:
+            raise RuntimeError("Cannot compare CPEs because title is missing.")
         return self.title < other.title
 
     @property
@@ -39,10 +41,14 @@ class CPE(PandasSerializableType, ComplexSerializableType):
 
     @property
     def update(self) -> str:
+        if self.uri is None:
+            raise RuntimeError("URI is missing.")
         return ' '.join(self.uri.split(':')[6].split('_'))
 
     @property
     def target_hw(self) -> str:
+        if self.uri is None:
+            raise RuntimeError("URI is missing.")
         return ' '.join(self.uri.split(':')[11].split('_'))
 
     @property

@@ -6,18 +6,18 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union, List, Tuple, Set, ClassVar
+from typing import Dict, Iterator, Optional, Set, Union, List, Tuple, Mapping, ClassVar
 import json
 
 import numpy as np
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
-from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.serialization.json import ComplexSerializableType, serialize, CustomJSONDecoder
 from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.certificate import Certificate
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
@@ -37,8 +37,9 @@ class CCDataset(Dataset, ComplexSerializableType):
             return any(vars(self))
 
     certs: Dict[str, 'CommonCriteriaCert']
+    # TODO: Figure out how to type this. The problem is that this breaks covariance of the types, which mypy doesn't allow.
 
-    def __init__(self, certs: Dict[str, 'CommonCriteriaCert'], root_dir: Path, name: str = 'dataset name',
+    def __init__(self, certs: Mapping[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description)
 
@@ -46,7 +47,7 @@ class CCDataset(Dataset, ComplexSerializableType):
             state = self.DatasetInternalState()
         self.state = state
 
-    def __iter__(self) -> CommonCriteriaCert:
+    def __iter__(self) -> Iterator[CommonCriteriaCert]:
         yield from self.certs.values()
 
     def to_dict(self):
@@ -69,10 +70,10 @@ class CCDataset(Dataset, ComplexSerializableType):
         dset.state = copy.deepcopy(dct['state'])
         return dset
 
-    @Dataset.root_dir.setter
+    @Dataset.root_dir.setter # type: ignore
     def root_dir(self, new_dir: Union[str, Path]):
         old_dset = copy.deepcopy(self)
-        Dataset.root_dir.fset(self, new_dir)
+        Dataset.root_dir.fset(self, new_dir) # type: ignore
         self.set_local_paths()
 
         if self.state and old_dset.root_dir != Path('..'):
@@ -217,6 +218,8 @@ class CCDataset(Dataset, ComplexSerializableType):
         pp_dataset = constructor[to_download](self.pp_dataset_path)
 
         for cert in self:
+            if cert.protection_profiles is None:
+                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
             cert.protection_profiles = {pp_dataset.pps.get((x.pp_name, x.pp_link), x) for x in cert.protection_profiles}
 
         if not keep_metadata:
@@ -252,7 +255,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Creates dictionary of new certificates from csv sources.
         """
-        csv_sources = self.CSV_PRODUCTS_URL.keys()
+        csv_sources = list(self.CSV_PRODUCTS_URL.keys())
         csv_sources = [x for x in csv_sources if 'active' not in x or get_active]
         csv_sources = [x for x in csv_sources if 'archived' not in x or get_archived]
 
@@ -323,7 +326,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         profiles = {x.dgst: set([ProtectionProfile(y) for y in
                                  helpers.sanitize_protection_profiles(x.protection_profiles)]) for x in
                     df_base.itertuples()}
-        updates = {x.dgst: set() for x in df_base.itertuples()}
+        updates: Dict[str, Set] = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
             updates[x.dgst].add(CommonCriteriaCert.MaintenanceReport(x.maintenance_date.date(), x.maintenance_title,
                                                                       x.maintenance_report_link,
@@ -342,11 +345,11 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         Prepares dictionary of certificates from all html files.
         """
-        html_sources = self.HTML_PRODUCTS_URL.keys()
+        html_sources = list(self.HTML_PRODUCTS_URL.keys())
         if get_active is False:
-            html_sources = filter(lambda x: 'active' not in x, html_sources)
+            html_sources = [x for x in html_sources if 'active' not in x]
         if get_archived is False:
-            html_sources = filter(lambda x: 'archived' not in x, html_sources)
+            html_sources = [x for x in html_sources if 'archived' not in x]
 
         new_certs = {}
         for file in html_sources:
@@ -634,7 +637,7 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         self.state.certs_analyzed = True
 
-    def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
+    def get_certs_from_name(self, cert_name: str) -> List[Certificate]:
         return [crt for crt in self if crt.name == cert_name]
 
     def process_maintenance_updates(self):
@@ -661,8 +664,11 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
-
-    def __init__(self, certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'], root_dir: Path, name: str = 'dataset name',
+    # TODO: Types - if I use dictionary in CCDataset, I can't use more specific dictionary here (otherwise the CCDataset
+    # one would have to be a Mapping - not mutable)
+    certs: Dict[str, 'CommonCriteriaMaintenanceUpdate'] # type: ignore
+    def __init__(self, certs: Mapping[str, 'Certificate'],
+                 root_dir: Path, name: str = 'dataset name',
                  description: str = 'dataset_description', state: Optional[CCDataset.DatasetInternalState] = None):
         super().__init__(certs, root_dir, name, description, state)
         self.state.meta_sources_parsed = True
@@ -671,7 +677,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def certs_dir(self) -> Path:
         return self.root_dir
 
-    def __iter__(self) -> CommonCriteriaMaintenanceUpdate:
+    def __iter__(self) -> Iterator[CommonCriteriaMaintenanceUpdate]:
         yield from self.certs.values()
 
     def _compute_heuristics(self, download_fresh_cpes: bool = False):

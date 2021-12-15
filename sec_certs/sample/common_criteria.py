@@ -3,7 +3,7 @@ import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Union, Any, Set, ClassVar
+from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
 
 
 import requests
@@ -26,10 +26,10 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         """
         Object for holding maintenance reports.
         """
-        maintenance_date: date
-        maintenance_title: str
-        maintenance_report_link: str
-        maintenance_st_link: str
+        maintenance_date: Optional[date]
+        maintenance_title: Optional[str]
+        maintenance_report_link: Optional[str]
+        maintenance_st_link: Optional[str]
 
         def __post_init__(self):
             super().__setattr__('maintenance_report_link',
@@ -173,7 +173,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @dataclass
     class CCHeuristics(ComplexSerializableType):
-        extracted_versions: List[str] = field(default=None)
+        extracted_versions: Optional[List[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
@@ -203,12 +203,12 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                                         'verified_cpe_matches', 'related_cves', 'directly_affected_by',
                                         'indirectly_affected_by', 'directly_affecting', 'indirectly_affecting']
 
-    def __init__(self, status: str, category: str, name: str, manufacturer: str, scheme: str,
-                 security_level: Union[str, set], not_valid_before: date,
-                 not_valid_after: date, report_link: str, st_link: str, cert_link: Optional[str],
+    def __init__(self, status: str, category: str, name: str, manufacturer: Optional[str], scheme: str,
+                 security_level: Union[str, set], not_valid_before: Optional[date],
+                 not_valid_after: Optional[date], report_link: str, st_link: str, cert_link: Optional[str],
                  manufacturer_web: Optional[str],
-                 protection_profiles: Set[ProtectionProfile],
-                 maintenance_updates: Set[MaintenanceReport],
+                 protection_profiles: Optional[Set[ProtectionProfile]],
+                 maintenance_updates: Optional[Set[MaintenanceReport]],
                  state: Optional[InternalState],
                  pdf_data: Optional[PdfData],
                  heuristics: Optional[CCHeuristics]):
@@ -246,6 +246,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         """
         Computes the primary key of the sample using first 16 bytes of SHA-256 digest
         """
+        if not (self.name is not None and self.report_link is not None and self.category is not None):
+            raise RuntimeError("Certificate digest can't be computed, because information is missing.")
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
     @property
@@ -329,13 +331,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                     protection_profiles.add(ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get('href')))
             return protection_profiles
 
-        def _get_date(cell: Tag) -> date:
+        def _get_date(cell: Tag) -> Optional[date]:
             text = cell.get_text()
             extracted_date = datetime.strptime(
                 text, '%Y-%m-%d').date() if text else None
             return extracted_date
 
-        def _get_report_st_links(cell: Tag) -> [str, str]:
+        def _get_report_st_links(cell: Tag) -> Tuple[str, str]:
             links = cell.find_all('a')
             # TODO: Exception checks
             assert links[1].get('title').startswith('Certification Report')
@@ -422,6 +424,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def download_pdf_report(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code: Union[str, int]
         if not cert.report_link:
             exit_code = 'No link'
         else:
@@ -430,11 +433,14 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = f'failed to download report from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst} ' + error_msg)
             cert.state.report_download_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
     @staticmethod
     def download_pdf_target(cert: 'CommonCriteriaCert') -> 'CommonCriteriaCert':
+        exit_code: Union[str, int]
         if not cert.st_link:
             exit_code = 'No link'
         else:
@@ -443,6 +449,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = f'failed to download ST from {cert.report_link}, code: {exit_code}'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.st_download_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -453,6 +461,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = 'failed to convert report pdf->txt'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.report_convert_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -463,6 +473,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = 'failed to convert security target pdf->txt'
             logger.error(f'Cert dgst: {cert.dgst}' + error_msg)
             cert.state.st_convert_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -471,6 +483,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -479,6 +493,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -491,9 +507,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_anssi)
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_bsi)
 
         return cert
@@ -508,9 +528,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_anssi)
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response_bsi)
 
         return cert
@@ -527,6 +551,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -535,10 +561,10 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
         # TODO: This method probably can be deleted.
-        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)
+        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer) # type: ignore
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
-        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)  # type: ignore
 
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:

@@ -19,15 +19,15 @@ def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
         return set(json.load(handle))
 
 
-def compute_precision(y: np.array, y_pred: np.array, **kwargs):
+def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs):
     prec = []
     for true, pred in zip(y, y_pred):
         set_pred = set(pred) if pred else set()
         set_true = set(true) if true else set()
         if set_pred and not set_true:
-            prec.append(0)
+            prec.append(0.0)
         elif not set_pred and not set_true:
-            prec.append(1)
+            prec.append(1.0)
         else:
             prec.append(len(set_true.intersection(set_pred)) / len(set_true))
     return np.mean(prec)
@@ -35,7 +35,7 @@ def compute_precision(y: np.array, y_pred: np.array, **kwargs):
 
 def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid: List[Optional[List[str]]], outpath: Optional[Union[Path, str]], cpe_dset: CPEDataset):
     y_pred = [x.heuristics.cpe_matches for x in x_valid]
-    precision = compute_precision(y_valid, y_pred)
+    precision = compute_precision(np.array(y_valid), np.array(y_pred))
 
     correctly_classified = []
     badly_classified = []

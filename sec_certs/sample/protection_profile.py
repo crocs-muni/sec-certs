@@ -15,7 +15,7 @@ class ProtectionProfile(ComplexSerializableType):
     """
     Object for holding protection profiles.
     """
-    pp_name: str
+    pp_name: Optional[str]
     pp_link: Optional[str] = None
     pp_ids: Optional[FrozenSet[str]] = None
 

@@ -2,7 +2,6 @@ from sklearn.base import BaseEstimator
 from typing import Dict, Tuple, Set, List, Optional, Union
 from sec_certs.sample.cpe import CPE
 import sec_certs.helpers as helpers
-import tqdm
 import itertools
 import re
 from rapidfuzz import process, fuzz
@@ -45,7 +44,7 @@ class CPEClassifier(BaseEstimator):
         @param cpes: List of CPEs to filtered
         @return All CPEs in cpes variable which item name has at least 4 characters.
         """
-        return list(filter(lambda x: len(x.item_name) > 3, cpes))
+        return list(filter(lambda x: x.item_name is not None and len(x.item_name) > 3, cpes))
 
     def build_lookup_structures(self, X: List[CPE]):
         """
@@ -60,7 +59,7 @@ class CPEClassifier(BaseEstimator):
         self.vendors_ = set(self.vendor_to_versions_.keys())
         self.vendor_version_to_cpe_ = dict()
 
-        for cpe in tqdm.tqdm(sufficiently_long_cpes, desc='Fitting the CPE classifier'):
+        for cpe in helpers.tqdm(sufficiently_long_cpes, desc='Fitting the CPE classifier'):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
@@ -73,7 +72,7 @@ class CPEClassifier(BaseEstimator):
         @param X: tuples (vendor, product name, identified versions in product name)
         @return: List of CPE uris that correspond to given input, None if nothing was found.
         """
-        return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm.tqdm(X, desc='Predicting')]
+        return [self.predict_single_cert(x[0], x[1], x[2]) for x in helpers.tqdm(X, desc='Predicting')]
 
     def predict_single_cert(self,
                             vendor: str,
@@ -102,11 +101,15 @@ class CPEClassifier(BaseEstimator):
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
 
+        if candidate_vendors is None:
+            raise RuntimeError("Candidate vendors were not calculated successfully.")
+        if versions is None:
+            raise RuntimeError("Version were not calculated successfully.")
         candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
         ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title) for cpe in candidates]
         threshold = self.match_threshold if not relax_version else 100
-        final_matches = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
-        final_matches = [x[1].uri for x in final_matches[:self.n_max_matches]]
+        final_matches_aux: List[Tuple[float, CPE]] = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
+        final_matches: Optional[List[str]] = [x[1].uri for x in final_matches_aux[:self.n_max_matches] if x[1].uri is not None]
 
 
 
@@ -130,6 +133,8 @@ class CPEClassifier(BaseEstimator):
         @return: Maximal value of the four string similarities discussed above.
         """
         if relax_title:
+            if cpe.title is None or cpe.vendor is None or cpe.item_name is None or cpe.version is None or cpe.update is None or cpe.target_hw is None:
+                raise RuntimeError(f"There was a problem in computing best match for CPE {cpe.title if cpe.title else cpe.item_name}")
             sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + ' ' + cpe.item_name + ' ' + cpe.version + ' ' + cpe.update + ' ' + cpe.target_hw)
         else:
             if cpe.title:
@@ -137,6 +142,8 @@ class CPEClassifier(BaseEstimator):
             else:
                 return 0
 
+        if cpe.item_name is None or versions is None:
+                raise RuntimeError(f"There was a problem in computing best match for CPE {cpe.title}")
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
         cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
@@ -178,14 +185,14 @@ class CPEClassifier(BaseEstimator):
         if not manufacturer:
             return None
 
-        result = set()
+        result: Set = set()
         splits = re.compile(r'[,/]').findall(manufacturer)
 
         if splits:
             vendor_tokens = set(itertools.chain.from_iterable([[x.strip() for x in manufacturer.split(s)] for s in splits]))
-            result = [self.get_candidate_list_of_vendors(x) for x in vendor_tokens]
-            result = list(set(itertools.chain.from_iterable([x for x in result if x])))
-            return result if result else None
+            result_aux = [self.get_candidate_list_of_vendors(x) for x in vendor_tokens]
+            result_used = list(set(itertools.chain.from_iterable([x for x in result_aux if x])))
+            return result_used if result_used else None
 
         if manufacturer in self.vendors_:
             result.add(manufacturer)
@@ -207,7 +214,8 @@ class CPEClassifier(BaseEstimator):
         if 'athena' in tokenized and 'smartcard' in tokenized:
             result.add('athena-scs')
         if tokenized[0] == 'the' and not result:
-            result = self.get_candidate_list_of_vendors(' '.join(tokenized[1:]))
+            candidate_result = self.get_candidate_list_of_vendors(' '.join(tokenized[1:]))
+            return list(candidate_result) if candidate_result else None
 
         return list(result) if result else None
 

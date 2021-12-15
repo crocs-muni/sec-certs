@@ -1,6 +1,5 @@
-from tqdm import tqdm
+from sec_certs.helpers import tqdm
 from concurrent.futures import ProcessPoolExecutor as ProcessPool, ThreadPoolExecutor as ThreadPool
-# from multiprocessing.pool import Pool, ThreadPool
 from typing import Callable, Iterable, Optional
 import time
 
@@ -9,7 +8,7 @@ def process_parallel(func: Callable, items: Iterable, max_workers: int,
                      use_threading: bool = True, progress_bar: bool = True, unpack: bool = False,
                      progress_bar_desc: Optional[str] = None):
 
-    pool = ThreadPool(max_workers) if use_threading else ProcessPool(max_workers)
+    pool: Union[Pool, ThreadPool] = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = [pool.submit(func, *i) for i in items] if unpack else [pool.submit(func, i) for i in items]
 
     if progress_bar is True and items:
