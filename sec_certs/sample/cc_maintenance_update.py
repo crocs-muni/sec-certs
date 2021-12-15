@@ -47,7 +47,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         
-        return [cls(x.maintaeance_title, x.maintenance_report_link, x.maintenance_st_link,
+        return [cls(x.maintenance_title, x.maintenance_report_link, x.maintenance_st_link,
                     None, None, None, cert.dgst, x.maintenance_date) for x in cert.maintenance_updates
                 if (x.maintenance_title is not None and x.maintenance_report_link is not None\
                     and x.maintenance_st_link is not None and x.maintenance_date is not None)]
