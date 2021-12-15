@@ -1,0 +1,23 @@
+name: MyPy code analysis
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  run-mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name : Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install python dependencies
+        run: pip install -r requirements.txt
+      - name: Install mypy and types
+        run: |
+          pip install mypy
+          python3 -m pip install types-PyYAML
+          python3 -m pip install types-python-dateutil
+          python3 -m pip install types-requests
+      - name: Run mypy
+        run: mypy --ignore-missing-imports *.py sec_certs/
