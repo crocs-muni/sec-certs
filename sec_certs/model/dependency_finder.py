@@ -111,13 +111,17 @@ class DependencyFinder:
                 DependencyFinder._get_affecting_indirectly(cert_id, referenced_by_indirect)
 
     def get_directly_affected_by(self, dgst: str) -> Optional[List[str]]:
-        return self.dependencies[dgst].get("directly_affected_by", None)
+        res = self.dependencies[dgst].get("directly_affected_by", None)
+        return list(res) if res else None
 
     def get_indirectly_affected_by(self, dgst: str) -> Optional[Set[str]]:
-        return self.dependencies[dgst].get("indirectly_affected_by", None)
+        res = self.dependencies[dgst].get("indirectly_affected_by", None)
+        return set(res) if res else None
 
     def get_directly_affecting(self, dgst: str) -> Optional[Set[str]]:
-        return self.dependencies[dgst].get("directly_affecting", None)
+        res = self.dependencies[dgst].get("directly_affecting", None)
+        return set(res) if res else None
 
     def get_indirectly_affecting(self, dgst: str) -> Optional[Set[str]]:
-        return self.dependencies[dgst].get("indirectly_affecting", None)
+        res = self.dependencies[dgst].get("indirectly_affecting", None)
+        return set(res) if res else None
