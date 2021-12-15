@@ -26,10 +26,10 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         """
         Object for holding maintenance reports.
         """
-        maintainance_date: Optional[date]
-        maintainance_title: Optional[str]
-        maintainance_report_link: Optional[str]
-        maintainance_st_link: Optional[str]
+        maintenance_date: Optional[date]
+        maintenance_title: Optional[str]
+        maintenance_report_link: Optional[str]
+        maintenance_st_link: Optional[str]
 
         def __post_init__(self):
             super().__setattr__('maintenance_report_link',
