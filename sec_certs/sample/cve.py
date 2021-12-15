@@ -90,8 +90,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                     for x in lst:
                         if x['vulnerable']:
                             cpe_uri = x['cpe23Uri']
-                            version_start: Optional[Tuple[str, Any]]
-                            version_end: Optional[Tuple[str, Any]]
+                            version_start: Optional[Tuple[str, str]]
+                            version_end: Optional[Tuple[str, str]]
                             if 'versionStartIncluding' in x and x['versionStartIncluding']:
                                 version_start = ('including', x['versionStartIncluding'])
                             elif 'versionStartExcluding' in x and x['versionStartExcluding']:

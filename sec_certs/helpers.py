@@ -6,7 +6,7 @@ import pikepdf
 import requests
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from tqdm import tqdm
+from tqdm import tqdm as tqdm_original
 import hashlib
 import html
 from typing import Union, List
@@ -19,12 +19,14 @@ import copy
 from packaging.version import VERSION_PATTERN
 
 
+
 from enum import Enum
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileReader
 
 import sec_certs.constants
 import sec_certs.constants as constants
+from sec_certs.config.configuration import config
 from sec_certs.cert_rules import REGEXEC_SEP
 from sec_certs.cert_rules import rules as cc_search_rules
 from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES, TAG_MATCH_MATCHES, \
@@ -32,6 +34,10 @@ from sec_certs.constants import TAG_MATCH_COUNTER, APPEND_DETAILED_MATCH_MATCHES
 
 logger = logging.getLogger(__name__)
 
+def tqdm(*args, **kwargs):
+    if "disable" in kwargs:
+        return tqdm_original(*args, **kwargs)
+    return tqdm_original(*args, **kwargs, disable=not config.enable_progress_bars)
 
 def download_file(url: str, output: Path, delay: float = 0) -> Union[str, int]:
     try:
@@ -82,15 +88,13 @@ def sanitize_link(record: Optional[str]) -> Optional[str]:
     return record.replace(':443', '').replace(' ', '%20').replace('http://', 'https://')
 
 
-def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Optional[date]:
+def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:
     if pd.isnull(record):
         return None
-    if isinstance(record, pd.Timestamp):
+    elif isinstance(record, pd.Timestamp):
         return record.date()
-    
-    if not isinstance(record, date):
-        raise NotImplemented
-    return record
+    else:
+        return record
 
 
 def sanitize_string(record: Optional[str]) -> Optional[str]:
@@ -727,14 +731,11 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
     # return identified_versions if identified_versions else ['-']
 
-    matched = []
-    for x in matched_strings:
-        found = re.search(normalizer, x)
-        if found is None:
-            raise RuntimeError("Nothing was found in match string - this should not be happening.")
-        matched.append(found.group())
-        
-    return matched if matched_strings else ['-']
+    if not matched_strings:
+        return ['-']
+
+    matched = [re.search(normalizer, x) for x in matched_strings]
+    return [x.group() for x in matched if x is not None]
 
 def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray: 
     return np.array([tokenize(x, keywords) for x in dset])

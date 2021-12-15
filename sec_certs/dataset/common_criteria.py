@@ -12,7 +12,6 @@ import json
 import numpy as np
 import pandas as pd
 from bs4 import Tag, BeautifulSoup
-from tqdm import tqdm
 
 from sec_certs import helpers as helpers, parallel_processing as cert_processing
 from sec_certs.dataset.dataset import Dataset, logger
@@ -348,9 +347,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         html_sources = list(self.HTML_PRODUCTS_URL.keys())
         if get_active is False:
-            html_sources = list(filter(lambda x: 'active' not in x, html_sources))
+            html_sources = [x for x in html_sources if 'active' not in x]
         if get_archived is False:
-            html_sources = list(filter(lambda x: 'archived' not in x, html_sources))
+            html_sources = [x for x in html_sources if 'archived' not in x]
 
         new_certs = {}
         for file in html_sources:

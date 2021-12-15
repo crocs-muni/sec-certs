@@ -159,6 +159,9 @@
         },
         "fips_latest_snapshot": {
             "$ref": "#/definitions/settings_url_entry"
+        },
+        "enable_progress_bars": {
+            "$ref": "#/definitions/settings_boolean_entry"
         }
     },
     "required": [
@@ -173,6 +176,7 @@
         "cc_maintenances_latest_snapshot",
         "ignore_first_page",
         "cert_threshold",
-        "fips_latest_snapshot"
+        "fips_latest_snapshot",
+        "enable_progress_bars"
     ]
 }

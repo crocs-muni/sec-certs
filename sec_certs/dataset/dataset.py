@@ -5,7 +5,6 @@ from typing import Dict, Collection, Optional, Set, Union, List, Tuple, Mapping
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-import tqdm
 import itertools
 
 import requests
@@ -202,7 +201,7 @@ class Dataset(ABC):
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
         clf.fit([x for x in cpe_dset if filter_condition(x)])
 
-        for cert in tqdm.tqdm(self, desc='Predicting CPE matches with the classifier'):
+        for cert in helpers.tqdm(self, desc='Predicting CPE matches with the classifier'):
             cert.compute_heuristics_cpe_match(clf)
 
         return clf, cpe_dset
@@ -233,7 +232,7 @@ class Dataset(ABC):
         cpe_dset = self._prepare_cpe_dataset()
 
         logger.info('Translating label studio matches into their CPE representations and assigning to certificates.')
-        for annotation in tqdm.tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
+        for annotation in helpers.tqdm([x for x in data if 'verified_cpe_match' in x], desc='Translating label studio matches'):
             match_keys = annotation['verified_cpe_match']
             match_keys = [match_keys] if isinstance(match_keys, str) else match_keys['choices']
             match_keys = [x.lstrip('$') for x in match_keys]
@@ -294,7 +293,7 @@ class Dataset(ABC):
         relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in cpe_rich_certs]))
         cve_dset.filter_related_cpes(relevant_cpes)
 
-        for cert in tqdm.tqdm(cpe_rich_certs, desc='Computing related CVES'):
+        for cert in helpers.tqdm(cpe_rich_certs, desc='Computing related CVES'):
             cert.compute_heuristics_related_cves(cve_dset)
 
         n_vulnerable = len([x for x in cpe_rich_certs if x.heuristics.related_cves])
