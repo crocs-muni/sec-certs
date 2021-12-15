@@ -151,16 +151,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         connections: List[str]
         unmatched_algs: int
 
-        extracted_versions: List[str] = field(default=None)
+        extracted_versions: Optional[List[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[List[str]] = field(default=None)
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
-        directly_affected_by: Set = field(default=None)
-        indirectly_affected_by: Set = field(default=None)
-        directly_affecting: Set = field(default=None)
-        indirectly_affecting: Set = field(default=None)
+        directly_affected_by: Optional[Set] = field(default=None)
+        indirectly_affected_by: Optional[Set] = field(default=None)
+        directly_affecting: Optional[Set] = field(default=None)
+        indirectly_affecting: Optional[Set] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -193,7 +193,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
-        exit_code = helpers.download_file(*cert)
+        exit_code = helpers.download_file(*cert, delay=1)
         if exit_code != requests.codes.ok:
             logger.error(
                 f'Failed to download security policy from {cert[0]}, code: {exit_code}')
@@ -212,7 +212,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
-        exit_code = helpers.download_file(*cert)
+        exit_code = helpers.download_file(*cert, delay=1)
         if exit_code != requests.codes.ok:
             logger.error(
                 f'Failed to download html page from {cert[0]}, code: {exit_code}')
@@ -221,15 +221,13 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def initialize_dictionary() -> Dict:
-        d = {'module_name': None, 'standard': None, 'status': None, 'date_sunset': None,
+        return {'module_name': None, 'standard': None, 'status': None, 'date_sunset': None,
              'date_validation': None, 'level': None, 'caveat': None, 'exceptions': None,
              'type': None, 'embodiment': None, 'tested_conf': None, 'description': None,
              'vendor': None, 'vendor_www': None, 'lab': None, 'lab_nvlap': None,
              'historical_reason': None, 'revoked_reason': None, 'revoked_link': None, 'algorithms': [],
              'mentioned_certs': {}, 'tables_done': False, 'security_policy_www': None, 'certificate_www': None,
              'hw_versions': None, 'fw_versions': None, 'sw_versions': None, 'product_url': None}
-
-        return d
 
     @staticmethod
     def parse_caveat(current_text: str) -> Dict[str, Dict[str, int]]:
@@ -238,7 +236,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         :param current_text: text of "Caveat"
         :return: dictionary of all found algorithm IDs
         """
-        ids_found = {}
+        ids_found: Dict[str, Dict[str, int]] = {}
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
         for m in re.finditer(r_key, current_text):
             if m.group('word') and m.group('word').lower() in {'rsa', 'shs', 'dsa', 'pkcs', 'aes'}:
@@ -462,7 +460,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                                    [] if not initialized else initialized.pdf_scan.algorithms,
                                    []  # connections
                                ),
-                               FIPSCertificate.FIPSHeuristics(None, {}, [], 0),
+                               FIPSCertificate.FIPSHeuristics(None, [], [], 0),
                                state
                                )
 
@@ -536,7 +534,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             else:
                 all_algorithms.add(''.join(filter(str.isdigit, x)))
         not_found = []
-        for alg_list in (a['Certificate'] for a in cert.web_scan.algorithms):
+        
+        if cert.web_scan.algorithms is None:
+            raise RuntimeError(f"Algorithms were not found for cert {cert.dgst} - this should not be happening.")
+        
+        for alg_list in [a['Certificate'] for a in cert.web_scan.algorithms]:
             for web_alg in alg_list:
                 if ''.join(filter(str.isdigit, web_alg)) not in all_algorithms:
                     not_found.append(web_alg)
@@ -552,9 +554,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def parse_cert_file_common(text_to_parse: str, whole_text_with_newlines: str,
-                               search_rules: Dict) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
+                               search_rules: Dict) -> Tuple[Dict[Pattern, Dict], str]:
         # apply all rules
-        items_found_all = {}
+        items_found_all: Dict[Pattern, Dict] = {}
         for rule_group in search_rules.keys():
             if rule_group not in items_found_all:
                 items_found_all[rule_group] = {}
@@ -562,6 +564,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             items_found = items_found_all[rule_group]
 
             for rule in search_rules[rule_group]:
+                rule_and_sep: Union[Pattern, str]
                 if type(rule) != str:
                     rule_str = rule.pattern
                     rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
@@ -620,7 +623,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return items_found_all, whole_text_with_newlines
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str) -> Tuple[Optional[Dict[Pattern, Dict]], str]:
+    def parse_cert_file(text_to_parse: str) -> Tuple[Dict[Pattern, Dict], str]:
         # apply all rules
         items_found_all: Dict = {}
 
@@ -694,7 +697,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return True, cert, lst
 
     def _create_alg_set(self) -> Set:
-        result = set()
+        result: Set[str] = set()
+        
+        if self.web_scan.algorithms is None:
+            raise RuntimeError(f"Algorithms were not found for cert {self.dgst} - this should not be happening.")
+        
         for alg in self.web_scan.algorithms:
             result.update(cert for cert in alg['Certificate'])
         return result
@@ -752,14 +759,16 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             versions_for_extraction += f' {self.web_scan.fw_version}'
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
-    # TODO: This function is probably safe to delete
+    # TODO: This function is probably safe to delete // I'll not type it then - older API probably?
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
-        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)
+        if self.web_scan.vendor is None:
+            raise RuntimeError(f"Vendor for cert {self.dgst} not found - this should not be happening.")
+        self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor) # type: ignore
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         if not self.web_scan.module_name:
             self.heuristics.cpe_matches = None
         else:
-            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.web_scan.vendor,
+            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.web_scan.vendor, # type: ignore
                                                                              self.web_scan.module_name,
                                                                              self.heuristics.extracted_versions)

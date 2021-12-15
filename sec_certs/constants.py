@@ -1,6 +1,7 @@
 from enum import Enum
 
 RESPONSE_OK = 200
+# TODO: types don't match
 RETURNCODE_OK = 'ok'
 RETURNCODE_NOK = 'nok'
 REQUEST_TIMEOUT = 10

@@ -1,5 +1,6 @@
 import copy
 import re
+from typing import Dict, List, Pattern, Union
 
 REGEXEC_SEP = r'[ ,;\]”)(]'
 
@@ -508,13 +509,16 @@ rules.update(common_rules)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            For FIPS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fips_rules = {}
-fips_rules['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
-fips_rules['rules_to_remove'] = rules_fips_to_remove
-fips_rules['rules_security_level'] = rules_fips_security_level
-fips_rules['rules_cert_id'] = rules_fips_cert
+fips_rules_base: Dict[str, List[str]] = {}
+fips_rules_base['rules_fips_algorithms'] = rules_fips_remove_algorithm_ids
+fips_rules_base['rules_to_remove'] = rules_fips_to_remove
+fips_rules_base['rules_security_level'] = rules_fips_security_level
+fips_rules_base['rules_cert_id'] = rules_fips_cert
 fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
 
-for rule in fips_rules:
-    for current_rule in range(len(fips_rules[rule])):
-        fips_rules[rule][current_rule] = re.compile(fips_rules[rule][current_rule])
+fips_rules: Dict[str, List[Pattern[str]]] = {}
+
+for rule in fips_rules_base:
+    fips_rules[rule] = []
+    for current_rule in range(len(fips_rules_base[rule])):
+        fips_rules[rule].append(re.compile(fips_rules_base[rule][current_rule]))

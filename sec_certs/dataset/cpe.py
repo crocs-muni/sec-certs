@@ -90,8 +90,16 @@ class CPEDataset(ComplexSerializableType):
         root = ET.parse(xml_path).getroot()
         dct = {}
         for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
-            title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title').text
-            cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item').attrib['name']
+            found_title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title')
+            if found_title is None:
+                raise RuntimeError("Title is not found during building CPE dataset from xml - this should not be happening")
+            title = found_title.text
+            
+            found_cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item')
+            if found_cpe_uri is None:
+                raise RuntimeError("CPE uri is not found during building CPE dataset from xml - this should not be happening")
+            cpe_uri = found_cpe_uri.attrib['name']
+            
             dct[cpe_uri] = CPE(cpe_uri, title)
         return cls(False, Path(json_path), dct)
 
@@ -115,6 +123,8 @@ class CPEDataset(ComplexSerializableType):
         if isinstance(cve_dset, (str, Path)):
             cve_dset = CVEDataset.from_json(cve_dset)
 
+        if not isinstance(cve_dset, CVEDataset):
+            raise RuntimeError("Conversion of CVE dataset did not work.")
         all_cpes_in_cve_dset = set(itertools.chain.from_iterable([cve.vulnerable_cpes for cve in cve_dset]))
 
         old_len = len(self.cpes)
