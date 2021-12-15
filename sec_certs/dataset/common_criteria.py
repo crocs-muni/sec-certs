@@ -348,9 +348,9 @@ class CCDataset(Dataset, ComplexSerializableType):
         """
         html_sources = list(self.HTML_PRODUCTS_URL.keys())
         if get_active is False:
-            html_sources = list(filter(lambda x: 'active' not in x, html_sources))
+            html_sources = [x for x in html_sources if 'active' not in x]
         if get_archived is False:
-            html_sources = list(filter(lambda x: 'archived' not in x, html_sources))
+            html_sources = [x for x in html_sources if 'archived' not in x]
 
         new_certs = {}
         for file in html_sources:

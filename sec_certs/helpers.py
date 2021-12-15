@@ -727,14 +727,11 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
     # return identified_versions if identified_versions else ['-']
 
-    matched = []
-    for x in matched_strings:
-        found = re.search(normalizer, x)
-        if found is None:
-            raise RuntimeError("Nothing was found in match string - this should not be happening.")
-        matched.append(found.group())
-        
-    return matched if matched_strings else ['-']
+    if not matched_strings:
+        return ['-']
+
+    matched = [re.search(normalizer, x) for x in matched_strings]
+    return [x.group() for x in matched if x is not None]
 
 def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray: 
     return np.array([tokenize(x, keywords) for x in dset])
