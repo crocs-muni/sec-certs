@@ -8,9 +8,9 @@ class PandasSerializableType(ABC):
     @property
     @abstractmethod
     def pandas_tuple(self):
-        raise NotImplementedError('Not meant to be implemented')
+        raise NotImplementedError("Not meant to be implemented")
 
     @property
     @abstractmethod
     def pandas_columns(self):
-        raise NotImplementedError('Not meant to be implemented')
+        raise NotImplementedError("Not meant to be implemented")

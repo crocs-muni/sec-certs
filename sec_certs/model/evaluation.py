@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
-    with Path(filepath).open('r') as handle:
+    with Path(filepath).open("r") as handle:
         return set(json.load(handle))
 
 
@@ -33,7 +33,12 @@ def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs):
     return np.mean(prec)
 
 
-def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid: List[Optional[List[str]]], outpath: Optional[Union[Path, str]], cpe_dset: CPEDataset):
+def evaluate(
+    x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]],
+    y_valid: List[Optional[List[str]]],
+    outpath: Optional[Union[Path, str]],
+    cpe_dset: CPEDataset,
+):
     y_pred = [x.heuristics.cpe_matches for x in x_valid]
     precision = compute_precision(np.array(y_valid), np.array(y_pred))
 
@@ -44,19 +49,33 @@ def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid:
 
     for cert, predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
         verified_cpes_set = set(verified_cpes) if verified_cpes else set()
-        verified_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes_set}
+        verified_cpes_dict = {
+            x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes_set
+        }
         predicted_cpes_set = set(predicted_cpes) if predicted_cpes else set()
-        predicted_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes_set}
+        predicted_cpes_dict = {
+            x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes_set
+        }
 
-
-        cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_scan.module_name
-        vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_scan.vendor
-        record = {'certificate_name': cert_name,
-                  'vendor': vendor,
-                  'heuristic version': helpers.compute_heuristics_version(cert_name) if cert_name else None,
-                  'predicted_cpes': predicted_cpes_dict,
-                  'manually_assigned_cpes': verified_cpes_dict
-                  }
+        cert_name = (
+            cert.name
+            if isinstance(cert, CommonCriteriaCert)
+            else cert.web_scan.module_name
+        )
+        vendor = (
+            cert.manufacturer
+            if isinstance(cert, CommonCriteriaCert)
+            else cert.web_scan.vendor
+        )
+        record = {
+            "certificate_name": cert_name,
+            "vendor": vendor,
+            "heuristic version": helpers.compute_heuristics_version(cert_name)
+            if cert_name
+            else None,
+            "predicted_cpes": predicted_cpes_dict,
+            "manually_assigned_cpes": verified_cpes_dict,
+        }
 
         if verified_cpes_set.issubset(predicted_cpes_set):
             correctly_classified.append(record)
@@ -67,11 +86,17 @@ def evaluate(x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]], y_valid:
             n_new_certs_with_match += 1
         n_newly_identified += len(predicted_cpes_set - verified_cpes_set)
 
-    results = {'Precision': precision, 'n_new_certs_with_match': n_new_certs_with_match,
-               'n_newly_identified': n_newly_identified, 'correctly_classified': correctly_classified,
-               'badly_classified': badly_classified}
-    logger.info(f'While keeping precision: {precision}, the classifier identified {n_newly_identified} new CPE matches (Found match for {n_new_certs_with_match} certificates that were previously unmatched) compared to baseline.')
+    results = {
+        "Precision": precision,
+        "n_new_certs_with_match": n_new_certs_with_match,
+        "n_newly_identified": n_newly_identified,
+        "correctly_classified": correctly_classified,
+        "badly_classified": badly_classified,
+    }
+    logger.info(
+        f"While keeping precision: {precision}, the classifier identified {n_newly_identified} new CPE matches (Found match for {n_new_certs_with_match} certificates that were previously unmatched) compared to baseline."
+    )
 
     if outpath:
-        with Path(outpath).open('w') as handle:
+        with Path(outpath).open("w") as handle:
             json.dump(results, handle, indent=4, cls=CustomJSONEncoder)

@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ProtectionProfileDataset:
-    static_dataset_url: ClassVar[str] = 'https://ajanovsky.cz/pp_data_complete_processed.json'
+    static_dataset_url: ClassVar[
+        str
+    ] = "https://ajanovsky.cz/pp_data_complete_processed.json"
 
     pps: Dict[Tuple[str, str], ProtectionProfile]
 
@@ -34,21 +36,23 @@ class ProtectionProfileDataset:
 
     @classmethod
     def from_json(cls, json_path: Union[str, Path]):
-        with Path(json_path).open('r') as handle:
+        with Path(json_path).open("r") as handle:
             data = json.load(handle)
         pps = [ProtectionProfile.from_old_api_dict(x) for x in data.values()]
 
         dct = {}
         for item in pps:
             if (item.pp_name, item.pp_link) in dct:
-                logger.warning(f'Duplicate entry in PP dataset: {(item.pp_name, item.pp_link)}')
+                logger.warning(
+                    f"Duplicate entry in PP dataset: {(item.pp_name, item.pp_link)}"
+                )
             dct[(item.pp_name, item.pp_link)] = item
 
         return cls(dct)
 
     @classmethod
     def from_web(cls, store_dataset_path: Optional[Path]):
-        logger.info(f'Downloading static PP dataset from: {cls.static_dataset_url}')
+        logger.info(f"Downloading static PP dataset from: {cls.static_dataset_url}")
         if not store_dataset_path:
             tmp = tempfile.TemporaryDirectory()
             store_dataset_path = Path(tmp.name)
