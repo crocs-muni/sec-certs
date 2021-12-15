@@ -82,15 +82,13 @@ def sanitize_link(record: Optional[str]) -> Optional[str]:
     return record.replace(':443', '').replace(' ', '%20').replace('http://', 'https://')
 
 
-def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Optional[date]:
+def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:
     if pd.isnull(record):
         return None
-    if isinstance(record, pd.Timestamp):
+    elif isinstance(record, pd.Timestamp):
         return record.date()
-    
-    if not isinstance(record, date):
-        raise NotImplemented
-    return record
+    else:
+        return record
 
 
 def sanitize_string(record: Optional[str]) -> Optional[str]:
