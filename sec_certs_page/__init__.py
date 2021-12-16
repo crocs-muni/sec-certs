@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -28,17 +29,21 @@ app.jinja_env.lstrip_blocks = True
 app.jinja_env.cache = {}
 app.jinja_env.autoescape = True
 
-sentry_sdk.init(
-    dsn=app.config["SENTRY_INGEST"],
-    integrations=[FlaskIntegration(), CeleryIntegration(), RedisIntegration()],
-    environment=app.env,
-    sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
-    traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"]
-)
+if os.environ.get("TESTING", False):
+    app.testing = True
 
-ignore_logger("sec_certs.helpers")
-ignore_logger("sec_certs.dataset.dataset")
-ignore_logger("sec_certs.sample.certificate")
+if not app.testing:
+    sentry_sdk.init(
+        dsn=app.config["SENTRY_INGEST"],
+        integrations=[FlaskIntegration(), CeleryIntegration(), RedisIntegration()],
+        environment=app.env,
+        sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
+        traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"]
+    )
+
+    ignore_logger("sec_certs.helpers")
+    ignore_logger("sec_certs.dataset.dataset")
+    ignore_logger("sec_certs.sample.certificate")
 
 tool_config.load(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
@@ -68,7 +73,7 @@ redis = FlaskRedis(app)
 
 assets = Assets(app)
 
-debug = DebugToolbarExtension(app)
+#debug = DebugToolbarExtension(app)
 
 cache = Cache(app)
 

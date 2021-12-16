@@ -8,3 +8,4 @@ __pycache__/
 
 sec_certs_page/static/gen/
 .webassets-cache/
+.pytest_cache/
