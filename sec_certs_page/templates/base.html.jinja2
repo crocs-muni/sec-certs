@@ -60,14 +60,15 @@
                 </ul>
             </div>
             {% if search %}
-            <form class="d-flex" action="{{ url_for(".search") }}" method="get">
-                <input class="form-control me-2" type="search" placeholder="Search" name="q" aria-label="Search">
-                <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
-            </form>
+                <form class="d-flex" action="{{ url_for(".search") }}" method="get">
+                    <input class="form-control me-2" type="search" placeholder="Search" name="q" aria-label="Search">
+                    <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
+                </form>
             {% endif %}
             {% if is_admin() %}
                 <div class="mx-2">
-                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4" role="button"><i class="fa fa-user"></i> Admin</a>
+                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4" role="button"><i
+                            class="fa fa-user"></i> Admin</a>
                 </div>
             {% endif %}
         </div>
@@ -101,42 +102,77 @@
             {% endif %}
             {% block content %}
             {% endblock %}
-            <footer>
-            {% block footer %}
-                <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
-                    <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                        <a href="https://crocs.fi.muni.cz">
-                            <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
-                                 alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
-                        </a>
-                    </div>
-                    <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                        <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs"
-                                                             target="_blank" rel="noopener">Github</a>.</p>
-                        <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
-                        {% if current_user.is_authenticated %}
-                            <p class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;" title="Lemme out"><i class="fas fa-sign-out-alt"></i></a></p>
-                        {% else %}
-                            <p class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;" title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></p>
-                        {% endif %}
+            <div class="modal fade" id="notification-modal" tabindex="-1" aria-labelledby="notification-modal-label"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="notification-modal-label">Notifications</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            You currently have no subscriptions to certificate updates. Select certificates on the
+                            search page or on the page of the certificate. After you do so you will be able to see them
+                            here and setup an email notification subscription.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Subscribe</button>
+                        </div>
                     </div>
                 </div>
-                <div id="up-top">
-                    <a title="Back to top" aria-label="Back to top" href="#">
+            </div>
+            <footer>
+                {% block footer %}
+                    <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
+                        <div class="col-5 col-sm-4 col-md-3 col-lg-2">
+                            <a href="https://crocs.fi.muni.cz">
+                                <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
+                                     alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
+                            </a>
+                        </div>
+                        <div class="col-5 col-sm-4 col-md-3 col-lg-2">
+                            <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs"
+                                                                 target="_blank" rel="noopener">Github</a>.</p>
+                            <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
+                            {% if current_user.is_authenticated %}
+                                <p class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;"
+                                                       title="Lemme out"><i class="fas fa-sign-out-alt"></i></a></p>
+                            {% else %}
+                                <p class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;"
+                                                       title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div id="notifications">
+                        <button id="notification-icon" class="btn btn-secondary" title="Notifications"
+                                data-bs-toggle="modal" data-bs-target="#notification-modal">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                            0
+                            <span class="visually-hidden">selected certificates</span>
+                          </span>
+                        </button>
+                    </div>
+                    <div id="up-top">
+                        <a title="Back to top" aria-label="Back to top" href="#">
                         <span id="up-top-icon" class="fa-stack fa-lg">
                             <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                             <i class="fas fa-chevron-up fa-stack-1x fa-inverse" aria-hidden="true"></i>
                         </span>
-                    </a>
-                </div>
-            {% endblock %}
+                        </a>
+                    </div>
+                {% endblock %}
             </footer>
         </div>
     </div>
 </div>
 <script>
     $(function () {
-        $('[data-bs-toggle="tooltip"]').tooltip()
+        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
 </script>
 </body>

@@ -18,6 +18,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.logging import ignore_logger
+from werkzeug.exceptions import HTTPException
 from sec_certs.config.configuration import config as tool_config
 
 app = Flask(__name__, instance_relative_config=True)
@@ -158,3 +159,8 @@ def feedback():
 @register_breadcrumb(app, ".about", "About")
 def about():
     return render_template("about.html.jinja2")
+
+
+@app.errorhandler(HTTPException)
+def error(e):
+    return render_template("error.html.jinja2", code=e.code, name=e.name, description=e.description), e.code

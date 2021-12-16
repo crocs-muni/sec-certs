@@ -1,11 +1,11 @@
-{% extends "base.html.jinja2" %}
+{% extends "crowdsourced.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "utils.html.jinja2" import render_network %}
 {% block title %}
     <title>
-    {{ cert["web_scan"]["module_name"]|default("") + " | seccerts.org" }}
+    {{ cert["web_scan"]["module_name"]|default("", true) + " | seccerts.org" }}
     </title>
 {% endblock %}
 {% block navbar %}
@@ -29,43 +29,65 @@
         <div class="alert alert-warning d-sm-none" role="alert">
                   <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-	<h1>{{ cert["web_scan"]["module_name"]|default("") }}</h1>
+	<h1>{{ cert["web_scan"]["module_name"]|default("", true) }}</h1>
     {# <br/> #}
     <h2>Certificate #{{ cert["cert_id"] }}</h2>
     {% if "web_scan" in cert %}
         <div class="mt-5 mb-5">
             <h2 id="web-info" class="anchor">Webpage information
             <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the NIST CMVP web page of the certificate.">?</span></h2>
-            <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
+            <div data-cs-name="Status">
+                <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
+            </div>
             {% if cert["web_scan"]["historical_reason"] %}
-                <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
+                <div data-cs-name="Historical reason">
+                    <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
+                </div>
             {% endif %}
-            <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
+            <div data-cs-name="Validation dates">
+                <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}{{ date|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}{{ ", " if not loop.last else "" }}{% endfor %}<br/>
+            </div>
             {% if cert["web_scan"]["date_sunset"] %}
-                <b>Sunset date:</b>
-                {{ cert["web_scan"]["date_sunset"]|strptime("%Y-%m-%d")|strftime("%d-%m-%Y") }}<br/>
+                <div data-cs-name="Sunset date">
+                    <b>Sunset date:</b>
+                    {{ cert["web_scan"]["date_sunset"]|strptime("%Y-%m-%d")|strftime("%d-%m-%Y") }}<br/>
+                </div>
             {% endif %}
-            <b>Standard:</b> {{ cert["web_scan"]["standard"] }}<br/>
-            <b>Security level:</b> {{ cert["web_scan"]["level"] }}<br/>
-            <b>Type:</b> {{ render_type(cert["web_scan"]["module_type"]) }} {{ cert["web_scan"]["module_type"] }}<br/>
-            <b>Embodiment:</b> {{ cert["web_scan"]["embodiment"] }}<br/>
+            <div data-cs-name="Standard">
+                <b>Standard:</b> {{ cert["web_scan"]["standard"] }}<br/>
+            </div>
+            <div data-cs-name="Security level">
+                <b>Security level:</b> {{ cert["web_scan"]["level"] }}<br/>
+            </div>
+            <div data-cs-name="Type">
+                <b>Type:</b> {{ render_type(cert["web_scan"]["module_type"]) }} {{ cert["web_scan"]["module_type"] }}<br/>
+            </div>
+            <div data-cs-name="Embodiment">
+                <b>Embodiment:</b> {{ cert["web_scan"]["embodiment"] }}<br/>
+            </div>
             {% if cert["web_scan"]["caveat"] %}
-                <b>Caveat:</b>
-                {{ cert["web_scan"]["caveat"] }}
-                <br/>
+                <div data-cs-name="Caveat">
+                    <b>Caveat:</b>
+                    {{ cert["web_scan"]["caveat"] }}
+                    <br/>
+                </div>
             {% endif %}
             {% if cert["web_scan"]["exceptions"] %}
-                <b>Exceptions:</b>
-                <ul>
-                    {% for exceptioon in cert["web_scan"]["exceptions"] %}
-                    <li>{{ exceptioon }}</li>
-                    {% endfor %}
-                </ul>
+                <div data-cs-name="Exceptions">
+                    <b>Exceptions:</b>
+                    <ul>
+                        {% for exceptioon in cert["web_scan"]["exceptions"] %}
+                        <li data-cs-name="Exceptions - {{ loop.index }}">{{ exceptioon }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endif %}
             {% if cert["web_scan"]["description"] %}
-                <b>Description:</b>
-                {{ cert["web_scan"]["description"] }}
-                <br/>
+                <div data-cs-name="Description">
+                    <b>Description:</b>
+                    {{ cert["web_scan"]["description"] }}
+                    <br/>
+                </div>
             {% endif %}
             {% if cert["web_scan"]["hw_versions"] %}
                 <b>Version (Hardware):</b>
@@ -92,7 +114,10 @@
                 <ul>
                     {% for algo in cert["web_scan"]["algorithms"] %}
                         {% if "Name" in algo %}
-                            <li>{{ algo["Name"] }} - {% for name in algo["Certificate"] %}{{ name }}{{ ", " if not loop.last else "" }}{% endfor %}</li>
+                            <li>{{ algo["Name"] }} -
+                                {% for name in algo["Certificate"] %}
+                                    <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["Name"] }}&number={{ name.replace("#", "") }}" target="_blank" rel="noopener">{{ name }}</a>{{ ", " if not loop.last else "" }}
+                                {% endfor %}</li>
                         {% endif %}
                     {% endfor %}
                 </ul>
@@ -113,7 +138,7 @@
 	<div class="mt-5 mb-5">
 		<h2 id="doc-info" class="anchor">Document information
 		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the security policy document. Might contain errors.">?</span></h2>
-		
+
 		<h3 class="mt-4">Security policy
         {% if cert["web_scan"]["security_policy_www"] %}<a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
 		{{ cryptography_keywords(cert["heuristics"]["keywords"], "policy") }}

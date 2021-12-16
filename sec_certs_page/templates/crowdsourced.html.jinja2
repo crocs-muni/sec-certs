@@ -3,7 +3,7 @@
     {{ super() }}
     <script type="text/javascript">
         let selected_node = null;
-        let selection_id = null;
+        let interval_task_id = null;
 
         $(function () {
             $("#feedback-button").click(function () {
@@ -12,7 +12,7 @@
             $("#feedback-trigger").click(function () {
                 $("#feedback-panel").show(200);
                 $("body").css("cursor", "pointer");
-                selection_id = setInterval(function () {
+                interval_task_id = setInterval(function () {
                     $($(":hover").get().reverse()).each(function (i, e) {
                         let node = $(e);
                         if (node.data("cs-name") !== undefined) {
@@ -28,16 +28,17 @@
                 }, 100);
                 setTimeout(function () {
                     $("body").click(function () {
-                        if (selection_id && selected_node) {
-                            clearInterval(selection_id);
+                        if (interval_task_id && selected_node) {
+                            clearInterval(interval_task_id);
                             $("body").css("cursor", "auto");
-                            selection_id = null;
+                            interval_task_id = null;
+                            $("body").off("click");
                         }
                     });
                 });
             });
             $("#feedback-send").click(function () {
-                if (selected_node && !selection_id) {
+                if (selected_node && !interval_task_id) {
                     $.ajax("{{ url_for("feedback") }}", {
                         type: "POST",
                         contentType: "application/json",
