@@ -26,4 +26,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: psf/black@stable
-
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - uses: isort/isort-action@master
+        with:
+            requirementsFiles: "requirements.txt dev_requirements.txt"
