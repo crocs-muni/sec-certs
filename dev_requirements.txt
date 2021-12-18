@@ -3,5 +3,5 @@ types-PyYAML
 types-python-dateutil
 types-requests
 black
-isort
+isort==5.10.1
 flake8
