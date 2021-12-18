@@ -48,9 +48,9 @@ logger = logging.getLogger(__name__)
     "-n",
     "--name",
     "json_name",
-    default=str(datetime.now().strftime("%d-%n-%Y-%H:%M:%S")) + '.json',
+    default=str(datetime.now().strftime("%d-%n-%Y-%H:%M:%S")) + ".json",
     type=str,
-    help="Name of the json object to be created in the <<output>> directory. Defaults to <<timestamp>>.json."
+    help="Name of the json object to be created in the <<output>> directory. Defaults to <<timestamp>>.json.",
 )
 @click.option("--no-download-algs", "no_download_algs", help="Don't fetch new algorithm implementations", is_flag=True)
 @click.option("--redo-web-scan", "redo_web_scan", help="Redo HTML webpage scan from scratch", is_flag=True)
@@ -122,7 +122,9 @@ def main(
         output = Path(output)
 
     if not inputpath and not output:
-        logger.error("You did not specify path to load the dataset from, nor did you specify where dataset can be stored.")
+        logger.error(
+            "You did not specify path to load the dataset from, nor did you specify where dataset can be stored."
+        )
         sys.exit(1)
 
     if not silent:
@@ -154,16 +156,20 @@ def main(
     )
 
     r_actions |= {"build"} if "new-run" in actions else {"update"} if "all" in actions else set()
-    
+
     actions = r_actions
 
     if "build" in actions and "update" in actions:
-        logger.error("'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset.")
+        logger.error(
+            "'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset."
+        )
 
     if "build" in actions:
         assert output
         if inputpath:
-            logger.warning("Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored.")
+            logger.warning(
+                "Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored."
+            )
         dset: FIPSDataset = FIPSDataset(
             certs={},
             root_dir=output,
@@ -182,18 +188,20 @@ def main(
 
     assert inputpath
     dset = FIPSDataset.from_json(inputpath)
-    
+
     assert dset.algorithms
 
-    logger.info(f'Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.')
+    logger.info(f"Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.")
     if output:
-        logger.warning("You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)")
+        logger.warning(
+            "You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)"
+        )
         dset.root_dir = output
         dset.to_json(output)
 
-    if 'update' in actions:
+    if "update" in actions:
         dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True, redo_web_scan=redo_web_scan)
-        
+
     if "convert" in actions or "update" in actions:
         dset.convert_all_pdfs()
 
@@ -202,7 +210,9 @@ def main(
 
     if "table-search" in actions or "update" in actions:
         if not higher_precision_results:
-            logger.info("You are using table search without higher precision results. It is advised to use the switch in the next run.")
+            logger.info(
+                "You are using table search without higher precision results. It is advised to use the switch in the next run."
+            )
         dset.extract_certs_from_tables(high_precision=higher_precision_results)
 
     if "analysis" in actions:

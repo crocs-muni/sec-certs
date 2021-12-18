@@ -11,14 +11,14 @@ logger = logging.getLogger(__name__)
 def main():
     file_handler = logging.FileHandler(config.log_filepath)
     stream_handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
     logging.basicConfig(level=logging.INFO, handlers=[file_handler, stream_handler])
     start = datetime.now()
 
     # Create empty dataset
-    dset = CCDataset({}, Path('./debug_dataset'), 'cc_full_dataset', 'sample dataset description')
+    dset = CCDataset({}, Path("./debug_dataset"), "cc_full_dataset", "sample dataset description")
 
     # Load metadata for certificates from CSV and HTML sources
     dset.get_certs_from_web(to_download=True)
@@ -30,7 +30,7 @@ def main():
     dset.process_protection_profiles()
 
     # Load dataset from JSON
-    new_dset = CCDataset.from_json('./debug_dataset/cc_full_dataset.json')
+    new_dset = CCDataset.from_json("./debug_dataset/cc_full_dataset.json")
     assert dset == new_dset
 
     # Download pdfs and update json
@@ -52,8 +52,8 @@ def main():
     # dset.compute_related_cves()
 
     end = datetime.now()
-    logger.info(f'The computation took {(end-start)} seconds.')
+    logger.info(f"The computation took {(end-start)} seconds.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

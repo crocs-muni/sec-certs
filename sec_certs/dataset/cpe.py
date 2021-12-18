@@ -23,12 +23,14 @@ class CPEDataset(ComplexSerializableType):
     json_path: Path
     cpes: Dict[str, CPE]
     vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
-    vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(init=False)  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
+    vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(
+        init=False
+    )  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
     title_to_cpes: Dict[str, Set[CPE]] = field(init=False)  # Look-up dict title: List of cert items
     vendors: Set[str] = field(init=False)
 
-    cpe_xml_basename: ClassVar[str] = 'official-cpe-dictionary_v2.3.xml'
-    cpe_url: ClassVar[str] = 'https://nvd.nist.gov/feeds/xml/cpe/dictionary/' + cpe_xml_basename + '.zip'
+    cpe_xml_basename: ClassVar[str] = "official-cpe-dictionary_v2.3.xml"
+    cpe_url: ClassVar[str] = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/" + cpe_xml_basename + ".zip"
 
     def __iter__(self):
         yield from self.cpes.values()
@@ -44,18 +46,18 @@ class CPEDataset(ComplexSerializableType):
 
     def __contains__(self, item: CPE) -> bool:
         if not isinstance(item, CPE):
-            raise ValueError(f'{item} is not of CPE class')
+            raise ValueError(f"{item} is not of CPE class")
         return item.uri in self.cpes.keys()
 
     @property
     def serialized_attributes(self) -> List[str]:
-        return ['was_enhanced_with_vuln_cpes', 'json_path', 'cpes']
+        return ["was_enhanced_with_vuln_cpes", "json_path", "cpes"]
 
     def __post_init__(self):
         """
         Will build look-up dictionaries that are used for fast matching
         """
-        logger.info('CPE dataset: building lookup dictionaries.')
+        logger.info("CPE dataset: building lookup dictionaries.")
         self.vendor_to_versions = {x.vendor: set() for x in self}
         self.vendor_version_to_cpe = dict()
         self.title_to_cpes = dict()
@@ -75,30 +77,34 @@ class CPEDataset(ComplexSerializableType):
     def from_web(cls, json_path: Union[str, Path]):
         with tempfile.TemporaryDirectory() as tmp_dir:
             xml_path = Path(tmp_dir) / cls.cpe_xml_basename
-            zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + '.zip')
+            zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + ".zip")
             helpers.download_file(cls.cpe_url, zip_path)
 
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_dir)
 
             return cls.from_xml(xml_path, json_path)
 
     @classmethod
     def from_xml(cls, xml_path: Union[str, Path], json_path: Union[str, Path]):
-        logger.info('Loading CPE dataset from XML.')
+        logger.info("Loading CPE dataset from XML.")
         root = ET.parse(xml_path).getroot()
         dct = {}
-        for cpe_item in root.findall('{http://cpe.mitre.org/dictionary/2.0}cpe-item'):
-            found_title = cpe_item.find('{http://cpe.mitre.org/dictionary/2.0}title')
+        for cpe_item in root.findall("{http://cpe.mitre.org/dictionary/2.0}cpe-item"):
+            found_title = cpe_item.find("{http://cpe.mitre.org/dictionary/2.0}title")
             if found_title is None:
-                raise RuntimeError("Title is not found during building CPE dataset from xml - this should not be happening")
+                raise RuntimeError(
+                    "Title is not found during building CPE dataset from xml - this should not be happening"
+                )
             title = found_title.text
-            
-            found_cpe_uri = cpe_item.find('{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item')
+
+            found_cpe_uri = cpe_item.find("{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item")
             if found_cpe_uri is None:
-                raise RuntimeError("CPE uri is not found during building CPE dataset from xml - this should not be happening")
-            cpe_uri = found_cpe_uri.attrib['name']
-            
+                raise RuntimeError(
+                    "CPE uri is not found during building CPE dataset from xml - this should not be happening"
+                )
+            cpe_uri = found_cpe_uri.attrib["name"]
+
             dct[cpe_uri] = CPE(cpe_uri, title)
         return cls(False, Path(json_path), dct)
 
@@ -110,11 +116,11 @@ class CPEDataset(ComplexSerializableType):
 
     @classmethod
     def from_dict(cls, dct: Dict):
-        return cls(dct['was_enhanced_with_vuln_cpes'], Path('../'), dct['cpes'])
+        return cls(dct["was_enhanced_with_vuln_cpes"], Path("../"), dct["cpes"])
 
     def to_pandas(self):
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns)
-        df = df.set_index('uri')
+        df = df.set_index("uri")
         return df
 
     @serialize
@@ -128,9 +134,9 @@ class CPEDataset(ComplexSerializableType):
 
         old_len = len(self.cpes)
 
-        for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc='Enriching CPE dataset with new CPEs'):
+        for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc="Enriching CPE dataset with new CPEs"):
             if cpe not in self:
                 self[cpe.uri] = cpe
 
-        logger.info(f'Enriched the CPE dataset with {len(self.cpes) - old_len} new CPE records.')
+        logger.info(f"Enriched the CPE dataset with {len(self.cpes) - old_len} new CPE records.")
         self.was_enhanced_with_vuln_cpes = True

@@ -14,7 +14,7 @@ def main():
     # dset: FIPSDataset = FIPSDataset({}, Path('./my_debug_dataset'), 'sample_dataset', 'sample dataset description')
     # dset.get_certs_from_web(no_download_algorithms=True)
 
-    dset = FIPSDataset({}, Path('../fips_dataset'), 'sample_dataset', 'sample dataset description')
+    dset = FIPSDataset({}, Path("../fips_dataset"), "sample_dataset", "sample dataset description")
     dset.get_certs_from_web()
     # # Label CPE and compute related vulnerabilities
     # dset.compute_cpe_heuristics()
@@ -31,11 +31,11 @@ def main():
     # y_valid = [x.heuristics.verified_cpe_matches for x in validation_certs]
     # evaluate(validation_certs, y_valid, './my_debug_dataset/classification_report.json')
 
-    logger.info(f'{dset.json_path} should now contain fully labeled dataset.')
+    logger.info(f"{dset.json_path} should now contain fully labeled dataset.")
 
     end = datetime.now()
-    logger.info(f'The computation took {(end - start)} seconds.')
+    logger.info(f"The computation took {(end - start)} seconds.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -10,7 +10,7 @@ from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 
 class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / 'vulnerable_dataset.json'
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
 
     @classmethod
@@ -18,7 +18,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.tmp_dir: ClassVar[tempfile.TemporaryDirectory] = tempfile.TemporaryDirectory()
         shutil.copytree(cls.data_dir_path, cls.tmp_dir.name, dirs_exist_ok=True)
 
-        cls.cc_dset: CCDataset = CCDataset.from_json(Path(cls.tmp_dir.name) / 'vulnerable_dataset.json')
+        cls.cc_dset: CCDataset = CCDataset.from_json(Path(cls.tmp_dir.name) / "vulnerable_dataset.json")
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
 
