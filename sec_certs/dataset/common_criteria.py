@@ -210,12 +210,13 @@ class CCDataset(Dataset, ComplexSerializableType):
         self._download_parallel(html_urls, html_paths)
         self._download_parallel(csv_urls, csv_paths)
 
+    @serialize
     def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True):
         logger.info('Processing protection profiles.')
         constructor = {True: ProtectionProfileDataset.from_web, False: ProtectionProfileDataset.from_json}
         if to_download is True and not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir()
-        pp_dataset = constructor[to_download](self.pp_dataset_path)
+        pp_dataset: ProtectionProfileDataset = constructor[to_download](self.pp_dataset_path)
 
         for cert in self:
             if cert.protection_profiles is None:
