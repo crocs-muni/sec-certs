@@ -17,11 +17,7 @@ from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.helpers import (
-    load_cert_file,
-    normalize_match_string,
-    save_modified_cert_file,
-)
+from sec_certs.helpers import load_cert_file, normalize_match_string, save_modified_cert_file
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.cpe import CPE

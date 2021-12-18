@@ -10,17 +10,7 @@ from datetime import date
 from enum import Enum
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import (
-    Any,
-    Dict,
-    Hashable,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Any, Dict, Hashable, List, Optional, Sequence, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
