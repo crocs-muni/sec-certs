@@ -18,8 +18,11 @@ from sec_certs.config.configuration import config
 from sec_certs.parallel_processing import process_parallel
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE
-from sec_certs.serialization.json import (ComplexSerializableType,
-                                          CustomJSONDecoder, CustomJSONEncoder)
+from sec_certs.serialization.json import (
+    ComplexSerializableType,
+    CustomJSONDecoder,
+    CustomJSONEncoder,
+)
 
 logger = logging.getLogger(__name__)
 

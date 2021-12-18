@@ -10,8 +10,17 @@ from datetime import date
 from enum import Enum
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import (Any, Dict, Hashable, List, Optional, Sequence, Set, Tuple,
-                    Union)
+from typing import (
+    Any,
+    Dict,
+    Hashable,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,9 +35,13 @@ import sec_certs.constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
 from sec_certs.cert_rules import rules as cc_search_rules
 from sec_certs.config.configuration import config
-from sec_certs.constants import (APPEND_DETAILED_MATCH_MATCHES,
-                                 FILE_ERRORS_STRATEGY, LINE_SEPARATOR,
-                                 TAG_MATCH_COUNTER, TAG_MATCH_MATCHES)
+from sec_certs.constants import (
+    APPEND_DETAILED_MATCH_MATCHES,
+    FILE_ERRORS_STRATEGY,
+    LINE_SEPARATOR,
+    TAG_MATCH_COUNTER,
+    TAG_MATCH_MATCHES,
+)
 
 logger = logging.getLogger(__name__)
 

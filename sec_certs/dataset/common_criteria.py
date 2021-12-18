@@ -7,8 +7,17 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import (ClassVar, Dict, Iterator, List, Mapping, Optional, Set,
-                    Tuple, Union)
+from typing import (
+    ClassVar,
+    Dict,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 import pandas as pd
@@ -20,13 +29,17 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
-from sec_certs.sample.cc_maintenance_update import \
-    CommonCriteriaMaintenanceUpdate
+from sec_certs.sample.cc_maintenance_update import (
+    CommonCriteriaMaintenanceUpdate,
+)
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.serialization.json import (ComplexSerializableType,
-                                          CustomJSONDecoder, serialize)
+from sec_certs.serialization.json import (
+    ComplexSerializableType,
+    CustomJSONDecoder,
+    serialize,
+)
 
 
 class CCDataset(Dataset, ComplexSerializableType):

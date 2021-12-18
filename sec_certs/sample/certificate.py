@@ -8,8 +8,11 @@ from typing import Any, Optional, Type, TypeVar, Union
 
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
-from sec_certs.serialization.json import (ComplexSerializableType,
-                                          CustomJSONDecoder, CustomJSONEncoder)
+from sec_certs.serialization.json import (
+    ComplexSerializableType,
+    CustomJSONDecoder,
+    CustomJSONEncoder,
+)
 
 logger = logging.getLogger(__name__)
 
