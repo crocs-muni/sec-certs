@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Collection, Dict, List, Mapping, Optional, Set, Tuple, TypeVar, Union, Type
+from typing import Collection, Dict, List, Mapping, Optional, Set, Tuple, Type, TypeVar, Union
 
 import requests
 
