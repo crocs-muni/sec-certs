@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import Dict, Collection, Optional, Set, Union, List, Tuple, Mapping
+from typing import Dict, Collection, Optional, Set, Union, List, Tuple, Mapping, TypeVar
 
 import json
 from abc import ABC, abstractmethod
@@ -24,6 +24,7 @@ from sec_certs.model.cpe_matching import CPEClassifier
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T")
 
 class Dataset(ABC):
     def __init__(self, certs: Mapping[str, 'Certificate'], root_dir: Path, name: str = 'dataset name',
@@ -109,7 +110,7 @@ class Dataset(ABC):
         return dset
 
     @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
+    def from_json(cls: T, input_path: Union[str, Path]) -> T:
         dset = ComplexSerializableType.from_json(input_path)
         dset.root_dir = Path(input_path).parent.absolute()
         dset.set_local_paths()
