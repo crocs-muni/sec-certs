@@ -2,3 +2,6 @@ mypy
 types-PyYAML
 types-python-dateutil
 types-requests
+black
+isort
+flake8
