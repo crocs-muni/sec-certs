@@ -1,6 +1,6 @@
 import copy
 import re
-from typing import Dict, List, Pattern, Union
+from typing import Dict, List, Pattern
 
 REGEXEC_SEP = r'[ ,;\]”)(]'
 
@@ -43,7 +43,7 @@ rules_vendor = [
     'Axalto',
     '(?:Oberthur|OBERTHUR)',
     '(?:Idemia|IDEMIA)',
-    '(?:G\&D|G\+D|Giesecke+Devrient|Giesecke \& Devrient)',
+    r'(?:G\&D|G\+D|Giesecke\+Devrient|Giesecke \& Devrient)',
     'Philips',
     'Sagem',
 ]
@@ -108,32 +108,32 @@ rules_security_level = [
 ]
 
 rules_security_assurance_components = [
-    r'ACE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ACM_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ACO_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ADO_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ADV_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'AGD_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ALC_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ATE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'AVA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'AMA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'APE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'ASE_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)'
+    r'ACE(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ACM(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ACO(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ADO(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ADV(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'AGD(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ALC(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ATE(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'AVA(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'AMA(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'APE(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'ASE(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)'
 ]
 
 rules_security_functional_components = [
-    r'FAU_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FCO_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FCS_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FDP_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FIA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FMT_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FPR_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FPT_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FRU_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FTA_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
-    r'FTP_[A-Z]{3}(?:\.[0-9]|\.[0-9]\.[0-9]|)'
+    r'FAU(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FCO(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FCS(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FDP(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FIA(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FMT(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FPR(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FPT(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FRU(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FTA(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)',
+    r'FTP(?:_[A-Z]{3,4}){1,2}(?:\.[0-9]|\.[0-9]\.[0-9]|)'
 ]
 
 rules_cc_claims = [
@@ -159,7 +159,7 @@ rules_javacard = [
     r'(?:Java Card|JavaCard) \(version [2-3]\.[0-9](?:\.[0-9]|)\)',
     r'(?:Global Platform|GlobalPlatform) [2-3]\.[0-9]\.[0-9]',
     r'(?:Global Platform|GlobalPlatform) \(version [2-3]\.[0-9]\.[0-9]\)',
-    ]
+]
 
 rules_javacard_api_consts = [
     # javacard API constants
@@ -268,7 +268,7 @@ rules_cplc = [
 rules_crypto_engines = [
     'TORNADO',
     'SmartMX',
-    'SmartMX2'
+    'SmartMX2',
     'NesCrypt',
 ]
 
@@ -278,7 +278,27 @@ rules_crypto_libs = [
     'AT1 Secure RSA/ECC/SHA library',
     'Crypto Library [v]*[0-9.]+',
     'ATMEL Toolbox [0-9.]+',
-    'v1.02.013'  # Infineon's ROCA-vulnerable library
+    'v1\\.02\\.013',  # Infineon's ROCA-vulnerable library
+    'OpenSSL',
+    'LibreSSL',
+    'BoringSSL',
+    'MatrixSSL',
+    'Nettle',
+    'GnuTLS',
+    'libtomcrypt',
+    'BearSSL',
+    'Botan',
+    'Crypto\\+\\+',
+    'wolfSSL',
+    'mbedTLS',
+    's2n',
+    'NSS',
+    'libgcrypt',
+    'BouncyCastle',
+    'cryptlib',
+    'NaCl',
+    'libsodium',
+    'libsecp256k1'
 ]
 
 rules_IC_data_groups = [
@@ -298,8 +318,10 @@ rules_defenses = [
     'SPA',
     'DPA',
     'DFA',
-    '[Ff]+ault induction',
+    '[Ff]+ault [iI]nduction',
+    '[Ff]+ault [iI]njection',
     'ROCA',
+    '[tT]iming [aA]ttacks?'
 ]
 
 rules_certification_process = [
