@@ -7,7 +7,7 @@ from sec_certs.serialization.pandas import PandasSerializableType
 
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
-    uri: Optional[str]
+    uri: str
     title: Optional[str]
     version: Optional[str]
     vendor: Optional[str]
@@ -27,7 +27,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
 
     def __init__(
         self,
-        uri: Optional[str] = None,
+        uri: str,
         title: Optional[str] = None,
         start_version: Optional[Tuple[str, str]] = None,
         end_version: Optional[Tuple[str, str]] = None,

@@ -100,13 +100,10 @@ def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[dat
         return record  # type: ignore
 
 
-def sanitize_string(record: Optional[str]) -> Optional[str]:
-    if not record:
-        return None
-    else:
-        # TODO: There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
-        string = html.unescape(html.unescape(record)).replace("\n", "")
-        return " ".join(string.split())
+def sanitize_string(record: str) -> str:
+    # TODO: There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
+    string = html.unescape(html.unescape(record)).replace("\n", "")
+    return " ".join(string.split())
 
 
 def sanitize_security_levels(record: Union[str, set]) -> set:
@@ -593,7 +590,7 @@ def search_only_headers_bsi(filepath: Path):
 
 def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
     try:
-        result = parse_cert_file(filepath, cc_search_rules, -1, sec_certs.constants.LINE_SEPARATOR)[0]
+        result = parse_cert_file(filepath, cc_search_rules, -1, constants.LINE_SEPARATOR)[0]
 
         processed_result = {}
         top_level_keys = list(result.keys())

@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Collection, Dict, List, Mapping, Optional, Set, Tuple, TypeVar, Union
+from typing import Collection, Dict, List, Mapping, Optional, Set, Tuple, TypeVar, Union, Type
 
 import requests
 
@@ -119,7 +119,7 @@ class Dataset(ABC):
         return dset
 
     @classmethod
-    def from_json(cls: T, input_path: Union[str, Path]) -> T:
+    def from_json(cls: Type[T], input_path: Union[str, Path]) -> T:
         dset = ComplexSerializableType.from_json(input_path)
         dset.root_dir = Path(input_path).parent.absolute()
         dset.set_local_paths()

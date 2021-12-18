@@ -9,16 +9,18 @@ from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 
-class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"
+class TestCommonCriteriaTextProcessing(TestCase):
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"  # type: ignore  # mypy issue #1422
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
+    tmp_dir: ClassVar[tempfile.TemporaryDirectory]
+    cc_dset: CCDataset
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.tmp_dir: ClassVar[tempfile.TemporaryDirectory] = tempfile.TemporaryDirectory()
+        cls.tmp_dir = tempfile.TemporaryDirectory()
         shutil.copytree(cls.data_dir_path, cls.tmp_dir.name, dirs_exist_ok=True)
 
-        cls.cc_dset: CCDataset = CCDataset.from_json(Path(cls.tmp_dir.name) / "vulnerable_dataset.json")
+        cls.cc_dset = CCDataset.from_json(Path(cls.tmp_dir.name) / "vulnerable_dataset.json")
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
 

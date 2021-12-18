@@ -256,7 +256,11 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         self.status = status
         self.category = category
         self.name = helpers.sanitize_string(name)
-        self.manufacturer = helpers.sanitize_string(manufacturer)
+
+        self.manufacturer = None
+        if manufacturer:
+            self.manufacturer = helpers.sanitize_string(manufacturer)
+
         self.scheme = scheme
         self.security_level = helpers.sanitize_security_levels(security_level)
         self.not_valid_before = helpers.sanitize_date(not_valid_before)

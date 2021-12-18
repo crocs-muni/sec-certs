@@ -18,7 +18,7 @@ def _set_up_dataset(td, certs):
     return dataset
 
 
-def _set_up_dataset_for_full(td, certs, cpe_dset_path: Union[str, Path] = None, cve_dset_path: Union[str, Path] = None):
+def _set_up_dataset_for_full(td, certs, cpe_dset_path: Path, cve_dset_path: Path):
     dataset = _set_up_dataset(td, certs)
 
     dataset.auxillary_datasets_dir.mkdir(exist_ok=True)

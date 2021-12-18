@@ -15,15 +15,15 @@ logger = logging.getLogger(__name__)
 class ProtectionProfileDataset:
     static_dataset_url: ClassVar[str] = "https://ajanovsky.cz/pp_data_complete_processed.json"
 
-    pps: Dict[Tuple[str, str], ProtectionProfile]
+    pps: Dict[Tuple[str, Optional[str]], ProtectionProfile]
 
     def __iter__(self):
         yield from self.pps.values()
 
-    def __getitem__(self, item: Tuple[str, str]) -> ProtectionProfile:
+    def __getitem__(self, item: Tuple[str, Optional[str]]) -> ProtectionProfile:
         return self.pps.__getitem__(item)
 
-    def __setitem__(self, key: Tuple[str, str], value: ProtectionProfile):
+    def __setitem__(self, key: Tuple[str, Optional[str]], value: ProtectionProfile):
         self.pps.__setitem__(key, value)
 
     def __contains__(self, key):

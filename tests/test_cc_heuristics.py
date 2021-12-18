@@ -3,7 +3,7 @@ import datetime
 import shutil
 import tempfile
 from pathlib import Path
-from typing import ClassVar, Dict
+from typing import ClassVar, Dict, List
 from unittest import TestCase
 
 import tests.data.test_cc_heuristics
@@ -17,15 +17,21 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"  # type: ignore  # mypy issue #1422
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
+    tmp_dir: ClassVar[tempfile.TemporaryDirectory]
+    cc_dset: CCDataset
+    cve_dset: CVEDataset
+    cves: List[CVE]
+    cpe_dset: CPEDataset
+    cpes: List[CPE]
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.tmp_dir: ClassVar[tempfile.TemporaryDirectory] = tempfile.TemporaryDirectory()
+        cls.tmp_dir = tempfile.TemporaryDirectory()
         shutil.copytree(cls.data_dir_path, cls.tmp_dir.name, dirs_exist_ok=True)
 
-        cls.cc_dset: CCDataset = CCDataset.from_json(Path(cls.tmp_dir.name) / "vulnerable_dataset.json")
+        cls.cc_dset = CCDataset.from_json(Path(cls.tmp_dir.name) / "vulnerable_dataset.json")
         cls.cc_dset.process_protection_profiles()
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()

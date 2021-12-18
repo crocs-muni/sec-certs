@@ -636,7 +636,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     if match not in items_found[rule_str]:
                         items_found[rule_str][match] = {}
                         items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
-                        if sec_certs.constants.APPEND_DETAILED_MATCH_MATCHES:
+                        if constants.APPEND_DETAILED_MATCH_MATCHES:
                             items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
                         # else:
                         #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
@@ -647,7 +647,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     # line_number = get_line_number(lines, line_length_compensation, match_span[0])
                     # start index, end index, line number
                     # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
-                    if sec_certs.constants.APPEND_DETAILED_MATCH_MATCHES:
+                    if constants.APPEND_DETAILED_MATCH_MATCHES:
                         items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
 
         # highlight all found strings (by xxxxx) from the input text and store the rest

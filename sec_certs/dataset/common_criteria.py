@@ -7,7 +7,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Dict, Iterator, List, Mapping, Optional, Set, Tuple, Union
+from typing import ClassVar, Dict, Iterator, List, Mapping, Optional, Set, Tuple, Union, Callable
 
 import numpy as np
 import pandas as pd
@@ -217,10 +217,10 @@ class CCDataset(Dataset, ComplexSerializableType):
     @serialize
     def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True):
         logger.info("Processing protection profiles.")
-        constructor = {True: ProtectionProfileDataset.from_web, False: ProtectionProfileDataset.from_json}
+        constructor: Dict[bool, Callable[..., ProtectionProfileDataset]] = {True: ProtectionProfileDataset.from_web, False: ProtectionProfileDataset.from_json}
         if to_download is True and not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir()
-        pp_dataset: ProtectionProfileDataset = constructor[to_download](self.pp_dataset_path)
+        pp_dataset = constructor[to_download](self.pp_dataset_path)
 
         for cert in self:
             if cert.protection_profiles is None:
@@ -342,7 +342,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         df_main = df_main.drop_duplicates()
 
         profiles = {
-            x.dgst: set([ProtectionProfile(y) for y in helpers.sanitize_protection_profiles(x.protection_profiles)])
+            x.dgst: set([ProtectionProfile(pp_name=y) for y in helpers.sanitize_protection_profiles(x.protection_profiles)])
             for x in df_base.itertuples()
         }
         updates: Dict[str, Set] = {x.dgst: set() for x in df_base.itertuples()}
