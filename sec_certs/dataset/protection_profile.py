@@ -47,11 +47,11 @@ class ProtectionProfileDataset:
         return cls(dct)
 
     @classmethod
-    def from_web(cls, store_dataset_path: Optional[Path]):
+    def from_web(cls, store_dataset_path: Optional[Path] = None):
         logger.info(f'Downloading static PP dataset from: {cls.static_dataset_url}')
         if not store_dataset_path:
             tmp = tempfile.TemporaryDirectory()
-            store_dataset_path = Path(tmp.name)
+            store_dataset_path = Path(tmp.name) / 'pp_dataset.json'
 
         helpers.download_file(cls.static_dataset_url, store_dataset_path)
         obj = cls.from_json(store_dataset_path)
