@@ -1,8 +1,8 @@
+import copy
 import json
 from datetime import date
 from pathlib import Path
-from typing import Dict, List, Union, Optional, Callable
-import copy
+from typing import Callable, Dict, List, Optional, Union
 
 
 class ComplexSerializableType:

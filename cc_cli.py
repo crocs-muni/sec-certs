@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-from typing import Optional, List
-import click
-from pathlib import Path
 import logging
 import sys
 from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
+
+import click
 
 from sec_certs.config.configuration import config
 from sec_certs.dataset.common_criteria import CCDataset

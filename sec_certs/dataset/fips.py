@@ -1,22 +1,23 @@
 import datetime
-import tempfile
 import logging
 import os
+import tempfile
 from itertools import groupby
 from pathlib import Path
+from typing import Dict, List, Mapping, Optional, Set, Tuple
 
-from typing import Set, Tuple, List, Dict, Optional, Mapping
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
-from sec_certs import constants as constants, parallel_processing as cert_processing, helpers as helpers
+from sec_certs import constants as constants
+from sec_certs import helpers as helpers
+from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
-from sec_certs.sample.certificate import Certificate
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.fips import FIPSCertificate
-
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 
 logger = logging.getLogger(__name__)
 

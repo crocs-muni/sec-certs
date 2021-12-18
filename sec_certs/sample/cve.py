@@ -1,13 +1,13 @@
 import datetime
 import itertools
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, ClassVar, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 from dateutil.parser import isoparse
 
+from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-from sec_certs.sample.cpe import CPE
 
 
 @dataclass(init=False)

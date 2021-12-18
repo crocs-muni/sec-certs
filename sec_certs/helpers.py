@@ -1,40 +1,34 @@
-import os
-import re
-from typing import Sequence, Tuple, Optional, Set, List, Dict, Hashable, Any
-import logging
-import pikepdf
-import requests
-from multiprocessing.pool import ThreadPool
-from pathlib import Path
-from tqdm import tqdm as tqdm_original
+import copy
 import hashlib
 import html
-from typing import Union, List
-from datetime import date
-import numpy as np
-import pandas as pd
+import logging
+import os
+import re
 import subprocess
 import time
-import copy
-from packaging.version import VERSION_PATTERN
-
-
+from datetime import date
 from enum import Enum
-import matplotlib.pyplot as plt
-from PyPDF2 import PdfFileReader
+from multiprocessing.pool import ThreadPool
+from pathlib import Path
+from typing import (Any, Dict, Hashable, List, Optional, Sequence, Set, Tuple,
+                    Union)
 
-import sec_certs.constants
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pikepdf
+import requests
+from packaging.version import VERSION_PATTERN
+from PyPDF2 import PdfFileReader
+from tqdm import tqdm as tqdm_original
+
 import sec_certs.constants as constants
-from sec_certs.config.configuration import config
 from sec_certs.cert_rules import REGEXEC_SEP
 from sec_certs.cert_rules import rules as cc_search_rules
-from sec_certs.constants import (
-    TAG_MATCH_COUNTER,
-    APPEND_DETAILED_MATCH_MATCHES,
-    TAG_MATCH_MATCHES,
-    FILE_ERRORS_STRATEGY,
-    LINE_SEPARATOR,
-)
+from sec_certs.config.configuration import config
+from sec_certs.constants import (APPEND_DETAILED_MATCH_MATCHES,
+                                 FILE_ERRORS_STRATEGY, LINE_SEPARATOR,
+                                 TAG_MATCH_COUNTER, TAG_MATCH_MATCHES)
 
 logger = logging.getLogger(__name__)
 

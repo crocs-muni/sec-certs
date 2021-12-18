@@ -1,8 +1,9 @@
-from sec_certs.helpers import tqdm
-from multiprocessing.pool import ThreadPool
-from billiard.pool import Pool
-from typing import Callable, Iterable, Optional, Union
 import time
+from multiprocessing.pool import ThreadPool
+from typing import Callable, Iterable, Optional, Union
+
+from billiard.pool import Pool
+from sec_certs.helpers import tqdm
 
 
 def process_parallel(

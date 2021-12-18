@@ -1,8 +1,9 @@
-import yaml
-from typing import Union
-from pathlib import Path
-import jsonschema
 import json
+from pathlib import Path
+from typing import Union
+
+import jsonschema
+import yaml
 
 
 class Configuration(object):

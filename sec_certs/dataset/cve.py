@@ -1,24 +1,25 @@
-import itertools
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union, Final, Set
 import datetime
-from pathlib import Path
+import glob
+import itertools
+import json
+import logging
+import shutil
 import tempfile
 import zipfile
-import logging
-import glob
-import json
-import shutil
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Dict, Final, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
-from sec_certs.parallel_processing import process_parallel
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
-from sec_certs.sample.cve import CVE
-from sec_certs.sample.cpe import CPE
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.config.configuration import config
+from sec_certs.parallel_processing import process_parallel
+from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cve import CVE
+from sec_certs.serialization.json import (ComplexSerializableType,
+                                          CustomJSONDecoder, CustomJSONEncoder)
 
 logger = logging.getLogger(__name__)
 

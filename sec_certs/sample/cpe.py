@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import ClassVar, List, Optional, Tuple, Dict
+from typing import ClassVar, Dict, List, Optional, Tuple
+
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 

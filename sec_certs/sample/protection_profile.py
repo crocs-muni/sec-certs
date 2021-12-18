@@ -1,11 +1,10 @@
-from dataclasses import dataclass
-from typing import Optional, FrozenSet
 import copy
-from typing import Dict
 import logging
+from dataclasses import dataclass
+from typing import Dict, FrozenSet, Optional
 
-from sec_certs.serialization.json import ComplexSerializableType
 import sec_certs.helpers as helpers
+from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 

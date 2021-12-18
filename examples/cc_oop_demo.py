@@ -1,9 +1,9 @@
-from pathlib import Path
-from datetime import datetime
 import logging
+from datetime import datetime
+from pathlib import Path
 
-from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.config.configuration import config
+from sec_certs.dataset.common_criteria import CCDataset
 
 logger = logging.getLogger(__name__)
 

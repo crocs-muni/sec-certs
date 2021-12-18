@@ -1,18 +1,18 @@
-import tempfile
-from unittest import TestCase
-from pathlib import Path
-from tempfile import TemporaryDirectory, mkstemp, NamedTemporaryFile
-from datetime import date, datetime
-import json
 import filecmp
-import shutil
+import json
 import os
+import shutil
+import tempfile
+from datetime import date, datetime
+from pathlib import Path
+from tempfile import NamedTemporaryFile, TemporaryDirectory, mkstemp
+from unittest import TestCase
 
+import sec_certs.constants as constants
+import sec_certs.helpers as helpers
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
-import sec_certs.helpers as helpers
-import sec_certs.constants as constants
 
 
 class TestCommonCriteriaOOP(TestCase):

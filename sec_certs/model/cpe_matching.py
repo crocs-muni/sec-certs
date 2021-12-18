@@ -1,15 +1,17 @@
-from sklearn.base import BaseEstimator
-from typing import Dict, Tuple, Set, List, Optional, Union
-from sec_certs.sample.cpe import CPE
-import sec_certs.helpers as helpers
 import itertools
-import re
-from rapidfuzz import process, fuzz
-import operator
-from pathlib import Path
 import json
 import logging
+import operator
+import re
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple, Union
+
 from packaging.version import parse
+from rapidfuzz import fuzz, process
+from sklearn.base import BaseEstimator
+
+import sec_certs.helpers as helpers
+from sec_certs.sample.cpe import CPE
 
 logger = logging.getLogger(__name__)
 

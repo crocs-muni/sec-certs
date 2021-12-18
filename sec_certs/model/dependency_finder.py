@@ -1,4 +1,5 @@
-from typing import List, Set, Dict, Tuple, Union, Optional
+from typing import Dict, List, Optional, Set, Tuple, Union
+
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 Certificates = Dict[str, CommonCriteriaCert]

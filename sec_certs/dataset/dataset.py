@@ -1,26 +1,24 @@
-from datetime import datetime
-import logging
-from typing import Dict, Collection, Optional, Set, Union, List, Tuple, Mapping, TypeVar
-
-import json
-from abc import ABC, abstractmethod
-from pathlib import Path
 import itertools
+import json
+import logging
+from abc import ABC, abstractmethod
+from datetime import datetime
+from pathlib import Path
+from typing import (Collection, Dict, List, Mapping, Optional, Set, Tuple,
+                    TypeVar, Union)
 
 import requests
 
-import sec_certs.helpers as helpers
 import sec_certs.constants as constants
+import sec_certs.helpers as helpers
 import sec_certs.parallel_processing as cert_processing
-from sec_certs.sample.cpe import CPE
-
-from sec_certs.sample.certificate import Certificate
-from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.config.configuration import config
-from sec_certs.serialization.json import serialize
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.cpe import CPE
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 
 logger = logging.getLogger(__name__)
 

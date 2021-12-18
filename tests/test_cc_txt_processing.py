@@ -1,10 +1,10 @@
-import tests.data.test_cc_heuristics
-from unittest import TestCase
+import shutil
+import tempfile
 from pathlib import Path
 from typing import ClassVar
-import tempfile
-import shutil
+from unittest import TestCase
 
+import tests.data.test_cc_heuristics
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 

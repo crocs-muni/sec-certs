@@ -1,15 +1,14 @@
-from unittest import TestCase
+import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Union, ClassVar, Final, List, Dict
-import shutil
-
-from sec_certs.dataset.fips import FIPSDataset
-from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.config.configuration import config
-from tests.fips_test_utils import generate_html
+from typing import ClassVar, Dict, Final, List, Optional, Union
+from unittest import TestCase
 
 import tests.data.test_fips_oop
+from sec_certs.config.configuration import config
+from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
+from tests.fips_test_utils import generate_html
 
 
 def _set_up_dataset(td, certs):

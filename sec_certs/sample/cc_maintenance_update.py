@@ -1,6 +1,6 @@
 import logging
-from typing import Optional, Dict, List, ClassVar, Tuple
 from datetime import date
+from typing import ClassVar, Dict, List, Optional, Tuple
 
 import sec_certs.helpers as helpers
 from sec_certs.sample.common_criteria import CommonCriteriaCert

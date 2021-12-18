@@ -1,15 +1,15 @@
-import logging
-from pathlib import Path
 import copy
-import json
 import itertools
-
+import json
+import logging
 from abc import ABC, abstractmethod
-from typing import Optional, Union, TypeVar, Type, Any
+from pathlib import Path
+from typing import Any, Optional, Type, TypeVar, Union
 
-from sec_certs.serialization.json import CustomJSONDecoder, CustomJSONEncoder, ComplexSerializableType
-from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.dataset.cve import CVEDataset
+from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.serialization.json import (ComplexSerializableType,
+                                          CustomJSONDecoder, CustomJSONEncoder)
 
 logger = logging.getLogger(__name__)
 

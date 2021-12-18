@@ -1,19 +1,19 @@
 import copy
 import datetime
+import shutil
 import tempfile
-from unittest import TestCase
-from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
-from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.cpe import CPE
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.cve import CVE
 from pathlib import Path
 from typing import ClassVar, Dict
-import shutil
+from unittest import TestCase
 
 import tests.data.test_cc_heuristics
+from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cve import CVE
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 class TestCommonCriteriaHeuristics(TestCase):

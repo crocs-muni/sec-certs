@@ -1,9 +1,9 @@
-from dataclasses import dataclass
-from typing import Dict, Tuple, Union, Optional, ClassVar
-from pathlib import Path
 import json
 import logging
 import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+from typing import ClassVar, Dict, Optional, Tuple, Union
 
 import sec_certs.helpers as helpers
 from sec_certs.sample.protection_profile import ProtectionProfile

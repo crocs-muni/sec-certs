@@ -15,7 +15,8 @@ exclude = '''
 '''
 
 [tool.isort]
-profile = "black" 
+profile = "black"
+skip = ["certsvenv"]
 
 [tool.mypy]
 plugins = ["numpy.typing.mypy_plugin"]

@@ -3,25 +3,26 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Dict, Optional, Union, List, Tuple, Set, Pattern
+from typing import ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
 
 import requests
-from bs4 import Tag, NavigableString, BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 from dateutil import parser
 from tabula import read_pdf
 
-import sec_certs.constants
-from sec_certs import helpers, constants as constants
-from sec_certs.cert_rules import fips_common_rules, REGEXEC_SEP, fips_rules
-
-from sec_certs.sample.certificate import Certificate, logger
+import sec_certs.constants as constants
+from sec_certs import constants as constants
+from sec_certs import helpers
+from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
-from sec_certs.helpers import save_modified_cert_file, normalize_match_string, load_cert_file
-from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.cpe import CPE
+from sec_certs.helpers import (load_cert_file, normalize_match_string,
+                               save_modified_cert_file)
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.sample.cpe import CPE
+from sec_certs.serialization.json import ComplexSerializableType
 
 
 class FIPSCertificate(Certificate, ComplexSerializableType):

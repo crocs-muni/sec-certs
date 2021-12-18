@@ -3,18 +3,18 @@ import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union, Any, Set, ClassVar
-
+from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from bs4 import Tag
 
-from sec_certs import helpers, constants as constants
+from sec_certs import constants as constants
+from sec_certs import helpers
+from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.model.cpe_matching import CPEClassifier
 
 
 class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializableType):

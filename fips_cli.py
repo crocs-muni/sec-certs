@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-from typing import Optional, List, Set
-import click
-from pathlib import Path
 import logging
-import sys
 import os
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Set
 
-from sec_certs.config.configuration import config, DEFAULT_CONFIG_PATH
+import click
+
+from sec_certs.config.configuration import DEFAULT_CONFIG_PATH, config
 from sec_certs.dataset.fips import FIPSDataset
 
 logger = logging.getLogger(__name__)

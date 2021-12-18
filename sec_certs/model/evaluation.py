@@ -1,15 +1,15 @@
 import json
-from pathlib import Path
 import logging
-from typing import List, Set, Union, Optional
-
-from sec_certs.sample.common_criteria import CommonCriteriaCert
-from sec_certs.sample.fips import FIPSCertificate
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.serialization.json import CustomJSONEncoder
-import sec_certs.helpers as helpers
+from pathlib import Path
+from typing import List, Optional, Set, Union
 
 import numpy as np
+
+import sec_certs.helpers as helpers
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.serialization.json import CustomJSONEncoder
 
 logger = logging.getLogger(__name__)
 

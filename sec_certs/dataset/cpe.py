@@ -1,18 +1,18 @@
-from dataclasses import dataclass, field
-import logging
-from typing import List, Dict, Tuple, Set, Union, ClassVar
 import itertools
+import logging
 import tempfile
-from pathlib import Path
+import xml.etree.ElementTree as ET
 import zipfile
-
-import sec_certs.helpers as helpers
-from sec_certs.sample.cpe import CPE
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.serialization.json import ComplexSerializableType, serialize
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import ClassVar, Dict, List, Set, Tuple, Union
 
 import pandas as pd
-import xml.etree.ElementTree as ET
+
+import sec_certs.helpers as helpers
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.cpe import CPE
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 
 logger = logging.getLogger(__name__)
 

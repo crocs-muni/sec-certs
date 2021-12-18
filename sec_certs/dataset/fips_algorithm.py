@@ -1,17 +1,18 @@
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Union, List
+from typing import Dict, List, Union
 
 from bs4 import BeautifulSoup
 
-from sec_certs import helpers as helpers, constants as constants, parallel_processing as cert_processing
-from sec_certs.dataset.dataset import Dataset
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
-
-from sec_certs.sample.fips import FIPSCertificate
+from sec_certs import constants as constants
+from sec_certs import helpers as helpers
+from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
-
+from sec_certs.dataset.dataset import Dataset
+from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.serialization.json import (ComplexSerializableType,
+                                          CustomJSONDecoder, CustomJSONEncoder)
 
 logger = logging.getLogger(__name__)
 

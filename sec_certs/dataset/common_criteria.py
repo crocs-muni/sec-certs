@@ -1,28 +1,32 @@
 import copy
 import itertools
+import json
 import locale
 import shutil
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterator, Optional, Set, Union, List, Tuple, Mapping, ClassVar
-import json
+from typing import (ClassVar, Dict, Iterator, List, Mapping, Optional, Set,
+                    Tuple, Union)
 
 import numpy as np
 import pandas as pd
-from bs4 import Tag, BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
-from sec_certs import helpers as helpers, parallel_processing as cert_processing
-from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.serialization.json import ComplexSerializableType, serialize, CustomJSONDecoder
-from sec_certs.sample.common_criteria import CommonCriteriaCert
-from sec_certs.sample.certificate import Certificate
-from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
+from sec_certs import helpers as helpers
+from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
+from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
+from sec_certs.sample.cc_maintenance_update import \
+    CommonCriteriaMaintenanceUpdate
+from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.serialization.json import (ComplexSerializableType,
+                                          CustomJSONDecoder, serialize)
 
 
 class CCDataset(Dataset, ComplexSerializableType):
