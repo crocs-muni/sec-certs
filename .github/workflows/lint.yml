@@ -1,4 +1,4 @@
-name: MyPy code analysis
+name: Lint (MyPy, Black, Flake8)
 on:
   push:
   workflow_dispatch:
@@ -21,3 +21,9 @@ jobs:
           python3 -m pip install types-requests
       - name: Run mypy
         run: mypy --ignore-missing-imports *.py sec_certs/
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+
