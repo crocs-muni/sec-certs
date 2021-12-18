@@ -3,6 +3,7 @@ from multiprocessing.pool import ThreadPool
 from typing import Callable, Iterable, Optional, Union
 
 from billiard.pool import Pool
+
 from sec_certs.helpers import tqdm
 
 
