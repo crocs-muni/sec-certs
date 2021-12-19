@@ -1,4 +1,4 @@
-name: Lint (MyPy, Black, Flake8)
+name: Lint (MyPy, Black, isort, Flake8)
 on:
   push:
   workflow_dispatch:
