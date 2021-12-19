@@ -1,16 +1,29 @@
-from sec_certs.helpers import tqdm
-from multiprocessing.pool import ThreadPool
-from billiard.pool import Pool
-from typing import Callable, Iterable, Optional, Union
 import time
+from multiprocessing.pool import ThreadPool
+from typing import Callable, Iterable, Optional, Union
+
+from billiard.pool import Pool
+
+from sec_certs.helpers import tqdm
 
 
-def process_parallel(func: Callable, items: Iterable, max_workers: int, callback: Optional[Callable] = None,
-                     use_threading: bool = True, progress_bar: bool = True, unpack: bool = False,
-                     progress_bar_desc: Optional[str] = None):
+def process_parallel(
+    func: Callable,
+    items: Iterable,
+    max_workers: int,
+    callback: Optional[Callable] = None,
+    use_threading: bool = True,
+    progress_bar: bool = True,
+    unpack: bool = False,
+    progress_bar_desc: Optional[str] = None,
+):
 
     pool: Union[Pool, ThreadPool] = ThreadPool(max_workers) if use_threading else Pool(max_workers)
-    results = [pool.apply_async(func, (*i,), callback=callback) for i in items] if unpack else [pool.apply_async(func, (i, ), callback=callback) for i in items]
+    results = (
+        [pool.apply_async(func, (*i,), callback=callback) for i in items]
+        if unpack
+        else [pool.apply_async(func, (i,), callback=callback) for i in items]
+    )
 
     if progress_bar is True and items:
         bar = tqdm(total=len(results), desc=progress_bar_desc)

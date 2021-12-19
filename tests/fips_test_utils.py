@@ -1,17 +1,18 @@
-from typing import List
 from pathlib import Path
+from typing import List
+
 
 def generate_html(ids: List[str], path: Path):
     def generate_entry(certificate_id: str) -> str:
-        return f'''
+        return f"""
             <tr id="cert-row-0">
                 <td class="text-center">
                     <a href="/projects/cryptographic-module-validation-program/certificate/3898" id="cert-number-link-0">{certificate_id}</a>
                 </td>
             </tr>
-        '''
+        """
 
-    html_head = '''
+    html_head = """
     <!DOCTYPE html>
     <html lang="en-us" xml:lang="en-us">
     <head>
@@ -25,11 +26,11 @@ def generate_html(ids: List[str], path: Path):
         <meta name="theme-color" content="#000000" />
         <meta name="google-site-verification" content="xbrnrVYDgLD-Bd64xHLCt4XsPXzUhQ-4lGMj4TdUUTA" />
     </head>
-    '''
+    """
     rows = ""
     for cert_id in ids:
         rows += f"\n{generate_entry(cert_id)}\n"
-    html_body = f'''
+    html_body = f"""
     <body>
         <table class="table table-striped table-condensed publications-table table-bordered" id="searchResultsTable">
             <thead>
@@ -46,6 +47,6 @@ def generate_html(ids: List[str], path: Path):
             </tbody>
         </table>
     </body>
-	'''
-    with open(path, 'w') as f:
+    """
+    with open(path, "w") as f:
         f.write(f"{html_head}\n{html_body}\n")
