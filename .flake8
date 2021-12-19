@@ -20,3 +20,4 @@ ignore =
     E501,  # line length, should be handleded by black
     W503,  # line break before binary operator, depracated
     E203,  # whitespace before :, not PEP8 compliant
+    C901,  # Temporary fix, remove once https://github.com/crocs-muni/sec-certs/issues/146 is solved.

@@ -38,7 +38,7 @@ jobs:
             requirementsFiles: "requirements.txt dev_requirements.txt"
   flake8-lint:
     runs-on: ubuntu-latest
-    name: Lint
+    name: Flake8
     steps:
       - name: Check out source repository
         uses: actions/checkout@v2
