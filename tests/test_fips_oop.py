@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import ClassVar, Dict, Final, List, Optional, Union
+from typing import Dict, Final, List
 from unittest import TestCase
 
 import tests.data.test_fips_oop

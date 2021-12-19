@@ -1,11 +1,10 @@
 import filecmp
-import json
 import os
 import shutil
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
-from tempfile import NamedTemporaryFile, TemporaryDirectory, mkstemp
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 
 import sec_certs.constants as constants

@@ -54,8 +54,8 @@ rules_protection_profiles = [
     "BSI-(?:CC[-_]|)PP[-_]*.+?",
     "PP-SSCD.+?",
     "PP_DBMS_.+?"
-    #    'Protection Profile',
-    #'CCMB-20.+?',
+    #  'Protection Profile',
+    # 'CCMB-20.+?',
     "BSI-CCPP-.+?",
     "ANSSI-CC-PP.+?",
     "WBIS_V[0-9]\\.[0-9]",
@@ -145,8 +145,8 @@ rules_cc_claims = [
 
 
 rules_javacard = [
-    #'(?:Java Card|JavaCard)',
-    #'(?:Global Platform|GlobalPlatform)',
+    # '(?:Java Card|JavaCard)',
+    # '(?:Global Platform|GlobalPlatform)',
     r"(?:Java Card|JavaCard) [2-3]\.[0-9](?:\.[0-9]|)",
     r"JC[2-3]\.[0-9](?:\.[0-9]|)",
     r"(?:Java Card|JavaCard) \(version [2-3]\.[0-9](?:\.[0-9]|)\)",
@@ -404,7 +404,7 @@ rules_fips_remove_algorithm_ids = [
 rules_fips_to_remove = [
     # --- random words found ---
     r"[Ss]lot #\d",  # a card slot, #2069
-    r"[Ss]eals? ?\(?#\d - #\d",  #  #1232
+    r"[Ss]eals? ?\(?#\d - #\d",  # #1232
     r"\[#\d*\]",  # some certs use this as references
     r"CSP ?#\d",  # #2795
     r"[Pp]ower [Ss]upply #\d",  # #604

@@ -432,11 +432,11 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                 main_report_link = None
                 main_st_link = None
                 links = u.find_all("a")
-                for l in links:
-                    if l.get("title").startswith("Maintenance Report:"):
-                        main_report_link = CommonCriteriaCert.cc_url + l.get("href")
-                    elif l.get("title").startswith("Maintenance ST"):
-                        main_st_link = CommonCriteriaCert.cc_url + l.get("href")
+                for link in links:
+                    if link.get("title").startswith("Maintenance Report:"):
+                        main_report_link = CommonCriteriaCert.cc_url + link.get("href")
+                    elif link.get("title").startswith("Maintenance ST"):
+                        main_st_link = CommonCriteriaCert.cc_url + link.get("href")
                     else:
                         logger.error("Unknown link in Maintenance part!")
                 maintenance_updates.add(

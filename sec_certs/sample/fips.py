@@ -11,7 +11,6 @@ from dateutil import parser
 from tabula import read_pdf
 
 import sec_certs.constants as constants
-from sec_certs import constants as constants
 from sec_certs import helpers
 from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
@@ -572,7 +571,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         algs_vals = list(cert.pdf_scan.keywords["rules_fips_algorithms"].values())
         table_vals = [x["Certificate"] for x in cert.pdf_scan.algorithms]
         tables = [x.strip() for y in table_vals for x in y]
-        iterable = [l for x in algs_vals for l in list(x.keys())]
+        iterable = [alg for x in algs_vals for alg in list(x.keys())]
         iterable += tables
         all_algorithms = set()
         for x in iterable:

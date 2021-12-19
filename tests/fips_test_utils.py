@@ -47,6 +47,6 @@ def generate_html(ids: List[str], path: Path):
             </tbody>
         </table>
     </body>
-	"""
+    """
     with open(path, "w") as f:
         f.write(f"{html_head}\n{html_body}\n")

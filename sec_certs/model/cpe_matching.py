@@ -1,13 +1,10 @@
 import itertools
-import json
 import logging
-import operator
 import re
-from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple
 
 from packaging.version import parse
-from rapidfuzz import fuzz, process
+from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
 import sec_certs.helpers as helpers

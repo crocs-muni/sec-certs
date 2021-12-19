@@ -1,7 +1,7 @@
 import datetime
 import itertools
 from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import ClassVar, Dict, List, Optional, Tuple
 
 from dateutil.parser import isoparse
 

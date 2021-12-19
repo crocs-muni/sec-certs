@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -116,8 +115,6 @@ def main(
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
     handlers: List[logging.StreamHandler] = [file_handler]
-
-    script_dir = os.path.dirname(os.path.realpath(__file__))
 
     if output:
         output = Path(output)

@@ -1,4 +1,3 @@
-import copy
 import hashlib
 import html
 import logging
@@ -10,14 +9,13 @@ from datetime import date
 from enum import Enum
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Any, Dict, Hashable, List, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, Hashable, List, Optional, Sequence, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pikepdf
 import requests
-from packaging.version import VERSION_PATTERN
 from PyPDF2 import PdfFileReader
 from tqdm import tqdm as tqdm_original
 
@@ -227,7 +225,7 @@ def extract_pdf_metadata(filepath: Path):
 
 
 # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
-def search_only_headers_anssi(filepath: Path):
+def search_only_headers_anssi(filepath: Path):  # noqa: C901
     class HEADER_TYPE(Enum):
         HEADER_FULL = 1
         HEADER_MISSING_CERT_ITEM_VERSION = 2
@@ -273,11 +271,11 @@ def search_only_headers_anssi(filepath: Path):
         ),
         (
             HEADER_TYPE.HEADER_FULL,
-            "Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables",
+            "Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables",  # noqa: W605
         ),
         (
             HEADER_TYPE.HEADER_FULL,
-            "Référence du rapport de certification(.+)Nom du produit \\(référence/version\\)(.+)Nom de la TOE \\(référence/version\\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables",
+            "Référence du rapport de certification(.+)Nom du produit \\(référence/version\\)(.+)Nom de la TOE \\(référence/version\\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables",  # noqa: W605
         ),
         (
             HEADER_TYPE.HEADER_FULL,
@@ -491,7 +489,7 @@ def search_only_headers_anssi(filepath: Path):
 
 
 # TODO: Please refactor me. I need it so badlyyyyyy!!!
-def search_only_headers_bsi(filepath: Path):
+def search_only_headers_bsi(filepath: Path):  # noqa: C901
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 15
     rules_certificate_preface = [
@@ -561,7 +559,7 @@ def search_only_headers_bsi(filepath: Path):
 
             for m in re.finditer(rule_and_sep, whole_text):
                 # check if previous rules had at least one match
-                if not constants.TAG_CERT_ID in items_found.keys():
+                if constants.TAG_CERT_ID not in items_found.keys():
                     logger.error("ERROR: front page not found for file: {}".format(filepath))
 
                 match_groups = m.groups()
@@ -649,13 +647,14 @@ def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_tex
 
     try:
         write_file.write(modified_cert_file_text)
-    except UnicodeEncodeError as e:
+    except UnicodeEncodeError:
         print("UnicodeDecodeError while writing file fragments back")
     finally:
         write_file.close()
 
 
-def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
+# TODO: Please, refactor me.
+def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):  # noqa: C901
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
         file_name, limit_max_lines, line_separator
     )
@@ -758,7 +757,7 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
     # we will estimate the line for searched matches
     # => we need to known how much lines were modified (removal of eoln..)
     # for removed newline and for any added separator
-    line_length_compensation = 1 - len(LINE_SEPARATOR)
+    # line_length_compensation = 1 - len(LINE_SEPARATOR)
     lines_included = 0
     for line in lines:
         if limit_max_lines != -1 and lines_included >= limit_max_lines:

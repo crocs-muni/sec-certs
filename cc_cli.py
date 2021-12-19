@@ -86,7 +86,7 @@ def main(
         dset: CCDataset = CCDataset.from_json(Path(inputpath))
         if output:
             print(
-                f"Warning: you provided both input and output paths. The dataset from input path will get copied to output path."
+                "Warning: you provided both input and output paths. The dataset from input path will get copied to output path."
             )
             dset.root_dir = output
 
@@ -101,7 +101,7 @@ def main(
         dset = CCDataset(
             certs={},
             root_dir=output,
-            name=f"CommonCriteria_dataset",
+            name="CommonCriteria_dataset",
             description=f"Full CommonCriteria dataset snapshot {datetime.now().date()}",
         )
         dset.get_certs_from_web()

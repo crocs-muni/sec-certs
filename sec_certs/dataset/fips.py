@@ -13,7 +13,7 @@ from sec_certs import constants as constants
 from sec_certs import helpers as helpers
 from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
-from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.fips import FIPSCertificate

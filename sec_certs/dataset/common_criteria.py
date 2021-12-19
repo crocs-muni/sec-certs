@@ -327,8 +327,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
         df["dgst"] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(_get_primary_key_str(row)), axis=1)
 
-        df_base = df.loc[df.is_maintenance == False].copy()
-        df_main = df.loc[df.is_maintenance == True].copy()
+        df_base = df.loc[~df.is_maintenance].copy()
+        df_main = df.loc[df.is_maintenance].copy()
 
         df_base.report_link = df_base.report_link.map(map_ip_to_hostname)
         df_base.st_link = df_base.st_link.map(map_ip_to_hostname)
@@ -424,7 +424,8 @@ class CCDataset(Dataset, ComplexSerializableType):
 
             table = tables[0]
             rows = list(table.find_all("tr"))
-            header, footer, body = rows[0], rows[1], rows[2:]
+            # header, footer = rows[0], rows[1]
+            body = rows[2:]
 
             # TODO: It's possible to obtain timestamp of the moment when the list was generated. It's identical for each table and should thus only be obtained once. Not necessarily in each table
             # timestamp = _get_timestamp_from_footer(footer)

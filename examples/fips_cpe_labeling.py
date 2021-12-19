@@ -3,7 +3,6 @@ from datetime import datetime
 from pathlib import Path
 
 from sec_certs.dataset.fips import FIPSDataset
-from sec_certs.model.evaluation import evaluate, get_validation_dgsts
 
 logger = logging.getLogger(__name__)
 

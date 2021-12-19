@@ -43,7 +43,7 @@ def main():
     dset._extract_data()
 
     # transform to pandas DataFrame
-    df = dset.to_pandas()
+    # df = dset.to_pandas()
 
     # Compute heuristics on the dataset
     dset._compute_heuristics()
