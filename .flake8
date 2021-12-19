@@ -1,0 +1,22 @@
+[flake8]
+max-line-length = 120
+exclude = 
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    certsvenv,
+    .eggs,
+    scratches,
+max-complexity = 10
+
+# Ignore complexity for CLI
+per-file-ignores =
+    cc_cli.py: C901, 
+    fips_cli.py: C901
+
+ignore = 
+    E501,  # line length, should be handleded by black
+    W503,  # line break before binary operator, depracated
+    E203,  # whitespace before :, not PEP8 compliant
