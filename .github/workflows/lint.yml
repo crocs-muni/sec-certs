@@ -1,0 +1,50 @@
+name: Lint (MyPy, Black, isort, Flake8)
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  run-mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name : Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install python dependencies
+        run: pip install -r requirements.txt
+      - name: Install mypy and types
+        run: |
+          pip install mypy
+          python3 -m pip install types-PyYAML
+          python3 -m pip install types-python-dateutil
+          python3 -m pip install types-requests
+      - name: Run mypy
+        run: mypy .
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - uses: isort/isort-action@master
+        with:
+            requirementsFiles: "requirements.txt dev_requirements.txt"
+  flake8-lint:
+    runs-on: ubuntu-latest
+    name: Flake8
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v2
+      - name: Set up Python environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+      - name: flake8 Lint
+        uses: py-actions/flake8@v2

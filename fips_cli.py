@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-from typing import Optional, List, Set
-import click
-from pathlib import Path
 import logging
 import sys
-import os
 from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Set
 
-from sec_certs.config.configuration import config
+import click
+
+from sec_certs.config.configuration import DEFAULT_CONFIG_PATH, config
 from sec_certs.dataset.fips import FIPSDataset
 
 logger = logging.getLogger(__name__)
@@ -48,9 +48,9 @@ logger = logging.getLogger(__name__)
     "-n",
     "--name",
     "json_name",
-    default=str(datetime.now().strftime("%d-%n-%Y-%H:%M:%S")) + '.json',
+    default=str(datetime.now().strftime("%d-%n-%Y-%H:%M:%S")) + ".json",
     type=str,
-    help="Name of the json object to be created in the <<output>> directory. Defaults to <<timestamp>>.json."
+    help="Name of the json object to be created in the <<output>> directory. Defaults to <<timestamp>>.json.",
 )
 @click.option("--no-download-algs", "no_download_algs", help="Don't fetch new algorithm implementations", is_flag=True)
 @click.option("--redo-web-scan", "redo_web_scan", help="Redo HTML webpage scan from scratch", is_flag=True)
@@ -114,16 +114,14 @@ def main(
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
-    handlers = [file_handler]
-
-    script_dir = os.path.dirname(os.path.realpath(__file__))
+    handlers: List[logging.StreamHandler] = [file_handler]
 
     if output:
         output = Path(output)
 
     if not inputpath and not output:
-        print(
-            "Error: You did not specify path to load the dataset from, nor did you specify where dataset can be stored."
+        logger.error(
+            "You did not specify path to load the dataset from, nor did you specify where dataset can be stored."
         )
         sys.exit(1)
 
@@ -138,16 +136,15 @@ def main(
         try:
             config.load(Path(configpath))
         except FileNotFoundError:
-            print("Error: Bad path to configuration file")
+            logger.error("Bad path to configuration file")
             sys.exit(1)
         except ValueError as e:
-            print(f"Error: Bad format of configuration file: {e}")
+            logger.error(f"Bad format of configuration file: {e}")
     else:
-        print(f"Using default configuration file at {Path(script_dir) / 'sec_certs' / 'settings.yaml'}")
-        config.load(Path(script_dir) / 'sec_certs' / 'settings.yaml')
+        logger.info(f"Using default configuration file at {DEFAULT_CONFIG_PATH}.")
 
     if "all" in actions and "new-run" in actions:
-        print("Error: Only one of 'new-run' and 'all' can be specified.")
+        logger.error("Only one of 'new-run' and 'all' can be specified.")
         sys.exit(1)
 
     r_actions = (
@@ -157,19 +154,19 @@ def main(
     )
 
     r_actions |= {"build"} if "new-run" in actions else {"update"} if "all" in actions else set()
-    
+
     actions = r_actions
 
     if "build" in actions and "update" in actions:
-        print(
-            "Error: 'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset."
+        logger.error(
+            "'build' and 'update' cannot be specified at once. Use 'build' to create dataset from scratch, 'update' to update existing dataset."
         )
 
     if "build" in actions:
         assert output
         if inputpath:
-            print(
-                "warning: Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored."
+            logger.warning(
+                "Both 'build' and 'inputpath' specified. 'build' creates new dataset, 'inputpath' will be ignored."
             )
         dset: FIPSDataset = FIPSDataset(
             certs={},
@@ -184,23 +181,25 @@ def main(
     # only 'build' can work without inputpath
     else:
         if not inputpath:
-            print("Error: You must provide inputpath to previously generated dataset with 'build'")
+            logger.error("You must provide inputpath to previously generated dataset with 'build'")
             sys.exit(1)
 
     assert inputpath
-    dset: FIPSDataset = FIPSDataset.from_json(inputpath)
+    dset = FIPSDataset.from_json(inputpath)
 
-    print(f'Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.')
+    assert dset.algorithms
+
+    logger.info(f"Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.")
     if output:
-        print(
-            "Warning: You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)"
+        logger.warning(
+            "You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)"
         )
         dset.root_dir = output
         dset.to_json(output)
 
-    if 'update' in actions:
+    if "update" in actions:
         dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True, redo_web_scan=redo_web_scan)
-        
+
     if "convert" in actions or "update" in actions:
         dset.convert_all_pdfs()
 
@@ -209,8 +208,8 @@ def main(
 
     if "table-search" in actions or "update" in actions:
         if not higher_precision_results:
-            print(
-                "Info: You are using table search without higher precision results. It is advised to use the switch in the next run."
+            logger.info(
+                "You are using table search without higher precision results. It is advised to use the switch in the next run."
             )
         dset.extract_certs_from_tables(high_precision=higher_precision_results)
 

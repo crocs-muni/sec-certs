@@ -32,7 +32,7 @@
             "cert_link": null,
             "manufacturer_web": "https://global.oce.com/",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -353,7 +353,7 @@
             "cert_link": null,
             "manufacturer_web": "https://global.oce.com/",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -704,7 +704,7 @@
             "cert_link": null,
             "manufacturer_web": "https://global.oce.com/",
             "protection_profiles": [],
-            "maintainance_updates": [],
+            "maintenance_updates": [],
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
