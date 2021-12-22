@@ -1,6 +1,9 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
+{% block title %}
+    <title>Common Criteria reference network | seccerts.org</title>
+{% endblock %}
 {% from "utils.html.jinja2" import render_network %}
 {% block content %}
     <h1 class="mb-4">Common Criteria</h1>

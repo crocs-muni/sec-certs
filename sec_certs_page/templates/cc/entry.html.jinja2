@@ -39,7 +39,7 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <div>
-                <h1>{{ cert["name"]|default("") }}</h1>
+                <h1>{{ cert["name"]|default("", true) }}</h1>
 
                 <div class="mt-5 mb-3">
                     <h2 class="anchor" id="csv-info">CSV information
@@ -262,8 +262,9 @@
                         <b><abbr title="Common Platform Enumeration">CPE</abbr> matches:</b>
                         <ul>
                             {% for cpe in cert["heuristics"]["cpe_matches"] %}
-                                <li>{{ cpe }} {% if cert["heuristics"]["verified_cpe_matches"] and cpe in cert["heuristics"]["verified_cpe_matches"] %}
-                                    <i class="fas fa-check-square text-success" title="Verified"></i>{% endif %}
+                                <li>{{ cpe }}
+                                    {% if cert["heuristics"]["verified_cpe_matches"] and cpe in cert["heuristics"]["verified_cpe_matches"] %}
+                                        <i class="fas fa-check-square text-success" title="Verified"></i>{% endif %}
                                 </li>
                             {% endfor %}
                         </ul>
@@ -271,16 +272,17 @@
                 {% endif %}
                 {% if cert["heuristics"]["related_cves"] %}
                     <div data-cs-name="Related CVEs">
-                    <b>Related <abbr title="Common Vulnerability Enumeration">CVEs</abbr>:</b>
-                    <ul>
-                        {% for cve in cert["heuristics"]["related_cves"] %}
-                            <li>
-                                {{ cve }}:
-                                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cve }}" target="_blank" rel="noopener">MITRE</a>
-                                <a href="https://nvd.nist.gov/vuln/detail/{{ cve }}" target="_blank" rel="noopener">NIST</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                        <b>Related <abbr title="Common Vulnerability Enumeration">CVEs</abbr>:</b>
+                        <ul>
+                            {% for cve in cert["heuristics"]["related_cves"] %}
+                                <li>
+                                    {{ cve }}:
+                                    <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cve }}" target="_blank"
+                                       rel="noopener">MITRE</a>
+                                    <a href="https://nvd.nist.gov/vuln/detail/{{ cve }}" target="_blank" rel="noopener">NIST</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 {% endif %}
             </div>
@@ -339,13 +341,18 @@
                 <pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
             </div>
             <script>
+                let certificate_data = {
+                    name: "{{ cert["name"]|default("", true) }}",
+                    hashid: "{{ cert["_id"] }}",
+                    type: "cc",
+                    url: "{{ url_for("cc.entry", hashid=cert["_id"]) }}"
+                };
                 $(function () {
                     let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                     tooltipTriggerList.map(function (tooltipTriggerEl) {
                         return new bootstrap.Tooltip(tooltipTriggerEl)
                     })
                     new bootstrap.Tooltip($("#raw-data-button").get(0));
-
                 });
                 $('#raw-data').on('show.bs.collapse', function () {
                     $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");

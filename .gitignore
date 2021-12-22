@@ -2,6 +2,7 @@
 /virt/
 .idea/
 .vscode/
+.coverage
 
 __pycache__/
 *.pyc

@@ -47,6 +47,9 @@
                             "comment": $("#feedback-text").val(),
                             "path": window.location.pathname
                         }),
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token() }}"
+                        },
                         success: function () {
                             $("#feedback-result").text("Feedback successfully sent, thank you!");
                             selected_node = null;

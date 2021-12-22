@@ -14,7 +14,7 @@
             if (highlighted.includes(d.id)) {
                 return "#d62728"
             } else {
-                return "#1f77b4"
+                return "#0d6efd"
             }
         }
         let drag = simulation => {
@@ -63,13 +63,13 @@
             .join("marker")
             .attr("id", d => d)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 18)
+            .attr("refX", 25)
             .attr("refY", 0)
             .attr("markerWidth", 6)
             .attr("markerHeight", 6)
             .attr("orient", "auto")
             .append("path")
-            .attr("fill", "#999")
+            .attr("fill", "#888")
             .attr("fill-opacity", 0.6)
             .attr("d", "M0,-5L10,0L0,5");
 
@@ -98,7 +98,7 @@
             .text("Edges: " + links.length);
 
         const link = g.append("g")
-            .attr("stroke", "#999")
+            .attr("stroke", "#888")
             .attr("stroke-opacity", 0.6)
             .selectAll("line")
             .data(links)

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>
+    To receive notifications from <a href="https://seccerts.org">seccerts.org</a> you need to confirm
+    your email address by clicking <a href="{{ url_for("notify.confirm", token=token) }}">this link</a>.
+</p>
+<p>
+    If you do not confirm this request within 7 days it will be deleted along with your email address.
+</p>
+<p>
+    If you have already confirmed the request and want to unsubscribe you can do so at
+    <a href="{{ url_for("notify.unsubscribe", token=token) }}">this link</a>. To manage your confirmed
+    subscriptions visit <a href="{{ url_for("notify.manage", email_token=email_token) }}">this link</a>.
+</p>
+</body>
+</html>

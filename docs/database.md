@@ -18,3 +18,4 @@ The app uses the following collections:
  - `pp_diff`: Same as `cc_diff` above but instead for protection profiles. **Currently unused**
  - `pp_log`: Same as `cc_log` above but instead for protection profiles. **Currently unused**
  - `users`: To store the registered users of the site. **Currently only admins**
+ - `subs`: To store the confirmed and unconfirmed notification subscriptions.

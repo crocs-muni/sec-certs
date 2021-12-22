@@ -62,7 +62,7 @@ def categories():
 def index():
     """Common criteria index."""
     last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("cc/index.html.jinja2", title=f"Common Criteria | seccerts.org", last_ok_run=last_ok_run)
+    return render_template("cc/index.html.jinja2", last_ok_run=last_ok_run)
 
 
 @cc.route("/dataset.json")
@@ -79,8 +79,7 @@ def dataset():
 @register_breadcrumb(cc, ".network", "References")
 def network():
     """Common criteria references visualization."""
-    return render_template("cc/network.html.jinja2", url=url_for(".network_graph"),
-                           title="Common Criteria network | seccerts.org")
+    return render_template("cc/network.html.jinja2", url=url_for(".network_graph"))
 
 
 @cc.route("/network/graph.json")
@@ -168,7 +167,7 @@ def search():
     """Common criteria search."""
     res = process_search(request)
     return render_template("cc/search.html.jinja2", **res,
-                           title=f"Common Criteria [{res['q']}] ({res['page']}) | seccerts.org")
+                           title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | seccerts.org")
 
 
 @cc.route("/search/pagination/")
@@ -253,6 +252,7 @@ def entry_id(cert_id):
 def entry_name(name):
     name = name.replace("_", " ")
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
         doc = mongo.db.cc.find_one({"name": name})
     if doc:
         return redirect(url_for("cc.entry", hashid=doc["_id"]))

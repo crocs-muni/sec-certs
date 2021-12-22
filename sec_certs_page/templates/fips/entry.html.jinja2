@@ -162,6 +162,12 @@
 		<pre id="raw-data" class="listing collapse mt-3"><code>{{ cert|tojson(indent=2) }}</code></pre>
 	</div>
 	<script>
+        let certificate_data = {
+            name: "{{ cert["web_scan"]["module_name"]|default("", true) }}",
+            hashid: "{{ cert["_id"] }}",
+            type: "fips",
+            url: "{{ url_for("fips.entry", hashid=cert["_id"]) }}"
+        };
         $(function () {
             let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             tooltipTriggerList.map(function (tooltipTriggerEl) {

@@ -1,12 +1,16 @@
+import hashlib
 import random
+from binascii import unhexlify
 from datetime import date
-from functools import total_ordering
+from functools import wraps
 from pathlib import Path
 from typing import Any, Union, Tuple, List, Dict
 
+import requests
 import networkx as nx
-from flask import jsonify, Response
+from flask import jsonify, Response, request, current_app, make_response
 from flask_paginate import Pagination as FlaskPagination
+from werkzeug.exceptions import BadRequest, abort
 from networkx import node_link_data, DiGraph
 from networkx.algorithms.components import weakly_connected_components
 from sec_certs.sample.common_criteria import CommonCriteriaCert
@@ -25,44 +29,6 @@ class Pagination(FlaskPagination):
             return super().page_href(page)
         else:
             return self.url_callback(page=page, **self.args)
-
-
-@total_ordering
-class Smallest(object):
-    """An object that is smaller than everything else (except itself)."""
-    def __lt__(self, other):
-        if isinstance(other, Smallest):
-            return False
-        else:
-            return True
-
-    def __eq__(self, other):
-        if isinstance(other, Smallest):
-            return True
-        else:
-            return False
-
-
-smallest = Smallest()
-
-
-@total_ordering
-class Biggest(object):
-    """An object that is bigger than everything else (except itself)."""
-    def __gt__(self, other):
-        if isinstance(other, Biggest):
-            return False
-        else:
-            return True
-
-    def __eq__(self, other):
-        if isinstance(other, Biggest):
-            return True
-        else:
-            return False
-
-
-biggest = Biggest()
 
 
 def send_json_attachment(data) -> Response:
@@ -158,3 +124,44 @@ def dictify_cert(cert: CommonCriteriaCert) -> dict:
     cert_data = walk(cert)
     cert_data["_id"] = cert_data["dgst"]
     return remove_dots(cert_data)
+
+
+def validate_captcha(req, json):
+    if "captcha" not in request.json:
+        if json:
+            abort(make_response(jsonify({"error": "Captcha missing.", "status": "NOK"}), 400))
+        else:
+            raise BadRequest(description="Captcha missing.")
+    resp = requests.post("https://hcaptcha.com/siteverify",
+                         data={"response": req.json["captcha"],
+                               "secret": current_app.config["HCAPTCHA_SECRET"],
+                               "ip": req.remote_addr,
+                               "sitekey": current_app.config["HCAPTCHA_SITEKEY"]})
+    result = resp.json()
+    if not result["success"]:
+        if json:
+            abort(make_response(jsonify({"error": "Captcha invalid.", "status": "NOK"}), 400))
+        else:
+            raise BadRequest(description="Captcha invalid.")
+
+
+def captcha_required(json=False):
+    def captcha_deco(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            validate_captcha(request, json=json)
+            return f(*args, **kwargs)
+        return wrapper
+    return captcha_deco
+
+
+def derive_secret(*items: str, digest_size: int = 16) -> bytes:
+    blake = hashlib.blake2b(b"".join(map(lambda x: x.encode("utf-8"), items)),
+                            key=unhexlify(current_app.config["SECRET_KEY"]),
+                            digest_size=digest_size)
+    return blake.digest()
+
+
+def derive_token(*items: str, digest_size: int = 16) -> str:
+    secret = derive_secret(*items, digest_size=digest_size)
+    return secret.hex()

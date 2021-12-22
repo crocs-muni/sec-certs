@@ -10,11 +10,12 @@ from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from flask_caching import Cache
 from flask_cors import CORS
-from flask_debugtoolbar import DebugToolbarExtension
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
 from flask_login import LoginManager
+from flask_wtf import CSRFProtect
 from flask_principal import Principal, RoleNeed, Permission
+from flask_mail import Mail
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -32,7 +33,7 @@ app.jinja_env.autoescape = True
 if os.environ.get("TESTING", False):
     app.testing = True
 
-if not app.testing:
+if not app.testing:  # pragma: no cover
     sentry_sdk.init(
         dsn=app.config["SENTRY_INGEST"],
         integrations=[FlaskIntegration(), CeleryIntegration(), RedisIntegration()],
@@ -67,6 +68,11 @@ def make_celery(app):
     return res
 
 
+login = LoginManager(app)
+login.login_view = "admin.login"
+
+principal = Principal(app)
+
 celery = make_celery(app)
 
 redis = FlaskRedis(app)
@@ -79,12 +85,11 @@ cache = Cache(app)
 
 cors = CORS(app, origins="")
 
+csrf = CSRFProtect(app)
+
+mail = Mail(app)
+
 breadcrumbs = Breadcrumbs(app)
-
-login = LoginManager(app)
-login.login_view = "admin.login"
-
-principal = Principal(app)
 
 
 @app.before_request
@@ -127,18 +132,16 @@ def is_admin():
 
 
 from .cc import cc
+from .pp import pp
+from .fips import fips
+from .admin import admin
+from .notifications import notifications
 
 app.register_blueprint(cc)
-from .pp import pp
-
 app.register_blueprint(pp)
-from .fips import fips
-
 app.register_blueprint(fips)
-
-from .admin import admin
-
 app.register_blueprint(admin)
+app.register_blueprint(notifications)
 
 
 @app.route("/")
@@ -153,6 +156,11 @@ def feedback():
     data = request.json
     if set(data.keys()) != {"element", "comment", "path"}:
         return abort(400)
+    for key in ("element", "comment", "path"):
+        # TODO Add validation to client (or info abut feedback length).
+        if not isinstance(data[key], str) or len(data[key]) > 256:
+            return abort(400)
+    # TODO add captcha
     data["ip"] = request.remote_addr
     data["timestamp"] = datetime.now()
     data["useragent"] = request.user_agent.string
@@ -160,7 +168,7 @@ def feedback():
     return jsonify({"status": "OK"})
 
 
-@app.route("/about")
+@app.route("/about/")
 @register_breadcrumb(app, ".about", "About")
 def about():
     return render_template("about.html.jinja2")

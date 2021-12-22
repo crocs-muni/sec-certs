@@ -228,6 +228,7 @@ def entry_id(cert_id):
 def entry_name(name):
     name = name.replace("_", " ")
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
         doc = mongo.db.fips.find_one({"name": name})
     if doc:
         return redirect(url_for("fips.entry", hashid=doc["_id"]))

@@ -15,6 +15,7 @@
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap"
               rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+        <script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
         {% assets output="gen/libs.js",
                 "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -47,7 +48,9 @@
 <div class="d-flex" id="wrapper">
     <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for("index") }}">seccerts.org</a>
+            <a class="navbar-brand" href="{{ url_for("index") }}"><img
+                    src="{{ url_for("static", filename="img/logo_dark.svg") }}"
+                    style="height: 4rem; margin-top: -2rem; margin-bottom: -1.5rem"/></a> {# seccerts.org #}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -87,6 +90,8 @@
                                 <div class="alert alert-info">{{ message }}</div>
                             {% elif category == "warning" %}
                                 <div class="alert alert-warning">{{ message }}</div>
+                            {% elif category == "success" %}
+                                <div class="alert alert-success">{{ message }}</div>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -104,20 +109,81 @@
             {% endblock %}
             <div class="modal fade" id="notification-modal" tabindex="-1" aria-labelledby="notification-modal-label"
                  aria-hidden="true">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="notification-modal-label">Notifications</h5>
+                            <h5 class="modal-title" id="notification-modal-label">Notification subscription</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            You currently have no subscriptions to certificate updates. Select certificates on the
-                            search page or on the page of the certificate. After you do so you will be able to see them
-                            here and setup an email notification subscription.
+                            {% if not config["SUBSCRIPTIONS_ENABLED"] %}
+                                <p class="fw-bold"><i class="fas fa-exclamation-triangle"></i> Notification subscriptions are currently disabled.</p>
+                            {% endif %}
+                            <p id="notification-none">
+                                You currently have no selected certificates. Add certificates on
+                                the search page or on the page of the certificate. After you do so you will be able to
+                                see them here and setup an email notification subscription.
+                            </p>
+                            <div id="notification-some" style="display: none">
+                                <form id="notifications-form">
+                                    <label class="form-label">Certificates</label>
+                                    <table class="table">
+                                        <tbody></tbody>
+                                    </table>
+
+                                    <div>
+                                        <label class="form-label">Notification type</label>
+                                        <div class="form-check">
+                                            <input type="radio" class="form-check-input" id="notifications-updates-all"
+                                                   name="notifications-updates"
+                                                   checked/>
+                                            <label for="notifications-updates-all" class="form-check-label">All
+                                                updates</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="radio" class="form-check-input" id="notifications-updates-vuln"
+                                                   name="notifications-updates"/>
+                                            <label for="notifications-updates-vuln" class="form-check-label">Vulnerability
+                                                information only</label>
+                                        </div>
+                                        <p class="form-text">You can subscribe to receive notifications of all changes
+                                            and
+                                            updates to the
+                                            certificates above, or only when new vulnerabilities potentially affecting
+                                            the
+                                            certificates are published.</p>
+                                    </div>
+                                    <div>
+                                        <label for="notifications-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="notifications-email" required/>
+                                        <p class="form-text">Your email will only be used to send you notifications.
+                                            Each notification contains an unsubscribe link. For more, see our
+                                            <a href="{{ url_for("about") }}" target="_blank">privacy policy</a>.</p>
+                                    </div>
+                                    <div id="hcaptcha" class="h-captcha" data-sitekey="{{ config["HCAPTCHA_SITEKEY"] }}"
+                                         data-size="invisible"></div>
+                                </form>
+                                <p class="invalid-feedback" id="notifications-error"></p>
+                            </div>
+                            <div id="notification-done" style="display: none">
+                                <p>Your subscription request was successfully received. You will need to <b>confirm your
+                                    subscription</b> by clicking a confirmation link in an email that will be sent to
+                                    you shortly. Notifications will be sent to you only after confirmation. If you do
+                                    not confirm your subscription within 7 days, the subscription request will expire.
+                                    If you already have a subscription, it will be updated with the new certificates,
+                                    but you will need to reconfirm it.
+                                </p>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Subscribe</button>
+                            <button id="notification-add-current" class="btn btn-primary" style="display: none"><i
+                                    class="fas fa-plus"></i>
+                                Add current certificate
+                            </button>
+                            <button id="notification-subscribe" type="submit" class="btn btn-primary"
+                                    form="notifications-form">Subscribe
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -148,8 +214,9 @@
                         <button id="notification-icon" class="btn btn-secondary" title="Notifications"
                                 data-bs-toggle="modal" data-bs-target="#notification-modal">
                             <i class="fas fa-envelope" aria-hidden="true"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                            0
+                            <span id="notification-pill"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                &nbsp;
                             <span class="visually-hidden">selected certificates</span>
                           </span>
                         </button>
@@ -173,6 +240,117 @@
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+
+        function remove_cert(event) {
+            let elem = $(event.target).parents("tr");
+            let selected = localStorage.getItem("selected_certs_subscription");
+            selected = JSON.parse(selected).filter(cert => cert["hashid"] !== elem.data("cert-hashid"));
+            localStorage.setItem("selected_certs_subscription", JSON.stringify(selected));
+            update_state();
+        }
+
+        function update_state() {
+            if (typeof certificate_data !== "undefined") {
+                $("#notification-add-current").show();
+            }
+            let selected = localStorage.getItem("selected_certs_subscription");
+            if (selected === null) {
+                $("#notification-subscribe").hide();
+                $("#notification-pill").text("0");
+            } else {
+                selected = JSON.parse(selected);
+                $("#notification-pill").text(selected.length);
+                $("#notification-some tbody tr").remove();
+                if (selected.length > 0) {
+                    $("#notification-subscribe").show();
+                    $("#notification-none").hide();
+                    $("#notification-some").show();
+                    if (typeof certificate_data !== "undefined") {
+                        if (selected.map(cert => cert["hashid"]).includes(certificate_data.hashid)) {
+                            $("#notification-add-current").hide();
+                        }
+                    }
+                    for (let cert of selected) {
+                        let tr = $("<tr>").data("cert-hashid", cert["hashid"]);
+                        let name = $("<td>").append($("<a>").attr("href", cert["url"]).text(cert["name"]));
+                        let but = $("<td>").append($("<button>").addClass("btn btn-danger mx-1").text("Remove").click(remove_cert));
+                        tr.append(name).append(but).appendTo($("#notification-some tbody"));
+                    }
+                } else {
+                    $("#notification-subscribe").hide();
+                    $("#notification-none").show();
+                    $("#notification-some").hide();
+                }
+            }
+        }
+
+        $("#notification-modal").on("show.bs.modal", function () {
+            update_state();
+        });
+        $("#notification-add-current").click(function () {
+            let selected = localStorage.getItem("selected_certs_subscription");
+            if (selected === null) {
+                selected = [certificate_data];
+            } else {
+                selected = JSON.parse(selected);
+                selected.push(certificate_data);
+            }
+            localStorage.setItem("selected_certs_subscription", JSON.stringify(selected));
+            update_state();
+        });
+        $("#notification-subscribe").click(function (event) {
+            event.preventDefault();
+            let selected = localStorage.getItem("selected_certs_subscription");
+            if (selected === null) {
+                //whoops
+                return;
+            } else {
+                selected = JSON.parse(selected);
+            }
+            let form = $("#notifications-form").get(0)
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            hcaptcha.execute({async: true})
+                .then(({response, key}) => {
+                    let updates;
+                    if ($("#notifications-updates-all").prop("checked")) {
+                        updates = "all";
+                    }
+                    if ($("#notifications-updates-vuln").prop("checked")) {
+                        updates = "vuln";
+                    }
+                    $.ajax("{{ url_for("notify.subscribe") }}", {
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            "selected": selected,
+                            "email": $("#notifications-email").val(),
+                            "updates": updates,
+                            "captcha": response
+                        }),
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token() }}"
+                        },
+                        success: function () {
+                            localStorage.removeItem("selected_certs_subscription");
+                            $("#notification-some").hide();
+                            $("#notification-done").show();
+                            $("#notification-subscribe").hide();
+                            $("#notifications-error").hide();
+                        },
+                        error: function (response) {
+                            try {
+                                $("#notifications-error").text(response.responseJSON.error).show();
+                            } catch (error) {
+                                $("#notifications-error").text("Something went wrong with the subscription request, please try again later").show();
+                            }
+                        }
+                    })
+                });
+        });
+        update_state();
     });
 </script>
 </body>

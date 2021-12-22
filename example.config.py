@@ -12,6 +12,21 @@ SENTRY_INGEST = ""
 SENTRY_ERROR_SAMPLE_RATE = 1.0
 SENTRY_TRACES_SAMPLE_RATE = 1.0
 
+# hCaptcha
+HCAPTCHA_SITEKEY = ""
+HCAPTCHA_SECRET = ""
+
+# Email
+MAIL_SERVER = "mail.example.com"                # The outgoing SMTP server to use
+MAIL_DEBUG = False                              # Whether to print out SMTP commands and responses (very verbose!)
+MAIL_PORT = 465                                 # SMTP port to connect to
+MAIL_USE_TLS = False                            # Whether to use STARTTLS
+MAIL_USE_SSL = True                             # Whether to connect using SSL/TLS
+MAIL_USERNAME = "username"                      # The username to use for auth
+MAIL_PASSWORD = ""                              # The password to use for auth
+MAIL_DEFAULT_SENDER = "seccerts@example.com"    # The sender address
+# MAIL_SUPPRESS_SEND = True                     # Whether to suppress all sending (for testing)
+
 # MongoDB
 MONGO_URI = "mongodb://localhost:27017/seccerts"
 
@@ -55,3 +70,6 @@ DATASET_PATH_FIPS_OUT = "fips.json"
 
 # Path for the sec-certs tool settings file inside the instance directory
 TOOL_SETTINGS_PATH = "settings.yaml"
+
+# Whether notification subscriptions are enabled
+SUBSCRIPTIONS_ENABLED = True

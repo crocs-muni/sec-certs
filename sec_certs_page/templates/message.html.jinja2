@@ -1,0 +1,14 @@
+{% extends "base.html.jinja2" %}
+{% set search = False %}
+{% set crumbs = False %}
+{% block content %}
+    <main style="min-height: 60vh">
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1>{{ heading }}</h1>
+            <p class="lead">{{ lead }}</p>
+            {% if text %}
+                <p>{{ text }}</p>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}

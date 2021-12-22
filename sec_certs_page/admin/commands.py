@@ -1,10 +1,15 @@
 import click
+from flask.cli import AppGroup
 
 from .user import User, hash_password
 from .. import app, mongo
 
 
-@app.cli.command("add-user", help="Add a user.")
+user_group = AppGroup("user", help="Manage users.")
+app.cli.add_command(user_group)
+
+
+@user_group.command("add", help="Add a user.")
 @click.option("-u", "--username", required=True)
 @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True, required=True)
 @click.option("-e", "--email", required=True)
@@ -19,7 +24,7 @@ def add_user(username, password, email, role):
     click.echo(f"User added _id={res.inserted_id}")
 
 
-@app.cli.command("del-user", help="Delete a user.")
+@user_group.command("del", help="Delete a user.")
 @click.option("-u", "--username", required=True)
 def del_user(username):
     user = User.get(username)
@@ -31,7 +36,7 @@ def del_user(username):
         click.echo(f"User deleted")
 
 
-@app.cli.command("list-users", help="List users.")
+@user_group.command("list", help="List users.")
 def list_users():
     for doc in mongo.db.users.find({}):
         print(doc)
@@ -40,7 +45,7 @@ def list_users():
 @app.cli.command("init-collections", help="Initialize the miscellaneous collections.")
 def init_collections():
     current = mongo.db.list_collection_names()
-    collections = {"cc_log", "cc_diff", "fips_log", "fips_diff", "pp_log", "pp_diff", "users", "feedback"}
+    collections = {"cc_log", "cc_diff", "fips_log", "fips_diff", "pp_log", "pp_diff", "users", "feedback", "subs"}
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)
         click.echo(f"Created collection {collection}.")

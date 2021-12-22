@@ -1,6 +1,9 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
+{% block title %}
+    <title>Common Criteria | seccerts.org</title>
+{% endblock %}
 {% block navbar %}
     <li class="nav-item">
         <a class="nav-link" href="{{ url_for(".search") }}">Search</a>

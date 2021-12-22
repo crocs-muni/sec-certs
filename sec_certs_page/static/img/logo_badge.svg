@@ -62,11 +62,11 @@
      transform="translate(-62.821846,-46.556198)">
     <path
        id="rect903-9-4"
-       style="opacity:0.998;fill:#000000;stroke:none;stroke-width:2.7116;stroke-linecap:square;paint-order:markers stroke fill"
+       style="opacity:1;fill:#000000;stroke:none;stroke-width:2.7116;stroke-linecap:square;paint-order:markers stroke fill"
        d="M 83.027344 98.328125 L 83.027344 248.53906 L 134.78711 206.80078 L 186.41016 248.6875 L 186.41016 98.328125 L 83.027344 98.328125 z "
        transform="matrix(0.26458333,0,0,0.26458333,62.821846,46.556198)" />
     <circle
-       style="opacity:0.998;fill:#000000;stroke-width:0.81783;stroke-linecap:square;paint-order:markers stroke fill"
+       style="opacity:1;fill:#000000;stroke-width:0.81783;stroke-linecap:square;paint-order:markers stroke fill"
        id="path833-3-7-6-5"
        cx="75.733047"
        cy="-98.466248"
@@ -74,7 +74,7 @@
        transform="rotate(90)" />
     <path
        sodipodi:type="star"
-       style="opacity:0.998;fill:#ffffff;stroke-width:1.70221;stroke-linecap:square;paint-order:markers stroke fill"
+       style="opacity:1;fill:#ffffff;stroke-width:1.70221;stroke-linecap:square;paint-order:markers stroke fill"
        id="path835-6-5-2-03"
        sodipodi:sides="7"
        sodipodi:cx="104.52818"

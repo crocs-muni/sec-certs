@@ -155,6 +155,28 @@ def entry_json(hashid):
         return abort(404)
 
 
+@pp.route("/id/<string:profile_id>")
+def entry_id(profile_id):
+    with sentry_sdk.start_span(op="mongo", description="Find profile"):
+        doc = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile_id})
+    if doc:
+        return redirect(url_for("pp.entry", hashid=doc["_id"]))
+    else:
+        return abort(404)
+
+
+@pp.route("/name/<string:name>")
+def entry_name(name):
+    name = name.replace("_", " ")
+    with sentry_sdk.start_span(op="mongo", description="Find profile"):
+        # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
+        doc = mongo.db.pp.find_one({"csv_scan.cc_pp_name": name})
+    if doc:
+        return redirect(url_for("pp.entry", hashid=doc["_id"]))
+    else:
+        return abort(404)
+
+
 @pp.route("/analysis/")
 @register_breadcrumb(pp, ".analysis", "Analysis")
 def analysis():
