@@ -102,6 +102,13 @@ class TestFipsOOP(TestCase):
     def setUpClass(cls) -> None:
         config.load(cls.data_dir.parent / "settings_test.yaml")
 
+    def test_regress_125(self):
+        with TemporaryDirectory() as tmp_dir:
+            dst = _set_up_dataset(tmp_dir, ["3493", "3495"])
+            self.assertEqual(set(dst.certs), {fips_dgst("3493"), fips_dgst("3495")})
+            self.assertIsInstance(dst.certs[fips_dgst("3493")].cert_id, int)
+            self.assertEqual(dst.certs[fips_dgst("3493")].cert_id, 3493)
+
     def test_size(self):
         for certs in self.certs_to_parse.values():
             with TemporaryDirectory() as tmp_dir:
