@@ -21,21 +21,28 @@ with fips.open_resource("types.json") as f:
 
 def load_fips_data():
     with sentry_sdk.start_span(op="fips.load", description="Load FIPS data"):
-        data = mongo.db.fips.find({}, {
-            "_id": 1,
-            "cert_id": 1,
-            "web_scan.module_name": 1,
-            "web_scan.module_type": 1,
-            "heuristics.connections": 1
-        })
-        fips_references = {str(cert["cert_id"]): {
-            "hashid": cert["_id"],
-            "name": cert["web_scan"]["module_name"],
-            "refs": cert["heuristics"]["connections"],
-            "href": url_for("fips.entry", hashid=cert["_id"]),
-            "type": fips_types[cert["web_scan"]["module_type"]]["id"] if cert["web_scan"][
-                                                                             "module_type"] in fips_types else ""
-        } for cert in data}
+        data = mongo.db.fips.find(
+            {},
+            {
+                "_id": 1,
+                "cert_id": 1,
+                "web_scan.module_name": 1,
+                "web_scan.module_type": 1,
+                "heuristics.connections": 1,
+            },
+        )
+        fips_references = {
+            str(cert["cert_id"]): {
+                "hashid": cert["_id"],
+                "name": cert["web_scan"]["module_name"],
+                "refs": cert["heuristics"]["connections"],
+                "href": url_for("fips.entry", hashid=cert["_id"]),
+                "type": fips_types[cert["web_scan"]["module_type"]]["id"]
+                if cert["web_scan"]["module_type"] in fips_types
+                else "",
+            }
+            for cert in data
+        }
 
     with sentry_sdk.start_span(op="fips.load", description="Compute FIPS graph"):
         fips_graph, fips_graphs, fips_map = create_graph(fips_references)
@@ -76,5 +83,8 @@ from .views import *
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     if app.config["UPDATE_TASK_SCHEDULE"]["fips"]:
-        sender.add_periodic_task(crontab(*app.config["UPDATE_TASK_SCHEDULE"]["fips"]),
-                                 update_data.s(), name="Update FIPS data.")
+        sender.add_periodic_task(
+            crontab(*app.config["UPDATE_TASK_SCHEDULE"]["fips"]),
+            update_data.s(),
+            name="Update FIPS data.",
+        )

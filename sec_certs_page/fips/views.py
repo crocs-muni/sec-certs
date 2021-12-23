@@ -6,14 +6,20 @@ from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import (abort, current_app, redirect, render_template, request,
-                   send_file, url_for)
+from flask import (
+    abort,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
 from .. import cache, mongo
-from ..utils import (Pagination, add_dots, network_graph_func,
-                     send_json_attachment)
+from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
 from . import fips, fips_types, get_fips_graphs, get_fips_map
 
 
@@ -31,17 +37,29 @@ def types():
 @fips.route("/")
 @register_breadcrumb(fips, ".", "FIPS 140")
 def index():
-    last_ok_run = mongo.db.fips_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("fips/index.html.jinja2", title="FIPS 140 | seccerts.org", last_ok_run=last_ok_run)
+    last_ok_run = mongo.db.fips_log.find_one(
+        {"ok": True}, sort=[("start_time", pymongo.DESCENDING)]
+    )
+    return render_template(
+        "fips/index.html.jinja2",
+        title="FIPS 140 | seccerts.org",
+        last_ok_run=last_ok_run,
+    )
 
 
 @fips.route("/dataset.json")
 def dataset():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_OUT"]
+    dset_path = (
+        Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_OUT"]
+    )
     if not dset_path.is_file():
         return abort(404)
-    return send_file(dset_path, as_attachment=True,
-                     mimetype="application/json", attachment_filename="dataset.json")
+    return send_file(
+        dset_path,
+        as_attachment=True,
+        mimetype="application/json",
+        attachment_filename="dataset.json",
+    )
 
 
 @fips.route("/network/")
@@ -98,7 +116,12 @@ def select_certs(q, cat, status, sort):
     cursor = mongo.db.fips.find(query, projection)
 
     if sort == "match" and q is not None and q != "":
-        cursor.sort([("score", {"$meta": "textScore"}), ("web_scan.module_name", pymongo.ASCENDING)])
+        cursor.sort(
+            [
+                ("score", {"$meta": "textScore"}),
+                ("web_scan.module_name", pymongo.ASCENDING),
+            ]
+        )
     elif sort == "number":
         cursor.sort([("cert_id", pymongo.ASCENDING)])
     elif sort == "first_cert_date":
@@ -136,7 +159,7 @@ def process_search(req, callback=None):
     )
     return {
         "pagination": pagination,
-        "certs": cursor[(page - 1) * per_page: page * per_page],
+        "certs": cursor[(page - 1) * per_page : page * per_page],
         "categories": categories,
         "q": q,
         "page": page,
@@ -178,7 +201,14 @@ def rand():
 
 
 @fips.route("/<string(length=16):hashid>/")
-@register_breadcrumb(fips, ".entry", "", dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}])
+@register_breadcrumb(
+    fips,
+    ".entry",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [
+        {"text": request.view_args["hashid"]}
+    ],
+)
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid})

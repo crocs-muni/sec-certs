@@ -23,10 +23,12 @@ class User(UserMixin):
 
     @property
     def dict(self):
-        return {"username": self.username,
-                "pwhash": self.pwhash,
-                "email": self.email,
-                "roles": self.roles}
+        return {
+            "username": self.username,
+            "pwhash": self.pwhash,
+            "email": self.email,
+            "roles": self.roles,
+        }
 
     @property
     def id(self):
@@ -49,11 +51,11 @@ def on_identity_loaded(sender, identity):
     identity.user = current_user
 
     # Add the UserNeed to the identity
-    if hasattr(current_user, 'id'):
+    if hasattr(current_user, "id"):
         identity.provides.add(UserNeed(current_user.id))
 
     # Assuming the User model has a list of roles, update the
     # identity with the roles that the user provides
-    if hasattr(current_user, 'roles'):
+    if hasattr(current_user, "roles"):
         for role in current_user.roles:
             identity.provides.add(RoleNeed(role))

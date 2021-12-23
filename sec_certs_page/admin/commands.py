@@ -10,7 +10,9 @@ app.cli.add_command(user_group)
 
 @user_group.command("add", help="Add a user.")
 @click.option("-u", "--username", required=True)
-@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True, required=True)
+@click.option(
+    "--password", prompt=True, hide_input=True, confirmation_prompt=True, required=True
+)
 @click.option("-e", "--email", required=True)
 @click.option("-r", "--role", multiple=True)
 def add_user(username, password, email, role):
@@ -44,7 +46,17 @@ def list_users():
 @app.cli.command("init-collections", help="Initialize the miscellaneous collections.")
 def init_collections():
     current = mongo.db.list_collection_names()
-    collections = {"cc_log", "cc_diff", "fips_log", "fips_diff", "pp_log", "pp_diff", "users", "feedback", "subs"}
+    collections = {
+        "cc_log",
+        "cc_diff",
+        "fips_log",
+        "fips_diff",
+        "pp_log",
+        "pp_diff",
+        "users",
+        "feedback",
+        "subs",
+    }
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)
         click.echo(f"Created collection {collection}.")

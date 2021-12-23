@@ -5,8 +5,15 @@ from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import (abort, current_app, redirect, render_template, request,
-                   send_file, url_for)
+from flask import (
+    abort,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 from flask_breadcrumbs import register_breadcrumb
 
 from .. import mongo
@@ -18,7 +25,9 @@ from . import pp
 @pp.route("/")
 @register_breadcrumb(pp, ".", "Protection Profiles")
 def index():
-    return render_template("pp/index.html.jinja2", title="Protection Profiles | seccerts.org")
+    return render_template(
+        "pp/index.html.jinja2", title="Protection Profiles | seccerts.org"
+    )
 
 
 @pp.route("/network/")
@@ -29,8 +38,12 @@ def network():
 
 @pp.route("/dataset.json")
 def dataset():
-    return send_file(Path(current_app.instance_path) / "pp.json", as_attachment=True,
-                     mimetype="application/json", attachment_filename="dataset.json")
+    return send_file(
+        Path(current_app.instance_path) / "pp.json",
+        as_attachment=True,
+        mimetype="application/json",
+        attachment_filename="dataset.json",
+    )
 
 
 def select_certs(q, cat, status, sort):
@@ -43,13 +56,16 @@ def select_certs(q, cat, status, sort):
         "csv_scan.cc_certification_date": 1,
         "csv_scan.cc_archived_date": 1,
         "csv_scan.cc_category": 1,
-        "processed.cc_pp_csvid": 1
+        "processed.cc_pp_csvid": 1,
     }
 
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
         re_q = ".*" + re.escape(q) + ".*"
-        query["$or"] = [{"$text": {"$search": q}}, {"csv_scan.cc_pp_name": {"$regex": re_q, "$options": "i"}}]
+        query["$or"] = [
+            {"$text": {"$search": q}},
+            {"csv_scan.cc_pp_name": {"$regex": re_q, "$options": "i"}},
+        ]
 
     if cat is not None:
         selected_cats = []
@@ -70,7 +86,12 @@ def select_certs(q, cat, status, sort):
     cursor = mongo.db.pp.find(query, projection)
 
     if sort == "match" and q is not None and q != "":
-        cursor.sort([("score", {"$meta": "textScore"}), ("csv_scan.cc_pp_name", pymongo.ASCENDING)])
+        cursor.sort(
+            [
+                ("score", {"$meta": "textScore"}),
+                ("csv_scan.cc_pp_name", pymongo.ASCENDING),
+            ]
+        )
     elif sort == "cert_date":
         cursor.sort([("csv_scan.cc_certification_date", pymongo.ASCENDING)])
     elif sort == "archive_date":
@@ -91,18 +112,24 @@ def process_search(req, callback=None):
     cursor, categories = select_certs(q, cat, status, sort)
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-    pagination = Pagination(page=page, per_page=per_page, search=True, found=cursor.count(),
-                            total=mongo.db.pp.count_documents({}),
-                            css_framework="bootstrap4", alignment="center",
-                            url_callback=callback)
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        search=True,
+        found=cursor.count(),
+        total=mongo.db.pp.count_documents({}),
+        css_framework="bootstrap4",
+        alignment="center",
+        url_callback=callback,
+    )
     return {
         "pagination": pagination,
-        "profiles": cursor[(page - 1) * per_page:page * per_page],
+        "profiles": cursor[(page - 1) * per_page : page * per_page],
         "categories": categories,
         "q": q,
         "page": page,
         "status": status,
-        "sort": sort
+        "sort": sort,
     }
 
 
@@ -110,8 +137,11 @@ def process_search(req, callback=None):
 @register_breadcrumb(pp, ".search", "Search")
 def search():
     res = process_search(request)
-    return render_template("pp/search.html.jinja2", **res,
-                           title=f"Protection Profile [{res['q']}] ({res['page']}) | seccerts.org")
+    return render_template(
+        "pp/search.html.jinja2",
+        **res,
+        title=f"Protection Profile [{res['q']}] ({res['page']}) | seccerts.org",
+    )
 
 
 @pp.route("/search/pagination/")
@@ -124,8 +154,14 @@ def search_pagination():
 
 
 @pp.route("/<string(length=20):hashid>/")
-@register_breadcrumb(pp, ".entry", "",
-                     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}])
+@register_breadcrumb(
+    pp,
+    ".entry",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [
+        {"text": request.view_args["hashid"]}
+    ],
+)
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
         doc = mongo.db.pp.find_one({"_id": hashid})
@@ -136,12 +172,28 @@ def entry(hashid):
                 ids = doc["processed"]["cc_pp_csvid"]
                 if ids:
                     re_q = ".*" + re.escape(ids[0]) + ".*"
-                    docs = mongo.db.cc.find({"$or":
-                                                 [{"csv_scan.cc_protection_profiles": {"$regex": re_q,
-                                                                                       "$options": "i"}},
-                                                  {"processed.cc_pp_id": {"$regex": re_q, "$options": "i"}}]})
+                    docs = mongo.db.cc.find(
+                        {
+                            "$or": [
+                                {
+                                    "csv_scan.cc_protection_profiles": {
+                                        "$regex": re_q,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "processed.cc_pp_id": {
+                                        "$regex": re_q,
+                                        "$options": "i",
+                                    }
+                                },
+                            ]
+                        }
+                    )
                     certs = list(map(add_dots, docs))
-        return render_template("pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid, certs=certs)
+        return render_template(
+            "pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid, certs=certs
+        )
     else:
         return abort(404)
 

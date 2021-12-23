@@ -39,7 +39,7 @@ if not app.testing:  # pragma: no cover
         integrations=[FlaskIntegration(), CeleryIntegration(), RedisIntegration()],
         environment=app.env,
         sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
-        traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"]
+        traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
     )
 
     ignore_logger("sec_certs.helpers")
@@ -59,11 +59,11 @@ def make_celery(app):
 
     res = Celery(
         app.import_name,
-        backend=app.config['CELERY_RESULT_BACKEND'],
-        broker=app.config['CELERY_BROKER_URL'],
-        result_backend=app.config['CELERY_RESULT_BACKEND'],
+        backend=app.config["CELERY_RESULT_BACKEND"],
+        broker=app.config["CELERY_BROKER_URL"],
+        result_backend=app.config["CELERY_RESULT_BACKEND"],
         task_cls=ContextTask,
-        timezone="Europe/Bratislava"
+        timezone="Europe/Bratislava",
     )
     return res
 
@@ -79,7 +79,7 @@ redis = FlaskRedis(app)
 
 assets = Assets(app)
 
-#debug = DebugToolbarExtension(app)
+# debug = DebugToolbarExtension(app)
 
 cache = Cache(app)
 
@@ -128,7 +128,7 @@ def filter_strftime(dt_obj, format):
 
 @app.template_global("is_admin")
 def is_admin():
-    return Permission(RoleNeed('admin')).can()
+    return Permission(RoleNeed("admin")).can()
 
 
 from .admin import admin
@@ -176,4 +176,9 @@ def about():
 
 @app.errorhandler(HTTPException)
 def error(e):
-    return render_template("error.html.jinja2", code=e.code, name=e.name, description=e.description), e.code
+    return (
+        render_template(
+            "error.html.jinja2", code=e.code, name=e.name, description=e.description
+        ),
+        e.code,
+    )

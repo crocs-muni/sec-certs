@@ -1,15 +1,19 @@
-from flask import (current_app, flash, redirect, render_template, session,
-                   url_for)
+from flask import current_app, flash, redirect, render_template, session, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
-from flask_principal import (AnonymousIdentity, Identity, Permission, RoleNeed,
-                             identity_changed)
+from flask_principal import (
+    AnonymousIdentity,
+    Identity,
+    Permission,
+    RoleNeed,
+    identity_changed,
+)
 
 from . import admin
 from .forms import LoginForm
 from .user import User
 
-admin_permission = Permission(RoleNeed('admin'))
+admin_permission = Permission(RoleNeed("admin"))
 
 
 @admin.route("/")
@@ -29,7 +33,9 @@ def login():
             user = User.get(form.username.data)
             if user and user.check_password(form.password.data):
                 login_user(user, form.remember_me.data)
-                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+                identity_changed.send(
+                    current_app._get_current_object(), identity=Identity(user.id)
+                )
                 flash("You've been successfully logged in.", "info")
                 if admin_permission.can():
                     return redirect(url_for(".index"))
@@ -44,9 +50,10 @@ def login():
 @login_required
 def logout():
     logout_user()
-    for key in ('identity.name', 'identity.auth_type'):
+    for key in ("identity.name", "identity.auth_type"):
         session.pop(key, None)
-    identity_changed.send(current_app._get_current_object(),
-                          identity=AnonymousIdentity())
+    identity_changed.send(
+        current_app._get_current_object(), identity=AnonymousIdentity()
+    )
     flash("You've been successfully logged out.", "info")
     return redirect(url_for("index"))

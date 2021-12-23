@@ -34,7 +34,7 @@ class Pagination(FlaskPagination):
 def send_json_attachment(data) -> Response:
     """Send a JSON as an attachment."""
     resp = jsonify(data)
-    resp.headers['Content-Disposition'] = 'attachment'
+    resp.headers["Content-Disposition"] = "attachment"
     return resp
 
 
@@ -42,7 +42,13 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
     """Create a graph out of references."""
     graph = nx.DiGraph()
     for key, value in references.items():
-        graph.add_node(value["hashid"], certid=key, name=value["name"], href=value["href"], type=value["type"])
+        graph.add_node(
+            value["hashid"],
+            certid=key,
+            name=value["name"],
+            href=value["href"],
+            type=value["type"],
+        )
     for cert_id, reference in references.items():
         for ref_id in set(reference["refs"]):
             if ref_id in references and ref_id != cert_id:
@@ -66,10 +72,7 @@ def network_graph_func(graphs) -> Response:
         nodes.extend(link_data["nodes"])
         edges.extend(link_data["links"])
     random.shuffle(nodes)
-    network = {
-        "nodes": nodes,
-        "links": edges
-    }
+    network = {"nodes": nodes, "links": edges}
     return send_json_attachment(network)
 
 
@@ -82,8 +85,8 @@ def remove_dots(data: Union[dict, list]) -> Union[dict, list]:
         ks = list(data.keys())
         for key in ks:
             data[key] = remove_dots(data[key])
-            if '.' in key:
-                data[key.replace('.', '\uff0e')] = data[key]
+            if "." in key:
+                data[key.replace(".", "\uff0e")] = data[key]
                 del data[key]
     elif isinstance(data, list):
         data = list(map(remove_dots, data))
@@ -99,8 +102,8 @@ def add_dots(data):
         ks = list(data.keys())
         for key in ks:
             data[key] = add_dots(data[key])
-            if '\uff0e' in key:
-                data[key.replace('\uff0e', '.')] = data[key]
+            if "\uff0e" in key:
+                data[key.replace("\uff0e", ".")] = data[key]
                 del data[key]
     elif isinstance(data, list):
         data = list(map(add_dots, data))
@@ -121,6 +124,7 @@ def dictify_cert(cert: CommonCriteriaCert) -> dict:
             return walk(obj.to_dict())
         else:
             return obj
+
     cert_data = walk(cert)
     cert_data["_id"] = cert_data["dgst"]
     return remove_dots(cert_data)
@@ -129,18 +133,30 @@ def dictify_cert(cert: CommonCriteriaCert) -> dict:
 def validate_captcha(req, json):
     if "captcha" not in request.json:
         if json:
-            abort(make_response(jsonify({"error": "Captcha missing.", "status": "NOK"}), 400))
+            abort(
+                make_response(
+                    jsonify({"error": "Captcha missing.", "status": "NOK"}), 400
+                )
+            )
         else:
             raise BadRequest(description="Captcha missing.")
-    resp = requests.post("https://hcaptcha.com/siteverify",
-                         data={"response": req.json["captcha"],
-                               "secret": current_app.config["HCAPTCHA_SECRET"],
-                               "ip": req.remote_addr,
-                               "sitekey": current_app.config["HCAPTCHA_SITEKEY"]})
+    resp = requests.post(
+        "https://hcaptcha.com/siteverify",
+        data={
+            "response": req.json["captcha"],
+            "secret": current_app.config["HCAPTCHA_SECRET"],
+            "ip": req.remote_addr,
+            "sitekey": current_app.config["HCAPTCHA_SITEKEY"],
+        },
+    )
     result = resp.json()
     if not result["success"]:
         if json:
-            abort(make_response(jsonify({"error": "Captcha invalid.", "status": "NOK"}), 400))
+            abort(
+                make_response(
+                    jsonify({"error": "Captcha invalid.", "status": "NOK"}), 400
+                )
+            )
         else:
             raise BadRequest(description="Captcha invalid.")
 
@@ -151,14 +167,18 @@ def captcha_required(json=False):
         def wrapper(*args, **kwargs):
             validate_captcha(request, json=json)
             return f(*args, **kwargs)
+
         return wrapper
+
     return captcha_deco
 
 
 def derive_secret(*items: str, digest_size: int = 16) -> bytes:
-    blake = hashlib.blake2b(b"".join(map(lambda x: x.encode("utf-8"), items)),
-                            key=unhexlify(current_app.config["SECRET_KEY"]),
-                            digest_size=digest_size)
+    blake = hashlib.blake2b(
+        b"".join(map(lambda x: x.encode("utf-8"), items)),
+        key=unhexlify(current_app.config["SECRET_KEY"]),
+        digest_size=digest_size,
+    )
     return blake.digest()
 
 

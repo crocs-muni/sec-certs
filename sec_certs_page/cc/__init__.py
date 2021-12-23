@@ -29,15 +29,18 @@ with cc.open_resource("categories.json") as f:
 def load_cc_data():
     with sentry_sdk.start_span(op="cc.load", description="Load CC data"):
         # Extract references
-        data = mongo.db.cc.find({}, {
-            "_id": 1,
-            "name": 1,
-            "category": 1,
-            "not_valid_before": 1,
-            "heuristics.cert_id": 1,
-            "pdf_data.st_keywords.rules_cert_id": 1,
-            "pdf_data.report_keywords.rules_cert_id": 1
-        })
+        data = mongo.db.cc.find(
+            {},
+            {
+                "_id": 1,
+                "name": 1,
+                "category": 1,
+                "not_valid_before": 1,
+                "heuristics.cert_id": 1,
+                "pdf_data.st_keywords.rules_cert_id": 1,
+                "pdf_data.report_keywords.rules_cert_id": 1,
+            },
+        )
         cc_references = {}
         for cert in data:
             hashid = cert["_id"]
@@ -49,17 +52,25 @@ def load_cc_data():
                 "name": cert["name"],
                 "refs": [],
                 "href": url_for("cc.entry", hashid=hashid),
-                "type": cc_categories[cert["category"]]["id"]
+                "type": cc_categories[cert["category"]]["id"],
             }
             # Process references
-            if current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY") and \
-                    cert["pdf_data"]["report_keywords"]["rules_cert_id"]:
+            if (
+                current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY")
+                and cert["pdf_data"]["report_keywords"]["rules_cert_id"]
+            ):
                 # Add references from cert
-                reference["refs"].extend(cert["pdf_data"]["report_keywords"]["rules_cert_id"].keys())
-            if current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY") and \
-                    cert["pdf_data"]["st_keywords"]["rules_cert_id"]:
+                reference["refs"].extend(
+                    cert["pdf_data"]["report_keywords"]["rules_cert_id"].keys()
+                )
+            if (
+                current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY")
+                and cert["pdf_data"]["st_keywords"]["rules_cert_id"]
+            ):
                 # Add references from security target
-                reference["refs"].extend(cert["pdf_data"]["st_keywords"]["rules_cert_id"].keys())
+                reference["refs"].extend(
+                    cert["pdf_data"]["st_keywords"]["rules_cert_id"].keys()
+                )
             cc_references[cert_id] = reference
 
     with sentry_sdk.start_span(op="cc.load", description="Compute CC graph"):
@@ -74,11 +85,18 @@ def load_cc_data():
         for cert in data.clone():
             cc_analysis["categories"].setdefault(cert["category"], 0)
             cc_analysis["categories"][cert["category"]] += 1
-        cc_analysis["categories"] = [{"name": key, "value": value} for key, value in cc_analysis["categories"].items()]
+        cc_analysis["categories"] = [
+            {"name": key, "value": value}
+            for key, value in cc_analysis["categories"].items()
+        ]
 
         cc_analysis["certified"] = {}
         for cert in data.clone():
-            cert_month = datetime.strptime(cert["not_valid_before"], "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
+            cert_month = (
+                datetime.strptime(cert["not_valid_before"], "%Y-%m-%d")
+                .replace(day=1)
+                .strftime("%Y-%m-%d")
+            )
             cc_analysis["certified"].setdefault(cert["category"], [])
             months = cc_analysis["certified"][cert["category"]]
             for month in months:
@@ -143,5 +161,8 @@ from .views import *
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     if app.config["UPDATE_TASK_SCHEDULE"]["cc"]:
-        sender.add_periodic_task(crontab(*app.config["UPDATE_TASK_SCHEDULE"]["cc"]),
-                                 update_data.s(), name="Update CC data.")
+        sender.add_periodic_task(
+            crontab(*app.config["UPDATE_TASK_SCHEDULE"]["cc"]),
+            update_data.s(),
+            name="Update CC data.",
+        )

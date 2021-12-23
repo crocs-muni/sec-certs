@@ -3,8 +3,16 @@ from operator import itemgetter
 from secrets import token_hex
 
 from email_validator import EmailNotValidError, validate_email
-from flask import (abort, current_app, flash, jsonify, redirect,
-                   render_template, request, url_for)
+from flask import (
+    abort,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from wtforms import Label
 
 from .. import mongo
@@ -18,7 +26,15 @@ from .tasks import send_confirmation_email, send_unsubscription_email
 @captcha_required(json=True)
 def subscribe():
     if not current_app.config["SUBSCRIPTIONS_ENABLED"]:
-        return jsonify({"error": "Notification subscriptions are currently disabled.", "status": "NOK"}), 400
+        return (
+            jsonify(
+                {
+                    "error": "Notification subscriptions are currently disabled.",
+                    "status": "NOK",
+                }
+            ),
+            400,
+        )
     data = request.json
     if set(data.keys()) != {"email", "selected", "updates", "captcha"}:
         return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
@@ -48,8 +64,9 @@ def subscribe():
             "token": token,
             "email_token": email_token,
             "certificate": cert,
-            "confirmed": False
-        } for cert in data["selected"]
+            "confirmed": False,
+        }
+        for cert in data["selected"]
     ]
     mongo.db.subs.insert_many(subscriptions)
     send_confirmation_email.delay(token)
@@ -63,18 +80,25 @@ def confirm(token: str):
         return abort(404)
     all_confirmed = all(map(itemgetter("confirmed"), subscriptions))
     if all_confirmed:
-        return render_template("message.html.jinja2", heading="Already confirmed",
-                               lead="You have already confirmed this subscription request.")
+        return render_template(
+            "message.html.jinja2",
+            heading="Already confirmed",
+            lead="You have already confirmed this subscription request.",
+        )
     email_toks = set(map(itemgetter("email_token"), subscriptions))
     if not len(email_toks) == 1:
         current_app.logger.error(f"More than one email_token for subscriptions.")
     mongo.db.subs.update_many({"token": token}, {"$set": {"confirmed": True}})
-    return render_template("notifications/confirmed.html.jinja2", email_token=email_toks.pop())
+    return render_template(
+        "notifications/confirmed.html.jinja2", email_token=email_toks.pop()
+    )
 
 
 @notifications.route("/manage/<string(length=32):email_token>", methods=["GET", "POST"])
 def manage(email_token: str):
-    subscriptions = list(mongo.db.subs.find({"email_token": email_token, "confirmed": True}))
+    subscriptions = list(
+        mongo.db.subs.find({"email_token": email_token, "confirmed": True})
+    )
     if not subscriptions:
         return abort(404)
     email = subscriptions[0]["email"]
@@ -89,8 +113,9 @@ def manage(email_token: str):
             e.label = Label(e.id, sub["certificate"]["name"])
     else:
         subs = {sub["certificate"]["hashid"]: sub for sub in subscriptions}
-        if set(map(lambda s: s.data["certificate_hashid"], form.certificates.entries)) != set(
-                subs.keys()):
+        if set(
+            map(lambda s: s.data["certificate_hashid"], form.certificates.entries)
+        ) != set(subs.keys()):
             return abort(400)
         sub_form: SubscriptionForm
         with mongo.cx.start_session() as session:
@@ -100,11 +125,19 @@ def manage(email_token: str):
                     if not sub_form.subscribe.data:
                         mongo.db.subs.delete_one({"_id": sub["_id"]}, session=session)
                     else:
-                        mongo.db.subs.update_one({"_id": sub["_id"]}, {"$set": {"updates": sub_form.updates.data}},
-                                                 session=session)
+                        mongo.db.subs.update_one(
+                            {"_id": sub["_id"]},
+                            {"$set": {"updates": sub_form.updates.data}},
+                            session=session,
+                        )
         flash("Your notification subscriptions were successfully updated.", "success")
         return redirect(url_for("notify.manage", email_token=email_token))
-    return render_template("notifications/manage.html.jinja2", form=form, email_token=email_token, email=email)
+    return render_template(
+        "notifications/manage.html.jinja2",
+        form=form,
+        email_token=email_token,
+        email=email,
+    )
 
 
 @notifications.route("/unsubscribe/<string(length=32):token>")
@@ -112,10 +145,13 @@ def unsubscribe(token: str):
     res = mongo.db.subs.delete_many({"token": token})
     if res.deleted_count == 0:
         return abort(404)
-    return render_template("message.html.jinja2", heading="Unsubscribed",
-                           lead="You were successfully unsubscribed from your notification subscriptions.",
-                           text="Note that you may still have subscriptions active that you subscribed to at"
-                                "a different point in time.")
+    return render_template(
+        "message.html.jinja2",
+        heading="Unsubscribed",
+        lead="You were successfully unsubscribed from your notification subscriptions.",
+        text="Note that you may still have subscriptions active that you subscribed to at"
+        "a different point in time.",
+    )
 
 
 @notifications.route("/unsubscribe/all/<string(length=32):email_token>")
@@ -123,8 +159,11 @@ def unsubscribe_all(email_token: str):
     res = mongo.db.subs.delete_many({"email_token": email_token})
     if res.deleted_count == 0:
         return abort(404)
-    return render_template("message.html.jinja2", heading="Unsubscribed",
-                           lead="You were successfully unsubscribed from all notification subscriptions.")
+    return render_template(
+        "message.html.jinja2",
+        heading="Unsubscribed",
+        lead="You were successfully unsubscribed from all notification subscriptions.",
+    )
 
 
 @notifications.route("/unsubscribe/request/", methods=["GET", "POST"])
@@ -140,6 +179,9 @@ def unsubscribe_request():
         subscriptions = list(mongo.db.subs.find({"email": email.email}))
         if subscriptions:  # Timing attack but I don't care.
             send_unsubscription_email.delay(email.email)
-        return render_template("message.html.jinja2", heading="Unsubscription request processed",
-                               lead="Your unsubscription request was processed, if there is a subscription active with "
-                                    "the given email address, you will receive an email to confirm unsubscription.")
+        return render_template(
+            "message.html.jinja2",
+            heading="Unsubscription request processed",
+            lead="Your unsubscription request was processed, if there is a subscription active with "
+            "the given email address, you will receive an email to confirm unsubscription.",
+        )
