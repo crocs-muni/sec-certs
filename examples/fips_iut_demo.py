@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import click
+
 from sec_certs.dataset.fips_iut import IUTDataset
 
 
@@ -21,7 +22,7 @@ def main(directory, output):
       in_process.py fips-iut d output.json
     to obtain the parsed output in `output.json`.
     """
-    dataset = IUTDataset.from_dump(directory)
+    dataset = IUTDataset.from_dumps(directory)
     dataset.to_json(output)
 
 
