@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Mapping, Union
 
-from tqdm import tqdm
-
+from sec_certs.dataset.dataset import logger
+from sec_certs.helpers import tqdm
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.serialization.json import ComplexSerializableType
 
@@ -25,7 +25,12 @@ class IUTDataset(ComplexSerializableType):
     def from_dumps(cls, dump_path: Union[str, Path]) -> "IUTDataset":
         directory = Path(dump_path)
         fnames = list(directory.glob("*"))
-        snapshots = [IUTSnapshot.from_dump(dump_path) for dump_path in tqdm(sorted(fnames), total=len(fnames))]
+        snapshots = []
+        for dump_path in tqdm(sorted(fnames), total=len(fnames)):
+            try:
+                snapshots.append(IUTSnapshot.from_dump(dump_path))
+            except Exception as e:
+                logger.error(e)
         return cls(snapshots)
 
     def to_dict(self):

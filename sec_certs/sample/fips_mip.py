@@ -79,6 +79,8 @@ class MIPSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> "MIPSnapshot":
+        if not content:
+            raise ValueError("Empty content in MIP.")
         soup = BeautifulSoup(content, "html.parser")
         tables = soup.find_all("table")
         if len(tables) != 1:

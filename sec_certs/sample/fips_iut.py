@@ -35,9 +35,9 @@ class IUTSnapshot(ComplexSerializableType):
     entries: Set[IUTEntry]
     timestamp: datetime
     last_updated: date
-    displayed: int
-    not_displayed: int
-    total: int
+    displayed: Optional[int]
+    not_displayed: Optional[int]
+    total: Optional[int]
 
     def __len__(self):
         return len(self.entries)
@@ -68,6 +68,8 @@ class IUTSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> "IUTSnapshot":
+        if not content:
+            raise ValueError("Empty content in IUT.")
         soup = BeautifulSoup(content, "html.parser")
         tables = soup.find_all("table")
         if len(tables) != 1:
@@ -95,10 +97,13 @@ class IUTSnapshot(ComplexSerializableType):
 
         # Parse footer
         footer = soup.find(id="IUTFooter")
-        footer_lines = footer.find_all("tr")
-        displayed = int(footer_lines[0].find_all("td")[1].text)
-        not_displayed = int(footer_lines[1].find_all("td")[1].text)
-        total = int(footer_lines[2].find_all("td")[1].text)
+        if footer:
+            footer_lines = footer.find_all("tr")
+            displayed = int(footer_lines[0].find_all("td")[1].text)
+            not_displayed = int(footer_lines[1].find_all("td")[1].text)
+            total = int(footer_lines[2].find_all("td")[1].text)
+        else:
+            displayed, not_displayed, total = (None, None, None)
 
         return cls(
             entries=entries,
