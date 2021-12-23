@@ -225,6 +225,8 @@ def extract_pdf_metadata(filepath: Path):
 
 
 def to_utc(dt):
+    if dt.utcoffset() is None:
+        return dt
     dt -= dt.utcoffset()
     dt = dt.replace(tzinfo=None)
     return dt
