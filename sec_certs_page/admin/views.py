@@ -1,4 +1,13 @@
-from flask import current_app, flash, redirect, render_template, session, url_for
+import pymongo
+from flask import (
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    session,
+    url_for,
+    request,
+)
 from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
 from flask_principal import (
@@ -12,6 +21,8 @@ from flask_principal import (
 from . import admin
 from .forms import LoginForm
 from .user import User
+from .. import mongo
+from ..utils import Pagination
 
 admin_permission = Permission(RoleNeed("admin"))
 
@@ -22,6 +33,27 @@ admin_permission = Permission(RoleNeed("admin"))
 @register_breadcrumb(admin, ".", "Admin")
 def index():
     return render_template("admin/index.html.jinja2")
+
+
+@admin.route("/feedback/")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".feedback", "Feedback")
+def feedback():
+    page = int(request.args.get("page", 1))
+    entries = mongo.db.feedback.find({}).sort([("timestamp", pymongo.DESCENDING)])
+    pagination = Pagination(
+        page=page,
+        per_page=10,
+        search=False,
+        found=entries.count(),
+        total=mongo.db.feedback.count_documents({}),
+        css_framework="bootstrap4",
+        alignment="center",
+    )
+    return render_template(
+        "admin/feedback.html.jinja2", pagination=pagination, entries=entries
+    )
 
 
 @admin.route("/login", methods=["GET", "POST"])
