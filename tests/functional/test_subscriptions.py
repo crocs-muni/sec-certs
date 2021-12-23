@@ -125,7 +125,7 @@ def test_confirm(client: FlaskClient, unconfirmed_subscription):
 
 
 def test_manage(client: FlaskClient, confirmed_subscription):
-    resp = client.get(f"/notify/manage/{unconfirmed_subscription['email_token']}")
+    resp = client.get(f"/notify/manage/{confirmed_subscription['email_token']}")
     assert resp.status_code == 200
 
 
