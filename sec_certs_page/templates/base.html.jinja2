@@ -26,6 +26,7 @@
             /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
+            _paq.push(["disableCookies"]);
             (function () {
                 var u = "https://fadmin.fi.muni.cz/piwik/";
                 _paq.push(['setTrackerUrl', u + 'matomo.php']);
