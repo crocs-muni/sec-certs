@@ -2,14 +2,15 @@ from datetime import datetime
 from operator import itemgetter
 from secrets import token_hex
 
-from flask import request, jsonify, abort, render_template, current_app, flash, url_for, redirect
+from email_validator import EmailNotValidError, validate_email
+from flask import (abort, current_app, flash, jsonify, redirect,
+                   render_template, request, url_for)
 from wtforms import Label
-from email_validator import validate_email, EmailNotValidError
 
 from .. import mongo
-from . import notifications
-from .forms import ManageForm, UnsubscribeForm, SubscriptionForm
 from ..utils import captcha_required, derive_token
+from . import notifications
+from .forms import ManageForm, SubscriptionForm, UnsubscribeForm
 from .tasks import send_confirmation_email, send_unsubscription_email
 
 

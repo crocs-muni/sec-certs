@@ -1,18 +1,19 @@
 """FIPS views."""
 
 import random
-import re
 from operator import itemgetter
 from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import abort, current_app, redirect, render_template, request, url_for, send_file
+from flask import (abort, current_app, redirect, render_template, request,
+                   send_file, url_for)
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
-from .. import mongo, cache
-from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
+from .. import cache, mongo
+from ..utils import (Pagination, add_dots, network_graph_func,
+                     send_json_attachment)
 from . import fips, fips_types, get_fips_graphs, get_fips_map
 
 

@@ -1,12 +1,13 @@
 from datetime import timedelta
 
 from flask import Blueprint
+
 from .. import celery
 
 notifications = Blueprint("notify", __name__, url_prefix="/notify")
 
-from .views import *
 from .tasks import cleanup_subscriptions
+from .views import *
 
 
 @celery.on_after_configure.connect

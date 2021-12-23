@@ -7,11 +7,11 @@ from pathlib import Path
 import pymongo
 import sentry_sdk
 from flask import (abort, current_app, redirect, render_template, request,
-                   url_for, send_file)
+                   send_file, url_for)
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 
-from .. import mongo, cache
+from .. import cache, mongo
 from ..utils import (Pagination, add_dots, network_graph_func,
                      send_json_attachment)
 from . import (cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis,

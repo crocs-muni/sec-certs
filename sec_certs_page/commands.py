@@ -1,8 +1,8 @@
 import json
-
 from hashlib import blake2b
 from operator import itemgetter
 from pprint import pformat
+
 import click
 import pymongo
 from pymongo.errors import BulkWriteError

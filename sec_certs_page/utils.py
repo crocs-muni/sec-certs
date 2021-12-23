@@ -4,17 +4,17 @@ from binascii import unhexlify
 from datetime import date
 from functools import wraps
 from pathlib import Path
-from typing import Any, Union, Tuple, List, Dict
+from typing import Any, Dict, List, Tuple, Union
 
-import requests
 import networkx as nx
-from flask import jsonify, Response, request, current_app, make_response
+import requests
+from flask import Response, current_app, jsonify, make_response, request
 from flask_paginate import Pagination as FlaskPagination
-from werkzeug.exceptions import BadRequest, abort
-from networkx import node_link_data, DiGraph
+from networkx import DiGraph, node_link_data
 from networkx.algorithms.components import weakly_connected_components
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.serialization.json import ComplexSerializableType
+from werkzeug.exceptions import BadRequest, abort
 
 
 class Pagination(FlaskPagination):

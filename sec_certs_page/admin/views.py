@@ -1,12 +1,13 @@
-from flask import render_template, current_app, flash, redirect, url_for, session
-from flask_login import login_user, logout_user, login_required
-from flask_principal import identity_changed, Identity, AnonymousIdentity, Permission, RoleNeed
+from flask import (current_app, flash, redirect, render_template, session,
+                   url_for)
 from flask_breadcrumbs import register_breadcrumb
+from flask_login import login_required, login_user, logout_user
+from flask_principal import (AnonymousIdentity, Identity, Permission, RoleNeed,
+                             identity_changed)
 
 from . import admin
 from .forms import LoginForm
 from .user import User
-
 
 admin_permission = Permission(RoleNeed('admin'))
 

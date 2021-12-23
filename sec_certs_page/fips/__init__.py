@@ -1,10 +1,11 @@
 import json
 from contextvars import ContextVar
-import sentry_sdk
-from flask import Blueprint
-from celery.schedules import crontab
 
-from .. import mongo, celery, app
+import sentry_sdk
+from celery.schedules import crontab
+from flask import Blueprint
+
+from .. import app, celery, mongo
 from ..utils import create_graph
 
 fips = Blueprint("fips", __name__, url_prefix="/fips")
@@ -68,8 +69,8 @@ def get_fips_map():
 
 
 from .commands import *
-from .views import *
 from .tasks import update_data
+from .views import *
 
 
 @celery.on_after_configure.connect

@@ -5,8 +5,8 @@ import json
 import click
 
 from .. import mongo
+from ..commands import _add, _create, _drop, _query, _status, _update
 from . import cc
-from ..commands import _add, _update, _create, _drop, _query, _status
 
 
 def mapper(cert):

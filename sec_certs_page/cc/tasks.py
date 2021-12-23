@@ -1,14 +1,13 @@
 from datetime import datetime
-from pathlib import Path
 from operator import itemgetter
-from pkg_resources import get_distribution
+from pathlib import Path
+from shutil import rmtree
 
 import sentry_sdk
-
 from celery.utils.log import get_task_logger
 from flask import current_app
-from shutil import rmtree
 from jsondiff import diff
+from pkg_resources import get_distribution
 from pymongo import DESCENDING
 from sec_certs.dataset.common_criteria import CCDataset
 

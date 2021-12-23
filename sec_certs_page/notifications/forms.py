@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import FieldList, BooleanField, StringField, SelectField, FormField, validators, HiddenField
+from wtforms import (BooleanField, FieldList, FormField, HiddenField,
+                     SelectField, StringField, validators)
 from wtforms.widgets import TableWidget
 
 

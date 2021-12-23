@@ -3,25 +3,25 @@ from datetime import datetime
 from pathlib import Path
 
 import sentry_sdk
-from flag import flag
 from celery import Celery, Task
-from flask import Flask, render_template, request, abort, jsonify
+from flag import flag
+from flask import Flask, abort, jsonify, render_template, request
 from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from flask_caching import Cache
 from flask_cors import CORS
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_principal import Permission, Principal, RoleNeed
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
-from flask_login import LoginManager
 from flask_wtf import CSRFProtect
-from flask_principal import Principal, RoleNeed, Permission
-from flask_mail import Mail
+from sec_certs.config.configuration import config as tool_config
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.logging import ignore_logger
+from sentry_sdk.integrations.redis import RedisIntegration
 from werkzeug.exceptions import HTTPException
-from sec_certs.config.configuration import config as tool_config
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -131,17 +131,17 @@ def is_admin():
     return Permission(RoleNeed('admin')).can()
 
 
-from .cc import cc
-from .pp import pp
-from .fips import fips
 from .admin import admin
+from .cc import cc
+from .fips import fips
 from .notifications import notifications
+from .pp import pp
 
-app.register_blueprint(cc)
-app.register_blueprint(pp)
-app.register_blueprint(fips)
 app.register_blueprint(admin)
+app.register_blueprint(cc)
+app.register_blueprint(fips)
 app.register_blueprint(notifications)
+app.register_blueprint(pp)
 
 
 @app.route("/")

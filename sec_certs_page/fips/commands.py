@@ -5,7 +5,7 @@ import json
 import click
 
 from .. import mongo
-from ..commands import _add, _create, _drop, _query, _update, _status
+from ..commands import _add, _create, _drop, _query, _status, _update
 from . import fips
 
 

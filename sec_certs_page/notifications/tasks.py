@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
 from celery.utils.log import get_task_logger
-from flask_mail import Message
 from flask import render_template, url_for
+from flask_mail import Message
 
-from .. import celery, mongo, mail
+from .. import celery, mail, mongo
 
 logger = get_task_logger(__name__)
 

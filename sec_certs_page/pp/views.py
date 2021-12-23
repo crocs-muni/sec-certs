@@ -5,13 +5,14 @@ from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import render_template, abort, url_for, request, current_app, redirect, send_file
+from flask import (abort, current_app, redirect, render_template, request,
+                   send_file, url_for)
 from flask_breadcrumbs import register_breadcrumb
 
-from . import pp
 from .. import mongo
 from ..cc import cc_categories
-from ..utils import add_dots, Pagination, send_json_attachment
+from ..utils import Pagination, add_dots, send_json_attachment
+from . import pp
 
 
 @pp.route("/")

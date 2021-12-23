@@ -1,9 +1,8 @@
 import click
 from flask.cli import AppGroup
 
-from .user import User, hash_password
 from .. import app, mongo
-
+from .user import User, hash_password
 
 user_group = AppGroup("user", help="Manage users.")
 app.cli.add_command(user_group)

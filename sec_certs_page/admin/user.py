@@ -1,9 +1,10 @@
 from typing import List
 
 from flask_login import UserMixin, current_user
-from flask_principal import identity_loaded, UserNeed, RoleNeed
-from .. import login, app, mongo
+from flask_principal import RoleNeed, UserNeed, identity_loaded
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from .. import app, login, mongo
 
 
 def hash_password(password):

@@ -2,15 +2,14 @@ from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
-from pkg_resources import get_distribution
 
 import sentry_sdk
-
 from celery.utils.log import get_task_logger
-from sec_certs.dataset.fips import FIPSDataset
 from flask import current_app
 from jsondiff import diff
+from pkg_resources import get_distribution
 from pymongo import DESCENDING
+from sec_certs.dataset.fips import FIPSDataset
 
 from .. import celery, mongo
 from ..utils import dictify_cert
