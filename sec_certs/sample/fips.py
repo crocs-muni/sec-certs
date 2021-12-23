@@ -16,7 +16,7 @@ from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.helpers import load_cert_file, normalize_match_string, save_modified_cert_file
+from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.cpe import CPE
@@ -193,7 +193,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @property
     def dgst(self) -> str:
-        return self.cert_id
+        return fips_dgst(self.cert_id)
 
     @property
     def label_studio_title(self):
@@ -219,7 +219,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     def __init__(
         self,
-        cert_id: str,
+        cert_id: int,
         web_scan: "FIPSCertificate.WebScan",
         pdf_scan: "FIPSCertificate.PdfScan",
         heuristics: "FIPSCertificate.FIPSHeuristics",
@@ -440,7 +440,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         }
         if not initialized:
             items_found = FIPSCertificate.initialize_dictionary()
-            items_found["cert_id"] = file.stem
+            items_found["cert_id"] = int(file.stem)
         else:
             items_found = initialized.web_scan.__dict__
             items_found["cert_id"] = initialized.cert_id
@@ -454,7 +454,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         if redo:
             items_found = FIPSCertificate.initialize_dictionary()
-            items_found["cert_id"] = file.stem
+            items_found["cert_id"] = int(file.stem)
 
         text = helpers.load_cert_html_file(file)
         soup = BeautifulSoup(text, "html.parser")

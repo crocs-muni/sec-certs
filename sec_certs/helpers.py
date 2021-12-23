@@ -71,6 +71,10 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
     return responses
 
 
+def fips_dgst(cert_id: Union[int, str]):
+    return get_first_16_bytes_sha256(str(cert_id))
+
+
 def get_first_16_bytes_sha256(string: str) -> str:
     return hashlib.sha256(string.encode("utf-8")).hexdigest()[:16]
 
