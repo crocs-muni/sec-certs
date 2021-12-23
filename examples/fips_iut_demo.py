@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from sec_certs.iut import IUTDataset
+from sec_certs.dataset.fips_iut import IUTDataset
 
 
 @click.command()

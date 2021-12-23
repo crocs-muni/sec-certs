@@ -1,57 +1,16 @@
 import json
-import logging
-
 from dataclasses import dataclass
-from typing import List, Set, Mapping, Union
-from datetime import datetime, date
+from datetime import datetime
 from pathlib import Path
+from typing import List, Union, Mapping
 
-from tqdm import tqdm
 from bs4 import BeautifulSoup, Tag
-from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
+from tqdm import tqdm
 
-
-@dataclass(frozen=True)
-class IUTEntry(ComplexSerializableType):
-    module_name: str
-    vendor_name: str
-    standard: str
-    iut_date: date
-
-    def to_dict(self):
-        return {**self.__dict__, "iut_date": self.iut_date.isoformat()}
-
-    @classmethod
-    def from_dict(cls, dct: Mapping) -> "IUTEntry":
-        return cls(
-            dct["module_name"],
-            dct["vendor_name"],
-            dct["standard"],
-            date.fromisoformat(dct["iut_date"]),
-        )
-
-
-@dataclass
-class IUTSnapshot(ComplexSerializableType):
-    entries: Set[IUTEntry]
-    timestamp: datetime
-    last_updated: date
-
-    def to_dict(self):
-        return {
-            "entries": list(self.entries),
-            "timestamp": self.timestamp.isoformat(),
-            "last_updated": self.last_updated.isoformat(),
-        }
-
-    @classmethod
-    def from_dict(cls, dct: Mapping) -> "IUTSnapshot":
-        print(type(dct), type(dct["entries"]))
-        return cls(
-            set(dct["entries"]),
-            datetime.fromisoformat(dct["timestamp"]),
-            date.fromisoformat(dct["last_updated"]),
-        )
+from sec_certs.helpers import to_utc
+from sec_certs.dataset.dataset import logger
+from sec_certs.sample.fips_iut import IUTEntry, IUTSnapshot
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
 
 
 @dataclass
@@ -105,7 +64,6 @@ class IUTDataset(ComplexSerializableType):
             }
             snapshots.append(IUTSnapshot(entries, snapshot_date, last_updated))
         return cls(snapshots)
-
 
     def to_dict(self):
         return {

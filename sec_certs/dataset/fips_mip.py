@@ -1,67 +1,16 @@
 import json
-import logging
-
 from dataclasses import dataclass
-from enum import Enum
-from typing import List, Set, Mapping, Union
-from datetime import datetime, date
+from datetime import datetime
 from pathlib import Path
+from typing import List, Union, Mapping
 
-from tqdm import tqdm
 from bs4 import BeautifulSoup, Tag
-from sec_certs.serialization import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
+from tqdm import tqdm
 
-
-logger = logging.getLogger(__name__)
-
-
-class MIPStatus(Enum):
-    IN_REVIEW = "In Review"
-    REVIEW_PENDING = "Review Pending"
-    COORDINATION = "Coordination"
-    FINALIZATION = "Finalization"
-
-
-@dataclass(frozen=True)
-class MIPEntry(ComplexSerializableType):
-    module_name: str
-    vendor_name: str
-    standard: str
-    status: MIPStatus
-
-    def to_dict(self):
-        return {**self.__dict__, "status": self.status.value}
-
-    @classmethod
-    def from_dict(cls, dct: Mapping) -> "MIPEntry":
-        return cls(
-            dct["module_name"],
-            dct["vendor_name"],
-            dct["standard"],
-            MIPStatus(dct["status"]),
-        )
-
-
-@dataclass
-class MIPSnapshot(ComplexSerializableType):
-    entries: Set[MIPEntry]
-    timestamp: datetime
-    last_updated: date
-
-    def to_dict(self):
-        return {
-            "entries": list(self.entries),
-            "timestamp": self.timestamp.isoformat(),
-            "last_updated": self.last_updated.isoformat(),
-        }
-
-    @classmethod
-    def from_dict(cls, dct: Mapping) -> "MIPSnapshot":
-        return cls(
-            set(dct["entries"]),
-            datetime.fromisoformat(dct["timestamp"]),
-            date.fromisoformat(dct["last_updated"]),
-        )
+from sec_certs.dataset.dataset import logger
+from sec_certs.helpers import to_utc
+from sec_certs.sample.fips_mip import MIPEntry, MIPSnapshot, MIPStatus
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONEncoder, CustomJSONDecoder
 
 
 @dataclass
@@ -138,7 +87,6 @@ class MIPDataset(ComplexSerializableType):
                 }
             snapshots.append(MIPSnapshot(entries, snapshot_date, last_updated))
         return cls(snapshots)
-
 
     def to_dict(self):
         return {

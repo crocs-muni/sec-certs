@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from sec_certs.mip import MIPDataset
+from sec_certs.dataset.fips_mip import MIPDataset
 
 
 @click.command()
