@@ -73,7 +73,25 @@
                         </div>
                         <h3>Search</h3>
                         <p>Search through our extracted certificate data, filter by categories or archived status.
-                        Explore the certificates without downloading and reading countless PDFs.</p>
+                            Explore the certificates without downloading and reading countless PDFs.</p>
+                        <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
+                           href="#searchCollapse"
+                           role="button" aria-expanded="false" aria-controls="searchCollapse">Read more
+                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-up"></i></a>
+                        <div class="collapse" id="searchCollapse">
+                            <div class="bg-dark my-3">
+                                <a href="{{ url_for("cc.search") }}" class="btn btn-outline-secondary btn-sm">
+                                    CC
+                                </a>
+                                <a href="{{ url_for("pp.search") }}" class="btn btn-outline-secondary btn-sm">
+                                    PP
+                                </a>
+                                <a href="{{ url_for("fips.search") }}" class="btn btn-outline-secondary btn-sm">
+                                    FIPS
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -81,14 +99,54 @@
                         </div>
                         <h3>References</h3>
                         <p>Explore the references between certificates and security targets in a graph. A certificate
-                            referencing another certificate usually means that it builds up on top of the referenced certificate.</p>
+                            referencing another certificate usually means that it builds up on top of the referenced
+                            certificate.</p>
+                        <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
+                           href="#networkCollapse"
+                           role="button" aria-expanded="false" aria-controls="networkCollapse">Read more
+                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-up"></i></a>
+                        <div class="collapse" id="networkCollapse">
+                            <div class="bg-dark my-3">
+                                <a href="{{ url_for("cc.network") }}" class="btn btn-outline-secondary btn-sm">
+                                    CC
+                                </a>
+                                <a href="{{ url_for("fips.network") }}" class="btn btn-outline-secondary btn-sm">
+                                    FIPS
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-envelope fa-fw"></i>
                         </div>
                         <h3>Notifications</h3>
-                        <p>Subscribe to receive notifications about a vulnerability affecting a selected set of certified products.</p>
+                        <p>Subscribe to receive notifications about a vulnerability affecting a selected set of
+                            certified products.</p>
+                        <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
+                           href="#notificationsCollapse"
+                           role="button" aria-expanded="false" aria-controls="notificationsCollapse">Read more
+                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-up"></i></a>
+                        <div class="collapse" id="notificationsCollapse">
+                            <div class="bg-dark my-3">
+                                {% if not config["SUBSCRIPTIONS_ENABLED"] %}
+                                    <p>Notification subscriptions are currently disabled.</p>
+                                {% endif %}
+                                <p>Use the floating button <span class="fa-stack fa-2x" style="font-size: 0.8rem">
+                                    <i class="fas fa-square fa-stack-2x text-secondary"
+                                       style="vertical-align: middle"></i>
+                                    <i class="fas fa-envelope fa-stack-1x text-light"
+                                       style="vertical-align: middle"></i>
+                                </span> in the bottom right corner of the page to add certificates
+                                    to your selection from the certificate page or the search page. Once you
+                                    are finished with your selection you can enter your email and subscribe for
+                                    notifications about changes in the certificates or vulnerabilities affecting the
+                                    certificates.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
@@ -97,7 +155,28 @@
                             <i class="fas fa-file-alt fa-fw"></i>
                         </div>
                         <h3>Data</h3>
-                        <p>Download our extracted dataset or just data for a particular certificate in a machine readable format.</p>
+                        <p>Download our extracted dataset or just data for a particular certificate in a machine
+                            readable format.</p>
+                        <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
+                           href="#dataCollapse"
+                           role="button" aria-expanded="false" aria-controls="dataCollapse">Read more
+                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-up"></i></a>
+                        <div class="collapse" id="dataCollapse">
+                            <div class="bg-dark my-3">
+                                <p>The full datasets are available on the page of the certification scheme, while
+                                    individual certificate data is available on each certificate page.
+                                </p>
+                                <a href="{{ url_for("cc.index", _anchor="data") }}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    CC
+                                </a>
+                                <a href="{{ url_for("fips.index", _anchor="data") }}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    FIPS
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -105,6 +184,29 @@
                         </div>
                         <h3>Analysis</h3>
                         <p>Explore our analysis of the security certifications landscape as it evolves over time.</p>
+                        <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
+                           href="#analysisCollapse"
+                           role="button" aria-expanded="false" aria-controls="analysisCollapse">Read more
+                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-up"></i></a>
+                        <div class="collapse" id="analysisCollapse">
+                            <div class="bg-dark my-3">
+                                <p>The analysis results presented here are preliminary, for more, see the output of the
+                                    <code>sec-certs</code> tool itself.</p>
+                                <a href="{{ url_for("cc.analysis") }}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    CC
+                                </a>
+                                <a href="{{ url_for("pp.analysis") }}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    PP
+                                </a>
+                                <a href="{{ url_for("fips.analysis") }}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    FIPS
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -112,6 +214,24 @@
                         </div>
                         <h3>Crowdsourcing</h3>
                         <p>Help us improve this site, let us know where some data is missing or wrong.</p>
+                        <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
+                           href="#crowdsourcingCollapse"
+                           role="button" aria-expanded="false" aria-controls="crowdsourcingCollapse">Read more
+                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-up"></i></a>
+                        <div class="collapse" id="crowdsourcingCollapse">
+                            <div class="bg-dark my-3">
+                                <p>Use the feedback bar <span class="fa-stack fa-2x" style="font-size: 0.8rem">
+                                    <i class="fas fa-circle fa-stack-2x text-secondary"
+                                       style="vertical-align: middle"></i>
+                                    <i class="fas fa-question fa-stack-1x text-light"
+                                       style="vertical-align: middle"></i>
+                                </span> on the right side of each certificate page. You can use it to give us feedback
+                                    on individual data fields of the presented certificate, create a GitHub issue with
+                                    your issue or feature request, or emails us with your input.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

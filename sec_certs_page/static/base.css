@@ -24,6 +24,11 @@
     right: 0.7rem;
 }
 
+[aria-expanded="false"] .fa-chevron-up,
+[aria-expanded="true"] .fa-chevron-down {
+    display:none;
+}
+
 #feedback {
     position: fixed;
     right: 0;
