@@ -8,6 +8,7 @@ import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
+from flask_cachecontrol import cache_for
 from networkx import node_link_data
 
 from .. import cache, mongo
@@ -23,6 +24,7 @@ def get_cc_sar(sar):
 
 @cc.route("/sars.json")
 @cache.cached(60 * 60)
+@cache_for(hours=1)
 def sars():
     """Endpoint with CC SAR JSON."""
     return send_json_attachment(cc_sars)
@@ -36,6 +38,7 @@ def get_cc_sfr(sfr):
 
 @cc.route("/sfrs.json")
 @cache.cached(60 * 60)
+@cache_for(hours=1)
 def sfrs():
     """Endpoint with CC SFR JSON."""
     return send_json_attachment(cc_sfrs)
@@ -207,15 +210,13 @@ def rand():
 
 @cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
-    cc,
-    ".entry",
-    "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],
+    cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
+        doc = add_dots(doc)
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
             for profile in doc["protection_profiles"]:
@@ -223,13 +224,27 @@ def entry(hashid):
                 if found:
                     profiles[profile["pp_ids"]] = add_dots(found)
         with sentry_sdk.start_span(op="mongo", description="Find diffs"):
-            diffs = mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])
+            diffs = list(
+                map(add_dots, mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
+            )
+        with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
+            if doc["heuristics"]["related_cves"]:
+                cves = list(map(add_dots, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
+            else:
+                cves = []
+        with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
+            if doc["heuristics"]["cpe_matches"]:
+                cpes = list(map(add_dots, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
+            else:
+                cpes = []
         return render_template(
             "cc/entry.html.jinja2",
-            cert=add_dots(doc),
+            cert=doc,
             hashid=hashid,
             profiles=profiles,
             diffs=diffs,
+            cves=cves,
+            cpes=cpes,
         )
     else:
         return abort(404)

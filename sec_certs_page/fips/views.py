@@ -199,7 +199,18 @@ def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
-        return render_template("fips/entry.html.jinja2", cert=add_dots(doc), hashid=hashid)
+        doc = add_dots(doc)
+        with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
+            if doc["heuristics"]["related_cves"]:
+                cves = list(map(add_dots, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
+            else:
+                cves = []
+        with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
+            if doc["heuristics"]["cpe_matches"]:
+                cpes = list(map(add_dots, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
+            else:
+                cpes = []
+        return render_template("fips/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, cves=cves, cpes=cpes)
     else:
         return abort(404)
 

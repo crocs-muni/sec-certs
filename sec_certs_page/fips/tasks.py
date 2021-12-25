@@ -13,7 +13,7 @@ from pymongo import DESCENDING
 from sec_certs.dataset.fips import FIPSDataset
 
 from .. import celery, mongo
-from ..utils import dictify_cert, dictify_diff
+from ..utils import dictify_diff, dictify_serializable
 
 logger = get_task_logger(__name__)
 
@@ -73,7 +73,7 @@ def update_data():
                 logger.info(f"Processing {len(new_ids)} new certificates.")
                 for id in new_ids:
                     # Add a cert to DB
-                    cert_data = dictify_cert(dset[id])
+                    cert_data = dictify_serializable(dset[id], id_field="dgst")
                     mongo.db.fips.insert_one(cert_data)
                     mongo.db.fips_diff.insert_one(
                         {
@@ -89,7 +89,7 @@ def update_data():
                 for id in updated_ids:
                     # Process an updated cert, it can also be that a "removed" cert reappeared
                     current_cert = mongo.db.fips.find_one({"_id": id})
-                    cert_data = dictify_cert(dset[id])
+                    cert_data = dictify_serializable(dset[id], id_field="dgst")
                     # Find the last diff
                     last_diff = mongo.db.fips_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                     if cert_diff := diff(current_cert, cert_data):

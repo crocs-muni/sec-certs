@@ -19,3 +19,5 @@ The app uses the following collections:
  - `pp_log`: Same as `cc_log` above but instead for protection profiles. **Currently unused**
  - `users`: To store the registered users of the site. **Currently only admins**
  - `subs`: To store the confirmed and unconfirmed notification subscriptions.
+ - `cve`: To store the CVE dataset entries.
+ - `cpe`: To store the CPE dataset entries

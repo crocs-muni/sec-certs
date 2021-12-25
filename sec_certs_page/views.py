@@ -2,7 +2,6 @@ from datetime import datetime
 
 from flask import abort, jsonify, render_template, request
 from flask_breadcrumbs import register_breadcrumb
-from public import public
 from werkzeug.exceptions import HTTPException
 
 from . import app, mongo
@@ -10,13 +9,11 @@ from . import app, mongo
 
 @app.route("/")
 @register_breadcrumb(app, ".", "Home")
-@public
 def index():
     return render_template("index.html.jinja2")
 
 
 @app.route("/feedback/", methods=["POST"])
-@public
 def feedback():
     """Collect feedback from users."""
     data = request.json
@@ -36,13 +33,11 @@ def feedback():
 
 @app.route("/about/")
 @register_breadcrumb(app, ".about", "About")
-@public
 def about():
     return render_template("about.html.jinja2")
 
 
 @app.errorhandler(HTTPException)
-@public
 def error(e):
     return (
         render_template("error.html.jinja2", code=e.code, name=e.name, description=e.description),

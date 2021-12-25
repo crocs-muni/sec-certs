@@ -4,7 +4,7 @@ from binascii import unhexlify
 from datetime import date
 from functools import wraps
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 import networkx as nx
 import requests
@@ -134,7 +134,7 @@ def dictify_diff(diff: Union[dict, list]) -> Union[dict, list]:
     return remove_dots(diff_data)
 
 
-def dictify_cert(cert: CommonCriteriaCert) -> dict:
+def dictify_serializable(serializable: ComplexSerializableType, id_field: Optional[str] = None) -> dict:
     def walk(obj):
         if isinstance(obj, dict):
             return {key: walk(value) for key, value in obj.items()}
@@ -149,9 +149,10 @@ def dictify_cert(cert: CommonCriteriaCert) -> dict:
         else:
             return obj
 
-    cert_data = walk(cert)
-    cert_data["_id"] = cert_data["dgst"]
-    return remove_dots(cert_data)
+    data = walk(serializable)
+    if id_field is not None:
+        data["_id"] = data[id_field]
+    return remove_dots(data)
 
 
 def validate_captcha(req, json) -> None:

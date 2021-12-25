@@ -9,6 +9,7 @@ from flag import flag
 from flask import Flask, request
 from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs
+from flask_cachecontrol import FlaskCacheControl
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -91,6 +92,9 @@ public(assets=assets)
 
 cache: Cache = Cache(app)
 public(cache=cache)
+
+cached: FlaskCacheControl = FlaskCacheControl(app)
+public(cached=cached)
 
 cors: CORS = CORS(app, origins="")
 public(cors=cors)

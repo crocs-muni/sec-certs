@@ -1,10 +1,11 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category %}
+{% from "pp/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
+{% from "cc/utils.html.jinja2" import render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
-    {{ profile["csv_scan"]["cc_pp_name"]|default("") + " | seccerts.org" }}
+        {{ profile["csv_scan"]["cc_pp_name"]|default("") + " | seccerts.org" }}
     </title>
 {% endblock %}
 {% block navbar %}
@@ -21,7 +22,7 @@
     {% endif %}
     {% if "keywords_scan" in profile or "st_keywords_scan" in profile or "processed" in profile %}
         <li class="nav-item">
-            <a class="nav-link" href="#doc-info">Document</a>
+            <a class="nav-link" href="#profile-info">Profile</a>
         </li>
     {% endif %}
     <li class="nav-item">
@@ -34,150 +35,170 @@
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
-        <div class="alert alert-warning d-sm-none" role="alert">
-                  <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+            <div class="alert alert-warning d-sm-none" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-    <div>
-	<h1>{{ profile["csv_scan"]["cc_pp_name"]|default("") }}</h1>
-
-    {% if "csv_scan" in profile %}
-		<div class="mt-5 mb-5">
-		<h2 class="anchor" id="csv-info">CSV information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the CSV protection profile database provided by the Common Criteria portal.">?</span></h2>
-		<b>Status:</b>{{ render_status(profile["csv_scan"]["cert_status"]) }}<br/>
-
-		<b>Certification date:</b>
-		{{ profile["csv_scan"]["cc_certification_date"] }}
-		<br/>
-		{% if profile["csv_scan"]["cc_archived_date"] %}
-		<b>Archived date:</b>
-		{{ profile["csv_scan"]["cc_archived_date"] }}
-		<br/>
-		{% endif %}
-		<b>Scheme:</b>
-		<span title="{{ profile['csv_scan']['scheme'] }}">{{ country_to_flag(profile["csv_scan"]["scheme"]) }}</span>
-		<br/>
-		<b>Category:</b>
-		{{ render_category(profile["csv_scan"]["cc_category"]) }} {{ profile["csv_scan"]["cc_category"] }}
-		<br/>
-		<b>Security level:</b>
-		{{ profile["csv_scan"]["cc_security_level"] }}
-		<br/>
-
-		<div class="mt-2 mb-2">
-			<a class="btn btn-primary" role="button" href="{{ profile['csv_scan']['link_pp_report'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
-			<a class="btn btn-primary" role="button" href="{{ profile['csv_scan']['link_pp_document'] }}" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-file-contract"></i> Protection Profile</a>
-		</div>
-		</div>
-	{% endif %}
-
-	{% if "frontpage_scan" in profile %}
-		<div class="mt-5 mb-5">
-		<h2 class="anchor" id="frontpage-info">Frontpage information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information extracted from the frontpage of the protection profile document.">?</span></h2>
-
-		{% if "cert_id" in profile["frontpage_scan"] %}
-		<b>Protection Profile ID:</b>
-		{{ profile["frontpage_scan"]["pp_id"] }}
-		<br/>
-		{% endif %}
-		{% if "pp_title" in profile["frontpage_scan"] %}
-		<b>Title:</b>
-		{{ profile["frontpage_scan"]["pp_title"] }}
-		<br/>
-		{% endif %}
-		{% if "pp_version_number" in profile["frontpage_scan"] %}
-		<b>Version:</b>
-		{{ profile["frontpage_scan"]["pp_version_number"] }}
-		<br/>
-		{% endif %}
-		{% if "cc_security_level" in profile["frontpage_scan"] %}
-		<b>Security level:</b>
-		{{ profile["frontpage_scan"]["cc_security_level"] }}
-		<br/>
-		{% endif %}
-		</div>
-	{% endif %}
-    
-    {% if "keywords_scan" in profile or "processed" in profile %}
-		<div class="mt-5 mb-5">
-		<h2 class="anchor" id="doc-info">Document information
-		<span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span></h2>
-		{% if "processed" in profile %}
-			{% if "cc_pp_csvid" in profile["processed"] %}
-				<b>Protection Profile ID:</b>
-                <ul>
-                    {% for pp_id in profile["processed"]["cc_pp_csvid"] %}
-                        <li>{{ pp_id }}</li>
-                    {% endfor %}
-                </ul>
-				<br/>
-			{% endif %}
-		{% endif %}
-
-		{% if "keywords_scan" in profile %}
-			<h3 class="mt-4"><i class="fas fa-file-contract"></i> Protection Profile
-            <a role="button" href="{{ profile['csv_scan']['link_pp_document'] }}" style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i class="fas fa-fw fa-download"></i></a></h3>
-			{{ cryptography_keywords(profile["keywords_scan"], "pp") }}
-			{{ device_keywords(profile["keywords_scan"], "pp") }}
-			{{ security_keywords(profile["keywords_scan"], "pp", hidden=["rules_security_level"], map_funcs={"rules_security_assurance_components": render_sars,
-							 																				"rules_security_functional_components": render_sfrs}) }}
-			{{ other_keywords(profile["keywords_scan"], "pp") }}
-		{% endif %}
-		</div>
-	{% endif %}
-
-        <div class="mt-5 mb-5">
-            <h2 class="anchor" id="reference-graph">References
-                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                      data-bs-toggle="tooltip" data-bs-placement="top"
-                      title="Information automatically extracted from the certificate, security target and protection profile documents. Might contain errors.">?</span>
-            </h2>
             <div>
-                {% if certs %}
-                    <ul>
-                    {% for cert in certs %}
-                        {% if "csv_scan" in cert and "cert_item_name" in cert["csv_scan"] %}
-                            {% set cname = cert["csv_scan"]["cert_item_name"] %}
-                        {% else %}
-                            {% set cname = cert["_id"] %}
+                <h1>{{ profile["csv_scan"]["cc_pp_name"]|default("") }}</h1>
+
+                {% if "csv_scan" in profile %}
+                    <div class="mt-5 mb-5">
+                        <h2 class="anchor" id="csv-info">CSV information
+                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                  class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="Information extracted from the CSV protection profile database provided by the Common Criteria portal.">?</span>
+                        </h2>
+                        <b>Status:</b>{{ render_status(profile["csv_scan"]["cert_status"]) }}<br/>
+
+                        <b>Certification date:</b>
+                        {{ profile["csv_scan"]["cc_certification_date"] }}
+                        <br/>
+                        {% if profile["csv_scan"]["cc_archived_date"] %}
+                            <b>Archived date:</b>
+                            {{ profile["csv_scan"]["cc_archived_date"] }}
+                            <br/>
                         {% endif %}
-                        <li>
-                        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cname }}</a>
-                        </li>
-                    {% endfor %}
-                    </ul>
+                        <b>Scheme:</b>
+                        <span title="{{ profile['csv_scan']['scheme'] }}">{{ country_to_flag(profile["csv_scan"]["scheme"]) }}</span>
+                        <br/>
+                        <b>Category:</b>
+                        {{ render_category(profile["csv_scan"]["cc_category"]) }} {{ profile["csv_scan"]["cc_category"] }}
+                        <br/>
+                        <b>Security level:</b>
+                        {{ profile["csv_scan"]["cc_security_level"] }}
+                        <br/>
+
+                        <div class="mt-2 mb-2">
+                            <a class="btn btn-outline-primary" role="button"
+                               href="{{ profile['csv_scan']['link_pp_report'] }}" data-bs-toggle="tooltip"
+                               data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
+                            <a class="btn btn-outline-primary" role="button"
+                               href="{{ profile['csv_scan']['link_pp_document'] }}" data-bs-toggle="tooltip"
+                               data-bs-placement="bottom"><i class="fas fa-file-contract"></i> Protection Profile</a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if "frontpage_scan" in profile and profile["frontpage_scan"][0] %}
+                    <div class="mt-5 mb-3">
+                        <h2 class="anchor" id="frontpage-info">Frontpage information
+                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                  class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="Information extracted from the frontpage of the protection profile document.">?</span>
+                        </h2>
+
+                        {% if "pp_id" in profile["frontpage_scan"][0] %}
+                            <b>Protection Profile ID:</b>
+                            {{ profile["frontpage_scan"][0]["pp_id"] }}
+                            <br/>
+                        {% endif %}
+                        {% if "pp_title" in profile["frontpage_scan"][0] %}
+                            <b>Title:</b>
+                            {{ profile["frontpage_scan"][0]["pp_title"] }}
+                            <br/>
+                        {% endif %}
+                        {% if "pp_version_number" in profile["frontpage_scan"][0] %}
+                            <b>Version:</b>
+                            {{ profile["frontpage_scan"][0]["pp_version_number"] }}
+                            <br/>
+                        {% endif %}
+                        {% if "cc_security_level" in profile["frontpage_scan"][0] %}
+                            <b>Security level:</b>
+                            {{ profile["frontpage_scan"][0]["cc_security_level"] }}
+                            <br/>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {#  heeeere #}
+        <div class="row bg-dark p-3">
+            <div class="col-10 mx-auto p-3 py-md-5 text-light">
+                {% if "keywords_scan" in profile or "processed" in profile %}
+                    <div class="mb-3">
+                        <h2 class="anchor" id="profile-info">Protection profile
+                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                  class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="Information automatically extracted from the protection profile documents. Might contain errors.">?</span>
+                        </h2>
+                        {% if "processed" in profile %}
+                            {% if "cc_pp_csvid" in profile["processed"] and profile["processed"]["cc_pp_csvid"] %}
+                                <b>Protection Profile ID:</b>
+                                <ul>
+                                    {% for pp_id in profile["processed"]["cc_pp_csvid"] %}
+                                        <li>{{ pp_id }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <br/>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if "keywords_scan" in profile %}
+                            <h3 class="mt-4">Extracted keywords</h3>
+                            {{ cryptography_keywords(profile["keywords_scan"], "pp") }}
+                            {{ device_keywords(profile["keywords_scan"], "pp") }}
+                            {{ security_keywords(profile["keywords_scan"], "pp", hidden=["rules_security_level"], map_funcs={"rules_security_assurance_components": render_sars,
+							 																				"rules_security_functional_components": render_sfrs}) }}
+                            {{ other_keywords(profile["keywords_scan"], "pp") }}
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="mt-5 mb-5">
-            <h2 class="anchor" id="raw-data-head">Raw data
-                <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
-                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                        title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
-                <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
-                   style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                   title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-            <pre id="raw-data" class="listing collapse mt-3"><code>{{ profile|tojson(indent=2) }}</code></pre>
-        </div>
-        <script>
-            $(function () {
-                let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl)
-                })
-                new bootstrap.Tooltip($("#raw-data-button").get(0));
-            });
-            $('#raw-data').on('show.bs.collapse', function () {
-                $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-            });
-            $('#raw-data').on('hide.bs.collapse', function () {
-                $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-            });
-        </script>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="mt-3 mb-5">
+                <h2 class="anchor" id="reference-graph">References
+                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
+                          data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Information automatically extracted from the certificate, security target and protection profile documents. Might contain errors.">?</span>
+                </h2>
+                <div>
+                    {% if certs %}
+                        <ul>
+                            {% for cert in certs %}
+                                {% if "csv_scan" in cert and "cert_item_name" in cert["csv_scan"] %}
+                                    {% set cname = cert["csv_scan"]["cert_item_name"] %}
+                                {% else %}
+                                    {% set cname = cert["_id"] %}
+                                {% endif %}
+                                <li>
+                                    <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cname }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No references are available for this protection profile.</p>
+                    {% endif %}
+                </div>
+            </div>
 
-    </div>
+            <div class="mt-5 mb-5">
+                <h2 class="anchor" id="raw-data-head">Raw data
+                    <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
+                            style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                            title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+                    <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
+                       style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                       title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
+                <pre id="raw-data" class="listing collapse mt-3"><code>{{ profile|tojson(indent=2) }}</code></pre>
+            </div>
+            <script>
+                $(function () {
+                    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                    new bootstrap.Tooltip($("#raw-data-button").get(0));
+                });
+                $('#raw-data').on('show.bs.collapse', function () {
+                    $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
+                });
+                $('#raw-data').on('hide.bs.collapse', function () {
+                    $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
+                });
+            </script>
+
         </div>
     </main>
 {% endblock %}

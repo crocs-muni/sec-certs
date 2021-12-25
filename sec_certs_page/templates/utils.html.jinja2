@@ -5,186 +5,258 @@
             margin: auto;
         }
     </style>
-	<div id="network"></div>
-	<script>
-    function renderNetwork(data, types, highlighted) {
-        let height = {{ height }};
-        let width = {{ width }};
-        let color = d => {
-            if (highlighted.includes(d.id)) {
-                return "#d62728"
+    <div id="network"></div>
+    <script>
+        function renderNetwork(data, types, highlighted) {
+            let height = {{ height }};
+            let width = {{ width }};
+            let color = d => {
+                if (highlighted.includes(d.id)) {
+                    return "#d62728"
+                } else {
+                    return "#0d6efd"
+                }
+            }
+            let drag = simulation => {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event, d) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            }
+
+            const links = data.links.map(d => Object.create(d));
+            const nodes = data.nodes.map(d => Object.create(d));
+
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance({{ linkDistance }}).strength(1))
+                .force("charge", d3.forceManyBody().strength({{ linkCharge }}))
+                .force("x", d3.forceX(width / 2))
+                .force("y", d3.forceY(height / 2));
+
+            const zoom = d3.zoom().extent([[0, 0], [width, height]]).scaleExtent([0.25, 4]).on("zoom", zoomed);
+
+            const svg = d3.create("svg")
+                .attr("viewBox", [0, 0, width, height])
+                .style("font", "12px");
+
+            const defs = svg.append("defs");
+
+            defs.selectAll("marker")
+                .data(["default"])
+                .join("marker")
+                .attr("id", d => d)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 25)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("fill", "#888")
+                .attr("fill-opacity", 0.6)
+                .attr("d", "M0,-5L10,0L0,5");
+
+            let dTypes = Object.keys(types).map(type => types[type]);
+
+            defs.selectAll("g")
+                .data(dTypes)
+                .join("g")
+                .attr("id", d => d.id)
+                .attr("viewBox", "0 0 512 512")
+                .attr("transform", "translate(-12, -10) scale(0.05)")
+                .html(d => d.svg)
+
+            const g = svg.append("g");
+
+            svg.append("text")
+                .attr("fill", "#000")
+                .attr("x", 5)
+                .attr("y", 15)
+                .text("Nodes: " + nodes.length);
+
+            svg.append("text")
+                .attr("fill", "#000")
+                .attr("x", 5)
+                .attr("y", 30)
+                .text("Edges: " + links.length);
+
+            const link = g.append("g")
+                .attr("stroke", "#888")
+                .attr("stroke-opacity", 0.6)
+                .selectAll("line")
+                .data(links)
+                .join("line")
+                .attr("stroke-width", d => Math.sqrt(d.value))
+                .attr("marker-end", "url(" + new URL("#default", location) + ")");
+
+            const node = g.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .join("g")
+                .call(drag(simulation));
+
+            node.append("a")
+                .attr("href", d => d.href)
+                .append("use")
+                .attr("xlink:href", d => "#" + d.type)
+                .attr("fill", color);
+
+            const text = node.append("text")
+                .attr("fill", "#000")
+                .attr("visibility", "hidden");
+
+            text.append("tspan")
+                .text(d => d.certid)
+                .attr("x", 20)
+                .attr("y", "0.2em");
+
+            text.append("tspan")
+                .text(d => d.name)
+                .attr("x", 20)
+                .attr("y", "1.2em");
+
+            svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
+
+            function zoomed({transform}) {
+                g.attr("transform", transform);
+            }
+
+            let closest = null;
+
+            svg.on("mousemove", event => {
+                let transform = d3.zoomTransform(g.node());
+                let ptr = d3.pointer(event, svg.node());
+                ptr = transform.invert(ptr);
+                let x = ptr[0];
+                let y = ptr[1];
+                let newClosest = simulation.find(x, y);
+                if (newClosest !== closest) {
+                    node.each(function (d, i) {
+                        if (i === newClosest.index) {
+                            d3.select(this).select("text").attr("visibility", null);
+                            d3.select(this).select("use").attr("fill", "#000");
+                        } else if (closest !== null && i === closest.index) {
+                            d3.select(this).select("text").attr("visibility", "hidden");
+                            d3.select(this).select("use").attr("fill", color);
+                        }
+                    });
+                    closest = newClosest;
+                }
+            });
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => d3.zoomIdentity.translate(d.x, d.y));
+            });
+
+            d3.select("#network").append(() => svg.node());
+        }
+
+        let highlighted = {{ highlight|safe }};
+
+        Promise.all([d3.json("{{ net_url }}"), d3.json("{{ type_url }}")]).then(values => {
+            let data = values[0];
+            let types = values[1];
+            if (("nodes" in data) && ("links" in data)) {
+                renderNetwork(data, types, highlighted);
             } else {
-                return "#0d6efd"
-            }
-        }
-        let drag = simulation => {
-            function dragstarted(event) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
 
-            function dragged(event, d) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
-
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-
-            return d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended);
-        }
-
-        const links = data.links.map(d => Object.create(d));
-        const nodes = data.nodes.map(d => Object.create(d));
-
-        const simulation = d3.forceSimulation(nodes)
-          .force("link", d3.forceLink(links).id(d => d.id).distance({{ linkDistance }}).strength(1))
-          .force("charge", d3.forceManyBody().strength({{ linkCharge }}))
-          .force("x", d3.forceX(width/2))
-          .force("y", d3.forceY(height/2));
-
-        const zoom = d3.zoom().extent([[0, 0], [width, height]]).scaleExtent([0.25, 4]).on("zoom", zoomed);
-
-        const svg = d3.create("svg")
-            .attr("viewBox", [0, 0, width, height])
-            .style("font", "12px");
-
-        const defs = svg.append("defs");
-
-        defs.selectAll("marker")
-            .data(["default"])
-            .join("marker")
-            .attr("id", d => d)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 25)
-            .attr("refY", 0)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto")
-            .append("path")
-            .attr("fill", "#888")
-            .attr("fill-opacity", 0.6)
-            .attr("d", "M0,-5L10,0L0,5");
-
-        let dTypes = Object.keys(types).map(type => types[type]);
-
-        defs.selectAll("g")
-            .data(dTypes)
-            .join("g")
-            .attr("id", d => d.id)
-            .attr("viewBox", "0 0 512 512")
-            .attr("transform", "translate(-12, -10) scale(0.05)")
-            .html(d => d.svg)
-
-        const g = svg.append("g");
-
-        svg.append("text")
-            .attr("fill", "#000")
-            .attr("x", 5)
-            .attr("y", 15)
-            .text("Nodes: " + nodes.length);
-
-        svg.append("text")
-            .attr("fill", "#000")
-            .attr("x", 5)
-            .attr("y", 30)
-            .text("Edges: " + links.length);
-
-        const link = g.append("g")
-            .attr("stroke", "#888")
-            .attr("stroke-opacity", 0.6)
-            .selectAll("line")
-            .data(links)
-            .join("line")
-            .attr("stroke-width", d => Math.sqrt(d.value))
-            .attr("marker-end", "url(" + new URL("#default", location) + ")");
-
-        const node = g.append("g")
-            .selectAll("g")
-            .data(nodes)
-            .join("g")
-            .call(drag(simulation));
-
-        node.append("a")
-            .attr("href", d => d.href)
-            .append("use")
-            .attr("xlink:href", d => "#" + d.type)
-            .attr("fill", color);
-
-        const text = node.append("text")
-            .attr("fill", "#000")
-            .attr("visibility", "hidden");
-
-        text.append("tspan")
-            .text(d => d.certid)
-            .attr("x", 20)
-            .attr("y", "0.2em");
-
-        text.append("tspan")
-            .text(d => d.name)
-            .attr("x", 20)
-            .attr("y", "1.2em");
-
-        svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
-
-        function zoomed({transform}) {
-            g.attr("transform", transform);
-        }
-
-        let closest = null;
-
-        svg.on("mousemove", event => {
-            let transform = d3.zoomTransform(g.node());
-            let ptr = d3.pointer(event, svg.node());
-            ptr = transform.invert(ptr);
-            let x = ptr[0];
-            let y = ptr[1];
-            let newClosest = simulation.find(x, y);
-            if (newClosest !== closest) {
-                node.each(function (d, i) {
-                    if (i === newClosest.index) {
-                        d3.select(this).select("text").attr("visibility", null);
-                        d3.select(this).select("use").attr("fill", "#000");
-                    } else if (closest !== null && i === closest.index) {
-                        d3.select(this).select("text").attr("visibility", "hidden");
-                        d3.select(this).select("use").attr("fill", color);
-                    }
-                });
-                closest = newClosest;
             }
         });
+    </script>
+{%- endmacro %}
 
-        simulation.on("tick", () => {
-            link
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
+{% macro render_cves(cves) %}
+    <table class="table table-striped my-2">
+        <colgroup>
+            <col style="width:15%">
+            <col style="width:10%">
+            <col style="width:20%">
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:15%">
+        </colgroup>
+        <thead class="table-light">
+        <tr>
+            <th scope="col" colspan="1" rowspan="2">ID</th>
+            <th scope="col" colspan="1" rowspan="2">Links</th>
+            <th scope="col" colspan="1" rowspan="2">Severity</th>
+            <th scope="col" colspan="3">CVSS Score</th>
+            <th scope="col" colspan="1" rowspan="2">Published on</th>
+        </tr>
+        <tr>
+            <th scope="col" style="border-bottom-color: #dfe0e1">Base</th>
+            <th scope="col" style="border-bottom-color: #dfe0e1">Exploitability</th>
+            <th scope="col" style="border-bottom-color: #dfe0e1">Impact</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% set years = namespace(cve=None, current=None) %}
+        {% for cve in cves %}
+            {% set years.current = cve["cve_id"].split("-")[1] %}
+            <tr {% if years.current != years.cve and years.cve %}
+                style="border-top: 2px solid var(--bs-dark)"{% endif %}>
+                <td>{{ cve["cve_id"] }}</td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <a href="https://www.cve.org/CVERecord?id={{ cve["cve_id"] }}"
+                           target="_blank" rel="noopener" title="CVE at cve.org"
+                           class="btn btn-outline-secondary btn-sm">C</a>
+                        <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cve["cve_id"] }}"
+                           target="_blank" rel="noopener" title="CVE at cve.mitre.org"
+                           class="btn btn-outline-secondary btn-sm">M</a>
+                        <a href="https://nvd.nist.gov/vuln/detail/{{ cve["cve_id"] }}" target="_blank"
+                           rel="noopener" title="CVE in NIST's Vulnerability Database"
+                           class="btn btn-outline-secondary btn-sm">N</a>
+                    </div>
+                </td>
+                <td>
+                    {% if cve["impact"]["severity"] == "CRITICAL" %}
+                        <span style="color: var(--bs-red)"><i class="fas fa-fw fa-exclamation-triangle"></i></span>
+                        CRITICAL
+                    {% elif cve["impact"]["severity"] == "HIGH" %}
+                        <span style="color: var(--bs-orange)"><i class="fas fa-fw fa-exclamation-circle"></i></span>
+                        HIGH
+                    {% elif cve["impact"]["severity"] == "MEDIUM" %}
+                        <span style="color: var(--bs-yellow)"><i class="fas fa-fw fa-exclamation"></i></span> MEDIUM
+                    {% elif cve["impact"]["severity"] == "LOW" %}
+                        <span style="color: var(--bs-green)"><i class="fas fa-fw fa-exclamation"></i></span> LOW
+                    {% else %}
+                        {{ cve["impact"]["severity"] }}
+                    {% endif %}
+                </td>
+                <td>{{ cve["impact"]["base_score"] }}</td>
+                <td>{{ cve["impact"]["explotability_score"] }}</td>
+                <td>{{ cve["impact"]["impact_score"] }}</td>
+                <td>{{ cve["published_date"]|strptime("%Y-%m-%d %H:%M:%S+00:00")|strftime("%d.%m.%Y %H:%M") }}</td>
 
-            node
-                .attr("transform", d => d3.zoomIdentity.translate(d.x, d.y));
-        });
-
-        d3.select("#network").append(() => svg.node());
-    }
-
-    let highlighted = {{ highlight|safe }};
-
-	Promise.all([d3.json("{{ net_url }}"), d3.json("{{ type_url }}")]).then(values => {
-	    let data = values[0];
-	    let types = values[1];
-        if (("nodes" in data) && ("links" in data)) {
-            renderNetwork(data, types, highlighted);
-        } else {
-
-        }
-    });
-	</script>
+            </tr>
+            {% set years.cve = years.current %}
+        {% endfor %}
+        </tbody>
+    </table>
 {%- endmacro %}

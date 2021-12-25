@@ -54,6 +54,8 @@ def init_collections():
         "users",
         "feedback",
         "subs",
+        "cve",
+        "cpe",
     }
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)
