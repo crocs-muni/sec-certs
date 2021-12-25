@@ -5,6 +5,7 @@ from datetime import date
 from functools import wraps
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
+from jsondiff.symbols import Symbol
 
 import networkx as nx
 import requests
@@ -85,7 +86,7 @@ def remove_dots(data: Union[dict, list]) -> Union[dict, list]:
         ks = list(data.keys())
         for key in ks:
             data[key] = remove_dots(data[key])
-            if "." in key:
+            if isinstance(key, str) and "." in key:
                 data[key.replace(".", "\uff0e")] = data[key]
                 del data[key]
     elif isinstance(data, list):
@@ -108,6 +109,26 @@ def add_dots(data):
     elif isinstance(data, list):
         data = list(map(add_dots, data))
     return data
+
+
+def dictify_diff(diff: dict) -> dict:
+    def map_key(key):
+        if isinstance(key, Symbol):
+            return f"__{key.label}__"
+        if not isinstance(key, str):
+            return str(key)
+        return key
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            return {map_key(key): walk(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [walk(o) for o in obj]
+        else:
+            return obj
+
+    diff_data = walk(diff)
+    return remove_dots(diff_data)
 
 
 def dictify_cert(cert: CommonCriteriaCert) -> dict:

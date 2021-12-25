@@ -1,13 +1,11 @@
 import json
-import subprocess
 from contextvars import ContextVar
 from datetime import datetime
 
 import sentry_sdk
-from celery.schedules import crontab
 from flask import Blueprint
 
-from .. import app, celery, mongo
+from .. import mongo
 from ..utils import create_graph
 
 cc = Blueprint("cc", __name__, url_prefix="/cc")
@@ -154,15 +152,4 @@ def get_cc_analysis():
 
 
 from .commands import *
-from .tasks import update_data
 from .views import *
-
-
-@celery.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    if app.config["UPDATE_TASK_SCHEDULE"]["cc"]:
-        sender.add_periodic_task(
-            crontab(*app.config["UPDATE_TASK_SCHEDULE"]["cc"]),
-            update_data.s(),
-            name="Update CC data.",
-        )

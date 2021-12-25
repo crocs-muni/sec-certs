@@ -2,10 +2,9 @@ import json
 from contextvars import ContextVar
 
 import sentry_sdk
-from celery.schedules import crontab
 from flask import Blueprint
 
-from .. import app, celery, mongo
+from .. import mongo
 from ..utils import create_graph
 
 fips = Blueprint("fips", __name__, url_prefix="/fips")
@@ -76,15 +75,4 @@ def get_fips_map():
 
 
 from .commands import *
-from .tasks import update_data
 from .views import *
-
-
-@celery.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    if app.config["UPDATE_TASK_SCHEDULE"]["fips"]:
-        sender.add_periodic_task(
-            crontab(*app.config["UPDATE_TASK_SCHEDULE"]["fips"]),
-            update_data.s(),
-            name="Update FIPS data.",
-        )

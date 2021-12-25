@@ -56,11 +56,11 @@ CC_GRAPH = "CERT_ONLY"
 SEARCH_ITEMS_PER_PAGE = 20
 
 # Schedule for the periodic update tasks.
-UPDATE_TASK_SCHEDULE = {
-    # minute, hour, day_of_week, day_of_month, month_of_year
-    "cc": (15, 0, "*", "*", "*"),
-    "fips": (30, 0, "*", "*", "*")
-}
+# minute, hour, day_of_week, day_of_month, month_of_year
+UPDATE_TASK_SCHEDULE = (0, 0, "*", "*", "*")
+
+# Paths inside the instance directory where the CVE dataset will be stored.
+DATASET_PATH_CVE = "cve.json"
 
 # Paths inside the instance directory where the CC and FIPS datasets will be stored and processed.
 DATASET_PATH_CC = "cc_dataset"
@@ -71,5 +71,5 @@ DATASET_PATH_FIPS_OUT = "fips.json"
 # Path for the sec-certs tool settings file inside the instance directory
 TOOL_SETTINGS_PATH = "settings.yaml"
 
-# Whether notification subscriptions are enabled
+# Whether notification subscriptions are enabled.
 SUBSCRIPTIONS_ENABLED = True

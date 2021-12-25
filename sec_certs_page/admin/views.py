@@ -4,9 +4,9 @@ from flask import (
     flash,
     redirect,
     render_template,
+    request,
     session,
     url_for,
-    request,
 )
 from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
@@ -18,11 +18,11 @@ from flask_principal import (
     identity_changed,
 )
 
+from .. import mongo
+from ..utils import Pagination
 from . import admin
 from .forms import LoginForm
 from .user import User
-from .. import mongo
-from ..utils import Pagination
 
 admin_permission = Permission(RoleNeed("admin"))
 

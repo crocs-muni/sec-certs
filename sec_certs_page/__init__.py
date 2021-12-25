@@ -4,10 +4,11 @@ from pathlib import Path
 
 import sentry_sdk
 from celery import Celery, Task
+from celery.schedules import crontab
 from flag import flag
-from flask import Flask, abort, jsonify, render_template, request
+from flask import Flask
 from flask_assets import Environment as Assets
-from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
+from flask_breadcrumbs import Breadcrumbs
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -21,7 +22,6 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
-from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -144,41 +144,15 @@ app.register_blueprint(notifications)
 app.register_blueprint(pp)
 
 
-@app.route("/")
-@register_breadcrumb(app, ".", "Home")
-def index():
-    return render_template("index.html.jinja2")
+from .tasks import run_updates
+from .views import *
 
 
-@app.route("/feedback/", methods=["POST"])
-def feedback():
-    """Collect feedback from users."""
-    data = request.json
-    if set(data.keys()) != {"element", "comment", "path"}:
-        return abort(400)
-    for key in ("element", "comment", "path"):
-        # TODO Add validation to client (or info abut feedback length).
-        if not isinstance(data[key], str) or len(data[key]) > 256:
-            return abort(400)
-    # TODO add captcha
-    data["ip"] = request.remote_addr
-    data["timestamp"] = datetime.now()
-    data["useragent"] = request.user_agent.string
-    mongo.db.feedback.insert_one(data)
-    return jsonify({"status": "OK"})
-
-
-@app.route("/about/")
-@register_breadcrumb(app, ".about", "About")
-def about():
-    return render_template("about.html.jinja2")
-
-
-@app.errorhandler(HTTPException)
-def error(e):
-    return (
-        render_template(
-            "error.html.jinja2", code=e.code, name=e.name, description=e.description
-        ),
-        e.code,
-    )
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    if app.config["UPDATE_TASK_SCHEDULE"]:
+        sender.add_periodic_task(
+            crontab(*app.config["UPDATE_TASK_SCHEDULE"]),
+            run_updates.s(),
+            name="Update data.",
+        )
