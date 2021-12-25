@@ -20,9 +20,7 @@ def add(file):
 
 
 @fips.cli.command("update", help="Update FIPS 140 certs.")
-@click.option(
-    "-r", "--remove", is_flag=True, help="Remove certs not present in the update file."
-)
+@click.option("-r", "--remove", is_flag=True, help="Remove certs not present in the update file.")
 @click.argument("file", type=click.File())
 def update(file, remove):
     _update(file, remove, mongo.db.fips, ["certs"], mapper)
@@ -39,9 +37,7 @@ def drop():
 
 
 @fips.cli.command("query", help="Query the MongoDB for certs.")
-@click.option(
-    "-p", "--projection", type=json.loads, help="Projection to use with the query."
-)
+@click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
 def query(query, projection):
     _query(query, projection, mongo.db.fips)

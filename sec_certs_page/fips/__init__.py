@@ -2,17 +2,17 @@ import json
 from contextvars import ContextVar
 
 import sentry_sdk
-from flask import Blueprint
+from flask import Blueprint, url_for
 
 from .. import mongo
 from ..utils import create_graph
 
-fips = Blueprint("fips", __name__, url_prefix="/fips")
+fips: Blueprint = Blueprint("fips", __name__, url_prefix="/fips")
 fips.cli.short_help = "FIPS 140 commands."
 
-fips_mem_graphs = ContextVar("fips_graphs")
-fips_mem_map = ContextVar("fips_map")
-fips_mem_changes = ContextVar("fips_changes")
+fips_mem_graphs: ContextVar = ContextVar("fips_graphs")
+fips_mem_map: ContextVar = ContextVar("fips_map")
+fips_mem_changes: ContextVar = ContextVar("fips_changes")
 
 with fips.open_resource("types.json") as f:
     fips_types = json.load(f)

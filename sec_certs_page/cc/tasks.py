@@ -20,8 +20,9 @@ logger = get_task_logger(__name__)
 
 @celery.task(ignore_result=True)
 def notify(run_id):
-    run = mongo.db.cc_log.find_one({"_id": run_id})
-    diffs = mongo.db.cc_diff.find({"run_id": run_id})
+    # run = mongo.db.cc_log.find_one({"_id": run_id})
+    # diffs = mongo.db.cc_diff.find({"run_id": run_id})
+    pass
 
 
 @celery.task(ignore_result=True)
@@ -42,25 +43,15 @@ def update_data():
         os.symlink(cpe_path, dset.cpe_dataset_path)
     try:
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
-            with sentry_sdk.start_span(
-                    op="cc.get_certs", description="Get certs from web"
-            ):
+            with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"):
                 dset.get_certs_from_web()
-            with sentry_sdk.start_span(
-                    op="cc.download_pdfs", description="Download pdfs"
-            ):
+            with sentry_sdk.start_span(op="cc.download_pdfs", description="Download pdfs"):
                 dset.download_all_pdfs()
-            with sentry_sdk.start_span(
-                    op="cc.convert_pdfs", description="Convert pdfs"
-            ):
+            with sentry_sdk.start_span(op="cc.convert_pdfs", description="Convert pdfs"):
                 dset.convert_all_pdfs()
-            with sentry_sdk.start_span(
-                    op="cc.analyze", description="Analyze certificates"
-            ):
+            with sentry_sdk.start_span(op="cc.analyze", description="Analyze certificates"):
                 dset.analyze_certificates()
-            with sentry_sdk.start_span(
-                    op="cc.maintenance_updates", description="Process maintenance updates"
-            ):
+            with sentry_sdk.start_span(op="cc.maintenance_updates", description="Process maintenance updates"):
                 dset.process_maintenance_updates()
             dset.to_json(output_path)
         end = datetime.now()
@@ -76,9 +67,7 @@ def update_data():
         )
         logger.info(f"Finished run {update_result.inserted_id}.")
 
-        old_ids = set(
-            map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1}))
-        )
+        old_ids = set(map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
 
         new_ids = current_ids.difference(old_ids)
@@ -88,9 +77,7 @@ def update_data():
         # TODO: Take dataset and certificate state into account when processing into DB.
 
         with sentry_sdk.start_span(op="cc.db", description="Process certs into DB."):
-            with sentry_sdk.start_span(
-                    op="cc.db.new", description="Process new certs."
-            ):
+            with sentry_sdk.start_span(op="cc.db.new", description="Process new certs."):
                 logger.info(f"Processing {len(new_ids)} new certificates.")
                 for id in new_ids:
                     # Add a cert to DB
@@ -105,18 +92,14 @@ def update_data():
                             "diff": cert_data,
                         }
                     )
-            with sentry_sdk.start_span(
-                    op="cc.db.updated", description="Process updated certs."
-            ):
+            with sentry_sdk.start_span(op="cc.db.updated", description="Process updated certs."):
                 logger.info(f"Processing {len(updated_ids)} updated certificates.")
                 for id in updated_ids:
                     # Process an updated cert, it can also be that a "removed" cert reappeared
                     current_cert = mongo.db.cc.find_one({"_id": id})
                     cert_data = dictify_cert(dset[id])
                     # Find the last diff
-                    last_diff = mongo.db.cc_diff.find_one(
-                        {"dgst": id}, sort=[("timestamp", DESCENDING)]
-                    )
+                    last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                     if cert_diff := diff(current_cert, cert_data, syntax="explicit"):
                         # The cert changed, issue an update
                         mongo.db.cc.replace_one({"_id": id}, cert_data)
@@ -139,15 +122,11 @@ def update_data():
                                 "type": "back",
                             }
                         )
-            with sentry_sdk.start_span(
-                    op="cc.db.removed", description="Process removed certs."
-            ):
+            with sentry_sdk.start_span(op="cc.db.removed", description="Process removed certs."):
                 logger.info(f"Processing {len(removed_ids)} removed certificates.")
                 for id in removed_ids:
                     # Find the last diff on this cert, if it is mark for removal, just continue
-                    last_diff = mongo.db.cc_diff.find_one(
-                        {"dgst": id}, sort=[("timestamp", DESCENDING)]
-                    )
+                    last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                     if last_diff and last_diff["type"] == "remove":
                         continue
                     # Mark the removal (but only once)

@@ -3,18 +3,18 @@ from contextvars import ContextVar
 from datetime import datetime
 
 import sentry_sdk
-from flask import Blueprint
+from flask import Blueprint, current_app, url_for
 
 from .. import mongo
 from ..utils import create_graph
 
-cc = Blueprint("cc", __name__, url_prefix="/cc")
+cc: Blueprint = Blueprint("cc", __name__, url_prefix="/cc")
 cc.cli.short_help = "Common Criteria commands."
 
-cc_mem_graphs = ContextVar("cc_graphs")
-cc_mem_analysis = ContextVar("cc_analysis")
-cc_mem_map = ContextVar("cc_map")
-cc_mem_changes = ContextVar("cc_changes")
+cc_mem_graphs: ContextVar = ContextVar("cc_graphs")
+cc_mem_analysis: ContextVar = ContextVar("cc_analysis")
+cc_mem_map: ContextVar = ContextVar("cc_map")
+cc_mem_changes: ContextVar = ContextVar("cc_changes")
 
 with cc.open_resource("sfrs.json") as f:
     cc_sfrs = json.load(f)
@@ -58,17 +58,13 @@ def load_cc_data():
                 and cert["pdf_data"]["report_keywords"]["rules_cert_id"]
             ):
                 # Add references from cert
-                reference["refs"].extend(
-                    cert["pdf_data"]["report_keywords"]["rules_cert_id"].keys()
-                )
+                reference["refs"].extend(cert["pdf_data"]["report_keywords"]["rules_cert_id"].keys())
             if (
                 current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY")
                 and cert["pdf_data"]["st_keywords"]["rules_cert_id"]
             ):
                 # Add references from security target
-                reference["refs"].extend(
-                    cert["pdf_data"]["st_keywords"]["rules_cert_id"].keys()
-                )
+                reference["refs"].extend(cert["pdf_data"]["st_keywords"]["rules_cert_id"].keys())
             cc_references[cert_id] = reference
 
     with sentry_sdk.start_span(op="cc.load", description="Compute CC graph"):
@@ -83,18 +79,11 @@ def load_cc_data():
         for cert in data.clone():
             cc_analysis["categories"].setdefault(cert["category"], 0)
             cc_analysis["categories"][cert["category"]] += 1
-        cc_analysis["categories"] = [
-            {"name": key, "value": value}
-            for key, value in cc_analysis["categories"].items()
-        ]
+        cc_analysis["categories"] = [{"name": key, "value": value} for key, value in cc_analysis["categories"].items()]
 
         cc_analysis["certified"] = {}
         for cert in data.clone():
-            cert_month = (
-                datetime.strptime(cert["not_valid_before"], "%Y-%m-%d")
-                .replace(day=1)
-                .strftime("%Y-%m-%d")
-            )
+            cert_month = datetime.strptime(cert["not_valid_before"], "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
             cc_analysis["certified"].setdefault(cert["category"], [])
             months = cc_analysis["certified"][cert["category"]]
             for month in months:

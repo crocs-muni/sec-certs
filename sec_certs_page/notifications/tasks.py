@@ -13,9 +13,7 @@ logger = get_task_logger(__name__)
 def send_confirmation_email(token):
     subscription_requests = list(mongo.db.subs.find({"token": token}))
     if not subscription_requests:
-        logger.warning(
-            f"Subscription requests for token = {token} not found, likely a race."
-        )
+        logger.warning(f"Subscription requests for token = {token} not found, likely a race.")
         return
     email = subscription_requests[0]["email"]
     email_token = subscription_requests[0]["email_token"]
@@ -28,9 +26,7 @@ def send_confirmation_email(token):
         "Confirmation request | seccerts.org",
         recipients=[email],
         html=body,
-        extra_headers={
-            "List-Unsubscribe": f"<{url_for('notify.unsubscribe', token=token, _external=True)}>"
-        },
+        extra_headers={"List-Unsubscribe": f"<{url_for('notify.unsubscribe', token=token, _external=True)}>"},
     )
     mail.send(msg)
     logger.info(f"Sent confirmation email for token = {token}")
@@ -40,15 +36,11 @@ def send_confirmation_email(token):
 def send_unsubscription_email(email):
     subscription_requests = list(mongo.db.subs.find({"email": email}))
     if not subscription_requests:
-        logger.warning(f"Subscription requests not found, likely a race.")
+        logger.warning("Subscription requests not found, likely a race.")
         return
     email_token = subscription_requests[0]["email_token"]
-    body = render_template(
-        "notifications/unsubscription_email.html.jinja2", email_token=email_token
-    )
-    msg = Message(
-        "Unsubscription request | seccerts.org", recipients=[email], html=body
-    )
+    body = render_template("notifications/unsubscription_email.html.jinja2", email_token=email_token)
+    msg = Message("Unsubscription request | seccerts.org", recipients=[email], html=body)
     mail.send(msg)
     logger.info(f"Sent unsubscription email for email_token = {email_token}")
 

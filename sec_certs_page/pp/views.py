@@ -5,15 +5,7 @@ from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import (
-    abort,
-    current_app,
-    redirect,
-    render_template,
-    request,
-    send_file,
-    url_for,
-)
+from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 
 from .. import mongo
@@ -25,9 +17,7 @@ from . import pp
 @pp.route("/")
 @register_breadcrumb(pp, ".", "Protection Profiles")
 def index():
-    return render_template(
-        "pp/index.html.jinja2", title="Protection Profiles | seccerts.org"
-    )
+    return render_template("pp/index.html.jinja2", title="Protection Profiles | seccerts.org")
 
 
 @pp.route("/network/")
@@ -158,9 +148,7 @@ def search_pagination():
     pp,
     ".entry",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [
-        {"text": request.view_args["hashid"]}
-    ],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
@@ -191,9 +179,7 @@ def entry(hashid):
                         }
                     )
                     certs = list(map(add_dots, docs))
-        return render_template(
-            "pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid, certs=certs
-        )
+        return render_template("pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid, certs=certs)
     else:
         return abort(404)
 

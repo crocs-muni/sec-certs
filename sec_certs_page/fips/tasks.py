@@ -36,21 +36,15 @@ def update_data():
         os.symlink(cpe_path, dset.cpe_dataset_path)
     try:
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
-            with sentry_sdk.start_span(
-                op="fips.get_certs", description="Get certs from web"
-            ):
+            with sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"):
                 dset.get_certs_from_web()
-            with sentry_sdk.start_span(
-                op="fips.convert_pdfs", description="Convert pdfs"
-            ):
+            with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"):
                 dset.convert_all_pdfs()
             with sentry_sdk.start_span(op="fips.scan_pdfs", description="Scan pdfs"):
                 dset.pdf_scan()
             with sentry_sdk.start_span(op="fips.tables", description="Extract tables"):
                 dset.extract_certs_from_tables(high_precision=True)
-            with sentry_sdk.start_span(
-                op="fips.finalize_results", description="Finalize results"
-            ):
+            with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
                 dset.finalize_results()
             dset.to_json(output_path)
         end = datetime.now()
@@ -65,9 +59,7 @@ def update_data():
         )
         logger.info(f"Finished run {update_result.inserted_id}.")
 
-        old_ids = set(
-            map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1}))
-        )
+        old_ids = set(map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
 
         new_ids = current_ids.difference(old_ids)
@@ -77,9 +69,7 @@ def update_data():
         # TODO: Take dataset and certificate state into account when processing into DB.
 
         with sentry_sdk.start_span(op="fips.db", description="Process certs into DB."):
-            with sentry_sdk.start_span(
-                op="fips.db.new", description="Process new certs."
-            ):
+            with sentry_sdk.start_span(op="fips.db.new", description="Process new certs."):
                 logger.info(f"Processing {len(new_ids)} new certificates.")
                 for id in new_ids:
                     # Add a cert to DB
@@ -94,18 +84,14 @@ def update_data():
                             "diff": cert_data,
                         }
                     )
-            with sentry_sdk.start_span(
-                op="fips.db.updated", description="Process updated certs."
-            ):
+            with sentry_sdk.start_span(op="fips.db.updated", description="Process updated certs."):
                 logger.info(f"Processing {len(updated_ids)} updated certificates.")
                 for id in updated_ids:
                     # Process an updated cert, it can also be that a "removed" cert reappeared
                     current_cert = mongo.db.fips.find_one({"_id": id})
                     cert_data = dictify_cert(dset[id])
                     # Find the last diff
-                    last_diff = mongo.db.fips_diff.find_one(
-                        {"dgst": id}, sort=[("timestamp", DESCENDING)]
-                    )
+                    last_diff = mongo.db.fips_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                     if cert_diff := diff(current_cert, cert_data):
                         # The cert changed, issue an update
                         mongo.db.fips.replace_one({"_id": id}, cert_data)
@@ -115,7 +101,7 @@ def update_data():
                                 "dgst": id,
                                 "timestamp": start,
                                 "type": "change",
-                                "diff": dictify_diff(cert_diff)
+                                "diff": dictify_diff(cert_diff),
                             }
                         )
                     elif last_diff and last_diff["type"] == "remove":
@@ -128,15 +114,11 @@ def update_data():
                                 "type": "back",
                             }
                         )
-            with sentry_sdk.start_span(
-                op="fips.db.removed", description="Process removed certs."
-            ):
+            with sentry_sdk.start_span(op="fips.db.removed", description="Process removed certs."):
                 logger.info(f"Processing {len(removed_ids)} removed certificates.")
                 for id in removed_ids:
                     # Find the last diff on this cert, if it is mark for removal, just continue
-                    last_diff = mongo.db.fips_diff.find_one(
-                        {"dgst": id}, sort=[("timestamp", DESCENDING)]
-                    )
+                    last_diff = mongo.db.fips_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
                     if last_diff and last_diff["type"] == "remove":
                         continue
                     # Mark the removal (but only once)

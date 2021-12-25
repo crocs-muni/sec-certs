@@ -10,9 +10,7 @@ app.cli.add_command(user_group)
 
 @user_group.command("add", help="Add a user.")
 @click.option("-u", "--username", required=True)
-@click.option(
-    "--password", prompt=True, hide_input=True, confirmation_prompt=True, required=True
-)
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True, required=True)
 @click.option("-e", "--email", required=True)
 @click.option("-r", "--role", multiple=True)
 def add_user(username, password, email, role):
@@ -34,7 +32,7 @@ def del_user(username):
         return
     if click.confirm(f"Do you really want to delete user {username}?"):
         mongo.db.users.delete_one({"username": username})
-        click.echo(f"User deleted")
+        click.echo("User deleted")
 
 
 @user_group.command("list", help="List users.")

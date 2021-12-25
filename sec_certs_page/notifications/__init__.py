@@ -4,7 +4,7 @@ from flask import Blueprint
 
 from .. import celery
 
-notifications = Blueprint("notify", __name__, url_prefix="/notify")
+notifications: Blueprint = Blueprint("notify", __name__, url_prefix="/notify")
 
 from .tasks import cleanup_subscriptions
 from .views import *

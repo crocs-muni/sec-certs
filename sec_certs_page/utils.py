@@ -4,13 +4,13 @@ from binascii import unhexlify
 from datetime import date
 from functools import wraps
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
-from jsondiff.symbols import Symbol
+from typing import Any, Dict, List, Tuple, TypeVar, Union
 
 import networkx as nx
 import requests
 from flask import Response, current_app, jsonify, make_response, request
 from flask_paginate import Pagination as FlaskPagination
+from jsondiff.symbols import Symbol
 from networkx import DiGraph, node_link_data
 from networkx.algorithms.components import weakly_connected_components
 from sec_certs.sample.common_criteria import CommonCriteriaCert
@@ -77,7 +77,10 @@ def network_graph_func(graphs) -> Response:
     return send_json_attachment(network)
 
 
-def remove_dots(data: Union[dict, list]) -> Union[dict, list]:
+T = TypeVar("T", dict, list)
+
+
+def remove_dots(data: T) -> T:
     """
     Recursively replace the dots with `\uff0e` in the keys of the `data`.
     Needed because MongoDB cannot handle dots in dict keys.
@@ -94,7 +97,7 @@ def remove_dots(data: Union[dict, list]) -> Union[dict, list]:
     return data
 
 
-def add_dots(data):
+def add_dots(data: T) -> T:
     """
     Recursively replace `\uff0e` dots with dots in the keys of the `data`.
     Needed because MongoDB cannot handle dots in dict keys.
@@ -111,7 +114,7 @@ def add_dots(data):
     return data
 
 
-def dictify_diff(diff: dict) -> dict:
+def dictify_diff(diff: Union[dict, list]) -> Union[dict, list]:
     def map_key(key):
         if isinstance(key, Symbol):
             return f"__{key.label}__"
@@ -151,14 +154,10 @@ def dictify_cert(cert: CommonCriteriaCert) -> dict:
     return remove_dots(cert_data)
 
 
-def validate_captcha(req, json):
+def validate_captcha(req, json) -> None:
     if "captcha" not in request.json:
         if json:
-            abort(
-                make_response(
-                    jsonify({"error": "Captcha missing.", "status": "NOK"}), 400
-                )
-            )
+            abort(make_response(jsonify({"error": "Captcha missing.", "status": "NOK"}), 400))
         else:
             raise BadRequest(description="Captcha missing.")
     resp = requests.post(
@@ -173,11 +172,7 @@ def validate_captcha(req, json):
     result = resp.json()
     if not result["success"]:
         if json:
-            abort(
-                make_response(
-                    jsonify({"error": "Captcha invalid.", "status": "NOK"}), 400
-                )
-            )
+            abort(make_response(jsonify({"error": "Captcha invalid.", "status": "NOK"}), 400))
         else:
             raise BadRequest(description="Captcha invalid.")
 

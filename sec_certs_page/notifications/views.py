@@ -3,16 +3,7 @@ from operator import itemgetter
 from secrets import token_hex
 
 from email_validator import EmailNotValidError, validate_email
-from flask import (
-    abort,
-    current_app,
-    flash,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import abort, current_app, flash, jsonify, redirect, render_template, request, url_for
 from wtforms import Label
 
 from .. import mongo
@@ -87,18 +78,14 @@ def confirm(token: str):
         )
     email_toks = set(map(itemgetter("email_token"), subscriptions))
     if not len(email_toks) == 1:
-        current_app.logger.error(f"More than one email_token for subscriptions.")
+        current_app.logger.error("More than one email_token for subscriptions.")
     mongo.db.subs.update_many({"token": token}, {"$set": {"confirmed": True}})
-    return render_template(
-        "notifications/confirmed.html.jinja2", email_token=email_toks.pop()
-    )
+    return render_template("notifications/confirmed.html.jinja2", email_token=email_toks.pop())
 
 
 @notifications.route("/manage/<string(length=32):email_token>", methods=["GET", "POST"])
 def manage(email_token: str):
-    subscriptions = list(
-        mongo.db.subs.find({"email_token": email_token, "confirmed": True})
-    )
+    subscriptions = list(mongo.db.subs.find({"email_token": email_token, "confirmed": True}))
     if not subscriptions:
         return abort(404)
     email = subscriptions[0]["email"]
@@ -113,11 +100,8 @@ def manage(email_token: str):
             e.label = Label(e.id, sub["certificate"]["name"])
     else:
         subs = {sub["certificate"]["hashid"]: sub for sub in subscriptions}
-        if set(
-            map(lambda s: s.data["certificate_hashid"], form.certificates.entries)
-        ) != set(subs.keys()):
+        if set(map(lambda s: s.data["certificate_hashid"], form.certificates.entries)) != set(subs.keys()):
             return abort(400)
-        sub_form: SubscriptionForm
         with mongo.cx.start_session() as session:
             with session.start_transaction():
                 for sub_form in form.certificates.entries:
@@ -149,8 +133,7 @@ def unsubscribe(token: str):
         "message.html.jinja2",
         heading="Unsubscribed",
         lead="You were successfully unsubscribed from your notification subscriptions.",
-        text="Note that you may still have subscriptions active that you subscribed to at"
-        "a different point in time.",
+        text="Note that you may still have subscriptions active that you subscribed to at" "a different point in time.",
     )
 
 

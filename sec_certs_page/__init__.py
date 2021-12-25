@@ -6,7 +6,7 @@ import sentry_sdk
 from celery import Celery, Task
 from celery.schedules import crontab
 from flag import flag
-from flask import Flask
+from flask import Flask, request
 from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs
 from flask_caching import Cache
@@ -17,18 +17,20 @@ from flask_principal import Permission, Principal, RoleNeed
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
 from flask_wtf import CSRFProtect
+from public import public
 from sec_certs.config.configuration import config as tool_config
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
 
-app = Flask(__name__, instance_relative_config=True)
+app: Flask = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 app.jinja_env.cache = {}
 app.jinja_env.autoescape = True
+public(app=app)
 
 if os.environ.get("TESTING", False):
     app.testing = True
@@ -48,7 +50,8 @@ if not app.testing:  # pragma: no cover
 
 tool_config.load(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
-mongo = PyMongo(app)
+mongo: PyMongo = PyMongo(app)
+public(mongo=mongo)
 
 
 def make_celery(app):
@@ -68,28 +71,38 @@ def make_celery(app):
     return res
 
 
-login = LoginManager(app)
+login: LoginManager = LoginManager(app)
 login.login_view = "admin.login"
+public(login=login)
 
-principal = Principal(app)
+principal: Principal = Principal(app)
+public(principal=principal)
 
-celery = make_celery(app)
+celery: Celery = make_celery(app)
+public(celery=celery)
 
-redis = FlaskRedis(app)
+redis: FlaskRedis = FlaskRedis(app)
+public(redis=redis)
 
-assets = Assets(app)
+assets: Assets = Assets(app)
+public(assets=assets)
 
 # debug = DebugToolbarExtension(app)
 
-cache = Cache(app)
+cache: Cache = Cache(app)
+public(cache=cache)
 
-cors = CORS(app, origins="")
+cors: CORS = CORS(app, origins="")
+public(cors=cors)
 
-csrf = CSRFProtect(app)
+csrf: CSRFProtect = CSRFProtect(app)
+public(csrf=csrf)
 
-mail = Mail(app)
+mail: Mail = Mail(app)
+public(mail=mail)
 
-breadcrumbs = Breadcrumbs(app)
+breadcrumbs: Breadcrumbs = Breadcrumbs(app)
+public(breadcrumbs=breadcrumbs)
 
 
 @app.before_request
@@ -142,7 +155,6 @@ app.register_blueprint(cc)
 app.register_blueprint(fips)
 app.register_blueprint(notifications)
 app.register_blueprint(pp)
-
 
 from .tasks import run_updates
 from .views import *
