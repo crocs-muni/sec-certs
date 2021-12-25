@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Iterator, Mapping, Optional, Set, Union
+from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -17,7 +17,7 @@ class IUTEntry(ComplexSerializableType):
     standard: str
     iut_date: date
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, str]:
         return {**self.__dict__, "iut_date": self.iut_date.isoformat()}
 
     @classmethod
@@ -39,13 +39,13 @@ class IUTSnapshot(ComplexSerializableType):
     not_displayed: Optional[int]
     total: Optional[int]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.entries)
 
     def __iter__(self) -> Iterator[IUTEntry]:
         yield from self.entries
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[Optional[int], List[IUTEntry], str]]:
         return {
             "entries": list(self.entries),
             "timestamp": self.timestamp.isoformat(),

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Iterator, Mapping, Optional, Set, Union
+from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -28,7 +28,7 @@ class MIPEntry(ComplexSerializableType):
     standard: str
     status: Optional[MIPStatus]
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, Optional[MIPStatus]]]:
         return {**self.__dict__, "status": self.status.value if self.status else None}
 
     @classmethod
@@ -50,13 +50,13 @@ class MIPSnapshot(ComplexSerializableType):
     not_displayed: int
     total: int
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.entries)
 
     def __iter__(self) -> Iterator[MIPEntry]:
         yield from self.entries
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[int, str, List[MIPEntry]]]:
         return {
             "entries": list(self.entries),
             "timestamp": self.timestamp.isoformat(),

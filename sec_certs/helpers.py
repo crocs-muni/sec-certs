@@ -5,7 +5,7 @@ import os
 import re
 import subprocess
 import time
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
@@ -224,12 +224,13 @@ def extract_pdf_metadata(filepath: Path):
     return constants.RETURNCODE_OK, metadata
 
 
-def to_utc(dt):
-    if dt.utcoffset() is None:
-        return dt
-    dt -= dt.utcoffset()
-    dt = dt.replace(tzinfo=None)
-    return dt
+def to_utc(timestamp: datetime) -> datetime:
+    offset = timestamp.utcoffset()
+    if offset is None:
+        return timestamp
+    timestamp -= offset
+    timestamp = timestamp.replace(tzinfo=None)
+    return timestamp
 
 
 # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!

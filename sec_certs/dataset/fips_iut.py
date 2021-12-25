@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Mapping, Union
+from typing import Dict, Iterator, List, Mapping, Union
 
 from sec_certs.dataset.dataset import logger
 from sec_certs.helpers import tqdm
@@ -12,7 +12,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 class IUTDataset(ComplexSerializableType):
     snapshots: List[IUTSnapshot]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[IUTSnapshot]:
         yield from self.snapshots
 
     def __getitem__(self, item: int) -> IUTSnapshot:
@@ -33,7 +33,7 @@ class IUTDataset(ComplexSerializableType):
                 logger.error(e)
         return cls(snapshots)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, List[IUTSnapshot]]:
         return {"snapshots": list(self.snapshots)}
 
     @classmethod
