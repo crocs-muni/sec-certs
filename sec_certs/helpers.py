@@ -71,7 +71,7 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
     return responses
 
 
-def fips_dgst(cert_id: Union[int, str]):
+def fips_dgst(cert_id: Union[int, str]) -> str:
     return get_first_16_bytes_sha256(str(cert_id))
 
 
