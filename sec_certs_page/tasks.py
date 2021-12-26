@@ -20,6 +20,7 @@ def update_cve_data():
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
 
+    logger.infp("Getting CVEs.")
     with sentry_sdk.start_span(op="cve.get", description="Get CVEs."):
         cve_dset: CVEDataset = CVEDataset.from_web()
     logger.info(f"Got {len(cve_dset)} CVEs.")
@@ -39,9 +40,16 @@ def update_cve_data():
 def update_cpe_data():
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
+    cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
 
+    logger.infp("Getting CPEs.")
     with sentry_sdk.start_span(op="cpe.get", description="Get CPEs."):
         cpe_dset: CPEDataset = CPEDataset.from_web(cpe_path)
+    logger.info(f"Got {len(cpe_dset)} CPEs.")
+
+    logger.info("Enhancing with CVE CPEs.")
+    with sentry_sdk.start_span(op="cpe.enhance", description="Enhance CPEs."):
+        cpe_dset.enhance_with_cpes_from_cve_dataset(cve_path)
     logger.info(f"Got {len(cpe_dset)} CPEs.")
 
     logger.info("Saving CPE dataset.")
