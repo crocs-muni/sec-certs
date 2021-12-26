@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
@@ -47,6 +48,16 @@ def update_data():
             with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
                 dset.finalize_results()
             dset.to_json(output_path)
+
+        old_ids = set(map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1})))
+        current_ids = set(dset.certs.keys())
+
+        new_ids = current_ids.difference(old_ids)
+        removed_ids = old_ids.difference(current_ids)
+        updated_ids = current_ids.intersection(old_ids)
+
+        cert_states = Counter(key for cert in dset for key in cert.state.to_dict() if cert.state.to_dict()[key])
+
         end = datetime.now()
         update_result = mongo.db.fips_log.insert_one(
             {
@@ -55,16 +66,15 @@ def update_data():
                 "tool_version": tool_version,
                 "length": len(dset),
                 "ok": True,
+                "stats": {
+                    "new_certs": len(new_ids),
+                    "removed_ids": len(removed_ids),
+                    "updated_ids": len(updated_ids),
+                    "cert_states": dict(cert_states),
+                },
             }
         )
         logger.info(f"Finished run {update_result.inserted_id}.")
-
-        old_ids = set(map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1})))
-        current_ids = set(dset.certs.keys())
-
-        new_ids = current_ids.difference(old_ids)
-        removed_ids = old_ids.difference(current_ids)
-        updated_ids = current_ids.intersection(old_ids)
 
         # TODO: Take dataset and certificate state into account when processing into DB.
 
