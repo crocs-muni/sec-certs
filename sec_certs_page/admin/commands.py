@@ -47,6 +47,7 @@ def init_collections():
     collections = {
         "cc_log",
         "cc_diff",
+        "cc_old",
         "fips_log",
         "fips_diff",
         "pp_log",

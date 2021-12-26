@@ -1,8 +1,10 @@
 """Common Criteria commands."""
 
 import json
+from hashlib import blake2b
 
 import click
+from sec_certs.helpers import get_first_16_bytes_sha256, sanitize_link, sanitize_string
 
 from .. import mongo
 from ..commands import _add, _create, _drop, _query, _status, _update
@@ -46,3 +48,35 @@ def query(query, projection):
 @cc.cli.command("status", help="Print status information for the MongoDB collection.")
 def status():
     _status(mongo.db.cc)
+
+
+@cc.cli.command("import-map", help="Import old CC dataset to create URL mapping.")
+@click.argument("file", type=click.File())
+def import_map(file):
+    data = json.load(file)
+    id_map = {}
+    for key, cert in data.items():
+        old_id = blake2b(key.encode(), digest_size=10).hexdigest()
+        category = cert["csv_scan"]["cc_category"]
+        name = sanitize_string(cert["csv_scan"]["cert_item_name"])
+        link = sanitize_link(
+            cert["csv_scan"]["link_cert_report"].replace("216.117.4.138:80", "www.commoncriteriaportal.org")
+        )
+
+        new_id = get_first_16_bytes_sha256(category + name + link)
+        by_id = list(mongo.db.cc.find({"_id": new_id}))
+        if not by_id:
+            by_report_link = list(mongo.db.cc.find({"report_link": link}))
+            if not by_report_link:
+                print(f"Not Found {key}")
+            elif len(by_report_link) != 1:
+                print(f"by_report_link issue {key}")
+            else:
+                id_map[old_id] = by_report_link[0]["_id"]
+        elif len(by_id) != 1:
+            print(f"by_id issue {key}")
+        else:
+            id_map[old_id] = new_id
+
+    for key, val in id_map.items():
+        mongo.db.cc_old.replace_one({"_id": key}, {"_id": key, "hashid": val}, upsert=True)

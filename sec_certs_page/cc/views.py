@@ -208,6 +208,16 @@ def rand():
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
 
 
+@cc.route("/<string(length=20):old_id>/")
+def entry_old(old_id):
+    with sentry_sdk.start_span(op="mongo", description="Find id map entry."):
+        id_map = mongo.db.cc_old.find_one({"_id": old_id})
+    if id_map:
+        return redirect(url_for("cc.entry", hashid=id_map["hashid"]))
+    else:
+        return abort(404)
+
+
 @cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
     cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]
