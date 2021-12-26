@@ -1,3 +1,4 @@
+import pytest
 from flask.testing import FlaskClient
 
 
@@ -18,6 +19,7 @@ def test_analysis(client: FlaskClient):
     assert resp.status_code == 200
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_search_basic(client: FlaskClient):
     cert_id = "310"
     cert_name = "MOVEit Crypto"
@@ -35,10 +37,17 @@ def test_random(client: FlaskClient):
         assert resp.status_code == 200
 
 
+def test_entry_old(client: FlaskClient):
+    resp = client.get("/fips/7d986a48cb5c4c8d3c62/")
+    assert resp.location.endswith("/fips/5d865a0cf9e04d99/")
+    resp = client.get("/fips/7d986a48cb5c4c8d3c62/", follow_redirects=True)
+    assert resp.status_code == 200
+
+
 def test_entry(client: FlaskClient):
     hashid = "3465020c4414cd8c"
     cert_id = "310"
-    cert_name = "MOVEit Crypto"
+    # cert_name = "MOVEit Crypto"
     hid_resp = client.get(f"/fips/{hashid}/", follow_redirects=True)
     assert hid_resp.status_code == 200
     cid_resp = client.get(f"/fips/id/{cert_id}", follow_redirects=True)

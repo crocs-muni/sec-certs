@@ -1,5 +1,7 @@
-from flask.testing import FlaskClient
 from urllib.parse import quote
+
+from flask.testing import FlaskClient
+
 
 def test_index(client: FlaskClient):
     resp = client.get("/pp/")

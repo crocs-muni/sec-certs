@@ -50,6 +50,7 @@ def init_collections():
         "cc_old",
         "fips_log",
         "fips_diff",
+        "fips_old",
         "pp_log",
         "pp_diff",
         "users",

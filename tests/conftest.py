@@ -1,4 +1,5 @@
 import pytest
+
 from sec_certs_page import app
 
 

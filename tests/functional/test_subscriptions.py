@@ -1,7 +1,7 @@
-from flask.testing import FlaskClient
-from flask import url_for
-from pytest_mock import MockerFixture
 import pytest
+from flask import url_for
+from flask.testing import FlaskClient
+from pytest_mock import MockerFixture
 
 from sec_certs_page import mongo
 from sec_certs_page.notifications.tasks import send_confirmation_email
@@ -15,15 +15,17 @@ def certificate():
 @pytest.fixture
 def sub_obj(certificate):
     return {
-        "selected": [{
-            "name": certificate["name"],
-            "hashid": certificate["_id"],
-            "type": "cc",
-            "url": url_for("cc.entry", hashid=certificate["_id"])
-        }],
+        "selected": [
+            {
+                "name": certificate["name"],
+                "hashid": certificate["_id"],
+                "type": "cc",
+                "url": url_for("cc.entry", hashid=certificate["_id"]),
+            }
+        ],
         "email": "example@example.com",
         "updates": "all",
-        "captcha": "..."
+        "captcha": "...",
     }
 
 
@@ -67,52 +69,43 @@ def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
     resp = client.post("/notify/subscribe/", json={"email": "..."})
     assert resp.status_code == 400
     task.assert_not_called()
-    resp = client.post("/notify/subscribe/", json={"email": "bad-email",
-                                                   "selected": "...",
-                                                   "updates": "...",
-                                                   "captcha": "..."})
+    resp = client.post(
+        "/notify/subscribe/", json={"email": "bad-email", "selected": "...", "updates": "...", "captcha": "..."}
+    )
     assert resp.status_code == 400
     task.assert_not_called()
-    resp = client.post("/notify/subscribe/", json={"email": "example@example.com",
-                                                   "selected": "...",
-                                                   "updates": "bad",
-                                                   "captcha": "..."})
+    resp = client.post(
+        "/notify/subscribe/",
+        json={"email": "example@example.com", "selected": "...", "updates": "bad", "captcha": "..."},
+    )
     assert resp.status_code == 400
     task.assert_not_called()
-    resp = client.post("/notify/subscribe/", json={"email": "example@example.com",
-                                                   "selected": [
-                                                       {
-                                                           "some": "bad"
-                                                       }
-                                                   ],
-                                                   "updates": "all",
-                                                   "captcha": "..."})
+    resp = client.post(
+        "/notify/subscribe/",
+        json={"email": "example@example.com", "selected": [{"some": "bad"}], "updates": "all", "captcha": "..."},
+    )
     assert resp.status_code == 400
     task.assert_not_called()
-    resp = client.post("/notify/subscribe/", json={"email": "example@example.com",
-                                                   "selected": [
-                                                       {
-                                                           "hashid": "...",
-                                                           "name": "...",
-                                                           "url": "...",
-                                                           "type": "bad"
-                                                       }
-                                                   ],
-                                                   "updates": "all",
-                                                   "captcha": "..."})
+    resp = client.post(
+        "/notify/subscribe/",
+        json={
+            "email": "example@example.com",
+            "selected": [{"hashid": "...", "name": "...", "url": "...", "type": "bad"}],
+            "updates": "all",
+            "captcha": "...",
+        },
+    )
     assert resp.status_code == 400
     task.assert_not_called()
-    resp = client.post("/notify/subscribe/", json={"email": "example@example.com",
-                                                   "selected": [
-                                                       {
-                                                           "hashid": "bad",
-                                                           "name": "...",
-                                                           "url": "...",
-                                                           "type": "fips"
-                                                       }
-                                                   ],
-                                                   "updates": "all",
-                                                   "captcha": "..."})
+    resp = client.post(
+        "/notify/subscribe/",
+        json={
+            "email": "example@example.com",
+            "selected": [{"hashid": "bad", "name": "...", "url": "...", "type": "fips"}],
+            "updates": "all",
+            "captcha": "...",
+        },
+    )
     assert resp.status_code == 400
     task.assert_not_called()
 

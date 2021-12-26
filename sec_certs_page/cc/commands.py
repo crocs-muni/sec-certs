@@ -5,6 +5,7 @@ from hashlib import blake2b
 
 import click
 from sec_certs.helpers import get_first_16_bytes_sha256, sanitize_link, sanitize_string
+from tqdm import tqdm
 
 from .. import mongo
 from ..commands import _add, _create, _drop, _query, _status, _update
@@ -55,7 +56,7 @@ def status():
 def import_map(file):
     data = json.load(file)
     id_map = {}
-    for key, cert in data.items():
+    for key, cert in tqdm(data.items(), desc="Loading certs"):
         old_id = blake2b(key.encode(), digest_size=10).hexdigest()
         category = cert["csv_scan"]["cc_category"]
         name = sanitize_string(cert["csv_scan"]["cert_item_name"])
@@ -78,5 +79,5 @@ def import_map(file):
         else:
             id_map[old_id] = new_id
 
-    for key, val in id_map.items():
+    for key, val in tqdm(id_map.items(), desc="Inserting map entries"):
         mongo.db.cc_old.replace_one({"_id": key}, {"_id": key, "hashid": val}, upsert=True)

@@ -188,6 +188,16 @@ def rand():
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
 
 
+@fips.route("/<string(length=20):old_id>/")
+def entry_old(old_id):
+    with sentry_sdk.start_span(op="mongo", description="Find id map entry."):
+        id_map = mongo.db.fips_old.find_one({"_id": old_id})
+    if id_map:
+        return redirect(url_for("fips.entry", hashid=id_map["hashid"]))
+    else:
+        return abort(404)
+
+
 @fips.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
     fips,

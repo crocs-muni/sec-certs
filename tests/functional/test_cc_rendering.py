@@ -1,3 +1,4 @@
+import pytest
 from flask.testing import FlaskClient
 
 
@@ -18,6 +19,7 @@ def test_analysis(client: FlaskClient):
     assert resp.status_code == 200
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_search_basic(client: FlaskClient):
     cert_id = "BSI-DSZ-CC-1091-2018"
     cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"
@@ -33,6 +35,13 @@ def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/cc/random/", follow_redirects=True)
         assert resp.status_code == 200
+
+
+def test_old_entry(client: FlaskClient):
+    resp = client.get("/cc/bf712f246f61e8678855/")
+    assert resp.location.endswith("/cc/4a1fa75170579066/")
+    resp = client.get("/cc/bf712f246f61e8678855/", follow_redirects=True)
+    assert resp.status_code == 200
 
 
 def test_entry(client: FlaskClient):

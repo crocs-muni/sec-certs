@@ -1,8 +1,10 @@
 """FIPS commands."""
 
 import json
+from hashlib import blake2b
 
 import click
+from tqdm import tqdm
 
 from .. import mongo
 from ..commands import _add, _create, _drop, _query, _status, _update
@@ -46,3 +48,11 @@ def query(query, projection):
 @fips.cli.command("status", help="Print status information for the MongoDB collection.")
 def status():
     _status(mongo.db.fips)
+
+
+@fips.cli.command("import-map", help="Import old FIPS dataset to create URL mapping.")
+def import_map():
+    for cert in tqdm(list(mongo.db.fips.find({}, {"cert_id": True})), desc="Processing certs"):
+        old_id = blake2b(str(cert["cert_id"]).encode(), digest_size=10).hexdigest()
+        new_id = cert["_id"]
+        mongo.db.fips_old.replace_one({"_id": old_id}, {"_id": old_id, "hashid": new_id}, upsert=True)
