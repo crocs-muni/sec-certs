@@ -5,7 +5,7 @@
 {% from "utils.html.jinja2" import render_network, render_cves %}
 {% block title %}
     <title>
-        {{ cert["name"]|default("") + " | seccerts.org" }}
+        {{ cert["name"]|default("", true) + " | seccerts.org" }}
     </title>
 {% endblock %}
 {% block navbar %}
@@ -183,7 +183,7 @@
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                               class="badge rounded-pill {% if cert["state"]["report_extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report_extract_ok"] %}Keywords were successfully extracted from the certification report text.{% else %}Keyword extraction from certification report text failed.{% endif %}">
+                              title="{% if cert["state"]["report_extract_ok"] %}Keywords and metadata were successfully extracted from the certification report text.{% else %}Keyword or metadata extraction from certification report text failed.{% endif %}">
                                 <i class="fas fa-spell-check"></i>
                         </span>
                     </h2>
@@ -228,9 +228,9 @@
                                 <i class="fas fa-file-import"></i>
                         </span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report_extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["st_extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st_extract_ok"] %}Keywords were successfully extracted from the security target text.{% else %}Keyword extraction from security target text failed.{% endif %}">
+                              title="{% if cert["state"]["st_extract_ok"] %}Keywords and metadata were successfully extracted from the security target text.{% else %}Keyword or metadata extraction from security target text failed.{% endif %}">
                                 <i class="fas fa-spell-check"></i>
                         </span>
                     </h2>

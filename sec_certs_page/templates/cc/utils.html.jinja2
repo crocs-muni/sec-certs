@@ -155,7 +155,7 @@
         <div class="mt-4 mb-4">
             {{ pagination.links }}
         </div>
-        <table class="border mb-4">
+        <table class="table table-striped table-bordered mb-4">
             <col style="width:15%">
             <col style="width:64%">
             <col style="width:5%">
@@ -171,7 +171,7 @@
             </tr>
             </thead>
             {% for cert in certs %}
-                {% set idd = cert["heuristics"]["cert_id"] %}
+                {% set idd = cert["heuristics"]["cert_id"]|default("", true) %}
                 {% set name = cert["name"] %}
                 {% set status = cert["status"] %}
                 {% set hashid = cert["_id"] %}
