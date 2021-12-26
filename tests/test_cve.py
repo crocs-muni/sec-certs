@@ -1,12 +1,11 @@
-from unittest import TestCase
-
 import pytest
 
 from sec_certs.dataset.cve import CVEDataset
 
 
-class TestCVE(TestCase):
+class TestCVE:
     @pytest.mark.slow
+    @pytest.mark.monitor_test
     def test_from_web(self):
         dset = CVEDataset.from_web()
         assert dset is not None
