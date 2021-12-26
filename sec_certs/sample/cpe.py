@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import ClassVar, Dict, List, Optional, Tuple
 
 from sec_certs.serialization.json import ComplexSerializableType
@@ -88,3 +89,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
             and self.start_version == other.start_version
             and self.end_version == other.end_version
         )
+
+
+@lru_cache(maxsize=4096)
+def cached_cpe(*args, **kwargs):
+    return CPE(*args, **kwargs)

@@ -5,7 +5,7 @@ from typing import ClassVar, Dict, List, Optional, Tuple
 
 from dateutil.parser import isoparse
 
-from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -130,7 +130,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                             else:
                                 version_end = None
 
-                            cpe_uris.append(CPE(cpe_uri, start_version=version_start, end_version=version_end))
+                            cpe_uris.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
 
                 return cpe_uris
 
