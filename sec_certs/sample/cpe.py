@@ -15,6 +15,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     start_version: Optional[Tuple[str, str]]
     end_version: Optional[Tuple[str, str]]
 
+    __slots__ = ["uri", "title", "version", "vendor", "item_name", "start_version", "end_version"]
+
     pandas_columns: ClassVar[List[str]] = [
         "uri",
         "vendor",
@@ -32,6 +34,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         start_version: Optional[Tuple[str, str]] = None,
         end_version: Optional[Tuple[str, str]] = None,
     ):
+        super().__init__()
         self.uri = uri
         self.title = title
         self.start_version = start_version
