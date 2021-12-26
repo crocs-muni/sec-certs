@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import sentry_sdk
 from celery import chain
 from celery.utils.log import get_task_logger
 from flask import current_app
@@ -19,16 +20,19 @@ def update_cve_data():
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
 
-    cve_dset: CVEDataset = CVEDataset.from_web()
+    with sentry_sdk.start_span(op="cve.get", description="Get CVEs."):
+        cve_dset: CVEDataset = CVEDataset.from_web()
     logger.info(f"Got {len(cve_dset)} CVEs.")
+
     logger.info("Saving CVE dataset.")
-    cve_dset.to_json(cve_path)
+    with sentry_sdk.start_span(op="cve.save", description="Save CVEs."):
+        cve_dset.to_json(cve_path)
 
     logger.info("Inserting CVEs.")
-
-    for cve in cve_dset:
-        cve_data = dictify_serializable(cve, "cve_id")
-        mongo.db.cve.replace_one({"_id": cve.cve_id}, cve_data, upsert=True)
+    with sentry_sdk.start_span(op="cve.insert", description="Insert CVEs into DB."):
+        for cve in cve_dset:
+            cve_data = dictify_serializable(cve, "cve_id")
+            mongo.db.cve.replace_one({"_id": cve.cve_id}, cve_data, upsert=True)
 
 
 @celery.task(ignore_result=True)
@@ -36,16 +40,19 @@ def update_cpe_data():
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
 
-    cpe_dset: CPEDataset = CPEDataset.from_web(cpe_path)
+    with sentry_sdk.start_span(op="cpe.get", description="Get CPEs."):
+        cpe_dset: CPEDataset = CPEDataset.from_web(cpe_path)
     logger.info(f"Got {len(cpe_dset)} CPEs.")
+
     logger.info("Saving CPE dataset.")
-    cpe_dset.to_json()
+    with sentry_sdk.start_span(op="cpe.save", description="Save CPEs."):
+        cpe_dset.to_json()
 
     logger.info("Inserting CPEs.")
-
-    for cpe in cpe_dset:
-        cpe_data = dictify_serializable(cpe, "uri")
-        mongo.db.cpe.replace_one({"_id": cpe.uri}, cpe_data, upsert=True)
+    with sentry_sdk.start_span(op="cpe.insert", description="Insert CPEs into DB."):
+        for cpe in cpe_dset:
+            cpe_data = dictify_serializable(cpe, "uri")
+            mongo.db.cpe.replace_one({"_id": cpe.uri}, cpe_data, upsert=True)
 
 
 @celery.task(ignore_result=True)
