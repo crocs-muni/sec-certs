@@ -13,7 +13,7 @@ app.cli.add_command(user_group)
 @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True, required=True)
 @click.option("-e", "--email", required=True)
 @click.option("-r", "--role", multiple=True)
-def add_user(username, password, email, role):
+def add_user(username, password, email, role):  # pragma: no cover
     if User.get(username):
         click.echo("User already exists.")
         return
@@ -25,7 +25,7 @@ def add_user(username, password, email, role):
 
 @user_group.command("del", help="Delete a user.")
 @click.option("-u", "--username", required=True)
-def del_user(username):
+def del_user(username):  # pragma: no cover
     user = User.get(username)
     if not user:
         click.echo("User does not exist,")
@@ -36,13 +36,13 @@ def del_user(username):
 
 
 @user_group.command("list", help="List users.")
-def list_users():
+def list_users():  # pragma: no cover
     for doc in mongo.db.users.find({}):
         print(doc)
 
 
 @app.cli.command("init-collections", help="Initialize the miscellaneous collections.")
-def init_collections():
+def init_collections():  # pragma: no cover
     current = mongo.db.list_collection_names()
     collections = {
         "cc_log",

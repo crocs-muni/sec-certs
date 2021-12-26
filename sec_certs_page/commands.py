@@ -12,7 +12,7 @@ from . import mongo
 from .utils import add_dots, remove_dots
 
 
-def _load_certs(file, certs_path, mapper):
+def _load_certs(file, certs_path, mapper):  # pragma: no cover
     click.echo("Loading certs...")
     data = file.read()
     certs = json.loads(data)
@@ -31,7 +31,7 @@ def _load_certs(file, certs_path, mapper):
     return result
 
 
-def _add(file, collection, certs_path, mapper):
+def _add(file, collection, certs_path, mapper):  # pragma: no cover
     cert_data = _load_certs(file, certs_path, mapper)
 
     click.echo("Inserting...")
@@ -42,7 +42,7 @@ def _add(file, collection, certs_path, mapper):
         click.echo(f"Couldn't insert: {e}")
 
 
-def _update(file, remove, collection, certs_path, mapper):
+def _update(file, remove, collection, certs_path, mapper):  # pragma: no cover
     cert_data = _load_certs(file, certs_path, mapper)
     if remove:
         new_ids = set(map(itemgetter("_id"), cert_data.values()))
@@ -63,7 +63,7 @@ def _update(file, remove, collection, certs_path, mapper):
     click.echo("Updated")
 
 
-def _create(collection_name, text_attrs, sort_attrs):
+def _create(collection_name, text_attrs, sort_attrs):  # pragma: no cover
     click.echo("Creating...")
     mongo.db.create_collection(collection_name)
     if text_attrs:
@@ -73,19 +73,19 @@ def _create(collection_name, text_attrs, sort_attrs):
     click.echo("Created")
 
 
-def _drop(collection):
+def _drop(collection):  # pragma: no cover
     click.echo("Dropping...")
     collection.drop()
     click.echo("Dropped")
 
 
-def _query(query, projection, collection):
+def _query(query, projection, collection):  # pragma: no cover
     docs = collection.find(query, projection=projection)
     for doc in docs:
         print(json.dumps(add_dots(doc), indent=2))
 
 
-def _status(collection):
+def _status(collection):  # pragma: no cover
     click.echo(collection)
     click.echo("## Indexes ##")
     click.echo(pformat(collection.index_information()))

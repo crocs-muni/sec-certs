@@ -12,48 +12,48 @@ from ..commands import _add, _create, _drop, _query, _status, _update
 from . import cc
 
 
-def mapper(cert):
+def mapper(cert):  # pragma: no cover
     return cert
 
 
 @cc.cli.command("import", help="Import CC certs.")
 @click.argument("file", type=click.File())
-def add(file):
+def add(file):  # pragma: no cover
     _add(file, mongo.db.cc, ["certs"], mapper)
 
 
 @cc.cli.command("update", help="Update CC certs.")
 @click.option("-r", "--remove", is_flag=True, help="Remove certs not present in the update file.")
 @click.argument("file", type=click.File())
-def update(file, remove):
+def update(file, remove):  # pragma: no cover
     _update(file, remove, mongo.db.cc, ["certs"], mapper)
 
 
 @cc.cli.command("create", help="Create the DB of CC certs.")
-def create():
+def create():  # pragma: no cover
     _create("cc", ["name", "heuristics.cert_id"], [])
 
 
 @cc.cli.command("drop", help="Drop the DB of CC certs.")
-def drop():
+def drop():  # pragma: no cover
     _drop(mongo.db.cc)
 
 
 @cc.cli.command("query", help="Query the MongoDB for certs.")
 @click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
-def query(query, projection):
+def query(query, projection):  # pragma: no cover
     _query(query, projection, mongo.db.cc)
 
 
 @cc.cli.command("status", help="Print status information for the MongoDB collection.")
-def status():
+def status():  # pragma: no cover
     _status(mongo.db.cc)
 
 
 @cc.cli.command("import-map", help="Import old CC dataset to create URL mapping.")
 @click.argument("file", type=click.File())
-def import_map(file):
+def import_map(file):  # pragma: no cover
     data = json.load(file)
     id_map = {}
     for key, cert in tqdm(data.items(), desc="Loading certs"):

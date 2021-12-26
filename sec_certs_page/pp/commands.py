@@ -9,7 +9,7 @@ from ..commands import _add, _create, _drop, _query, _status, _update
 from . import pp
 
 
-def pp_mapper(profile):
+def pp_mapper(profile):  # pragma: no cover
     if "csv_scan" in profile:
         cs = profile["csv_scan"]
         if "cc_archived_date" in cs:
@@ -27,7 +27,7 @@ def pp_mapper(profile):
 
 @pp.cli.command("import", help="Import protection profiles.")
 @click.argument("file", type=click.File())
-def add(file):
+def add(file):  # pragma: no cover
     _add(file, mongo.db.pp, None, pp_mapper)
 
 
@@ -39,27 +39,27 @@ def add(file):
     help="Remove protection profiles not present in the update file.",
 )
 @click.argument("file", type=click.File())
-def update(file, remove):
+def update(file, remove):  # pragma: no cover
     _update(file, remove, mongo.db.pp, None, pp_mapper)
 
 
 @pp.cli.command("create", help="Create the DB of protection profiles.")
-def create():
+def create():  # pragma: no cover
     _create("pp", ["csv_scan.cc_pp_name"], [])
 
 
 @pp.cli.command("drop", help="Drop the DB of protection profiles.")
-def drop():
+def drop():  # pragma: no cover
     _drop(mongo.db.pp)
 
 
 @pp.cli.command("query", help="Query the MongoDB for protection profiles.")
 @click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
-def query(query, projection):
+def query(query, projection):  # pragma: no cover
     _query(query, projection, mongo.db.pp)
 
 
 @pp.cli.command("status", help="Print status information for the MongoDB collection.")
-def status():
+def status():  # pragma: no cover
     _status(mongo.db.pp)

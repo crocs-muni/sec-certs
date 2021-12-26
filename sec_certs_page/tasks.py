@@ -16,7 +16,7 @@ logger = get_task_logger(__name__)
 
 
 @celery.task(ignore_result=True)
-def update_cve_data():
+def update_cve_data():  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
 
@@ -37,7 +37,7 @@ def update_cve_data():
 
 
 @celery.task(ignore_result=True)
-def update_cpe_data():
+def update_cpe_data():  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
@@ -64,5 +64,5 @@ def update_cpe_data():
 
 
 @celery.task(ignore_result=True)
-def run_updates():
+def run_updates():  # pragma: no cover
     chain(update_cve_data.si(), update_cpe_data.si(), update_cc_data.si(), update_fips_data.si()).delay()

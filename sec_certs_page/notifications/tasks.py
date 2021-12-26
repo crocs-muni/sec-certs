@@ -10,7 +10,7 @@ logger = get_task_logger(__name__)
 
 
 @celery.task(ignore_result=True)
-def send_confirmation_email(token):
+def send_confirmation_email(token):  # pragma: no cover
     subscription_requests = list(mongo.db.subs.find({"token": token}))
     if not subscription_requests:
         logger.warning(f"Subscription requests for token = {token} not found, likely a race.")
@@ -33,7 +33,7 @@ def send_confirmation_email(token):
 
 
 @celery.task(ignore_result=True)
-def send_unsubscription_email(email):
+def send_unsubscription_email(email):  # pragma: no cover
     subscription_requests = list(mongo.db.subs.find({"email": email}))
     if not subscription_requests:
         logger.warning("Subscription requests not found, likely a race.")
@@ -46,7 +46,7 @@ def send_unsubscription_email(email):
 
 
 @celery.task(ignore_result=True)
-def cleanup_subscriptions():
+def cleanup_subscriptions():  # pragma: no cover
     old = datetime.now() - timedelta(days=7)
     res = mongo.db.subs.delete_many({"confirmed": False, "timestamp": {"$lt": old}})
     logger.info(f"Deleted {res.deleted_count} subscriptions older than 7 days.")

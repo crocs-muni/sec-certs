@@ -31,6 +31,18 @@ def test_search_basic(client: FlaskClient):
     assert cert_name not in resp.data.decode()
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+def test_search_pagination(client: FlaskClient):
+    cert_id = "310"
+    cert_name = "MOVEit Crypto"
+    resp = client.get(f"/fips/search/pagination/?q={cert_id}&cat=abcde&status=Any&sort=match")
+    assert resp.status_code == 200
+    assert cert_name in resp.data.decode()
+    resp = client.get(f"/fips/search/pagination/?q={cert_id}&cat=abcde&status=Active&sort=match")
+    assert resp.status_code == 200
+    assert cert_name not in resp.data.decode()
+
+
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/fips/random/", follow_redirects=True)
@@ -60,3 +72,13 @@ def test_entry(client: FlaskClient):
     cert_resp = client.get(f"/fips/{hashid}/cert.json")
     assert cert_resp.status_code == 200
     assert cert_resp.is_json
+
+
+def test_entry_graph(client: FlaskClient):
+    resp = client.get("/fips/9a180de886923e04/graph.json")
+    assert resp.is_json
+    nodes = resp.json["nodes"]
+    assert len(nodes) == 1
+    assert nodes[0]["id"] == "9a180de886923e04"
+    links = resp.json["links"]
+    assert len(links) == 0

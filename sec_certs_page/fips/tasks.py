@@ -20,7 +20,7 @@ logger = get_task_logger(__name__)
 
 
 @celery.task(ignore_result=True)
-def update_data():
+def update_data():  # pragma: no cover
     tool_version = get_distribution("sec-certs").version
     start = datetime.now()
     instance_path = Path(current_app.instance_path)

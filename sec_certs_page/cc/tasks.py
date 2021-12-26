@@ -20,13 +20,13 @@ logger = get_task_logger(__name__)
 
 
 @celery.task(ignore_result=True)
-def notify(run_id):
+def notify(run_id):  # pragma: no cover
     # run = mongo.db.cc_log.find_one({"_id": run_id})
     # diffs = mongo.db.cc_diff.find({"run_id": run_id})
     pass
 
 
-def process_new_certs(dset, new_ids, run_id, timestamp):
+def process_new_certs(dset, new_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op="cc.db.new", description="Process new certs."):
         logger.info(f"Processing {len(new_ids)} new certificates.")
         for id in new_ids:
@@ -44,7 +44,7 @@ def process_new_certs(dset, new_ids, run_id, timestamp):
             )
 
 
-def process_updated_certs(dset, updated_ids, run_id, timestamp):
+def process_updated_certs(dset, updated_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op="cc.db.updated", description="Process updated certs."):
         logger.info(f"Processing {len(updated_ids)} updated certificates.")
         for id in updated_ids:
@@ -77,7 +77,7 @@ def process_updated_certs(dset, updated_ids, run_id, timestamp):
                 )
 
 
-def process_removed_certs(dset, removed_ids, run_id, timestamp):
+def process_removed_certs(dset, removed_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op="cc.db.removed", description="Process removed certs."):
         logger.info(f"Processing {len(removed_ids)} removed certificates.")
         for id in removed_ids:
@@ -97,7 +97,7 @@ def process_removed_certs(dset, removed_ids, run_id, timestamp):
 
 
 @celery.task(ignore_result=True)
-def update_data():
+def update_data():  # pragma: no cover
     tool_version = get_distribution("sec-certs").version
     start = datetime.now()
     instance_path = Path(current_app.instance_path)
