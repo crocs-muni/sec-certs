@@ -9,6 +9,7 @@ import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
+from werkzeug.utils import safe_join
 
 from .. import cache, mongo
 from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
@@ -189,11 +190,15 @@ def rand():
 
 
 @fips.route("/<string(length=20):old_id>/")
-def entry_old(old_id):
+@fips.route("/<string(length=20):old_id>/<path:npath>")
+def entry_old(old_id, npath=None):
     with sentry_sdk.start_span(op="mongo", description="Find id map entry."):
         id_map = mongo.db.fips_old.find_one({"_id": old_id})
     if id_map:
-        return redirect(url_for("fips.entry", hashid=id_map["hashid"]))
+        redir_path = url_for("fips.entry", hashid=id_map["hashid"])
+        if npath:
+            redir_path = safe_join(redir_path, npath)
+        return redirect(redir_path)
     else:
         return abort(404)
 

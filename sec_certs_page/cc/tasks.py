@@ -161,6 +161,9 @@ def update_data():  # pragma: no cover
         with sentry_sdk.start_span(op="cc.db", description="Process certs into DB."):
             process_new_certs(dset, new_ids, update_result.inserted_id, start)
             process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
+            # TODO: cert to_json can have different ordering of arrays than the one in DB
+            #       this generates and excessive amount of cert updates, that are not really updates
+            #       just non-determinism in the ordering.
             process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
         notify.delay(str(update_result.inserted_id))
     except Exception as e:
