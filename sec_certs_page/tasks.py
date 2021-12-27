@@ -11,6 +11,7 @@ from sec_certs.dataset.cve import CVEDataset
 from . import celery, mongo
 from .cc.tasks import update_data as update_cc_data
 from .fips.tasks import update_data as update_fips_data
+from .fips.tasks import update_iut_data, update_mip_data
 from .utils import dictify_serializable
 
 logger: Logger = get_task_logger(__name__)
@@ -66,4 +67,11 @@ def update_cpe_data():  # pragma: no cover
 
 @celery.task(ignore_result=True)
 def run_updates():  # pragma: no cover
-    chain(update_cve_data.si(), update_cpe_data.si(), update_cc_data.si(), update_fips_data.si()).delay()
+    chain(
+        update_cve_data.si(),
+        update_cpe_data.si(),
+        update_cc_data.si(),
+        update_iut_data.si(),
+        update_mip_data.si(),
+        update_fips_data.si(),
+    ).delay()

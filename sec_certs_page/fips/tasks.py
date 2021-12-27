@@ -12,11 +12,27 @@ from jsondiff import diff
 from pkg_resources import get_distribution
 from pymongo import DESCENDING
 from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.sample.fips_iut import IUTSnapshot
+from sec_certs.sample.fips_mip import MIPSnapshot
 
 from .. import celery, mongo
 from ..utils import dictify_diff, dictify_serializable
 
 logger = get_task_logger(__name__)
+
+
+@celery.task(ignore_result=True)
+def update_iut_data():  # pragma: no cover
+    snapshot = IUTSnapshot.from_web()
+    snap_data = dictify_serializable(snapshot)
+    mongo.db.fips_iut.insert_one(snap_data)
+
+
+@celery.task(ignore_result=True)
+def update_mip_data():  # pragma: no cover
+    snapshot = MIPSnapshot.from_web()
+    snap_data = dictify_serializable(snapshot)
+    mongo.db.fips_mip.insert_one(snap_data)
 
 
 @celery.task(ignore_result=True)

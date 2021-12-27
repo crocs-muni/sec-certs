@@ -51,6 +51,8 @@ def init_collections():  # pragma: no cover
         "fips_log",
         "fips_diff",
         "fips_old",
+        "fips_mip",
+        "fips_iut",
         "pp_log",
         "pp_diff",
         "users",
