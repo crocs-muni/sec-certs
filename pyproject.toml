@@ -27,3 +27,9 @@ skip=["certsvenv", "build"]
 plugins = ["numpy.typing.mypy_plugin"]
 ignore_missing_imports = true
 exclude="build/"
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+]
+addopts = "--cov sec_certs"

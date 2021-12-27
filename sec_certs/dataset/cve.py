@@ -16,7 +16,7 @@ import sec_certs.constants as constants
 import sec_certs.helpers as helpers
 from sec_certs.config.configuration import config
 from sec_certs.parallel_processing import process_parallel
-from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 
@@ -189,10 +189,10 @@ class CVEDataset(ComplexSerializableType):
             elif "versionEndExcluding" in field:
                 end_version = ("excluding", field["versionEndExcluding"])
 
-            return CPE(field["cpe23Uri"], start_version=start_version, end_version=end_version)
+            return cached_cpe(field["cpe23Uri"], start_version=start_version, end_version=end_version)
 
         def parse_values_cpe(field: Dict) -> List[CPE]:
-            return [CPE(x["cpe23Uri"]) for x in field["cpe_name"]]
+            return [cached_cpe(x["cpe23Uri"]) for x in field["cpe_name"]]
 
         logger.debug("Attempting to get NIST mapping file.")
         if not input_filepath or not input_filepath.is_file():
