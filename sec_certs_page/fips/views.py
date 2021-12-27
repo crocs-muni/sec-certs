@@ -103,6 +103,7 @@ def select_certs(q, cat, status, sort):
         query["web_scan.status"] = status
 
     cursor = mongo.db.fips.find(query, projection)
+    count = mongo.db.fips.count_documents(query)
 
     if sort == "match" and q is not None and q != "":
         cursor.sort(
@@ -123,7 +124,7 @@ def select_certs(q, cat, status, sort):
         cursor.sort([("web_scan.level", pymongo.ASCENDING)])
     elif sort == "vendor":
         cursor.sort([("web_scan.vendor", pymongo.ASCENDING)])
-    return cursor, categories
+    return cursor, categories, count
 
 
 def process_search(req, callback=None):
@@ -133,16 +134,16 @@ def process_search(req, callback=None):
     status = req.args.get("status", "Any")
     sort = req.args.get("sort", "match")
 
-    cursor, categories = select_certs(q, cat, status, sort)
+    cursor, categories, count = select_certs(q, cat, status, sort)
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
     pagination = Pagination(
         page=page,
         per_page=per_page,
         search=True,
-        found=cursor.count(),
+        found=count,
         total=mongo.db.fips.count_documents({}),
-        css_framework="bootstrap4",
+        css_framework="bootstrap5",
         alignment="center",
         url_callback=callback,
     )

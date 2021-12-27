@@ -1,6 +1,5 @@
 from urllib.parse import quote
 
-import pytest
 from flask.testing import FlaskClient
 
 
@@ -19,7 +18,6 @@ def test_analysis(client: FlaskClient):
     assert resp.status_code == 200
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_search_basic(client: FlaskClient):
     pp_id = quote("ANSSI-CC-PP-2018/03", safe="")
     pp_name = "ANSSI-CC-PP-2018/03 « PC Client Specific TPM » (TPM Library specification Family “2.0”, Level 0)"
@@ -31,7 +29,6 @@ def test_search_basic(client: FlaskClient):
     assert pp_name not in resp.data.decode()
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_search_pagination(client: FlaskClient):
     pp_id = quote("ANSSI-CC-PP-2018/03", safe="")
     pp_name = "ANSSI-CC-PP-2018/03 « PC Client Specific TPM » (TPM Library specification Family “2.0”, Level 0)"

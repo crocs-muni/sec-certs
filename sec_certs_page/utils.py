@@ -13,7 +13,6 @@ from flask_paginate import Pagination as FlaskPagination
 from jsondiff.symbols import Symbol
 from networkx import DiGraph, node_link_data
 from networkx.algorithms.components import weakly_connected_components
-from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.serialization.json import ComplexSerializableType
 from werkzeug.exceptions import BadRequest, abort
 

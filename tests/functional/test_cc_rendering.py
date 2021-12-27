@@ -1,4 +1,3 @@
-import pytest
 from flask.testing import FlaskClient
 
 
@@ -19,7 +18,6 @@ def test_analysis(client: FlaskClient):
     assert resp.status_code == 200
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_search_basic(client: FlaskClient):
     cert_id = "BSI-DSZ-CC-1091-2018"
     cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"
@@ -31,7 +29,6 @@ def test_search_basic(client: FlaskClient):
     assert cert_name not in resp.data.decode()
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_search_pagination(client: FlaskClient):
     cert_id = "BSI-DSZ-CC-1091-2018"
     cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"

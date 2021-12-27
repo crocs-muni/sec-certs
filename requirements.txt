@@ -3,21 +3,22 @@ appdirs==1.4.4
 atpublic==2.3
 attrs==21.2.0
 backcall==0.2.0
-beautifulsoup4==4.9.3
+beautifulsoup4==4.10.0
 billiard==3.6.4.0
 black==20.8b1
 blinker==1.4
-celery==5.1.2
+celery==5.2.2
 certifi==2020.11.8
 chardet==3.0.4
 charset-normalizer==2.0.9
-click==7.1.2
+click==8.0.3
 click-didyoumean==0.0.3
 click-plugins==1.1.1
-click-repl==0.1.6
+click-repl==0.2.0
 coverage==6.2
 cycler==0.10.0
 decorator==5.1.0
+Deprecated==1.2.13
 distro==1.5.0
 dnspython==2.1.0
 email-validator==1.1.3
@@ -33,12 +34,13 @@ Flask-DebugToolbar==0.11.0
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-Menu==0.7.2
-flask-paginate==0.8.1
+flask-paginate==2021.10.29
 Flask-Principal==0.4.0
 Flask-PyMongo==2.3.0
 flask-redis==0.4.0
 flask-shell-ipython==0.4.1
-Flask-WTF==0.15.1
+Flask-WTF==1.0.0
+fonttools==4.28.5
 graphviz==0.14.2
 html5lib==1.1
 idna==2.10
@@ -48,7 +50,7 @@ ipython==7.27.0
 ipython-genutils==0.2.0
 itsdangerous==2.0.1
 jedi==0.18.0
-Jinja2==3.0.1
+Jinja2==3.0.3
 joblib==1.1.0
 jsondiff==1.3.0
 jsonschema==3.2.0
@@ -56,7 +58,7 @@ kiwisolver==1.3.1
 kombu==5.2.2
 lxml==4.6.3
 MarkupSafe==2.0.1
-matplotlib==3.3.2
+matplotlib==3.5.1
 matplotlib-inline==0.1.3
 mccabe==0.6.1
 mypy==0.930
@@ -65,7 +67,7 @@ networkx==2.6.3
 nose2==0.10.0
 numpy==1.21.4
 packaging==21.3
-pandas==1.1.4
+pandas==1.3.5
 parso==0.8.2
 pathspec==0.9.0
 pexpect==4.8.0
@@ -79,7 +81,7 @@ py==1.11.0
 pycodestyle==2.7.0
 pyflakes==2.3.1
 Pygments==2.10.0
-pymongo==3.12.0
+pymongo==4.0.1
 pyparsing==2.4.7
 PyPDF2==1.26.0
 pyrsistent==0.18.0
@@ -91,13 +93,13 @@ python-dateutil==2.8.1
 pytz==2020.4
 PyYAML==6.0
 rapidfuzz==1.1.1
-redis==3.5.3
+redis==4.1.0
 regex==2021.8.28
 requests==2.26.0
 scikit-learn==1.0.1
 scipy==1.7.3
--e git+ssh://git@github.com/J08nY/sec-certs.git@593642c878c91c34183a003c2212ee4a932a99af#egg=sec_certs
-sentry-sdk==1.5.0
+-e git+https://github.com/crocs-muni/sec-certs.git@41ce0a3d8434d89f492a69fc42f45a5e1383ddaa#egg=sec_certs
+sentry-sdk==1.5.1
 six==1.15.0
 soupsieve==2.0.1
 tabula-py==2.2.0
@@ -117,5 +119,6 @@ vine==5.0.0
 wcwidth==0.2.5
 webassets==2.0
 webencodings==0.5.1
-Werkzeug==2.0.1
-WTForms==2.3.3
+Werkzeug==2.0.2
+wrapt==1.13.3
+WTForms==3.0.1
