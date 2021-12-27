@@ -115,7 +115,10 @@ def manage(email_token: str):
                             session=session,
                         )
         flash("Your notification subscriptions were successfully updated.", "success")
-        return redirect(url_for("notify.manage", email_token=email_token))
+        if all(not sub_form.subscribe.data for sub_form in form.certificates.entries):
+            return redirect(url_for("index"))
+        else:
+            return redirect(url_for("notify.manage", email_token=email_token))
     return render_template(
         "notifications/manage.html.jinja2",
         form=form,
