@@ -1,19 +1,18 @@
 import os
+import shutil
 from collections import Counter
 from datetime import datetime
 from operator import itemgetter
-from pathlib import Path
-from shutil import rmtree
 
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from flask import current_app
 from jsondiff import diff
 from pkg_resources import get_distribution
 from pymongo import DESCENDING
 from sec_certs.dataset.common_criteria import CCDataset
 
 from .. import celery, mongo
+from ..common.tasks import make_dataset_paths
 from ..utils import dictify_diff, dictify_serializable
 
 logger = get_task_logger(__name__)
@@ -26,7 +25,7 @@ def notify(run_id):  # pragma: no cover
     pass
 
 
-def process_new_certs(dset, new_ids, run_id, timestamp):  # pragma: no cover
+def _process_new_certs(dset, new_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op="cc.db.new", description="Process new certs."):
         logger.info(f"Processing {len(new_ids)} new certificates.")
         for id in new_ids:
@@ -44,7 +43,7 @@ def process_new_certs(dset, new_ids, run_id, timestamp):  # pragma: no cover
             )
 
 
-def process_updated_certs(dset, updated_ids, run_id, timestamp):  # pragma: no cover
+def _process_updated_certs(dset, updated_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op="cc.db.updated", description="Process updated certs."):
         logger.info(f"Processing {len(updated_ids)} updated certificates.")
         for id in updated_ids:
@@ -77,7 +76,7 @@ def process_updated_certs(dset, updated_ids, run_id, timestamp):  # pragma: no c
                 )
 
 
-def process_removed_certs(dset, removed_ids, run_id, timestamp):  # pragma: no cover
+def _process_removed_certs(dset, removed_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op="cc.db.removed", description="Process removed certs."):
         logger.info(f"Processing {len(removed_ids)} removed certificates.")
         for id in removed_ids:
@@ -100,34 +99,48 @@ def process_removed_certs(dset, removed_ids, run_id, timestamp):  # pragma: no c
 def update_data():  # pragma: no cover
     tool_version = get_distribution("sec-certs").version
     start = datetime.now()
-    instance_path = Path(current_app.instance_path)
-    cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
-    cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
-    dset_path = instance_path / current_app.config["DATASET_PATH_CC"]
-    output_path = instance_path / current_app.config["DATASET_PATH_CC_OUT"]
+    paths = make_dataset_paths("cc")
 
-    dset = CCDataset({}, dset_path, "dataset", "Description")
+    dset = CCDataset({}, paths["dset_path"], "dataset", "Description")
     if not dset.auxillary_datasets_dir.exists():
         dset.auxillary_datasets_dir.mkdir(parents=True)
-    if cve_path.exists():
-        os.symlink(cve_path, dset.cve_dataset_path)
-    if cpe_path.exists():
-        os.symlink(cpe_path, dset.cpe_dataset_path)
+    if paths["cve_path"].exists():
+        os.symlink(paths["cve_path"], dset.cve_dataset_path)
+    if paths["cpe_path"].exists():
+        os.symlink(paths["cpe_path"], dset.cpe_dataset_path)
 
     try:
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
             with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"):
-                dset.get_certs_from_web()
+                dset.get_certs_from_web(update_json=False)
             with sentry_sdk.start_span(op="cc.download_pdfs", description="Download pdfs"):
-                dset.download_all_pdfs()
+                dset.download_all_pdfs(update_json=False)
             with sentry_sdk.start_span(op="cc.convert_pdfs", description="Convert pdfs"):
-                dset.convert_all_pdfs()
+                dset.convert_all_pdfs(update_json=False)
             with sentry_sdk.start_span(op="cc.analyze", description="Analyze certificates"):
-                dset.analyze_certificates()
+                dset.analyze_certificates(update_json=False)
             with sentry_sdk.start_span(op="cc.maintenance_updates", description="Process maintenance updates"):
                 dset.process_maintenance_updates()
-            dset.to_json(output_path)
-
+            with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"):
+                dset.to_json(paths["output_path"])
+            with sentry_sdk.start_span(op="cc.move", description="Move files"):
+                for cert in dset:
+                    if cert.state.report_pdf_path:
+                        dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
+                        if not dst.exists() or dst.stat().st_size < cert.state.report_pdf_path.stat().st_size:
+                            cert.state.report_pdf_path.replace(dst)
+                    if cert.state.report_txt_path:
+                        dst = paths["report_txt"] / f"{cert.dgst}.pdf"
+                        if not dst.exists() or dst.stat().st_size < cert.state.report_txt_path.stat().st_size:
+                            cert.state.report_txt_path.replace(dst)
+                    if cert.state.target_pdf_path:
+                        dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
+                        if not dst.exists() or dst.stat().st_size < cert.state.target_pdf_path.stat().st_size:
+                            cert.state.target_pdf_path.replace(dst)
+                    if cert.state.target_pdf_path:
+                        dst = paths["target_txt"] / f"{cert.dgst}.pdf"
+                        if not dst.exists() or dst.stat().st_size < cert.state.target_pdf_path.stat().st_size:
+                            cert.state.target_pdf_path.replace(dst)
         old_ids = set(map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
 
@@ -159,12 +172,12 @@ def update_data():  # pragma: no cover
         # TODO: Take dataset and certificate state into account when processing into DB.
 
         with sentry_sdk.start_span(op="cc.db", description="Process certs into DB."):
-            process_new_certs(dset, new_ids, update_result.inserted_id, start)
-            process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
+            _process_new_certs(dset, new_ids, update_result.inserted_id, start)
+            _process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
             # TODO: cert to_json can have different ordering of arrays than the one in DB
             #       this generates and excessive amount of cert updates, that are not really updates
             #       just non-determinism in the ordering.
-            process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+            _process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
         notify.delay(str(update_result.inserted_id))
     except Exception as e:
         end = datetime.now()
@@ -181,4 +194,4 @@ def update_data():  # pragma: no cover
         )
         raise e
     finally:
-        rmtree(dset_path, ignore_errors=True)
+        shutil.rmtree(paths["dset_path"], ignore_errors=True)

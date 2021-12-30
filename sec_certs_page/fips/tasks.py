@@ -2,12 +2,10 @@ import os
 from collections import Counter
 from datetime import datetime
 from operator import itemgetter
-from pathlib import Path
 from shutil import rmtree
 
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from flask import current_app
 from jsondiff import diff
 from pkg_resources import get_distribution
 from pymongo import DESCENDING
@@ -16,6 +14,7 @@ from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 
 from .. import celery, mongo
+from ..common.tasks import make_dataset_paths
 from ..utils import dictify_diff, dictify_serializable
 
 logger = get_task_logger(__name__)
@@ -39,31 +38,42 @@ def update_mip_data():  # pragma: no cover
 def update_data():  # pragma: no cover
     tool_version = get_distribution("sec-certs").version
     start = datetime.now()
-    instance_path = Path(current_app.instance_path)
-    cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
-    cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
-    dset_path = instance_path / current_app.config["DATASET_PATH_FIPS"]
-    output_path = instance_path / current_app.config["DATASET_PATH_FIPS_OUT"]
-    dset = FIPSDataset({}, dset_path, "dataset", "Description")
+    paths = make_dataset_paths("fips")
+
+    dset = FIPSDataset({}, paths["dset_path"], "dataset", "Description")
+
     if not dset.auxillary_datasets_dir.exists():
         dset.auxillary_datasets_dir.mkdir(parents=True)
-    if cve_path.exists():
-        os.symlink(cve_path, dset.cve_dataset_path)
-    if cpe_path.exists():
-        os.symlink(cpe_path, dset.cpe_dataset_path)
+    if paths["cve_path"].exists():
+        os.symlink(paths["cve_path"], dset.cve_dataset_path)
+    if paths["cpe_path"].exists():
+        os.symlink(paths["cpe_path"], dset.cpe_dataset_path)
+
     try:
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
             with sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"):
-                dset.get_certs_from_web()
+                dset.get_certs_from_web(update_json=False)
             with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"):
-                dset.convert_all_pdfs()
+                dset.convert_all_pdfs(update_json=False)
             with sentry_sdk.start_span(op="fips.scan_pdfs", description="Scan pdfs"):
-                dset.pdf_scan()
+                dset.pdf_scan(update_json=False)
             with sentry_sdk.start_span(op="fips.tables", description="Extract tables"):
-                dset.extract_certs_from_tables(high_precision=True)
+                dset.extract_certs_from_tables(high_precision=True, update_json=False)
             with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
-                dset.finalize_results()
-            dset.to_json(output_path)
+                dset.finalize_results(update_json=False)
+            with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"):
+                dset.to_json(paths["output_path"])
+            with sentry_sdk.start_span(op="fips.move", description="Move files"):
+                for cert in dset:
+                    if cert.state.sp_path:
+                        pdf_path = cert.state.sp_path
+                        pdf_dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
+                        if not pdf_dst.exists() or pdf_dst.stat().st_size < pdf_path.stat().st_size:
+                            pdf_path.replace(pdf_dst)
+                        txt_path = pdf_path.with_suffix(".pdf.txt")
+                        txt_dst = paths["target_txt"] / f"{cert.dgst}.txt"
+                        if not txt_dst.exists() or txt_dst.stat().st_size < txt_path.stat().st_size:
+                            txt_path.replace(txt_dst)
 
         old_ids = set(map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
@@ -170,4 +180,4 @@ def update_data():  # pragma: no cover
         )
         raise e
     finally:
-        rmtree(dset_path, ignore_errors=True)
+        rmtree(paths["dset_path"], ignore_errors=True)

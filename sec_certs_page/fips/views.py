@@ -12,6 +12,13 @@ from networkx import node_link_data
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo
+from ..common.views import (
+    entry_download_files,
+    entry_download_report_pdf,
+    entry_download_report_txt,
+    entry_download_target_pdf,
+    entry_download_target_txt,
+)
 from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
 from . import fips, fips_types, get_fips_graphs, get_fips_map
 
@@ -226,9 +233,22 @@ def entry(hashid):
                 cpes = list(map(add_dots, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
             else:
                 cpes = []
-        return render_template("fips/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, cves=cves, cpes=cpes)
+        local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",))
+        return render_template(
+            "fips/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, cves=cves, cpes=cpes, local_files=local_files
+        )
     else:
         return abort(404)
+
+
+@fips.route("/<string(length=16):hashid>/target.txt")
+def entry_target_txt(hashid):
+    return entry_download_target_txt("fips", hashid, current_app.config["DATASET_PATH_FIPS_DIR"])
+
+
+@fips.route("/<string(length=16):hashid>/target.pdf")
+def entry_target_pdf(hashid):
+    return entry_download_target_pdf("fips", hashid, current_app.config["DATASET_PATH_FIPS_DIR"])
 
 
 @fips.route("/<string(length=16):hashid>/graph.json")

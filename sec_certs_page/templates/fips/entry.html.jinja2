@@ -3,6 +3,7 @@
 {% set search = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "utils.html.jinja2" import render_network, render_cves %}
+{% from "common/entry.html.jinja2" import render_local_files %}
 {% block title %}
     <title>
         {{ cert["web_scan"]["module_name"]|default("", true) + " | seccerts.org" }}
@@ -141,16 +142,7 @@
                     {% endif %}
 
                     <div class="mt-2 mb-2">
-                        {% if cert["web_scan"]["certificate_www"] %}
-                            <a class="btn btn-outline-primary" role="button" href="{{ cert['certificate_www'] }}"
-                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Certificate"><i
-                                    class="fas fa-file-contract"></i> Certificate</a>
-                        {% endif %}
-                        {% if cert["web_scan"]["security_policy_www"] %}
-                            <a class="btn btn-outline-primary" role="button" href="{{ cert['security_policy_www'] }}"
-                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Security policy"><span
-                                    class="fas fa-file-alt"></span> Security policy</a>
-                        {% endif %}
+                        {{ render_local_files(hashid, local_files, cert["web_scan"]["certificate_www"], None, cert["web_scan"]["security_policy_www"]) }}
                         <a class="btn btn-outline-primary" role="button"
                            href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}"
                            data-bs-toggle="tooltip" data-bs-placement="bottom"

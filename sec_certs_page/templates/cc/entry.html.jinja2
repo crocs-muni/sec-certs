@@ -3,6 +3,7 @@
 {% set search = True %}
 {% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category, render_pdf_meta, render_frontpage %}
 {% from "utils.html.jinja2" import render_network, render_cves %}
+{% from "common/entry.html.jinja2" import render_local_files %}
 {% block title %}
     <title>
         {{ cert["name"]|default("", true) + " | seccerts.org" }}
@@ -131,24 +132,7 @@
                     {% endif %}
 
                     <div class="mt-2 mb-2">
-                        {% if cert["cert_link"] %}
-                            <a class="btn btn-outline-primary" role="button" href="{{ cert['cert_link'] }}"
-                               data-bs-toggle="tooltip" data-bs-placement="bottom"
-                               title="{{ cert["cert_link"].split("/")[-1] }}"><i class="fas fa-file-contract"></i>
-                                Certificate</a>
-                        {% endif %}
-                        {% if cert["report_link"] %}
-                            <a class="btn btn-outline-primary" role="button" href="{{ cert['report_link'] }}"
-                               data-bs-toggle="tooltip" data-bs-placement="bottom"
-                               title="{{ cert["report_link"].split("/")[-1] }}"><i class="fas fa-file-contract"></i>
-                                Certification report</a>
-                        {% endif %}
-                        {% if cert["st_link"] %}
-                            <a class="btn btn-outline-primary" role="button" href="{{ cert['st_link'] }}"
-                               data-bs-toggle="tooltip" data-bs-placement="bottom"
-                               title="{{ cert["st_link"].split("/")[-1] }}"><i class="fas fa-file-alt"></i> Security
-                                target</a>
-                        {% endif %}
+                        {{ render_local_files(hashid, local_files, cert['cert_link'], cert['report_link'], cert['st_link']) }}
                     </div>
                 </div>
             </div>

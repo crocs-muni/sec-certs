@@ -1,0 +1,26 @@
+{% macro render_local_file(hashid, link_content, link, local_files, document) %}
+    <div class="btn-group">
+        <a class="btn btn-outline-primary" role="button" href="{{ link }}"
+           data-bs-toggle="tooltip" data-bs-placement="bottom"
+           title="{{ link.split("/")[-1] if "/" in link else link }}">{{ link_content|safe }}</a>
+        {% for format in ("pdf", "txt") %}
+            {% if local_files.get((document, format)) %}
+                <a class="btn btn-outline-secondary" role="button" href="{{ url_for(".entry_" + document + "_" + format, hashid=hashid) }}"
+                   data-bs-toggle="tooltip" data-bs-placement="bottom"
+                   title="Local download">{{ format.upper() }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_local_files(hashid, local_files, cert_link, report_link, target_link) %}
+    {% if cert_link %}
+        {{ render_local_file(hashid, '<i class="fas fa-file-contract"></i> Certificate', cert_link, local_files, "cert") }}
+    {% endif %}
+    {% if report_link %}
+        {{ render_local_file(hashid, '<i class="fas fa-file-contract"></i> Certification report', report_link, local_files, "report") }}
+    {% endif %}
+    {% if target_link %}
+        {{ render_local_file(hashid, '<i class="fas fa-file-alt"></i> Security target', target_link, local_files, "target") }}
+    {% endif %}
+{% endmacro %}

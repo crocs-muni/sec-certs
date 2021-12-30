@@ -13,6 +13,13 @@ from networkx import node_link_data
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo
+from ..common.views import (
+    entry_download_files,
+    entry_download_report_pdf,
+    entry_download_report_txt,
+    entry_download_target_pdf,
+    entry_download_target_txt,
+)
 from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
 from . import cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis, get_cc_graphs, get_cc_map
 
@@ -253,6 +260,7 @@ def entry(hashid):
                 cpes = list(map(add_dots, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
             else:
                 cpes = []
+        local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
         return render_template(
             "cc/entry.html.jinja2",
             cert=doc,
@@ -261,9 +269,30 @@ def entry(hashid):
             diffs=diffs,
             cves=cves,
             cpes=cpes,
+            local_files=local_files,
         )
     else:
         return abort(404)
+
+
+@cc.route("/<string(length=16):hashid>/target.txt")
+def entry_target_txt(hashid):
+    return entry_download_target_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
+
+
+@cc.route("/<string(length=16):hashid>/target.pdf")
+def entry_target_pdf(hashid):
+    return entry_download_target_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
+
+
+@cc.route("/<string(length=16):hashid>/report.txt")
+def entry_report_txt(hashid):
+    return entry_download_report_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
+
+
+@cc.route("/<string(length=16):hashid>/report.pdf")
+def entry_report_pdf(hashid):
+    return entry_download_report_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/graph.json")
