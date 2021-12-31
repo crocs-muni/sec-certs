@@ -112,7 +112,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             raise RuntimeError("You need to provide cert ids to FIPS download PDFs functionality.")
         for cert_id in cert_ids:
             if not (self.policies_dir / f"{cert_id}.pdf").exists() or (
-                cert_id in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
+                fips_dgst(cert_id) in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
             ):
                 sp_urls.append(
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf"
@@ -360,6 +360,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def _compare_certs(self, current_certificate: "FIPSCertificate", other_id: str):
         other_dgst = fips_dgst(other_id)
         other_cert = self.certs[other_dgst]
+
         if (
             current_certificate.web_scan.date_validation is None
             or other_cert is None
@@ -371,14 +372,6 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         cert_last = current_certificate.web_scan.date_validation[-1]
         conn_first = other_cert.web_scan.date_validation[0]
         conn_last = other_cert.web_scan.date_validation[-1]
-
-        if (
-            not isinstance(cert_first, datetime.date)
-            or not isinstance(cert_last, datetime.date)
-            or not isinstance(conn_first, datetime.date)
-            or not isinstance(conn_last, datetime.date)
-        ):
-            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
         return (
             cert_first.year - conn_first.year > config.year_difference_between_validations
@@ -421,7 +414,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 if curr_id == cert_candidate_id:
                     return False
 
-        algs = self.algorithms.certs[candidate_dgst]
+        algs = self.algorithms.certs[cert_candidate_id]
         for current_alg in algs:
             if current_alg.vendor is None or processed_cert.web_scan.vendor is None:
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
@@ -541,8 +534,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for key in self.certs:
             cert = self.certs[key]
 
-            # TODO: What? How can a key from self.certs be "Not Found"?
-            if key == "Not found" or not cert.state.file_status:
+            if not cert.state.file_status:
                 continue
 
             processed = self._get_processed_list(connection_list, key)
@@ -555,7 +547,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 self._highlight_vendor_in_dot(dot, key, highlighted_vendor)
                 single_dot.node(
                     key,
-                    label=key + "\r\n" + cert.web_scan.vendor
+                    label=str(cert.cert_id) + "\r\n" + cert.web_scan.vendor
                     if cert.web_scan.vendor is not None
                     else "" + ("\r\n" + cert.web_scan.module_name if cert.web_scan.module_name else ""),
                 )
@@ -563,12 +555,11 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for key in self.certs:
             cert = self.certs[key]
 
-            # TODO: What? How can a key from self.certs be "Not Found"?
-            if key == "Not found" or not cert.state.file_status:
+            if not cert.state.file_status:
                 continue
             processed = self._get_processed_list(connection_list, key)
             for conn in processed:
-                self._add_colored_node(dot, conn, highlighted_vendor)
+                self._add_colored_node(dot, fips_dgst(conn), highlighted_vendor)
                 dot.edge(key, conn)
                 edges += 1
 
