@@ -229,14 +229,14 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     @classmethod
     def from_dict(cls, dct: Dict) -> "FIPSCertificate":
         new_dct = dct.copy()
-        
-        if new_dct['web_scan'].date_validation:
-            new_dct['web_scan'].date_validation = [parser.parse(x).date() for x in new_dct['web_scan'].date_validation]
-            
-        if new_dct['web_scan'].date_sunset:
-            new_dct['web_scan'].date_sunset = parser.parse(new_dct['web_scan'].date_sunset).date()
+
+        if new_dct["web_scan"].date_validation:
+            new_dct["web_scan"].date_validation = [parser.parse(x).date() for x in new_dct["web_scan"].date_validation]
+
+        if new_dct["web_scan"].date_sunset:
+            new_dct["web_scan"].date_sunset = parser.parse(new_dct["web_scan"].date_sunset).date()
         return super(cls, FIPSCertificate).from_dict(new_dct)
-    
+
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
         exit_code = helpers.download_file(*cert, delay=1)
@@ -417,10 +417,10 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def parse_validation_dates(current_div: Tag, html_items_found: Dict):
-        table = current_div.find('table')
-        rows = table.find('tbody').findAll('tr')
-        html_items_found['date_validation'] = [parser.parse(td.text).date() for td in [row.find('td') for row in rows]]
-    
+        table = current_div.find("table")
+        rows = table.find("tbody").findAll("tr")
+        html_items_found["date_validation"] = [parser.parse(td.text).date() for td in [row.find("td") for row in rows]]
+
     @classmethod
     def html_from_file(
         cls, file: Path, state: State, initialized: "FIPSCertificate" = None, redo: bool = False
@@ -481,7 +481,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             if div.find("h4", class_="panel-title").text == "Related Files":
                 FIPSCertificate.parse_related_files(div, items_found)
-                
+
             if div.find("h4", class_="panel-title").text == "Validation History":
                 FIPSCertificate.parse_validation_dates(div, items_found)
 
