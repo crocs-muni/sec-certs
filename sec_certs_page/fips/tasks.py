@@ -6,16 +6,14 @@ from shutil import rmtree
 
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from jsondiff import diff
 from pkg_resources import get_distribution
-from pymongo import DESCENDING
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 
 from .. import celery, mongo
-from ..common.tasks import make_dataset_paths
-from ..utils import dictify_diff, dictify_serializable
+from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
+from ..utils import dictify_serializable
 
 logger = get_task_logger(__name__)
 
@@ -105,67 +103,12 @@ def update_data():  # pragma: no cover
         # TODO: Take dataset and certificate state into account when processing into DB.
 
         with sentry_sdk.start_span(op="fips.db", description="Process certs into DB."):
-            with sentry_sdk.start_span(op="fips.db.new", description="Process new certs."):
-                logger.info(f"Processing {len(new_ids)} new certificates.")
-                for id in new_ids:
-                    # Add a cert to DB
-                    cert_data = dictify_serializable(dset[id], id_field="dgst")
-                    mongo.db.fips.insert_one(cert_data)
-                    mongo.db.fips_diff.insert_one(
-                        {
-                            "run_id": update_result.inserted_id,
-                            "dgst": id,
-                            "timestamp": start,
-                            "type": "new",
-                            "diff": cert_data,
-                        }
-                    )
-            with sentry_sdk.start_span(op="fips.db.updated", description="Process updated certs."):
-                logger.info(f"Processing {len(updated_ids)} updated certificates.")
-                for id in updated_ids:
-                    # Process an updated cert, it can also be that a "removed" cert reappeared
-                    current_cert = mongo.db.fips.find_one({"_id": id})
-                    cert_data = dictify_serializable(dset[id], id_field="dgst")
-                    # Find the last diff
-                    last_diff = mongo.db.fips_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
-                    if cert_diff := diff(current_cert, cert_data):
-                        # The cert changed, issue an update
-                        mongo.db.fips.replace_one({"_id": id}, cert_data)
-                        mongo.db.fips_diff.insert_one(
-                            {
-                                "run_id": update_result.inserted_id,
-                                "dgst": id,
-                                "timestamp": start,
-                                "type": "change",
-                                "diff": dictify_diff(cert_diff),
-                            }
-                        )
-                    elif last_diff and last_diff["type"] == "remove":
-                        # The cert did not change but came back from being marked removed
-                        mongo.db.fips_diff.insert_one(
-                            {
-                                "run_id": update_result.inserted_id,
-                                "dgst": id,
-                                "timestamp": start,
-                                "type": "back",
-                            }
-                        )
-            with sentry_sdk.start_span(op="fips.db.removed", description="Process removed certs."):
-                logger.info(f"Processing {len(removed_ids)} removed certificates.")
-                for id in removed_ids:
-                    # Find the last diff on this cert, if it is mark for removal, just continue
-                    last_diff = mongo.db.fips_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
-                    if last_diff and last_diff["type"] == "remove":
-                        continue
-                    # Mark the removal (but only once)
-                    mongo.db.fips_diff.insert_one(
-                        {
-                            "run_id": update_result.inserted_id,
-                            "dgst": id,
-                            "timestamp": start,
-                            "type": "remove",
-                        }
-                    )
+            process_new_certs("fips", "fips_diff", dset, new_ids, update_result.inserted_id, start)
+            process_updated_certs("fips", "fips_diff", dset, updated_ids, update_result.inserted_id, start)
+            # TODO: cert to_json can have different ordering of arrays than the one in DB
+            #       this generates and excessive amount of cert updates, that are not really updates
+            #       just non-determinism in the ordering.
+            process_removed_certs("fips", "fips_diff", dset, removed_ids, update_result.inserted_id, start)
     except Exception as e:
         end = datetime.now()
         mongo.db.fips_log.insert_one(

@@ -6,14 +6,11 @@ from operator import itemgetter
 
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from jsondiff import diff
 from pkg_resources import get_distribution
-from pymongo import DESCENDING
 from sec_certs.dataset.common_criteria import CCDataset
 
 from .. import celery, mongo
-from ..common.tasks import make_dataset_paths
-from ..utils import dictify_diff, dictify_serializable
+from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
 
 logger = get_task_logger(__name__)
 
@@ -23,76 +20,6 @@ def notify(run_id):  # pragma: no cover
     # run = mongo.db.cc_log.find_one({"_id": run_id})
     # diffs = mongo.db.cc_diff.find({"run_id": run_id})
     pass
-
-
-def _process_new_certs(dset, new_ids, run_id, timestamp):  # pragma: no cover
-    with sentry_sdk.start_span(op="cc.db.new", description="Process new certs."):
-        logger.info(f"Processing {len(new_ids)} new certificates.")
-        for id in new_ids:
-            # Add a cert to DB
-            cert_data = dictify_serializable(dset[id], id_field="dgst")
-            mongo.db.cc.insert_one(cert_data)
-            mongo.db.cc_diff.insert_one(
-                {
-                    "run_id": run_id,
-                    "dgst": id,
-                    "timestamp": timestamp,
-                    "type": "new",
-                    "diff": cert_data,
-                }
-            )
-
-
-def _process_updated_certs(dset, updated_ids, run_id, timestamp):  # pragma: no cover
-    with sentry_sdk.start_span(op="cc.db.updated", description="Process updated certs."):
-        logger.info(f"Processing {len(updated_ids)} updated certificates.")
-        for id in updated_ids:
-            # Process an updated cert, it can also be that a "removed" cert reappeared
-            current_cert = mongo.db.cc.find_one({"_id": id})
-            cert_data = dictify_serializable(dset[id], id_field="dgst")
-            # Find the last diff
-            last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
-            if cert_diff := diff(current_cert, cert_data, syntax="explicit"):
-                # The cert changed, issue an update
-                mongo.db.cc.replace_one({"_id": id}, cert_data)
-                mongo.db.cc_diff.insert_one(
-                    {
-                        "run_id": run_id,
-                        "dgst": id,
-                        "timestamp": timestamp,
-                        "type": "change",
-                        "diff": dictify_diff(cert_diff),
-                    }
-                )
-            elif last_diff and last_diff["type"] == "remove":
-                # The cert did not change but came back from being marked removed
-                mongo.db.cc_diff.insert_one(
-                    {
-                        "run_id": run_id,
-                        "dgst": id,
-                        "timestamp": timestamp,
-                        "type": "back",
-                    }
-                )
-
-
-def _process_removed_certs(dset, removed_ids, run_id, timestamp):  # pragma: no cover
-    with sentry_sdk.start_span(op="cc.db.removed", description="Process removed certs."):
-        logger.info(f"Processing {len(removed_ids)} removed certificates.")
-        for id in removed_ids:
-            # Find the last diff on this cert, if it is mark for removal, just continue
-            last_diff = mongo.db.cc_diff.find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
-            if last_diff and last_diff["type"] == "remove":
-                continue
-            # Mark the removal (but only once)
-            mongo.db.cc_diff.insert_one(
-                {
-                    "run_id": run_id,
-                    "dgst": id,
-                    "timestamp": timestamp,
-                    "type": "remove",
-                }
-            )
 
 
 @celery.task(ignore_result=True)
@@ -172,12 +99,12 @@ def update_data():  # pragma: no cover
         # TODO: Take dataset and certificate state into account when processing into DB.
 
         with sentry_sdk.start_span(op="cc.db", description="Process certs into DB."):
-            _process_new_certs(dset, new_ids, update_result.inserted_id, start)
-            _process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
+            process_new_certs("cc", "cc_diff", dset, new_ids, update_result.inserted_id, start)
+            process_updated_certs("cc", "cc_diff", dset, updated_ids, update_result.inserted_id, start)
             # TODO: cert to_json can have different ordering of arrays than the one in DB
             #       this generates and excessive amount of cert updates, that are not really updates
             #       just non-determinism in the ordering.
-            _process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+            process_removed_certs("cc", "cc_diff", dset, removed_ids, update_result.inserted_id, start)
         notify.delay(str(update_result.inserted_id))
     except Exception as e:
         end = datetime.now()
