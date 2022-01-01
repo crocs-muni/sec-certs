@@ -40,6 +40,15 @@ def test_search_pagination(client: FlaskClient):
     assert pp_name not in resp.data.decode()
 
 
+def test_search_bad(client: FlaskClient):
+    resp = client.get("/pp/search/?q=aaa&page=bad")
+    assert resp.status_code == 400
+    resp = client.get("/pp/search/?q=aaa&page=1&sort=bad")
+    assert resp.status_code == 400
+    resp = client.get("/pp/search/?q=aaa&page=1&status=bad")
+    assert resp.status_code == 400
+
+
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/pp/random/", follow_redirects=True)
