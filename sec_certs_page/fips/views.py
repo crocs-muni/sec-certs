@@ -9,16 +9,11 @@ import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
+from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo
-from ..common.views import (
-    entry_download_files,
-    entry_download_report_pdf,
-    entry_download_report_txt,
-    entry_download_target_pdf,
-    entry_download_target_txt,
-)
+from ..common.views import entry_download_files, entry_download_target_pdf, entry_download_target_txt
 from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
 from . import fips, fips_types, get_fips_graphs, get_fips_map
 
@@ -135,11 +130,18 @@ def select_certs(q, cat, status, sort):
 
 
 def process_search(req, callback=None):
-    page = int(req.args.get("page", 1))
+    try:
+        page = int(req.args.get("page", 1))
+    except ValueError:
+        raise BadRequest(description="Invalid page number.")
     q = req.args.get("q", None)
     cat = req.args.get("cat", None)
     status = req.args.get("status", "Any")
+    if status not in ("Any", "Active", "Historical", "Revoked"):
+        raise BadRequest(description="Invalid status.")
     sort = req.args.get("sort", "match")
+    if sort not in ("match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"):
+        raise BadRequest(description="Invalid sort.")
 
     cursor, categories, count = select_certs(q, cat, status, sort)
 

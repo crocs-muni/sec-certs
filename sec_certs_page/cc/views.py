@@ -10,6 +10,7 @@ from flask import abort, current_app, redirect, render_template, request, send_f
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from networkx import node_link_data
+from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo
@@ -150,11 +151,18 @@ def select_certs(q, cat, status, sort):
 
 
 def process_search(req, callback=None):
-    page = int(req.args.get("page", 1))
+    try:
+        page = int(req.args.get("page", 1))
+    except ValueError:
+        raise BadRequest(description="Invalid page number.")
     q = req.args.get("q", None)
     cat = req.args.get("cat", None)
     status = req.args.get("status", "any")
+    if status not in ("any", "active", "archived"):
+        raise BadRequest(description="Invalid status.")
     sort = req.args.get("sort", "match")
+    if sort not in ("match", "name", "cert_date", "archive_date"):
+        raise BadRequest(description="Invalid sort.")
 
     cursor, categories, count = select_certs(q, cat, status, sort)
 
