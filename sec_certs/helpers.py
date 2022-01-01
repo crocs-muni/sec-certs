@@ -832,16 +832,21 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     full_regex_string = r"|".join([without_version, short_version, long_version])
     normalizer = r"(\d+\.*)+"
 
-    matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)])
+    matched_strings = [max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)]
     if not matched_strings:
-        matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
+        matched_strings = [max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)]
+    # Only keep the first occurrence but keep order.
+    matches = []
+    for match in matched_strings:
+        if match not in matches:
+            matches.append(match)
     # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
     # return identified_versions if identified_versions else ['-']
 
-    if not matched_strings:
+    if not matches:
         return ["-"]
 
-    matched = [re.search(normalizer, x) for x in matched_strings]
+    matched = [re.search(normalizer, x) for x in matches]
     return [x.group() for x in matched if x is not None]
 
 
