@@ -3,6 +3,7 @@ from contextvars import ContextVar
 
 import sentry_sdk
 from flask import Blueprint, url_for
+from pymongo.errors import OperationFailure
 
 from .. import mongo
 from ..utils import create_graph
@@ -58,7 +59,12 @@ def _update_fips_data():
             changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
             fips_mem_changes.set(changes)
             do_update = True
-        while changes and changes.alive and changes.try_next():
+        try:
+            while changes and changes.alive and changes.try_next():
+                do_update = True
+        except OperationFailure:
+            changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
+            fips_mem_changes.set(changes)
             do_update = True
     if do_update:
         load_fips_data()

@@ -4,6 +4,7 @@ from datetime import datetime
 
 import sentry_sdk
 from flask import Blueprint, current_app, url_for
+from pymongo.errors import OperationFailure
 
 from .. import mongo
 from ..utils import create_graph
@@ -116,7 +117,12 @@ def _update_cc_data():
             changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
             cc_mem_changes.set(changes)
             do_update = True
-        while changes is not None and changes.alive and changes.try_next():
+        try:
+            while changes is not None and changes.alive and changes.try_next():
+                do_update = True
+        except OperationFailure:
+            changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
+            cc_mem_changes.set(changes)
             do_update = True
     if do_update:
         load_cc_data()
