@@ -15,9 +15,10 @@ jobs:
           python-version: '3.8'
       - name: Install python dependencies
         run: pip install -r requirements.txt
-      - name: Install pytest and run tests
+      - name: Install pytest and package
         run: |
           pip install pytest
           pip install pytest-cov
           pip install ".[dev,test]"
-          pytest --cov sec_certs
+      - name: Run tests
+        run: pytest --cov sec_certs
