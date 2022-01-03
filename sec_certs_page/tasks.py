@@ -10,9 +10,9 @@ from sec_certs.dataset.cve import CVEDataset
 
 from . import celery, mongo
 from .cc.tasks import update_data as update_cc_data
+from .common.objformats import ObjFormat
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
-from .utils import dictify_serializable
 
 logger: Logger = get_task_logger(__name__)
 
@@ -34,7 +34,8 @@ def update_cve_data():  # pragma: no cover
     logger.info("Inserting CVEs.")
     with sentry_sdk.start_span(op="cve.insert", description="Insert CVEs into DB."):
         for cve in cve_dset:
-            cve_data = dictify_serializable(cve, "cve_id")
+            cve_data = ObjFormat(cve).to_raw_format().to_working_format().to_storage_format().get()
+            cve_data["_id"] = cve.cve_id
             mongo.db.cve.replace_one({"_id": cve.cve_id}, cve_data, upsert=True)
 
 
@@ -61,7 +62,8 @@ def update_cpe_data():  # pragma: no cover
     logger.info("Inserting CPEs.")
     with sentry_sdk.start_span(op="cpe.insert", description="Insert CPEs into DB."):
         for cpe in cpe_dset:
-            cpe_data = dictify_serializable(cpe, "uri")
+            cpe_data = ObjFormat(cpe).to_raw_format().to_working_format().to_storage_format().get()
+            cpe_data["_id"] = cpe.uri
             mongo.db.cpe.replace_one({"_id": cpe.uri}, cpe_data, upsert=True)
 
 

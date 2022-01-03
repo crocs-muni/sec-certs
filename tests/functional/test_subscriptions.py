@@ -31,7 +31,7 @@ def sub_obj(certificate):
 
 @pytest.fixture
 def unconfirmed_subscription(client: FlaskClient, mocker: MockerFixture, sub_obj):
-    mocker.patch("sec_certs_page.utils.validate_captcha")
+    mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
     mocker.patch.object(send_confirmation_email, "delay")
     client.post("/notify/subscribe/", json=sub_obj)
@@ -48,7 +48,7 @@ def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
 
 
 def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
-    mocker.patch("sec_certs_page.utils.validate_captcha")
+    mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
     task = mocker.patch.object(send_confirmation_email, "delay")
     resp = client.post("/notify/subscribe/", json=sub_obj)
@@ -63,7 +63,7 @@ def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
 
 
 def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
-    mocker.patch("sec_certs_page.utils.validate_captcha")
+    mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
     task = mocker.patch.object(send_confirmation_email, "delay")
     resp = client.post("/notify/subscribe/", json={"email": "..."})

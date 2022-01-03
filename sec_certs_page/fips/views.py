@@ -13,8 +13,15 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo
-from ..common.views import entry_download_files, entry_download_target_pdf, entry_download_target_txt
-from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
+from ..common.objformats import StorageFormat, load
+from ..common.views import (
+    Pagination,
+    entry_download_files,
+    entry_download_target_pdf,
+    entry_download_target_txt,
+    network_graph_func,
+    send_json_attachment,
+)
 from . import fips, fips_types, get_fips_graphs, get_fips_map
 
 
@@ -222,22 +229,31 @@ def entry_old(old_id, npath=None):
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.fips.find_one({"_id": hashid})
-    if doc:
-        doc = add_dots(doc)
+        raw_doc = mongo.db.fips.find_one({"_id": hashid})
+    if raw_doc:
+        doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
-                cves = list(map(add_dots, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
+                cves = list(map(load, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
             else:
                 cves = []
         with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
             if doc["heuristics"]["cpe_matches"]:
-                cpes = list(map(add_dots, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
+                cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
             else:
                 cpes = []
-        local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",))
+        with sentry_sdk.start_span(op="files", description="Find local files"):
+            local_files = entry_download_files(
+                hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
+            )
         return render_template(
-            "fips/entry.html.jinja2", cert=add_dots(doc), hashid=hashid, cves=cves, cpes=cpes, local_files=local_files
+            "fips/entry.html.jinja2",
+            cert=doc,
+            hashid=hashid,
+            cves=cves,
+            cpes=cpes,
+            local_files=local_files,
+            json=StorageFormat(raw_doc).to_json_mapping(),
         )
     else:
         return abort(404)
@@ -273,7 +289,7 @@ def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
-        return send_json_attachment(add_dots(doc))
+        return send_json_attachment(StorageFormat(doc).to_json_mapping())
     else:
         return abort(404)
 
@@ -281,7 +297,7 @@ def entry_json(hashid):
 @fips.route("/id/<string:cert_id>")
 def entry_id(cert_id):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.fips.find_one({"cert_id": cert_id})
+        doc = mongo.db.fips.find_one({"cert_id": cert_id}, {"_id": 1})
     if doc:
         return redirect(url_for("fips.entry", hashid=doc["_id"]))
     else:
@@ -293,7 +309,7 @@ def entry_name(name):
     name = name.replace("_", " ")
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
-        doc = mongo.db.fips.find_one({"name": name})
+        doc = mongo.db.fips.find_one({"name": name}, {"_id": 1})
     if doc:
         return redirect(url_for("fips.entry", hashid=doc["_id"]))
     else:

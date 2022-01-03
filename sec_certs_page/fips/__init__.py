@@ -6,7 +6,7 @@ from flask import Blueprint, url_for
 from pymongo.errors import OperationFailure
 
 from .. import mongo
-from ..utils import create_graph
+from ..common.views import create_graph
 
 fips: Blueprint = Blueprint("fips", __name__, url_prefix="/fips")
 fips.cli.short_help = "FIPS 140 commands."

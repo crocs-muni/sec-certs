@@ -12,8 +12,8 @@ from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 
 from .. import celery, mongo
+from ..common.objformats import ObjFormat
 from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
-from ..utils import dictify_serializable
 
 logger = get_task_logger(__name__)
 
@@ -21,14 +21,14 @@ logger = get_task_logger(__name__)
 @celery.task(ignore_result=True)
 def update_iut_data():  # pragma: no cover
     snapshot = IUTSnapshot.from_web()
-    snap_data = dictify_serializable(snapshot)
+    snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
     mongo.db.fips_iut.insert_one(snap_data)
 
 
 @celery.task(ignore_result=True)
 def update_mip_data():  # pragma: no cover
     snapshot = MIPSnapshot.from_web()
-    snap_data = dictify_serializable(snapshot)
+    snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
     mongo.db.fips_mip.insert_one(snap_data)
 
 

@@ -58,8 +58,12 @@ def test_random(client: FlaskClient):
 def test_old_entry(client: FlaskClient):
     resp = client.get("/cc/bf712f246f61e8678855/")
     assert resp.location.endswith("/cc/4a1fa75170579066/")
+    resp = client.get("/cc/bf712f246f61e8678855/cert.json")
+    assert resp.location.endswith("/cc/4a1fa75170579066/cert.json")
     resp = client.get("/cc/bf712f246f61e8678855/", follow_redirects=True)
     assert resp.status_code == 200
+    bad_resp = client.get("/cc/AAAAAAAAAAAAAAAAAAAA/")
+    assert bad_resp.status_code == 404
 
 
 def test_entry(client: FlaskClient):
@@ -82,6 +86,12 @@ def test_entry(client: FlaskClient):
     cert_resp = client.get(f"/cc/{hashid}/cert.json")
     assert cert_resp.status_code == 200
     assert cert_resp.is_json
+    assert client.get(f"/cc/{hashid}/target.pdf").status_code in (200, 404)
+    assert client.get(f"/cc/{hashid}/target.txt").status_code in (200, 404)
+    assert client.get(f"/cc/{hashid}/report.pdf").status_code in (200, 404)
+    assert client.get(f"/cc/{hashid}/report.txt").status_code in (200, 404)
+    bad_resp = client.get("/cc/AAAAAAAAAAAAAAAA/")
+    assert bad_resp.status_code == 404
 
 
 def test_entry_graph(client: FlaskClient):

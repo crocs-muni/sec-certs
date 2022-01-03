@@ -7,10 +7,11 @@ from flask import abort, current_app, flash, jsonify, redirect, render_template,
 from wtforms import Label
 
 from .. import mongo
-from ..utils import captcha_required, derive_token
+from ..common.views import captcha_required
 from . import notifications
 from .forms import ManageForm, SubscriptionForm, UnsubscribeForm
 from .tasks import send_confirmation_email, send_unsubscription_email
+from .utils import derive_token
 
 
 @notifications.route("/subscribe/", methods=["POST"])

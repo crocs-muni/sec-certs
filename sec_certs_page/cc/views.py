@@ -14,14 +14,17 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo
+from ..common.objformats import StorageFormat, load
 from ..common.views import (
+    Pagination,
     entry_download_files,
     entry_download_report_pdf,
     entry_download_report_txt,
     entry_download_target_pdf,
     entry_download_target_txt,
+    network_graph_func,
+    send_json_attachment,
 )
-from ..utils import Pagination, add_dots, network_graph_func, send_json_attachment
 from . import cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis, get_cc_graphs, get_cc_map
 
 
@@ -245,30 +248,29 @@ def entry_old(old_id, npath=None):
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.cc.find_one({"_id": hashid})
-    if doc:
-        doc = add_dots(doc)
+        raw_doc = mongo.db.cc.find_one({"_id": hashid})
+    if raw_doc:
+        doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
             for profile in doc["protection_profiles"]:
                 found = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile["pp_ids"]})
                 if found:
-                    profiles[profile["pp_ids"]] = add_dots(found)
+                    profiles[profile["pp_ids"]] = load(found)
         with sentry_sdk.start_span(op="mongo", description="Find diffs"):
-            diffs = list(
-                map(add_dots, mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
-            )
+            diffs = list(map(load, mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
-                cves = list(map(add_dots, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
+                cves = list(map(load, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
             else:
                 cves = []
         with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
             if doc["heuristics"]["cpe_matches"]:
-                cpes = list(map(add_dots, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
+                cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
             else:
                 cpes = []
-        local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
+        with sentry_sdk.start_span(op="files", description="Find local files"):
+            local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
         return render_template(
             "cc/entry.html.jinja2",
             cert=doc,
@@ -278,6 +280,7 @@ def entry(hashid):
             cves=cves,
             cpes=cpes,
             local_files=local_files,
+            json=StorageFormat(raw_doc).to_json_mapping(),
         )
     else:
         return abort(404)
@@ -306,7 +309,7 @@ def entry_report_pdf(hashid):
 @cc.route("/<string(length=16):hashid>/graph.json")
 def entry_graph_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.cc.find_one({"_id": hashid})
+        doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
     if doc:
         cc_map = get_cc_map()
         if hashid in cc_map.keys():
@@ -321,9 +324,9 @@ def entry_graph_json(hashid):
 @cc.route("/<string(length=16):hashid>/cert.json")
 def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.cc.find_one({"_id": hashid})
+        doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
     if doc:
-        return send_json_attachment(add_dots(doc))
+        return send_json_attachment(StorageFormat(doc).to_json_mapping())
     else:
         return abort(404)
 
@@ -331,7 +334,7 @@ def entry_json(hashid):
 @cc.route("/id/<string:cert_id>")
 def entry_id(cert_id):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.cc.find_one({"heuristics.cert_id": cert_id})
+        doc = mongo.db.cc.find_one({"heuristics.cert_id": cert_id}, {"_id": 1})
     if doc:
         return redirect(url_for("cc.entry", hashid=doc["_id"]))
     else:
@@ -343,7 +346,7 @@ def entry_name(name):
     name = name.replace("_", " ")
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
-        doc = mongo.db.cc.find_one({"name": name})
+        doc = mongo.db.cc.find_one({"name": name}, {"_id": 1})
     if doc:
         return redirect(url_for("cc.entry", hashid=doc["_id"]))
     else:

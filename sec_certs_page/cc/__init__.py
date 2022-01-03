@@ -7,7 +7,7 @@ from flask import Blueprint, current_app, url_for
 from pymongo.errors import OperationFailure
 
 from .. import mongo
-from ..utils import create_graph
+from ..common.views import create_graph
 
 cc: Blueprint = Blueprint("cc", __name__, url_prefix="/cc")
 cc.cli.short_help = "Common Criteria commands."

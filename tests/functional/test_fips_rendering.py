@@ -7,9 +7,9 @@ def test_index(client: FlaskClient):
 
 
 def test_network(client: FlaskClient):
-    resp = client.get("/fips/network/")
-    assert resp.status_code == 200
     resp = client.get("/fips/network/graph.json")
+    assert resp.status_code == 200
+    resp = client.get("/fips/network/")
     assert resp.status_code == 200
 
 
@@ -58,8 +58,12 @@ def test_random(client: FlaskClient):
 def test_entry_old(client: FlaskClient):
     resp = client.get("/fips/7d986a48cb5c4c8d3c62/")
     assert resp.location.endswith("/fips/5d865a0cf9e04d99/")
+    resp = client.get("/fips/7d986a48cb5c4c8d3c62/cert.json")
+    assert resp.location.endswith("/fips/5d865a0cf9e04d99/cert.json")
     resp = client.get("/fips/7d986a48cb5c4c8d3c62/", follow_redirects=True)
     assert resp.status_code == 200
+    bad_resp = client.get("/fips/AAAAAAAAAAAAAAAAAAAA/")
+    assert bad_resp.status_code == 404
 
 
 def test_entry(client: FlaskClient):
@@ -78,6 +82,19 @@ def test_entry(client: FlaskClient):
     cert_resp = client.get(f"/fips/{hashid}/cert.json")
     assert cert_resp.status_code == 200
     assert cert_resp.is_json
+    assert client.get(f"/fips/{hashid}/target.pdf").status_code in (200, 404)
+    assert client.get(f"/fips/{hashid}/target.txt").status_code in (200, 404)
+    assert client.get(f"/fips/{hashid}/report.pdf").status_code in (200, 404)
+    assert client.get(f"/fips/{hashid}/report.txt").status_code in (200, 404)
+
+    bad_resp = client.get("/fips/AAAAAAAAAAAAAAAA/")
+    assert bad_resp.status_code == 404
+    bad_resp = client.get("/fips/AAAAAAAAAAAAAAAA/graph.json")
+    assert bad_resp.status_code == 404
+    bad_resp = client.get("/fips/AAAAAAAAAAAAAAAA/cert.json")
+    assert bad_resp.status_code == 404
+    bad_resp = client.get("/fips/id/some-bad-id-that-doesnt-exist")
+    assert bad_resp.status_code == 404
 
 
 def test_entry_graph(client: FlaskClient):

@@ -7,8 +7,8 @@ from flask import current_app
 from jsondiff import diff
 from pymongo import DESCENDING
 
-from sec_certs_page import mongo
-from sec_certs_page.utils import dictify_diff, dictify_serializable
+from .. import mongo
+from .objformats import ObjFormat, StorageFormat, WorkingFormat
 
 logger = get_task_logger(__name__)
 
@@ -38,7 +38,8 @@ def process_new_certs(collection, diff_collection, dset, new_ids, run_id, timest
         logger.info(f"Processing {len(new_ids)} new certificates.")
         for id in new_ids:
             # Add a cert to DB
-            cert_data = dictify_serializable(dset[id], id_field="dgst")
+            cert_data = ObjFormat(dset[id]).to_raw_format().to_working_format().to_storage_format().get()
+            cert_data["_id"] = cert_data["dgst"]
             mongo.db[collection].insert_one(cert_data)
             mongo.db[diff_collection].insert_one(
                 {
@@ -56,20 +57,23 @@ def process_updated_certs(collection, diff_collection, dset, updated_ids, run_id
         logger.info(f"Processing {len(updated_ids)} updated certificates.")
         for id in updated_ids:
             # Process an updated cert, it can also be that a "removed" cert reappeared
-            current_cert = mongo.db[collection].find_one({"_id": id})
-            cert_data = dictify_serializable(dset[id], id_field="dgst")
+            working_current_cert = StorageFormat(mongo.db[collection].find_one({"_id": id})).to_working_format()
+            working_cert = ObjFormat(dset[id]).to_raw_format().to_working_format()
+            working_cert_data = working_cert.get()
+            working_cert_data["_id"] = working_cert_data["dgst"]
             # Find the last diff
             last_diff = mongo.db[diff_collection].find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
-            if cert_diff := diff(current_cert, cert_data, syntax="explicit"):
+            if cert_diff := diff(working_current_cert, working_cert_data, syntax="explicit"):
+                working_diff = WorkingFormat(cert_diff)
                 # The cert changed, issue an update
-                mongo.db[collection].replace_one({"_id": id}, cert_data)
+                mongo.db[collection].replace_one({"_id": id}, working_cert_data)
                 mongo.db[diff_collection].insert_one(
                     {
                         "run_id": run_id,
                         "dgst": id,
                         "timestamp": timestamp,
                         "type": "change",
-                        "diff": dictify_diff(cert_diff),
+                        "diff": working_diff.to_storage_format().get(),
                     }
                 )
             elif last_diff and last_diff["type"] == "remove":

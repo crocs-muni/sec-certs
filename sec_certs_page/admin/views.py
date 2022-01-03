@@ -5,7 +5,7 @@ from flask_login import login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, identity_changed
 
 from .. import mongo
-from ..utils import Pagination
+from ..common.views import Pagination
 from . import admin
 from .forms import LoginForm
 from .user import User

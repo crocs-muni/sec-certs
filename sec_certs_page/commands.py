@@ -9,7 +9,7 @@ from pymongo.errors import BulkWriteError
 from tqdm import tqdm
 
 from . import mongo
-from .utils import add_dots, remove_dots
+from .common.objformats import StorageFormat, WorkingFormat
 
 
 def _load_certs(file, certs_path, mapper):  # pragma: no cover
@@ -26,7 +26,7 @@ def _load_certs(file, certs_path, mapper):  # pragma: no cover
             cert["_id"] = cert["dgst"]
         else:
             cert["_id"] = blake2b(cert["cert_id"].encode(), digest_size=8).hexdigest()
-        result[cert["_id"]] = remove_dots(mapper(cert) if mapper else cert)
+        result[cert["_id"]] = WorkingFormat(mapper(cert) if mapper else cert).to_storage_format().get()
     click.echo("Loaded certs")
     return result
 
@@ -82,7 +82,7 @@ def _drop(collection):  # pragma: no cover
 def _query(query, projection, collection):  # pragma: no cover
     docs = collection.find(query, projection=projection)
     for doc in docs:
-        print(json.dumps(add_dots(doc), indent=2))
+        print(json.dumps(StorageFormat(doc).to_json_mapping(), indent=2))
 
 
 def _status(collection):  # pragma: no cover

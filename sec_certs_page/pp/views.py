@@ -11,7 +11,8 @@ from werkzeug.exceptions import BadRequest
 
 from .. import mongo
 from ..cc import cc_categories
-from ..utils import Pagination, add_dots, send_json_attachment
+from ..common.objformats import StorageFormat, load
+from ..common.views import Pagination, send_json_attachment
 from . import pp
 
 
@@ -187,8 +188,14 @@ def entry(hashid):
                             ]
                         }
                     )
-                    certs = list(map(add_dots, docs))
-        return render_template("pp/entry.html.jinja2", profile=add_dots(doc), hashid=hashid, certs=certs)
+                    certs = list(map(load, docs))
+        return render_template(
+            "pp/entry.html.jinja2",
+            profile=load(doc),
+            hashid=hashid,
+            certs=certs,
+            json=StorageFormat(doc).to_json_mapping(),
+        )
     else:
         return abort(404)
 
@@ -198,7 +205,7 @@ def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
         doc = mongo.db.pp.find_one({"_id": hashid})
     if doc:
-        return send_json_attachment(add_dots(doc))
+        return send_json_attachment(StorageFormat(doc).to_json_mapping())
     else:
         return abort(404)
 
@@ -206,7 +213,7 @@ def entry_json(hashid):
 @pp.route("/id/<string:profile_id>")
 def entry_id(profile_id):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
-        doc = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile_id})
+        doc = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile_id}, {"_id": 1})
     if doc:
         return redirect(url_for("pp.entry", hashid=doc["_id"]))
     else:
@@ -218,7 +225,7 @@ def entry_name(name):
     name = name.replace("_", " ")
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
         # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
-        doc = mongo.db.pp.find_one({"csv_scan.cc_pp_name": name})
+        doc = mongo.db.pp.find_one({"csv_scan.cc_pp_name": name}, {"_id": 1})
     if doc:
         return redirect(url_for("pp.entry", hashid=doc["_id"]))
     else:
