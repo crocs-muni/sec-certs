@@ -97,6 +97,14 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             self.published_date,
         )
 
+    def to_dict(self):
+        return {
+            "cve_id": self.cve_id,
+            "impact": self.impact,
+            "vulnerable_cpes": self.vulnerable_cpes,
+            "published_date": self.published_date.isoformat(),
+        }
+
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> "CVE":
         """
