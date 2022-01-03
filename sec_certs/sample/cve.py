@@ -100,8 +100,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     def to_dict(self):
         return {
             "cve_id": self.cve_id,
-            "impact": self.impact,
             "vulnerable_cpes": self.vulnerable_cpes,
+            "impact": self.impact,
             "published_date": self.published_date.isoformat(),
         }
 
