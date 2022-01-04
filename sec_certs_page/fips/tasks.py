@@ -107,9 +107,6 @@ def update_data():  # pragma: no cover
         with sentry_sdk.start_span(op="fips.db", description="Process certs into DB."):
             process_new_certs("fips", "fips_diff", dset, new_ids, update_result.inserted_id, start)
             process_updated_certs("fips", "fips_diff", dset, updated_ids, update_result.inserted_id, start)
-            # TODO: cert to_json can have different ordering of arrays than the one in DB
-            #       this generates and excessive amount of cert updates, that are not really updates
-            #       just non-determinism in the ordering.
             process_removed_certs("fips", "fips_diff", dset, removed_ids, update_result.inserted_id, start)
     except Exception as e:
         end = datetime.now()
