@@ -60,14 +60,14 @@ def update_data():  # pragma: no cover
                         dst = paths["report_txt"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or dst.stat().st_size < cert.state.report_txt_path.stat().st_size:
                             cert.state.report_txt_path.replace(dst)
-                    if cert.state.target_pdf_path:
+                    if cert.state.st_pdf_path:
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or dst.stat().st_size < cert.state.target_pdf_path.stat().st_size:
-                            cert.state.target_pdf_path.replace(dst)
-                    if cert.state.target_pdf_path:
+                        if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
+                            cert.state.st_pdf_path.replace(dst)
+                    if cert.state.st_pdf_path:
                         dst = paths["target_txt"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or dst.stat().st_size < cert.state.target_pdf_path.stat().st_size:
-                            cert.state.target_pdf_path.replace(dst)
+                        if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
+                            cert.state.st_pdf_path.replace(dst)
         old_ids = set(map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
 
@@ -101,9 +101,6 @@ def update_data():  # pragma: no cover
         with sentry_sdk.start_span(op="cc.db", description="Process certs into DB."):
             process_new_certs("cc", "cc_diff", dset, new_ids, update_result.inserted_id, start)
             process_updated_certs("cc", "cc_diff", dset, updated_ids, update_result.inserted_id, start)
-            # TODO: cert to_json can have different ordering of arrays than the one in DB
-            #       this generates and excessive amount of cert updates, that are not really updates
-            #       just non-determinism in the ordering.
             process_removed_certs("cc", "cc_diff", dset, removed_ids, update_result.inserted_id, start)
         notify.delay(str(update_result.inserted_id))
     except Exception as e:
