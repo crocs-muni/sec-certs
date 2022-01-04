@@ -65,13 +65,15 @@ def update_data():  # pragma: no cover
                 for cert in dset:
                     if cert.state.sp_path:
                         pdf_path = cert.state.sp_path
-                        pdf_dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not pdf_dst.exists() or pdf_dst.stat().st_size < pdf_path.stat().st_size:
-                            pdf_path.replace(pdf_dst)
+                        if pdf_path.exists():
+                            pdf_dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
+                            if not pdf_dst.exists() or pdf_dst.stat().st_size < pdf_path.stat().st_size:
+                                pdf_path.replace(pdf_dst)
                         txt_path = pdf_path.with_suffix(".pdf.txt")
-                        txt_dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                        if not txt_dst.exists() or txt_dst.stat().st_size < txt_path.stat().st_size:
-                            txt_path.replace(txt_dst)
+                        if txt_path.exists():
+                            txt_dst = paths["target_txt"] / f"{cert.dgst}.txt"
+                            if not txt_dst.exists() or txt_dst.stat().st_size < txt_path.stat().st_size:
+                                txt_path.replace(txt_dst)
 
         old_ids = set(map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())

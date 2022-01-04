@@ -52,19 +52,19 @@ def update_data():  # pragma: no cover
                 dset.to_json(paths["output_path"])
             with sentry_sdk.start_span(op="cc.move", description="Move files"):
                 for cert in dset:
-                    if cert.state.report_pdf_path:
+                    if cert.state.report_pdf_path and cert.state.report_pdf_path.exists():
                         dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or dst.stat().st_size < cert.state.report_pdf_path.stat().st_size:
                             cert.state.report_pdf_path.replace(dst)
-                    if cert.state.report_txt_path:
+                    if cert.state.report_txt_path and cert.state.report_txt_path.exists():
                         dst = paths["report_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or dst.stat().st_size < cert.state.report_txt_path.stat().st_size:
                             cert.state.report_txt_path.replace(dst)
-                    if cert.state.st_pdf_path:
+                    if cert.state.st_pdf_path and cert.state.st_pdf_path.extsts():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
                             cert.state.st_pdf_path.replace(dst)
-                    if cert.state.st_txt_path:
+                    if cert.state.st_txt_path and cert.state.st_txt_path.exists():
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or dst.stat().st_size < cert.state.st_txt_path.stat().st_size:
                             cert.state.st_txt_path.replace(dst)
