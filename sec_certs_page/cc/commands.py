@@ -8,25 +8,8 @@ from sec_certs.helpers import get_first_16_bytes_sha256, sanitize_link, sanitize
 from tqdm import tqdm
 
 from .. import mongo
-from ..commands import _add, _create, _drop, _query, _status, _update
+from ..commands import _create, _drop, _query, _status
 from . import cc
-
-
-def mapper(cert):  # pragma: no cover
-    return cert
-
-
-@cc.cli.command("import", help="Import CC certs.")
-@click.argument("file", type=click.File())
-def add(file):  # pragma: no cover
-    _add(file, mongo.db.cc, ["certs"], mapper)
-
-
-@cc.cli.command("update", help="Update CC certs.")
-@click.option("-r", "--remove", is_flag=True, help="Remove certs not present in the update file.")
-@click.argument("file", type=click.File())
-def update(file, remove):  # pragma: no cover
-    _update(file, remove, mongo.db.cc, ["certs"], mapper)
 
 
 @cc.cli.command("create", help="Create the DB of CC certs.")

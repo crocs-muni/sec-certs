@@ -43,6 +43,7 @@ def list_users():  # pragma: no cover
 
 @app.cli.command("init-collections", help="Initialize the miscellaneous collections.")
 def init_collections():  # pragma: no cover
+    click.echo("Remember that CC, FIPS and PP base collections are created through different commands.")
     current = mongo.db.list_collection_names()
     collections = {
         "cc_log",

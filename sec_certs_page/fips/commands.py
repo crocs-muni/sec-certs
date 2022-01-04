@@ -7,25 +7,8 @@ import click
 from tqdm import tqdm
 
 from .. import mongo
-from ..commands import _add, _create, _drop, _query, _status, _update
+from ..commands import _create, _drop, _query, _status
 from . import fips
-
-
-def mapper(cert):  # pragma: no cover
-    return cert
-
-
-@fips.cli.command("import", help="Import FIPS 140 certs.")
-@click.argument("file", type=click.File())
-def add(file):  # pragma: no cover
-    _add(file, mongo.db.fips, ["certs"], mapper)
-
-
-@fips.cli.command("update", help="Update FIPS 140 certs.")
-@click.option("-r", "--remove", is_flag=True, help="Remove certs not present in the update file.")
-@click.argument("file", type=click.File())
-def update(file, remove):  # pragma: no cover
-    _update(file, remove, mongo.db.fips, ["certs"], mapper)
 
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")

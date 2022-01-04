@@ -62,7 +62,7 @@ def reload_celery(c):
 @task
 def tail_uwsgi(c):
     """Tail the uWSGI log."""
-    c.run("tail -f /var/log/uwsgi/app/certs.log")
+    c.sudo("tail -f /var/log/uwsgi/app/certs.log")
 
 
 @task
