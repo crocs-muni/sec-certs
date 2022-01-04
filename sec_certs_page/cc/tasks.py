@@ -57,17 +57,17 @@ def update_data():  # pragma: no cover
                         if not dst.exists() or dst.stat().st_size < cert.state.report_pdf_path.stat().st_size:
                             cert.state.report_pdf_path.replace(dst)
                     if cert.state.report_txt_path:
-                        dst = paths["report_txt"] / f"{cert.dgst}.pdf"
+                        dst = paths["report_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or dst.stat().st_size < cert.state.report_txt_path.stat().st_size:
                             cert.state.report_txt_path.replace(dst)
                     if cert.state.st_pdf_path:
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
                             cert.state.st_pdf_path.replace(dst)
-                    if cert.state.st_pdf_path:
-                        dst = paths["target_txt"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
-                            cert.state.st_pdf_path.replace(dst)
+                    if cert.state.st_txt_path:
+                        dst = paths["target_txt"] / f"{cert.dgst}.txt"
+                        if not dst.exists() or dst.stat().st_size < cert.state.st_txt_path.stat().st_size:
+                            cert.state.st_txt_path.replace(dst)
         old_ids = set(map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
 
