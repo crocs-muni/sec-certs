@@ -60,7 +60,7 @@ def update_data():  # pragma: no cover
                         dst = paths["report_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or dst.stat().st_size < cert.state.report_txt_path.stat().st_size:
                             cert.state.report_txt_path.replace(dst)
-                    if cert.state.st_pdf_path and cert.state.st_pdf_path.extsts():
+                    if cert.state.st_pdf_path and cert.state.st_pdf_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
                             cert.state.st_pdf_path.replace(dst)
