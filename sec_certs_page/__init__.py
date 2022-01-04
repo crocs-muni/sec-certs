@@ -143,6 +143,11 @@ def filter_strftime(dt_obj, format):
     raise TypeError("Not a datetime")
 
 
+@app.template_filter("fromisoformat")
+def filter_fromisoformat(dt):
+    return datetime.fromisoformat(dt)
+
+
 @app.template_global("is_admin")
 def is_admin():
     return Permission(RoleNeed("admin")).can()

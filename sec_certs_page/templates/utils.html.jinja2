@@ -252,7 +252,7 @@
                 <td>{{ cve["impact"]["base_score"] }}</td>
                 <td>{{ cve["impact"]["explotability_score"] }}</td>
                 <td>{{ cve["impact"]["impact_score"] }}</td>
-                <td>{{ cve["published_date"]|strptime("%Y-%m-%d %H:%M:%S+00:00")|strftime("%d.%m.%Y %H:%M") }}</td>
+                <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
 
             </tr>
             {% set years.cve = years.current %}
