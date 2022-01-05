@@ -5,7 +5,22 @@ from pathlib import Path
 from jsondiff.symbols import Symbol
 from sec_certs.serialization.json import ComplexSerializableType
 
-serializable_complex_types = {x.__name__: x for x in ComplexSerializableType.__subclasses__()}
+_sct = None
+
+
+def serializable_complex_types():
+    global _sct
+    if _sct is None:
+        _sct = {x.__name__: x for x in ComplexSerializableType.__subclasses__()}
+    return _sct
+
+
+class hashdict(dict):
+    def __hash__(self):
+        if "_hash" in self:
+            return self["_hash"]
+        else:
+            raise TypeError("Unhashable")
 
 
 class Format(ABC):
@@ -53,6 +68,8 @@ class StorageFormat(Format):
                     res = {}
                     for key in obj.keys():
                         res[key.replace("\uff0e", ".")] = walk(obj[key])
+                    if "_hash" in res:
+                        res.pop("_hash")
                     return res
             elif isinstance(obj, date):
                 return str(obj)
@@ -122,7 +139,10 @@ class RawFormat(Format):
         # remove paths
         def walk(obj):
             if isinstance(obj, dict):
-                return {key: walk(value) for key, value in obj.items()}
+                d = {key: walk(value) for key, value in obj.items()}
+                if "_hash" in d:
+                    return hashdict(d)
+                return d
             elif isinstance(obj, list):
                 return list(map(walk, obj))
             elif isinstance(obj, set):
@@ -130,7 +150,7 @@ class RawFormat(Format):
             elif isinstance(obj, frozenset):
                 return frozenset(map(walk, obj))
             elif isinstance(obj, Path):
-                return {"_type": "Path", "_value": str(obj)}
+                return hashdict({"_type": "Path", "_value": str(obj), "_hash": hash(obj)})
             return obj
 
         return WorkingFormat(walk(self.obj))
@@ -139,9 +159,11 @@ class RawFormat(Format):
         def walk(obj):
             if isinstance(obj, dict):
                 res = {key: walk(value) for key, value in obj.items()}
-                if "_type" in res and res["_type"] in serializable_complex_types:
+                if "_type" in res and res["_type"] in serializable_complex_types():
                     complex_type = res.pop("_type")
-                    return serializable_complex_types[complex_type].from_dict(obj)
+                    if "_hash" in res:
+                        res.pop("_hash")
+                    return serializable_complex_types()[complex_type].from_dict(res)
                 else:
                     return res
             elif isinstance(obj, list):
@@ -161,7 +183,11 @@ class ObjFormat(Format):
     def to_raw_format(self) -> "RawFormat":
         def walk(obj):
             if isinstance(obj, ComplexSerializableType):
-                return {**{"_type": type(obj).__name__}, **walk(obj.to_dict())}
+                try:
+                    h = hash(obj)
+                    return hashdict({"_type": type(obj).__name__, "_hash": h, **walk(obj.to_dict())})
+                except TypeError:
+                    return {"_type": type(obj).__name__, **walk(obj.to_dict())}
             elif isinstance(obj, dict):
                 return {key: walk(value) for key, value in obj.items()}
             elif isinstance(obj, list):

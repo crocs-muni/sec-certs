@@ -324,7 +324,7 @@ def entry_graph_json(hashid):
 @cc.route("/<string(length=16):hashid>/cert.json")
 def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
+        doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
     else:
