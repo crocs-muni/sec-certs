@@ -24,7 +24,7 @@ class ComplexSerializableType:
     @classmethod
     def from_dict(cls, dct: Dict):
         try:
-            return cls(*(tuple(dct.values())))
+            return cls(**dct)
         except TypeError as e:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
