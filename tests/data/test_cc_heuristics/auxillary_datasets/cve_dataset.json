@@ -17,10 +17,10 @@
                 "_type": "Impact",
                 "base_score": 5.3,
                 "severity": "MEDIUM",
-                "explotability_score": 3.9,
+                "exploitability_score": 3.9,
                 "impact_score": 1.4
             },
-            "publishedDate": "2021-05-26T04:15Z"
+            "published_date": "2021-05-26T04:15Z"
         },
         "CVE-2019-4513": {
             "_type": "CVE",
@@ -38,10 +38,10 @@
                 "_type": "Impact",
                 "base_score": 8.2,
                 "severity": "HIGH",
-                "explotability_score": 3.9,
+                "exploitability_score": 3.9,
                 "impact_score": 4.2
             },
-            "publishedDate": "2000-05-26T04:15Z"
+            "published_date": "2000-05-26T04:15Z"
         }
     }
 }

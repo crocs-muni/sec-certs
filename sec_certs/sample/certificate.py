@@ -51,7 +51,7 @@ class Certificate(ABC, ComplexSerializableType):
     @classmethod
     def from_dict(cls: Type[T], dct: dict) -> T:
         dct.pop("dgst")
-        return cls(*(tuple(dct.values())))
+        return cls(**dct)
 
     def to_json(self, output_path: Optional[Union[str, Path]] = None):
         if output_path is None:
