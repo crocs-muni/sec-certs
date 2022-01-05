@@ -162,7 +162,7 @@ class TestCommonCriteriaOOP(TestCase):
                 out = json.load(f)
             with open(self.test_data_dir / "fictional_cert.json") as f:
                 template = json.load(f)
-            assert out == template
+            self.assertEqual(out, template, "Serialized cert differs from cert json template.")
 
     def test_dataset_to_json(self):
         with NamedTemporaryFile("w") as tmp:
