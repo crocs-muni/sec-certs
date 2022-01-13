@@ -34,7 +34,7 @@ class Format(ABC):
 class StorageFormat(Format):
     """
     The format used for storage in MongoDB.
-    It is a dict with only MongoDB valid types (so no sets).
+    It is a dict with only MongoDB valid types (so no sets or dates, or Paths).
     Dictionary keys don't have dots.
     """
 
@@ -46,6 +46,8 @@ class StorageFormat(Format):
                     return set(walk(obj["_value"]))
                 elif "_type" in obj and obj["_type"] == "frozenset":
                     return frozenset(walk(obj["_value"]))
+                elif "_type" in obj and obj["_type"] == "date":
+                    return date.fromisoformat(obj["_value"])
                 else:
                     res = {}
                     for key in obj.keys():
@@ -62,7 +64,7 @@ class StorageFormat(Format):
             if isinstance(obj, dict):
                 if "_type" in obj and obj["_type"] in ("set", "frozenset"):
                     return list(walk(obj["_value"]))
-                elif "_type" in obj and obj["_type"] == "Path":
+                elif "_type" in obj and obj["_type"] in ("Path", "date"):
                     return obj["_value"]
                 else:
                     res = {}
@@ -109,6 +111,8 @@ class WorkingFormat(Format):
                 return {"_type": "set", "_value": [walk(o) for o in obj]}
             elif isinstance(obj, frozenset):
                 return {"_type": "frozenset", "_value": [walk(o) for o in obj]}
+            elif isinstance(obj, date):
+                return {"_type": "date", "_value": str(obj)}
             return obj
 
         return StorageFormat(walk(self.obj))
