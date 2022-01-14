@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
+from typing import ClassVar, Dict, List, Match, Optional, Pattern, Set, Tuple, Union
 
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -613,6 +613,49 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         return text_to_parse
 
     @staticmethod
+    def _highlight_matches(items_found_all: Dict, whole_text_with_newlines: str):
+        all_matches = []
+        for rule_group in items_found_all.keys():
+            items_found = items_found_all[rule_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    all_matches.append(match)
+
+            # if AES string is removed before AES-128, -128 would be left in text => sort by length first
+            # sort before replacement based on the length of match
+            all_matches.sort(key=len, reverse=True)
+            for match in all_matches:
+                whole_text_with_newlines = whole_text_with_newlines.replace(match, "x" * len(match))
+
+        return whole_text_with_newlines
+
+    @staticmethod
+    def _process_match(rule: Pattern, items_found: Dict, rule_str: str, m: Match[str]):
+        # insert rule if at least one match for it was found
+        if rule not in items_found:
+            items_found[rule_str] = {}
+
+        match = m.group()
+        match = normalize_match_string(match)
+
+        MAX_ALLOWED_MATCH_LENGTH = 300
+        match_len = len(match)
+        if match_len > MAX_ALLOWED_MATCH_LENGTH:
+            logger.warning("Excessive match with length of {} detected for rule {}".format(match_len, rule))
+
+        if match not in items_found[rule_str]:
+            items_found[rule_str][match] = {}
+            items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
+            if constants.APPEND_DETAILED_MATCH_MATCHES:
+                items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
+
+        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
+        match_span = m.span()
+
+        if constants.APPEND_DETAILED_MATCH_MATCHES:
+            items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
+
+    @staticmethod
     def parse_cert_file_common(
         text_to_parse: str, whole_text_with_newlines: str, search_rules: Dict
     ) -> Tuple[Dict[Pattern, Dict], str]:
@@ -634,48 +677,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     rule_and_sep = rule + REGEXEC_SEP
 
                 for m in re.finditer(rule_and_sep, text_to_parse):
-                    # insert rule if at least one match for it was found
-                    if rule not in items_found:
-                        items_found[rule_str] = {}
-
-                    match = m.group()
-                    match = normalize_match_string(match)
-
-                    MAX_ALLOWED_MATCH_LENGTH = 300
-                    match_len = len(match)
-                    if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                        logger.warning("Excessive match with length of {} detected for rule {}".format(match_len, rule))
-
-                    if match not in items_found[rule_str]:
-                        items_found[rule_str][match] = {}
-                        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
-                        if constants.APPEND_DETAILED_MATCH_MATCHES:
-                            items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
-                        # else:
-                        #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
-
-                    items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
-                    match_span = m.span()
-                    # estimate line in original text file
-                    # line_number = get_line_number(lines, line_length_compensation, match_span[0])
-                    # start index, end index, line number
-                    # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
-                    if constants.APPEND_DETAILED_MATCH_MATCHES:
-                        items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
+                    FIPSCertificate._process_match(rule, items_found, rule_str, m)
 
         # highlight all found strings (by xxxxx) from the input text and store the rest
-        all_matches = []
-        for rule_group in items_found_all.keys():
-            items_found = items_found_all[rule_group]
-            for rule in items_found.keys():
-                for match in items_found[rule]:
-                    all_matches.append(match)
 
-            # if AES string is removed before AES-128, -128 would be left in text => sort by length first
-            # sort before replacement based on the length of match
-            all_matches.sort(key=len, reverse=True)
-            for match in all_matches:
-                whole_text_with_newlines = whole_text_with_newlines.replace(match, "x" * len(match))
+        whole_text_with_newlines = FIPSCertificate._highlight_matches(items_found_all, whole_text_with_newlines)
 
         return items_found_all, whole_text_with_newlines
 
@@ -764,6 +770,23 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             result.update(cert for cert in alg["Certificate"])
         return result
 
+    def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set):
+        for alg in self.heuristics.keywords["rules_fips_algorithms"]:
+            for found in self.heuristics.keywords["rules_fips_algorithms"][alg]:
+                match_in_found = reg_to_match.search(found)
+                match_in_cert = reg_to_match.search(cert)
+                if (
+                    match_in_found is not None
+                    and match_in_cert is not None
+                    and match_in_found.group("id") == match_in_cert.group("id")
+                ):
+                    to_pop.add(cert)
+
+        for alg_cert in self.heuristics.algorithms:
+            for cert_no in alg_cert["Certificate"]:
+                if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
+                    to_pop.add(cert)
+
     def remove_algorithms(self):
         self.state.file_status = True
         if not self.pdf_scan.keywords:
@@ -784,19 +807,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 if cert in alg_set:
                     to_pop.add(cert)
                     continue
-                for alg in self.heuristics.keywords["rules_fips_algorithms"]:
-                    for found in self.heuristics.keywords["rules_fips_algorithms"][alg]:
-                        if (
-                            rr.search(found)
-                            and rr.search(cert)
-                            and rr.search(found).group("id") == rr.search(cert).group("id")
-                        ):
-                            to_pop.add(cert)
+                self._process_to_pop(rr, cert, to_pop)
 
-                for alg_cert in self.heuristics.algorithms:
-                    for cert_no in alg_cert["Certificate"]:
-                        if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
-                            to_pop.add(cert)
             for r in to_pop:
                 self.heuristics.keywords["rules_cert_id"][rule].pop(r, None)
 

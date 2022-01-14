@@ -359,109 +359,120 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         new_dct["protection_profiles"] = set(dct["protection_profiles"])
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
+    @staticmethod
+    def _get_name(cell: Tag) -> str:
+        return list(cell.stripped_strings)[0]
+
+    @staticmethod
+    def _get_manufacturer(cell: Tag) -> Optional[str]:
+        if lst := list(cell.stripped_strings):
+            return lst[0]
+        else:
+            return None
+
+    @staticmethod
+    def _get_scheme(cell: Tag) -> str:
+        return list(cell.stripped_strings)[0]
+
+    @staticmethod
+    def _get_security_level(cell: Tag) -> set:
+        return set(cell.stripped_strings)
+
+    @staticmethod
+    def _get_manufacturer_web(cell: Tag) -> Optional[str]:
+        for link in cell.find_all("a"):
+            if link is not None and link.get("title") == "Vendor's web site" and link.get("href") != "http://":
+                return link.get("href")
+        return None
+
+    @staticmethod
+    def _get_protection_profiles(cell: Tag) -> set:
+        protection_profiles = set()
+        for link in list(cell.find_all("a")):
+            if link.get("href") is not None and "/ppfiles/" in link.get("href"):
+                protection_profiles.add(
+                    ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get("href"))
+                )
+        return protection_profiles
+
+    @staticmethod
+    def _get_date(cell: Tag) -> Optional[date]:
+        text = cell.get_text()
+        extracted_date = datetime.strptime(text, "%Y-%m-%d").date() if text else None
+        return extracted_date
+
+    @staticmethod
+    def _get_report_st_links(cell: Tag) -> Tuple[str, str]:
+        links = cell.find_all("a")
+        # TODO: Exception checks
+        assert links[1].get("title").startswith("Certification Report")
+        assert links[2].get("title").startswith("Security Target")
+
+        report_link = CommonCriteriaCert.cc_url + links[1].get("href")
+        security_target_link = CommonCriteriaCert.cc_url + links[2].get("href")
+
+        return report_link, security_target_link
+
+    @staticmethod
+    def _get_cert_link(cell: Tag) -> Optional[str]:
+        links = cell.find_all("a")
+        return CommonCriteriaCert.cc_url + links[0].get("href") if links else None
+
+    @staticmethod
+    def _get_maintenance_div(cell: Tag) -> Optional[Tag]:
+        divs = cell.find_all("div")
+        for d in divs:
+            if d.find("div") and d.stripped_strings and list(d.stripped_strings)[0] == "Maintenance Report(s)":
+                return d
+        return None
+
+    @staticmethod
+    def _get_maintenance_updates(main_div: Tag) -> set:
+        possible_updates = list(main_div.find_all("li"))
+        maintenance_updates = set()
+        for u in possible_updates:
+            text = list(u.stripped_strings)[0]
+            main_date = datetime.strptime(text.split(" ")[0], "%Y-%m-%d").date() if text else None
+            main_title = text.split("– ")[1]
+            main_report_link = None
+            main_st_link = None
+            links = u.find_all("a")
+            for link in links:
+                if link.get("title").startswith("Maintenance Report:"):
+                    main_report_link = CommonCriteriaCert.cc_url + link.get("href")
+                elif link.get("title").startswith("Maintenance ST"):
+                    main_st_link = CommonCriteriaCert.cc_url + link.get("href")
+                else:
+                    logger.error("Unknown link in Maintenance part!")
+            maintenance_updates.add(
+                CommonCriteriaCert.MaintenanceReport(main_date, main_title, main_report_link, main_st_link)
+            )
+        return maintenance_updates
+
     @classmethod
     def from_html_row(cls, row: Tag, status: str, category: str) -> "CommonCriteriaCert":
         """
         Creates a CC sample from html row
         """
 
-        def _get_name(cell: Tag) -> str:
-            return list(cell.stripped_strings)[0]
-
-        def _get_manufacturer(cell: Tag) -> Optional[str]:
-            if lst := list(cell.stripped_strings):
-                return lst[0]
-            else:
-                return None
-
-        def _get_scheme(cell: Tag) -> str:
-            return list(cell.stripped_strings)[0]
-
-        def _get_security_level(cell: Tag) -> set:
-            return set(cell.stripped_strings)
-
-        def _get_manufacturer_web(cell: Tag) -> Optional[str]:
-            for link in cell.find_all("a"):
-                if link is not None and link.get("title") == "Vendor's web site" and link.get("href") != "http://":
-                    return link.get("href")
-            return None
-
-        def _get_protection_profiles(cell: Tag) -> set:
-            protection_profiles = set()
-            for link in list(cell.find_all("a")):
-                if link.get("href") is not None and "/ppfiles/" in link.get("href"):
-                    protection_profiles.add(
-                        ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get("href"))
-                    )
-            return protection_profiles
-
-        def _get_date(cell: Tag) -> Optional[date]:
-            text = cell.get_text()
-            extracted_date = datetime.strptime(text, "%Y-%m-%d").date() if text else None
-            return extracted_date
-
-        def _get_report_st_links(cell: Tag) -> Tuple[str, str]:
-            links = cell.find_all("a")
-            # TODO: Exception checks
-            assert links[1].get("title").startswith("Certification Report")
-            assert links[2].get("title").startswith("Security Target")
-
-            report_link = CommonCriteriaCert.cc_url + links[1].get("href")
-            security_target_link = CommonCriteriaCert.cc_url + links[2].get("href")
-
-            return report_link, security_target_link
-
-        def _get_cert_link(cell: Tag) -> Optional[str]:
-            links = cell.find_all("a")
-            return CommonCriteriaCert.cc_url + links[0].get("href") if links else None
-
-        def _get_maintenance_div(cell: Tag) -> Optional[Tag]:
-            divs = cell.find_all("div")
-            for d in divs:
-                if d.find("div") and d.stripped_strings and list(d.stripped_strings)[0] == "Maintenance Report(s)":
-                    return d
-            return None
-
-        def _get_maintenance_updates(main_div: Tag) -> set:
-            possible_updates = list(main_div.find_all("li"))
-            maintenance_updates = set()
-            for u in possible_updates:
-                text = list(u.stripped_strings)[0]
-                main_date = datetime.strptime(text.split(" ")[0], "%Y-%m-%d").date() if text else None
-                main_title = text.split("– ")[1]
-                main_report_link = None
-                main_st_link = None
-                links = u.find_all("a")
-                for link in links:
-                    if link.get("title").startswith("Maintenance Report:"):
-                        main_report_link = CommonCriteriaCert.cc_url + link.get("href")
-                    elif link.get("title").startswith("Maintenance ST"):
-                        main_st_link = CommonCriteriaCert.cc_url + link.get("href")
-                    else:
-                        logger.error("Unknown link in Maintenance part!")
-                maintenance_updates.add(
-                    CommonCriteriaCert.MaintenanceReport(main_date, main_title, main_report_link, main_st_link)
-                )
-            return maintenance_updates
-
         cells = list(row.find_all("td"))
         if len(cells) != 7:
             logger.error("Unexpected number of cells in CC html row.")
             raise
 
-        name = _get_name(cells[0])
-        manufacturer = _get_manufacturer(cells[1])
-        manufacturer_web = _get_manufacturer_web(cells[1])
-        scheme = _get_scheme(cells[6])
-        security_level = _get_security_level(cells[5])
-        protection_profiles = _get_protection_profiles(cells[0])
-        not_valid_before = _get_date(cells[3])
-        not_valid_after = _get_date(cells[4])
-        report_link, st_link = _get_report_st_links(cells[0])
-        cert_link = _get_cert_link(cells[2])
+        name = CommonCriteriaCert._get_name(cells[0])
+        manufacturer = CommonCriteriaCert._get_manufacturer(cells[1])
+        manufacturer_web = CommonCriteriaCert._get_manufacturer_web(cells[1])
+        scheme = CommonCriteriaCert._get_scheme(cells[6])
+        security_level = CommonCriteriaCert._get_security_level(cells[5])
+        protection_profiles = CommonCriteriaCert._get_protection_profiles(cells[0])
+        not_valid_before = CommonCriteriaCert._get_date(cells[3])
+        not_valid_after = CommonCriteriaCert._get_date(cells[4])
+        report_link, st_link = CommonCriteriaCert._get_report_st_links(cells[0])
+        cert_link = CommonCriteriaCert._get_cert_link(cells[2])
 
-        maintenance_div = _get_maintenance_div(cells[0])
-        maintenances = _get_maintenance_updates(maintenance_div) if maintenance_div else set()
+        maintenance_div = CommonCriteriaCert._get_maintenance_div(cells[0])
+        maintenances = CommonCriteriaCert._get_maintenance_updates(maintenance_div) if maintenance_div else set()
 
         return cls(
             status,

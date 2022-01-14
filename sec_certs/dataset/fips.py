@@ -390,6 +390,15 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 and cert_id != current_cert.cert_id
             ]
 
+    @staticmethod
+    def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str):
+        for cert_alg in processed_cert.heuristics.algorithms:
+            for certificate in cert_alg["Certificate"]:
+                curr_id = "".join(filter(str.isdigit, certificate))
+                if curr_id == cert_candidate_id:
+                    return False
+        return True
+
     def _validate_id(self, processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
         candidate_dgst = fips_dgst(cert_candidate_id)
         if candidate_dgst not in self.certs or not cert_candidate_id.isdecimal():
@@ -407,11 +416,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if cert_candidate_id not in self.algorithms.certs:
             return True
 
-        for cert_alg in processed_cert.heuristics.algorithms:
-            for certificate in cert_alg["Certificate"]:
-                curr_id = "".join(filter(str.isdigit, certificate))
-                if curr_id == cert_candidate_id:
-                    return False
+        if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
+            return False
 
         algs = self.algorithms.certs[cert_candidate_id]
         for current_alg in algs:
