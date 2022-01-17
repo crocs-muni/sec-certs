@@ -20,6 +20,7 @@ repos:
           - 'types-python-dateutil'
           - 'types-requests'
           - 'types-setuptools'
+          - 'types-frozendict'
   - repo: https://github.com/pycqa/flake8
     rev: '4.0.1'
     hooks:
