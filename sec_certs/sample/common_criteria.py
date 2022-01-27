@@ -357,6 +357,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         new_dct = dct.copy()
         new_dct["maintenance_updates"] = set(dct["maintenance_updates"])
         new_dct["protection_profiles"] = set(dct["protection_profiles"])
+        new_dct["not_valid_before"] = date.fromisoformat(dct["not_valid_before"]) if dct["not_valid_before"] else None
+        new_dct["not_valid_after"] = date.fromisoformat(dct["not_valid_after"]) if dct["not_valid_after"] else None
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
     @classmethod
