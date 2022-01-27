@@ -1,6 +1,6 @@
 import json
 from contextvars import ContextVar
-from datetime import datetime
+from datetime import date, datetime
 
 import sentry_sdk
 from flask import Blueprint, current_app, url_for
@@ -34,7 +34,7 @@ def load_cc_data():
                 "_id": 1,
                 "name": 1,
                 "category": 1,
-                "not_valid_before._value": 1,
+                "not_valid_before": 1,
                 "heuristics.cert_id": 1,
                 "pdf_data.st_keywords.rules_cert_id": 1,
                 "pdf_data.report_keywords.rules_cert_id": 1,
@@ -84,9 +84,7 @@ def load_cc_data():
 
         cc_analysis["certified"] = {}
         for cert in data.clone():
-            cert_month = (
-                datetime.strptime(cert["not_valid_before"]["_value"], "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
-            )
+            cert_month = date.fromisoformat(cert["not_valid_before"]["_value"]).replace(day=1).strftime("%Y-%m-%d")
             cc_analysis["certified"].setdefault(cert["category"], [])
             months = cc_analysis["certified"][cert["category"]]
             for month in months:

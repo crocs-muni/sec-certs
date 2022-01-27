@@ -116,7 +116,7 @@
                             <ul>
                                 {% for update in cert["maintenance_updates"] %}
                                     <li>{{ update["maintenance_title"] }}
-                                        ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
+                                        ({{ update["maintenance_date"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }})
                                         {% if update["maintenance_report_link"] %}
                                             <a href="{{ update["maintenance_report_link"] }}" target="_blank"
                                                rel="noopener"><i class="fas fa-file-contract"></i> Certification report</a>
