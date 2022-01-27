@@ -684,9 +684,10 @@ def search_only_headers_nscib(filepath: Path):
         items_found[TAG_CERT_LAB] = cert_lab
 
     #return items_found_all, files_without_match
-    return constants.RETURNCODE_OK, items_found_all
+    return constants.RETURNCODE_OK, items_found
 
 
+# Port from old-api branch
 def search_only_headers_niap(filepath: Path):
     LINE_SEPARATOR_STRICT = ' '
     NUM_LINES_TO_INVESTIGATE = 15
@@ -738,12 +739,77 @@ def search_only_headers_niap(filepath: Path):
         items_found[TAG_CERT_LAB] = 'US NIAP'
 
     # return items_found_all, files_without_match
-    return constants.RETURNCODE_OK, items_found_all
+    return constants.RETURNCODE_OK, items_found
 
 
+# Port from old-api branch
+def search_only_headers_canada(filepath: Path):
+    LINE_SEPARATOR_STRICT = ' '
+    NUM_LINES_TO_INVESTIGATE = 20
+    items_found_all = {}
+    items_found = {}
+    files_without_match = []
 
+    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
 
+    certified_item = ''
+    cert_id = ''
 
+    lines = whole_text_with_newlines.splitlines()
+    no_match_yet = True
+    item_offset = -1
+    for line_index in range(0, len(lines)):
+        line = lines[line_index]
+        if 'Government of Canada, Communications Security Establishment' in line:
+            REPORTNUM_STR1 = 'Evaluation number:'
+            REPORTNUM_STR2 = 'Document number:'
+            matched_number_str = ''
+            line_certid = lines[line_index + 1]
+            if line_certid.startswith(REPORTNUM_STR1):
+                matched_number_str = REPORTNUM_STR1
+            if line_certid.startswith(REPORTNUM_STR2):
+                matched_number_str = REPORTNUM_STR2
+            if matched_number_str != '':
+                if no_match_yet:
+                    items_found_all[file_name] = {}
+                    items_found = items_found_all[file_name]
+                    no_match_yet = False
+
+                cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str):]
+                break
+
+        if 'Government of Canada. This document is the property of the Government of Canada. It shall not be altered,' in line:
+            REPORTNUM_STR = 'Evaluation number:'
+            for offset in range(1, 20):
+                line_certid = lines[line_index + offset]
+                if 'UNCLASSIFIED' in line_certid:
+                    if no_match_yet:
+                        items_found_all[file_name] = {}
+                        items_found = items_found_all[file_name]
+                        no_match_yet = False
+                    line_certid = lines[line_index + offset - 4]
+                    cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
+                    break
+            if not no_match_yet:
+                break
+
+        if 'UNCLASSIFIED / NON CLASSIFIÉ' in line and 'COMMON CRITERIA CERTIFICATION REPORT' in lines[line_index + 2]:
+            line_certid = lines[line_index + 1]
+            if no_match_yet:
+                items_found_all[file_name] = {}
+                items_found = items_found_all[file_name]
+                no_match_yet = False
+            cert_id = line_certid
+            break
+
+    if no_match_yet:
+        files_without_match.append(file_name)
+    else:
+        items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
+        items_found[TAG_CERT_LAB] = 'CANADA'
+
+    return constants.RETURNCODE_OK, items_found
 
 
 def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
