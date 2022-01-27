@@ -598,6 +598,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
     return constants.RETURNCODE_OK, items_found
 
+
 # Port from old-api branch
 def search_only_headers_nscib(filepath: Path):
     LINE_SEPARATOR_STRICT = ' '
@@ -606,7 +607,7 @@ def search_only_headers_nscib(filepath: Path):
     items_found = {}
     files_without_match = []
     
-    if not 'NSCIB-CC-' in filepath:
+    if not 'NSCIB-CC-' in filepath.name:
         return constants.RETURNCODE_NOK
 
     #
@@ -683,7 +684,60 @@ def search_only_headers_nscib(filepath: Path):
         items_found[TAG_CERT_LAB] = cert_lab
 
     #return items_found_all, files_without_match
+    return constants.RETURNCODE_OK, items_found_all
 
+
+def search_only_headers_niap(filepath: Path):
+    LINE_SEPARATOR_STRICT = ' '
+    NUM_LINES_TO_INVESTIGATE = 15
+    items_found_all = {}
+    items_found = {}
+    files_without_match = []
+
+    if not 'st_vid' in filepath.name:
+        return constants.RETURNCODE_NOK
+
+    #
+    # Process front page with info: cert_id, certified_item and developer
+    #
+    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
+
+    certified_item = ''
+    cert_id = ''
+
+    lines = whole_text_with_newlines.splitlines()
+    no_match_yet = True
+    item_offset = -1
+
+    for line_index in range(0, len(lines)):
+        line = lines[line_index]
+
+        if 'Validation Report' in line:
+            item_offset = line_index + 1
+
+        REPORTNUM_STR = 'Report Number:'
+        if REPORTNUM_STR in line:
+            if no_match_yet:
+                items_found_all[file_name] = {}
+                items_found = items_found_all[file_name]
+                no_match_yet = False
+
+            # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
+            certified_item = ''
+            for name_index in range(item_offset, line_index):
+                certified_item += lines[name_index] + ' '
+            cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
+            break
+
+    if no_match_yet:
+        files_without_match.append(file_name)
+    else:
+        items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
+        items_found[TAG_CERT_ITEM] = normalize_match_string(certified_item)
+        items_found[TAG_CERT_LAB] = 'US NIAP'
+
+    # return items_found_all, files_without_match
     return constants.RETURNCODE_OK, items_found_all
 
 
