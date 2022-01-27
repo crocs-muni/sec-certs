@@ -144,9 +144,9 @@ def select_certs(q, cat, status, sort):
     if sort == "match" and q is not None and q != "":
         cursor.sort([("score", {"$meta": "textScore"}), ("name", pymongo.ASCENDING)])
     elif sort == "cert_date":
-        cursor.sort([("not_valid_before", pymongo.ASCENDING)])
+        cursor.sort([("not_valid_before._value", pymongo.ASCENDING)])
     elif sort == "archive_date":
-        cursor.sort([("not_valid_after", pymongo.ASCENDING)])
+        cursor.sort([("not_valid_after._value", pymongo.ASCENDING)])
     else:
         cursor.sort([("name", pymongo.ASCENDING)])
 
@@ -182,7 +182,7 @@ def process_search(req, callback=None):
     )
     return {
         "pagination": pagination,
-        "certs": cursor[(page - 1) * per_page : page * per_page],
+        "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
         "categories": categories,
         "q": q,
         "page": page,
@@ -261,12 +261,12 @@ def entry(hashid):
             diffs = list(map(load, mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
-                cves = list(map(load, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
+                cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
             else:
                 cves = []
         with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
             if doc["heuristics"]["cpe_matches"]:
-                cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
+                cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": list(doc["heuristics"]["cpe_matches"])}})))
             else:
                 cpes = []
         with sentry_sdk.start_span(op="files", description="Find local files"):

@@ -77,6 +77,7 @@ class WorkingFormat(Format):
     """
     The format used for work on the site (what is passed to templates for rendering, etc.).
     It is a dict with sets, dots in keys possible.
+    Has frozendict.
     """
 
     def to_storage_format(self) -> "StorageFormat":
@@ -91,7 +92,7 @@ class WorkingFormat(Format):
             return key
 
         def walk(obj):
-            if isinstance(obj, dict):
+            if isinstance(obj, (frozendict, dict)):
                 res = {}
                 for key in obj.keys():
                     res[map_key(key)] = walk(obj[key])
@@ -128,13 +129,15 @@ class WorkingFormat(Format):
 
 
 class RawFormat(Format):
-    """"""
+    """Has frozendict."""
 
     def to_working_format(self) -> "WorkingFormat":
         # remove paths
         def walk(obj):
             if isinstance(obj, dict):
                 return {key: walk(value) for key, value in obj.items()}
+            if isinstance(obj, frozendict):
+                return frozendict({key: walk(value) for key, value in obj.items()})
             elif isinstance(obj, list):
                 return list(map(walk, obj))
             elif isinstance(obj, set):
@@ -149,7 +152,7 @@ class RawFormat(Format):
 
     def to_obj_format(self) -> "ObjFormat":
         def walk(obj):
-            if isinstance(obj, dict):
+            if isinstance(obj, (frozendict, dict)):
                 res = {key: walk(value) for key, value in obj.items()}
                 if "_type" in res and res["_type"] in serializable_complex_types():
                     complex_type = res.pop("_type")
@@ -168,7 +171,7 @@ class RawFormat(Format):
 
 
 class ObjFormat(Format):
-    """"""
+    """No more frozendict just objects."""
 
     def to_raw_format(self) -> "RawFormat":
         def walk(obj):

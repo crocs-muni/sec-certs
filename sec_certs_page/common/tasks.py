@@ -57,10 +57,11 @@ def process_updated_certs(collection, diff_collection, dset, updated_ids, run_id
         logger.info(f"Processing {len(updated_ids)} updated certificates.")
         for id in updated_ids:
             # Process an updated cert, it can also be that a "removed" cert reappeared
-            working_current_cert = StorageFormat(mongo.db[collection].find_one({"_id": id})).to_working_format().get()
+            working_current_cert = (
+                StorageFormat(mongo.db[collection].find_one({"_id": id}, {"_id": 0})).to_working_format().get()
+            )
             working_cert = ObjFormat(dset[id]).to_raw_format().to_working_format()
             working_cert_data = working_cert.get()
-            working_cert_data["_id"] = id
             # Find the last diff
             last_diff = mongo.db[diff_collection].find_one({"dgst": id}, sort=[("timestamp", DESCENDING)])
             if cert_diff := diff(working_current_cert, working_cert_data, syntax="explicit"):

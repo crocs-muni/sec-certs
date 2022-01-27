@@ -62,13 +62,13 @@
 
                     <div data-cs-name="Valid from">
                         <b>Valid from:</b>
-                        {{ cert["not_valid_before"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
+                        {{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}
                         <br/>
                     </div>
                     {% if cert["not_valid_after"] %}
                         <div data-cs-name="Valid until">
                             <b>Valid until:</b>
-                            {{ cert["not_valid_after"]|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
+                            {{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}
                             <br/>
                         </div>
                     {% endif %}

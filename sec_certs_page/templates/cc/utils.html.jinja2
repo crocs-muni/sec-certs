@@ -175,8 +175,8 @@
                 {% set name = cert["name"] %}
                 {% set status = cert["status"] %}
                 {% set hashid = cert["_id"] %}
-                {% set cert_date = cert["not_valid_before"]|strptime("%Y-%m-%d") %}
-                {% set archive_date = cert["not_valid_after"]|strptime("%Y-%m-%d") %}
+                {% set cert_date = cert["not_valid_before"] %}
+                {% set archive_date = cert["not_valid_after"] %}
                 {% set category = cert["category"] %}
                 <tr>
                     <td class="pl-1">{{ render_category(category) }}&nbsp;{{ idd }}</td>

@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 import sentry_sdk
@@ -140,7 +140,9 @@ def filter_strptime(dt, format):
 def filter_strftime(dt_obj, format):
     if isinstance(dt_obj, datetime):
         return dt_obj.strftime(format)
-    raise TypeError("Not a datetime")
+    elif isinstance(dt_obj, date):
+        return dt_obj.strftime(format)
+    raise TypeError("Not a datetime or a date")
 
 
 @app.template_filter("fromisoformat")
