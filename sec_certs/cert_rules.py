@@ -8,6 +8,7 @@ rules_cert_id = [
     "BSI-DSZ-CC-[0-9]+?-[0-9]+",  # German BSI
     "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+",  # German BSI
     "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+",  # German BSI
+    "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9][0-9][0-9][0-9])*",  # German BSI (number + version + year or without year)
     # 'CC-Zert-.+?',
     "ANSSI(?:-|-CC-)[0-9]+?/[0-9]+",  # French
     # 'ANSSI-CC-CER-F-.+?', # French
@@ -17,12 +18,14 @@ rules_cert_id = [
     "NSCIB-CC-[0-9][0-9][0-9][0-9].+?",  # Netherlands
     "NSCIB-CC-[0-9][0-9][0-9][0-9][0-9]*-CR",  # Netherlands
     "NSCIB-CC-[0-9][0-9]-[0-9]+?-CR[0-9]+?",  # Netherlands
+    'NSCIB-CC-[0-9][0-9]-[0-9]+(-CR[0-9]+)*',  # Netherlands (old number NSCIB-CC-05-6609 or NSCIB-CC-05-6609-CR)
     "SERTIT-[0-9]+?",  # Norway
     "CCEVS-VR-(?:|VID)[0-9]+?-[0-9]+?",  # US NSA
     # '[0-9][0-9\-]+?-CR', # Canada
     "CRP[0-9][0-9][0-9][0-9]*?",  # UK CESG
     "CERTIFICATION REPORT No. P[0-9]+?",  # UK CESG
     "20[0-9][0-9]-[0-9]+-INF-[0-9]+?",  # Spain
+    "20[0-9][0-9]-[0-9]+-INF-[0-9]+(.(?:V|v)[0-9]+)*",  # Spain (2006-4-INF-98 v2 or (2006-4-INF-98-v2))
     "KECS-CR-[0-9]+?-[0-9]+?",  # Korea
     "KECS-ISIS-[0-9]+?-[0-9][0-9][0-9][0-9]",  # Korea
     "CRP-C[0-9]+?-[0-9]+?",  # Japan
@@ -30,6 +33,7 @@ rules_cert_id = [
     "OCSI/CERT/.+?",  # Italia
     "[0-9\\.]+?/TSE-CCCS-[0-9]+?",  # Turkis CCCS
     "BTBD-.+?",  # Turkis CCCS
+    "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*",  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
 ]
 
 rules_vendor = [

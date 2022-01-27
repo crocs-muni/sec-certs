@@ -598,6 +598,99 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
     return constants.RETURNCODE_OK, items_found
 
+# Port from old-api branch
+def search_only_headers_nscib(filepath: Path):
+    LINE_SEPARATOR_STRICT = ' '
+    NUM_LINES_TO_INVESTIGATE = 60
+    items_found_all = {}
+    items_found = {}
+    files_without_match = []
+    
+    if not 'NSCIB-CC-' in filepath:
+        return constants.RETURNCODE_NOK
+
+    #
+    # Process front page with info: cert_id, certified_item and developer
+    #
+    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT)
+
+    certified_item = ''
+    developer = ''
+    cert_lab = ''
+    cert_id = ''
+    sponsor = ''
+
+    lines = whole_text_with_newlines.splitlines()
+    no_match_yet = True
+    item_offset = -1
+
+    for line_index in range(0, len(lines)):
+        line = lines[line_index]
+
+        if 'Certification Report' in line:
+            item_offset = line_index + 1
+        if 'Assurance Continuity Maintenance Report' in line:
+            item_offset = line_index + 1
+
+        SPONSORDEVELOPER_STR = 'Sponsor and developer:'
+
+        if SPONSORDEVELOPER_STR in line:
+            if no_match_yet:
+                items_found_all[file_name] = {}
+                items_found = items_found_all[file_name]
+                no_match_yet = False
+
+            # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
+            certified_item = ''
+            for name_index in range(item_offset, line_index):
+                certified_item += lines[name_index] + ' '
+            developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR):]
+
+        SPONSOR_STR = 'Sponsor:'
+
+        if SPONSOR_STR in line:
+            if no_match_yet:
+                items_found_all[file_name] = {}
+                items_found = items_found_all[file_name]
+                no_match_yet = False
+
+            # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
+            certified_item = ''
+            for name_index in range(item_offset, line_index):
+                certified_item += lines[name_index] + ' '
+            sponsor = line[line.find(SPONSOR_STR) + len(SPONSOR_STR):]
+
+        DEVELOPER_STR = 'Developer:'
+        if DEVELOPER_STR in line:
+            developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR):]
+
+        CERTLAB_STR = 'Evaluation facility:'
+        if CERTLAB_STR in line:
+            cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR):]
+
+        REPORTNUM_STR = 'Report number:'
+        if REPORTNUM_STR in line:
+            cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
+
+    if no_match_yet:
+        files_without_match.append(filepath)
+    else:
+        items_found[TAG_CERT_ID] = normalize_match_string(cert_id)
+        items_found[TAG_CERT_ITEM] = normalize_match_string(
+            certified_item)
+        items_found[TAG_DEVELOPER] = normalize_match_string(developer)
+        items_found[TAG_CERT_LAB] = cert_lab
+
+    #return items_found_all, files_without_match
+
+    return constants.RETURNCODE_OK, items_found_all
+
+
+
+
+
+
 
 def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
     try:
