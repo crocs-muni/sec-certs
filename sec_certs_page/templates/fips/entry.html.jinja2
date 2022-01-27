@@ -58,13 +58,13 @@
                     {% endif %}
                     <div data-cs-name="Validation dates">
                         <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}
-                        {{ date|strptime("%Y-%m-%d")|strftime("%d.%m.%Y") }}
+                        {{ date|strftime("%d.%m.%Y") }}
                         {{ ", " if not loop.last else "" }}{% endfor %}<br/>
                     </div>
                     {% if cert["web_scan"]["date_sunset"] %}
                         <div data-cs-name="Sunset date">
                             <b>Sunset date:</b>
-                            {{ cert["web_scan"]["date_sunset"]|strptime("%Y-%m-%d")|strftime("%d-%m-%Y") }}<br/>
+                            {{ cert["web_scan"]["date_sunset"]|strftime("%d-%m-%Y") }}<br/>
                         </div>
                     {% endif %}
                     <div data-cs-name="Standard">

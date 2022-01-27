@@ -165,7 +165,7 @@ def process_search(req, callback=None):
     )
     return {
         "pagination": pagination,
-        "certs": cursor[(page - 1) * per_page : page * per_page],
+        "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
         "categories": categories,
         "q": q,
         "page": page,
@@ -228,6 +228,7 @@ def entry_old(old_id, npath=None):
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],
 )
 def entry(hashid):
+    print(hashid)
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         raw_doc = mongo.db.fips.find_one({"_id": hashid})
     if raw_doc:

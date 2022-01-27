@@ -77,3 +77,7 @@ TOOL_SETTINGS_PATH = "settings.yaml"
 
 # Whether notification subscriptions are enabled.
 SUBSCRIPTIONS_ENABLED = True
+
+# Whether to skip the actual update (from remote CC and FIPS servers) in the nightly update task. Useful for debugging.
+CC_SKIP_UPDATE = False
+FIPS_SKIP_UPDATE = False

@@ -43,6 +43,7 @@ def update_data():  # pragma: no cover
     if paths["cpe_path"].exists():
         os.symlink(paths["cpe_path"], dset.cpe_dataset_path)
 
+    update_result = None
     try:
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
             if not current_app.config["CC_SKIP_UPDATE"] or not paths["output_path"].exists():
@@ -87,22 +88,21 @@ def update_data():  # pragma: no cover
         cert_states = Counter(key for cert in dset for key in cert.state.to_dict() if cert.state.to_dict()[key])
 
         end = datetime.now()
-        update_result = mongo.db.cc_log.insert_one(
-            {
-                "start_time": start,
-                "end_time": end,
-                "tool_version": tool_version,
-                "length": len(dset),
-                "ok": True,
-                "state": dset.state.to_dict(),
-                "stats": {
-                    "new_certs": len(new_ids),
-                    "removed_ids": len(removed_ids),
-                    "updated_ids": len(updated_ids),
-                    "cert_states": dict(cert_states),
-                },
-            }
-        )
+        run_doc = {
+            "start_time": start,
+            "end_time": end,
+            "tool_version": tool_version,
+            "length": len(dset),
+            "ok": True,
+            "state": dset.state.to_dict(),
+            "stats": {
+                "new_certs": len(new_ids),
+                "removed_ids": len(removed_ids),
+                "updated_ids": len(updated_ids),
+                "cert_states": dict(cert_states),
+            },
+        }
+        update_result = mongo.db.cc_log.insert_one(run_doc)
         logger.info(f"Finished run {update_result.inserted_id}.")
 
         # TODO: Take dataset and certificate state into account when processing into DB.
@@ -114,17 +114,20 @@ def update_data():  # pragma: no cover
         notify.delay(str(update_result.inserted_id))
     except Exception as e:
         end = datetime.now()
-        mongo.db.cc_log.insert_one(
-            {
-                "start_time": start,
-                "end_time": end,
-                "tool_version": tool_version,
-                "length": len(dset),
-                "ok": False,
-                "error": str(e),
-                "state": dset.state.to_dict(),
-            }
-        )
+        result = {
+            "start_time": start,
+            "end_time": end,
+            "tool_version": tool_version,
+            "length": len(dset),
+            "ok": False,
+            "error": str(e),
+            "state": dset.state.to_dict(),
+        }
+        if update_result is None:
+            mongo.db.cc_log.insert_one(result)
+        else:
+            result["stats"] = run_doc["stats"]
+            mongo.db.cc_log.replace_one({"_id": update_result.inserted_id}, result)
         raise e
     finally:
         shutil.rmtree(paths["dset_path"], ignore_errors=True)
