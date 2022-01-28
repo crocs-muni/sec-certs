@@ -39,9 +39,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             super().__setattr__("maintenance_date", helpers.sanitize_date(self.maintenance_date))
 
         @classmethod
-        def from_dict(cls, dct: Dict) -> "MaintenanceReport":
+        def from_dict(cls, dct: Dict) -> "CommonCriteriaCert.MaintenanceReport":
             new_dct = dct.copy()
-            new_dct["maintenance_date"] = date.fromisoformat(dct["maintenance_date"]) if isinstance(dct["maintenance_date"], str) else dct["maintenance_date"]
+            new_dct["maintenance_date"] = (
+                date.fromisoformat(dct["maintenance_date"])
+                if isinstance(dct["maintenance_date"], str)
+                else dct["maintenance_date"]
+            )
             return super().from_dict(new_dct)
 
         def __lt__(self, other):
@@ -363,8 +367,16 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         new_dct = dct.copy()
         new_dct["maintenance_updates"] = set(dct["maintenance_updates"])
         new_dct["protection_profiles"] = set(dct["protection_profiles"])
-        new_dct["not_valid_before"] = date.fromisoformat(dct["not_valid_before"]) if isinstance(dct["not_valid_before"], str) else dct["not_valid_before"]
-        new_dct["not_valid_after"] = date.fromisoformat(dct["not_valid_after"]) if isinstance(dct["not_valid_after"], str) else dct["not_valid_after"]
+        new_dct["not_valid_before"] = (
+            date.fromisoformat(dct["not_valid_before"])
+            if isinstance(dct["not_valid_before"], str)
+            else dct["not_valid_before"]
+        )
+        new_dct["not_valid_after"] = (
+            date.fromisoformat(dct["not_valid_after"])
+            if isinstance(dct["not_valid_after"], str)
+            else dct["not_valid_after"]
+        )
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
     @classmethod
