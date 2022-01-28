@@ -581,17 +581,40 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         response_anssi, cert.pdf_data.st_frontpage["anssi"] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
         response_bsi, cert.pdf_data.st_frontpage["bsi"] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
+        response_nscib, cert.pdf_data.st_frontpage["nscib"] = helpers.search_only_headers_nscib(cert.state.st_txt_path)
+        response_niap, cert.pdf_data.st_frontpage["niap"] = helpers.search_only_headers_niap(cert.state.st_txt_path)
+        response_canada, cert.pdf_data.st_frontpage["canada"] = helpers.search_only_headers_canada(cert.state.st_txt_path)
 
+        # TODO - this section needs refactoring, discuss that with Adam
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
             if not cert.state.errors:
                 cert.state.errors = []
             cert.state.errors.append(response_anssi)
+
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
             if not cert.state.errors:
                 cert.state.errors = []
             cert.state.errors.append(response_bsi)
+
+        if response_nscib != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
+            cert.state.errors.append(response_nscib)
+
+        if response_niap != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
+            cert.state.errors.append(response_niap)
+
+        if response_canada != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
+            cert.state.errors.append(response_canada)
 
         return cert
 
