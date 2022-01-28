@@ -620,6 +620,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def extract_report_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+        # TODO - do your work here - search_only_headers_nscib, search_only_headers_niap, search_only_headers_canada
         cert.pdf_data.report_frontpage = dict()
         response_bsi, cert.pdf_data.report_frontpage["bsi"] = helpers.search_only_headers_bsi(
             cert.state.report_txt_path
@@ -628,16 +629,40 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             cert.state.report_txt_path
         )
 
+        response_nscib, cert.pdf_data.report_frontpage["nscib"] = helpers.search_only_headers_nscib(cert.state.report_txt_path)
+        response_niap, cert.pdf_data.report_frontpage["niap"] = helpers.search_only_headers_niap(cert.state.report_txt_path)
+        response_canada, cert.pdf_data.report_frontpage["canada"] = helpers.search_only_headers_canada(cert.state.report_txt_path)
+
+        # TODO - this section needs refactoring, discuss that with Adam
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
             if not cert.state.errors:
                 cert.state.errors = []
             cert.state.errors.append(response_anssi)
+
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
             if not cert.state.errors:
                 cert.state.errors = []
             cert.state.errors.append(response_bsi)
+
+        if response_nscib != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
+            cert.state.errors.append(response_nscib)
+
+        if response_niap != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
+            cert.state.errors.append(response_niap)
+
+        if response_canada != constants.RETURNCODE_OK:
+            cert.state.report_extract_ok = False
+            if not cert.state.errors:
+                cert.state.errors = []
+            cert.state.errors.append(response_canada)
 
         return cert
 
