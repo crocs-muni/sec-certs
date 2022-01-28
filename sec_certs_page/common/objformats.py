@@ -2,9 +2,10 @@ from abc import ABC
 from datetime import date
 from pathlib import Path
 
-from frozendict import frozendict
 from jsondiff.symbols import Symbol
 from sec_certs.serialization.json import ComplexSerializableType
+
+from .frozendict import frozendict
 
 _sct = None
 
@@ -134,10 +135,10 @@ class RawFormat(Format):
     def to_working_format(self) -> "WorkingFormat":
         # remove paths
         def walk(obj):
-            if isinstance(obj, dict):
-                return {key: walk(value) for key, value in obj.items()}
             if isinstance(obj, frozendict):
                 return frozendict({key: walk(value) for key, value in obj.items()})
+            elif isinstance(obj, dict):
+                return {key: walk(value) for key, value in obj.items()}
             elif isinstance(obj, list):
                 return list(map(walk, obj))
             elif isinstance(obj, set):
