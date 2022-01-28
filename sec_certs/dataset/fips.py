@@ -283,15 +283,15 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         # Download files containing all available module certs (always)
         cert_ids = self.prepare_dataset(test, update)
 
-        logger.info("Downloading certificate html and security policies")
-        self.download_neccessary_files(cert_ids)
-
         if not no_download_algorithms:
             aset = FIPSAlgorithmDataset({}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs")
             aset.get_certs_from_web()
             logger.info(f"Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.")
 
             self.algorithms = aset
+
+        logger.info("Downloading certificate html and security policies")
+        self.download_neccessary_files(cert_ids)
 
         self.web_scan(cert_ids, redo=redo_web_scan)
 
