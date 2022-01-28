@@ -133,7 +133,11 @@ def blueprint_prefix():
 
 @app.template_filter("strptime")
 def filter_strptime(dt, format):
-    return datetime.strptime(dt, format) if dt else None
+    if isinstance(dt, str):
+        datetime.strptime(dt, format)
+    if isinstance(dt, (date, datetime)):
+        return dt
+    return None
 
 
 @app.template_filter("strftime")
