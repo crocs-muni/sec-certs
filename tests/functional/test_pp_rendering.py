@@ -1,23 +1,28 @@
 from urllib.parse import quote
 
+import pytest
 from flask.testing import FlaskClient
 
 
+@pytest.mark.remote
 def test_index(client: FlaskClient):
     resp = client.get("/pp/")
     assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_network(client: FlaskClient):
     resp = client.get("/pp/network/")
     assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_analysis(client: FlaskClient):
     resp = client.get("/pp/analysis/")
     assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_search_basic(client: FlaskClient):
     pp_id = quote("ANSSI-CC-PP-2018/03", safe="")
     pp_name = "ANSSI-CC-PP-2018/03 « PC Client Specific TPM » (TPM Library specification Family “2.0”, Level 0)"
@@ -29,6 +34,7 @@ def test_search_basic(client: FlaskClient):
     assert pp_name not in resp.data.decode()
 
 
+@pytest.mark.remote
 def test_search_pagination(client: FlaskClient):
     pp_id = quote("ANSSI-CC-PP-2018/03", safe="")
     pp_name = "ANSSI-CC-PP-2018/03 « PC Client Specific TPM » (TPM Library specification Family “2.0”, Level 0)"
@@ -40,6 +46,7 @@ def test_search_pagination(client: FlaskClient):
     assert pp_name not in resp.data.decode()
 
 
+@pytest.mark.remote
 def test_search_bad(client: FlaskClient):
     resp = client.get("/pp/search/?q=aaa&page=bad")
     assert resp.status_code == 400
@@ -49,12 +56,14 @@ def test_search_bad(client: FlaskClient):
     assert resp.status_code == 400
 
 
+@pytest.mark.remote
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/pp/random/", follow_redirects=True)
         assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_entry(client: FlaskClient):
     hashid = "a5ae912f6ac143a5d027"
     cert_id = "ANSSI-CC-PP-2010-04"

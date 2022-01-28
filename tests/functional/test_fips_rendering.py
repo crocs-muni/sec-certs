@@ -1,11 +1,14 @@
+import pytest
 from flask.testing import FlaskClient
 
 
+@pytest.mark.remote
 def test_index(client: FlaskClient):
     resp = client.get("/fips/")
     assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_network(client: FlaskClient):
     resp = client.get("/fips/network/graph.json")
     assert resp.status_code == 200
@@ -13,11 +16,13 @@ def test_network(client: FlaskClient):
     assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_analysis(client: FlaskClient):
     resp = client.get("/fips/analysis/")
     assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_search_basic(client: FlaskClient):
     cert_id = "310"
     cert_name = "MOVEit Crypto"
@@ -29,6 +34,7 @@ def test_search_basic(client: FlaskClient):
     assert cert_name not in resp.data.decode()
 
 
+@pytest.mark.remote
 def test_search_pagination(client: FlaskClient):
     cert_id = "310"
     cert_name = "MOVEit Crypto"
@@ -40,6 +46,7 @@ def test_search_pagination(client: FlaskClient):
     assert cert_name not in resp.data.decode()
 
 
+@pytest.mark.remote
 def test_search_bad(client: FlaskClient):
     resp = client.get("/fips/search/?q=aaa&page=bad")
     assert resp.status_code == 400
@@ -49,12 +56,14 @@ def test_search_bad(client: FlaskClient):
     assert resp.status_code == 400
 
 
+@pytest.mark.remote
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/fips/random/", follow_redirects=True)
         assert resp.status_code == 200
 
 
+@pytest.mark.remote
 def test_entry_old(client: FlaskClient):
     resp = client.get("/fips/7d986a48cb5c4c8d3c62/")
     assert resp.location.endswith("/fips/5d865a0cf9e04d99/")
@@ -66,6 +75,7 @@ def test_entry_old(client: FlaskClient):
     assert bad_resp.status_code == 404
 
 
+@pytest.mark.remote
 def test_entry(client: FlaskClient):
     hashid = "3465020c4414cd8c"
     cert_id = "310"
@@ -97,6 +107,7 @@ def test_entry(client: FlaskClient):
     assert bad_resp.status_code == 404
 
 
+@pytest.mark.remote
 def test_entry_graph(client: FlaskClient):
     resp = client.get("/fips/9a180de886923e04/graph.json")
     assert resp.is_json
