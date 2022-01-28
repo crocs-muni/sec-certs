@@ -38,6 +38,12 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             super().__setattr__("maintenance_title", helpers.sanitize_string(self.maintenance_title))
             super().__setattr__("maintenance_date", helpers.sanitize_date(self.maintenance_date))
 
+        @classmethod
+        def from_dict(cls, dct: Dict) -> "MaintenanceReport":
+            new_dct = dct.copy()
+            new_dct["maintenance_date"] = date.fromisoformat(dct["maintenance_date"]) if isinstance(dct["maintenance_date"], str) else dct["maintenance_date"]
+            return super().from_dict(new_dct)
+
         def __lt__(self, other):
             return self.maintenance_date < other.maintenance_date
 
