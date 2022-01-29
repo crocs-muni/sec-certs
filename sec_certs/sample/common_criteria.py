@@ -704,3 +704,120 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
+        self.heuristics.normalize_cert_id()
+
+    @staticmethod
+    def _is_anssi_cert(cert_id: str) -> bool:
+        return cert_id.startswith("ANSS")
+
+    @staticmethod
+    def _fix_anssi_cert_id(cert_id: str) -> str:
+        new_cert_id = cert_id
+
+        if new_cert_id.startswith('ANSSi'):  # mistyped ANSSi
+            new_cert_id = 'ANSSI' + new_cert_id[4:]
+
+        if new_cert_id[
+            len('ANSSI-CC-0000')] == '_':  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
+            new_cert_id = new_cert_id[:len('ANSSI-CC-0000')] + '/' + new_cert_id[len('ANSSI-CC-0000') + 1:]
+
+        if '_' in new_cert_id:  # _ instead of -
+            new_cert_id = new_cert_id.replace('_', '-')
+
+        return new_cert_id
+
+    @staticmethod
+    def _is_bsi_cert(cert_id: str) -> bool:
+        return cert_id.startswith("BSI-DSZ-CC-")
+
+    @staticmethod
+    def _fix_bsi_cert_id(cert_id: str) -> str:
+        # missing year
+        # lowercase version
+        bsi_parts = cert_id.split('-')
+        cert_num = None
+        cert_version = None
+        cert_year = None
+
+        if len(bsi_parts) > 3:
+            cert_num = bsi_parts[3]
+        if len(bsi_parts) > 4:
+            if bsi_parts[4].startswith('V') or bsi_parts[4].startswith('v'):
+                cert_version = bsi_parts[4].upper()  # get version in uppercase
+            else:
+                cert_year = bsi_parts[4]
+        if len(bsi_parts) > 5:
+            cert_year = bsi_parts[5]
+
+        # year may be missing - try to find the right one
+        if cert_year is None:
+            for year in range(1996, 2030):
+                cert_id_possible = cert_id + '-' + str(year)
+                if cert_id_possible in all_cert_ids:
+                    # we found version with year
+                    cert_year = str(year)
+                    break
+
+        # reconstruct BSI number again
+        new_cert_id = 'BSI-DSZ-CC'
+        if cert_num is not None:
+            new_cert_id += '-' + cert_num
+        if cert_version is not None:
+            new_cert_id += '-' + cert_version
+        if cert_year is not None:
+            new_cert_id += '-' + cert_year
+
+        return new_cert_id
+
+    @staticmethod
+    def _is_spain_cert_id(cert_id: str) -> bool:
+        return "-INF-" in cert_id
+
+    @staticmethod
+    def _fix_spain_cert_id(cert_id: str) -> str:
+        # Spain id has incremental version for reassesment/recertificaton, but there is also changing base id => drop version
+        spain_parts = cert_id.split('-')
+        cert_year = spain_parts[0]
+        cert_batch = spain_parts[1]
+        cert_num = spain_parts[3]
+
+        if "v" in cert_num:
+            cert_version = cert_num[cert_num.find("v") + 1:]
+            cert_num = cert_num[:cert_num.find("v")]
+        if "V" in cert_num:
+            cert_version = cert_num[cert_num.find("V") + 1:]
+            cert_num = cert_num[:cert_num.find("V")]
+
+        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num}"  # drop version
+
+        return new_cert_id
+
+    @staticmethod
+    def _is_ocsi_cert_id(cert_id: str) -> bool:
+        return "OCSI/CERT" in cert_id
+
+    @staticmethod
+    def _fix_ocsi_cert_id(cert_id: str) -> str:
+        new_cert_id = cert_id
+        if not new_cert_id.endswith("/RC"):
+            new_cert_id = cert_id + "/RC"
+
+        return new_cert_id
+
+    def normalize_cert_id(self) -> None:
+        cert_id = self.heuristics.cert_id.strip()
+        fixed_cert_id = cert_id
+
+        if self._is_anssi_cert(cert_id):
+            fixed_cert_id = self._fix_anssi_cert_id(cert_id)
+
+        if self._is_bsi_cert(cert_id):
+            fixed_cert_id = self._fix_bsi_cert_id(cert_id)
+
+        if self._is_spain_cert_id(cert_id):
+            fixed_cert_id = self._fix_spain_cert_id(cert_id)
+
+        if self._is_ocsi_cert_id(cert_id):
+            fixed_cert_id = self._fix_ocsi_cert_id(cert_id)
+
+        self.heuristics.cert_id = fixed_cert_id
