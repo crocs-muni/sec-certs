@@ -1,0 +1,3035 @@
+<!DOCTYPE html>
+<html lang="en-us" xml:lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <title>Cryptographic Module Validation Program | CSRC</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="content-style-type" content="text/css" />
+    <meta http-equiv="content-script-type" content="text/javascript" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="msapplication-config" content="/CSRC/Media/images/favicons/browserconfig.xml" />
+    <meta name="theme-color" content="#000000" />
+    
+ 
+    <meta name="description" content="The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become..."/>
+
+    <!-- dcterms meta information -->
+    <meta name="dcterms.title" content="Modules In Process List - Cryptographic Module Validation Program | CSRC | CSRC"/>
+    <meta name="dcterms.description" content="The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become..."/>
+    <meta name="dcterms.creator" content="Computer Security Division, Information Technology Laboratory, National Institute of Standards and Technology, U.S. Department of Commerce"/>
+    <meta name="dcterms.date.created" scheme="ISO8601" content="2016-10-11"/>
+    <meta name="dcterms.date.reviewed" scheme="ISO8601" content="2020-10-16"/>
+    <meta name="dcterms.language" scheme="DCTERMS.RFC1766" content="EN-US"/>
+    
+    <!-- Facebook OpenGraph Tags -->
+    <meta name="og:site_name" content="CSRC | NIST" />
+    <meta name="og:type" content="article" />
+    <meta name="og:url" content="https://content.csrc.e1c.nist.gov/projects/cryptographic-module-validation-program/modules-in-process/modules-in-process-list" />
+    <meta name="og:title" content="Modules In Process List - Cryptographic Module Validation Program | CSRC | CSRC" />
+    <meta name="og:description" content="The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become available. The validation process is a joint effort between the CMVP, the laboratory and the vendor and therefore, for any given module, the action to respond could reside with the CMVP, the lab or the vendor. This list does not provide granularity into which entity has the action. If you would like more information for a specific cryptographic module or its schedule, please contact the vendor. &#160;"/>
+    
+    <meta name="article:tag" content="cryptography; testing &amp; validation; hardware; software &amp; firmware" />
+    <meta name="article:published_time" content="2016-10-11" />
+    <meta name="article:modified_time" content="2020-10-16"/>
+    <meta name="og:image" content="https://csrc.nist.gov/CSRC/media/images/CSRC-logo-open-graph.png" />
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/images/icons/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/images/icons/favicon-16x16.png" sizes="16x16" />
+    <link rel="manifest" href="/images/icons/manifest.json" />
+    <link rel="mask-icon" href="/images/icons/safari-pinned-tab.svg" color="#000000" />
+    <link href="/CSRC/Media/images/favicons/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
+    <link href="/CSRC/Media/images/favicons/favicon.ico" type="image/x-icon" rel="icon"/>
+    
+    <link href="/dist/app.css" rel="stylesheet">
+    
+    <style type="text/css">
+	    .mip-highlight {
+		    background-color: grey;
+	    }
+
+	    .fixedWidth {
+		    width: 100px;
+	    }
+
+	    #MIPFooter tr td {
+		    font-weight: bold;
+		    text-align: right;
+	    }
+    </style>
+
+
+    <script async type="text/javascript" id="_fed_an_ua_tag" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=nist&subagency=csrc&pua=UA-66610693-15&yt=true&exts=xsd,xml,wav,mpg,mpeg,avi,rtf,webm,ogg,ogv,oga,map,otf,eot,svg,ttf,woff"></script>
+    <style id="antiClickjack">
+        body { display: none !important; }
+    </style>
+    <script type="text/javascript" id="antiClickjackScript">
+        if (self === top) { var antiClickjack = document.getElementById("antiClickjack"); antiClickjack.parentNode.removeChild(antiClickjack);
+        } else { top.location = self.location; }
+    </script>
+</head>
+<body>
+    <div id="antiClickjack" style="display: none">
+        <h1>You are viewing this page in an unauthorized frame window.</h1>
+        <p>This is a potential security issue, you are being redirected to <a href="https://csrc.nist.gov">https://csrc.nist.gov</a></p>
+    </div>
+
+    <nav id="navbar" class="navbar">
+        <div id="nist-menu-container" class="container">
+            <div class="row">
+                <!-- Brand -->
+                <div class="col-xs-6 col-md-4 navbar-header">
+                    <a class="navbar-brand" href="https://www.nist.gov" target="_blank" id="navbar-brand-image">
+                        <img src="/CSRC/media/images/svg/nist-logo.svg" alt="National Institute of Standards and Technology" width="110" height="30">
+                    </a>
+                </div>
+                <div class="col-xs-6 col-md-8 navbar-nist-logo">
+                    <div class="form-inline hidden-sm hidden-xs">
+                        <form name="site-search" id="site-search-form" action="/search" method="GET">
+                            <label for="search-csrc-query" class="element-invisible">Search</label>
+                            <input autocomplete="off" class="form-control" id="search-csrc-query" name="keywords" type="text" size="15" maxlength="128" placeholder="Search CSRC" />
+                            <input type="hidden" name="ipp" value="25" />
+                            <input type="hidden" name="sortBy" value="relevance" />
+                            <input type="hidden" name="showOnly" value="publications,projects,news,events,presentations,glossary,topics" />
+                            <input type="hidden" name="topicsMatch" value="ANY" />
+                            <input type="hidden" name="status" value="Final,Draft" />
+                            <input type="hidden" name="series" value="FIPS,SP,NISTIR,ITL Bulletin,White Paper,Building Block,Use Case,Journal Article,Conference Paper,Book" />
+                            <button type="submit" id="search-csrc-submit-btn" class="form-submit">
+                                <span class="element-invisible">Search</span>
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <span id="nvd-menu-button" class="pull-right">
+                        <a href="#" id="nvd-menu-button-link">
+                            <span class="fa fa-bars"></span>
+                            <span id="nvd-menu-full-text">CSRC MENU</span>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-inline hidden-md hidden-lg">
+            <form name="site-search-mobile" id="site-search-form-mobile" action="/search" method="GET">
+                <label for="search-csrc-query" class="element-invisible">Search</label>
+                <input autocomplete="off" class="form-control" id="search-csrc-query-mobile" name="keywords" type="text" size="15" maxlength="128" placeholder="Search CSRC" />
+                <button type="submit" id="search-csrc-submit-btn-mobile" class="form-submit">
+                    <span class="element-invisible">Search</span>
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="main-menu-row container">
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div id="main-menu-drop" class="col-lg-12" style="display: none;">
+                <ul>
+                    <li><a href="/projects">Projects</a></li>
+                    <li>
+                        <a href="/publications">
+                            Publications
+                            <span class="expander fa fa-plus" id="main-menu-pubs-expander" data-expander-name="publications" data-expanded="false">
+                                <span class="element-invisible">Expand or Collapse</span>
+                            </span>
+                        </a>
+                        <div style="display: none;" class="sub-menu" data-expander-trigger="publications" id="main-menu-pubs-expanded">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <p><a href="/publications/drafts-open-for-comment">Drafts for Public Comment</a></p>
+                                    <p><a href="/publications/draft-pubs">All Public Drafts</a></p>
+                                    <p><a href="/publications/final-pubs">Final Pubs</a></p>
+                                    <p><a href="/publications/fips">FIPS</a></p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <p><a href="/publications/sp">Special Publications (SP<small>s</small>)</a></p>
+                                    <p><a href="/publications/nistir">NISTIR<small>s</small></a></p>
+                                    <p><a href="/publications/itl-bulletin">ITL Bulletins</a></p>
+                                    <p><a href="/publications/white-paper">White Papers</a></p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <p><a href="/publications/journal-article">Journal Articles</a></p>
+                                    <p><a href="/publications/conference-paper">Conference Papers</a></p>
+                                    <p><a href="/publications/book">Books</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="/topics">
+                            Topics
+                            <span class="expander fa fa-plus" id="main-menu-topics-expander" data-expander-name="topics" data-expanded="false">
+                                <span class="element-invisible">Expand or Collapse</span>
+                            </span>
+                        </a>
+                        <div style="display: none;" class="sub-menu" data-expander-trigger="topics" id="main-menu-topics-expanded">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <p><a href="/Topics/Security-and-Privacy">Security & Privacy</a></p>
+                                    <p><a href="/Topics/Applications">Applications</a></p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <p><a href="/Topics/Technologies">Technologies</a></p>
+                                    <p><a href="/Topics/Sectors">Sectors</a></p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <p><a href="/Topics/Laws-and-Regulations">Laws & Regulations</a></p>
+                                    <p><a href="/Topics/Activities-and-Products">Activities & Products</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="/news">News & Updates</a></li>
+                    <li><a href="/events">Events</a></li>
+                    <li><a href="/glossary">Glossary</a></li>
+                    <li>
+                        <a href="/about">
+                            About CSRC
+                            <span class="expander fa fa-plus" id="main-menu-about-expander" data-expander-name="about" data-expanded="false">
+                                <span class="element-invisible">Expand or Collapse</span>
+                            </span>
+                        </a>
+                        <div style="display: none;" class="sub-menu" data-expander-trigger="about" id="main-menu-about-expanded">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <p>
+                                        <strong><a href="/Groups/Computer-Security-Division">Computer Security Division</a></strong><br />
+                                        <ul>
+                                            <li><a href="/Groups/Computer-Security-Division/Cryptographic-Technology">Cryptographic Technology</a></li>
+                                            <li><a href="/Groups/Computer-Security-Division/Secure-Systems-and-Applications">Secure Systems and Applications</a></li>
+                                            <li><a href="/Groups/Computer-Security-Division/Security-Components-and-Mechanisms">Security Components and Mechanisms</a></li>
+                                            <li><a href="/Groups/Computer-Security-Division/Security-Engineering-and-Risk-Management">Security Engineering and Risk Management</a></li>
+                                            <li><a href="/Groups/Computer-Security-Division/Security-Testing-Validation-and-Measurement">Security Testing, Validation, and Measurement</a></li>
+                                        </ul>
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <p>
+                                        <strong><a href="/Groups/Applied-Cybersecurity-Division">Applied Cybersecurity Division</a></strong><br />
+                                        <ul>
+                                            <li><a href="/Groups/Applied-Cybersecurity-Division/Cybersecurity-and-Privacy-Applications">Cybersecurity and Privacy Applications</a></li>
+                                            <li><a href="/Groups/Applied-Cybersecurity-Division/National-Cybersecurity-Center-of-Excellence">National Cybersecurity Center of Excellence (NCCoE)</a></li>
+                                            <li><a href="https://www.nist.gov/nice/">National Initiative for Cybersecurity Education (NICE)</a></li>
+                                            <li><a href="/Groups/Applied-Cybersecurity-Division/Trusted-Identities-Group">Trusted Identities Group</a></li>
+                                        </ul>
+                                    </p>
+                                    <p>
+                                        <a href="/contact">
+                                            Contact Us
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div><!-- /#mobile-nav-container -->
+        </div>
+
+    </nav>
+
+    <section id="itl-header" class="has-menu">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-md-8">
+                    <h2 class="hidden-xs hidden-sm">
+                        <a href="https://www.nist.gov/itl" target="_blank" id="itl-header-link">Information Technology Laboratory</a>
+                    </h2>
+                    <h1 class="hidden-xs hidden-sm">
+                        <a href="/" id="csrc-header-link-lg">Computer Security Resource Center</a>
+                    </h1>
+                    <h1 class="hidden-xs text-center hidden-md hidden-lg" id="csrc-header-link-md">Computer Security Resource Center</h1>
+                </div>
+                <div class="col-sm-12 col-md-4">
+                    <a id="logo-csrc" href="/" style="width: 100%; text-align: center; display: block; margin-top: 1rem;"><img id="img-logo-csrc" src="/CSRC/Media/images/CSRC-white-134-38.png" alt="CSRC Logo" class="csrc-header-logo"></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="body-section" class="container">
+        
+        
+
+
+
+<ol class="breadcrumb">
+        <a href="/projects" class="breadcrumb-link">Projects</a>
+        <a href="/projects/cryptographic-module-validation-program" class="breadcrumb-link">Cryptographic Module Validation Program</a>
+        <a href="/projects/cryptographic-module-validation-program/modules-in-process" class="breadcrumb-link">Modules In Process</a>
+</ol>
+
+
+    <h1 id="projectName">Cryptographic Module Validation Program <small id="project-acronym">CMVP</small></h1>
+
+<div class="page-social-buttons" id=&quot;news-social-buttons&quot;>
+    <a href="#" class="social-facebook"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></a>
+    <a href="#" class="social-twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></a>
+</div>
+
+
+
+<div class="row visible-sm visible-xs visible-md">
+	<div class="col-sm-12">
+        <div class="bs-callout bs-callout-subnav" id="projectLinksContainer-sm">
+            <h4><i class="fa fa-link"></i> Project Links</h4>
+            <div class="project-icons-container">
+                <span>
+                    <a href="/projects/cryptographic-module-validation-program" id="NavOverviewLink-sm">
+                        <i class="fa fa-info-circle"></i> Overview
+                    </a>
+                </span>
+                                <span>
+                    <a href="/Projects/cryptographic-module-validation-program/news" id="NavNewsLink-sm" data-count="2">
+                        <i class="fa fa-newspaper-o"></i> News &amp; Updates
+                    </a>
+                </span>
+                                                <span>
+                    <a href="/Projects/cryptographic-module-validation-program/publications" id="NavPubsLink-sm" data-count="9">
+                        <i class="fa fa-file-text"></i> Publications
+                    </a>
+                </span>
+                            </div>
+        </div>
+	</div>
+</div>
+
+
+<div class="row">
+    
+    <div class="col-sm-12">
+
+        <h3 id="pageName">Modules In Process List</h3>
+
+
+        <p id="content">
+            The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become available. The validation process is a joint effort between the CMVP, the laboratory and the vendor and therefore, for any given module, the action to respond could reside with the CMVP, the lab or the vendor. This list does not provide granularity into which entity has the action. If you would like more information for a specific cryptographic module or its schedule, please contact the vendor.<br />
+&nbsp;
+        </p>
+        
+            <p>
+                Last Updated: 10/23/2020
+            </p>
+            <table class="table table-striped table-condensed publications-table table-bordered">
+			    <thead>
+					<tr>
+						<th class="text-center">Module Name</th>
+						<th class="text-center">Vendor Name</th>
+						<th class="text-center">Standard</th>
+						<th class="text-center fixedWidth">Review Pending</th>
+						<th class="text-center fixedWidth">In Review</th>
+						<th class="text-center fixedWidth">Coordination</th>
+						<th class="text-center fixedWidth">Finalization</th>
+					</tr>
+			    </thead>
+			    <tbody>
+					<tr>
+						<td>Thunder Series TH-3040S, TH-5440S, TH-5840S and TH-7440S-11</td>
+						<td>A10 Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Acronis SCS Cryptographic Module</td>
+						<td>Acronis SCS</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>ADVA 10TCE-PCN-16GU+AES100G-F encryption module</td>
+						<td>ADVA Optical Networking SE</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>ADVA 9TCE-PCN-10GU+AES10G-F encryption module</td>
+						<td>ADVA Optical Networking SE</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>WCC-PCN-AES100GB-F Encryption Module</td>
+						<td>ADVA Optical Networking SE</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Advantech SQFlash FIPS Certified SSD</td>
+						<td>Advantech Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SBx908 GEN2, AT-x950-28XTQm, AT-x550-18XTQ, AT-x550-18XSQ, AT-x550-18XSPQm, and AT-x530-28GTXm Secure Management Module</td>
+						<td>Allied Telesis</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>AWS Nitro Card Security Engine</td>
+						<td>Amazon Web Services, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Apple CoreCrypto Kernel Space Module for ARM</td>
+						<td>Apple Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Apple CoreCrypto Kernel Space Module for Intel</td>
+						<td>Apple Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Apple CoreCrypto User Space Module for ARM</td>
+						<td>Apple Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Apple CoreCrypto User Space Module for Intel</td>
+						<td>Apple Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Apple Secure Key Store Cryptographic Module, 10.0</td>
+						<td>Apple Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aegis Fortress L3 Cryptographic Module</td>
+						<td>Apricorn</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aegis Secure Key 3NX Cryptographic Module</td>
+						<td>Apricorn</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Arista EOS Crypto Module</td>
+						<td>Arista Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aruba 9004 Series Gateway with ArubaOS FIPS Firmware</td>
+						<td>Aruba, a Hewlett Packard Enterprise company</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aruba AP-504, AP-505, AP-514, AP-515, AP-534, AP-535 and AP-555 Wireless Access Points with ArubaOS FIPS Firmware</td>
+						<td>Aruba, a Hewlett Packard Enterprise company</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aruba IAP-303H, IAP-304, IAP-305, IAP-314, IAP-315, IAP-324, IAP-325, IAP-334, and IAP-335 Wireless Access Points with Aruba Instant Firmware</td>
+						<td>Aruba, a Hewlett Packard Enterprise company</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aruba Mobility Controller Virtual Appliances with ArubaOS FIPS Firmware</td>
+						<td>Aruba, a Hewlett Packard Enterprise company</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aruba Virtual and Hardware Mobility Master Appliances with ArubaOS FIPS Firmware</td>
+						<td>Aruba, a Hewlett Packard Enterprise company</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>TASS Crypto Engine</td>
+						<td>Beijing JN TASS Technology Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>BCM58200 Series: BCM58201, BCM58202</td>
+						<td>Broadcom, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ubuntu 18.04 Kernel Crypto API Cryptographic Module</td>
+						<td>Canonical Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ubuntu 18.04 Libgcrypt Cryptographic Module</td>
+						<td>Canonical Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ubuntu 20.04 Kernel Crypto API Cryptographic Module</td>
+						<td>Canonical Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ubuntu 20.04 Libgcrypt Cryptographic Module</td>
+						<td>Canonical Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ubuntu 20.04 OpenSSL Cryptographic Module</td>
+						<td>Canonical Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Adaptive Security Appliance (ASA) Virtual</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ASA and ISA Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ASA and ISA Firepower Threat Defense Cryptographic Modules</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ASA Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ASR 1000 Series Routers with MACSEC</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ASR 1000 Series Routers without MACSEC</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9200 Series Switches</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9200L Series Switches</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9300 Series Switches</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9400 Series Switches</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9600 Series Switches</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9800 (40/80/L) Wireless Controllers running IOS-XE 16.12</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Catalyst 9800-CL Wireless Controller IOS-XE 16.12</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco FIPS Object Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Firepower 2100 Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Firepower 4100 and Cisco Firepower 9300 Series</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Firepower Next-Generation IPS Virtual (NGIPSv) Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Firepower Threat Defense on 4K/9K Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Firepower Threat Defense Virtual (FTDv) Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco FTD FX-OS on 4K/9K Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ISR 1000 Series Routers without MACSEC</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco ISR 4000 Series Routers with MACSEC</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Network Convergence System 1001 Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cisco Network Convergence System 1004 Cryptographic Module</td>
+						<td>Cisco Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Citrix ADC MPX</td>
+						<td>Citrix Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FSM-2 Flash Storage Cryptographic Module</td>
+						<td>Curtiss-Wright Controls Defense Solutions</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>DL4FE</td>
+						<td>DataLocker Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>VNX 6 Gb/s SAS I/O Module with Encryption</td>
+						<td>Dell EMC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>DIGISTOR TCG OPAL SSC FIPS SSD Series</td>
+						<td>DIGISTOR</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>DocuSign HSM Appliance</td>
+						<td>DocuSign, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>DocuSign Signature Appliance</td>
+						<td>DocuSign, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SOLSDR NETNode Security Module</td>
+						<td>Domo Tactical Communications (DTC) LTD</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>DRAEGER WCM9113 802.11ABGN VG2</td>
+						<td>Draeger Medical Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>ECI TM200EN Encryption Module</td>
+						<td>ECI Telecom Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Johnson Encryption Machine 2 (JEM2)</td>
+						<td>EF Johnson Technologies</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Entrust Authority™ Security Kernel</td>
+						<td>Entrust Datacard Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Envieta QFlex Hardware Security Module</td>
+						<td>Envieta Systems LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Extreme Networks SLX 9640, SLX 9150 and SLX 9250 Switches</td>
+						<td>Extreme Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Extreme® MLXe® Series Ethernet Routers</td>
+						<td>Extreme Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Extreme® NetIron® CER 2000 Series Ethernet Routers</td>
+						<td>Extreme Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>F5(R) Device Cryptographic Module</td>
+						<td>F5 Networks, Inc</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FEITIAN Biometric FIDO Key Module</td>
+						<td>FEITIAN Technologies</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>OTP Token</td>
+						<td>FEITIAN Technologies</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FAST C-LIB</td>
+						<td>Fescaro Co. Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye CM Series: CM1500V, CM2500V, CM7500V</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye CM Series: CM4500, CM7500, CM9400, CM9500</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye EX Series: EX3500, EX5500, EX8400, EX8500</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye EX Series: EX5500V</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye HX Series: HX4402, HX4502, HX4502D</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye HX Series: HX4502V</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye NX Series: NX1500, NX2500, NX2550, NX3500, NX4500, NX5500, NX6500</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye NX Series: NX1500V, NX2500V, NX2550V, NX4500V, NX6500V</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye VX Series: VX5500, VX12500, VX12550</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FireEye VX Series: VX7690Vfips</td>
+						<td>FireEye, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>MonocryptAES Enhanced Crypto Library</td>
+						<td>Focus Systems Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Fornetix® Key Orchestration(tm)</td>
+						<td>Fornetix LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+					</tr>
+					<tr>
+						<td>Fortanix SDKMS Appliance</td>
+						<td>Fortanix, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Fortanix SDKMS Appliance (FX2200, Version 3.10.16)</td>
+						<td>Fortanix, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiAP-U221EV, FortiAP-U223EV, FortiAP-U321EV, FortiAP-U323EV, FortiAP-U421EV, FortiAP-U422EV, FortiAP-U423EV, FortiAP-U431F and FortiAP-U433F</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-1101E/2000E/2201E/2500E/3301E</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-201E/301E/401E/501E/601E</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-3401E/3601E/3960E/3980E</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-5001E1 Blade with FortiGate-5144C Chassis</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-61E/61F/81E/101E/101F and FortiWiFi-61E</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-6300F/6301F/6500F/6501F</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiGate-VM</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiOS 6.0 and 6.2</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiWLC-50D/500D/1000D/3000D</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FortiWLM-100D and FortiWLM-1000D</td>
+						<td>Fortinet, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>NRevenector 2018</td>
+						<td>FP InovoLabs GmbH</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Postal NRevenector GB 2019</td>
+						<td>FP InovoLabs GmbH</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>1FINITY T600(TM) Transport Blade</td>
+						<td>Fujitsu Network Communications, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Standalone IMB</td>
+						<td>GDC Technology (USA) LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Fortress Mesh Points</td>
+						<td>General Dynamics Mission Systems</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>GigaVUE-HC2 Visibility Appliance</td>
+						<td>Gigamon Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>GigaVUE-HC3 Visibility Appliance</td>
+						<td>Gigamon Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>BoringCrypto Android</td>
+						<td>Google, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Titan Security Key, Chip Boundary</td>
+						<td>Google, LLC.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Aruba 2930F, 2930M, 3810M and 5400R zl2 Switch Series</td>
+						<td>Hewlett Packard Enterprise</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>HPE XP8 Encrypt Backend 4pk NVMe I/O Mod (eDKBN)</td>
+						<td>Hewlett Packard Enterprise Company</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>HID Global Applets v3.0 on NXP JCOP 3 SecID P60 CS (OSB)</td>
+						<td>HID Global</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>HID Global Applets v3.0 on NXP JCOP 3 SecID P60 CS (OSB)</td>
+						<td>HID Global</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Hitachi Virtual Storage Platform (VSP) Encryption Board for NVMe</td>
+						<td>Hitachi, Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Hitachi Virtual Storage Platform (VSP) Encryption Module for NVMe</td>
+						<td>Hitachi, Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>HUAWEI OptiX OSN 1800 Series</td>
+						<td>Huawei Technologies Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM 4769 Cryptographic Coprocessor Security Module</td>
+						<td>IBM Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM(R) z/OS(R) Version 2 Release 4 ICSF PKCS #11 Cryptographic Module</td>
+						<td>IBM Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM(R) z/OS(R) Version 2 Release 4 ICSF PKCS #11 Cryptographic Module</td>
+						<td>IBM Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM(R) z/OS(R) Version 2 Release 4 System SSL Cryptographic Module</td>
+						<td>IBM Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM(R) z/OS(R) Version 2 Release 4 System SSL Cryptographic Module</td>
+						<td>IBM Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM(R) z/VM(R) Version 7 Release 2 System SSL Cryptographic Module</td>
+						<td>IBM Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>IBM(R) NVMe FlashCore(TM) Module 2</td>
+						<td>IBM(R) Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>LifeCare PCA™ Infusion Pump</td>
+						<td>ICU Medical, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Trusted Platform Module 2.0 SLI / SLM 9670</td>
+						<td>Infineon Technologies AG</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>mTera Universal Transport Platform</td>
+						<td>Infinera Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+					</tr>
+					<tr>
+						<td>Integral AES 256 Bit Crypto SSD Underlying PCB</td>
+						<td>Integral Memory Plc</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Integral Crypto AES 256 Bit USB 3.0</td>
+						<td>Integral Memory Plc</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cryptographic Module for Intel(R) Converged Security and Manageability Engine(CSME)</td>
+						<td>Intel Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cryptographic Module for Intel® Platforms' Security Engine Chipset</td>
+						<td>Intel Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Cryptographic Module for Intel® Platforms' Security Engine Chipset</td>
+						<td>Intel Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>iStorage datAshur BT</td>
+						<td>iStorage Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>iStorage datAshur PRO2 Level 3 Secure Storage Drive</td>
+						<td>iStorage Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks EX4650, QFX5120 and QFX5210 Ethernet Switches</td>
+						<td>Juniper Networks, Inc</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks SRX300, SRX320, SRX340, SRX345, SRX345-DUAL-AC, SRX550M, SRX5400, SRX5600 and SRX5800 Services Gateways</td>
+						<td>Juniper Networks, Inc</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks SRX345, SRX345-DUAL-AC, SRX380 and SRX1500 Services Gateway</td>
+						<td>Juniper Networks, Inc</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks EX2300, EX2300-C and EX3400 Ethernet Switches</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks EX4300-48MP Ethernet Switch</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks MX10003 3D Universal Edge Router with JNP-MIC1-MACSEC MACSec MIC and EX9253 Ethernet Switch with EX9253-6Q12C-M MACSec Line Card</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks MX104 3D Universal Edge Router with the Multiservices MIC</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks MX240, MX480, MX960 3D Universal Edge Routers and EX9204, EX9208, EX9214 Ethernet Switches with RE-S-X6-64G/RE-S-X6-128G/EX9200-RE2 Routing Engine and MPC7E-10G/EX9200-40XS MACsec Card</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks MX240, MX480, MX960 3D Universal Edge Routers with RE1800 Routing Engine and MPC7E-10G MACsec Card</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks MX240, MX480, MX960 3D Universal Edge Routers with RE1800 Routing Engine and Multiservices MPC</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks MX240, MX480, MX960 3D Universal Edge Routers with RE-S-X6-64G Routing Engine and Multiservices MPC</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Juniper Networks NFX250 Network Services Platform</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Junos Space Network Management Platform, Network Director & Security Director in JA2500</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Junos Space Network Management Platform, Network Director & Security Director in Virtual Appliance</td>
+						<td>Juniper Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>KIOXIA TCG Enterprise SSC Crypto Sub-Chip TC58NC1132GTC</td>
+						<td>KIOXIA Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>KIOXIA TCG OPAL SSC Crypto Sub-Chip TC58NC1132GTC</td>
+						<td>KIOXIA Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Laird Linux FIPS Core Crypto Module</td>
+						<td>Laird Connectivity</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>ESCRYPT's CycurLIB</td>
+						<td>Landis+Gyr</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>NITROXIII CNN35XX-NFBE HSM Family</td>
+						<td>Marvell</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>AEDS</td>
+						<td>Maxar Technologies</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS3100, NS3200, NS5100 and NS5200</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS3500</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS7100, NS7200 and NS7300</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS7150, NS7250 and NS7350</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS9100 and NS9200</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS9300 S</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS9300P</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Network Security Platform Sensor NS9500</td>
+						<td>McAfee, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Memkor MKD-O2F 2.5"/M.2/U.2 SSD</td>
+						<td>Memkor, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Boot Manager</td>
+						<td>Microsoft Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Windows OS Loader</td>
+						<td>Microsoft Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FIPS AP43</td>
+						<td>Mist Systems</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>µMACE</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 2</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 2</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 3</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 3</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Key Variable Loader (KVL) 4000 PIKE2</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Key Variable Loader (KVL) 5000 PIKE2</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Motorola GGM 8000 Gateway</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Motorola Network Router (MNR) S6000</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Motorola Solutions Cryptographic Firmware Module</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Motorola Solutions Cryptographic Firmware Module</td>
+						<td>Motorola Solutions, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>nShield Solo XC F2</td>
+						<td>nCipher Security Limited</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>nShield Solo XC F3 and nShield Solo XC F3 for nShield Connect XC and for nShield Issuance HSM</td>
+						<td>nCipher Security Limited</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>nShield Solo XC F3 and nShield Solo XC F3 for nShield Connect XC and for nShield Issuance HSM</td>
+						<td>nCipher Security Limited</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Nokia 1830 Photonic Service Switch (PSS)</td>
+						<td>Nokia Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>NS361/NS371/NS561 (2.5" & M.2) SSD</td>
+						<td>Novachips Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>NPCT7xx TPM 2.0 rev 1.38</td>
+						<td>Nuvoton Technology Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>FIPS SE051</td>
+						<td>NXP Semiconductors</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>i.MX 8X SECO HSM</td>
+						<td>NXP Semiconductors</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>JCOP4 P71</td>
+						<td>NXP Semiconductors</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SE050</td>
+						<td>NXP Semiconductors</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Acme Packet 4600 and Acme Packet 6300 and Acme Packet 6350</td>
+						<td>Oracle Communications</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Oracle Linux 7 GnuTLS Cryptographic Module</td>
+						<td>Oracle Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Oracle Linux Unbreakable Enterprise Kernel (UEK 5) Cryptographic Module</td>
+						<td>Oracle Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Oracle Linux Unbreakable Enterprise Kernel (UEK) Cryptographic Module</td>
+						<td>Oracle Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>GlobalProtect App</td>
+						<td>Palo Alto Networks</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Palo Alto Networks Cortex XSOAR Module</td>
+						<td>Palo Alto Networks</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Panorama 9.0 M-100, M-200, M-500 and M-600</td>
+						<td>Palo Alto Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Panorama Virtual Appliance 9.0</td>
+						<td>Palo Alto Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>PAN-OS 9.0 Firewalls PA-220, PA-220R, PA-800 Series, PA-3000 Series, PA-3200 Series, PA-5200 Series, and PA-7000 Series</td>
+						<td>Palo Alto Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>PAN-OS 9.0 VM-Series</td>
+						<td>Palo Alto Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>WildFire 9.0 WF-500</td>
+						<td>Palo Alto Networks, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Pavilion Cryptographic Module</td>
+						<td>Pavilion Data Systems</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Phison TCG OPAL SSC SSD Series</td>
+						<td>Phison Electronics Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>X4i Hardware Security Module (HSM)</td>
+						<td>Pitney Bowes, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Poly Unified Communications Cryptographic Module</td>
+						<td>Plantronics, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>PreVeil Cryptographic Module</td>
+						<td>PreVeil, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>ENFORCER R1</td>
+						<td>Private Machines Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>CMS-5000</td>
+						<td>QSC, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Quadient Postal Security Device (PSD)</td>
+						<td>Quadient Technologies France</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Qualcomm(R) Crypto Engine Core</td>
+						<td>Qualcomm Technologies, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Qualcomm(R) Secure Processing Unit (SPU)</td>
+						<td>Qualcomm Technologies, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Qualcomm(R) Trusted Execution Environment Software Cryptographic Library</td>
+						<td>Qualcomm Technologies, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Quantum Xchange FIPS Module</td>
+						<td>Quantum Xchange</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 7 Kernel Crypto API Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 7 NSS Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 7 OpenSSH Client Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 7 OpenSSH Server Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 7 OpenSSL Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 GnuTLS Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 GnuTLS Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 libgcrypt Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 NSS Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 NSS Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 OpenSSL Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Red Hat Enterprise Linux 8 OpenSSL Cryptographic Module</td>
+						<td>Red Hat(R), Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>RS9113</td>
+						<td>Redpine Signals, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SBC 5400 Session Border Controller</td>
+						<td>Ribbon Communications, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>RSA BSAFE(R) Crypto Module</td>
+						<td>RSA</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>RSA BSAFE(R) Crypto-C Micro Edition</td>
+						<td>RSA</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+					</tr>
+					<tr>
+						<td>RSA BSAFE(R) Crypto-J JSAFE and JCE Software Module 6.2.5</td>
+						<td>RSA Security LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>RSA BSAFE(R) Crypto-J JSAFE and JCE Software Module 6.2.5</td>
+						<td>RSA Security LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>R610-F Access Point, R710 Access Point, R720 Access Point, T610 Access Point, T610s Access Point, T710 Access Point, T710s Access Point, E510 Access Point</td>
+						<td>Ruckus Wireless, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ruckus Networks Virtual Smart Zone (vSZ)</td>
+						<td>Ruckus Wireless, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ruckus Networks Virtual SmartZone - Data Plane (vSZ-D)</td>
+						<td>Ruckus Wireless, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Virtual SmartZone (vSZ) WLAN Controller</td>
+						<td>Ruckus Wireless, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung BoringSSL Cryptographic Module</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung Flash Memory Protector V2.0</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung Kernel Cryptographic Module</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung NVMe TCG Opal SSC SEDs PM1733 Series</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung NVMe TCG Opal SSC SEDs PM983 Series</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung SAS 12G TCG Enterprise SSC SEDs PM1643a/PM1645a Series</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Samsung SCrypto Cryptographic Module</td>
+						<td>Samsung Electronics Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>CN Series Encryptors</td>
+						<td>Senetas Corporation Ltd., distributed by Thales SA (SafeNet)</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>CN6000 Series Encryptors</td>
+						<td>Senetas Corporation Ltd., distributed by Thales SA (SafeNet)</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Silver Peak Unity EdgeConnect EC-XS-FIPS, EC-M-P-FIPS, EC-XL-P-FIPS and EC-XL-P-NM-FIPS</td>
+						<td>Silver Peak Systems, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Kernel Crypto API Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server GnuTLS Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server Kernel Crypto API Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server libgcrypt Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server libgcrypt Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server Libica Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server NSS Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server OpenSSL Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>SUSE Linux Enterprise Server OpenSSL Cryptographic Module</td>
+						<td>SUSE, LLC</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Taglio PIV Applet v2.1 on NXP JCOP 3 SecID P60 CS (OSB)</td>
+						<td>Taglio</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Thales Luna K7 Cryptographic Module</td>
+						<td>Thales</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Vormetric Transparent Encryption Cryptographic Module</td>
+						<td>Thales</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Luna T7 Cryptographic Module</td>
+						<td>Thales Trusted Cyber Technologies</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>TippingPoint Crypto Core OpenSSL</td>
+						<td>Trend Micro Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>UD info DA-series FIPS SSD</td>
+						<td>UD info Corp.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Unisys Linux Kernel Cryptographic API Module</td>
+						<td>Unisys Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Unisys Linux strongSwan Cryptographic Module</td>
+						<td>Unisys Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Unisys OpenSSL Linux Cryptographic Module</td>
+						<td>Unisys Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Suite B Cryptographic Module</td>
+						<td>United States Special Operations Command (USSOCOM)</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>CryptoServer CSe-Series</td>
+						<td>Utimaco IS GmbH</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>CryptoServer Se-Series Gen2</td>
+						<td>Utimaco IS GmbH</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>VaultIP</td>
+						<td>Verimatrix</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Vidyo Cryptographic Security Kernel</td>
+						<td>Vidyo, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>VMware’s Linux Cryptographic Module</td>
+						<td>VMware, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>VMware's SD-WAN VPN Crypto Module</td>
+						<td>VMware, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>VMware's SD-WAN VPN Hybrid Crypto Module</td>
+						<td>VMware, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Vocera Smartbadge Cryptographic Module</td>
+						<td>Vocera Communications, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>WatchGuard Firebox M270[1], M370[2], M470[3], M570[4], M670[5]</td>
+						<td>WatchGuard Technologies, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>WatchGuard Firebox T15[1], T15-W[2], T35[3], T35-W[4], T55[5], T55-W[6], T70[7]</td>
+						<td>WatchGuard Technologies, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ultrastar® DC HC330 TCG Enterprise HDD</td>
+						<td>Western Digital Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>Ultrastar® DC SS540 TCG Enterprise SSD</td>
+						<td>Western Digital Corporation</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>YubiHSM 2 Cryptographic Module (Level 3)</td>
+						<td>Yubico, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>YubiKey 5 Cryptographic Module (Level 1)</td>
+						<td>Yubico, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>YubiKey 5 Cryptographic Module (Level 2)</td>
+						<td>Yubico, Inc.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+					<tr>
+						<td>DHSSL Cryptographic Module</td>
+						<td>Zhejiang Dahua Technology Co., Ltd.</td>
+						<td>FIPS 140-2</td>
+						<td class="mip-highlight"></td>
+						<td class=""></td>
+						<td class=""></td>
+						<td class=""></td>
+					</tr>
+		        </tbody>
+		        <tfoot id="MIPFooter">
+		            <tr>
+			            <td colspan="3">Displayed: 275</td>
+			            <td>164</td>
+			            <td>46</td>
+			            <td>62</td>
+			            <td>3</td>
+		            </tr>
+		            <tr>
+			            <td colspan="3">Not Displayed: 26</td>
+			            <td>10</td>
+			            <td>8</td>
+			            <td>7</td>
+			            <td>1</td>
+		            </tr>
+		            <tr>
+			            <td colspan="3">Total: 301</td>
+			            <td>174</td>
+			            <td>54</td>
+			            <td>69</td>
+			            <td>4</td>
+		            </tr>
+			    </tfoot>
+		    </table>
+
+    </div>
+
+</div>
+
+
+<div class="row">
+    <div class="col-md-12 historical-data-area" id="historical-data-area">
+
+            <span>Created <span id="page-created-date">October 11, 2016</span>, Updated <span id="page-updated-date">October 16, 2020</span></span>
+    </div>
+</div>
+
+
+        <div id="footer-pusher"></div>
+
+    </div>
+
+    
+
+    <footer id="footer">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <span class="hidden-xs">
+                        <a href="https://www.nist.gov" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo" id="footer-nist-logo-link">
+                            <img src="/CSRC/Media/images/logo_rev.png" alt="National Institute of Standards and Technology logo" id="footer-nist-logo" />
+                        </a>
+                    </span>
+
+                    <div class="row footer-contact-container">
+                        <div class="col-sm-12" id="footer-address">
+                            <strong>HEADQUARTERS</strong><br>
+                            100 Bureau Drive<br>
+                            Gaithersburg, MD 20899
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <ul class="social-list text-right" style="display: block;">
+                        <li class="field-item service-twitter list-horiz">
+                            <a href="https://twitter.com/NISTCyber" class="social-btn social-btn--large extlink ext" id="footer-social-twitter-link">
+                                <i class="fa fa-twitter fa-fw"><span class="element-invisible">twitter</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                            </a>
+                        </li>
+                        <li class="field-item service-facebook list-horiz">
+                            <a href="https://www.facebook.com/NIST" class="social-btn social-btn--large extlink ext" id="footer-social-facebook-link">
+                                <i class="fa fa-facebook fa-fw"><span class="element-invisible">facebook</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                            </a>
+
+                        </li>
+                        <li class="field-item service-linkedin list-horiz">
+                            <a href="https://www.linkedin.com/company/nist" class="social-btn social-btn--large extlink ext" id="footer-social-linkedin-link">
+                                <i class="fa fa-linkedin fa-fw"><span class="element-invisible">linkedin</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                            </a>
+
+                        </li>
+                        <li class="field-item service-instagram list-horiz">
+                            <a href="https://www.instagram.com/usnistgov/" class="social-btn social-btn--large extlink ext" id="footer-social-instagram-link">
+                                <i class="fa fa-instagram fa-fw"><span class="element-invisible">instagram</span></i>
+                                <span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                            </a>
+
+                        </li>
+                        <li class="field-item service-youtube list-horiz">
+                            <a href="https://www.youtube.com/user/USNISTGOV" class="social-btn social-btn--large extlink ext" id="footer-social-youtube-link">
+                                <i class="fa fa-youtube fa-fw"><span class="element-invisible">youtube</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                            </a>
+
+                        </li>
+                        <li class="field-item service-rss list-horiz">
+                            <a href="https://www.nist.gov/news-events/nist-rss-feeds" class="social-btn social-btn--large extlink" id="footer-social-rss-link">
+                                <i class="fa fa-rss fa-fw"><span class="element-invisible">rss</span></i>
+                            </a>
+
+                        </li>
+                        <li class="field-item service-govdelivery list-horiz last">
+                            <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" class="social-btn social-btn--large extlink ext" title="Subscribe to CSRC and publication updates, and other NIST cybersecurity news" id="footer-social-govdelivery-link">
+                                <i class="fa fa-envelope fa-fw"><span class="element-invisible">govdelivery</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="text-right">
+                        Want updates about CSRC and our publications?
+                        <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" class="btn btn-lg btn-info" style="background-color: #12659c!important; border-color: #12659c!important;" id="footer-subscribe-link">Subscribe</a>
+                    </p>
+                </div>
+            </div>
+            <div class="row hidden-sm hidden-md hidden-lg">
+                <div class="col-sm-12">
+                    <a href="https://www.nist.gov" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo" id="footer-bottom-nist-logo-link">
+                        <img src="/CSRC/Media/images/logo_rev.png" alt="National Institute of Standards and Technology logo" id="footer-bottom-nist-logo" />
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>
+                        <a href="mailto:webmaster-csrc@nist.gov?subject=CSRC Inquiry" id="footer-webmaster-link">Webmaster</a> |
+                        <a href="/about/contact" id="footer-contact-us-link">Contact Us</a> |
+                        <a href="https://www.nist.gov/about-nist/our-organization" style="display: inline-block;" id="footer-org-link">Our Other Offices</a>
+                    </p>
+                </div>
+            </div>
+
+            <div id="footer-nav-menu" class="row" role="navigation">
+                <div class="col-md-8 col-sm-6 col-xs-12 col-xxs-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p>
+                                <a href="/projects">PROJECTS</a>
+                            </p>
+                            <p>
+                                <a href="/publications">PUBLICATIONS</a><br />
+                                <a href="/publications/drafts-open-for-comment">Drafts for Public Comment</a><br />
+                                <a href="/publications/draft-pubs">All Public Drafts</a><br />
+                                <a href="/publications/final-pubs">Final Pubs</a><br />
+                                <a href="/publications/fips">FIPS</a><br />
+                                <a href="/publications/sp">Special Publications (SPs)</a><br />
+                                <a href="/publications/nistir">NISTIRs</a><br />
+                                <a href="/publications/itl-bulletin">ITL Bulletins</a><br />
+                                <a href="/publications/white-paper">White Papers</a><br />
+                                <a href="/publications/journal-article">Journal Articles</a><br />
+                                <a href="/publications/conference-paper">Conference Papers</a><br />
+                                <a href="/publications/book">Books</a>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p>
+                                <a href="/topics">TOPICS</a><br />
+                                <a href="/Topics/Security-and-Privacy">Security & Privacy</a><br />
+                                <a href="/Topics/Applications">Applications</a><br />
+                                <a href="/Topics/Technologies">Technologies</a><br />
+                                <a href="/Topics/Sectors">Sectors</a><br />
+                                <a href="/Topics/Laws-and-Regulations">Laws & Regulations</a><br />
+                                <a href="/Topics/Activities-and-Products">Activities & Products</a>
+                            </p>
+                            <p>
+                                <a href="/news">NEWS & UPDATES</a>
+                            </p>
+                            <p>
+                                <a href="/events">EVENTS</a>
+                            </p>
+                            <p>
+                                <a href="/glossary">GLOSSARY</a>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p>
+                                <a href="/about">ABOUT CSRC</a><br />
+                                <a href="/about">Computer Security Division</a><br />
+                                <a href="/about">Applied Cybersecurity Division</a><br />
+                                <a href="/contact">Contact Us</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6 col-xs-12 col-xxs-12">
+                    <span class="pull-right text-right">
+                        <p><strong id="footer-info-itl">Information Technology Laboratory<span class="hidden-xs"> (ITL)</span></strong></p>
+                        <strong id="footer-info-csd">Computer Security Division<span class="hidden-xs"> (CSD)</span></strong><br />
+                        <span id="footer-info-csd-phone">TEL: 301.975.8443</span><br />
+                        <strong id="footer-info-acd">Applied Cybersecurity Division<span class="hidden-xs"> (ACD)</span></strong>
+                        <br /><br /><br />
+                        Contact CSRC Webmaster: <a href="mailto:webmaster-csrc@nist.gov?subject=CSRC Inquiry" style="display: inline-block;" id="footer-info-webmaster-link">webmaster-csrc@nist.gov</a>
+                    </span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12 footer-bottom-links-container" id="footer-bottom-links-container">
+                    <p>
+                        <a target="_blank" href="https://www.nist.gov/privacy-policy">Privacy Statement</a> |
+                        <a target="_blank" href="https://www.nist.gov/privacy-policy#privpolicy">Privacy Policy</a> |
+                        <a target="_blank" href="https://www.nist.gov/privacy-policy#secnot">Security Notice</a> |
+                        <a target="_blank" href="https://www.nist.gov/privacy-policy#accesstate">Accessibility Statement</a> |
+                        <a target="_blank" href="https://www.nist.gov/privacy">NIST Privacy Program</a> |
+                        <a target="_blank" href="https://www.nist.gov/no-fear-act-policy">No Fear Act Policy</a>
+                    </p>
+                    <p>
+                        <a target="_blank" href="https://www.nist.gov/disclaimer">Disclaimer</a> |
+                        <a target="_blank" href="https://www.nist.gov/office-director/freedom-information-act">FOIA</a> |
+                        <a target="_blank" href="https://www.nist.gov/environmental-policy-statement">Environmental Policy Statement</a> |
+                        <a target="_blank" href="https://www.nist.gov/privacy-policy#cookie">Cookie Disclaimer</a> |
+                        <a target="_blank" href="https://www.nist.gov/summary-report-scientific-integrity">Scientific Integrity Summary</a> |
+                        <a target="_blank" href="https://www.nist.gov/nist-information-quality-standards">NIST Information Quality Standards</a>
+                    </p>
+                    <p>
+                        <a target="_blank" href="https://www.usa.gov/business">Business USA</a> |
+                        <a target="_blank" href="https://www.commerce.gov/">Commerce.gov</a> |
+                        <a target="_blank" href="https://www.healthcare.gov/">Healthcare.gov</a> |
+                        <a target="_blank" href="http://www.science.gov/">Science.gov</a> |
+                        <a target="_blank" href="http://www.usa.gov/">USA.gov</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="/dist/app.bundle.js"></script>
+    <script async type="text/javascript" src="/dist/mathjax/MathJax.js?config=TeX-AMS_HTML"></script>
+
+    
+<script type="text/javascript" src="/dist/cmvp/search.js"></script>
+
+
+    </body>
+</html>

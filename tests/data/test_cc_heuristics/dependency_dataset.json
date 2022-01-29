@@ -325,7 +325,6 @@
                     "10.1.5"
                 ],
                 "cpe_matches": null,
-                "labeled": false,
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": [
@@ -676,7 +675,6 @@
                     "9.1.6"
                 ],
                 "cpe_matches": null,
-                "labeled": false,
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": [
@@ -1028,7 +1026,6 @@
                     "8.1.10"
                 ],
                 "cpe_matches": null,
-                "labeled": false,
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": [

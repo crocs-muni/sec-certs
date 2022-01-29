@@ -5,7 +5,7 @@ from typing import ClassVar, Dict, List, Optional, Tuple
 
 from dateutil.parser import isoparse
 
-from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -16,8 +16,10 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     class Impact(ComplexSerializableType):
         base_score: float
         severity: str
-        explotability_score: float
+        exploitability_score: float
         impact_score: float
+
+        __slots__ = ["base_score", "severity", "exploitability_score", "impact_score"]
 
         @classmethod
         def from_nist_dict(cls, dct: Dict):
@@ -46,6 +48,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     impact: Impact
     published_date: Optional[datetime.datetime]
 
+    __slots__ = ["cve_id", "vulnerable_cpes", "impact", "published_date"]
+
     pandas_columns: ClassVar[List[str]] = [
         "cve_id",
         "vulnerable_cpes",
@@ -57,6 +61,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     ]
 
     def __init__(self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str):
+        super().__init__()
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
         self.impact = impact
@@ -87,10 +92,41 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             self.vulnerable_cpes,
             self.impact.base_score,
             self.impact.severity,
-            self.impact.explotability_score,
+            self.impact.exploitability_score,
             self.impact.impact_score,
             self.published_date,
         )
+
+    def to_dict(self):
+        return {
+            "cve_id": self.cve_id,
+            "vulnerable_cpes": self.vulnerable_cpes,
+            "impact": self.impact,
+            "published_date": self.published_date.isoformat(),
+        }
+
+    @staticmethod
+    def _parse_nist_dict(lst: List, cpe_uris: List):
+        for x in lst:
+            if x["vulnerable"]:
+                cpe_uri = x["cpe23Uri"]
+                version_start: Optional[Tuple[str, str]]
+                version_end: Optional[Tuple[str, str]]
+                if "versionStartIncluding" in x and x["versionStartIncluding"]:
+                    version_start = ("including", x["versionStartIncluding"])
+                elif "versionStartExcluding" in x and x["versionStartExcluding"]:
+                    version_start = ("excluding", x["versionStartExcluding"])
+                else:
+                    version_start = None
+
+                if "versionEndIncluding" in x and x["versionEndIncluding"]:
+                    version_end = ("including", x["versionEndIncluding"])
+                elif "versionEndExcluding" in x and x["versionEndExcluding"]:
+                    version_end = ("excluding", x["versionEndExcluding"])
+                else:
+                    version_end = None
+
+                cpe_uris.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
 
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> "CVE":
@@ -104,28 +140,12 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                 if "children" in node:
                     for child in node["children"]:
                         cpe_uris += get_vulnerable_cpes_from_node(child)
-                if "cpe_match" in node:
-                    lst = node["cpe_match"]
-                    for x in lst:
-                        if x["vulnerable"]:
-                            cpe_uri = x["cpe23Uri"]
-                            version_start: Optional[Tuple[str, str]]
-                            version_end: Optional[Tuple[str, str]]
-                            if "versionStartIncluding" in x and x["versionStartIncluding"]:
-                                version_start = ("including", x["versionStartIncluding"])
-                            elif "versionStartExcluding" in x and x["versionStartExcluding"]:
-                                version_start = ("excluding", x["versionStartExcluding"])
-                            else:
-                                version_start = None
 
-                            if "versionEndIncluding" in x and x["versionEndIncluding"]:
-                                version_end = ("including", x["versionEndIncluding"])
-                            elif "versionEndExcluding" in x and x["versionEndExcluding"]:
-                                version_end = ("excluding", x["versionEndExcluding"])
-                            else:
-                                version_end = None
+                if "cpe_match" not in node:
+                    return cpe_uris
 
-                            cpe_uris.append(CPE(cpe_uri, start_version=version_start, end_version=version_end))
+                lst = node["cpe_match"]
+                CVE._parse_nist_dict(lst, cpe_uris)
 
                 return cpe_uris
 

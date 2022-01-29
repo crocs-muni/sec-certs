@@ -11,7 +11,7 @@ import pandas as pd
 
 import sec_certs.helpers as helpers
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 
 logger = logging.getLogger(__name__)
@@ -105,7 +105,7 @@ class CPEDataset(ComplexSerializableType):
                 )
             cpe_uri = found_cpe_uri.attrib["name"]
 
-            dct[cpe_uri] = CPE(cpe_uri, title)
+            dct[cpe_uri] = cached_cpe(cpe_uri, title)
         return cls(False, Path(json_path), dct)
 
     @classmethod

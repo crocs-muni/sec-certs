@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
+from typing import ClassVar, Dict, List, Match, Optional, Pattern, Set, Tuple, Union
 
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -16,7 +16,7 @@ from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.helpers import load_cert_file, normalize_match_string, save_modified_cert_file
+from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.cpe import CPE
@@ -61,11 +61,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         fragment_dir: Optional[Union[str, Path]],
     ):
         if sp_dir is not None:
-            self.state.sp_path = (Path(sp_dir) / (self.dgst)).with_suffix(".pdf")
+            self.state.sp_path = (Path(sp_dir) / (str(self.cert_id))).with_suffix(".pdf")
         if html_dir is not None:
-            self.state.html_path = (Path(html_dir) / (self.dgst)).with_suffix(".html")
+            self.state.html_path = (Path(html_dir) / (str(self.cert_id))).with_suffix(".html")
         if fragment_dir is not None:
-            self.state.fragment_path = (Path(fragment_dir) / (self.dgst)).with_suffix(".txt")
+            self.state.fragment_path = (Path(fragment_dir) / (str(self.cert_id))).with_suffix(".txt")
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
@@ -92,8 +92,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         module_name: Optional[str]
         standard: Optional[str]
         status: Optional[str]
-        date_sunset: Optional[Union[str, datetime]]
-        date_validation: Optional[List[Union[str, datetime]]]
+        date_sunset: Optional[datetime]
+        date_validation: Optional[List[datetime]]
         level: Optional[str]
         caveat: Optional[str]
         exceptions: Optional[List[str]]
@@ -117,12 +117,6 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         sw_versions: Optional[str]
         product_url: Optional[str]
         connections: List[str]
-
-        def __post_init__(self):
-            self.date_validation = (
-                [parser.parse(x).date() for x in self.date_validation] if self.date_validation else None
-            )
-            self.date_sunset = parser.parse(self.date_sunset).date() if self.date_sunset else None
 
         @property
         def dgst(self):
@@ -193,7 +187,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @property
     def dgst(self) -> str:
-        return self.cert_id
+        return fips_dgst(self.cert_id)
 
     @property
     def label_studio_title(self):
@@ -219,7 +213,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     def __init__(
         self,
-        cert_id: str,
+        cert_id: int,
         web_scan: "FIPSCertificate.WebScan",
         pdf_scan: "FIPSCertificate.PdfScan",
         heuristics: "FIPSCertificate.FIPSHeuristics",
@@ -231,6 +225,17 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         self.pdf_scan = pdf_scan
         self.heuristics = heuristics
         self.state = state
+
+    @classmethod
+    def from_dict(cls, dct: Dict) -> "FIPSCertificate":
+        new_dct = dct.copy()
+
+        if new_dct["web_scan"].date_validation:
+            new_dct["web_scan"].date_validation = [parser.parse(x).date() for x in new_dct["web_scan"].date_validation]
+
+        if new_dct["web_scan"].date_sunset:
+            new_dct["web_scan"].date_sunset = parser.parse(new_dct["web_scan"].date_sunset).date()
+        return super(cls, FIPSCertificate).from_dict(new_dct)
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
@@ -251,7 +256,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             "level": None,
             "caveat": None,
             "exceptions": None,
-            "type": None,
+            "module_type": None,
             "embodiment": None,
             "tested_conf": None,
             "description": None,
@@ -345,8 +350,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         )
 
         if title in pairs:
-            if "date_validation" == pairs[title]:
-                html_items_found[pairs[title]] = [x for x in content.split(";")]
+            if "date_sunset" == pairs[title]:
+                html_items_found[pairs[title]] = parser.parse(content).date()
 
             elif "caveat" in pairs[title]:
                 html_items_found[pairs[title]] = content
@@ -407,8 +412,14 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
     @staticmethod
     def normalize(items: Dict):
-        items["type"] = items["type"].lower().replace("-", " ").title()
+        items["module_type"] = items["module_type"].lower().replace("-", " ").title()
         items["embodiment"] = items["embodiment"].lower().replace("-", " ").replace("stand alone", "standalone").title()
+
+    @staticmethod
+    def parse_validation_dates(current_div: Tag, html_items_found: Dict):
+        table = current_div.find("table")
+        rows = table.find("tbody").findAll("tr")
+        html_items_found["date_validation"] = [parser.parse(td.text).date() for td in [row.find("td") for row in rows]]
 
     @classmethod
     def html_from_file(
@@ -423,7 +434,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             "Overall Level": "level",
             "Caveat": "caveat",
             "Security Level Exceptions": "exceptions",
-            "Module Type": "type",
+            "Module Type": "module_type",
             "Embodiment": "embodiment",
             "FIPS Algorithms": "algorithms",
             "Allowed Algorithms": "algorithms",
@@ -440,7 +451,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         }
         if not initialized:
             items_found = FIPSCertificate.initialize_dictionary()
-            items_found["cert_id"] = file.stem
+            items_found["cert_id"] = int(file.stem)
         else:
             items_found = initialized.web_scan.__dict__
             items_found["cert_id"] = initialized.cert_id
@@ -454,7 +465,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
         if redo:
             items_found = FIPSCertificate.initialize_dictionary()
-            items_found["cert_id"] = file.stem
+            items_found["cert_id"] = int(file.stem)
 
         text = helpers.load_cert_html_file(file)
         soup = BeautifulSoup(text, "html.parser")
@@ -470,6 +481,9 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
 
             if div.find("h4", class_="panel-title").text == "Related Files":
                 FIPSCertificate.parse_related_files(div, items_found)
+
+            if div.find("h4", class_="panel-title").text == "Validation History":
+                FIPSCertificate.parse_validation_dates(div, items_found)
 
         FIPSCertificate.normalize(items_found)
 
@@ -521,7 +535,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         if not cert.state.txt_state:
             exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ["-raw"])
             if exit_code != constants.RETURNCODE_OK:
-                logger.error(f"Cert dgst: {cert.dgst} failed to convert security policy pdf->txt")
+                logger.error(f"Cert dgst: {cert.cert_id} failed to convert security policy pdf->txt")
                 cert.state.txt_state = False
             else:
                 cert.state.txt_state = True
@@ -583,7 +597,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         not_found = []
 
         if cert.web_scan.algorithms is None:
-            raise RuntimeError(f"Algorithms were not found for cert {cert.dgst} - this should not be happening.")
+            raise RuntimeError(f"Algorithms were not found for cert {cert.cert_id} - this should not be happening.")
 
         for alg_list in [a["Certificate"] for a in cert.web_scan.algorithms]:
             for web_alg in alg_list:
@@ -597,6 +611,49 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         for match in pat.finditer(text_to_parse):
             text_to_parse = text_to_parse.replace(match.group(), "x" * len(match.group()))
         return text_to_parse
+
+    @staticmethod
+    def _highlight_matches(items_found_all: Dict, whole_text_with_newlines: str):
+        all_matches = []
+        for rule_group in items_found_all.keys():
+            items_found = items_found_all[rule_group]
+            for rule in items_found.keys():
+                for match in items_found[rule]:
+                    all_matches.append(match)
+
+            # if AES string is removed before AES-128, -128 would be left in text => sort by length first
+            # sort before replacement based on the length of match
+            all_matches.sort(key=len, reverse=True)
+            for match in all_matches:
+                whole_text_with_newlines = whole_text_with_newlines.replace(match, "x" * len(match))
+
+        return whole_text_with_newlines
+
+    @staticmethod
+    def _process_match(rule: Pattern, items_found: Dict, rule_str: str, m: Match[str]):
+        # insert rule if at least one match for it was found
+        if rule not in items_found:
+            items_found[rule_str] = {}
+
+        match = m.group()
+        match = normalize_match_string(match)
+
+        MAX_ALLOWED_MATCH_LENGTH = 300
+        match_len = len(match)
+        if match_len > MAX_ALLOWED_MATCH_LENGTH:
+            logger.warning("Excessive match with length of {} detected for rule {}".format(match_len, rule))
+
+        if match not in items_found[rule_str]:
+            items_found[rule_str][match] = {}
+            items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
+            if constants.APPEND_DETAILED_MATCH_MATCHES:
+                items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
+
+        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
+        match_span = m.span()
+
+        if constants.APPEND_DETAILED_MATCH_MATCHES:
+            items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
 
     @staticmethod
     def parse_cert_file_common(
@@ -620,48 +677,11 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                     rule_and_sep = rule + REGEXEC_SEP
 
                 for m in re.finditer(rule_and_sep, text_to_parse):
-                    # insert rule if at least one match for it was found
-                    if rule not in items_found:
-                        items_found[rule_str] = {}
-
-                    match = m.group()
-                    match = normalize_match_string(match)
-
-                    MAX_ALLOWED_MATCH_LENGTH = 300
-                    match_len = len(match)
-                    if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                        logger.warning("Excessive match with length of {} detected for rule {}".format(match_len, rule))
-
-                    if match not in items_found[rule_str]:
-                        items_found[rule_str][match] = {}
-                        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
-                        if constants.APPEND_DETAILED_MATCH_MATCHES:
-                            items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
-                        # else:
-                        #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
-
-                    items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
-                    match_span = m.span()
-                    # estimate line in original text file
-                    # line_number = get_line_number(lines, line_length_compensation, match_span[0])
-                    # start index, end index, line number
-                    # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
-                    if constants.APPEND_DETAILED_MATCH_MATCHES:
-                        items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
+                    FIPSCertificate._process_match(rule, items_found, rule_str, m)
 
         # highlight all found strings (by xxxxx) from the input text and store the rest
-        all_matches = []
-        for rule_group in items_found_all.keys():
-            items_found = items_found_all[rule_group]
-            for rule in items_found.keys():
-                for match in items_found[rule]:
-                    all_matches.append(match)
 
-            # if AES string is removed before AES-128, -128 would be left in text => sort by length first
-            # sort before replacement based on the length of match
-            all_matches.sort(key=len, reverse=True)
-            for match in all_matches:
-                whole_text_with_newlines = whole_text_with_newlines.replace(match, "x" * len(match))
+        whole_text_with_newlines = FIPSCertificate._highlight_matches(items_found_all, whole_text_with_newlines)
 
         return items_found_all, whole_text_with_newlines
 
@@ -744,11 +764,28 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
         result: Set[str] = set()
 
         if self.web_scan.algorithms is None:
-            raise RuntimeError(f"Algorithms were not found for cert {self.dgst} - this should not be happening.")
+            raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
 
         for alg in self.web_scan.algorithms:
             result.update(cert for cert in alg["Certificate"])
         return result
+
+    def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set):
+        for alg in self.heuristics.keywords["rules_fips_algorithms"]:
+            for found in self.heuristics.keywords["rules_fips_algorithms"][alg]:
+                match_in_found = reg_to_match.search(found)
+                match_in_cert = reg_to_match.search(cert)
+                if (
+                    match_in_found is not None
+                    and match_in_cert is not None
+                    and match_in_found.group("id") == match_in_cert.group("id")
+                ):
+                    to_pop.add(cert)
+
+        for alg_cert in self.heuristics.algorithms:
+            for cert_no in alg_cert["Certificate"]:
+                if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
+                    to_pop.add(cert)
 
     def remove_algorithms(self):
         self.state.file_status = True
@@ -770,19 +807,8 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 if cert in alg_set:
                     to_pop.add(cert)
                     continue
-                for alg in self.heuristics.keywords["rules_fips_algorithms"]:
-                    for found in self.heuristics.keywords["rules_fips_algorithms"][alg]:
-                        if (
-                            rr.search(found)
-                            and rr.search(cert)
-                            and rr.search(found).group("id") == rr.search(cert).group("id")
-                        ):
-                            to_pop.add(cert)
+                self._process_to_pop(rr, cert, to_pop)
 
-                for alg_cert in self.heuristics.algorithms:
-                    for cert_no in alg_cert["Certificate"]:
-                        if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
-                            to_pop.add(cert)
             for r in to_pop:
                 self.heuristics.keywords["rules_cert_id"][rule].pop(r, None)
 
@@ -808,7 +834,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
     # TODO: This function is probably safe to delete // I'll not type it then - older API probably?
     def compute_heuristics_cpe_vendors(self, cpe_dataset: CPEDataset):
         if self.web_scan.vendor is None:
-            raise RuntimeError(f"Vendor for cert {self.dgst} not found - this should not be happening.")
+            raise RuntimeError(f"Vendor for cert {self.cert_id} not found - this should not be happening.")
         self.heuristics.cpe_candidate_vendors = cpe_dataset.get_candidate_list_of_vendors(self.web_scan.vendor)  # type: ignore
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):

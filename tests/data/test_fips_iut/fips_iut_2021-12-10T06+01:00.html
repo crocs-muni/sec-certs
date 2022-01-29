@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en-us" xml:lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <title>Cryptographic Module Validation Program | CSRC</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="content-style-type" content="text/css" />
+    <meta http-equiv="content-script-type" content="text/javascript" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="msapplication-config" content="/CSRC/Media/images/favicons/browserconfig.xml" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="google-site-verification" content="xbrnrVYDgLD-Bd64xHLCt4XsPXzUhQ-4lGMj4TdUUTA" />
+    
+
+		<meta name="description" content="The IUT list is provided as a marketing service for vendors who have a viable contract with an accredited laboratory for the testing of a cryptographic module. The CMVP does not have detailed information about the specific cryptographic module or when the..." />
+
+	<!-- dcterms meta information -->
+	<meta name="dcterms.title" content="Implementation Under Test List - Cryptographic Module Validation Program | CSRC | CSRC" />
+	<meta name="dcterms.description" content="The IUT list is provided as a marketing service for vendors who have a viable contract with an accredited laboratory for the testing of a cryptographic module. The CMVP does not have detailed information about the specific cryptographic module or when the..." />
+	<meta name="dcterms.creator" content="Computer Security Division, Information Technology Laboratory, National Institute of Standards and Technology, U.S. Department of Commerce" />
+	<meta name="dcterms.date.created" scheme="ISO8601" content="2016-10-11" />
+	<meta name="dcterms.date.reviewed" scheme="ISO8601" content="2021-12-06" />
+	<meta name="dcterms.language" scheme="DCTERMS.RFC1766" content="EN-US" />
+
+	<!-- Facebook OpenGraph Tags -->
+	<meta name="og:site_name" content="CSRC | NIST" />
+	<meta name="og:type" content="article" />
+	<meta name="og:url" content="https://content.csrc.e1c.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/IUT-List" />
+	<meta name="og:title" content="Implementation Under Test List - Cryptographic Module Validation Program | CSRC | CSRC" />
+	<meta name="og:description" content="The IUT list is provided as a marketing service for vendors who have a viable contract with an accredited laboratory for the testing of a cryptographic module. The CMVP does not have detailed information about the specific cryptographic module or when the test report will be submitted to the CMVP for validation. When the lab submits the test report to the CMVP, the module will transition from the IUT list to the MIP list. If you would like more information about a specific cryptographic module or its schedule, please contact the vendor. &#160;" />
+
+	<meta name="article:tag" content="cryptography; testing &amp; validation; hardware; software &amp; firmware" />
+	<meta name="article:published_time" content="2016-10-11" />
+		<meta name="article:modified_time" content="2021-12-06" />
+	<meta name="og:image" content="https://csrc.nist.gov/CSRC/media/images/CSRC-logo-open-graph.png" />
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/images/icons/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/images/icons/favicon-16x16.png" sizes="16x16" />
+    <link rel="manifest" href="/images/icons/manifest.json" />
+    <link rel="mask-icon" href="/images/icons/safari-pinned-tab.svg" color="#000000" />
+    <link href="/CSRC/Media/images/favicons/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
+    <link href="/CSRC/Media/images/favicons/favicon.ico" type="image/x-icon" rel="icon"/>
+    <!-- <link href="/dist/katex/katex.min.css" rel="stylesheet"/> -->
+    <link href="/dist/app.css" rel="stylesheet"/>
+
+    <!-- reCAPTCHA v3 -->
+    <style>
+    .grecaptcha-badge { 
+        visibility: hidden;
+    }
+    </style>
+
+    
+	<style type="text/css">
+		#IUTFooter tr td {
+			font-weight: bold;
+			text-align: right;
+		}
+	</style>
+
+
+    <script async type="text/javascript" id="_fed_an_ua_tag" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=nist&subagency=csrc&pua=UA-66610693-15&yt=true&exts=xsd,xml,wav,mpg,mpeg,avi,rtf,webm,ogg,ogv,oga,map,otf,eot,svg,ttf,woff"></script>
+    <style id="antiClickjack">
+        body > * {
+            display: none !important;
+        }
+        #antiClickjack {
+            display: block !important;
+        }
+    </style>
+    <noscript>
+        <style id="antiClickjackNoScript">
+            body > * { display: block !important; }
+            #antiClickjack {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+    <script type="text/javascript" id="antiClickjackScript">
+        if (self === top) {
+            // no clickjacking
+            var antiClickjack = document.getElementById("antiClickjack"); antiClickjack.parentNode.removeChild(antiClickjack);
+        } else {
+            setTimeout(tryForward(), 5000);
+        }
+        function tryForward() {
+            top.location = self.location;
+        }
+    </script>
+</head>
+<body>
+    <div id="antiClickjack" style="display: none;">
+        <strong style="font-size: 1.6rem;">You are viewing this page in an unauthorized frame window.</strong>
+        <p>This is a potential security issue, you are being redirected to <a href="https://csrc.nist.gov">https://csrc.nist.gov</a>.</p>
+    </div>
+
+    <section class="usa-banner" aria-label="Official government website">
+    <div class="usa-accordion container">
+        <header class="usa-banner__header">
+            <noscript>
+                <p style="font-size: 0.85rem; font-weight: bold;">You have JavaScript disabled. This site requires JavaScript to be enabled for complete site functionality.</p>
+            </noscript>
+            <img class="usa-banner__header-flag" src="/images/usbanner/us_flag_small.png" alt="U.S. flag">
+            &nbsp;
+            <span class="usa-banner__header-text">An official website of the United States government</span>
+
+            <button id="gov-banner-button" class="usa-accordion__button usa-banner__button" data-toggle="collapse" data-target="#gov-banner" aria-expanded="true" aria-controls="gov-banner">
+                <span class="usa-banner__button-text">Here's how you know</span>
+            </button>
+        </header>
+        <div class="usa-banner__content usa-accordion__content collapse in" role="tabpanel" id="gov-banner" aria-expanded="true">
+            <div class="row">
+                <div class="col-md-5 col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-3">
+                            <img class="usa-banner__icon usa-media-block__img" src="/images/usbanner/icon-dot-gov.svg" alt="Dot gov">
+                        </div>
+                        <div class="col-sm-10 col-xs-9">
+                            <p>
+                                <strong>Official websites use .gov</strong>
+                                <br>
+                                A <strong>.gov</strong> website belongs to an official government organization in the United States.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-3">
+                            <img class="usa-banner__icon usa-media-block__img" src="/images/usbanner/icon-https.svg" alt="Https">
+                        </div>
+                        <div class="col-sm-10 col-xs-9">
+                        <p>
+                            <strong>Secure .gov websites use HTTPS</strong>
+                            <br>
+                            A <strong>lock</strong> (<img class="usa-banner__lock" src="/images/usbanner/lock.svg" alt="Dot gov">) or <strong>https://</strong> means you've safely connected to the .gov website. Share sensitive information only on official, secure websites.
+                        </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <nav id="navbar" class="navbar">
+    <div id="nist-menu-container" class="container">
+        <div class="row">
+            <!-- Brand -->
+            <div class="col-xs-6 col-md-4 navbar-header">
+                <a class="navbar-brand" href="https://www.nist.gov" target="_blank" id="navbar-brand-image">
+                    <img src="/CSRC/media/images/svg/nist-logo.svg" alt="National Institute of Standards and Technology" width="110" height="30">
+                </a>
+            </div>
+            <div class="col-xs-6 col-md-8 navbar-nist-logo">
+                <div class="form-inline hidden-sm hidden-xs">
+                    <form name="site-search" id="site-search-form" action="/search" method="GET">
+                        <label for="search-csrc-query" class="element-invisible">Search</label>
+                        <input autocomplete="off" class="form-control" id="search-csrc-query" name="keywords" type="text" size="15" maxlength="128" placeholder="Search CSRC" />
+                        <input type="hidden" name="ipp" value="25" />
+                        <input type="hidden" name="sortBy" value="relevance" />
+                        <input type="hidden" name="showOnly" value="publications,projects,news,events,presentations,glossary,topics" />
+                        <input type="hidden" name="topicsMatch" value="ANY" />
+                        <input type="hidden" name="status" value="Final,Draft" />
+                        <input type="hidden" name="series" value="FIPS,SP,NISTIR,ITL Bulletin,White Paper,Building Block,Use Case,Journal Article,Conference Paper,Book" />
+                        <button type="submit" id="search-csrc-submit-btn" class="form-submit">
+                            <span class="element-invisible">Search</span>
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <span id="nvd-menu-button" class="pull-right">
+                    <a href="#" id="nvd-menu-button-link">
+                        <span class="fa fa-bars"></span>
+                        <span id="nvd-menu-full-text">CSRC MENU</span>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-inline hidden-md hidden-lg">
+        <form name="site-search-mobile" id="site-search-form-mobile" action="/search" method="GET">
+            <label for="search-csrc-query" class="element-invisible">Search</label>
+            <input autocomplete="off" class="form-control" id="search-csrc-query-mobile" name="keywords" type="text" size="15" maxlength="128" placeholder="Search CSRC" />
+            <button type="submit" id="search-csrc-submit-btn-mobile" class="form-submit">
+                <span class="element-invisible">Search</span>
+                <i class="fa fa-search"></i>
+            </button>
+        </form>
+    </div>
+    <div class="main-menu-row container">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="main-menu-drop" class="col-lg-12" style="display: none;">
+            <ul>
+                <li><a href="/projects">Projects</a></li>
+                <li>
+                    <a href="/publications">
+                        Publications
+                        <span class="expander fa fa-plus" id="main-menu-pubs-expander" data-expander-name="publications" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="publications" id="main-menu-pubs-expanded">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="/publications/drafts-open-for-comment">Drafts for Public Comment</a></p>
+                                <p><a href="/publications/draft-pubs">All Public Drafts</a></p>
+                                <p><a href="/publications/final-pubs">Final Pubs</a></p>
+                                <p><a href="/publications/fips">FIPS</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/publications/sp">Special Publications (SP<small>s</small>)</a></p>
+                                <p><a href="/publications/nistir">NISTIR<small>s</small></a></p>
+                                <p><a href="/publications/itl-bulletin">ITL Bulletins</a></p>
+                                <p><a href="/publications/white-paper">White Papers</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/publications/journal-article">Journal Articles</a></p>
+                                <p><a href="/publications/conference-paper">Conference Papers</a></p>
+                                <p><a href="/publications/book">Books</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <a href="/topics">
+                        Topics
+                        <span class="expander fa fa-plus" id="main-menu-topics-expander" data-expander-name="topics" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="topics" id="main-menu-topics-expanded">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="/Topics/Security-and-Privacy">Security & Privacy</a></p>
+                                <p><a href="/Topics/Applications">Applications</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/Topics/Technologies">Technologies</a></p>
+                                <p><a href="/Topics/Sectors">Sectors</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/Topics/Laws-and-Regulations">Laws & Regulations</a></p>
+                                <p><a href="/Topics/Activities-and-Products">Activities & Products</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="/news">News & Updates</a></li>
+                <li><a href="/events">Events</a></li>
+                <li><a href="/glossary">Glossary</a></li>
+                <li>
+                    <a href="/about">
+                        About CSRC
+                        <span class="expander fa fa-plus" id="main-menu-about-expander" data-expander-name="about" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="about" id="main-menu-about-expanded">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <p>
+                                    <strong><a href="/Groups/Computer-Security-Division">Computer Security Division</a></strong><br />
+                                    <ul>
+                                        <li><a href="/Groups/Computer-Security-Division/Cryptographic-Technology">Cryptographic Technology</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Secure-Systems-and-Applications">Secure Systems and Applications</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Security-Components-and-Mechanisms">Security Components and Mechanisms</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Security-Engineering-and-Risk-Management">Security Engineering and Risk Management</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Security-Testing-Validation-and-Measurement">Security Testing, Validation, and Measurement</a></li>
+                                    </ul>
+                                </p>
+                            </div>
+                            <div class="col-lg-6">
+                                <p>
+                                    <strong><a href="/Groups/Applied-Cybersecurity-Division">Applied Cybersecurity Division</a></strong><br />
+                                    <ul>
+                                        <li><a href="/Groups/Applied-Cybersecurity-Division/Cybersecurity-and-Privacy-Applications">Cybersecurity and Privacy Applications</a></li>
+                                        <li><a href="/Groups/Applied-Cybersecurity-Division/National-Cybersecurity-Center-of-Excellence">National Cybersecurity Center of Excellence (NCCoE)</a></li>
+                                        <li><a href="https://www.nist.gov/nice/">National Initiative for Cybersecurity Education (NICE)</a></li>
+                                    </ul>
+                                </p>
+                                <p>
+                                    <a href="/contact">
+                                        Contact Us
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div><!-- /#mobile-nav-container -->
+    </div>
+
+</nav>
+
+    <section id="itl-header" class="has-menu">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-md-8">
+                    <h2 class="hidden-xs hidden-sm">
+                        <a href="https://www.nist.gov/itl" target="_blank" id="itl-header-link">Information Technology Laboratory</a>
+                    </h2>
+                    <h1 class="hidden-xs hidden-sm">
+                        <a href="/" id="csrc-header-link-lg">Computer Security Resource Center</a>
+                    </h1>
+                    <h1 class="hidden-xs text-center hidden-md hidden-lg" id="csrc-header-link-md">Computer Security Resource Center</h1>
+                </div>
+                <div class="col-sm-12 col-md-4">
+                    <a id="logo-csrc" href="/" style="width: 100%; text-align: center; display: block; margin-top: 1rem;"><img id="img-logo-csrc" src="/CSRC/Media/images/CSRC-white-134-38.png" alt="CSRC Logo" class="csrc-header-logo"></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="body-section" class="container">
+        
+        
+
+
+
+<ol class="breadcrumb">
+        <a href="/projects" class="breadcrumb-link">Projects</a>
+        <a href="/projects/cryptographic-module-validation-program" class="breadcrumb-link">Cryptographic Module Validation Program</a>
+        <a href="/projects/cryptographic-module-validation-program/modules-in-process" class="breadcrumb-link">Modules In Process</a>
+</ol>
+
+
+	<h1 id="projectName">Cryptographic Module Validation Program <small id="project-acronym">CMVP</small></h1>
+
+<div class="page-social-buttons" id=&quot;news-social-buttons&quot;>
+    <a href="#" class="social-facebook"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></a>
+    <a href="#" class="social-twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></a>
+</div>
+
+
+
+<div class="row visible-sm visible-xs visible-md">
+	<div class="col-sm-12">
+        <div class="bs-callout bs-callout-subnav" id="projectLinksContainer-sm">
+            <h4><i class="fa fa-link"></i> Project Links</h4>
+            <div class="project-icons-container">
+                <span>
+                    <a href="/projects/cryptographic-module-validation-program" id="NavOverviewLink-sm">
+                        <i class="fa fa-info-circle"></i> Overview
+                    </a>
+                </span>
+                                <span>
+                    <a href="/Projects/cryptographic-module-validation-program/news" id="NavNewsLink-sm" data-count="2">
+                        <i class="fa fa-newspaper-o"></i> News &amp; Updates
+                    </a>
+                </span>
+                                                <span>
+                    <a href="/Projects/cryptographic-module-validation-program/publications" id="NavPubsLink-sm" data-count="10">
+                        <i class="fa fa-file-text"></i> Publications
+                    </a>
+                </span>
+                            </div>
+        </div>
+	</div>
+</div>
+
+
+<div class="row">
+
+	<div class="col-lg-8 col-sm-12">
+
+		<h3 id="pageName">Implementation Under Test List</h3>
+
+
+		<p id="content">
+			The IUT list is provided as a marketing service for vendors who have a viable contract with an accredited laboratory for the testing of a cryptographic module. The CMVP does not have detailed information about the specific cryptographic module or when the test report will be submitted to the CMVP for validation. When the lab submits the test report to the CMVP, the module will transition from the IUT list to the MIP list. If you would like more information about a specific cryptographic module or its schedule, please contact the vendor.<br>
+&nbsp;
+		</p>
+
+			<p>
+				Last Updated: 12/9/2021
+			</p>
+			<table class="table table-striped table-condensed publications-table table-bordered">
+				<thead>
+					<tr>
+						<th class="text-center">Module Name</th>
+						<th class="text-center">Vendor Name</th>
+						<th class="text-center">Standard</th>
+						<th class="text-center fixedWidth">IUT Date</th>
+					</tr>
+				</thead>
+				<tbody>
+						<tr>
+							<td>3e-520 Secure Access Point Cryptographic Module</td>
+							<td>3e Technologies International, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>7/2/2021</td>
+						</tr>
+						<tr>
+							<td>3e-636M-HSE CyberFence Cryptographic Module</td>
+							<td>3e Technologies International, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>7/2/2021</td>
+						</tr>
+						<tr>
+							<td>ADVA CRYPTOMUX (MA-2C2C3LT-A) and CRYPTOMUX+ (MA-B2C3LT-A) encryption modules</td>
+							<td>ADVA Optical Networking SE</td>
+							<td>FIPS 140-2</td>
+							<td>7/16/2020</td>
+						</tr>
+						<tr>
+							<td>Infraguard Processor Module (I.P.M.)</td>
+							<td>Advantor Systems L.L.C.</td>
+							<td>FIPS 140-2</td>
+							<td>12/18/2020</td>
+						</tr>
+						<tr>
+							<td>AWS Cryptographic Module</td>
+							<td>Amazon Web Services Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/3/2021</td>
+						</tr>
+						<tr>
+							<td>TuffServ® Encryption Module</td>
+							<td>Ampex Data Systems Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>3/1/2021</td>
+						</tr>
+						<tr>
+							<td>APACER SSD Drive SV240</td>
+							<td>Apacer Technology Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/15/2020</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v11.1 [Apple silicon, Secure Key Store, Hardware, SL2/PHY3]</td>
+							<td>Apple Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/2/2021</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v11.1 [Apple silicon, Secure Key Store, Hardware]</td>
+							<td>Apple Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>9/21/2020</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v12.0 [Intel, Kernel, Software, SL1]</td>
+							<td>Apple Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>4/5/2021</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v12.0 [Intel, User, Software, SL1]</td>
+							<td>Apple Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>4/5/2021</td>
+						</tr>
+						<tr>
+							<td>Arista CloudEOS Router Module</td>
+							<td>Arista Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>10/20/2021</td>
+						</tr>
+						<tr>
+							<td>Arista CloudVision Portal Module</td>
+							<td>Arista Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>10/20/2021</td>
+						</tr>
+						<tr>
+							<td>Arista MACsec Charlie Hybrid Module</td>
+							<td>Arista Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>12/30/2020</td>
+						</tr>
+						<tr>
+							<td>Aruba AOS-CX Cryptographic Module</td>
+							<td>Aruba, a Hewlett Packard Enterprise company</td>
+							<td>FIPS 140-2</td>
+							<td>12/11/2020</td>
+						</tr>
+						<tr>
+							<td>Aruba Common Crypto Module</td>
+							<td>Aruba, a Hewlett Packard Enterprise company</td>
+							<td>FIPS 140-2</td>
+							<td>3/10/2021</td>
+						</tr>
+						<tr>
+							<td>Aruba IAP-315, IAP-345, IAP-377, IAP-503R, IAP-505H, IAP-504, IAP-505, IAP-514, IAP-515, IAP-534, IAP-535, and IAP-555 Access Points with Aruba Instant Firmware</td>
+							<td>Aruba, a Hewlett Packard Enterprise company</td>
+							<td>FIPS 140-2</td>
+							<td>4/19/2021</td>
+						</tr>
+						<tr>
+							<td>Avaya G430</td>
+							<td>Avaya Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>11/23/2020</td>
+						</tr>
+						<tr>
+							<td>Avaya G450</td>
+							<td>Avaya Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>11/23/2020</td>
+						</tr>
+						<tr>
+							<td>Brocade Fabric OS FIPS Cryptographic Module</td>
+							<td>Brocade Communications Systems LLC</td>
+							<td>FIPS 140-3</td>
+							<td>4/7/2021</td>
+						</tr>
+						<tr>
+							<td>PTP 820C, PTP 820C-HP, PTP 820S, PTP 820G, PTP 820N, PTP 820A, PTP 850E, PTP 850C, PTP 850S</td>
+							<td>Cambium Networks</td>
+							<td>FIPS 140-3</td>
+							<td>1/27/2021</td>
+						</tr>
+						<tr>
+							<td>PTP 700 Point to Point Wireless Ethernet Bridge</td>
+							<td>Cambium Networks, Ltd.</td>
+							<td>FIPS 140-3</td>
+							<td>10/22/2021</td>
+						</tr>
+						<tr>
+							<td>FibeAir® IP-20C, FibeAir® IP-20C-HP, FibeAir® IP-20S, FibeAir® IP-20G, FibeAir® IP-20N, FibeAir® IP-20A, FibeAir® IP-50E, FibeAir® IP-50C, FibeAir® IP-50S</td>
+							<td>Ceragon Networks</td>
+							<td>FIPS 140-3</td>
+							<td>1/28/2021</td>
+						</tr>
+						<tr>
+							<td>3926-MACSEC</td>
+							<td>Ciena Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>5/4/2021</td>
+						</tr>
+						<tr>
+							<td>Ciena WaveLogic 5 Extreme Modem</td>
+							<td>Ciena Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>4/30/2021</td>
+						</tr>
+						<tr>
+							<td>Ciena Waveserver 5 CP Module</td>
+							<td>Ciena Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>4/30/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Linux Kernel FIPS Object Module (KFOM) Cryptographic Module</td>
+							<td>Cisco System, Inc</td>
+							<td>FIPS 140-3</td>
+							<td>6/7/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Catalyst 9800 (40/80) Wireless Controllers</td>
+							<td>Cisco Systems, Inc</td>
+							<td>FIPS 140-2</td>
+							<td>12/4/2020</td>
+						</tr>
+						<tr>
+							<td>Cisco Catalyst 9800-CL Wireless Controller</td>
+							<td>Cisco Systems, Inc</td>
+							<td>FIPS 140-2</td>
+							<td>12/4/2020</td>
+						</tr>
+						<tr>
+							<td>Cisco Catalyst Embedded Wireless Controllers</td>
+							<td>Cisco Systems, Inc</td>
+							<td>FIPS 140-2</td>
+							<td>12/21/2020</td>
+						</tr>
+						<tr>
+							<td>Cisco Adaptive Security Appliance (ASA) </td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Adaptive Security Appliance Virtual (ASAv) </td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco ASA Cryptographic Module on 4K/9K</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco ASA FX-OS Cryptographic Module</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/3/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco ASR 9000 Aggregated Services Routers</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>8/17/2020</td>
+						</tr>
+						<tr>
+							<td>Cisco Catalyst 8300 Series Edge Platforms</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>1/14/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Catalyst 8500 Series Edge Platforms</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>1/14/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco FIPS Object Module</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>8/31/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Firepower Management Center (FMC) Virtual</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Firepower Next-Generation IPS Virtual (NGIPSv) </td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Firepower Threat Defense (FTD) and FX-OS on the FPR 1K and FPR 2K Appliance</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/5/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Firepower Threat Defense (FTD) on ASA/ISA Cryptographic Module</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>5/24/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Firepower Threat Defense (FTD) Virtual</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco Firepower Threat Defense on 4K/9K Cryptographic Module</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco FX-OS Cryptographic Module on 4K/9K</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cisco FX-OS on 4K/9K Cryptographic Module</td>
+							<td>Cisco Systems, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/12/2021</td>
+						</tr>
+						<tr>
+							<td>Cloudpath Enrollment Server (ES)</td>
+							<td>CommScope Technologies LLC</td>
+							<td>FIPS 140-2</td>
+							<td>7/6/2021</td>
+						</tr>
+						<tr>
+							<td>Port Authority Series</td>
+							<td>Communication Devices, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/19/2021</td>
+						</tr>
+						<tr>
+							<td>Compunetix Evergreen MCU</td>
+							<td>Compunetix, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>12/14/2020</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Module</td>
+							<td>Comtech EF Data Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>12/10/2020</td>
+						</tr>
+						<tr>
+							<td>Comtech Systems Corporation CS67PLUS Cryptographic Module (CCM)</td>
+							<td>Comtech Systems, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>7/30/2020</td>
+						</tr>
+						<tr>
+							<td>CorSSL™ </td>
+							<td>Corsec Security, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>8/7/2021</td>
+						</tr>
+						<tr>
+							<td>cVu 16100 Network Packet Broker</td>
+							<td>cPacket Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/16/2021</td>
+						</tr>
+						<tr>
+							<td>Cradlepoint Cryptographic Module</td>
+							<td>Cradlepoint, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>10/20/2021</td>
+						</tr>
+						<tr>
+							<td>Cradlepoint Kernel Cryptographic Module</td>
+							<td>Cradlepoint, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>12/1/2021</td>
+						</tr>
+						<tr>
+							<td>Cyphre Crypto Core</td>
+							<td>Cyphre Security Solutions LLC (A Rignet Company)</td>
+							<td>FIPS 140-3</td>
+							<td>10/29/2020</td>
+						</tr>
+						<tr>
+							<td> Dell BSAFE Crypto Module for C, v3.0</td>
+							<td>Dell Inc., BSAFE Product Team</td>
+							<td>FIPS 140-3</td>
+							<td>9/17/2021</td>
+						</tr>
+						<tr>
+							<td>Dell BSAFE Crypto Module 2.0</td>
+							<td>Dell Inc., BSAFE Product Team</td>
+							<td>FIPS 140-3</td>
+							<td>11/16/2020</td>
+						</tr>
+						<tr>
+							<td>Dell BSAFE Crypto Module for Java, v7.0</td>
+							<td>Dell Inc., BSAFE Product Team</td>
+							<td>FIPS 140-3</td>
+							<td>9/22/2021</td>
+						</tr>
+						<tr>
+							<td>Dell Crypto Library for Dell iDRAC, Dell CMC and DellOME-M</td>
+							<td>Dell, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/22/2021</td>
+						</tr>
+						<tr>
+							<td>DocuSign HSM Appliance</td>
+							<td>DocuSign, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/22/2021</td>
+						</tr>
+						<tr>
+							<td>DocuSign QSCD Appliance</td>
+							<td>DocuSign, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/4/2020</td>
+						</tr>
+						<tr>
+							<td>DocuSign Signature Appliance</td>
+							<td>DocuSign, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/22/2021</td>
+						</tr>
+						<tr>
+							<td>Dynatrace Cryptographic Module</td>
+							<td>Dynatrace LLC</td>
+							<td>FIPS 140-3</td>
+							<td>8/27/2021</td>
+						</tr>
+						<tr>
+							<td>Kenwood Cryptographic Library (KCL)</td>
+							<td>EF Johnson Technologies</td>
+							<td>FIPS 140-3</td>
+							<td>5/19/2021</td>
+						</tr>
+						<tr>
+							<td>nShield 5s F3 & nShield 5s for nShield 5c and for nShield HSMi</td>
+							<td>Entrust</td>
+							<td>FIPS 140-3</td>
+							<td>10/20/2021</td>
+						</tr>
+						<tr>
+							<td>ExtraHop Cryptographic Module</td>
+							<td>ExtraHop Networks</td>
+							<td>FIPS 140-3</td>
+							<td>8/19/2021</td>
+						</tr>
+						<tr>
+							<td>Annapurna NVMe SSD</td>
+							<td>FADU, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>11/4/2020</td>
+						</tr>
+						<tr>
+							<td>Forcepoint Next Generation Firewall</td>
+							<td>Forcepoint  </td>
+							<td>FIPS 140-3</td>
+							<td>6/22/2021</td>
+						</tr>
+						<tr>
+							<td>Forcepoint NGFW Cryptographic Kernel Module</td>
+							<td>Forcepoint  </td>
+							<td>FIPS 140-3</td>
+							<td>6/22/2021</td>
+						</tr>
+						<tr>
+							<td>Fornetix VaultCore</td>
+							<td>Fornetix LLC</td>
+							<td>FIPS 140-2</td>
+							<td>5/11/2021</td>
+						</tr>
+						<tr>
+							<td>Fortanix Data Security Manager</td>
+							<td>Fortanix, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>5/27/2021</td>
+						</tr>
+						<tr>
+							<td>FortiClient 7.0 for Windows</td>
+							<td>Fortinet, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/10/2020</td>
+						</tr>
+						<tr>
+							<td>FortiGate 6000 Series with FortiOS 6.4</td>
+							<td>Fortinet, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/16/2021</td>
+						</tr>
+						<tr>
+							<td>FortiGate Appliances with FortiOS 6.4 & 7.0</td>
+							<td>Fortinet, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>3/29/2021</td>
+						</tr>
+						<tr>
+							<td>FortiGate-VM v6.4 & v7.0</td>
+							<td>Fortinet, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>3/29/2021</td>
+						</tr>
+						<tr>
+							<td>FortiOS 6.4 & 7.0</td>
+							<td>Fortinet, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>3/29/2021</td>
+						</tr>
+						<tr>
+							<td>FortiSwitch E series with OS v7.0</td>
+							<td>Fortinet, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/16/2021</td>
+						</tr>
+						<tr>
+							<td>FunOS Crypto Module</td>
+							<td>Fungible Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>3/22/2021</td>
+						</tr>
+						<tr>
+							<td>Secure Enclave</td>
+							<td>Fungible Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>3/22/2021</td>
+						</tr>
+						<tr>
+							<td>Raven Cryptographic Module</td>
+							<td>Google LLC.</td>
+							<td>FIPS 140-3</td>
+							<td>2/10/2021</td>
+						</tr>
+						<tr>
+							<td>Android Kernel Cryptographic Module</td>
+							<td>Google, LLC</td>
+							<td>FIPS 140-2</td>
+							<td>10/28/2020</td>
+						</tr>
+						<tr>
+							<td>Cr50 U2F</td>
+							<td>Google, LLC</td>
+							<td>FIPS 140-2</td>
+							<td>5/20/2021</td>
+						</tr>
+						<tr>
+							<td>Google Tensor UFS Inline Storage Encryption</td>
+							<td>Google, LLC</td>
+							<td>FIPS 140-2</td>
+							<td>9/14/2021</td>
+						</tr>
+						<tr>
+							<td>iLO 5 Cryptographic Module</td>
+							<td>Hewlett Packard Enterprise Development LP</td>
+							<td>FIPS 140-2</td>
+							<td>10/28/2020</td>
+						</tr>
+						<tr>
+							<td>Hughes HT2010 Satellite Terminal</td>
+							<td>Hughes Network Systems, LLC</td>
+							<td>FIPS 140-2</td>
+							<td>8/17/2020</td>
+						</tr>
+						<tr>
+							<td>Hughes HT2300, HT2500, HT2550, HT2650 Satellite Terminals</td>
+							<td>Hughes Network Systems, LLC</td>
+							<td>FIPS 140-2</td>
+							<td>8/17/2020</td>
+						</tr>
+						<tr>
+							<td>Hypersecu ServSec HSM Cryptographic Module</td>
+							<td>Hypersecu Information Systems Inc</td>
+							<td>FIPS 140-2</td>
+							<td>9/8/2021</td>
+						</tr>
+						<tr>
+							<td>IBM 4769-001 Enterprise PKCS#11 HSM</td>
+							<td>IBM</td>
+							<td>FIPS 140-2</td>
+							<td>8/2/2021</td>
+						</tr>
+						<tr>
+							<td>IBM 4770-001 Cryptographic Coprocessor Security Module</td>
+							<td>IBM</td>
+							<td>FIPS 140-3</td>
+							<td>12/3/2021</td>
+						</tr>
+						<tr>
+							<td>IBM 4770-001 Enterprise PKCS#11 HSM</td>
+							<td>IBM</td>
+							<td>FIPS 140-2</td>
+							<td>8/2/2021</td>
+						</tr>
+						<tr>
+							<td>IBM Cloud Object Storage System’s ™ FIPS Cryptographic Module</td>
+							<td>IBM</td>
+							<td>FIPS 140-2</td>
+							<td>6/25/2021</td>
+						</tr>
+						<tr>
+							<td>Qradar SIEM Core</td>
+							<td>IBM</td>
+							<td>FIPS 140-2</td>
+							<td>4/5/2021</td>
+						</tr>
+						<tr>
+							<td>IBM® NVMe FlashCore™ Module 2</td>
+							<td>IBM® Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>6/22/2021</td>
+						</tr>
+						<tr>
+							<td>UT-125 FIPS #31 and UT-125 FIPS #41 Cryptographic Modules</td>
+							<td>Icom Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>11/24/2020</td>
+						</tr>
+						<tr>
+							<td>TRANSEC Module</td>
+							<td>iDirect Government, LLC</td>
+							<td>FIPS 140-2</td>
+							<td>6/29/2021</td>
+						</tr>
+						<tr>
+							<td>SEMPER Secure NOR Flash (S35HS256T, S35HL256T)</td>
+							<td>Infineon Technologies LLC - Memory Solutions</td>
+							<td>FIPS 140-3</td>
+							<td>11/15/2021</td>
+						</tr>
+						<tr>
+							<td>Infoblox Trinzic DDI Appliances TE-815, TE-825, TR-805, ND-805, TE-1415, TE-1425, TR-1405, ND-1405, TE-2215, TE-2225, TR-2205, ND-2205, TE-4015, TE-4025, TR-4005, ND-4005</td>
+							<td>Infoblox</td>
+							<td>FIPS 140-2</td>
+							<td>10/13/2020</td>
+						</tr>
+						<tr>
+							<td>Infoblox Trinzic Virtual DDI appliance</td>
+							<td>Infoblox</td>
+							<td>FIPS 140-2</td>
+							<td>10/13/2020</td>
+						</tr>
+						<tr>
+							<td>Intel® Optane™ Persistent Memory 300 Series </td>
+							<td>Intel Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>10/26/2021</td>
+						</tr>
+						<tr>
+							<td>Intel® Optane™ SSD DC D5800X</td>
+							<td>Intel Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>9/26/2020</td>
+						</tr>
+						<tr>
+							<td>Intel® SSD DC P5316</td>
+							<td>Intel Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>3/25/2021</td>
+						</tr>
+						<tr>
+							<td>Intel® SSD DC P5520</td>
+							<td>Intel Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>3/25/2021</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks MX10003 3D Universal Edge Router with  MACSec MIC and EX9253 Ethernet Switch with MACSec Line Card</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/22/2021</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks MX240, MX480 and MX960 series with Macsec card MPC10E-10C and MPC10E-15C</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>11/9/2020</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks SRX1500, SRX4100, SRX4200, SRX4600, SRX5400, SRX5600 and SRX5800 Services Gateway</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>5/28/2021</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks vSRX 3.0 Virtual Firewall</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>4/28/2021</td>
+						</tr>
+						<tr>
+							<td>MX10003 3D Universal Edge Router with JNP-MIC1-MACSEC MIC</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>10/5/2021</td>
+						</tr>
+						<tr>
+							<td>MX2010 ,MX2020 with REMX2K-X8-64G ,  RE-S-1800 Routing Engines, MPC9E with  MIC-MACSEC-MRATE</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>10/5/2021</td>
+						</tr>
+						<tr>
+							<td>MX240, MX480, MX960 3D Universal Edge Routers with RE-S-X6-64G and RE1800 Routing Engines with macsec capable MPC MPC7E-10GE</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>10/5/2021</td>
+						</tr>
+						<tr>
+							<td>NFX150, NFX250, NFX350 Series JUNOS 21.4R1 FIPS</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>10/5/2021</td>
+						</tr>
+						<tr>
+							<td>PTX1000 Packet Transport Router</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>10/5/2021</td>
+						</tr>
+						<tr>
+							<td>PTX10008 and PTX10016  packet transport routers  with  routing Engine JNP10K-RE0 and Macsec linecard LC1105-M</td>
+							<td>Juniper Networks, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>10/5/2021</td>
+						</tr>
+						<tr>
+							<td>KIOXIA TCG OPAL SSC Self-Encrypting Solid State Drive XD6 Series</td>
+							<td>KIOXIA Corporation</td>
+							<td>FIPS 140-3</td>
+							<td>2/26/2021</td>
+						</tr>
+						<tr>
+							<td>BC-FJA (Bouncy Castle FIPS Java API)</td>
+							<td>Legion of the Bouncy Castle Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>3/2/2021</td>
+						</tr>
+						<tr>
+							<td>LogRhythm 7.6 Data Indexer (Linux)</td>
+							<td>LogRhythm</td>
+							<td>FIPS 140-2</td>
+							<td>10/21/2020</td>
+						</tr>
+						<tr>
+							<td>McAfee OpenSSL FIPS Object Module</td>
+							<td>McAfee LLC</td>
+							<td>FIPS 140-2</td>
+							<td>6/4/2021</td>
+						</tr>
+						<tr>
+							<td>Boot Manager (Windows 10 version 21H1, Windows Server 2022, et al.)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Primitives Library (Windows 10 and Windows Server version 20H2)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Primitives Library (Windows 10 version 21H1, Windows Server 2022, et al.)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Primitives Library (Windows Server 2019 Standard, Windows Server 2019 Datacenter)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Kernel Mode Cryptographic Primitives Library (Windows 10 and Windows Server version 20H2)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Kernel Mode Cryptographic Primitives Library (Windows 10 version 21H1, Windows Server 2022, et al.)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Kernel Mode Cryptographic Primitives Library (Windows Server 2019 Standard, Windows Server 2019 Datacenter)</td>
+							<td>Microsoft Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Motorola Solutions Cryptographic Firmware Module</td>
+							<td>Motorola Solutions, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>10/25/2021</td>
+						</tr>
+						<tr>
+							<td>NetApp Cryptographic Security Module</td>
+							<td>NetApp, Inc</td>
+							<td>FIPS 140-2</td>
+							<td>8/24/2021</td>
+						</tr>
+						<tr>
+							<td>NextFlex AirGuardian</td>
+							<td>NextFlex</td>
+							<td>FIPS 140-2</td>
+							<td>10/28/2021</td>
+						</tr>
+						<tr>
+							<td>Digipass GO7</td>
+							<td>OneSpan, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/30/2021</td>
+						</tr>
+						<tr>
+							<td>Acme Packet 1100,  Acme Packet 3900, Acme Packet 3950, and Acme Packet 4900 (v9.0)</td>
+							<td>Oracle Communications</td>
+							<td>FIPS 140-2</td>
+							<td>4/15/2021</td>
+						</tr>
+						<tr>
+							<td>Acme Packet 4600 and Acme Packet 6350 (v9.0)</td>
+							<td>Oracle Communications</td>
+							<td>FIPS 140-2</td>
+							<td>4/15/2021</td>
+						</tr>
+						<tr>
+							<td>Acme Packet VME (v9.0)</td>
+							<td>Oracle Communications</td>
+							<td>FIPS 140-2</td>
+							<td>4/15/2021</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 GnuTLS Cryptographic Module</td>
+							<td>Oracle Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>9/24/2020</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 libgcrypt Cryptographic Module</td>
+							<td>Oracle Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>9/24/2020</td>
+						</tr>
+						<tr>
+							<td>Oracle OpenSSL FIPS Provider</td>
+							<td>Oracle Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>10/7/2021</td>
+						</tr>
+						<tr>
+							<td>Tablo Medical Informatics System</td>
+							<td>Outset Medical, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>11/5/2021</td>
+						</tr>
+						<tr>
+							<td>Panorama 10.1 running on M-200, M-500 and M-600</td>
+							<td>Palo Alto Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Panorama 10.1 Virtual Appliances</td>
+							<td>Palo Alto Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>PAN-OS 10.1 running on PA-220, PA-220R, PA-400 Series, PA-800 Series, PA-3200 Series, PA-5200 Series, PA-5450 and PA-7000 Series NGFWs</td>
+							<td>Palo Alto Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>PAN-OS 10.1 VM-Series</td>
+							<td>Palo Alto Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>WildFire 10.1 running on WF-500</td>
+							<td>Palo Alto Networks, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>6/10/2021</td>
+						</tr>
+						<tr>
+							<td>Pensando TLS Library</td>
+							<td>Pensando Systems, Inc</td>
+							<td>FIPS 140-2</td>
+							<td>10/23/2020</td>
+						</tr>
+						<tr>
+							<td>Privoro SafeCase Cryptographic Module</td>
+							<td>Privoro LLC</td>
+							<td>FIPS 140-3</td>
+							<td>2/12/2021</td>
+						</tr>
+						<tr>
+							<td>FlashBlade Data Encryption Module</td>
+							<td>Pure Storage, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>12/3/2020</td>
+						</tr>
+						<tr>
+							<td>Rambus CryptoManager Root of Trust RT-660</td>
+							<td>Rambus Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>7/11/2021</td>
+						</tr>
+						<tr>
+							<td>Rambus Root of Trust RT-130</td>
+							<td>Rambus Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>7/11/2021</td>
+						</tr>
+						<tr>
+							<td>SafeZone FIPS Cryptographic Module 2.0 </td>
+							<td>Rambus, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>4/5/2021</td>
+						</tr>
+						<tr>
+							<td>SBC Software Edition Session Border Controller v9.2</td>
+							<td>Ribbon Communications, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>9/7/2021</td>
+						</tr>
+						<tr>
+							<td>Riverbed Cryptographic module (VN) for Branch</td>
+							<td>Riverbed Technology, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/27/2020</td>
+						</tr>
+						<tr>
+							<td>Riverbed Cryptographic module (VN) for Controller</td>
+							<td>Riverbed Technology, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/27/2020</td>
+						</tr>
+						<tr>
+							<td>CryptoComply</td>
+							<td>SafeLogic</td>
+							<td>FIPS 140-3</td>
+							<td>4/2/2021</td>
+						</tr>
+						<tr>
+							<td>Samsung NVMe TCG Opal SSC SEDs BM1733a Series</td>
+							<td>Samsung Electronics Co., Ltd.</td>
+							<td>FIPS 140-3</td>
+							<td>4/8/2021</td>
+						</tr>
+						<tr>
+							<td>Seagate Secure™ TCG Enterprise SSC Self-Encrypting HDD</td>
+							<td>Seagate Technology, LLC</td>
+							<td>FIPS 140-3</td>
+							<td>1/11/2021</td>
+						</tr>
+						<tr>
+							<td>Seagate Secure™ TCG Opal SSC Self-Encrypting HDD</td>
+							<td>Seagate Technology, LLC</td>
+							<td>FIPS 140-3</td>
+							<td>1/11/2021</td>
+						</tr>
+						<tr>
+							<td>Sepior TSM</td>
+							<td>Sepior ApS</td>
+							<td>FIPS 140-3</td>
+							<td>10/29/2020</td>
+						</tr>
+						<tr>
+							<td>Silver Peak EdgeConnect EC-XS-FIPS, EC-XL-P-FIPS, and EC-XL-P-NM-FIPS 2021</td>
+							<td>Silver Peak Systems Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/22/2021</td>
+						</tr>
+						<tr>
+							<td>SonicWall Network Security Manager Appliance</td>
+							<td>SonicWall, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>9/9/2021</td>
+						</tr>
+						<tr>
+							<td>SPYRUS USB-3 Module</td>
+							<td>SPYRUS, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>6/17/2021</td>
+						</tr>
+						<tr>
+							<td>Symantec Management CenterVirtual Appliance</td>
+							<td>Symantec & CA Technologies, a division of Broadcom</td>
+							<td>FIPS 140-2</td>
+							<td>7/14/2021</td>
+						</tr>
+						<tr>
+							<td>Tera2 PCoIP Zero Client Processors</td>
+							<td>Teradici Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>8/31/2021</td>
+						</tr>
+						<tr>
+							<td>Luna G7 Cryptographic Module</td>
+							<td>Thales</td>
+							<td>FIPS 140-3</td>
+							<td>2/23/2021</td>
+						</tr>
+						<tr>
+							<td>Thales CipherTrust Application Data Protection CryptoAPI (CADP CryptoAPI) Module</td>
+							<td>Thales</td>
+							<td>FIPS 140-2</td>
+							<td>2/22/2021</td>
+						</tr>
+						<tr>
+							<td>Advanced Configurable Cryptographic Environment (ACCE) v3 HSM Crypto Module</td>
+							<td>Ultra, Intelligence & Communications</td>
+							<td>FIPS 140-2</td>
+							<td>8/16/2021</td>
+						</tr>
+						<tr>
+							<td>Advanced Configurable Cryptographic Environment (ACCE) v3 HSM Crypto Module</td>
+							<td>Ultra, Intelligence & Communications</td>
+							<td>FIPS 140-2</td>
+							<td>5/19/2021</td>
+						</tr>
+						<tr>
+							<td>Unbound Multi-Party Cryptographic Module</td>
+							<td>Unbound Security Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>12/15/2020</td>
+						</tr>
+						<tr>
+							<td>Unbound Multi-Party Cryptographic Module</td>
+							<td>Unbound Security Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>12/15/2020</td>
+						</tr>
+						<tr>
+							<td>Vehicle Data Device</td>
+							<td>Verizon Connect</td>
+							<td>FIPS 140-2</td>
+							<td>2/2/2021</td>
+						</tr>
+						<tr>
+							<td>VMware's VMkernel Cryptographic Module</td>
+							<td>VMware, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>11/20/2020</td>
+						</tr>
+						<tr>
+							<td>Firebox M290, M390, M590, M690, M4800, M5800</td>
+							<td>WatchGuard Technologies, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>8/5/2021</td>
+						</tr>
+						<tr>
+							<td>Firebox T20, T20-W, T40, T40-W, T40-CW, T80</td>
+							<td>WatchGuard Technologies, Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>8/5/2021</td>
+						</tr>
+						<tr>
+							<td>Ultrastar® DC HC550 - Western Digital®</td>
+							<td>Western Digital Corporation</td>
+							<td>FIPS 140-2</td>
+							<td>6/12/2020</td>
+						</tr>
+						<tr>
+							<td>wolfCrypt</td>
+							<td>wolfSSL Inc.</td>
+							<td>FIPS 140-3</td>
+							<td>10/30/2020</td>
+						</tr>
+						<tr>
+							<td>Zetetic Cryptographic Module</td>
+							<td>Zetetic, LLC</td>
+							<td>FIPS 140-3</td>
+							<td>7/28/2021</td>
+						</tr>
+						<tr>
+							<td>XCrypt Full Disk</td>
+							<td>Zettaset, Inc.</td>
+							<td>FIPS 140-2</td>
+							<td>8/13/2020</td>
+						</tr>
+				</tbody>
+				<tfoot id="IUTFooter">
+						<tr>
+							<td colspan="3">Displayed</td>
+							<td>173</td>
+						</tr>
+						<tr>
+							<td colspan="3">Not Displayed</td>
+							<td>2</td>
+						</tr>
+						<tr>
+							<td colspan="3">Total</td>
+							<td>175</td>
+						</tr>
+				</tfoot>
+			</table>
+
+
+	</div>
+
+
+	<div class="col-lg-4 hidden-xs hidden-sm hidden-md">
+
+		<div class="project-nav-container">
+			<div class="bs-callout bs-callout-subnav" id="projectLinksContainer-lg">
+<h4><i class="fa fa-link"></i> Project Links</h4>
+<div class="project-icons-container">
+    <span>
+        <a href="/projects/cryptographic-module-validation-program" id="SideNavOverviewLink">
+            <i class="fa fa-info-circle"></i> Overview
+        </a>
+    </span>
+        <span>
+        <a href="/Projects/cryptographic-module-validation-program/news" id="SideNavNewsLink" data-count="2">
+            <i class="fa fa-newspaper-o"></i> News &amp; Updates
+        </a>
+    </span>
+            <span>
+        <a href="/Projects/cryptographic-module-validation-program/publications" id="SideNavPubsLink" data-count="10">
+            <i class="fa fa-file-text"></i> Publications
+        </a>
+    </span>
+    </div>
+
+    <h4>Additional Pages</h4>
+    <div id="projectPagesCallout-lg">
+
+<a class="csrc-add-page" data-node-level="0" data-node-order="1" href="/Projects/cryptographic-module-validation-program/validated-modules" id="projPage0" style="border-left: solid 0rem transparent;">Validated Modules</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/validated-modules/Search" id="projPage1" style="border-left: solid 1rem transparent;">Search</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="2" href="/Projects/cryptographic-module-validation-program/modules-in-process" id="projPage2" style="border-left: solid 0rem transparent;">Modules In Process</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/modules-in-process/Modules-In-Process-List" id="projPage3" style="border-left: solid 1rem transparent;">Modules In Process List</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="2" href="/Projects/cryptographic-module-validation-program/modules-in-process/IUT-List" id="projPage4" style="border-left: solid 1rem transparent;">Implementation Under Test List</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="3" href="/Projects/cryptographic-module-validation-program/entropy-validations" id="projPage5" style="border-left: solid 0rem transparent;">Entropy Validations</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/entropy-validations/announcements-1" id="projPage6" style="border-left: solid 1rem transparent;">Entropy Validation Announcements</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="2" href="/Projects/cryptographic-module-validation-program/entropy-validations/roadmap" id="projPage7" style="border-left: solid 1rem transparent;">Roadmap</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="3" href="/Projects/cryptographic-module-validation-program/entropy-validations/esv" id="projPage8" style="border-left: solid 1rem transparent;">ESV</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="4" href="/Projects/cryptographic-module-validation-program/entropy-validations/entropy-source-validation-workshop" id="projPage9" style="border-left: solid 1rem transparent;">Entropy Source Validation Workshop</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="5" href="/Projects/cryptographic-module-validation-program/entropy-validations/documents" id="projPage10" style="border-left: solid 1rem transparent;">Entropy Validation Documents</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="5" href="/Projects/cryptographic-module-validation-program/programmatic-transitions" id="projPage11" style="border-left: solid 0rem transparent;">Programmatic Transitions</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="7" href="/Projects/cryptographic-module-validation-program/cmvp-management-manual-and-faqs" id="projPage12" style="border-left: solid 0rem transparent;">CMVP FIPS 140-2 Management Manual</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="8" href="/Projects/cryptographic-module-validation-program/fips-140-2" id="projPage13" style="border-left: solid 0rem transparent;">CMVP FIPS 140-2 Related References</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="9" href="/Projects/cryptographic-module-validation-program/cmvp-fips-140-3-management-manual" id="projPage14" style="border-left: solid 0rem transparent;">CMVP FIPS 140-3 Management Manual</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="10" href="/Projects/cryptographic-module-validation-program/fips-140-3-standards" id="projPage15" style="border-left: solid 0rem transparent;">CMVP FIPS 140-3 Related References</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="11" href="/Projects/cryptographic-module-validation-program/announcements" id="projPage16" style="border-left: solid 0rem transparent;">FIPS 140-2 IG Announcements</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/announcements/announcements-archive" id="projPage17" style="border-left: solid 1rem transparent;">FIPS 140-2 Announcements Archive</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="12" href="/Projects/cryptographic-module-validation-program/fips-140-3-ig-announcements" id="projPage18" style="border-left: solid 0rem transparent;">FIPS 140-3 IG Announcements</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="13" href="/Projects/cryptographic-module-validation-program/resources" id="projPage19" style="border-left: solid 0rem transparent;">FIPS 140-2 Resources</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="14" href="/Projects/cryptographic-module-validation-program/140-3-resources" id="projPage20" style="border-left: solid 0rem transparent;">FIPS 140-3 Resources</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="15" href="/Projects/cryptographic-module-validation-program/use-of-fips-140-2-logo-and-phrases" id="projPage21" style="border-left: solid 0rem transparent;">Use of FIPS 140-2 Logo and Phrases</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="16" href="/Projects/cryptographic-module-validation-program/cvp-certification-exam-information" id="projPage22" style="border-left: solid 0rem transparent;">CVP Certification Exam Information</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="17" href="/Projects/cryptographic-module-validation-program/nist-cost-recovery-fees" id="projPage23" style="border-left: solid 0rem transparent;">NIST Cost Recovery Fees</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="18" href="/Projects/cryptographic-module-validation-program/cst-lab-accreditation-and-fees" id="projPage24" style="border-left: solid 0rem transparent;">CST Lab Accreditation and Fees</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="20" href="/Projects/cryptographic-module-validation-program/notices" id="projPage25" style="border-left: solid 0rem transparent;">Archived Notices</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="21" href="/Projects/cryptographic-module-validation-program/cmvp-flow" id="projPage26" style="border-left: solid 0rem transparent;">CMVP Validation Process</a>
+
+
+    </div>
+
+			</div>
+		</div>
+
+    <div class="bs-callout bs-callout-success" id="contactsCallout-lg">
+        <h4><i class="fa fa-user"></i> Contacts</h4>
+            <p id="projContact0"><span class='contact-display'><strong data-field='full-name'> <span data-field='firstname'>Beverly</span>   <span data-field='lastname'>Trapnell</span> </strong> - <strong data-field='position'><span data-field='position'>NIST CMVP Program Manager</span></strong><br/><a href='mailto:cmvp@nist.gov' data-field='email'>cmvp@nist.gov</a><br/></span></p>
+            <p id="projContact1"><span class='contact-display'><strong data-field='full-name'> <span data-field='firstname'>Carolyn</span>   <span data-field='lastname'>French</span> </strong> - <strong data-field='position'><span data-field='position'>CCCS CMVP Program Manager</span></strong><br/><a href='mailto:CMVP@cyber.gc.ca' data-field='email'>CMVP@cyber.gc.ca</a><br/></span></p>
+    </div>
+
+
+    <div class="bs-callout bs-callout-danger" id="owningGroupCallout-lg">
+        <h4><i class="fa fa-sitemap"></i> Group</h4>
+        <a href="/Groups/Computer-Security-Division/Security-Testing-Validation-and-Measurement">Security Testing, Validation and Measurement</a>
+    </div>
+
+
+    <div class="bs-callout bs-callout-danger" id="topicsCallout-lg">
+        <h4><i class="fa fa-tag"></i> Topics</h4>
+
+            <p>
+                <strong id="catName0-lg">Security and Privacy:</strong>
+                    <a id="catTopLink0-0-lg" href="/Topics/Security-and-Privacy/cryptography">cryptography</a>,                     <a id="catTopLink0-1-lg" href="/Topics/Security-and-Privacy/security-measurement/testing-and-validation">testing &amp; validation</a>            </p>
+            <p>
+                <strong id="catName1-lg">Technologies:</strong>
+                    <a id="catTopLink1-0-lg" href="/Topics/technologies/hardware">hardware</a>,                     <a id="catTopLink1-1-lg" href="/Topics/technologies/software-firmware">software &amp; firmware</a>            </p>
+    </div>
+
+
+    <div class="bs-callout bs-callout-warning" id="relatedProjectsCallout-lg">
+        <h4>Related Projects</h4>
+            <a href="/Projects/Automated-Cryptographic-Validation-Testing" id="relProjLink0">Automated Cryptographic Validation Testing</a><br/>
+            <a href="/Projects/cryptographic-algorithm-validation-program" id="relProjLink1">Cryptographic Algorithm Validation Program</a><br/>
+            <a href="/Projects/AI-Deep-Learning-Automated-CMVP-test-report-valida" id="relProjLink2">Deep learning neural networks for CMVP report validation</a><br/>
+            <a href="/Projects/fips-140-3-transition-effort" id="relProjLink3">FIPS 140-3 Transition Effort</a><br/>
+            <a href="/Projects/threshold-cryptography" id="relProjLink4">Multi-Party Threshold Cryptography</a><br/>
+            <a href="/Projects/Random-Bit-Generation" id="relProjLink5">Random Bit Generation</a><br/>
+            <a href="/Projects/testing-laboratories" id="relProjLink6">Testing Laboratories</a><br/>
+    </div>
+
+
+	</div>
+
+</div>
+<div class="row visible-sm visible-xs visible-md">
+
+	<div class="col-sm-12">
+
+<div class="bs-callout bs-callout-subnav" id="projectPagesCallout-sm">
+    <h4>Additional Pages</h4>
+    <p>
+
+<a class="csrc-add-page" data-node-level="0" data-node-order="1" href="/Projects/cryptographic-module-validation-program/validated-modules" id="projPage0-sm" style="border-left: solid 0rem transparent;">Validated Modules</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/validated-modules/Search" id="projPage1-sm" style="border-left: solid 1rem transparent;">Search</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="2" href="/Projects/cryptographic-module-validation-program/modules-in-process" id="projPage2-sm" style="border-left: solid 0rem transparent;">Modules In Process</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/modules-in-process/Modules-In-Process-List" id="projPage3-sm" style="border-left: solid 1rem transparent;">Modules In Process List</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="2" href="/Projects/cryptographic-module-validation-program/modules-in-process/IUT-List" id="projPage4-sm" style="border-left: solid 1rem transparent;">Implementation Under Test List</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="3" href="/Projects/cryptographic-module-validation-program/entropy-validations" id="projPage5-sm" style="border-left: solid 0rem transparent;">Entropy Validations</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/entropy-validations/announcements-1" id="projPage6-sm" style="border-left: solid 1rem transparent;">Entropy Validation Announcements</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="2" href="/Projects/cryptographic-module-validation-program/entropy-validations/roadmap" id="projPage7-sm" style="border-left: solid 1rem transparent;">Roadmap</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="3" href="/Projects/cryptographic-module-validation-program/entropy-validations/esv" id="projPage8-sm" style="border-left: solid 1rem transparent;">ESV</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="4" href="/Projects/cryptographic-module-validation-program/entropy-validations/entropy-source-validation-workshop" id="projPage9-sm" style="border-left: solid 1rem transparent;">Entropy Source Validation Workshop</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="5" href="/Projects/cryptographic-module-validation-program/entropy-validations/documents" id="projPage10-sm" style="border-left: solid 1rem transparent;">Entropy Validation Documents</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="5" href="/Projects/cryptographic-module-validation-program/programmatic-transitions" id="projPage11-sm" style="border-left: solid 0rem transparent;">Programmatic Transitions</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="7" href="/Projects/cryptographic-module-validation-program/cmvp-management-manual-and-faqs" id="projPage12-sm" style="border-left: solid 0rem transparent;">CMVP FIPS 140-2 Management Manual</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="8" href="/Projects/cryptographic-module-validation-program/fips-140-2" id="projPage13-sm" style="border-left: solid 0rem transparent;">CMVP FIPS 140-2 Related References</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="9" href="/Projects/cryptographic-module-validation-program/cmvp-fips-140-3-management-manual" id="projPage14-sm" style="border-left: solid 0rem transparent;">CMVP FIPS 140-3 Management Manual</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="10" href="/Projects/cryptographic-module-validation-program/fips-140-3-standards" id="projPage15-sm" style="border-left: solid 0rem transparent;">CMVP FIPS 140-3 Related References</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="11" href="/Projects/cryptographic-module-validation-program/announcements" id="projPage16-sm" style="border-left: solid 0rem transparent;">FIPS 140-2 IG Announcements</a>
+<a class="csrc-add-page" data-node-level="1" data-node-order="1" href="/Projects/cryptographic-module-validation-program/announcements/announcements-archive" id="projPage17-sm" style="border-left: solid 1rem transparent;">FIPS 140-2 Announcements Archive</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="12" href="/Projects/cryptographic-module-validation-program/fips-140-3-ig-announcements" id="projPage18-sm" style="border-left: solid 0rem transparent;">FIPS 140-3 IG Announcements</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="13" href="/Projects/cryptographic-module-validation-program/resources" id="projPage19-sm" style="border-left: solid 0rem transparent;">FIPS 140-2 Resources</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="14" href="/Projects/cryptographic-module-validation-program/140-3-resources" id="projPage20-sm" style="border-left: solid 0rem transparent;">FIPS 140-3 Resources</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="15" href="/Projects/cryptographic-module-validation-program/use-of-fips-140-2-logo-and-phrases" id="projPage21-sm" style="border-left: solid 0rem transparent;">Use of FIPS 140-2 Logo and Phrases</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="16" href="/Projects/cryptographic-module-validation-program/cvp-certification-exam-information" id="projPage22-sm" style="border-left: solid 0rem transparent;">CVP Certification Exam Information</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="17" href="/Projects/cryptographic-module-validation-program/nist-cost-recovery-fees" id="projPage23-sm" style="border-left: solid 0rem transparent;">NIST Cost Recovery Fees</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="18" href="/Projects/cryptographic-module-validation-program/cst-lab-accreditation-and-fees" id="projPage24-sm" style="border-left: solid 0rem transparent;">CST Lab Accreditation and Fees</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="20" href="/Projects/cryptographic-module-validation-program/notices" id="projPage25-sm" style="border-left: solid 0rem transparent;">Archived Notices</a>
+<a class="csrc-add-page" data-node-level="0" data-node-order="21" href="/Projects/cryptographic-module-validation-program/cmvp-flow" id="projPage26-sm" style="border-left: solid 0rem transparent;">CMVP Validation Process</a>
+
+
+    </p>
+</div>
+
+
+    <div class="bs-callout bs-callout-subnav" id="contactsCallout-sm">
+        <h4><i class="fa fa-user"></i> Contacts</h4>
+        <p style="padding-left: 15px;">
+            <span id="projContact0-sm"><span class='contact-display'><strong data-field='full-name'> <span data-field='firstname'>Beverly</span>   <span data-field='lastname'>Trapnell</span> </strong> - <strong data-field='position'><span data-field='position'>NIST CMVP Program Manager</span></strong><br/><a href='mailto:cmvp@nist.gov' data-field='email'>cmvp@nist.gov</a><br/></span></span><br/>
+            <span id="projContact1-sm"><span class='contact-display'><strong data-field='full-name'> <span data-field='firstname'>Carolyn</span>   <span data-field='lastname'>French</span> </strong> - <strong data-field='position'><span data-field='position'>CCCS CMVP Program Manager</span></strong><br/><a href='mailto:CMVP@cyber.gc.ca' data-field='email'>CMVP@cyber.gc.ca</a><br/></span></span><br/>
+        </p>
+    </div>
+
+
+    <div class="bs-callout bs-callout-danger" id="owningGroupCallout-sm">
+        <h4><i class="fa fa-sitemap"></i> Group</h4>
+        <a href="/Groups/Computer-Security-Division/Security-Testing-Validation-and-Measurement">Security Testing, Validation and Measurement</a>
+    </div>
+
+
+    <div class="bs-callout bs-callout-danger" id="topicsCallout-sm">
+        <h4><i class="fa fa-tag"></i> Topics</h4>
+
+            <p>
+                <strong id="catName0-sm">Security and Privacy:</strong>
+                    <a id="catTopLink0-0-sm" href="/Topics/Security-and-Privacy/cryptography">cryptography</a>,                     <a id="catTopLink0-1-sm" href="/Topics/Security-and-Privacy/security-measurement/testing-and-validation">testing &amp; validation</a>            </p>
+            <p>
+                <strong id="catName1-sm">Technologies:</strong>
+                    <a id="catTopLink1-0-sm" href="/Topics/technologies/hardware">hardware</a>,                     <a id="catTopLink1-1-sm" href="/Topics/technologies/software-firmware">software &amp; firmware</a>            </p>
+    </div>
+
+
+    <div class="bs-callout bs-callout-warning" id="relatedProjectsCallout-sm">
+        <h4>Related Projects</h4>
+        <p>
+            <a href="/Projects/Automated-Cryptographic-Validation-Testing" id="relProjLink0-sm">Automated Cryptographic Validation Testing</a><br/>
+            <a href="/Projects/cryptographic-algorithm-validation-program" id="relProjLink1-sm">Cryptographic Algorithm Validation Program</a><br/>
+            <a href="/Projects/AI-Deep-Learning-Automated-CMVP-test-report-valida" id="relProjLink2-sm">Deep learning neural networks for CMVP report validation</a><br/>
+            <a href="/Projects/fips-140-3-transition-effort" id="relProjLink3-sm">FIPS 140-3 Transition Effort</a><br/>
+            <a href="/Projects/threshold-cryptography" id="relProjLink4-sm">Multi-Party Threshold Cryptography</a><br/>
+            <a href="/Projects/Random-Bit-Generation" id="relProjLink5-sm">Random Bit Generation</a><br/>
+            <a href="/Projects/testing-laboratories" id="relProjLink6-sm">Testing Laboratories</a><br/>
+        </p>
+    </div>
+
+
+	</div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 historical-data-area" id="historical-data-area">
+
+            <span>Created <span id="page-created-date">October 11, 2016</span>, Updated <span id="page-updated-date">December 06, 2021</span></span>
+    </div>
+</div>
+
+
+
+
+        <div id="footer-pusher"></div>
+
+    </div>
+
+    
+
+    <footer id="footer">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <span class="hidden-xs">
+                    <a href="https://www.nist.gov" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo" id="footer-nist-logo-link">
+                        <img src="/CSRC/Media/images/logo_rev.png" alt="National Institute of Standards and Technology logo" id="footer-nist-logo" />
+                    </a>
+                </span>
+
+                <div class="row footer-contact-container">
+                    <div class="col-sm-12" id="footer-address">
+                        <strong>HEADQUARTERS</strong><br>
+                        100 Bureau Drive<br>
+                        Gaithersburg, MD 20899
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <ul class="social-list text-right" style="display: block;">
+                    <li class="field-item service-twitter list-horiz">
+                        <a href="https://twitter.com/NISTCyber" class="social-btn social-btn--large extlink ext" id="footer-social-twitter-link">
+                            <i class="fa fa-twitter fa-fw"><span class="element-invisible">twitter</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+                    </li>
+                    <li class="field-item service-facebook list-horiz">
+                        <a href="https://www.facebook.com/NIST" class="social-btn social-btn--large extlink ext" id="footer-social-facebook-link">
+                            <i class="fa fa-facebook fa-fw"><span class="element-invisible">facebook</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-linkedin list-horiz">
+                        <a href="https://www.linkedin.com/company/nist" class="social-btn social-btn--large extlink ext" id="footer-social-linkedin-link">
+                            <i class="fa fa-linkedin fa-fw"><span class="element-invisible">linkedin</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-instagram list-horiz">
+                        <a href="https://www.instagram.com/usnistgov/" class="social-btn social-btn--large extlink ext" id="footer-social-instagram-link">
+                            <i class="fa fa-instagram fa-fw"><span class="element-invisible">instagram</span></i>
+                            <span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-youtube list-horiz">
+                        <a href="https://www.youtube.com/user/USNISTGOV" class="social-btn social-btn--large extlink ext" id="footer-social-youtube-link">
+                            <i class="fa fa-youtube fa-fw"><span class="element-invisible">youtube</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-rss list-horiz">
+                        <a href="https://www.nist.gov/news-events/nist-rss-feeds" class="social-btn social-btn--large extlink" id="footer-social-rss-link">
+                            <i class="fa fa-rss fa-fw"><span class="element-invisible">rss</span></i>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-govdelivery list-horiz last">
+                        <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" class="social-btn social-btn--large extlink ext" title="Subscribe to CSRC and publication updates, and other NIST cybersecurity news" id="footer-social-govdelivery-link">
+                            <i class="fa fa-envelope fa-fw"><span class="element-invisible">govdelivery</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="text-right">
+                    Want updates about CSRC and our publications?
+                    <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" class="btn btn-lg btn-info" style="background-color: #12659c!important; border-color: #12659c!important;" id="footer-subscribe-link">Subscribe</a>
+                </p>
+            </div>
+        </div>
+        <div class="row hidden-sm hidden-md hidden-lg">
+            <div class="col-sm-12">
+                <a href="https://www.nist.gov" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo" id="footer-bottom-nist-logo-link">
+                    <img src="/CSRC/Media/images/logo_rev.png" alt="National Institute of Standards and Technology logo" id="footer-bottom-nist-logo" />
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <p>
+                    <a href="mailto:webmaster-csrc@nist.gov?subject=CSRC Inquiry" id="footer-webmaster-link">Webmaster</a> |
+                    <a href="/about/contact" id="footer-contact-us-link">Contact Us</a> |
+                    <a href="https://www.nist.gov/about-nist/our-organization" style="display: inline-block;" id="footer-org-link">Our Other Offices</a>
+                </p>
+            </div>
+            <div class="col-sm-6">
+                <span class="pull-right text-right">
+                    Contact CSRC Webmaster: <a href="mailto:webmaster-csrc@nist.gov?subject=CSRC Inquiry" style="display: inline-block;" id="footer-info-webmaster-link">webmaster-csrc@nist.gov</a>
+                </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="footer-bottom-links-container" id="footer-bottom-links-container">
+                <ul>
+                  <li><a href="https://www.nist.gov/privacy-policy">Site Privacy</a></li>
+                  <li><a href="https://www.nist.gov/oism/accessibility">Accessibility</a></li>
+                  <li><a href="https://www.nist.gov/privacy">Privacy Program</a></li>
+                  <li><a href="https://www.nist.gov/oism/copyrights">Copyrights</a></li>
+                  <li><a href="https://www.commerce.gov/vulnerability-disclosure-policy">Vulnerability Disclosure</a></li>
+                  <li><a href="https://www.nist.gov/no-fear-act-policy">No Fear Act Policy</a></li>
+                  <li><a href="https://www.nist.gov/foia">FOIA</a></li>
+                  <li><a href="https://www.nist.gov/environmental-policy-statement">Environmental Policy</a></li>
+                  <li><a href="https://www.nist.gov/summary-report-scientific-integrity">Scientific Integrity</a></li>
+                  <li><a href="https://www.nist.gov/nist-information-quality-standards">Information Quality Standards</a></li>
+                  <li><a href="https://www.commerce.gov/">Commerce.gov</a></li>
+                  <li><a href="https://www.science.gov/">Science.gov</a></li>
+                  <li><a href="https://www.usa.gov/">USA.gov</a></li>
+                  <li><a href="https://vote.gov/">Vote.gov</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script type="text/javascript" src="/dist/js/quick-collapse.js"></script>
+<script type="text/javascript" src="/dist/app.bundle.js"></script>
+<!-- <script defer type="text/javascript" src="/dist/katex/katex.min.js"></script>
+<script defer type="text/javascript" src="/dist/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script> -->
+
+<!-- reCAPTCHA v3 -->
+<script defer src='https://www.google.com/recaptcha/api.js?render=6LcQo40UAAAAAJpAj4X-i-WfOzdbu6d7j7kKryDS'></script>
+
+    
+	<script type="text/javascript" src="/dist/projects.bundle.js"></script>
+
+
+    </body>
+</html>

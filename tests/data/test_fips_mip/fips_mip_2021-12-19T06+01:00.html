@@ -1,0 +1,3413 @@
+<!DOCTYPE html>
+<html lang="en-us" xml:lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <title>Cryptographic Module Validation Program | CSRC</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="content-style-type" content="text/css" />
+    <meta http-equiv="content-script-type" content="text/javascript" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="msapplication-config" content="/CSRC/Media/images/favicons/browserconfig.xml" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="google-site-verification" content="xbrnrVYDgLD-Bd64xHLCt4XsPXzUhQ-4lGMj4TdUUTA" />
+    
+
+	<meta name="description" content="The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become..." />
+
+	<!-- dcterms meta information -->
+	<meta name="dcterms.title" content="Modules In Process List - Cryptographic Module Validation Program | CSRC | CSRC" />
+	<meta name="dcterms.description" content="The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become..." />
+	<meta name="dcterms.creator" content="Computer Security Division, Information Technology Laboratory, National Institute of Standards and Technology, U.S. Department of Commerce" />
+	<meta name="dcterms.date.created" scheme="ISO8601" content="2016-10-11" />
+	<meta name="dcterms.date.reviewed" scheme="ISO8601" content="2021-12-14" />
+	<meta name="dcterms.language" scheme="DCTERMS.RFC1766" content="EN-US" />
+
+	<!-- Facebook OpenGraph Tags -->
+	<meta name="og:site_name" content="CSRC | NIST" />
+	<meta name="og:type" content="article" />
+	<meta name="og:url" content="https://content.csrc.e1c.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/Modules-In-Process-List" />
+	<meta name="og:title" content="Modules In Process List - Cryptographic Module Validation Program | CSRC | CSRC" />
+	<meta name="og:description" content="The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become available. The validation process is a joint effort between the CMVP, the laboratory and the vendor and therefore, for any given module, the action to respond could reside with the CMVP, the lab or the vendor. This list does not provide granularity into which entity has the action. If you would like more information for a specific cryptographic module or its schedule, please contact the vendor. &#160;" />
+
+	<meta name="article:tag" content="cryptography; testing &amp; validation; hardware; software &amp; firmware" />
+	<meta name="article:published_time" content="2016-10-11" />
+		<meta name="article:modified_time" content="2021-12-14" />
+	<meta name="og:image" content="https://csrc.nist.gov/CSRC/media/images/CSRC-logo-open-graph.png" />
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/images/icons/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/images/icons/favicon-16x16.png" sizes="16x16" />
+    <link rel="manifest" href="/images/icons/manifest.json" />
+    <link rel="mask-icon" href="/images/icons/safari-pinned-tab.svg" color="#000000" />
+    <link href="/CSRC/Media/images/favicons/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
+    <link href="/CSRC/Media/images/favicons/favicon.ico" type="image/x-icon" rel="icon"/>
+    <!-- <link href="/dist/katex/katex.min.css" rel="stylesheet"/> -->
+    <link href="/dist/app.css" rel="stylesheet"/>
+
+    <!-- reCAPTCHA v3 -->
+    <style>
+    .grecaptcha-badge { 
+        visibility: hidden;
+    }
+    </style>
+
+    
+	<style type="text/css">
+		.nowrap {
+			white-space: nowrap;
+		}
+
+		#MIPFooter tr td {
+			font-weight: bold;
+			text-align: right;
+		}
+	</style>
+
+
+    <script async type="text/javascript" id="_fed_an_ua_tag" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=nist&subagency=csrc&pua=UA-66610693-15&yt=true&exts=xsd,xml,wav,mpg,mpeg,avi,rtf,webm,ogg,ogv,oga,map,otf,eot,svg,ttf,woff"></script>
+    <style id="antiClickjack">
+        body > * {
+            display: none !important;
+        }
+        #antiClickjack {
+            display: block !important;
+        }
+    </style>
+    <noscript>
+        <style id="antiClickjackNoScript">
+            body > * { display: block !important; }
+            #antiClickjack {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+    <script type="text/javascript" id="antiClickjackScript">
+        if (self === top) {
+            // no clickjacking
+            var antiClickjack = document.getElementById("antiClickjack"); antiClickjack.parentNode.removeChild(antiClickjack);
+        } else {
+            setTimeout(tryForward(), 5000);
+        }
+        function tryForward() {
+            top.location = self.location;
+        }
+    </script>
+</head>
+<body>
+    <div id="antiClickjack" style="display: none;">
+        <strong style="font-size: 1.6rem;">You are viewing this page in an unauthorized frame window.</strong>
+        <p>This is a potential security issue, you are being redirected to <a href="https://csrc.nist.gov">https://csrc.nist.gov</a>.</p>
+    </div>
+
+    <section class="usa-banner" aria-label="Official government website">
+    <div class="usa-accordion container">
+        <header class="usa-banner__header">
+            <noscript>
+                <p style="font-size: 0.85rem; font-weight: bold;">You have JavaScript disabled. This site requires JavaScript to be enabled for complete site functionality.</p>
+            </noscript>
+            <img class="usa-banner__header-flag" src="/images/usbanner/us_flag_small.png" alt="U.S. flag">
+            &nbsp;
+            <span class="usa-banner__header-text">An official website of the United States government</span>
+
+            <button id="gov-banner-button" class="usa-accordion__button usa-banner__button" data-toggle="collapse" data-target="#gov-banner" aria-expanded="true" aria-controls="gov-banner">
+                <span class="usa-banner__button-text">Here's how you know</span>
+            </button>
+        </header>
+        <div class="usa-banner__content usa-accordion__content collapse in" role="tabpanel" id="gov-banner" aria-expanded="true">
+            <div class="row">
+                <div class="col-md-5 col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-3">
+                            <img class="usa-banner__icon usa-media-block__img" src="/images/usbanner/icon-dot-gov.svg" alt="Dot gov">
+                        </div>
+                        <div class="col-sm-10 col-xs-9">
+                            <p>
+                                <strong>Official websites use .gov</strong>
+                                <br>
+                                A <strong>.gov</strong> website belongs to an official government organization in the United States.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-3">
+                            <img class="usa-banner__icon usa-media-block__img" src="/images/usbanner/icon-https.svg" alt="Https">
+                        </div>
+                        <div class="col-sm-10 col-xs-9">
+                        <p>
+                            <strong>Secure .gov websites use HTTPS</strong>
+                            <br>
+                            A <strong>lock</strong> (<img class="usa-banner__lock" src="/images/usbanner/lock.svg" alt="Dot gov">) or <strong>https://</strong> means you've safely connected to the .gov website. Share sensitive information only on official, secure websites.
+                        </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <nav id="navbar" class="navbar">
+    <div id="nist-menu-container" class="container">
+        <div class="row">
+            <!-- Brand -->
+            <div class="col-xs-6 col-md-4 navbar-header">
+                <a class="navbar-brand" href="https://www.nist.gov" target="_blank" id="navbar-brand-image">
+                    <img src="/CSRC/media/images/svg/nist-logo.svg" alt="National Institute of Standards and Technology" width="110" height="30">
+                </a>
+            </div>
+            <div class="col-xs-6 col-md-8 navbar-nist-logo">
+                <div class="form-inline hidden-sm hidden-xs">
+                    <form name="site-search" id="site-search-form" action="/search" method="GET">
+                        <label for="search-csrc-query" class="element-invisible">Search</label>
+                        <input autocomplete="off" class="form-control" id="search-csrc-query" name="keywords" type="text" size="15" maxlength="128" placeholder="Search CSRC" />
+                        <input type="hidden" name="ipp" value="25" />
+                        <input type="hidden" name="sortBy" value="relevance" />
+                        <input type="hidden" name="showOnly" value="publications,projects,news,events,presentations,glossary,topics" />
+                        <input type="hidden" name="topicsMatch" value="ANY" />
+                        <input type="hidden" name="status" value="Final,Draft" />
+                        <input type="hidden" name="series" value="FIPS,SP,NISTIR,ITL Bulletin,White Paper,Building Block,Use Case,Journal Article,Conference Paper,Book" />
+                        <button type="submit" id="search-csrc-submit-btn" class="form-submit">
+                            <span class="element-invisible">Search</span>
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <span id="nvd-menu-button" class="pull-right">
+                    <a href="#" id="nvd-menu-button-link">
+                        <span class="fa fa-bars"></span>
+                        <span id="nvd-menu-full-text">CSRC MENU</span>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-inline hidden-md hidden-lg">
+        <form name="site-search-mobile" id="site-search-form-mobile" action="/search" method="GET">
+            <label for="search-csrc-query" class="element-invisible">Search</label>
+            <input autocomplete="off" class="form-control" id="search-csrc-query-mobile" name="keywords" type="text" size="15" maxlength="128" placeholder="Search CSRC" />
+            <button type="submit" id="search-csrc-submit-btn-mobile" class="form-submit">
+                <span class="element-invisible">Search</span>
+                <i class="fa fa-search"></i>
+            </button>
+        </form>
+    </div>
+    <div class="main-menu-row container">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="main-menu-drop" class="col-lg-12" style="display: none;">
+            <ul>
+                <li><a href="/projects">Projects</a></li>
+                <li>
+                    <a href="/publications">
+                        Publications
+                        <span class="expander fa fa-plus" id="main-menu-pubs-expander" data-expander-name="publications" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="publications" id="main-menu-pubs-expanded">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="/publications/drafts-open-for-comment">Drafts for Public Comment</a></p>
+                                <p><a href="/publications/draft-pubs">All Public Drafts</a></p>
+                                <p><a href="/publications/final-pubs">Final Pubs</a></p>
+                                <p><a href="/publications/fips">FIPS</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/publications/sp">Special Publications (SP<small>s</small>)</a></p>
+                                <p><a href="/publications/nistir">NISTIR<small>s</small></a></p>
+                                <p><a href="/publications/itl-bulletin">ITL Bulletins</a></p>
+                                <p><a href="/publications/white-paper">White Papers</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/publications/journal-article">Journal Articles</a></p>
+                                <p><a href="/publications/conference-paper">Conference Papers</a></p>
+                                <p><a href="/publications/book">Books</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <a href="/topics">
+                        Topics
+                        <span class="expander fa fa-plus" id="main-menu-topics-expander" data-expander-name="topics" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="topics" id="main-menu-topics-expanded">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="/Topics/Security-and-Privacy">Security & Privacy</a></p>
+                                <p><a href="/Topics/Applications">Applications</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/Topics/Technologies">Technologies</a></p>
+                                <p><a href="/Topics/Sectors">Sectors</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="/Topics/Laws-and-Regulations">Laws & Regulations</a></p>
+                                <p><a href="/Topics/Activities-and-Products">Activities & Products</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="/news">News & Updates</a></li>
+                <li><a href="/events">Events</a></li>
+                <li><a href="/glossary">Glossary</a></li>
+                <li>
+                    <a href="/about">
+                        About CSRC
+                        <span class="expander fa fa-plus" id="main-menu-about-expander" data-expander-name="about" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="about" id="main-menu-about-expanded">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <p>
+                                    <strong><a href="/Groups/Computer-Security-Division">Computer Security Division</a></strong><br />
+                                    <ul>
+                                        <li><a href="/Groups/Computer-Security-Division/Cryptographic-Technology">Cryptographic Technology</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Secure-Systems-and-Applications">Secure Systems and Applications</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Security-Components-and-Mechanisms">Security Components and Mechanisms</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Security-Engineering-and-Risk-Management">Security Engineering and Risk Management</a></li>
+                                        <li><a href="/Groups/Computer-Security-Division/Security-Testing-Validation-and-Measurement">Security Testing, Validation, and Measurement</a></li>
+                                    </ul>
+                                </p>
+                            </div>
+                            <div class="col-lg-6">
+                                <p>
+                                    <strong><a href="/Groups/Applied-Cybersecurity-Division">Applied Cybersecurity Division</a></strong><br />
+                                    <ul>
+                                        <li><a href="/Groups/Applied-Cybersecurity-Division/Cybersecurity-and-Privacy-Applications">Cybersecurity and Privacy Applications</a></li>
+                                        <li><a href="/Groups/Applied-Cybersecurity-Division/National-Cybersecurity-Center-of-Excellence">National Cybersecurity Center of Excellence (NCCoE)</a></li>
+                                        <li><a href="https://www.nist.gov/nice/">National Initiative for Cybersecurity Education (NICE)</a></li>
+                                    </ul>
+                                </p>
+                                <p>
+                                    <a href="/contact">
+                                        Contact Us
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div><!-- /#mobile-nav-container -->
+    </div>
+
+</nav>
+
+    <section id="itl-header" class="has-menu">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-md-8">
+                    <h2 class="hidden-xs hidden-sm">
+                        <a href="https://www.nist.gov/itl" target="_blank" id="itl-header-link">Information Technology Laboratory</a>
+                    </h2>
+                    <h1 class="hidden-xs hidden-sm">
+                        <a href="/" id="csrc-header-link-lg">Computer Security Resource Center</a>
+                    </h1>
+                    <h1 class="hidden-xs text-center hidden-md hidden-lg" id="csrc-header-link-md">Computer Security Resource Center</h1>
+                </div>
+                <div class="col-sm-12 col-md-4">
+                    <a id="logo-csrc" href="/" style="width: 100%; text-align: center; display: block; margin-top: 1rem;"><img id="img-logo-csrc" src="/CSRC/Media/images/CSRC-white-134-38.png" alt="CSRC Logo" class="csrc-header-logo"></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="body-section" class="container">
+        
+        
+
+
+
+<ol class="breadcrumb">
+        <a href="/projects" class="breadcrumb-link">Projects</a>
+        <a href="/projects/cryptographic-module-validation-program" class="breadcrumb-link">Cryptographic Module Validation Program</a>
+        <a href="/projects/cryptographic-module-validation-program/modules-in-process" class="breadcrumb-link">Modules In Process</a>
+</ol>
+
+
+	<h1 id="projectName">Cryptographic Module Validation Program <small id="project-acronym">CMVP</small></h1>
+
+<div class="page-social-buttons" id=&quot;news-social-buttons&quot;>
+    <a href="#" class="social-facebook"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></a>
+    <a href="#" class="social-twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></a>
+</div>
+
+
+
+<div class="row visible-sm visible-xs visible-md">
+	<div class="col-sm-12">
+        <div class="bs-callout bs-callout-subnav" id="projectLinksContainer-sm">
+            <h4><i class="fa fa-link"></i> Project Links</h4>
+            <div class="project-icons-container">
+                <span>
+                    <a href="/projects/cryptographic-module-validation-program" id="NavOverviewLink-sm">
+                        <i class="fa fa-info-circle"></i> Overview
+                    </a>
+                </span>
+                                <span>
+                    <a href="/Projects/cryptographic-module-validation-program/news" id="NavNewsLink-sm" data-count="2">
+                        <i class="fa fa-newspaper-o"></i> News &amp; Updates
+                    </a>
+                </span>
+                                                <span>
+                    <a href="/Projects/cryptographic-module-validation-program/publications" id="NavPubsLink-sm" data-count="10">
+                        <i class="fa fa-file-text"></i> Publications
+                    </a>
+                </span>
+                            </div>
+        </div>
+	</div>
+</div>
+
+
+<div class="row">
+
+	<div class="col-sm-12">
+
+		<h3 id="pageName">Modules In Process List</h3>
+
+
+		<p id="content">
+			The MIP list contains cryptographic modules on which the CMVP is actively working. For a module to transition from Review Pending to In Review, the lab must first pay the NIST Cost Recovery fee, and then the report will be assigned as resources become available. The validation process is a joint effort between the CMVP, the laboratory and the vendor and therefore, for any given module, the action to respond could reside with the CMVP, the lab or the vendor. This list does not provide granularity into which entity has the action. If you would like more information for a specific cryptographic module or its schedule, please contact the vendor.<br>
+&nbsp;
+		</p>
+
+			<p>
+				Last Updated: 12/18/2021
+			</p>
+			<table class="table table-striped table-condensed publications-table table-bordered">
+				<thead>
+					<tr>
+						<th class="text-center">Module Name</th>
+						<th class="text-center">Vendor Name</th>
+						<th class="text-center">Standard</th>
+						<th class="text-center">Status</th>
+					</tr>
+				</thead>
+				<tbody>
+						<tr>
+							<td>Thunder Series TH3040S, TH5440S, TH5840S and TH7440S-11</td>
+							<td>
+								A10 Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10975" href="#d10975" onclick="ShowContacts(10975)">
+										<i id="i10975" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10975" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>ADVA 10TCE-PCN-16GU+AES100G-F encryption module</td>
+							<td>
+								ADVA Optical Networking SE
+									<a class="btn" role="button" data-toggle="collapse" id="a7059" href="#d7059" onclick="ShowContacts(7059)">
+										<i id="i7059" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d7059" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>AMD Ryzen PRO 4000 Series PSP Cryptographic CoProcessor</td>
+							<td>
+								Advanced Micro Devices
+									<a class="btn" role="button" data-toggle="collapse" id="a11020" href="#d11020" onclick="ShowContacts(11020)">
+										<i id="i11020" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11020" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>AMD Ryzen PRO 5000 Series PSP Cryptographic CoProcessor</td>
+							<td>
+								Advanced Micro Devices
+									<a class="btn" role="button" data-toggle="collapse" id="a11339" href="#d11339" onclick="ShowContacts(11339)">
+										<i id="i11339" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11339" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>AT-x220, AT-x320, AT-x950 Secure Management Module</td>
+							<td>
+								Allied Telesis
+									<a class="btn" role="button" data-toggle="collapse" id="a11762" href="#d11762" onclick="ShowContacts(11762)">
+										<i id="i11762" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11762" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>AWS Key Management Service HSM</td>
+							<td>
+								Amazon Web Services, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11307" href="#d11307" onclick="ShowContacts(11307)">
+										<i id="i11307" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11307" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>AWS Key Management Service HSM</td>
+							<td>
+								Amazon Web Services, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11105" href="#d11105" onclick="ShowContacts(11105)">
+										<i id="i11105" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11105" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Apacer TCG SSD SV240 Series</td>
+							<td>
+								Apacer Technology Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10839" href="#d10839" onclick="ShowContacts(10839)">
+										<i id="i10839" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10839" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v11.1 [Apple silicon, User, Software]</td>
+							<td>
+								Apple
+									<a class="btn" role="button" data-toggle="collapse" id="a11003" href="#d11003" onclick="ShowContacts(11003)">
+										<i id="i11003" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11003" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v11.1 [Apple silicon, Kernel, Software]</td>
+							<td>
+								Apple Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11004" href="#d11004" onclick="ShowContacts(11004)">
+										<i id="i11004" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11004" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v11.1 [Intel, Kernel, Software]</td>
+							<td>
+								Apple Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11002" href="#d11002" onclick="ShowContacts(11002)">
+										<i id="i11002" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11002" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Apple corecrypto Module v11.1 [Intel, User, Software]</td>
+							<td>
+								Apple Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11005" href="#d11005" onclick="ShowContacts(11005)">
+										<i id="i11005" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11005" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Aegis Secure Key 3Z and Aegis Secure Key 3NX Cryptographic Module</td>
+							<td>
+								Apricorn
+									<a class="btn" role="button" data-toggle="collapse" id="a11702" href="#d11702" onclick="ShowContacts(11702)">
+										<i id="i11702" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11702" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>CHR Cryptographic Module</td>
+							<td>
+								Atos
+									<a class="btn" role="button" data-toggle="collapse" id="a11167" href="#d11167" onclick="ShowContacts(11167)">
+										<i id="i11167" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11167" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>CRATON2/SECTON embedded V2X HSM</td>
+							<td>
+								Autotalks Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11108" href="#d11108" onclick="ShowContacts(11108)">
+										<i id="i11108" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11108" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Aviat Networks Eclipse Cryptographic Module</td>
+							<td>
+								Aviat Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11399" href="#d11399" onclick="ShowContacts(11399)">
+										<i id="i11399" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11399" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Barracuda KTINA FIPS Crypto Module</td>
+							<td>
+								Barracuda Networks
+									<a class="btn" role="button" data-toggle="collapse" id="a11631" href="#d11631" onclick="ShowContacts(11631)">
+										<i id="i11631" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11631" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Alaris™ PC Unit Model 8015</td>
+							<td>
+								BD
+									<a class="btn" role="button" data-toggle="collapse" id="a11572" href="#d11572" onclick="ShowContacts(11572)">
+										<i id="i11572" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11572" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Server HSM</td>
+							<td>
+								Beijing Lianshi Networks Technology Co.,Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11281" href="#d11281" onclick="ShowContacts(11281)">
+										<i id="i11281" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11281" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Security Builder® FIPS Module</td>
+							<td>
+								BlackBerry Limited
+									<a class="btn" role="button" data-toggle="collapse" id="a11226" href="#d11226" onclick="ShowContacts(11226)">
+										<i id="i11226" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11226" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>PTP 700 Point to Point Wireless Ethernet Bridge</td>
+							<td>
+								Cambium Networks, Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11337" href="#d11337" onclick="ShowContacts(11337)">
+										<i id="i11337" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11337" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Ubuntu 20.04 Kernel Crypto API Cryptographic Module</td>
+							<td>
+								Canonical Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11611" href="#d11611" onclick="ShowContacts(11611)">
+										<i id="i11611" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11611" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Ubuntu 20.04 OpenSSL Cryptographic Module</td>
+							<td>
+								Canonical Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11613" href="#d11613" onclick="ShowContacts(11613)">
+										<i id="i11613" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11613" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>LenelS2 OnGuard Access Control Cryptographic Module</td>
+							<td>
+								Carrier Fire & Security Americas Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11683" href="#d11683" onclick="ShowContacts(11683)">
+										<i id="i11683" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11683" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Check Point Cryptographic Library</td>
+							<td>
+								Check Point Software Technologies Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a10726" href="#d10726" onclick="ShowContacts(10726)">
+										<i id="i10726" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10726" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Radio Internet-Protocol Communications Module Z (RIC-Mz)</td>
+							<td>
+								Christine Wireless, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11123" href="#d11123" onclick="ShowContacts(11123)">
+										<i id="i11123" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11123" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Tactical Key Management Device (TKMD)</td>
+							<td>
+								Christine Wireless, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11124" href="#d11124" onclick="ShowContacts(11124)">
+										<i id="i11124" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11124" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cisco 8800 Series Routers</td>
+							<td>
+								Cisco Systems, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11120" href="#d11120" onclick="ShowContacts(11120)">
+										<i id="i11120" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11120" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cisco Aironet 1562e/i/d/ps, 2802e/i, 3802e/i/p, 4800 and IW6300H-AC/DC/DCW Wireless LAN Access Points, Version IOS-XE 17.3</td>
+							<td>
+								Cisco Systems, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10918" href="#d10918" onclick="ShowContacts(10918)">
+										<i id="i10918" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10918" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cisco Catalyst 9115AXI/AXE, 9120AXI/AXE/AXP, 9130AXI/AXE and 9105AXI/AXW Wireless LAN Access Points</td>
+							<td>
+								Cisco Systems, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10927" href="#d10927" onclick="ShowContacts(10927)">
+										<i id="i10927" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10927" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>R650-US Access Point, R650-WW Access Point, R750 Access Point, R850 Access Point, T750SE Access Point, T750 Access Point, and T750-WW Access Point</td>
+							<td>
+								CommScope Technologies LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a10921" href="#d10921" onclick="ShowContacts(10921)">
+										<i id="i10921" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10921" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>QASM Cryptographic Module</td>
+							<td>
+								Crypto4A Technologies Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11231" href="#d11231" onclick="ShowContacts(11231)">
+										<i id="i11231" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11231" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Vocality RoIP and DTECH M3-SE Multi-Function Gateway Appliances</td>
+							<td>
+								Cubic Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a9559" href="#d9559" onclick="ShowContacts(9559)">
+										<i id="i9559" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9559" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>CyberCogs Hardware Security Module</td>
+							<td>
+								CyberCogs, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11029" href="#d11029" onclick="ShowContacts(11029)">
+										<i id="i11029" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11029" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>RSA BSAFE(R) Crypto Module</td>
+							<td>
+								Dell Inc, BSAFE Product Team
+									<a class="btn" role="button" data-toggle="collapse" id="a10636" href="#d10636" onclick="ShowContacts(10636)">
+										<i id="i10636" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10636" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>RSA BSAFE(R) Crypto-C Micro Edition</td>
+							<td>
+								Dell Inc, BSAFE Product Team
+									<a class="btn" role="button" data-toggle="collapse" id="a6697" href="#d6697" onclick="ShowContacts(6697)">
+										<i id="i6697" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d6697" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>DINAMO CD, XP, and ST Hardware Security Modules</td>
+							<td>
+								DINAMO Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a9583" href="#d9583" onclick="ShowContacts(9583)">
+										<i id="i9583" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9583" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>ECI TM200EN Encryption Module</td>
+							<td>
+								ECI Telecom Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a6471" href="#d6471" onclick="ShowContacts(6471)">
+										<i id="i6471" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d6471" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Eclypses Cryptographic Library</td>
+							<td>
+								Eclypses, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11500" href="#d11500" onclick="ShowContacts(11500)">
+										<i id="i11500" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11500" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>MiniHSM & MiniHSM for nShield Edge F2</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11296" href="#d11296" onclick="ShowContacts(11296)">
+										<i id="i11296" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11296" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>MiniHSM & MiniHSM for nShield Edge F3</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11294" href="#d11294" onclick="ShowContacts(11294)">
+										<i id="i11294" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11294" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>nShield F2 500+ & nShield F2 1500+ & nShield F2 6000+</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11381" href="#d11381" onclick="ShowContacts(11381)">
+										<i id="i11381" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11381" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>nShield F3 10+ 500+ 6000+ & nShield F3 500+ 1500+ 6000+ for nShield Connect+ and Connect CLX</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11382" href="#d11382" onclick="ShowContacts(11382)">
+										<i id="i11382" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11382" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>nShield F3 10+ 500+ 6000+ & nShield F3 500+ 1500+ 6000+ for nShield Connect+ and Connect CLX</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11383" href="#d11383" onclick="ShowContacts(11383)">
+										<i id="i11383" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11383" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>nShield Solo XC F2</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11295" href="#d11295" onclick="ShowContacts(11295)">
+										<i id="i11295" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11295" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>nShield Solo XC F3 & nShield Solo XC F3 for nShield Connect XC and for nShield HSMi</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11297" href="#d11297" onclick="ShowContacts(11297)">
+										<i id="i11297" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11297" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>nShield Solo XC F3 & nShield Solo XC F3 for nShield Connect XC and for nShield HSMi</td>
+							<td>
+								Entrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11298" href="#d11298" onclick="ShowContacts(11298)">
+										<i id="i11298" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11298" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Extreme Networks SLX 9540 and SLX 9740 Switches</td>
+							<td>
+								Extreme Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11158" href="#d11158" onclick="ShowContacts(11158)">
+										<i id="i11158" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11158" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Extreme® MLXe® Series Ethernet Routers</td>
+							<td>
+								Extreme Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a7062" href="#d7062" onclick="ShowContacts(7062)">
+										<i id="i7062" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d7062" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Extreme® NetIron® CER 2000 Series Ethernet Routers</td>
+							<td>
+								Extreme Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11069" href="#d11069" onclick="ShowContacts(11069)">
+										<i id="i11069" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11069" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Module for BIG-IP (R)</td>
+							<td>
+								F5 Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10755" href="#d10755" onclick="ShowContacts(10755)">
+										<i id="i10755" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10755" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Module for BIG-IP (R)</td>
+							<td>
+								F5 Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11656" href="#d11656" onclick="ShowContacts(11656)">
+										<i id="i11656" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11656" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>F5(R) Device Cryptographic Module</td>
+							<td>
+								F5 Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10756" href="#d10756" onclick="ShowContacts(10756)">
+										<i id="i10756" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10756" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>F5(R) vCMP Cryptographic Module</td>
+							<td>
+								F5 Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10757" href="#d10757" onclick="ShowContacts(10757)">
+										<i id="i10757" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10757" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Fortanix SDKMS Appliance</td>
+							<td>
+								Fortanix, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a9466" href="#d9466" onclick="ShowContacts(9466)">
+										<i id="i9466" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9466" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>FortiAnalyzer 6.2</td>
+							<td>
+								Fortinet, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10945" href="#d10945" onclick="ShowContacts(10945)">
+										<i id="i10945" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10945" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>FortiManager 6.2</td>
+							<td>
+								Fortinet, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10946" href="#d10946" onclick="ShowContacts(10946)">
+										<i id="i10946" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10946" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>FortiSandbox-1000F/2000E/3000E</td>
+							<td>
+								Fortinet, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10866" href="#d10866" onclick="ShowContacts(10866)">
+										<i id="i10866" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10866" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Inline Crypto Engine (ICE)</td>
+							<td>
+								Google, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11671" href="#d11671" onclick="ShowContacts(11671)">
+										<i id="i11671" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11671" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Integrated Management Complex (IMC) and B227 True Random Number Generator (TRNG) Firmware-Hybrid Cryptographic Module</td>
+							<td>
+								Google, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11753" href="#d11753" onclick="ShowContacts(11753)">
+										<i id="i11753" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11753" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Look-aside Cryptography and Compression Engine (LCE)</td>
+							<td>
+								Google, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11768" href="#d11768" onclick="ShowContacts(11768)">
+										<i id="i11768" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11768" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Non-Volatile Memory express (NVMe) Data Path Security Cluster (DPSC) Module</td>
+							<td>
+								Google, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11560" href="#d11560" onclick="ShowContacts(11560)">
+										<i id="i11560" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11560" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>BoringCrypto</td>
+							<td>
+								Google, LLC.
+									<a class="btn" role="button" data-toggle="collapse" id="a11679" href="#d11679" onclick="ShowContacts(11679)">
+										<i id="i11679" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11679" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>BoringCrypto Android</td>
+							<td>
+								Google, LLC.
+									<a class="btn" role="button" data-toggle="collapse" id="a11149" href="#d11149" onclick="ShowContacts(11149)">
+										<i id="i11149" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11149" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>BoringCrypto SoC</td>
+							<td>
+								Google, LLC.
+									<a class="btn" role="button" data-toggle="collapse" id="a11782" href="#d11782" onclick="ShowContacts(11782)">
+										<i id="i11782" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11782" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Titan-D Chip</td>
+							<td>
+								Google, LLC.
+									<a class="btn" role="button" data-toggle="collapse" id="a11722" href="#d11722" onclick="ShowContacts(11722)">
+										<i id="i11722" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11722" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Black Lantern Cryptographic Module</td>
+							<td>
+								Guardtime Federal
+									<a class="btn" role="button" data-toggle="collapse" id="a11733" href="#d11733" onclick="ShowContacts(11733)">
+										<i id="i11733" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11733" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Hitachi Virtual Storage Platform (VSP) Encryption Board for NVMe</td>
+							<td>
+								Hitachi, Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11362" href="#d11362" onclick="ShowContacts(11362)">
+										<i id="i11362" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11362" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Hitachi Virtual Storage Platform (VSP) Encryption Module</td>
+							<td>
+								Hitachi, Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11636" href="#d11636" onclick="ShowContacts(11636)">
+										<i id="i11636" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11636" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>HSSD_V6 Series</td>
+							<td>
+								Huawei Technologies CO., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11486" href="#d11486" onclick="ShowContacts(11486)">
+										<i id="i11486" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11486" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Huawei EulerOS 2.0 OpenSSH Client Cryptographic Module</td>
+							<td>
+								Huawei Technologies CO., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11604" href="#d11604" onclick="ShowContacts(11604)">
+										<i id="i11604" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11604" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Huawei EulerOS 2.0 OpenSSH Server Cryptographic Module</td>
+							<td>
+								Huawei Technologies CO., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11605" href="#d11605" onclick="ShowContacts(11605)">
+										<i id="i11605" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11605" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Huawei EulerOS 2.0 OpenSSL Cryptographic Module</td>
+							<td>
+								Huawei Technologies CO., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11432" href="#d11432" onclick="ShowContacts(11432)">
+										<i id="i11432" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11432" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Hub Security Cryptographic Module</td>
+							<td>
+								Hub Security LTD
+									<a class="btn" role="button" data-toggle="collapse" id="a9524" href="#d9524" onclick="ShowContacts(9524)">
+										<i id="i9524" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9524" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Hughes HT2010 Satellite Terminal</td>
+							<td>
+								Hughes Network Systems, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a10942" href="#d10942" onclick="ShowContacts(10942)">
+										<i id="i10942" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10942" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Hughes HT2300, HT2500, HT2550, HT2650 Satellite Terminals</td>
+							<td>
+								Hughes Network Systems, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a10943" href="#d10943" onclick="ShowContacts(10943)">
+										<i id="i10943" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10943" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Hughes IPsec IP Gateway Server</td>
+							<td>
+								Hughes Network Systems, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a10944" href="#d10944" onclick="ShowContacts(10944)">
+										<i id="i10944" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10944" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>HyTrust KeyControl Cryptographic Module</td>
+							<td>
+								HyTrust, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a9395" href="#d9395" onclick="ShowContacts(9395)">
+										<i id="i9395" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9395" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>ICU Medical CE3.0 OpenSSL Cryptographic Module</td>
+							<td>
+								ICU Medical, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11688" href="#d11688" onclick="ShowContacts(11688)">
+										<i id="i11688" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11688" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SLS37CSAUS V2X</td>
+							<td>
+								Infineon Technologies AG
+									<a class="btn" role="button" data-toggle="collapse" id="a11659" href="#d11659" onclick="ShowContacts(11659)">
+										<i id="i11659" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11659" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Trusted Platform Module 2.0 SLB 9672</td>
+							<td>
+								Infineon Technologies AG
+									<a class="btn" role="button" data-toggle="collapse" id="a11406" href="#d11406" onclick="ShowContacts(11406)">
+										<i id="i11406" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11406" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Infinera Groove? G30 DCI Platform</td>
+							<td>
+								Infinera Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11283" href="#d11283" onclick="ShowContacts(11283)">
+										<i id="i11283" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11283" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Module for Intel(R) Converged Security and Manageability Engine (CSME)</td>
+							<td>
+								Intel Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10724" href="#d10724" onclick="ShowContacts(10724)">
+										<i id="i10724" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10724" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Module for Intel® Platforms' Security Engine Chipset</td>
+							<td>
+								Intel Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10713" href="#d10713" onclick="ShowContacts(10713)">
+										<i id="i10713" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10713" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Intel(R) Converged Security and Manageability Engine (CSME) Crypto Module for Tiger Point PCH, Mule Creek Canyon PCH, and Rocket Lake PCH</td>
+							<td>
+								Intel Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10810" href="#d10810" onclick="ShowContacts(10810)">
+										<i id="i10810" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10810" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>IQVIA Java Crypto Module</td>
+							<td>
+								IQVIA
+									<a class="btn" role="button" data-toggle="collapse" id="a10746" href="#d10746" onclick="ShowContacts(10746)">
+										<i id="i10746" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10746" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks ACX5448-M Router</td>
+							<td>
+								Juniper Networks, Inc
+									<a class="btn" role="button" data-toggle="collapse" id="a10976" href="#d10976" onclick="ShowContacts(10976)">
+										<i id="i10976" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10976" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks EX4650, QFX5120 and QFX5210 Ethernet Switches</td>
+							<td>
+								Juniper Networks, Inc
+									<a class="btn" role="button" data-toggle="collapse" id="a11019" href="#d11019" onclick="ShowContacts(11019)">
+										<i id="i11019" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11019" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Juniper Networks SRX345, SRX345-DUAL-AC, SRX380 and SRX1500 Services Gateway</td>
+							<td>
+								Juniper Networks, Inc
+									<a class="btn" role="button" data-toggle="collapse" id="a10682" href="#d10682" onclick="ShowContacts(10682)">
+										<i id="i10682" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10682" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Juniper Kernel Crypto Cryptographic Module</td>
+							<td>
+								Juniper Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11084" href="#d11084" onclick="ShowContacts(11084)">
+										<i id="i11084" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11084" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Juniper OpenSSL Cryptographic Module</td>
+							<td>
+								Juniper Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11095" href="#d11095" onclick="ShowContacts(11095)">
+										<i id="i11095" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11095" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Secure Cryptographic Module (SCM)</td>
+							<td>
+								JVCKENWOOD Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11553" href="#d11553" onclick="ShowContacts(11553)">
+										<i id="i11553" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11553" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Defender HDD 300</td>
+							<td>
+								Kanguru Solutions
+									<a class="btn" role="button" data-toggle="collapse" id="a11132" href="#d11132" onclick="ShowContacts(11132)">
+										<i id="i11132" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11132" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>KIOXIA TCG Enterprise SSC Crypto Sub-Chip TC58NC1040GTB</td>
+							<td>
+								KIOXIA Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11408" href="#d11408" onclick="ShowContacts(11408)">
+										<i id="i11408" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11408" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>KIOXIA TCG Enterprise SSC Crypto Sub-Chip TC58NC1132GTC</td>
+							<td>
+								KIOXIA Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11282" href="#d11282" onclick="ShowContacts(11282)">
+										<i id="i11282" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11282" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>KIOXIA TCG OPAL SSC Crypto Sub-Chip TC58NC1132GTC</td>
+							<td>
+								KIOXIA Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11342" href="#d11342" onclick="ShowContacts(11342)">
+										<i id="i11342" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11342" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Harris AES Load Module</td>
+							<td>
+								L3Harris Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11386" href="#d11386" onclick="ShowContacts(11386)">
+										<i id="i11386" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11386" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>RF-7800W Broadband Ethernet Radio</td>
+							<td>
+								L3Harris Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11215" href="#d11215" onclick="ShowContacts(11215)">
+										<i id="i11215" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11215" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Summit Linux FIPS Core Crypto Module</td>
+							<td>
+								Laird Connectivity
+									<a class="btn" role="button" data-toggle="collapse" id="a11675" href="#d11675" onclick="ShowContacts(11675)">
+										<i id="i11675" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11675" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>BC-FNA (Bouncy Castle FIPS .NET API)</td>
+							<td>
+								Legion of the Bouncy Castle Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11698" href="#d11698" onclick="ShowContacts(11698)">
+										<i id="i11698" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11698" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>LogRhythm 7.4.8 Console</td>
+							<td>
+								LogRhythm
+									<a class="btn" role="button" data-toggle="collapse" id="a11065" href="#d11065" onclick="ShowContacts(11065)">
+										<i id="i11065" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11065" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>LogRhythm 7.4.8 Data Processor</td>
+							<td>
+								LogRhythm
+									<a class="btn" role="button" data-toggle="collapse" id="a11063" href="#d11063" onclick="ShowContacts(11063)">
+										<i id="i11063" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11063" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>LogRhythm 7.4.8 Platform Manager</td>
+							<td>
+								LogRhythm
+									<a class="btn" role="button" data-toggle="collapse" id="a11066" href="#d11066" onclick="ShowContacts(11066)">
+										<i id="i11066" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11066" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>LogRhythm 7.4.8 System Monitor Agent</td>
+							<td>
+								LogRhythm
+									<a class="btn" role="button" data-toggle="collapse" id="a11067" href="#d11067" onclick="ShowContacts(11067)">
+										<i id="i11067" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11067" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>LogRhythm 7.4.8 AI Engine Server</td>
+							<td>
+								LogRhythm Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11064" href="#d11064" onclick="ShowContacts(11064)">
+										<i id="i11064" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11064" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Macronix ArmorFlash MX78 series</td>
+							<td>
+								Macronix International Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a10824" href="#d10824" onclick="ShowContacts(10824)">
+										<i id="i10824" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10824" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Marvell LS2 HSM Family</td>
+							<td>
+								Marvell Semiconductor, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11421" href="#d11421" onclick="ShowContacts(11421)">
+										<i id="i11421" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11421" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>NITROXIII CNN35XX-NFBE HSM Family</td>
+							<td>
+								Marvell Semiconductor, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11687" href="#d11687" onclick="ShowContacts(11687)">
+										<i id="i11687" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11687" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>NITROXIII CNN35XX-NFBE HSM Family</td>
+							<td>
+								Marvell Semiconductor, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11224" href="#d11224" onclick="ShowContacts(11224)">
+										<i id="i11224" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11224" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>McAfee Core Cryptographic Module (kernel)</td>
+							<td>
+								McAfee, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11280" href="#d11280" onclick="ShowContacts(11280)">
+										<i id="i11280" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11280" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>McAfee Core Cryptographic Module (user)</td>
+							<td>
+								McAfee, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11279" href="#d11279" onclick="ShowContacts(11279)">
+										<i id="i11279" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11279" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Microchip Trust Anchor TA100</td>
+							<td>
+								Microchip Technology Inc
+									<a class="btn" role="button" data-toggle="collapse" id="a10764" href="#d10764" onclick="ShowContacts(10764)">
+										<i id="i10764" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10764" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>CBL-Mariner Kernel Crypto API</td>
+							<td>
+								Microsoft Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11392" href="#d11392" onclick="ShowContacts(11392)">
+										<i id="i11392" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11392" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>CBL-Mariner OpenSSL Cryptographic Module</td>
+							<td>
+								Microsoft Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11403" href="#d11403" onclick="ShowContacts(11403)">
+										<i id="i11403" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11403" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>FIPS AP43</td>
+							<td>
+								Mist Systems
+									<a class="btn" role="button" data-toggle="collapse" id="a11573" href="#d11573" onclick="ShowContacts(11573)">
+										<i id="i11573" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11573" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Command Encryption Module</td>
+							<td>
+								Mitsubishi Space Software Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a10653" href="#d10653" onclick="ShowContacts(10653)">
+										<i id="i10653" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10653" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Mocana Cryptographic Loadable Kernel Module</td>
+							<td>
+								Mocana Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11100" href="#d11100" onclick="ShowContacts(11100)">
+										<i id="i11100" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11100" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Mocana Cryptographic Suite B Module</td>
+							<td>
+								Mocana Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11101" href="#d11101" onclick="ShowContacts(11101)">
+										<i id="i11101" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11101" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Mocana Cryptographic Suite B Module</td>
+							<td>
+								Mocana Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11257" href="#d11257" onclick="ShowContacts(11257)">
+										<i id="i11257" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11257" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Monaco Communication Cryptographic Module 1.0</td>
+							<td>
+								Monaco Enterprises Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11051" href="#d11051" onclick="ShowContacts(11051)">
+										<i id="i11051" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11051" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 2</td>
+							<td>
+								Motorola Solutions, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10656" href="#d10656" onclick="ShowContacts(10656)">
+										<i id="i10656" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10656" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 3</td>
+							<td>
+								Motorola Solutions, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10657" href="#d10657" onclick="ShowContacts(10657)">
+										<i id="i10657" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10657" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>KMF/Wave/Traffic CryptR</td>
+							<td>
+								Motorola Solutions, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11706" href="#d11706" onclick="ShowContacts(11706)">
+										<i id="i11706" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11706" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Motorola Solutions Cryptographic Firmware Module</td>
+							<td>
+								Motorola Solutions, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11094" href="#d11094" onclick="ShowContacts(11094)">
+										<i id="i11094" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11094" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Motorola Solutions Cryptographic Software Module</td>
+							<td>
+								Motorola Solutions, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11096" href="#d11096" onclick="ShowContacts(11096)">
+										<i id="i11096" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11096" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Voice Processing Module Cryptographic Module (VPMCM) / Telephone Media Gateway Cryptographic Module (TMGCM)</td>
+							<td>
+								Motorola Solutions, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11677" href="#d11677" onclick="ShowContacts(11677)">
+										<i id="i11677" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11677" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>NEC Storage Encryption Board for NVMe</td>
+							<td>
+								NEC Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11511" href="#d11511" onclick="ShowContacts(11511)">
+										<i id="i11511" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11511" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>NetApp CryptoMod</td>
+							<td>
+								NetApp, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10791" href="#d10791" onclick="ShowContacts(10791)">
+										<i id="i10791" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10791" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>NETSCOUT FIPS Object Module</td>
+							<td>
+								NETSCOUT Systems, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11112" href="#d11112" onclick="ShowContacts(11112)">
+										<i id="i11112" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11112" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>7705 SAR-OS SAR-18/8/X/Ax/Wx/W/H/Hc Control Plane Cryptographic Module (SARCPCM)</td>
+							<td>
+								Nokia Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11116" href="#d11116" onclick="ShowContacts(11116)">
+										<i id="i11116" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11116" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>7705 SAR-OS SAR-18/8/X/Ax/Wx/W/H/Hc Data Plane Cryptographic Module (SARDCM)</td>
+							<td>
+								Nokia Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11115" href="#d11115" onclick="ShowContacts(11115)">
+										<i id="i11115" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11115" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>7705 SAR-OS SAR-A/M Cryptographic Module (SARCM)</td>
+							<td>
+								Nokia Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10934" href="#d10934" onclick="ShowContacts(10934)">
+										<i id="i10934" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10934" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Nokia 1830 Photonic Service Switch (PSS)</td>
+							<td>
+								Nokia Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10674" href="#d10674" onclick="ShowContacts(10674)">
+										<i id="i10674" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10674" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>SR-OS Cryptographic Module</td>
+							<td>
+								Nokia Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10933" href="#d10933" onclick="ShowContacts(10933)">
+										<i id="i10933" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10933" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Nutanix Cryptographic Module for OpenSSH Client</td>
+							<td>
+								Nutanix, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11259" href="#d11259" onclick="ShowContacts(11259)">
+										<i id="i11259" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11259" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Nutanix Cryptographic Module for OpenSSH Server</td>
+							<td>
+								Nutanix, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11260" href="#d11260" onclick="ShowContacts(11260)">
+										<i id="i11260" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11260" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Nutanix Cryptographic Module for OpenSSL</td>
+							<td>
+								Nutanix, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11261" href="#d11261" onclick="ShowContacts(11261)">
+										<i id="i11261" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11261" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>NPCT7xx TPM 2.0 rev 1.59</td>
+							<td>
+								Nuvoton Technology Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11530" href="#d11530" onclick="ShowContacts(11530)">
+										<i id="i11530" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11530" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Nuvoton Cryptographic Library 2.0</td>
+							<td>
+								Nuvoton Technology Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11033" href="#d11033" onclick="ShowContacts(11033)">
+										<i id="i11033" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11033" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>i.MX 8X SECO HSMv2</td>
+							<td>
+								NXP Semiconductors
+									<a class="btn" role="button" data-toggle="collapse" id="a11552" href="#d11552" onclick="ShowContacts(11552)">
+										<i id="i11552" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11552" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 Libreswan Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11011" href="#d11011" onclick="ShowContacts(11011)">
+										<i id="i11011" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11011" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 NSS Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11010" href="#d11010" onclick="ShowContacts(11010)">
+										<i id="i11010" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11010" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 OpenSSH Client Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11009" href="#d11009" onclick="ShowContacts(11009)">
+										<i id="i11009" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11009" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 OpenSSH Server Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11008" href="#d11008" onclick="ShowContacts(11008)">
+										<i id="i11008" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11008" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 OpenSSL Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11006" href="#d11006" onclick="ShowContacts(11006)">
+										<i id="i11006" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11006" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 7 Unbreakable Enterprise Kernel (UEK6) Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11007" href="#d11007" onclick="ShowContacts(11007)">
+										<i id="i11007" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11007" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 8 GnuTLS Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11016" href="#d11016" onclick="ShowContacts(11016)">
+										<i id="i11016" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11016" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 8 libgcrypt Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11017" href="#d11017" onclick="ShowContacts(11017)">
+										<i id="i11017" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11017" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 8 NSS Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11018" href="#d11018" onclick="ShowContacts(11018)">
+										<i id="i11018" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11018" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 8 OpenSSL Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11014" href="#d11014" onclick="ShowContacts(11014)">
+										<i id="i11014" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11014" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Linux 8 Unbreakable Enterprise Kernel (UEK6) Cryptographic Module</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11015" href="#d11015" onclick="ShowContacts(11015)">
+										<i id="i11015" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11015" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Oracle Solaris Userland Cryptographic Framework</td>
+							<td>
+								Oracle Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11072" href="#d11072" onclick="ShowContacts(11072)">
+										<i id="i11072" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11072" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>OSNEXUS Crypto Library</td>
+							<td>
+								OSNEXUS Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a9393" href="#d9393" onclick="ShowContacts(9393)">
+										<i id="i9393" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9393" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Instant-On Networks (ION) devices ION 1000, ION 2000, ION 3000, ION 7000, and ION 9000</td>
+							<td>
+								Palo Alto Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a9433" href="#d9433" onclick="ShowContacts(9433)">
+										<i id="i9433" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9433" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Cryptographic Module for DSC2-2Q200</td>
+							<td>
+								Pensando Systems, Inc
+									<a class="btn" role="button" data-toggle="collapse" id="a11618" href="#d11618" onclick="ShowContacts(11618)">
+										<i id="i11618" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11618" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>X4i Hardware Security Module (HSM)</td>
+							<td>
+								Pitney Bowes, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11640" href="#d11640" onclick="ShowContacts(11640)">
+										<i id="i11640" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11640" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Qualcomm(R) Crypto Engine Core</td>
+							<td>
+								Qualcomm Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11666" href="#d11666" onclick="ShowContacts(11666)">
+										<i id="i11666" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11666" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Qualcomm(R) Secure Processing Unit</td>
+							<td>
+								Qualcomm Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11664" href="#d11664" onclick="ShowContacts(11664)">
+										<i id="i11664" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11664" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Qualcomm(R) Trusted Execution Environment (TEE) Software Cryptographic Library</td>
+							<td>
+								Qualcomm Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11667" href="#d11667" onclick="ShowContacts(11667)">
+										<i id="i11667" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11667" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Qumulo Secure</td>
+							<td>
+								Qumulo, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10973" href="#d10973" onclick="ShowContacts(10973)">
+										<i id="i10973" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10973" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>CryptoManager Root of Trust (CMRT)</td>
+							<td>
+								Rambus Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10780" href="#d10780" onclick="ShowContacts(10780)">
+										<i id="i10780" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10780" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 GnuTLS Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11589" href="#d11589" onclick="ShowContacts(11589)">
+										<i id="i11589" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11589" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 GnuTLS Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11584" href="#d11584" onclick="ShowContacts(11584)">
+										<i id="i11584" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11584" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11583" href="#d11583" onclick="ShowContacts(11583)">
+										<i id="i11583" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11583" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11588" href="#d11588" onclick="ShowContacts(11588)">
+										<i id="i11588" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11588" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11509" href="#d11509" onclick="ShowContacts(11509)">
+										<i id="i11509" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11509" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 libgcrypt Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11586" href="#d11586" onclick="ShowContacts(11586)">
+										<i id="i11586" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11586" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 libgcrypt Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11623" href="#d11623" onclick="ShowContacts(11623)">
+										<i id="i11623" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11623" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 NSS Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11587" href="#d11587" onclick="ShowContacts(11587)">
+										<i id="i11587" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11587" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 NSS Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11665" href="#d11665" onclick="ShowContacts(11665)">
+										<i id="i11665" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11665" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 OpenSSL Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11585" href="#d11585" onclick="ShowContacts(11585)">
+										<i id="i11585" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11585" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Red Hat Enterprise Linux 8 OpenSSL Cryptographic Module</td>
+							<td>
+								Red Hat(R), Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11533" href="#d11533" onclick="ShowContacts(11533)">
+										<i id="i11533" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11533" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SAAB Encrypted Automatic Identification System Cryptographic Module (EAISCM)</td>
+							<td>
+								Saab AB (publ) TransponderTech (SAAB)
+									<a class="btn" role="button" data-toggle="collapse" id="a11053" href="#d11053" onclick="ShowContacts(11053)">
+										<i id="i11053" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11053" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Samsung NVMe TCG Opal SSC SEDs PM1733 Series</td>
+							<td>
+								Samsung Electronics Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11130" href="#d11130" onclick="ShowContacts(11130)">
+										<i id="i11130" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11130" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Samsung NVMe TCG Opal SSC SEDs PM1733/PM1735 Series</td>
+							<td>
+								Samsung Electronics Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11420" href="#d11420" onclick="ShowContacts(11420)">
+										<i id="i11420" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11420" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Samsung NVMe TCG Opal SSC SEDs PM9A3 Series</td>
+							<td>
+								Samsung Electronics Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11287" href="#d11287" onclick="ShowContacts(11287)">
+										<i id="i11287" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11287" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Samsung SCrypto Cryptographic Module</td>
+							<td>
+								Samsung Electronics Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a11248" href="#d11248" onclick="ShowContacts(11248)">
+										<i id="i11248" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11248" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>SecHSM V2-1 (AC) and SecHSM V2-1 (DC)</td>
+							<td>
+								Sansec Technology Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a10712" href="#d10712" onclick="ShowContacts(10712)">
+										<i id="i10712" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10712" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Seagate Secure(R) TCG Enterprise SSC Self-Encrypting Drives FIPS 140 Module</td>
+							<td>
+								Seagate Technology LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11790" href="#d11790" onclick="ShowContacts(11790)">
+										<i id="i11790" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11790" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Seagate Secure(R) Self-Encrypting Drive</td>
+							<td>
+								Seagate Technology, LLC
+									<a class="btn" role="button" data-toggle="collapse" id="a11591" href="#d11591" onclick="ShowContacts(11591)">
+										<i id="i11591" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11591" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SecureData Engine</td>
+							<td>
+								SecureAge Technology
+									<a class="btn" role="button" data-toggle="collapse" id="a11734" href="#d11734" onclick="ShowContacts(11734)">
+										<i id="i11734" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11734" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>AxioCrypto-M235x</td>
+							<td>
+								Security Platform Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11601" href="#d11601" onclick="ShowContacts(11601)">
+										<i id="i11601" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11601" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>CN Series Encryptors</td>
+							<td>
+								Senetas Corporation Ltd., distributed by Thales SA (SafeNet)
+									<a class="btn" role="button" data-toggle="collapse" id="a10769" href="#d10769" onclick="ShowContacts(10769)">
+										<i id="i10769" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10769" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>CN6000 Series Encryptors</td>
+							<td>
+								Senetas Corporation Ltd., distributed by Thales SA (SafeNet)
+									<a class="btn" role="button" data-toggle="collapse" id="a10770" href="#d10770" onclick="ShowContacts(10770)">
+										<i id="i10770" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10770" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>GM01</td>
+							<td>
+								Shanghai Muge Technology Co., Ltd
+									<a class="btn" role="button" data-toggle="collapse" id="a11603" href="#d11603" onclick="ShowContacts(11603)">
+										<i id="i11603" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11603" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SX-590-1402</td>
+							<td>
+								silex technology, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11134" href="#d11134" onclick="ShowContacts(11134)">
+										<i id="i11134" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11134" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Silver Peak ECOS Cryptographic Library</td>
+							<td>
+								Silver Peak Systems Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11148" href="#d11148" onclick="ShowContacts(11148)">
+										<i id="i11148" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11148" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Silver Peak Unity EdgeConnect EC-XS-FIPS, EC-M-P-FIPS, EC-XL-P-FIPS and EC-XL-P-NM-FIPS</td>
+							<td>
+								Silver Peak Systems, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a6967" href="#d6967" onclick="ShowContacts(6967)">
+										<i id="i6967" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d6967" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>SK hynix PE8010 and PE8030 NVMe Opal SEDs</td>
+							<td>
+								SK hynix Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11745" href="#d11745" onclick="ShowContacts(11745)">
+										<i id="i11745" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11745" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SK hynix PE8110 M.2 22110D NVMe TCG Opal SSC SED</td>
+							<td>
+								SK hynix Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11750" href="#d11750" onclick="ShowContacts(11750)">
+										<i id="i11750" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11750" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SK hynix PE8111 E1.L NVMe TCG Opal SSC SED</td>
+							<td>
+								SK hynix Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11748" href="#d11748" onclick="ShowContacts(11748)">
+										<i id="i11748" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11748" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SonicWall Capture Security Appliance (CSa) 1000</td>
+							<td>
+								SonicWall
+									<a class="btn" role="button" data-toggle="collapse" id="a11700" href="#d11700" onclick="ShowContacts(11700)">
+										<i id="i11700" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11700" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SonicWall Network Security Virtual Appliances</td>
+							<td>
+								SonicWall, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11107" href="#d11107" onclick="ShowContacts(11107)">
+										<i id="i11107" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11107" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>SonicWALL NSsp 14700 and NSsp 15700</td>
+							<td>
+								SonicWall, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11097" href="#d11097" onclick="ShowContacts(11097)">
+										<i id="i11097" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11097" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>SonicWALL SMA Series v12.4 SMA 6210, SMA 7210, SMA 7200</td>
+							<td>
+								SonicWall, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11271" href="#d11271" onclick="ShowContacts(11271)">
+										<i id="i11271" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11271" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SonicWALL SMA Series v12.4 SMA 8200v</td>
+							<td>
+								SonicWall, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11272" href="#d11272" onclick="ShowContacts(11272)">
+										<i id="i11272" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11272" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SonicWALL TZ270, TZ270W, TZ370, TZ370W, TZ470, TZ470W, TZ570, TZ570W, TZ570P, TZ670, NSa 2700 and NSa 3700</td>
+							<td>
+								SonicWall, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11098" href="#d11098" onclick="ShowContacts(11098)">
+										<i id="i11098" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11098" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Trusted Platform Module ST33TPHF2XSPI [A], ST33TPHF2XI2C [B], ST33GTPMASPI [C], ST33GTPMAI2C [D], ST33GTPMISPI [E] & ST33GTPMII2C [F]</td>
+							<td>
+								STMicroelectronics
+									<a class="btn" role="button" data-toggle="collapse" id="a11426" href="#d11426" onclick="ShowContacts(11426)">
+										<i id="i11426" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11426" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Symantec Content Analysis Virtual Appliance</td>
+							<td>
+								Symantec, A Division of Broadcom
+									<a class="btn" role="button" data-toggle="collapse" id="a11266" href="#d11266" onclick="ShowContacts(11266)">
+										<i id="i11266" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11266" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Symantec Integrated Secure Gateway</td>
+							<td>
+								Symantec, A Division of Broadcom
+									<a class="btn" role="button" data-toggle="collapse" id="a11480" href="#d11480" onclick="ShowContacts(11480)">
+										<i id="i11480" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11480" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>TruLink Control Logic Module CL6792-M1</td>
+							<td>
+								Telephonics Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11662" href="#d11662" onclick="ShowContacts(11662)">
+										<i id="i11662" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11662" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>TruLink Control Logic Module CL6882-M1</td>
+							<td>
+								Telephonics Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11663" href="#d11663" onclick="ShowContacts(11663)">
+										<i id="i11663" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11663" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Tera2 PCoIP Zero Client Processors</td>
+							<td>
+								Teradici Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11657" href="#d11657" onclick="ShowContacts(11657)">
+										<i id="i11657" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11657" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>IDPrime 3930 FIDO</td>
+							<td>
+								Thales
+									<a class="btn" role="button" data-toggle="collapse" id="a11433" href="#d11433" onclick="ShowContacts(11433)">
+										<i id="i11433" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11433" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>ProtectServer Internal Express 2 (PSI-E2)</td>
+							<td>
+								Thales
+									<a class="btn" role="button" data-toggle="collapse" id="a11052" href="#d11052" onclick="ShowContacts(11052)">
+										<i id="i11052" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11052" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>ProtectServer PCIe HSM 3</td>
+							<td>
+								Thales
+									<a class="btn" role="button" data-toggle="collapse" id="a10851" href="#d10851" onclick="ShowContacts(10851)">
+										<i id="i10851" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10851" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Thales CipherTrust Manager Core Security Module</td>
+							<td>
+								Thales
+									<a class="btn" role="button" data-toggle="collapse" id="a11240" href="#d11240" onclick="ShowContacts(11240)">
+										<i id="i11240" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11240" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Thales Luna K7 Cryptographic Module</td>
+							<td>
+								Thales
+									<a class="btn" role="button" data-toggle="collapse" id="a11227" href="#d11227" onclick="ShowContacts(11227)">
+										<i id="i11227" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11227" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>OpenSSL FIPS Provider</td>
+							<td>
+								The OpenSSL Project
+									<a class="btn" role="button" data-toggle="collapse" id="a11059" href="#d11059" onclick="ShowContacts(11059)">
+										<i id="i11059" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11059" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Titaniam Core Engine</td>
+							<td>
+								Titaniam, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11230" href="#d11230" onclick="ShowContacts(11230)">
+										<i id="i11230" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11230" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Toshiba Secure TCG Opal SSC Self-Encrypting Drive Series MG09ACP18TA and MG09ACP16TA</td>
+							<td>
+								Toshiba Electronic Devices & Storage Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11751" href="#d11751" onclick="ShowContacts(11751)">
+										<i id="i11751" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11751" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Toshiba Secure TCG Opal SSC Self-Encrypting Drive Series MG09SCP18TA and MG09SCP16TA</td>
+							<td>
+								Toshiba Electronic Devices & Storage Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11752" href="#d11752" onclick="ShowContacts(11752)">
+										<i id="i11752" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11752" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>TW-900/950 TSM Shadow and TW-870/875 TSM Ghost</td>
+							<td>
+								TrellisWare Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a9346" href="#d9346" onclick="ShowContacts(9346)">
+										<i id="i9346" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9346" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>AN/GRC-262</td>
+							<td>
+								Ultra Electronics - TCS
+									<a class="btn" role="button" data-toggle="collapse" id="a11225" href="#d11225" onclick="ShowContacts(11225)">
+										<i id="i11225" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11225" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>u.trust Anchor</td>
+							<td>
+								Utimaco IS GmbH
+									<a class="btn" role="button" data-toggle="collapse" id="a11184" href="#d11184" onclick="ShowContacts(11184)">
+										<i id="i11184" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11184" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>RAD X-1040 AES-256</td>
+							<td>
+								Vcinity, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10910" href="#d10910" onclick="ShowContacts(10910)">
+										<i id="i10910" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10910" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Versa Networks Branch</td>
+							<td>
+								Versa Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10826" href="#d10826" onclick="ShowContacts(10826)">
+										<i id="i10826" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10826" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Versa Networks Controller</td>
+							<td>
+								Versa Networks, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10827" href="#d10827" onclick="ShowContacts(10827)">
+										<i id="i10827" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10827" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Virtru JavaScript Cryptographic Library</td>
+							<td>
+								Virtru Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a10833" href="#d10833" onclick="ShowContacts(10833)">
+										<i id="i10833" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10833" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>VMware’s Linux Cryptographic Module</td>
+							<td>
+								VMware, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11193" href="#d11193" onclick="ShowContacts(11193)">
+										<i id="i11193" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11193" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>VMware's ESXboot Cryptographic Module</td>
+							<td>
+								VMware, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11507" href="#d11507" onclick="ShowContacts(11507)">
+										<i id="i11507" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11507" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>VMware's VPN Crypto Module</td>
+							<td>
+								VMware, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11473" href="#d11473" onclick="ShowContacts(11473)">
+										<i id="i11473" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11473" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Vocera Cryptographic Module</td>
+							<td>
+								Vocera Communications, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11456" href="#d11456" onclick="ShowContacts(11456)">
+										<i id="i11456" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11456" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>WatchKey ProX USB Token Cryptographic Module</td>
+							<td>
+								WatchData Technologies Pte Ltd
+									<a class="btn" role="button" data-toggle="collapse" id="a10906" href="#d10906" onclick="ShowContacts(10906)">
+										<i id="i10906" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10906" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+						<tr>
+							<td>Ultrastar® DC HC550 and DC HC650 TCG Opal Self-Encrypting Drive</td>
+							<td>
+								Western Digital Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11707" href="#d11707" onclick="ShowContacts(11707)">
+										<i id="i11707" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11707" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Ultrastar® DC SN540 NVMe™ PCIe 3.0 Self Encrypting Drive</td>
+							<td>
+								Western Digital Corporation
+									<a class="btn" role="button" data-toggle="collapse" id="a11562" href="#d11562" onclick="ShowContacts(11562)">
+										<i id="i11562" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11562" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>Ultrastar® DC SN640 NVMe™ PCIe 3.0 Self-Encrypting Drive</td>
+							<td>
+								Western Digital Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a11658" href="#d11658" onclick="ShowContacts(11658)">
+										<i id="i11658" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11658" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Ultrastar® DC SN840 NVMe™ PCIe 3.0 Self Encrypting Drive</td>
+							<td>
+								Western Digital Technologies, Inc.
+									<a class="btn" role="button" data-toggle="collapse" id="a10837" href="#d10837" onclick="ShowContacts(10837)">
+										<i id="i10837" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d10837" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">In Review</td>
+						</tr>
+						<tr>
+							<td>SecureDoc® Cryptographic Engine for macOS/Linux</td>
+							<td>
+								WinMagic Corp
+									<a class="btn" role="button" data-toggle="collapse" id="a11316" href="#d11316" onclick="ShowContacts(11316)">
+										<i id="i11316" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11316" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>SecureDoc® Cryptographic Engine for Windows</td>
+							<td>
+								WinMagic Corp
+									<a class="btn" role="button" data-toggle="collapse" id="a11315" href="#d11315" onclick="ShowContacts(11315)">
+										<i id="i11315" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11315" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>KeyVault Hardware Security Module (kvHSM)</td>
+							<td>
+								WiSECURE Technologies
+									<a class="btn" role="button" data-toggle="collapse" id="a11178" href="#d11178" onclick="ShowContacts(11178)">
+										<i id="i11178" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11178" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>VaultIC™ 405 1.2.6</td>
+							<td>
+								WISeKey Semiconductors
+									<a class="btn" role="button" data-toggle="collapse" id="a11785" href="#d11785" onclick="ShowContacts(11785)">
+										<i id="i11785" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11785" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>VaultIC™ 405 1.2.6</td>
+							<td>
+								WISeKey Semiconductors
+									<a class="btn" role="button" data-toggle="collapse" id="a11786" href="#d11786" onclick="ShowContacts(11786)">
+										<i id="i11786" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11786" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>ZBR-88W8887-WLAN</td>
+							<td>
+								Zebra Technologies Corporation 
+									<a class="btn" role="button" data-toggle="collapse" id="a11284" href="#d11284" onclick="ShowContacts(11284)">
+										<i id="i11284" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11284" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>Zebra DCS Cryptographic Library</td>
+							<td>
+								Zebra Technologies Corporation 
+									<a class="btn" role="button" data-toggle="collapse" id="a11407" href="#d11407" onclick="ShowContacts(11407)">
+										<i id="i11407" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d11407" class="collapse"></div>
+							</td>
+							<td>FIPS 140-3</td>
+							<td class="nowrap">Review Pending</td>
+						</tr>
+						<tr>
+							<td>DHSSL Cryptographic Module</td>
+							<td>
+								Zhejiang Dahua Technology Co., Ltd.
+									<a class="btn" role="button" data-toggle="collapse" id="a9514" href="#d9514" onclick="ShowContacts(9514)">
+										<i id="i9514" class="fa fa-search-plus"><span class="element-invisible">View Contacts</span></i>
+									</a>
+									<div id="d9514" class="collapse"></div>
+							</td>
+							<td>FIPS 140-2</td>
+							<td class="nowrap">Coordination</td>
+						</tr>
+				</tbody>
+				<tfoot id="MIPFooter">
+						<tr>
+							<td colspan="3">Displayed</td>
+							<td>236</td>
+						</tr>
+						<tr>
+							<td colspan="3">Not Displayed</td>
+							<td>34</td>
+						</tr>
+						<tr>
+							<td colspan="3">Total</td>
+							<td>270</td>
+						</tr>
+				</tfoot>
+			</table>
+
+	</div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 historical-data-area" id="historical-data-area">
+
+            <span>Created <span id="page-created-date">October 11, 2016</span>, Updated <span id="page-updated-date">December 14, 2021</span></span>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+	function ShowContacts(submissionID) {
+		var div = document.querySelector('#d' + submissionID);
+		if (div.innerHTML.trim() == "") {
+			let xmlhttp = new XMLHttpRequest();
+			xmlhttp.addEventListener("load", function () {
+				var response = JSON.parse(xmlhttp.responseText);
+				div.innerHTML = response;
+				if (response === '') { document.querySelector('#a' + submissionID).remove(); }
+				else {
+					document.querySelector('#i' + submissionID).classList.replace("fa-search-plus", "fa-search-minus");
+				}
+			});
+			xmlhttp.open('GET', '/csrcservices/public/cmvp/CMVPRESTApi/VendorContacts/' + submissionID);
+			xmlhttp.send();
+		}
+		else {
+			div.innerHTML = "";
+			document.querySelector('#i' + submissionID).classList.replace("fa-search-minus", "fa-search-plus");
+		}
+	};
+</script>
+
+
+        <div id="footer-pusher"></div>
+
+    </div>
+
+    
+
+    <footer id="footer">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <span class="hidden-xs">
+                    <a href="https://www.nist.gov" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo" id="footer-nist-logo-link">
+                        <img src="/CSRC/Media/images/logo_rev.png" alt="National Institute of Standards and Technology logo" id="footer-nist-logo" />
+                    </a>
+                </span>
+
+                <div class="row footer-contact-container">
+                    <div class="col-sm-12" id="footer-address">
+                        <strong>HEADQUARTERS</strong><br>
+                        100 Bureau Drive<br>
+                        Gaithersburg, MD 20899
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <ul class="social-list text-right" style="display: block;">
+                    <li class="field-item service-twitter list-horiz">
+                        <a href="https://twitter.com/NISTCyber" class="social-btn social-btn--large extlink ext" id="footer-social-twitter-link">
+                            <i class="fa fa-twitter fa-fw"><span class="element-invisible">twitter</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+                    </li>
+                    <li class="field-item service-facebook list-horiz">
+                        <a href="https://www.facebook.com/NIST" class="social-btn social-btn--large extlink ext" id="footer-social-facebook-link">
+                            <i class="fa fa-facebook fa-fw"><span class="element-invisible">facebook</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-linkedin list-horiz">
+                        <a href="https://www.linkedin.com/company/nist" class="social-btn social-btn--large extlink ext" id="footer-social-linkedin-link">
+                            <i class="fa fa-linkedin fa-fw"><span class="element-invisible">linkedin</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-instagram list-horiz">
+                        <a href="https://www.instagram.com/usnistgov/" class="social-btn social-btn--large extlink ext" id="footer-social-instagram-link">
+                            <i class="fa fa-instagram fa-fw"><span class="element-invisible">instagram</span></i>
+                            <span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-youtube list-horiz">
+                        <a href="https://www.youtube.com/user/USNISTGOV" class="social-btn social-btn--large extlink ext" id="footer-social-youtube-link">
+                            <i class="fa fa-youtube fa-fw"><span class="element-invisible">youtube</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-rss list-horiz">
+                        <a href="https://www.nist.gov/news-events/nist-rss-feeds" class="social-btn social-btn--large extlink" id="footer-social-rss-link">
+                            <i class="fa fa-rss fa-fw"><span class="element-invisible">rss</span></i>
+                        </a>
+
+                    </li>
+                    <li class="field-item service-govdelivery list-horiz last">
+                        <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" class="social-btn social-btn--large extlink ext" title="Subscribe to CSRC and publication updates, and other NIST cybersecurity news" id="footer-social-govdelivery-link">
+                            <i class="fa fa-envelope fa-fw"><span class="element-invisible">govdelivery</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="text-right">
+                    Want updates about CSRC and our publications?
+                    <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" class="btn btn-lg btn-info" style="background-color: #12659c!important; border-color: #12659c!important;" id="footer-subscribe-link">Subscribe</a>
+                </p>
+            </div>
+        </div>
+        <div class="row hidden-sm hidden-md hidden-lg">
+            <div class="col-sm-12">
+                <a href="https://www.nist.gov" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo" id="footer-bottom-nist-logo-link">
+                    <img src="/CSRC/Media/images/logo_rev.png" alt="National Institute of Standards and Technology logo" id="footer-bottom-nist-logo" />
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <p>
+                    <a href="mailto:webmaster-csrc@nist.gov?subject=CSRC Inquiry" id="footer-webmaster-link">Webmaster</a> |
+                    <a href="/about/contact" id="footer-contact-us-link">Contact Us</a> |
+                    <a href="https://www.nist.gov/about-nist/our-organization" style="display: inline-block;" id="footer-org-link">Our Other Offices</a>
+                </p>
+            </div>
+            <div class="col-sm-6">
+                <span class="pull-right text-right">
+                    Contact CSRC Webmaster: <a href="mailto:webmaster-csrc@nist.gov?subject=CSRC Inquiry" style="display: inline-block;" id="footer-info-webmaster-link">webmaster-csrc@nist.gov</a>
+                </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="footer-bottom-links-container" id="footer-bottom-links-container">
+                <ul>
+                  <li><a href="https://www.nist.gov/privacy-policy">Site Privacy</a></li>
+                  <li><a href="https://www.nist.gov/oism/accessibility">Accessibility</a></li>
+                  <li><a href="https://www.nist.gov/privacy">Privacy Program</a></li>
+                  <li><a href="https://www.nist.gov/oism/copyrights">Copyrights</a></li>
+                  <li><a href="https://www.commerce.gov/vulnerability-disclosure-policy">Vulnerability Disclosure</a></li>
+                  <li><a href="https://www.nist.gov/no-fear-act-policy">No Fear Act Policy</a></li>
+                  <li><a href="https://www.nist.gov/foia">FOIA</a></li>
+                  <li><a href="https://www.nist.gov/environmental-policy-statement">Environmental Policy</a></li>
+                  <li><a href="https://www.nist.gov/summary-report-scientific-integrity">Scientific Integrity</a></li>
+                  <li><a href="https://www.nist.gov/nist-information-quality-standards">Information Quality Standards</a></li>
+                  <li><a href="https://www.commerce.gov/">Commerce.gov</a></li>
+                  <li><a href="https://www.science.gov/">Science.gov</a></li>
+                  <li><a href="https://www.usa.gov/">USA.gov</a></li>
+                  <li><a href="https://vote.gov/">Vote.gov</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script type="text/javascript" src="/dist/js/quick-collapse.js"></script>
+<script type="text/javascript" src="/dist/app.bundle.js"></script>
+<!-- <script defer type="text/javascript" src="/dist/katex/katex.min.js"></script>
+<script defer type="text/javascript" src="/dist/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script> -->
+
+<!-- reCAPTCHA v3 -->
+<script defer src='https://www.google.com/recaptcha/api.js?render=6LcQo40UAAAAAJpAj4X-i-WfOzdbu6d7j7kKryDS'></script>
+
+    
+
+    </body>
+</html>

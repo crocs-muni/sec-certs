@@ -11,9 +11,6 @@
     ],
     "not_valid_before": "1900-01-02",
     "not_valid_after": "1900-01-03",
-    "report_link": "https://path.to/report/link",
-    "st_link": "https://path.to/st/link",
-    "cert_link": "https://path.to/cert/link",
     "manufacturer_web": "https://path.to/manufacturer/web",
     "protection_profiles": [
         {
@@ -63,5 +60,8 @@
         "indirectly_affected_by": null,
         "directly_affecting": null,
         "indirectly_affecting": null
-    }
+    },
+    "report_link": "https://path.to/report/link",
+    "st_link": "https://path.to/st/link",
+    "cert_link": "https://path.to/cert/link"
 }

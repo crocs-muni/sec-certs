@@ -5,7 +5,7 @@ import os
 import re
 import subprocess
 import time
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
@@ -69,6 +69,10 @@ def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Se
     pool.close()
     pool.join()
     return responses
+
+
+def fips_dgst(cert_id: Union[int, str]) -> str:
+    return get_first_16_bytes_sha256(str(cert_id))
 
 
 def get_first_16_bytes_sha256(string: str) -> str:
@@ -224,6 +228,15 @@ def extract_pdf_metadata(filepath: Path):
     return constants.RETURNCODE_OK, metadata
 
 
+def to_utc(timestamp: datetime) -> datetime:
+    offset = timestamp.utcoffset()
+    if offset is None:
+        return timestamp
+    timestamp -= offset
+    timestamp = timestamp.replace(tzinfo=None)
+    return timestamp
+
+
 # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
 def search_only_headers_anssi(filepath: Path):  # noqa: C901
     class HEADER_TYPE(Enum):
@@ -271,11 +284,11 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
         ),
         (
             HEADER_TYPE.HEADER_FULL,
-            "Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d\’évaluation(.+)Accords de reconnaissance applicables",  # noqa: W605
+            "Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité aux profils de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables",
         ),
         (
             HEADER_TYPE.HEADER_FULL,
-            "Référence du rapport de certification(.+)Nom du produit \\(référence/version\\)(.+)Nom de la TOE \\(référence/version\\)(.+)Conformité à un profil de protection(.+)Critères d\’évaluation et version(.+)Niveau d\’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables",  # noqa: W605
+            "Référence du rapport de certification(.+)Nom du produit \\(référence/version\\)(.+)Nom de la TOE \\(référence/version\\)(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeurs(.+)Centre d’évaluation(.+)Accords de reconnaissance applicables",
         ),
         (
             HEADER_TYPE.HEADER_FULL,
@@ -819,16 +832,21 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     full_regex_string = r"|".join([without_version, short_version, long_version])
     normalizer = r"(\d+\.*)+"
 
-    matched_strings = set([max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)])
+    matched_strings = [max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)]
     if not matched_strings:
-        matched_strings = set([max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)])
+        matched_strings = [max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)]
+    # Only keep the first occurrence but keep order.
+    matches = []
+    for match in matched_strings:
+        if match not in matches:
+            matches.append(match)
     # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
     # return identified_versions if identified_versions else ['-']
 
-    if not matched_strings:
+    if not matches:
         return ["-"]
 
-    matched = [re.search(normalizer, x) for x in matched_strings]
+    matched = [re.search(normalizer, x) for x in matches]
     return [x.group() for x in matched if x is not None]
 
 

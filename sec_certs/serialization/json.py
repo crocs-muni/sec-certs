@@ -10,15 +10,21 @@ class ComplexSerializableType:
     # to achieve without using metaclasses. Not to complicate the code, we choose instance variable.
     @property
     def serialized_attributes(self) -> List[str]:
+        if hasattr(self, "__slots__") and self.__slots__:
+            return list(self.__slots__)
         return list(self.__dict__.keys())
 
     def to_dict(self):
+        if hasattr(self, "__slots__") and self.__slots__:
+            return {
+                key: copy.deepcopy(getattr(self, key)) for key in self.__slots__ if key in self.serialized_attributes
+            }
         return {key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes}
 
     @classmethod
     def from_dict(cls, dct: Dict):
         try:
-            return cls(*(tuple(dct.values())))
+            return cls(**dct)
         except TypeError as e:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
