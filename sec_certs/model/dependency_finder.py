@@ -20,6 +20,24 @@ class DependencyFinder:
             referenced_by[cert_id].append(this_cert_id)
 
     @staticmethod
+    def _process_references(referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect):
+        new_change_detected = True
+        while new_change_detected:
+            new_change_detected = False
+            certs_id_list = referenced_by.keys()
+
+            for cert_id in certs_id_list:
+                tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
+                for referencing in tmp_referenced_by_indirect_nums:
+                    if referencing in referenced_by.keys():
+                        tmp_referencing = referenced_by_indirect[referencing].copy()
+                        newly_discovered_references = [
+                            x for x in tmp_referencing if x not in referenced_by_indirect[cert_id]
+                        ]
+                        referenced_by_indirect[cert_id].update(newly_discovered_references)
+                        new_change_detected = True if newly_discovered_references else False
+
+    @staticmethod
     def _build_cert_references(certificates: Certificates) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
         referenced_by: ReferencedByDirect = {}
 
@@ -43,22 +61,7 @@ class DependencyFinder:
             for item in referenced_by[cert_id]:
                 referenced_by_indirect[cert_id].add(item)
 
-        new_change_detected = True
-        while new_change_detected:
-            new_change_detected = False
-            certs_id_list = referenced_by.keys()
-
-            for cert_id in certs_id_list:
-                tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
-                for referencing in tmp_referenced_by_indirect_nums:
-                    if referencing in referenced_by.keys():
-                        tmp_referencing = referenced_by_indirect[referencing].copy()
-                        newly_discovered_references = [
-                            x for x in tmp_referencing if x not in referenced_by_indirect[cert_id]
-                        ]
-                        referenced_by_indirect[cert_id].update(newly_discovered_references)
-                        new_change_detected = True if newly_discovered_references else False
-
+        DependencyFinder._process_references(referenced_by, referenced_by_indirect)
         return referenced_by, referenced_by_indirect
 
     @staticmethod

@@ -180,6 +180,29 @@ class CPEClassifier(BaseEstimator):
             string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), "").strip()
         return string
 
+    def _process_manufacturer(self, manufacturer: str, result: Set) -> Optional[List[str]]:
+        tokenized = manufacturer.split()
+        if tokenized[0] in self.vendors_:
+            result.add(tokenized[0])
+        if len(tokenized) > 1 and tokenized[0] + tokenized[1] in self.vendors_:
+            result.add(tokenized[0] + tokenized[1])
+
+        # Below are completely manual fixes
+        if "hewlett" in tokenized or "hewlett-packard" in tokenized or manufacturer == "hewlett packard":
+            result.add("hp")
+        if "thales" in tokenized:
+            result.add("thalesesecurity")
+            result.add("thalesgroup")
+        if "stmicroelectronics" in tokenized:
+            result.add("st")
+        if "athena" in tokenized and "smartcard" in tokenized:
+            result.add("athena-scs")
+        if tokenized[0] == "the" and not result:
+            candidate_result = self.get_candidate_list_of_vendors(" ".join(tokenized[1:]))
+            return list(candidate_result) if candidate_result else None
+
+        return list(result) if result else None
+
     def get_candidate_list_of_vendors(self, manufacturer: str) -> Optional[List[str]]:
         """
         Given manufacturer name, this method will find list of plausible vendors from CPE dataset that are likely related.
@@ -203,27 +226,7 @@ class CPEClassifier(BaseEstimator):
         if manufacturer in self.vendors_:
             result.add(manufacturer)
 
-        tokenized = manufacturer.split()
-        if tokenized[0] in self.vendors_:
-            result.add(tokenized[0])
-        if len(tokenized) > 1 and tokenized[0] + tokenized[1] in self.vendors_:
-            result.add(tokenized[0] + tokenized[1])
-
-        # Below are completely manual fixes
-        if "hewlett" in tokenized or "hewlett-packard" in tokenized or manufacturer == "hewlett packard":
-            result.add("hp")
-        if "thales" in tokenized:
-            result.add("thalesesecurity")
-            result.add("thalesgroup")
-        if "stmicroelectronics" in tokenized:
-            result.add("st")
-        if "athena" in tokenized and "smartcard" in tokenized:
-            result.add("athena-scs")
-        if tokenized[0] == "the" and not result:
-            candidate_result = self.get_candidate_list_of_vendors(" ".join(tokenized[1:]))
-            return list(candidate_result) if candidate_result else None
-
-        return list(result) if result else None
+        return self._process_manufacturer(manufacturer, result)
 
     def get_candidate_vendor_version_pairs(
         self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]
