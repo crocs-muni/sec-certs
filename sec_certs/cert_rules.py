@@ -20,13 +20,10 @@ rules_cert_id = [
 
     # 'ANSSI-CC-CER-F-.+?', # French
 
-    "DCSSI-[0-9]+?/[0-9]+?",  # French
     "DCSSI-[0-9]+/[0-9]+",  # French (DCSSI-2009/07)
 
-    "Certification Report [0-9]+?/[0-9]+?",  # French
     "Certification Report [0-9]+/[0-9]+",  # French or Australia
 
-    "Rapport de certification [0-9]+?/[0-9]+?",  # French
     "Rapport de certification [0-9]+/[0-9]+",  # French
 
     "NSCIB-CC-[0-9][0-9][0-9][0-9].+?",  # Netherlands
@@ -38,32 +35,27 @@ rules_cert_id = [
     "NSCIB-CC-[0-9][0-9]-[0-9]+",  # Netherlands   (old number NSCIB-CC-05-6609)
     "NSCIB-CC-[0-9][0-9]-[0-9]+-CR[0-9]+",  # Netherlands (NSCIB-CC-year2digits-number-CR)
 
-    "SERTIT-[0-9]+?",  # Norway
     "SERTIT-[0-9]+",  # Norway
 
-    "CCEVS-VR-(?:|VID)[0-9]+?-[0-9]+?",  # US NSA
     "CCEVS-VR-(?:|VID)[0-9]+-[0-9]+[a-z]?",  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
     # '[0-9][0-9\-]+?-CR', # Canada
 
     "CRP[0-9]+", # UK CESG
     "CRP[0-9][0-9][0-9][0-9]*?",  # UK CESG
 
-    "CERTIFICATION REPORT No. P[0-9]+?",  # UK CESG
     "CERTIFICATION REPORT No. P[0-9]+",  # UK CESG
 
-    "20[0-9][0-9]-[0-9]+-INF-[0-9]+?",  # Spain
     "20[0-9][0-9]-[0-9]+-INF-[0-9]+",  # Spain
 
     "20[0-9][0-9]-[0-9]+-INF-[0-9]+(.(?:V|v)[0-9]+)*",  # Spain (2006-4-INF-98 v2 or (2006-4-INF-98-v2))
 
-    "KECS-CR-[0-9]+?-[0-9]+?",  # Korea
     "KECS-CR-[0-9]+-[0-9]+",  # Korea KECS-CR-20-61
     "KECS-ISIS-[0-9]+?-[0-9][0-9][0-9][0-9]",  # Korea
     "KECS-(?:ISIS|NISS|CISS)-[0-9]+-[0-9][0-9][0-9][0-9]",  # Korea
 
 
     "CRP-C[0-9]+?-[0-9]+?",  # Japan
-    "(?:CRP|ACR)-C[0-9]+-[0-9]+", # Japan (CRP-C0595-01 ACR-C0417-03)
+    "(?:CRP|ACR)-C[0-9]+-[0-9]+",  # Japan (CRP-C0595-01 ACR-C0417-03)
     "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+",  # Japan (JISEC-CC-CRP-C0689-01-2020)
 
     "ISCB-[0-9]+?-RPT-[0-9]+?",  # Malaysia
@@ -72,7 +64,6 @@ rules_cert_id = [
     "OCSI/CERT/.+?",  # Italia
     "OCSI/CERT/.+?/20[0-9]+(?:\w|/RC)",  # Italia  (OCSI/CERT/ATS/01/2018/RC)
 
-    "[0-9\\.]+?/TSE-CCCS-[0-9]+?",  # Turkis CCCS
     "[0-9\\.]+?/TSE-CCCS-[0-9]+",  # Turkis CCCS (21.0.03/TSE-CCCS-75)
 
     "CSEC[0-9]+",  # Sweden (CSEC2019015)
