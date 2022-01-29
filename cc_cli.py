@@ -80,7 +80,7 @@ def main(
         except ValueError as e:
             print(f"Error: Bad format of configuration file: {e}")
 
-    actions_set = {"build", "download", "convert", "analyze"} if "all" in actions else set(actions)
+    actions_set = {"build", "download", "convert", "analyze", "maintenances"} if "all" in actions else set(actions)
 
     if inputpath and "build" not in actions_set:
         dset: CCDataset = CCDataset.from_json(Path(inputpath))
