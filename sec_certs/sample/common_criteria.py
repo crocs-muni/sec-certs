@@ -360,33 +360,33 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return super(cls, CommonCriteriaCert).from_dict(new_dct)
 
     @staticmethod
-    def _get_name(cell: Tag) -> str:
+    def _html_row_get_name(cell: Tag) -> str:
         return list(cell.stripped_strings)[0]
 
     @staticmethod
-    def _get_manufacturer(cell: Tag) -> Optional[str]:
+    def _html_row_get_manufacturer(cell: Tag) -> Optional[str]:
         if lst := list(cell.stripped_strings):
             return lst[0]
         else:
             return None
 
     @staticmethod
-    def _get_scheme(cell: Tag) -> str:
+    def _html_row_get_scheme(cell: Tag) -> str:
         return list(cell.stripped_strings)[0]
 
     @staticmethod
-    def _get_security_level(cell: Tag) -> set:
+    def _html_row_get_security_level(cell: Tag) -> set:
         return set(cell.stripped_strings)
 
     @staticmethod
-    def _get_manufacturer_web(cell: Tag) -> Optional[str]:
+    def _html_row_get_manufacturer_web(cell: Tag) -> Optional[str]:
         for link in cell.find_all("a"):
             if link is not None and link.get("title") == "Vendor's web site" and link.get("href") != "http://":
                 return link.get("href")
         return None
 
     @staticmethod
-    def _get_protection_profiles(cell: Tag) -> set:
+    def _html_row_get_protection_profiles(cell: Tag) -> set:
         protection_profiles = set()
         for link in list(cell.find_all("a")):
             if link.get("href") is not None and "/ppfiles/" in link.get("href"):
@@ -396,13 +396,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return protection_profiles
 
     @staticmethod
-    def _get_date(cell: Tag) -> Optional[date]:
+    def _html_row_get_date(cell: Tag) -> Optional[date]:
         text = cell.get_text()
         extracted_date = datetime.strptime(text, "%Y-%m-%d").date() if text else None
         return extracted_date
 
     @staticmethod
-    def _get_report_st_links(cell: Tag) -> Tuple[str, str]:
+    def _html_row_get_report_st_links(cell: Tag) -> Tuple[str, str]:
         links = cell.find_all("a")
         # TODO: Exception checks
         assert links[1].get("title").startswith("Certification Report")
@@ -414,12 +414,12 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return report_link, security_target_link
 
     @staticmethod
-    def _get_cert_link(cell: Tag) -> Optional[str]:
+    def _html_row_get_cert_link(cell: Tag) -> Optional[str]:
         links = cell.find_all("a")
         return CommonCriteriaCert.cc_url + links[0].get("href") if links else None
 
     @staticmethod
-    def _get_maintenance_div(cell: Tag) -> Optional[Tag]:
+    def _html_row_get_maintenance_div(cell: Tag) -> Optional[Tag]:
         divs = cell.find_all("div")
         for d in divs:
             if d.find("div") and d.stripped_strings and list(d.stripped_strings)[0] == "Maintenance Report(s)":
@@ -427,7 +427,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return None
 
     @staticmethod
-    def _get_maintenance_updates(main_div: Tag) -> set:
+    def _html_row_get_maintenance_updates(main_div: Tag) -> set:
         possible_updates = list(main_div.find_all("li"))
         maintenance_updates = set()
         for u in possible_updates:
@@ -460,19 +460,20 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             logger.error("Unexpected number of cells in CC html row.")
             raise
 
-        name = CommonCriteriaCert._get_name(cells[0])
-        manufacturer = CommonCriteriaCert._get_manufacturer(cells[1])
-        manufacturer_web = CommonCriteriaCert._get_manufacturer_web(cells[1])
-        scheme = CommonCriteriaCert._get_scheme(cells[6])
-        security_level = CommonCriteriaCert._get_security_level(cells[5])
-        protection_profiles = CommonCriteriaCert._get_protection_profiles(cells[0])
-        not_valid_before = CommonCriteriaCert._get_date(cells[3])
-        not_valid_after = CommonCriteriaCert._get_date(cells[4])
-        report_link, st_link = CommonCriteriaCert._get_report_st_links(cells[0])
-        cert_link = CommonCriteriaCert._get_cert_link(cells[2])
-
-        maintenance_div = CommonCriteriaCert._get_maintenance_div(cells[0])
-        maintenances = CommonCriteriaCert._get_maintenance_updates(maintenance_div) if maintenance_div else set()
+        name = CommonCriteriaCert._html_row_get_name(cells[0])
+        manufacturer = CommonCriteriaCert._html_row_get_manufacturer(cells[1])
+        manufacturer_web = CommonCriteriaCert._html_row_get_manufacturer_web(cells[1])
+        scheme = CommonCriteriaCert._html_row_get_scheme(cells[6])
+        security_level = CommonCriteriaCert._html_row_get_security_level(cells[5])
+        protection_profiles = CommonCriteriaCert._html_row_get_protection_profiles(cells[0])
+        not_valid_before = CommonCriteriaCert._html_row_get_date(cells[3])
+        not_valid_after = CommonCriteriaCert._html_row_get_date(cells[4])
+        report_link, st_link = CommonCriteriaCert._html_row_get_report_st_links(cells[0])
+        cert_link = CommonCriteriaCert._html_row_get_cert_link(cells[2])
+        maintenance_div = CommonCriteriaCert._html_row_get_maintenance_div(cells[0])
+        maintenances = (
+            CommonCriteriaCert._html_row_get_maintenance_updates(maintenance_div) if maintenance_div else set()
+        )
 
         return cls(
             status,
