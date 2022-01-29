@@ -704,7 +704,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
-        self.heuristics.normalize_cert_id()
+        self.normalize_cert_id()
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
@@ -717,9 +717,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if new_cert_id.startswith('ANSSi'):  # mistyped ANSSi
             new_cert_id = 'ANSSI' + new_cert_id[4:]
 
-        if new_cert_id[
-            len('ANSSI-CC-0000')] == '_':  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
-            new_cert_id = new_cert_id[:len('ANSSI-CC-0000')] + '/' + new_cert_id[len('ANSSI-CC-0000') + 1:]
+        print(f"ALERT: CERT ID {new_cert_id}")
+
+        # Bug - getting out of index - ANSSI-2009/30
+        # TMP solution
+        if len(new_cert_id) >= len('ANSSI-CC-0000') + 1:
+            if new_cert_id[len('ANSSI-CC-0000')] == '_':  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
+                new_cert_id = new_cert_id[:len('ANSSI-CC-0000')] + '/' + new_cert_id[len('ANSSI-CC-0000') + 1:]
 
         if '_' in new_cert_id:  # _ instead of -
             new_cert_id = new_cert_id.replace('_', '-')
@@ -730,8 +734,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     def _is_bsi_cert(cert_id: str) -> bool:
         return cert_id.startswith("BSI-DSZ-CC-")
 
-    @staticmethod
-    def _fix_bsi_cert_id(cert_id: str) -> str:
+
+    def _fix_bsi_cert_id(self, cert_id: str) -> str:
         # missing year
         # lowercase version
         bsi_parts = cert_id.split('-')
@@ -750,13 +754,15 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             cert_year = bsi_parts[5]
 
         # year may be missing - try to find the right one
-        if cert_year is None:
-            for year in range(1996, 2030):
-                cert_id_possible = cert_id + '-' + str(year)
-                if cert_id_possible in all_cert_ids:
-                    # we found version with year
-                    cert_year = str(year)
-                    break
+        # TODO - ATTENTION - THIS NEED TO BE FIXED
+        # if cert_year is None:
+        #     for year in range(1996, 2030):
+        #         cert_id_possible = cert_id + '-' + str(year)
+        #
+        #         if cert_id_possible in all_cert_ids:  # TODO - fix here
+        #             # we found version with year
+        #             cert_year = str(year)
+        #             break
 
         # reconstruct BSI number again
         new_cert_id = 'BSI-DSZ-CC'
@@ -805,6 +811,9 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return new_cert_id
 
     def normalize_cert_id(self) -> None:
+        if self.heuristics.cert_id is None:
+            return None
+
         cert_id = self.heuristics.cert_id.strip()
         fixed_cert_id = cert_id
 
