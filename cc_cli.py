@@ -80,7 +80,7 @@ def main(
         except ValueError as e:
             print(f"Error: Bad format of configuration file: {e}")
 
-    actions_set = {"build", "download", "convert", "analyze"} if "all" in actions else set(actions)
+    actions_set = {"build", "download", "convert", "analyze", "maintenances"} if "all" in actions else set(actions)
 
     if inputpath and "build" not in actions_set:
         dset: CCDataset = CCDataset.from_json(Path(inputpath))
@@ -105,6 +105,7 @@ def main(
             description=f"Full CommonCriteria dataset snapshot {datetime.now().date()}",
         )
         dset.get_certs_from_web()
+        dset.process_protection_profiles()
     elif "build" not in actions_set and not inputpath:
         print("Error: If you do not provide input parameter, you must use 'build' action to build dataset first.")
         sys.exit(1)
