@@ -220,6 +220,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     pandas_columns: ClassVar[List[str]] = [
         "dgst",
+        "cert_id",
         "name",
         "status",
         "category",
@@ -311,6 +312,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     def pandas_tuple(self):
         return (
             self.dgst,
+            self.heuristics.cert_id,
             self.name,
             self.status,
             self.category,
