@@ -179,16 +179,20 @@ class CCDataset(Dataset, ComplexSerializableType):
             return cls.from_json(dset_path)
 
     @property
-    def get_cert_ids(self):
+    def get_all_cert_id_references(self):
         all_cert_ids = set()
 
         for cert in self.certs:
-            cert_id = self.certs[cert].heuristics.cert_id
+            cert_obj = self.certs[cert]
+            cert_id = cert_obj.heuristics.cert_id
 
             if not cert_id:
                 continue
 
             all_cert_ids.add(cert_id)
+
+            for cert_id in cert_obj.pdf_data.keywords_rules_cert_id:
+                all_cert_ids.add(cert_id)
 
         return all_cert_ids
 
@@ -682,7 +686,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         logger.info("Deriving information about sample ids from pdf scan.")
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         for cert in certs_to_process:
-            cert.compute_heuristics_cert_id(self.get_cert_ids)
+            cert.compute_heuristics_cert_id(self.get_all_cert_id_references)
 
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True):
         self._compute_cert_labs()

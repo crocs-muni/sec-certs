@@ -824,5 +824,4 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if self._is_ocsi_cert_id(cert_id):
             fixed_cert_id = self._fix_ocsi_cert_id(cert_id)
 
-        print(f"{self.heuristics.cert_id} -> {fixed_cert_id}")
         self.heuristics.cert_id = fixed_cert_id
