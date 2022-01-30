@@ -1,7 +1,12 @@
 import click
 from flask.cli import AppGroup
+from tqdm import tqdm
+from whoosh.index import EmptyIndexError
 
 from .. import app, mongo
+from ..cc.tasks import reindex_collection as reindex_cc
+from ..common.search import create_index, get_index
+from ..fips.tasks import reindex_collection as reindex_fips
 from .user import User, hash_password
 
 user_group = AppGroup("user", help="Manage users.")
@@ -65,3 +70,27 @@ def init_collections():  # pragma: no cover
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)
         click.echo(f"Created collection {collection}.")
+
+
+@app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
+def index_collections():
+    click.echo("Getting index...")
+    try:
+        ix = get_index()
+    except EmptyIndexError:
+        click.echo("Index not found, creating it...")
+        ix = create_index()
+    ix.close()
+
+    click.echo("Building CC entries to index...")
+    cc_entries = []
+    for id in tqdm(mongo.db.cc.find({}, {"_id": 1})):
+        cc_entries.append((id, "report"))
+        cc_entries.append((id, "target"))
+    click.echo("Indexing CC entries...")
+    reindex_cc(cc_entries)
+
+    click.echo("Building FIPS entries to index...")
+    fips_entries = [(id, "target") for id in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
+    click.echo("Indexing FIPS entries...")
+    reindex_fips(fips_entries)
