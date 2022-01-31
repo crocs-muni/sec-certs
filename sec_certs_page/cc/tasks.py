@@ -55,6 +55,8 @@ def update_data():  # pragma: no cover
                     dset.convert_all_pdfs(update_json=False)
                 with sentry_sdk.start_span(op="cc.analyze", description="Analyze certificates"):
                     dset.analyze_certificates(update_json=False)
+                with sentry_sdk.start_span(op="cc.protection_profiles", description="Process protection profiles"):
+                    dset.process_protection_profiles(update_json=False)
                 with sentry_sdk.start_span(op="cc.maintenance_updates", description="Process maintenance updates"):
                     dset.process_maintenance_updates()
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"):
