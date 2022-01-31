@@ -498,7 +498,7 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
                 items_found["level"] if "level" in items_found else None,
                 items_found["caveat"] if "caveat" in items_found else None,
                 items_found["exceptions"] if "exceptions" in items_found else None,
-                items_found["type"] if "type" in items_found else None,
+                items_found["module_type"] if "module_type" in items_found else None,
                 items_found["embodiment"] if "embodiment" in items_found else None,
                 items_found["algorithms"] if "algorithms" in items_found else None,
                 items_found["tested_conf"] if "tested_conf" in items_found else None,
