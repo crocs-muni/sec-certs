@@ -106,6 +106,8 @@ class WorkingFormat(Format):
                 return {"_type": "frozenset", "_value": [walk(o) for o in obj]}
             elif isinstance(obj, date):
                 return {"_type": "date", "_value": str(obj)}
+            elif isinstance(obj, tuple):
+                return tuple(map(walk, obj))
             return obj
 
         return StorageFormat(walk(self.obj))
@@ -120,6 +122,8 @@ class WorkingFormat(Format):
                     return {key: walk(value) for key, value in obj.items()}
             elif isinstance(obj, list):
                 return list(map(walk, obj))
+            elif isinstance(obj, tuple):
+                return tuple(map(walk, obj))
             elif isinstance(obj, set):
                 return set(map(walk, obj))
             elif isinstance(obj, frozenset):
@@ -141,6 +145,8 @@ class RawFormat(Format):
                 return {key: walk(value) for key, value in obj.items()}
             elif isinstance(obj, list):
                 return list(map(walk, obj))
+            elif isinstance(obj, tuple):
+                return tuple(map(walk, obj))
             elif isinstance(obj, set):
                 return set(map(walk, obj))
             elif isinstance(obj, frozenset):
@@ -162,6 +168,8 @@ class RawFormat(Format):
                     return res
             elif isinstance(obj, list):
                 return list(map(walk, obj))
+            elif isinstance(obj, tuple):
+                return tuple(map(walk, obj))
             elif isinstance(obj, set):
                 return set(map(walk, obj))
             elif isinstance(obj, frozenset):
@@ -182,6 +190,8 @@ class ObjFormat(Format):
                 return frozendict({key: walk(value) for key, value in obj.items()})
             elif isinstance(obj, list):
                 return list(map(walk, obj))
+            elif isinstance(obj, tuple):
+                return tuple(map(walk, obj))
             elif isinstance(obj, set):
                 return set(map(walk, obj))
             elif isinstance(obj, frozenset):
