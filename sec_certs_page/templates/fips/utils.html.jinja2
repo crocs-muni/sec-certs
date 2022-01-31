@@ -18,7 +18,7 @@
 			</div>
 
 			<div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse" aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
-			<div class="card-body">
+			<div class="card-body text-dark">
 				{% for heading, keyword in keyword_sources.items() %}
 					{% if keyword not in hidden and keyword_scan[keyword] %}
 						<h5 class="mt-2">{{ heading }}</h5>
