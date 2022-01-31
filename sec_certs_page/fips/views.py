@@ -228,19 +228,18 @@ def entry_old(old_id, npath=None):
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],
 )
 def entry(hashid):
-    print(hashid)
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         raw_doc = mongo.db.fips.find_one({"_id": hashid})
     if raw_doc:
         doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
-                cves = list(map(load, mongo.db.cve.find({"_id": {"$in": doc["heuristics"]["related_cves"]}})))
+                cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
             else:
                 cves = []
         with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
             if doc["heuristics"]["cpe_matches"]:
-                cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": doc["heuristics"]["cpe_matches"]}})))
+                cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": list(doc["heuristics"]["cpe_matches"])}})))
             else:
                 cpes = []
         with sentry_sdk.start_span(op="files", description="Find local files"):
