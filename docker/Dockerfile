@@ -1,14 +1,11 @@
 FROM ubuntu
 
-ARG NB_USER
-ARG NB_UID
-ENV USER ${NB_USER}
-ENV HOME /home/${NB_USER}
+ENV USER="user"
+ENV HOME /home/${USER}
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
-    --uid ${NB_UID} \
-    ${NB_USER}
+    ${USER}
 WORKDIR ${HOME}
 
 #installing dependencies
