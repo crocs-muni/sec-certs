@@ -26,10 +26,9 @@ RUN adduser --disabled-password \
 USER ${USER}
 WORKDIR ${HOME}
 
-# TODO: Change dev to master
 # Download only snapshot of repository
 RUN \
-  curl -L https://api.github.com/repos/crocs-muni/sec-certs/tarball/master > sec-certs.tar.gz && \
+  curl -L https://api.github.com/repos/crocs-muni/sec-certs/tarball/main > sec-certs.tar.gz && \
   mkdir sec-certs && \
   tar zxf sec-certs.tar.gz --strip-components=1 --directory sec-certs && \
   rm sec-certs.tar.gz
