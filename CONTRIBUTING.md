@@ -8,10 +8,11 @@ You contribution is warmly welcomed. You can help by:
  3. Perform additional analysis with extracted data (analyze_certificates.py)
  3. Improve the code (TODO: Follow Github contribution guidelines, ideally contact us first about your plan)
 
-## Branches
+## Branches and releases
 
-- `dev` is the default branch against which all pull requests are to be made. 
-- `master` is protected branch where stable releases reside. Each push or PR to master should be properly tagged by [semantic version](https://semver.org/) as it will invoke actions to publish docker image and PyPi package. 
+- `main` is the default branch against which all pull requests are to be made. This branch is not neccessarily stable, only the releases are.
+- [Releases](https://github.com/crocs-muni/sec-certs/releases) are prepared manually by tagging revisions of `main` branch with `x.y.z` according to [semantic versioning](https://semver.org).
+- Upon each release, the tool is automatically published to [PyPi](https://pypi.org/project/sec-certs/) and [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs).
 
 ## Quality assurance
 
