@@ -1,5 +1,7 @@
 name: Release with GitHub, PyPi, DockerHub
-on: release
+on: 
+  release:
+    types: [published]
 
 jobs:
   pypi_release:
@@ -22,7 +24,7 @@ jobs:
         with:
           user: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
-  docker:
+  docker_release:
     name: Release on dockerhub
     runs-on: ubuntu-latest
     if: github.repository == 'crocs-muni/sec-certs'  
