@@ -254,7 +254,9 @@ def entry(hashid):
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
             for profile in doc["protection_profiles"]:
-                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile["pp_ids"]})
+                if not profile["pp_ids"]:
+                    continue
+                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": {"$in": list(profile["pp_ids"])}})
                 if found:
                     profiles[profile["pp_ids"]] = load(found)
         with sentry_sdk.start_span(op="mongo", description="Find diffs"):

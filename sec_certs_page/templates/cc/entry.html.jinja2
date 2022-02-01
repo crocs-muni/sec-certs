@@ -103,8 +103,8 @@
                         <div data-cs-name="Security level">
                             <b>Protection profiles:</b>
                             <ul>
-                                {% for id, profile in profiles.items() %}
-                                    <li><a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ id }}</a></li>
+                                {% for ids, profile in profiles.items() %}
+                                    <li><a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ ", ".join(ids) }}</a></li>
                                 {% endfor %}
                             </ul>
                             <br/>
