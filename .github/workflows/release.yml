@@ -1,29 +1,7 @@
 name: Release with GitHub, PyPi, DockerHub
-
-on:
-  push:
-    branches: [master]
-    tags:
-      - "v*.*.*"
-  pull_request:
-    branches: [master]
-    tags:
-      - "v*.*.*"
+on: release
 
 jobs:
-  github_release:
-    name: Release on GitHub
-    runs-on: ubuntu-latest
-    if: github.repository == 'crocs-muni/sec-certs'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          prerelease: true
-          generate_release_notes: true
-
   pypi_release:
     name: Release on PyPi
     runs-on: ubuntu-latest
