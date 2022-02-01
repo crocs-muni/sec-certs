@@ -16,7 +16,7 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 The tool requires `Python >=3.8`. Alongside `Python`, [pdftotext](https://www.xpdfreader.com/pdftotext-man.html), [graphviz](https://graphviz.org/),
 and [java](https://www.java.com/en) binaries must be accessible somewhere on `PATH`.
 
-The stable release is published on [PyPi](https://pypi.org/project/sec-certs/) as well as on [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
+The stable release is published on [GitHub](https://github.com/crocs-muni/sec-certs/releases), [PyPi](https://pypi.org/project/sec-certs/), and[DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
 
 ```
 pip install -U sec-certs
@@ -28,7 +28,7 @@ or
 docker pull seccerts/sec-certs
 ```
 
-Alternatively, you can setup the tool for development in virtual environment:
+Alternatively, you can [download a release](https://github.com/crocs-muni/sec-certs/releases) and setup the tool for development in virtual environment:
 
 ```
 python3 -m venv venv
@@ -75,7 +75,8 @@ cc-certs all --output ./cc_dataset
 will fully process the Common Criteria dataset, which can take up to 6 hours to finish. You can select only same tasks to run. Calling `cc-cli --help` yields
 
 ```
-Usage: cc_cli.py [OPTIONS] [all|build|download|convert|analyze|maintenances]...
+Usage: cc_cli.py [OPTIONS]
+                 [all|build|download|convert|analyze|maintenances]...
 
   Specify actions, sequence of one or more strings from the following list:
   [all, build, download, convert, analyze] If 'all' is specified, all
@@ -99,9 +100,8 @@ Options:
 ### Process CC data with Docker 
 
  1. pull the image from the DockerHub repository : `docker pull seccerts/sec-certs`
- 2. run `docker run --volume ./processed_data:/opt/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
+ 2. run `docker run --volume ./processed_data:/home/user/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
  3. All processed data will be in the `~/processed_data` directory
-
 
 ## Usage (FIPS)
 
