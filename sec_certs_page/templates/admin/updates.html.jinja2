@@ -1,0 +1,86 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div>
+                <h1>CC update log</h1>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Result</th>
+                        <th>Dataset state</th>
+                        <th># certs</th>
+                        <th>Cert state</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for log_entry in cc_log %}
+                        <tr>
+                            <td>{{ log_entry["start_time"]|strftime("%d.%m.%Y") }}</td>
+                            <td>{{ log_entry["end_time"] - log_entry["start_time"] }}</td>
+                            <td>{% if log_entry["ok"] %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                                {{ log_entry["error"] }}
+                            {% endif %}</td>
+                            <td>
+                                <i title="meta_sources_parsed"
+                                   class="fas fa-align-left {% if log_entry["state"]["meta_sources_parsed"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="pdfs_downloaded"
+                                   class="fas fa-file-download {% if log_entry["state"]["pdfs_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="pdfs_converted"
+                                   class="fas fa-file-pdf {% if log_entry["state"]["pdfs_converted"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="certs_analyzed"
+                                   class="fas fa-glasses {% if log_entry["state"]["certs_analyzed"] %}text-success{% else %}text-danger{% endif %}"></i>
+                            </td>
+                            <td>{{ log_entry["length"] }}</td>
+                            <td><b class="text-success" title="New">+{{ log_entry["stats"]["new_certs"] }}</b>,
+                                <b class="text-warning" title="Changed">~{{ log_entry["stats"]["changed_ids"] }}</b>,
+                                <b class="text-danger" title="Removed">-{{ log_entry["stats"]["removed_ids"] }}</b></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-5">
+                <h1>FIPS update log</h1>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Result</th>
+                        <th># certs</th>
+                        <th>Cert state</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for log_entry in fips_log %}
+                        <tr>
+                            <td>{{ log_entry["start_time"]|strftime("%d.%m.%Y") }}</td>
+                            <td>{{ log_entry["end_time"] - log_entry["start_time"] }}</td>
+                            <td>{% if log_entry["ok"] %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                                {{ log_entry["error"] }}
+                            {% endif %}</td>
+                            <td>{{ log_entry["length"] }}</td>
+                            <td>{% if "stats" in log_entry %}
+                                <b class="text-success" title="New">+{{ log_entry["stats"]["new_certs"] }}</b>,
+                                <b class="text-warning" title="Changed">~{{ log_entry["stats"]["changed_ids"] }}</b>,
+                                <b class="text-danger" title="Removed">-{{ log_entry["stats"]["removed_ids"] }}</b>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+{% endblock %}

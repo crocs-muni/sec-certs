@@ -21,20 +21,40 @@ def index():
     return render_template("admin/index.html.jinja2")
 
 
-@admin.route("/feedback/")
+@admin.route("/updates")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".updates", "Updates")
+def updates():
+    cc_log = list(mongo.db.cc_log.find())
+    for log_entry in cc_log:
+        log_entry["stats"]["changed_ids"] = mongo.db.cc_diff.count_documents(
+            {"run_id": log_entry["_id"], "type": "change"}
+        )
+    fips_log = list(mongo.db.fips_log.find())
+    for log_entry in fips_log:
+        if "stats" in log_entry:
+            log_entry["stats"]["changed_ids"] = mongo.db.fips_diff.count_documents(
+                {"run_id": log_entry["_id"], "type": "change"}
+            )
+    return render_template("admin/updates.html.jinja2", cc_log=cc_log, fips_log=fips_log)
+
+
+@admin.route("/feedback")
 @login_required
 @admin_permission.require()
 @register_breadcrumb(admin, ".feedback", "Feedback")
 def feedback():
     page = int(request.args.get("page", 1))
     entries = mongo.db.feedback.find({}).sort([("timestamp", pymongo.DESCENDING)])
+    count = mongo.db.feedback.count_documents({})
     pagination = Pagination(
         page=page,
         per_page=10,
         search=False,
-        found=entries.count(),
-        total=mongo.db.feedback.count_documents({}),
-        css_framework="bootstrap4",
+        found=count,
+        total=count,
+        css_framework="bootstrap5",
         alignment="center",
     )
     return render_template("admin/feedback.html.jinja2", pagination=pagination, entries=entries)
