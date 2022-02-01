@@ -108,6 +108,13 @@ def test_entry(client: FlaskClient):
 
 
 @pytest.mark.remote
+def test_entry_name_disambiguation(client: FlaskClient):
+    name = "128 Technology Cryptographic Module"
+    name_resp = client.get(f"/fips/name/{name}", follow_redirects=True)
+    assert name_resp.data.count(name.encode()) == 1
+
+
+@pytest.mark.remote
 def test_entry_graph(client: FlaskClient):
     resp = client.get("/fips/9a180de886923e04/graph.json")
     assert resp.is_json

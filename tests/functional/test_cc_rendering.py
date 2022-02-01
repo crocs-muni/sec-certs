@@ -105,6 +105,13 @@ def test_entry(client: FlaskClient):
 
 
 @pytest.mark.remote
+def test_entry_name_disambiguation(client: FlaskClient):
+    name = "AhnLab MDS, MDS with MTA, and MDS Manager v2.1"
+    name_resp = client.get(f"/cc/name/{name}", follow_redirects=True)
+    assert name_resp.data.count(name.encode()) == 3
+
+
+@pytest.mark.remote
 def test_entry_graph(client: FlaskClient):
     resp = client.get("/cc/08b09322ee9df0af/graph.json")
     assert resp.is_json

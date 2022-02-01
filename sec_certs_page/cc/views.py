@@ -345,11 +345,13 @@ def entry_id(cert_id):
 
 @cc.route("/name/<string:name>")
 def entry_name(name):
-    name = name.replace("_", " ")
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        # TODO: make this a "find" instead and if mo are found, render a disambiguation page.
-        doc = mongo.db.cc.find_one({"name": name}, {"_id": 1})
-    if doc:
-        return redirect(url_for("cc.entry", hashid=doc["_id"]))
+    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+        ids = list(mongo.db.cc.find({"name": name}, {"_id": 1}))
+    if ids:
+        if len(ids) == 1:
+            return redirect(url_for("cc.entry", hashid=ids[0]["_id"]))
+        else:
+            docs = list(map(load, mongo.db.cc.find({"_id": {"$in": list(map(itemgetter("_id"), ids))}})))
+            return render_template("cc/disambiguate.html.jinja2", certs=docs, name=name)
     else:
         return abort(404)

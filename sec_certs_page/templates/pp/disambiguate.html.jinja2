@@ -1,0 +1,16 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = False %}
+{% set search = True %}
+{% from "cc/utils.html.jinja2" import render_status %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <p class="lead">There are several protection profiles that share the name "<i>{{ name }}</i>":</p>
+            <ol>
+                {% for pp in pps %}
+                    <li><a href="{{ url_for("pp.entry", hashid=pp["_id"]) }}">{{ pp["csv_scan"]["cc_pp_name"] }}</a>, {{ render_status(pp["csv_scan"]["cert_status"]) }}, {{ pp["csv_scan"]["cc_certification_date"] }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </main>
+{% endblock %}

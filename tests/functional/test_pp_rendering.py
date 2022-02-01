@@ -76,3 +76,10 @@ def test_entry(client: FlaskClient):
     profile_resp = client.get(f"/pp/{hashid}/profile.json")
     assert profile_resp.status_code == 200
     assert profile_resp.is_json
+
+
+@pytest.mark.remote
+def test_entry_name_disambiguation(client: FlaskClient):
+    name = "Card Operating System Generation 2"
+    name_resp = client.get(f"/pp/name/{name}", follow_redirects=True)
+    assert name_resp.data.count(name.encode()) == 4
