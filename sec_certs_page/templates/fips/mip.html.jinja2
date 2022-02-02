@@ -1,0 +1,41 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1 class="mb-4">FIPS 140 MIP snapshot</h1>
+            <div class="row">
+                <div class="col-sm-6">
+                    Snapshot taken on {{ snapshot["timestamp"]|fromisoformat|strftime("%d.%m.%Y %H:%M") }} with a last
+                    updated date of {{ snapshot["last_updated"]|fromisoformat|strftime("%d.%m.%Y") }}, containing a
+                    total of {{ snapshot["total"] }} entries ({{ snapshot["displayed"] }} displayed, {{ snapshot["not_displayed"] }} not).
+                </div>
+            </div>
+            <div class="row my-5">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Module name</th>
+                        <th>Vendor name</th>
+                        <th>Standard</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for entry in snapshot["entries"]|sort(attribute="module_name") %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for("fips.mip_entry", name=entry["module_name"]) }}">{{ entry["module_name"] }}</a>
+                            </td>
+                            <td>{{ entry["vendor_name"] }}</td>
+                            <td>{{ entry["standard"] }}</td>
+                            <td>{{ entry["status"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+{% endblock %}

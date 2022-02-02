@@ -1,0 +1,30 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1 class="mb-4">FIPS 140 MIP entry</h1>
+            <h2>{{ name }}</h2>
+            <p>The module is present on the MIP list for at least {{ present.days }} days.</p>
+            <div class="row my-5">
+                <p class="mb-4">This module is present in the following snapshots:</p>
+                <ul>
+                    {% for snap in snapshots %}
+                        <li>
+                            <a href="{{ url_for("fips.mip_snapshot", id=snap["_id"]) }}">{{ snap["timestamp"]|fromisoformat|strftime("%d.%m.%Y") }}</a>,
+                            present {{ snap["entries"]|length }} times:
+                            <ul>
+                                {% for entry in snap["entries"]|sort(attribute="vendor_name,standard,status") %}
+                                    <li>
+                                        {{ entry["vendor_name"] }}, {{ entry["standard"] }}, {{ entry["status"] }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </main>
+{% endblock %}

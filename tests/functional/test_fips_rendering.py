@@ -123,3 +123,23 @@ def test_entry_graph(client: FlaskClient):
     assert nodes[0]["id"] == "9a180de886923e04"
     links = resp.json["links"]
     assert len(links) == 0
+
+
+@pytest.mark.remote
+def test_mip(client: FlaskClient):
+    resp = client.get("/fips/mip/")
+    assert resp.status_code == 200
+    resp = client.get("/fips/mip/61f891ae309360b0d79d54ce")
+    assert resp.status_code == 200
+    resp = client.get("/fips/mip/entry/BoringCrypto")
+    assert resp.status_code == 200
+
+
+@pytest.mark.remote
+def test_iut(client: FlaskClient):
+    resp = client.get("/fips/iut/")
+    assert resp.status_code == 200
+    resp = client.get("/fips/iut/61f891ad4790725e9e9d4578")
+    assert resp.status_code == 200
+    resp = client.get("/fips/iut/entry/CryptoComply")
+    assert resp.status_code == 200

@@ -134,7 +134,7 @@ def blueprint_prefix():
 @app.template_filter("strptime")
 def filter_strptime(dt, format):
     if isinstance(dt, str):
-        datetime.strptime(dt, format)
+        return datetime.strptime(dt, format)
     if isinstance(dt, (date, datetime)):
         return dt
     return None
@@ -151,7 +151,10 @@ def filter_strftime(dt_obj, format):
 
 @app.template_filter("fromisoformat")
 def filter_fromisoformat(dt):
-    return datetime.fromisoformat(dt)
+    try:
+        return datetime.fromisoformat(dt)
+    except ValueError:
+        return date.fromisoformat(dt)
 
 
 @app.template_global("is_admin")

@@ -1,0 +1,54 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1 class="mb-4">FIPS 140 Modules In Process</h1>
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="lead">This page lists daily snapshots of the FIPS 140 CMVP
+                        <a href="https://csrc.nist.gov/Projects/Cryptographic-Module-Validation-Program/Modules-In-Process/Modules-In-Process-List"
+                           target="_blank" rel="noopener">Modules in Process <i
+                                class="fas fa-external-link-alt"></i></a> list.
+                        As NIST states "<i>The MIP list contains cryptographic modules on which the CMVP is actively
+                            working.</i>"</p>
+                </div>
+            </div>
+            <div class="row my-5">
+                {# <span>{{ pagination.info }}</span> #}
+                <div class="mt-4 mb-4">
+                    {{ pagination.links }}
+                </div>
+                <table class="table table-striped table-bordered mb-4">
+                    <thead>
+                    <tr>
+                        <th title="Time of snapshot, in UTC">Timestamp</th>
+                        <th title="Date on the MIP list">Last updated</th>
+                        <th title="Total number of entries on the MIP list">Total entries</th>
+                        <th title="Displayed entries on the MIP list">Displayed entries</th>
+                        <th title="Not displayed entries on the MIP list">Not displayed entries</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for snapshot in snapshots %}
+                        <tr>
+                            <td>{{ snapshot["timestamp"]|fromisoformat|strftime("%d.%m.%Y %H:%M") }}</td>
+                            <td>{{ snapshot["last_updated"]|fromisoformat|strftime("%d.%m.%Y") }}</td>
+                            <td>{{ snapshot["total"] }}</td>
+                            <td>{{ snapshot["displayed"] }}</td>
+                            <td>{{ snapshot["not_displayed"] }}</td>
+                            <td><a class="btn btn-primary"
+                                   href="{{ url_for("fips.mip_snapshot", id=snapshot["_id"]) }}">Go to snapshot</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mb-4">
+                    {{ pagination.links }}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

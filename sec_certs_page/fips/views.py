@@ -1,6 +1,7 @@
 """FIPS views."""
 
 import random
+from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
 
@@ -198,6 +199,116 @@ def search_pagination():
 @register_breadcrumb(fips, ".analysis", "Analysis")
 def analysis():
     return render_template("fips/analysis.html.jinja2")
+
+
+@fips.route("/mip/")
+@register_breadcrumb(fips, ".mip", "MIP")
+def mip_index():
+    try:
+        page = int(request.args.get("page", 1))
+    except ValueError:
+        raise BadRequest(description="Invalid page number.")
+
+    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+    mip_snapshots = list(
+        mongo.db.fips_mip.find({}).sort([("_id", pymongo.DESCENDING)]).skip((page - 1) * per_page).limit(per_page)
+    )
+    count = mongo.db.fips_mip.count_documents({})
+
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        search=True,
+        found=len(mip_snapshots),
+        total=count,
+        css_framework="bootstrap5",
+        alignment="center",
+    )
+    return render_template("fips/mip_index.html.jinja2", snapshots=mip_snapshots, pagination=pagination)
+
+
+@fips.route("/mip/<ObjectId:id>")
+@register_breadcrumb(
+    fips,
+    ".mip.snapshot",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],
+)
+def mip_snapshot(id):
+    snapshot = mongo.db.fips_mip.find_one_or_404(id)
+    return render_template("fips/mip.html.jinja2", snapshot=snapshot)
+
+
+@fips.route("/mip/entry/<path:name>")
+@register_breadcrumb(
+    fips,
+    ".mip.entry",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["name"]}],
+)
+def mip_entry(name):
+    snapshots = list(mongo.db.fips_mip.find({"entries.module_name": name}).sort([("timestamp", pymongo.ASCENDING)]))
+    if not snapshots:
+        return abort(404)
+    for snap in snapshots:
+        snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
+    present = datetime.fromisoformat(snapshots[-1]["timestamp"]) - datetime.fromisoformat(snapshots[0]["timestamp"])
+    return render_template("fips/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
+
+
+@fips.route("/iut/")
+@register_breadcrumb(fips, ".iut", "IUT")
+def iut_index():
+    try:
+        page = int(request.args.get("page", 1))
+    except ValueError:
+        raise BadRequest(description="Invalid page number.")
+
+    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+    iut_snapshots = list(
+        mongo.db.fips_iut.find({}).sort([("_id", pymongo.DESCENDING)]).skip((page - 1) * per_page).limit(per_page)
+    )
+    count = mongo.db.fips_iut.count_documents({})
+
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        search=True,
+        found=len(iut_snapshots),
+        total=count,
+        css_framework="bootstrap5",
+        alignment="center",
+    )
+    return render_template("fips/iut_index.html.jinja2", snapshots=iut_snapshots, pagination=pagination)
+
+
+@fips.route("/iut/<ObjectId:id>")
+@register_breadcrumb(
+    fips,
+    ".iut.snapshot",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],
+)
+def iut_snapshot(id):
+    snapshot = mongo.db.fips_iut.find_one_or_404(id)
+    return render_template("fips/iut.html.jinja2", snapshot=snapshot)
+
+
+@fips.route("/iut/entry/<path:name>")
+@register_breadcrumb(
+    fips,
+    ".iut.entry",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["name"]}],
+)
+def iut_entry(name):
+    snapshots = list(mongo.db.fips_iut.find({"entries.module_name": name}).sort([("timestamp", pymongo.ASCENDING)]))
+    if not snapshots:
+        return abort(404)
+    for snap in snapshots:
+        snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
+    present = datetime.fromisoformat(snapshots[-1]["timestamp"]) - datetime.fromisoformat(snapshots[0]["timestamp"])
+    return render_template("fips/iut_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
 
 
 @fips.route("/random/")
