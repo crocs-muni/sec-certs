@@ -704,7 +704,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
-        self.normalize_cert_id(all_cert_ids)
+        self.normalize_cert_ids_obj(all_cert_ids)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
@@ -751,6 +751,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             cert_year = bsi_parts[5]
 
         if cert_year is None:
+            # TODO - do not hardcode year - IMO - at least put them into some constants
             for year in range(1996, 2030):
                 cert_id_possible = cert_id + '-' + str(year)
 
@@ -805,11 +806,12 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         return new_cert_id
 
-    def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
-        if self.heuristics.cert_id is None:
+    @staticmethod
+    def _normalize_cert_id(cert_id: str, all_cert_ids: Set[str]) -> Optional[str]:
+        if cert_id is None:
             return None
 
-        cert_id = self.heuristics.cert_id.strip()
+        cert_id = cert_id.strip()
         fixed_cert_id = cert_id
 
         if self._is_anssi_cert(cert_id):
@@ -824,4 +826,16 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if self._is_ocsi_cert_id(cert_id):
             fixed_cert_id = self._fix_ocsi_cert_id(cert_id)
 
-        self.heuristics.cert_id = fixed_cert_id
+        return fixed_cert_id
+
+
+    def normalize_cert_ids_obj(self, all_cert_ids: Set[str]) -> None:
+        """
+        This method normalizes all IDs in self object.
+        """
+        self.heuristics.cert_id = self._normalize_cert_id(self.heuristics.cert_id, all_cert_ids)
+        # TODO - update BSI_cert_id (??)
+        # TODO - update keyword_cert_id (self.pdf_data.keyword; self.pdf_data.rules_keywords)
+        # TODO - update self.pdf_data.processed_cert_id
+        # TODO - should I update dependencies among certificates??
+        

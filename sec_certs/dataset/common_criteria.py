@@ -191,8 +191,17 @@ class CCDataset(Dataset, ComplexSerializableType):
 
             all_cert_ids.add(cert_id)
 
+            # ['keywords_scan', 'rules_cert_id']
             for cert_id in cert_obj.pdf_data.keywords_rules_cert_id:
                 all_cert_ids.add(cert_id)
+
+            # ['st_keywords_scan']['rules_cert_id']
+            if cert_obj.pdf_data.st_keywords is not None:
+                for cert_id in cert_obj.pdf_data.st_keywords["rules_cert_id"]:
+                    all_cert_ids.add(cert_id)
+
+            # TODO - finish this below - try to find that in self.obj
+            # ['csv_scan', 'maintainance_updates']
 
         return all_cert_ids
 
