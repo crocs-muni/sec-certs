@@ -732,7 +732,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     def _is_bsi_cert(cert_id: str) -> bool:
         return cert_id.startswith("BSI-DSZ-CC-")
 
-    def _fix_bsi_cert_id(self, cert_id: str, all_cert_ids: Set[str]) -> str:
+    @staticmethod
+    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
         # missing year
         # lowercase version
         bsi_parts = cert_id.split('-')
@@ -814,28 +815,47 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         cert_id = cert_id.strip()
         fixed_cert_id = cert_id
 
-        if self._is_anssi_cert(cert_id):
-            fixed_cert_id = self._fix_anssi_cert_id(cert_id)
+        if CommonCriteriaCert._is_anssi_cert(cert_id):
+            fixed_cert_id = CommonCriteriaCert._fix_anssi_cert_id(cert_id)
 
-        if self._is_bsi_cert(cert_id):
-            fixed_cert_id = self._fix_bsi_cert_id(cert_id, all_cert_ids)
+        if CommonCriteriaCert._is_bsi_cert(cert_id):
+            fixed_cert_id = CommonCriteriaCert._fix_bsi_cert_id(cert_id, all_cert_ids)
 
-        if self._is_spain_cert_id(cert_id):
-            fixed_cert_id = self._fix_spain_cert_id(cert_id)
+        if CommonCriteriaCert._is_spain_cert_id(cert_id):
+            fixed_cert_id = CommonCriteriaCert._fix_spain_cert_id(cert_id)
 
-        if self._is_ocsi_cert_id(cert_id):
-            fixed_cert_id = self._fix_ocsi_cert_id(cert_id)
+        if CommonCriteriaCert._is_ocsi_cert_id(cert_id):
+            fixed_cert_id = CommonCriteriaCert._fix_ocsi_cert_id(cert_id)
 
         return fixed_cert_id
-
 
     def normalize_cert_ids_obj(self, all_cert_ids: Set[str]) -> None:
         """
         This method normalizes all IDs in self object.
         """
-        self.heuristics.cert_id = self._normalize_cert_id(self.heuristics.cert_id, all_cert_ids)
-        # TODO - update BSI_cert_id (??)
+        self.heuristics.cert_id = CommonCriteriaCert._normalize_cert_id(self.heuristics.cert_id, all_cert_ids)
+
+        # TODO - SOLVE THIS WITH SETTER?
+        # self.pdf_data.processed_cert_id = CommonCriteriaCert._normalize_cert_id(self.pdf_data.processed_cert_id, all_cert_ids)
+
         # TODO - update keyword_cert_id (self.pdf_data.keyword; self.pdf_data.rules_keywords)
-        # TODO - update self.pdf_data.processed_cert_id
-        # TODO - should I update dependencies among certificates??
-        
+        #self.pdf_data.key
+        # TODO - update BSI_cert_id (??)
+
+
+        # TODO - Normalization of dependencies is not necessary, bcs we order is - normalize all IDS, then run dependencies
+        # if self.heuristics.directly_affected_by is not None:
+        #     # TODO - for loop
+        #     pass
+        #
+        # if self.heuristics.indirectly_affected_by is not None:
+        #     # TODO - for loop
+        #     pass
+        #
+        # if self.heuristics.directly_affecting is not None:
+        #     # TODO - for loop
+        #     pass
+        #
+        # if self.heuristics.indirectly_affecting is not None:
+        #     # TODO - for loop
+        #     pass
