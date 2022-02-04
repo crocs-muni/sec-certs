@@ -190,6 +190,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
+        normalized_cert_id: Optional[str] = field(default=None)
         directly_affected_by: Optional[List[str]] = field(default=None)
         indirectly_affected_by: Optional[Set[str]] = field(default=None)
         directly_affecting: Optional[Set[str]] = field(default=None)
@@ -704,7 +705,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
-        self.normalize_cert_ids_obj(all_cert_ids)
+        self.normalize_cert_id(all_cert_ids)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
@@ -734,8 +735,8 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
-        # missing year
-        # lowercase version
+        start_year = 1996
+        limit_year = datetime.now().year + 1
         bsi_parts = cert_id.split('-')
         cert_num = None
         cert_version = None
@@ -752,8 +753,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             cert_year = bsi_parts[5]
 
         if cert_year is None:
-            # TODO - do not hardcode year - IMO - at least put them into some constants
-            for year in range(1996, 2030):
+            for year in range(start_year, limit_year):
                 cert_id_possible = cert_id + '-' + str(year)
 
                 if cert_id_possible in all_cert_ids:
@@ -778,7 +778,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def _fix_spain_cert_id(cert_id: str) -> str:
-        # Spain id has incremental version for reassesment/recertificaton, but there is also changing base id => drop version
         spain_parts = cert_id.split('-')
         cert_year = spain_parts[0]
         cert_batch = spain_parts[1]
@@ -807,12 +806,11 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         return new_cert_id
 
-    @staticmethod
-    def _normalize_cert_id(cert_id: str, all_cert_ids: Set[str]) -> Optional[str]:
-        if cert_id is None:
+    def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
+        if self.heuristics.cert_id is None:
             return None
 
-        cert_id = cert_id.strip()
+        cert_id = self.heuristics.cert_id.strip()
         fixed_cert_id = cert_id
 
         if CommonCriteriaCert._is_anssi_cert(cert_id):
@@ -827,35 +825,4 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if CommonCriteriaCert._is_ocsi_cert_id(cert_id):
             fixed_cert_id = CommonCriteriaCert._fix_ocsi_cert_id(cert_id)
 
-        return fixed_cert_id
-
-    def normalize_cert_ids_obj(self, all_cert_ids: Set[str]) -> None:
-        """
-        This method normalizes all IDs in self object.
-        """
-        self.heuristics.cert_id = CommonCriteriaCert._normalize_cert_id(self.heuristics.cert_id, all_cert_ids)
-
-        # TODO - SOLVE THIS WITH SETTER?
-        # self.pdf_data.processed_cert_id = CommonCriteriaCert._normalize_cert_id(self.pdf_data.processed_cert_id, all_cert_ids)
-
-        # TODO - update keyword_cert_id (self.pdf_data.keyword; self.pdf_data.rules_keywords)
-        #self.pdf_data.key
-        # TODO - update BSI_cert_id (??)
-
-
-        # TODO - Normalization of dependencies is not necessary, bcs we order is - normalize all IDS, then run dependencies
-        # if self.heuristics.directly_affected_by is not None:
-        #     # TODO - for loop
-        #     pass
-        #
-        # if self.heuristics.indirectly_affected_by is not None:
-        #     # TODO - for loop
-        #     pass
-        #
-        # if self.heuristics.directly_affecting is not None:
-        #     # TODO - for loop
-        #     pass
-        #
-        # if self.heuristics.indirectly_affecting is not None:
-        #     # TODO - for loop
-        #     pass
+        self.heuristics.normalized_cert_id = fixed_cert_id
