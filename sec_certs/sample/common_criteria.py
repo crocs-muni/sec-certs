@@ -584,9 +584,10 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response_bsi, cert.pdf_data.st_frontpage["bsi"] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
         response_nscib, cert.pdf_data.st_frontpage["nscib"] = helpers.search_only_headers_nscib(cert.state.st_txt_path)
         response_niap, cert.pdf_data.st_frontpage["niap"] = helpers.search_only_headers_niap(cert.state.st_txt_path)
-        response_canada, cert.pdf_data.st_frontpage["canada"] = helpers.search_only_headers_canada(cert.state.st_txt_path)
+        response_canada, cert.pdf_data.st_frontpage["canada"] = helpers.search_only_headers_canada(
+            cert.state.st_txt_path
+        )
 
-        # TODO - this section needs refactoring, discuss that with Adam
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
             if not cert.state.errors:
@@ -621,7 +622,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def extract_report_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        # TODO - do your work here - search_only_headers_nscib, search_only_headers_niap, search_only_headers_canada
         cert.pdf_data.report_frontpage = dict()
         response_bsi, cert.pdf_data.report_frontpage["bsi"] = helpers.search_only_headers_bsi(
             cert.state.report_txt_path
@@ -630,11 +630,16 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             cert.state.report_txt_path
         )
 
-        response_nscib, cert.pdf_data.report_frontpage["nscib"] = helpers.search_only_headers_nscib(cert.state.report_txt_path)
-        response_niap, cert.pdf_data.report_frontpage["niap"] = helpers.search_only_headers_niap(cert.state.report_txt_path)
-        response_canada, cert.pdf_data.report_frontpage["canada"] = helpers.search_only_headers_canada(cert.state.report_txt_path)
+        response_nscib, cert.pdf_data.report_frontpage["nscib"] = helpers.search_only_headers_nscib(
+            cert.state.report_txt_path
+        )
+        response_niap, cert.pdf_data.report_frontpage["niap"] = helpers.search_only_headers_niap(
+            cert.state.report_txt_path
+        )
+        response_canada, cert.pdf_data.report_frontpage["canada"] = helpers.search_only_headers_canada(
+            cert.state.report_txt_path
+        )
 
-        # TODO - this section needs refactoring, discuss that with Adam
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
             if not cert.state.errors:
@@ -715,17 +720,19 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     def _fix_anssi_cert_id(cert_id: str) -> str:
         new_cert_id = cert_id
 
-        if new_cert_id.startswith('ANSSi'):  # mistyped ANSSi
-            new_cert_id = 'ANSSI' + new_cert_id[4:]
+        if new_cert_id.startswith("ANSSi"):  # mistyped ANSSi
+            new_cert_id = "ANSSI" + new_cert_id[4:]
 
         # Bug - getting out of index - ANSSI-2009/30
         # TMP solution
-        if len(new_cert_id) >= len('ANSSI-CC-0000') + 1:
-            if new_cert_id[len('ANSSI-CC-0000')] == '_':  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
-                new_cert_id = new_cert_id[:len('ANSSI-CC-0000')] + '/' + new_cert_id[len('ANSSI-CC-0000') + 1:]
+        if len(new_cert_id) >= len("ANSSI-CC-0000") + 1:
+            if (
+                new_cert_id[len("ANSSI-CC-0000")] == "_"
+            ):  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
+                new_cert_id = new_cert_id[: len("ANSSI-CC-0000")] + "/" + new_cert_id[len("ANSSI-CC-0000") + 1 :]
 
-        if '_' in new_cert_id:  # _ instead of -
-            new_cert_id = new_cert_id.replace('_', '-')
+        if "_" in new_cert_id:  # _ instead of -
+            new_cert_id = new_cert_id.replace("_", "-")
 
         return new_cert_id
 
@@ -737,7 +744,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
         start_year = 1996
         limit_year = datetime.now().year + 1
-        bsi_parts = cert_id.split('-')
+        bsi_parts = cert_id.split("-")
         cert_num = None
         cert_version = None
         cert_year = None
@@ -745,7 +752,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if len(bsi_parts) > 3:
             cert_num = bsi_parts[3]
         if len(bsi_parts) > 4:
-            if bsi_parts[4].startswith('V') or bsi_parts[4].startswith('v'):
+            if bsi_parts[4].startswith("V") or bsi_parts[4].startswith("v"):
                 cert_version = bsi_parts[4].upper()  # get version in uppercase
             else:
                 cert_year = bsi_parts[4]
@@ -754,7 +761,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         if cert_year is None:
             for year in range(start_year, limit_year):
-                cert_id_possible = cert_id + '-' + str(year)
+                cert_id_possible = cert_id + "-" + str(year)
 
                 if cert_id_possible in all_cert_ids:
                     # we found version with year
@@ -762,13 +769,13 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                     break
 
         # reconstruct BSI number again
-        new_cert_id = 'BSI-DSZ-CC'
+        new_cert_id = "BSI-DSZ-CC"
         if cert_num is not None:
-            new_cert_id += '-' + cert_num
+            new_cert_id += "-" + cert_num
         if cert_version is not None:
-            new_cert_id += '-' + cert_version
+            new_cert_id += "-" + cert_version
         if cert_year is not None:
-            new_cert_id += '-' + cert_year
+            new_cert_id += "-" + cert_year
 
         return new_cert_id
 
@@ -778,17 +785,15 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def _fix_spain_cert_id(cert_id: str) -> str:
-        spain_parts = cert_id.split('-')
+        spain_parts = cert_id.split("-")
         cert_year = spain_parts[0]
         cert_batch = spain_parts[1]
         cert_num = spain_parts[3]
 
         if "v" in cert_num:
-            cert_version = cert_num[cert_num.find("v") + 1:]
-            cert_num = cert_num[:cert_num.find("v")]
+            cert_num = cert_num[: cert_num.find("v")]
         if "V" in cert_num:
-            cert_version = cert_num[cert_num.find("V") + 1:]
-            cert_num = cert_num[:cert_num.find("V")]
+            cert_num = cert_num[: cert_num.find("V")]
 
         new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num}"  # drop version
 
