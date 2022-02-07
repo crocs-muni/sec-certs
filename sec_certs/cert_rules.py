@@ -46,7 +46,7 @@ rules_cert_id = [
     "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)-[vV][0-9][a-z]?",  # Malaysia (ISCB-3-RPT-C092-CR-v1)
     "OCSI/CERT/.+?",  # Italia
     "OCSI/CERT/.+?/20[0-9]+(?:/w|/RC)",  # Italia  (OCSI/CERT/ATS/01/2018/RC)
-    "[0-9\\.]+?/TSE-CCCS-[0-9]+",  # Turkis CCCS (21.0.03/TSE-CCCS-75)
+    "[0-9\\.]+?/TSE-CCCS-[0-9]+",  # Turkis CCCS (21.0.0sc/TSE-CCCS-75)
     "CSEC[0-9]+",  # Sweden (CSEC2019015)
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
     # will miss STQC/CC/14-15/12/ETR/0017

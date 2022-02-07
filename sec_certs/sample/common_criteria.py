@@ -2,8 +2,9 @@ import copy
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from functools import partial
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from bs4 import Tag
@@ -15,6 +16,14 @@ from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+
+HEADERS = {
+    "anssi": helpers.search_only_headers_anssi,
+    "bsi": helpers.search_only_headers_bsi,
+    "nscib": helpers.search_only_headers_nscib,
+    "niap": helpers.search_only_headers_niap,
+    "canada": helpers.search_only_headers_canada,
+}
 
 
 class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializableType):
@@ -189,7 +198,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
-        cert_id: Optional[str] = field(default=None)
+        cert_id: Optional[str] = field(default=None)  # TODO - delete this
         normalized_cert_id: Optional[str] = field(default=None)
         directly_affected_by: Optional[List[str]] = field(default=None)
         indirectly_affected_by: Optional[Set[str]] = field(default=None)
@@ -578,97 +587,31 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def extract_st_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        cert.pdf_data.st_frontpage = dict()
+        cert.pdf_data.st_frontpage = {}
 
-        response_anssi, cert.pdf_data.st_frontpage["anssi"] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
-        response_bsi, cert.pdf_data.st_frontpage["bsi"] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
-        response_nscib, cert.pdf_data.st_frontpage["nscib"] = helpers.search_only_headers_nscib(cert.state.st_txt_path)
-        response_niap, cert.pdf_data.st_frontpage["niap"] = helpers.search_only_headers_niap(cert.state.st_txt_path)
-        response_canada, cert.pdf_data.st_frontpage["canada"] = helpers.search_only_headers_canada(
-            cert.state.st_txt_path
-        )
+        for header_type, associated_header_func in HEADERS.items():
+            response, cert.pdf_data.st_frontpage[header_type] = associated_header_func(cert.state.st_txt_path)
 
-        if response_anssi != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_anssi)
-
-        if response_bsi != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_bsi)
-
-        if response_nscib != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_nscib)
-
-        if response_niap != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_niap)
-
-        if response_canada != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_canada)
+            if response != constants.RETURNCODE_OK:
+                cert.state.st_extract_ok = False
+                if not cert.state.errors:
+                    cert.state.errors = []
+                cert.state.errors.append(response)
 
         return cert
 
     @staticmethod
     def extract_report_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        cert.pdf_data.report_frontpage = dict()
-        response_bsi, cert.pdf_data.report_frontpage["bsi"] = helpers.search_only_headers_bsi(
-            cert.state.report_txt_path
-        )
-        response_anssi, cert.pdf_data.report_frontpage["anssi"] = helpers.search_only_headers_anssi(
-            cert.state.report_txt_path
-        )
+        cert.pdf_data.report_frontpage = {}
 
-        response_nscib, cert.pdf_data.report_frontpage["nscib"] = helpers.search_only_headers_nscib(
-            cert.state.report_txt_path
-        )
-        response_niap, cert.pdf_data.report_frontpage["niap"] = helpers.search_only_headers_niap(
-            cert.state.report_txt_path
-        )
-        response_canada, cert.pdf_data.report_frontpage["canada"] = helpers.search_only_headers_canada(
-            cert.state.report_txt_path
-        )
+        for header_type, associated_header_func in HEADERS.items():
+            response, cert.pdf_data.report_frontpage[header_type] = associated_header_func(cert.state.report_txt_path)
 
-        if response_anssi != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_anssi)
-
-        if response_bsi != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_bsi)
-
-        if response_nscib != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_nscib)
-
-        if response_niap != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_niap)
-
-        if response_canada != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_canada)
+            if response != constants.RETURNCODE_OK:
+                cert.state.report_extract_ok = False
+                if not cert.state.errors:
+                    cert.state.errors = []
+                cert.state.errors.append(response)
 
         return cert
 
@@ -709,7 +652,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if not self.pdf_data:
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
-        self.heuristics.cert_id = self.pdf_data.cert_id
+        self.heuristics.normalized_cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
 
     @staticmethod
@@ -811,23 +754,35 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
         return new_cert_id
 
-    def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
-        if self.heuristics.cert_id is None:
-            return None
-
-        cert_id = self.heuristics.cert_id.strip()
-        fixed_cert_id = cert_id
+    def get_cert_laboratory(self) -> str:
+        cert_id = self.heuristics.normalized_cert_id.strip()
 
         if CommonCriteriaCert._is_anssi_cert(cert_id):
-            fixed_cert_id = CommonCriteriaCert._fix_anssi_cert_id(cert_id)
+            return "anssi"
 
         if CommonCriteriaCert._is_bsi_cert(cert_id):
-            fixed_cert_id = CommonCriteriaCert._fix_bsi_cert_id(cert_id, all_cert_ids)
+            return "bsi"
 
         if CommonCriteriaCert._is_spain_cert_id(cert_id):
-            fixed_cert_id = CommonCriteriaCert._fix_spain_cert_id(cert_id)
+            return "spain"
 
         if CommonCriteriaCert._is_ocsi_cert_id(cert_id):
-            fixed_cert_id = CommonCriteriaCert._fix_ocsi_cert_id(cert_id)
+            return "ocsi"
 
-        self.heuristics.normalized_cert_id = fixed_cert_id
+        return "unknown"
+
+    def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
+        fix_methods: Dict[str, Callable] = {
+            "anssi": CommonCriteriaCert._fix_anssi_cert_id,
+            "bsi": partial(CommonCriteriaCert._fix_bsi_cert_id, all_cert_ids=all_cert_ids),
+            "spain": CommonCriteriaCert._fix_spain_cert_id,
+            "ocsi": CommonCriteriaCert._fix_ocsi_cert_id,
+        }
+
+        cert_lab = self.get_cert_laboratory()
+
+        # No need for any fix, bcs we do not know how
+        if self.heuristics.normalized_cert_id is None or cert_lab == "unknown":
+            return None
+
+        self.heuristics.normalized_cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)
