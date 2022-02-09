@@ -269,8 +269,6 @@ class Dataset(ABC):
                     if to_update and not cpes:
                         cpes = to_update
                     elif to_update and cpes:
-                        # TODO: This was here like cpes = cpes.update(to_update), but update() does not return anything.
-                        # Did you try to hack something using that or was that just a typo?
                         cpes.update(to_update)
 
             # cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes.get(x, []) for x in predicted_annotations]))

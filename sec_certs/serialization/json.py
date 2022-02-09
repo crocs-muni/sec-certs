@@ -6,6 +6,9 @@ from typing import Callable, Dict, List, Optional, Union
 
 
 class ComplexSerializableType:
+    def __init__(self, *args, **kwargs):
+        pass
+
     # Ideally, the serialized_fields would be an class variable referencing itself, but that it virtually impossible
     # to achieve without using metaclasses. Not to complicate the code, we choose instance variable.
     @property

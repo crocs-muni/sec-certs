@@ -97,6 +97,10 @@ class IUTSnapshot(ComplexSerializableType):
 
         # Parse footer
         footer = soup.find(id="IUTFooter")
+        displayed: Optional[int]
+        not_displayed: Optional[int]
+        total: Optional[int]
+
         if footer:
             footer_lines = footer.find_all("tr")
             displayed = int(footer_lines[0].find_all("td")[1].text)
