@@ -673,7 +673,9 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
-        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)  # type: ignore
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(
+            self.manufacturer, self.name, self.heuristics.extracted_versions
+        )
 
     def compute_heuristics_cert_lab(self):
         if not self.pdf_data:

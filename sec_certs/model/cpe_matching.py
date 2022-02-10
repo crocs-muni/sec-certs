@@ -80,7 +80,7 @@ class CPEClassifier(BaseEstimator):
         self,
         vendor: Optional[str],
         product_name: str,
-        versions: Optional[List[str]],
+        versions: List[str],
         relax_version: bool = False,
         relax_title: bool = False,
     ) -> Optional[List[str]]:
@@ -103,8 +103,11 @@ class CPEClassifier(BaseEstimator):
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
-        candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)  # type: ignore
-        ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title) for cpe in candidates]  # type: ignore
+        candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
+        ratings = [
+            self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title)
+            for cpe in candidates
+        ]
         threshold = self.match_threshold if not relax_version else 100
         final_matches_aux: List[Tuple[float, CPE]] = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
         final_matches: Optional[List[str]] = [
@@ -127,8 +130,8 @@ class CPEClassifier(BaseEstimator):
         self,
         cpe: CPE,
         product_name: str,
-        candidate_vendors: List[str],
-        versions: Optional[List[str]],
+        candidate_vendors: Optional[List[str]],
+        versions: List[str],
         relax_title: bool = False,
     ) -> float:
         """
@@ -142,14 +145,20 @@ class CPEClassifier(BaseEstimator):
         @return: Maximal value of the four string similarities discussed above.
         """
         if relax_title:
-            sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + " " + cpe.item_name + " " + cpe.version + " " + cpe.update + " " + cpe.target_hw)  # type: ignore
+            sanitized_title = (
+                CPEClassifier._fully_sanitize_string(cpe.title)
+                if cpe.title
+                else CPEClassifier._fully_sanitize_string(
+                    cpe.vendor + " " + cpe.item_name + " " + cpe.version + " " + cpe.update + " " + cpe.target_hw
+                )
+            )
         else:
             if cpe.title:
                 sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title)
             else:
                 return 0
-        sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)  # type: ignore
-        cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)  # type: ignore
+        sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
+        cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
         token_set_ratio_on_title = fuzz.token_set_ratio(product_name, sanitized_title)
         partial_ratio_on_title = fuzz.partial_ratio(product_name, sanitized_title)
@@ -175,8 +184,9 @@ class CPEClassifier(BaseEstimator):
         return string.replace("®", "").replace("™", "")
 
     @staticmethod
-    def _strip_manufacturer_and_version(string: str, manufacturers: List[str], versions: List[str]) -> str:
-        for x in manufacturers + versions:
+    def _strip_manufacturer_and_version(string: str, manufacturers: Optional[List[str]], versions: List[str]) -> str:
+        to_strip = versions + manufacturers if manufacturers else versions
+        for x in to_strip:
             string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), "").strip()
         return string
 
@@ -229,7 +239,7 @@ class CPEClassifier(BaseEstimator):
         return self._process_manufacturer(manufacturer, result)
 
     def get_candidate_vendor_version_pairs(
-        self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]
+        self, cert_candidate_cpe_vendors: Optional[List[str]], cert_candidate_versions: List[str]
     ) -> Optional[List[Tuple[str, str]]]:
         """
         Given parameters, will return Pairs (cpe_vendor, cpe_version) that are relevant to a given sample
@@ -281,7 +291,7 @@ class CPEClassifier(BaseEstimator):
             candidate_vendor_version_pairs.extend([(vendor, str(x)) for x in intersection])
         return candidate_vendor_version_pairs
 
-    def get_candidate_cpe_matches(self, candidate_vendors: List[str], candidate_versions: List[str]):
+    def get_candidate_cpe_matches(self, candidate_vendors: Optional[List[str]], candidate_versions: List[str]):
         """
         Given List of candidate vendors and candidate versions found in certificate, candidate CPE matches are found
         @param candidate_vendors: List of version strings that were found in the certificate

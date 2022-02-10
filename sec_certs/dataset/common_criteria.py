@@ -77,6 +77,7 @@ class CCDataset(Dataset, ComplexSerializableType):
         dset.state = copy.deepcopy(dct["state"])
         return dset
 
+    # for type ignore explanation, see: https://github.com/python/mypy/issues/5936
     @Dataset.root_dir.setter  # type: ignore
     def root_dir(self, new_dir: Union[str, Path]):
         old_dset = copy.deepcopy(self)
