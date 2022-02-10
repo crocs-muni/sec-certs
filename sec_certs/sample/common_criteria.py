@@ -672,10 +672,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     def compute_heuristics_version(self):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
-    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
-        # TODO: This method probably can be deleted.
-        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)  # type: ignore
-
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)  # type: ignore
 

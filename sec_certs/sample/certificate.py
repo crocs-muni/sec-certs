@@ -71,10 +71,6 @@ class Certificate(ABC, ComplexSerializableType):
         raise NotImplementedError("Not meant to be implemented")
 
     @abstractmethod
-    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
-        raise NotImplementedError("Not meant to be implemented")
-
-    @abstractmethod
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
         raise NotImplementedError("Not meant to be implemented")
 
