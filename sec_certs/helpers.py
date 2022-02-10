@@ -98,12 +98,13 @@ def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[dat
         return None
     elif isinstance(record, pd.Timestamp):
         return record.date()
-    else:
-        return record  # type: ignore
+    elif isinstance(record, (date, type(None))):
+        return record
+    raise ValueError("Unsupported type given as input")
 
 
 def sanitize_string(record: str) -> str:
-    # TODO: There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
+    # There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
     string = html.unescape(html.unescape(record)).replace("\n", "")
     return " ".join(string.split())
 
