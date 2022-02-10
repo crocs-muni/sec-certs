@@ -842,5 +842,5 @@ class FIPSCertificate(Certificate, ComplexSerializableType):
             self.heuristics.cpe_matches = None
         else:
             self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(
-                self.web_scan.vendor, self.web_scan.module_name, self.heuristics.extracted_versions  # type: ignore
+                self.web_scan.vendor, self.web_scan.module_name, self.heuristics.extracted_versions
             )

@@ -78,7 +78,7 @@ class CPEClassifier(BaseEstimator):
 
     def predict_single_cert(
         self,
-        vendor: str,
+        vendor: Optional[str],
         product_name: str,
         versions: Optional[List[str]],
         relax_version: bool = False,
@@ -203,7 +203,7 @@ class CPEClassifier(BaseEstimator):
 
         return list(result) if result else None
 
-    def get_candidate_list_of_vendors(self, manufacturer: str) -> Optional[List[str]]:
+    def get_candidate_list_of_vendors(self, manufacturer: Optional[str]) -> Optional[List[str]]:
         """
         Given manufacturer name, this method will find list of plausible vendors from CPE dataset that are likely related.
         @param manufacturer: manufacturer
