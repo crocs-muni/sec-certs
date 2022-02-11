@@ -22,7 +22,7 @@ from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 
 
-class FIPSCertificate(Certificate["FIPSCertificate"]):
+class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
     FIPS_BASE_URL: ClassVar[str] = "https://csrc.nist.gov"
     FIPS_MODULE_URL: ClassVar[
         str

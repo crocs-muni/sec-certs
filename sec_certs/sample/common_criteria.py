@@ -17,7 +17,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
 
-class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableType):
+class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableType, ComplexSerializableType):
     cc_url = "http://www.commoncriteriaportal.org"
     empty_st_url = "http://www.commoncriteriaportal.org/files/epfiles/"
 
