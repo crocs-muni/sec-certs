@@ -17,6 +17,7 @@ from flask_mail import Mail
 from flask_principal import Permission, Principal, RoleNeed
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
+from flask_sitemap import Sitemap
 from flask_wtf import CSRFProtect
 from public import public
 from sec_certs.config.configuration import config as tool_config
@@ -107,6 +108,9 @@ public(mail=mail)
 
 breadcrumbs: Breadcrumbs = Breadcrumbs(app)
 public(breadcrumbs=breadcrumbs)
+
+sitemap: Sitemap = Sitemap(app)
+public(sitemap=sitemap)
 
 
 @app.before_request

@@ -43,6 +43,7 @@ Flask-Principal==0.4.0
 Flask-PyMongo==2.3.0
 flask-redis==0.4.0
 flask-shell-ipython==0.4.1
+Flask-Sitemap==0.3.0
 Flask-WTF==1.0.0
 fonttools==4.28.5
 graphviz==0.19.1

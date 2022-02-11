@@ -4,7 +4,7 @@ from flask import abort, jsonify, render_template, request
 from flask_breadcrumbs import register_breadcrumb
 from werkzeug.exceptions import HTTPException
 
-from . import app, mongo
+from . import app, mongo, sitemap
 
 
 @app.route("/")
@@ -43,3 +43,9 @@ def error(e):
         render_template("error.html.jinja2", code=e.code, name=e.name, description=e.description),
         e.code,
     )
+
+
+@sitemap.register_generator
+def sitemap_urls():
+    yield "index", {}
+    yield "about", {}

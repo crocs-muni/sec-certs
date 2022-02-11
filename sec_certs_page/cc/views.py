@@ -13,7 +13,7 @@ from networkx import node_link_data
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
-from .. import cache, mongo
+from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     Pagination,
@@ -355,3 +355,15 @@ def entry_name(name):
             return render_template("cc/disambiguate.html.jinja2", certs=docs, name=name)
     else:
         return abort(404)
+
+
+@sitemap.register_generator
+def sitemap_urls():
+    yield "cc.index", {}
+    yield "cc.dataset", {}
+    yield "cc.network", {}
+    yield "cc.analysis", {}
+    yield "cc.search", {}
+    yield "cc.rand", {}
+    for doc in mongo.db.cc.find({}, {"_id": 1}):
+        yield "cc.entry", {"hashid": doc["_id"]}

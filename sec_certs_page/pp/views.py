@@ -9,7 +9,7 @@ from flask import abort, current_app, redirect, render_template, request, send_f
 from flask_breadcrumbs import register_breadcrumb
 from werkzeug.exceptions import BadRequest
 
-from .. import mongo
+from .. import mongo, sitemap
 from ..cc import cc_categories
 from ..common.objformats import StorageFormat, load
 from ..common.views import Pagination, send_json_attachment
@@ -244,3 +244,15 @@ def analysis():
 def rand():
     current_ids = list(map(itemgetter("_id"), mongo.db.pp.find({}, ["_id"])))
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
+
+
+@sitemap.register_generator
+def sitemap_urls():
+    yield "pp.index", {}
+    yield "pp.dataset", {}
+    yield "pp.network", {}
+    yield "pp.analysis", {}
+    yield "pp.search", {}
+    yield "pp.rand", {}
+    for doc in mongo.db.pp.find({}, {"_id": 1}):
+        yield "pp.entry", {"hashid": doc["_id"]}

@@ -13,7 +13,7 @@ from networkx import node_link_data
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
-from .. import cache, mongo
+from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     Pagination,
@@ -433,3 +433,21 @@ def entry_name(name):
             return render_template("fips/disambiguate.html.jinja2", certs=docs, name=name)
     else:
         return abort(404)
+
+
+@sitemap.register_generator
+def sitemap_urls():
+    yield "fips.index", {}
+    yield "fips.dataset", {}
+    yield "fips.network", {}
+    yield "fips.analysis", {}
+    yield "fips.search", {}
+    yield "fips.rand", {}
+    yield "fips.mip_index", {}
+    yield "fips.iut_index", {}
+    for doc in mongo.db.fips.find({}, {"_id": 1}):
+        yield "fips.entry", {"hashid": doc["_id"]}
+    for doc in mongo.db.fips_mip.find({}, {"_id": 1}):
+        yield "fips.mip_snapshot", {"id": doc["_id"]}
+    for doc in mongo.db.fips_iut.find({}, {"_id": 1}):
+        yield "fips.iut_snapshot", {"id": doc["_id"]}
