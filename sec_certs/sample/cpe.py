@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
@@ -44,13 +44,13 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         self.start_version = start_version
         self.end_version = end_version
 
-    def __lt__(self, other: "CPE"):
+    def __lt__(self, other: "CPE") -> bool:
         if self.title is None or other.title is None:
             raise RuntimeError("Cannot compare CPEs because title is missing.")
         return self.title < other.title
 
     @classmethod
-    def from_dict(cls, dct: Dict):
+    def from_dict(cls, dct: Dict[str, Any]) -> "CPE":
         if isinstance(dct["start_version"], list):
             dct["start_version"] = tuple(dct["start_version"])
         if isinstance(dct["end_version"], list):
@@ -74,13 +74,13 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return " ".join(self.uri.split(":")[11].split("_"))
 
     @property
-    def pandas_tuple(self):
+    def pandas_tuple(self) -> Tuple:
         return self.uri, self.vendor, self.item_name, self.version, self.title
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.uri, self.start_version, self.end_version))
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.uri == other.uri

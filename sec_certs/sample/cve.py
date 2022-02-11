@@ -1,7 +1,7 @@
 import datetime
 import itertools
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 from dateutil.parser import isoparse
 
@@ -22,7 +22,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         __slots__ = ["base_score", "severity", "exploitability_score", "impact_score"]
 
         @classmethod
-        def from_nist_dict(cls, dct: Dict):
+        def from_nist_dict(cls, dct: Dict[str, Any]) -> "CVE.Impact":
             """
             Will load Impact from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
             """
@@ -42,6 +42,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                     dct["impact"]["baseMetricV2"]["exploitabilityScore"],
                     dct["impact"]["baseMetricV2"]["impactScore"],
                 )
+            raise ValueError("NIST Dict for CVE Impact badly formatted.")
 
     cve_id: str
     vulnerable_cpes: List[CPE]
@@ -67,15 +68,15 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         self.impact = impact
         self.published_date = isoparse(published_date)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.cve_id)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, CVE):
             return False
         return self.cve_id == other.cve_id
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
         if not isinstance(other, CVE):
             raise ValueError(f"Cannot compare CVE with {type(other)} type.")
         self_year = int(self.cve_id.split("-")[1])
@@ -97,16 +98,16 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             self.published_date,
         )
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "cve_id": self.cve_id,
             "vulnerable_cpes": self.vulnerable_cpes,
             "impact": self.impact,
-            "published_date": self.published_date.isoformat(),
+            "published_date": self.published_date.isoformat() if self.published_date else None,
         }
 
     @staticmethod
-    def _parse_nist_dict(lst: List, cpe_uris: List):
+    def _parse_nist_dict(lst: List, cpe_uris: List) -> None:
         for x in lst:
             if x["vulnerable"]:
                 cpe_uri = x["cpe23Uri"]
