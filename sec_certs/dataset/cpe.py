@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Iterator, List, Set, Tuple, Union
+from typing import Any, ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
 
 import pandas as pd
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CPEDataset(ComplexSerializableType):
+class CPEDataset(ComplexSerializableType["CPEDataset"]):
     was_enhanced_with_vuln_cpes: bool
     json_path: Path
     cpes: Dict[str, CPE]
@@ -112,8 +112,8 @@ class CPEDataset(ComplexSerializableType):
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]) -> "CPEDataset":
-        dset = ComplexSerializableType.from_json(input_path)
-        dset.json_path = input_path
+        dset = cast("CPEDataset", ComplexSerializableType.from_json(input_path))
+        dset.json_path = Path(input_path)
         return dset
 
     @classmethod

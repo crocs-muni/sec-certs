@@ -2,10 +2,12 @@ import copy
 import json
 from datetime import date
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar, Union
+
+T = TypeVar("T", bound="ComplexSerializableType")
 
 
-class ComplexSerializableType:
+class ComplexSerializableType(Generic[T]):
     def __init__(self, *args, **kwargs):
         pass
 
@@ -17,7 +19,7 @@ class ComplexSerializableType:
             return list(self.__slots__)
         return list(self.__dict__.keys())
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         if hasattr(self, "__slots__") and self.__slots__:
             return {
                 key: copy.deepcopy(getattr(self, key)) for key in self.__slots__ if key in self.serialized_attributes
@@ -25,13 +27,13 @@ class ComplexSerializableType:
         return {key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes}
 
     @classmethod
-    def from_dict(cls, dct: Dict):
+    def from_dict(cls: Type[T], dct: Dict) -> T:
         try:
             return cls(**dct)
         except TypeError as e:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
-    def to_json(self, output_path: Optional[Union[str, Path]] = None):
+    def to_json(self, output_path: Optional[Union[str, Path]] = None) -> None:
         if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise ValueError(
                 f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
@@ -44,7 +46,7 @@ class ComplexSerializableType:
             json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
     @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
+    def from_json(cls: Type[T], input_path: Union[str, Path]) -> T:
         input_path = Path(input_path)
         with input_path.open("r") as handle:
             obj = json.load(handle, cls=CustomJSONDecoder)

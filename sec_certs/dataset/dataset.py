@@ -124,7 +124,7 @@ class Dataset(Generic[CertSubType], ABC):
 
     @classmethod
     def from_json(cls: Type[DatasetSubType], input_path: Union[str, Path]) -> DatasetSubType:
-        dset = ComplexSerializableType.from_json(input_path)
+        dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
         dset.root_dir = Path(input_path).parent.absolute()
         dset.set_local_paths()
         return dset
