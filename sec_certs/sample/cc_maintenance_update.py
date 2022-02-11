@@ -67,7 +67,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     @classmethod
     def from_dict(cls, dct: Dict) -> "CommonCriteriaMaintenanceUpdate":
         dct.pop("dgst")
-        return cls(*(tuple(dct.values())))  # TODO: Deserves some inheritance
+        return cls(*(tuple(dct.values())))
 
     @classmethod
     def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert) -> List["CommonCriteriaMaintenanceUpdate"]:

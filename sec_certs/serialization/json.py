@@ -104,5 +104,3 @@ class CustomJSONDecoder(json.JSONDecoder):
             return self.serializable_complex_types[complex_type].from_dict(obj)
 
         return obj
-
-    # TODO: Check if sets are deserialized as sets

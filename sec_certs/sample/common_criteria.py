@@ -423,7 +423,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
     @staticmethod
     def _html_row_get_report_st_links(cell: Tag) -> Tuple[str, str]:
         links = cell.find_all("a")
-        # TODO: Exception checks
         assert links[1].get("title").startswith("Certification Report")
         assert links[2].get("title").startswith("Security Target")
 

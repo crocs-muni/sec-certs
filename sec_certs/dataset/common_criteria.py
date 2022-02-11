@@ -421,10 +421,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             # header, footer = rows[0], rows[1]
             body = rows[2:]
 
-            # TODO: It's possible to obtain timestamp of the moment when the list was generated. It's identical for each table and should thus only be obtained once. Not necessarily in each table
+            # It's possible to obtain timestamp of the moment when the list was generated. It's identical for each table and should thus only be obtained once. Not necessarily in each table
             # timestamp = _get_timestamp_from_footer(footer)
 
-            # TODO: Do we have use for number of expected certs? We get rid of duplicites, so no use for assert expected == actual
+            # The following unused snippet extracts expected number of certs from the table
             # caption_str = str(table.findAll('caption'))
             # n_expected_certs = int(caption_str.split(category_string + ' – ')[1].split(' Certified Products')[0])
             table_certs = {
