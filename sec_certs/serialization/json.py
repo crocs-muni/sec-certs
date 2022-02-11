@@ -2,12 +2,12 @@ import copy
 import json
 from datetime import date
 from pathlib import Path
-from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
-T = TypeVar("T", bound="ComplexSerializableType")
+T = TypeVar("T")
 
 
-class ComplexSerializableType(Generic[T]):
+class ComplexSerializableType:
     def __init__(self, *args, **kwargs):
         pass
 

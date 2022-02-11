@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CPEDataset(ComplexSerializableType["CPEDataset"]):
+class CPEDataset(ComplexSerializableType):
     was_enhanced_with_vuln_cpes: bool
     json_path: Path
     cpes: Dict[str, CPE]
