@@ -66,9 +66,9 @@ def test_random(client: FlaskClient):
 @pytest.mark.remote
 def test_entry_old(client: FlaskClient):
     resp = client.get("/fips/7d986a48cb5c4c8d3c62/")
-    assert resp.location.endswith("/fips/5d865a0cf9e04d99/")
+    assert resp.location.endswith("/fips/ae1f31e1ba28b07b/")
     resp = client.get("/fips/7d986a48cb5c4c8d3c62/cert.json")
-    assert resp.location.endswith("/fips/5d865a0cf9e04d99/cert.json")
+    assert resp.location.endswith("/fips/ae1f31e1ba28b07b/cert.json")
     resp = client.get("/fips/7d986a48cb5c4c8d3c62/", follow_redirects=True)
     assert resp.status_code == 200
     bad_resp = client.get("/fips/AAAAAAAAAAAAAAAAAAAA/")
@@ -77,7 +77,7 @@ def test_entry_old(client: FlaskClient):
 
 @pytest.mark.remote
 def test_entry(client: FlaskClient):
-    hashid = "3465020c4414cd8c"
+    hashid = "226f76b55acb4970"
     cert_id = "310"
     # cert_name = "MOVEit Crypto"
     hid_resp = client.get(f"/fips/{hashid}/", follow_redirects=True)
@@ -116,11 +116,11 @@ def test_entry_name_disambiguation(client: FlaskClient):
 
 @pytest.mark.remote
 def test_entry_graph(client: FlaskClient):
-    resp = client.get("/fips/9a180de886923e04/graph.json")
+    resp = client.get("/fips/226f76b55acb4970/graph.json")
     assert resp.is_json
     nodes = resp.json["nodes"]
     assert len(nodes) == 1
-    assert nodes[0]["id"] == "9a180de886923e04"
+    assert nodes[0]["id"] == "226f76b55acb4970"
     links = resp.json["links"]
     assert len(links) == 0
 

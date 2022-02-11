@@ -13,7 +13,7 @@ from . import fips
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")
 def create():  # pragma: no cover
-    _create("fips", ["web_scan.module_name", "cert_id"], [])
+    _create("fips", ["web_scan.module_name"], ["cert_id"])
 
 
 @fips.cli.command("drop", help="Drop the DB of FIPS 140 certs.")

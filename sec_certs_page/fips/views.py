@@ -94,7 +94,11 @@ def select_certs(q, cat, status, sort):
 
     if q is not None and q != "":
         projection["score"] = {"$meta": "textScore"}
-        query["$text"] = {"$search": q}
+        try:
+            iq = int(q)
+            query["$or"] = [{"$text": {"$search": q}}, {"cert_id": iq}]
+        except ValueError:
+            query["$text"] = {"$search": q}
 
     if cat is not None:
         selected_cats = []
@@ -134,6 +138,8 @@ def select_certs(q, cat, status, sort):
         cursor.sort([("web_scan.level", pymongo.ASCENDING)])
     elif sort == "vendor":
         cursor.sort([("web_scan.vendor", pymongo.ASCENDING)])
+    else:
+        cursor.sort([("cert_id", pymongo.ASCENDING)])
     return cursor, categories, count
 
 
@@ -340,7 +346,7 @@ def entry_old(old_id, npath=None):
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        raw_doc = mongo.db.fips.find_one({"_id": hashid})
+        raw_doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if raw_doc:
         doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
@@ -398,14 +404,14 @@ def entry_graph_json(hashid):
 @fips.route("/<string(length=16):hashid>/cert.json")
 def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.fips.find_one({"_id": hashid})
+        doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
     else:
         return abort(404)
 
 
-@fips.route("/id/<string:cert_id>")
+@fips.route("/id/<int:cert_id>")
 def entry_id(cert_id):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.fips.find_one({"cert_id": cert_id}, {"_id": 1})
