@@ -479,7 +479,7 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
             items_found = FIPSCertificate.initialize_dictionary()
             items_found["cert_id"] = int(file.stem)
 
-        text = helpers.load_cert_html_file(file)
+        text = helpers.load_cert_html_file(str(file))
         soup = BeautifulSoup(text, "html.parser")
         for div in soup.find_all("div", class_="row padrow"):
             FIPSCertificate.parse_html_main(div, items_found, pairs)
