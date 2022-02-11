@@ -3,7 +3,6 @@ import logging
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
-from packaging.version import parse
 from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
@@ -30,7 +29,7 @@ class CPEClassifier(BaseEstimator):
         self.match_threshold = match_threshold
         self.n_max_matches = n_max_matches
 
-    def fit(self, X: List[CPE], y: Optional[List[str]] = None):
+    def fit(self, X: List[CPE], y: Optional[List[str]] = None) -> "CPEClassifier":
         """
         Just creates look-up structures from provided list of CPEs
         @param X: List of CPEs that can be matched with predict()
@@ -40,7 +39,7 @@ class CPEClassifier(BaseEstimator):
         return self
 
     @staticmethod
-    def filter_short_cpes(cpes: List[CPE]):
+    def filter_short_cpes(cpes: List[CPE]) -> List[CPE]:
         """
         Short CPE items are super easy to match with 100% rank, but they are hardly informative. This method discards them.
         @param cpes: List of CPEs to filtered
@@ -48,7 +47,7 @@ class CPEClassifier(BaseEstimator):
         """
         return list(filter(lambda x: x.item_name is not None and len(x.item_name) > 3, cpes))
 
-    def build_lookup_structures(self, X: List[CPE]):
+    def build_lookup_structures(self, X: List[CPE]) -> None:
         """
         Builds several look-up dictionaries for fast matching.
         - vendor_to_version_: each vendor is mapped to set of versions that appear in combination with vendor in CPE dataset
@@ -279,19 +278,9 @@ class CPEClassifier(BaseEstimator):
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs
 
-    # TODO: Start using it or delete.
-    def new_get_candidate_vendor_version_pairs(self, cert_cpe_vendors, cert_versions):
-        if not cert_cpe_vendors:
-            return None
-
-        candidate_vendor_version_pairs = []
-        for vendor in cert_cpe_vendors:
-            viable_cpe_versions = {parse(x) for x in self.vendor_to_versions_[vendor]}
-            intersection = viable_cpe_versions.intersection({parse(x) for x in cert_versions})
-            candidate_vendor_version_pairs.extend([(vendor, str(x)) for x in intersection])
-        return candidate_vendor_version_pairs
-
-    def get_candidate_cpe_matches(self, candidate_vendors: Optional[List[str]], candidate_versions: List[str]):
+    def get_candidate_cpe_matches(
+        self, candidate_vendors: Optional[List[str]], candidate_versions: List[str]
+    ) -> List[CPE]:
         """
         Given List of candidate vendors and candidate versions found in certificate, candidate CPE matches are found
         @param candidate_vendors: List of version strings that were found in the certificate

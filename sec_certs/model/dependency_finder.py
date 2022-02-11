@@ -20,7 +20,7 @@ class DependencyFinder:
             referenced_by[cert_id].append(this_cert_id)
 
     @staticmethod
-    def _process_references(referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect):
+    def _process_references(referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect) -> None:
         new_change_detected = True
         while new_change_detected:
             new_change_detected = False

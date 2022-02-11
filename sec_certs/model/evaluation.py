@@ -19,7 +19,7 @@ def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
         return set(json.load(handle))
 
 
-def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs):
+def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
     prec = []
     for true, pred in zip(y, y_pred):
         set_pred = set(pred) if pred else set()
@@ -38,7 +38,7 @@ def evaluate(
     y_valid: List[Optional[List[str]]],
     outpath: Optional[Union[Path, str]],
     cpe_dset: CPEDataset,
-):
+) -> None:
     y_pred = [x.heuristics.cpe_matches for x in x_valid]
     precision = compute_precision(np.array(y_valid), np.array(y_pred))
 
