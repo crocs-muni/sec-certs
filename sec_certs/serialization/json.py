@@ -77,7 +77,7 @@ class CustomJSONEncoder(json.JSONEncoder):
         if isinstance(obj, dict):
             return obj
         if isinstance(obj, set):
-            return sorted(list(obj))
+            return {"_type": "Set", "elements": sorted(list(obj))}
         if isinstance(obj, frozenset):
             return sorted(list(obj))
         if isinstance(obj, date):
@@ -99,6 +99,8 @@ class CustomJSONDecoder(json.JSONDecoder):
         self.serializable_complex_types = {x.__name__: x for x in ComplexSerializableType.__subclasses__()}
 
     def object_hook(self, obj):
+        if "_type" in obj and obj["_type"] == "Set":
+            return set(obj["elements"])
         if "_type" in obj and obj["_type"] in self.serializable_complex_types.keys():
             complex_type = obj.pop("_type")
             return self.serializable_complex_types[complex_type].from_dict(obj)
