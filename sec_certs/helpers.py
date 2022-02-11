@@ -747,6 +747,7 @@ def load_cert_file(
     file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
 ) -> Tuple[str, str, bool]:
     lines = []
+    was_unicode_decode_error = False
     with Path(file_name).open("r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
             lines = f.readlines()
