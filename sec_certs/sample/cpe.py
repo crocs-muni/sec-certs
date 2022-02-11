@@ -9,14 +9,14 @@ from sec_certs.serialization.pandas import PandasSerializableType
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
     uri: str
-    title: Optional[str]
     version: str
     vendor: str
     item_name: str
+    title: Optional[str]
     start_version: Optional[Tuple[str, str]]
     end_version: Optional[Tuple[str, str]]
 
-    __slots__ = ["uri", "title", "version", "vendor", "item_name", "start_version", "end_version"]
+    __slots__ = ["uri", "version", "vendor", "item_name", "title", "start_version", "end_version"]
 
     pandas_columns: ClassVar[List[str]] = [
         "uri",
@@ -37,12 +37,12 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     ):
         super().__init__()
         self.uri = uri
-        self.title = title
-        self.start_version = start_version
-        self.end_version = end_version
         self.vendor = " ".join(self.uri.split(":")[3].split("_"))
         self.item_name = " ".join(self.uri.split(":")[4].split("_"))
         self.version = self.uri.split(":")[5]
+        self.title = title
+        self.start_version = start_version
+        self.end_version = end_version
 
     def __lt__(self, other: "CPE"):
         if self.title is None or other.title is None:

@@ -6,10 +6,6 @@ from typing import Callable, Dict, List, Optional, Union
 
 
 class ComplexSerializableType:
-    @property
-    def json_path(self) -> Path:
-        raise NotImplementedError("Not meant to be implemented")
-
     def __init__(self, *args, **kwargs):
         pass
 
@@ -36,12 +32,12 @@ class ComplexSerializableType:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
     def to_json(self, output_path: Optional[Union[str, Path]] = None):
-        if not output_path and not self.json_path:
+        if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise ValueError(
                 f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
             )
         if not output_path:
-            output_path = self.json_path
+            output_path = self.json_path  # type: ignore
 
         # false positive MyPy warning, cannot be None
         with Path(output_path).open("w") as handle:  # type: ignore
