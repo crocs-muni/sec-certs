@@ -473,8 +473,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
         if perform_cpe_heuristics:
-            self.compute_cpe_heuristics()
-            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
+            _, _, cve_dset = self.compute_cpe_heuristics()
+            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]

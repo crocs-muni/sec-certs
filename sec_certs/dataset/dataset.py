@@ -196,7 +196,9 @@ class Dataset(Generic[CertSubType], ABC):
         for cert in cast(Iterator[Certificate], self):
             cert.compute_heuristics_version()
 
-    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> Tuple[CPEClassifier, CPEDataset]:
+    def _compute_cpe_matches(
+        self, download_fresh_cpes: bool = False
+    ) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
         def filter_condition(cpe: CPE) -> bool:
             """
             Filters out very weak CPE matches that don't improve our database.
@@ -218,6 +220,7 @@ class Dataset(Generic[CertSubType], ABC):
 
         logger.info("Computing heuristics: Finding CPE matches for certificates")
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
+        cve_dset = None
         if not cpe_dset.was_enhanced_with_vuln_cpes:
             cve_dset = self._prepare_cve_dataset(False)
             cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)
@@ -228,10 +231,10 @@ class Dataset(Generic[CertSubType], ABC):
         for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
             cert.compute_heuristics_cpe_match(clf)
 
-        return clf, cpe_dset
+        return clf, cpe_dset, cve_dset
 
     @serialize
-    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset]:
+    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
         self._compute_candidate_versions()
         return self._compute_cpe_matches()
 
@@ -302,9 +305,15 @@ class Dataset(Generic[CertSubType], ABC):
                 )
 
     @serialize
-    def compute_related_cves(self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True) -> None:
+    def compute_related_cves(
+        self,
+        download_fresh_cves: bool = False,
+        use_nist_cpe_matching_dict: bool = True,
+        cve_dset: Optional[CVEDataset] = None,
+    ) -> None:
         logger.info("Retrieving related CVEs to verified CPE matches")
-        cve_dset = self._prepare_cve_dataset(download_fresh_cves, use_nist_cpe_matching_dict)
+        if download_fresh_cves or not cve_dset:
+            cve_dset = self._prepare_cve_dataset(download_fresh_cves, use_nist_cpe_matching_dict)
 
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]

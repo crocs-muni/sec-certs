@@ -668,8 +668,8 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._compute_cert_labs()
         self._compute_cert_ids()
         self._compute_dependencies()
-        self.compute_cpe_heuristics()
-        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
+        _, _, cve_dset = self.compute_cpe_heuristics()
+        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
 
     def _compute_dependencies(self) -> None:
         finder = DependencyFinder()
