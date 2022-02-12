@@ -221,7 +221,8 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
 
     except Exception as e:
-        error_msg = f"Failed to read metadata of {filepath}, error: {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to read metadata of {relative_filepath}, error: {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -484,7 +485,8 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
                 items_found[constants.TAG_CERT_LAB] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
     except Exception as e:
-        error_msg = f"Failed to parse ANSSI frontpage headers from {filepath}; {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse ANSSI frontpage headers from {relative_filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -592,7 +594,8 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
         # print('Total no hits files: {}'.format(len(files_without_match)))
         # print('\n**********************************')
     except Exception as e:
-        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse BSI headers from frontpage: {relative_filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -609,7 +612,8 @@ def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, 
             processed_result[key] = {key: val for key, val in gen_dict_extract(result[key])}
 
     except Exception as e:
-        error_msg = f"Failed to parse keywords from: {filepath}; {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
     return constants.RETURNCODE_OK, processed_result

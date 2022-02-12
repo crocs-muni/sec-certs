@@ -59,7 +59,7 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         report_convert_ok: bool
         st_extract_ok: bool
         report_extract_ok: bool
-        errors: Optional[List[str]]
+        errors: List[str]
 
         st_pdf_path: Path
         report_pdf_path: Path
@@ -82,11 +82,7 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             self.report_convert_ok = report_convert_ok
             self.st_extract_ok = st_extract_ok
             self.report_extract_ok = report_extract_ok
-
-            if errors is None:
-                self.errors = []
-            else:
-                self.errors = errors
+            self.errors = errors if errors else []
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -540,8 +536,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.report_download_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -556,8 +550,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             error_msg = f"failed to download ST from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_download_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -568,8 +560,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             error_msg = "failed to convert report pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.report_convert_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -580,8 +570,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             error_msg = "failed to convert security target pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_convert_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -590,8 +578,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -600,8 +586,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -614,13 +598,9 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response_anssi)
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response_bsi)
 
         return cert
@@ -637,13 +617,9 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
 
         if response_anssi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response_anssi)
         if response_bsi != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response_bsi)
 
         return cert
@@ -660,8 +636,6 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
