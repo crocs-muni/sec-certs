@@ -212,13 +212,19 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size
         with filepath.open("rb") as handle:
-            pdf = PdfFileReader(handle)
-
+            pdf = PdfFileReader(handle, strict=False)
             metadata["pdf_is_encrypted"] = pdf.getIsEncrypted()
-            metadata["pdf_number_of_pages"] = pdf.getNumPages()
 
+        # see https://stackoverflow.com/questions/26242952/pypdf-2-decrypt-not-working
+        if metadata["pdf_is_encrypted"]:
+            pikepdf.open(filepath, allow_overwriting_input=True).save()
+
+        with filepath.open("rb") as handle:
+            pdf = PdfFileReader(handle, strict=False)
+            metadata["pdf_number_of_pages"] = pdf.getNumPages()
             pdf_document_info = pdf.getDocumentInfo()
-            metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
+
+        metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
 
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
