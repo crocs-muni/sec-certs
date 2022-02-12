@@ -1,4 +1,3 @@
-import filecmp
 import json
 import os
 import shutil
@@ -167,10 +166,11 @@ class TestCommonCriteriaOOP(TestCase):
     def test_dataset_to_json(self):
         with NamedTemporaryFile("w") as tmp:
             self.template_dataset.to_json(tmp.name)
-            self.assertTrue(
-                filecmp.cmp(self.test_data_dir / "toy_dataset.json", tmp.name),
-                "The dataset serialized to json differs from a template.",
-            )
+            with open(tmp.name, "r") as handle:
+                out = json.load(handle)
+            with open(self.test_data_dir / "toy_dataset.json") as handle:
+                template = json.load(handle)
+            self.assertEqual(out, template, "Serialized dataset differs from json template.")
 
     def test_cert_from_json(self):
         self.assertEqual(
