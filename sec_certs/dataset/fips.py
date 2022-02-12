@@ -236,7 +236,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 redo=redo,
             )
 
-    # TODO @sbobon: Get rid of the "type: ignore" below. The problem is that dset.algorithms can be none.
     @classmethod
     def from_web_latest(cls) -> "FIPSDataset":
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -244,7 +243,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             logger.info("Downloading the latest FIPS dataset.")
             helpers.download_file(config.fips_latest_snapshot, dset_path)
             dset: FIPSDataset = cls.from_json(dset_path)
-            logger.info("The dataset with %s certs and %s algorithms.", len(dset), len(dset.algorithms))  # type: ignore
+            logger.info("The dataset with %s certs and %s algorithms.", len(dset), len(dset.algorithms) if dset.algorithms is not None else 0)
             logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
             dset.finalize_results()
             return dset
@@ -295,13 +294,13 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @serialize
     def deprocess(self) -> None:
-        # TODO @sbobon fix this method. Get rid of the "type: ignore". Error is caused because second param should be List, not dict.
+        # TODO think of a better way to make resulting json smaller and easier to share
         logger.info(
             "Removing 'heuristics' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something"
         )
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.heuristics = FIPSCertificate.FIPSHeuristics(None, {}, [], 0)  # type: ignore
+            cert.heuristics = FIPSCertificate.FIPSHeuristics(None, [], [], 0)
 
         self.match_algs()
 
@@ -336,13 +335,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for cert in self.certs.values():
             cert.remove_algorithms()
 
-    # TODO @sbobon: get rid of the "type: ignore" comment. Problem causes because algorithms can be None.
     def unify_algorithms(self) -> None:
         for certificate in self.certs.values():
             new_algorithms: List[Dict] = []
             united_algorithms = [
                 x
-                for x in (certificate.web_scan.algorithms + certificate.pdf_scan.algorithms)  # type: ignore
+                for x in ((
+                    certificate.web_scan.algorithms if certificate.web_scan.algorithms is not None else []
+                    ) + certificate.pdf_scan.algorithms)
                 if x != {"Certificate": []}
             ]
             for algorithm in united_algorithms:
@@ -507,8 +507,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         attr = {"pdf": "pdf_scan", "web": "web_scan", "heuristics": "heuristics"}[connection_list]
         return getattr(self.certs[dgst], attr).connections
 
-    # TODO @sbobon: This should be renamed, since getter should probably return something
-    def get_dot_graph(
+    def create_dot_graph(
         self,
         output_file_name: str,
         connection_list: str = "heuristics",
@@ -594,9 +593,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             )
         return dset
 
-    # TODO @sbobon: Can we be more specific about the type hint, i.e. the dict type?
-    def group_vendors(self) -> Dict:
-        vendors = {}
+    def group_vendors(self) -> Dict[str, List[str]]:
+        vendors: Dict[str, List[str]] = {}
         v = {x.web_scan.vendor.lower() for x in self.certs.values() if x is not None and x.web_scan.vendor is not None}
         v_sorted = sorted(v, key=FIPSCertificate.get_compare)
         for prefix, a in groupby(v_sorted, key=FIPSCertificate.get_compare):
@@ -605,6 +603,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return vendors
 
     def plot_graphs(self, show: bool = False) -> None:
-        self.get_dot_graph("full_graph", show=show)
-        self.get_dot_graph("web_only_graph", "web", show=show)
-        self.get_dot_graph("pdf_only_graph", "pdf", show=show)
+        self.create_dot_graph("full_graph", show=show)
+        self.create_dot_graph("web_only_graph", "web", show=show)
+        self.create_dot_graph("pdf_only_graph", "pdf", show=show)
