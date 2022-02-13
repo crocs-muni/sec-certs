@@ -2,8 +2,9 @@ import copy
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from functools import partial
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from bs4 import Tag
@@ -15,6 +16,14 @@ from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+
+HEADERS = {
+    "anssi": helpers.search_only_headers_anssi,
+    "bsi": helpers.search_only_headers_bsi,
+    "nscib": helpers.search_only_headers_nscib,
+    "niap": helpers.search_only_headers_niap,
+    "canada": helpers.search_only_headers_canada,
+}
 
 
 class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializableType):
@@ -611,44 +620,31 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
 
     @staticmethod
     def extract_st_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        cert.pdf_data.st_frontpage = dict()
+        cert.pdf_data.st_frontpage = {}
 
-        response_anssi, cert.pdf_data.st_frontpage["anssi"] = helpers.search_only_headers_anssi(cert.state.st_txt_path)
-        response_bsi, cert.pdf_data.st_frontpage["bsi"] = helpers.search_only_headers_bsi(cert.state.st_txt_path)
+        for header_type, associated_header_func in HEADERS.items():
+            response, cert.pdf_data.st_frontpage[header_type] = associated_header_func(cert.state.st_txt_path)
 
-        if response_anssi != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_anssi)
-        if response_bsi != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_bsi)
+            if response != constants.RETURNCODE_OK:
+                cert.state.st_extract_ok = False
+                if not cert.state.errors:
+                    cert.state.errors = []
+                cert.state.errors.append(response)
 
         return cert
 
     @staticmethod
     def extract_report_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        cert.pdf_data.report_frontpage = dict()
-        response_bsi, cert.pdf_data.report_frontpage["bsi"] = helpers.search_only_headers_bsi(
-            cert.state.report_txt_path
-        )
-        response_anssi, cert.pdf_data.report_frontpage["anssi"] = helpers.search_only_headers_anssi(
-            cert.state.report_txt_path
-        )
+        cert.pdf_data.report_frontpage = {}
 
-        if response_anssi != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_anssi)
-        if response_bsi != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
-            cert.state.errors.append(response_bsi)
+        for header_type, associated_header_func in HEADERS.items():
+            response, cert.pdf_data.report_frontpage[header_type] = associated_header_func(cert.state.report_txt_path)
+
+            if response != constants.RETURNCODE_OK:
+                cert.state.report_extract_ok = False
+                if not cert.state.errors:
+                    cert.state.errors = []
+                cert.state.errors.append(response)
 
         return cert
 
@@ -685,8 +681,141 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             return
         self.heuristics.cert_lab = self.pdf_data.cert_lab
 
-    def compute_heuristics_cert_id(self):
+    def compute_heuristics_cert_id(self, all_cert_ids: Set[str]):
         if not self.pdf_data:
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
+        self.normalize_cert_id(all_cert_ids)
+
+    @staticmethod
+    def _is_anssi_cert(cert_id: str) -> bool:
+        return cert_id.startswith("ANSS")
+
+    @staticmethod
+    def _fix_anssi_cert_id(cert_id: str) -> str:
+        new_cert_id = cert_id
+
+        if new_cert_id.startswith("ANSSi"):  # mistyped ANSSi
+            new_cert_id = "ANSSI" + new_cert_id[4:]
+
+        # Bug - getting out of index - ANSSI-2009/30
+        # TMP solution
+        if len(new_cert_id) >= len("ANSSI-CC-0000") + 1:
+            if (
+                new_cert_id[len("ANSSI-CC-0000")] == "_"
+            ):  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
+                new_cert_id = new_cert_id[: len("ANSSI-CC-0000")] + "/" + new_cert_id[len("ANSSI-CC-0000") + 1 :]
+
+        if "_" in new_cert_id:  # _ instead of -
+            new_cert_id = new_cert_id.replace("_", "-")
+
+        return new_cert_id
+
+    @staticmethod
+    def _is_bsi_cert(cert_id: str) -> bool:
+        return cert_id.startswith("BSI-DSZ-CC-")
+
+    @staticmethod
+    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
+        start_year = 1996
+        limit_year = datetime.now().year + 1
+        bsi_parts = cert_id.split("-")
+        cert_num = None
+        cert_version = None
+        cert_year = None
+
+        if len(bsi_parts) > 3:
+            cert_num = bsi_parts[3]
+        if len(bsi_parts) > 4:
+            if bsi_parts[4].startswith("V") or bsi_parts[4].startswith("v"):
+                cert_version = bsi_parts[4].upper()  # get version in uppercase
+            else:
+                cert_year = bsi_parts[4]
+        if len(bsi_parts) > 5:
+            cert_year = bsi_parts[5]
+
+        if cert_year is None:
+            for year in range(start_year, limit_year):
+                cert_id_possible = cert_id + "-" + str(year)
+
+                if cert_id_possible in all_cert_ids:
+                    # we found version with year
+                    cert_year = str(year)
+                    break
+
+        # reconstruct BSI number again
+        new_cert_id = "BSI-DSZ-CC"
+        if cert_num is not None:
+            new_cert_id += "-" + cert_num
+        if cert_version is not None:
+            new_cert_id += "-" + cert_version
+        if cert_year is not None:
+            new_cert_id += "-" + cert_year
+
+        return new_cert_id
+
+    @staticmethod
+    def _is_spain_cert_id(cert_id: str) -> bool:
+        return "-INF-" in cert_id
+
+    @staticmethod
+    def _fix_spain_cert_id(cert_id: str) -> str:
+        spain_parts = cert_id.split("-")
+        cert_year = spain_parts[0]
+        cert_batch = spain_parts[1]
+        cert_num = spain_parts[3]
+
+        if "v" in cert_num:
+            cert_num = cert_num[: cert_num.find("v")]
+        if "V" in cert_num:
+            cert_num = cert_num[: cert_num.find("V")]
+
+        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num}"  # drop version
+
+        return new_cert_id
+
+    @staticmethod
+    def _is_ocsi_cert_id(cert_id: str) -> bool:
+        return "OCSI/CERT" in cert_id
+
+    @staticmethod
+    def _fix_ocsi_cert_id(cert_id: str) -> str:
+        new_cert_id = cert_id
+        if not new_cert_id.endswith("/RC"):
+            new_cert_id = cert_id + "/RC"
+
+        return new_cert_id
+
+    def get_cert_laboratory(self) -> str:
+        cert_id = self.heuristics.cert_id.strip()
+
+        if CommonCriteriaCert._is_anssi_cert(cert_id):
+            return "anssi"
+
+        if CommonCriteriaCert._is_bsi_cert(cert_id):
+            return "bsi"
+
+        if CommonCriteriaCert._is_spain_cert_id(cert_id):
+            return "spain"
+
+        if CommonCriteriaCert._is_ocsi_cert_id(cert_id):
+            return "ocsi"
+
+        return "unknown"
+
+    def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
+        fix_methods: Dict[str, Callable] = {
+            "anssi": CommonCriteriaCert._fix_anssi_cert_id,
+            "bsi": partial(CommonCriteriaCert._fix_bsi_cert_id, all_cert_ids=all_cert_ids),
+            "spain": CommonCriteriaCert._fix_spain_cert_id,
+            "ocsi": CommonCriteriaCert._fix_ocsi_cert_id,
+        }
+
+        cert_lab = self.get_cert_laboratory()
+
+        # No need for any fix, bcs we do not know how
+        if self.heuristics.cert_id is None or cert_lab == "unknown":
+            return None
+
+        self.heuristics.cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)

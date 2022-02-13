@@ -178,6 +178,27 @@ class CCDataset(Dataset, ComplexSerializableType):
             helpers.download_file(config.cc_latest_snapshot, dset_path)
             return cls.from_json(dset_path)
 
+    @property
+    def all_cert_ids(self):
+        all_cert_ids = set()
+
+        for cert_obj in self:
+            cert_id = cert_obj.heuristics.cert_id
+
+            if not cert_id:
+                continue
+
+            all_cert_ids.add(cert_id)
+
+            # ['keywords_scan', 'rules_cert_id']
+            all_cert_ids.update(cert_obj.pdf_data.keywords_rules_cert_id)
+
+            # ['st_keywords_scan']['rules_cert_id']
+            if cert_obj.pdf_data.st_keywords is not None:
+                all_cert_ids.update(cert_obj.pdf_data.st_keywords["rules_cert_id"])
+
+        return all_cert_ids
+
     def set_local_paths(self):
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
@@ -664,15 +685,15 @@ class CCDataset(Dataset, ComplexSerializableType):
         for cert in certs_to_process:
             cert.compute_heuristics_cert_lab()
 
-    def _compute_cert_ids(self):
+    def _compute_normalized_cert_ids(self):
         logger.info("Deriving information about sample ids from pdf scan.")
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         for cert in certs_to_process:
-            cert.compute_heuristics_cert_id()
+            cert.compute_heuristics_cert_id(self.all_cert_ids)
 
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True):
         self._compute_cert_labs()
-        self._compute_cert_ids()
+        self._compute_normalized_cert_ids()
         self._compute_dependencies()
         self.compute_cpe_heuristics()
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
