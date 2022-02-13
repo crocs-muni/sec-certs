@@ -243,7 +243,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             logger.info("Downloading the latest FIPS dataset.")
             helpers.download_file(config.fips_latest_snapshot, dset_path)
             dset: FIPSDataset = cls.from_json(dset_path)
-            logger.info("The dataset with %s certs and %s algorithms.", len(dset), len(dset.algorithms) if dset.algorithms is not None else 0)
+            logger.info(
+                "The dataset with %s certs and %s algorithms.",
+                len(dset),
+                len(dset.algorithms) if dset.algorithms is not None else 0,
+            )
             logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
             dset.finalize_results()
             return dset
@@ -340,9 +344,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             new_algorithms: List[Dict] = []
             united_algorithms = [
                 x
-                for x in ((
-                    certificate.web_scan.algorithms if certificate.web_scan.algorithms is not None else []
-                    ) + certificate.pdf_scan.algorithms)
+                for x in (
+                    (certificate.web_scan.algorithms if certificate.web_scan.algorithms is not None else [])
+                    + certificate.pdf_scan.algorithms
+                )
                 if x != {"Certificate": []}
             ]
             for algorithm in united_algorithms:

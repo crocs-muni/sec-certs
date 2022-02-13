@@ -122,19 +122,30 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
             # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
             # for each id
             return helpers.get_first_16_bytes_sha256(
-                self.product_url if self.product_url is not None else "" 
-                + self.vendor_www if self.vendor_www is not None else ""
-                )
+                self.product_url
+                if self.product_url is not None
+                else "" + self.vendor_www
+                if self.vendor_www is not None
+                else ""
+            )
 
         def __repr__(self) -> str:
-            return self.module_name if self.module_name is not None else ""\
-                + " created by "\
-                + self.vendor if  self. vendor is not None else ""
+            return (
+                self.module_name
+                if self.module_name is not None
+                else "" + " created by " + self.vendor
+                if self.vendor is not None
+                else ""
+            )
 
         def __str__(self) -> str:
-            return self.module_name if self.module_name is not None else ""\
-                + " created by "\
-                + self.vendor if  self. vendor is not None else ""  # type: ignore
+            return (
+                self.module_name
+                if self.module_name is not None
+                else "" + " created by " + self.vendor
+                if self.vendor is not None
+                else ""
+            )  # type: ignore
 
     @dataclass(eq=True)
     class PdfScan(ComplexSerializableType):
@@ -338,7 +349,7 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
             found_items.append(
                 {
                     "Name": tds[0].text,
-                    "Certificate": cert[0]["Certificate"] if cert != [] else [],
+                    "Certificate": cert[0]["Certificate"] if cert != [] and cert[0] is not None else [],
                     "Links": [str(x) for x in tds[1].find_all("a")],
                     "Raw": str(tr),
                 }
