@@ -608,6 +608,210 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
+# Port from old-api branch
+def search_only_headers_nscib(filepath: Path):
+    LINE_SEPARATOR_STRICT = " "
+    NUM_LINES_TO_INVESTIGATE = 60
+    items_found: Dict[str, str] = {}
+
+    try:
+        # Process front page with info: cert_id, certified_item and developer
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
+        )
+
+        certified_item = ""
+        developer = ""
+        cert_lab = ""
+        cert_id = ""
+
+        lines = whole_text_with_newlines.splitlines()
+        no_match_yet = True
+        item_offset = -1
+
+        for line_index in range(0, len(lines)):
+            line = lines[line_index]
+
+            if "Certification Report" in line:
+                item_offset = line_index + 1
+            if "Assurance Continuity Maintenance Report" in line:
+                item_offset = line_index + 1
+
+            SPONSORDEVELOPER_STR = "Sponsor and developer:"
+
+            if SPONSORDEVELOPER_STR in line:
+                if no_match_yet:
+                    items_found = {}
+                    no_match_yet = False
+
+                # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
+                certified_item = ""
+                for name_index in range(item_offset, line_index):
+                    certified_item += lines[name_index] + " "
+                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR) :]
+
+            SPONSOR_STR = "Sponsor:"
+
+            if SPONSOR_STR in line:
+                if no_match_yet:
+                    items_found = {}
+                    no_match_yet = False
+
+                # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
+                certified_item = ""
+                for name_index in range(item_offset, line_index):
+                    certified_item += lines[name_index] + " "
+
+            DEVELOPER_STR = "Developer:"
+            if DEVELOPER_STR in line:
+                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR) :]
+
+            CERTLAB_STR = "Evaluation facility:"
+            if CERTLAB_STR in line:
+                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR) :]
+
+            REPORTNUM_STR = "Report number:"
+            if REPORTNUM_STR in line:
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+
+        if not no_match_yet:
+            items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
+            items_found[constants.TAG_CERT_ITEM] = normalize_match_string(certified_item)
+            items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
+            items_found[constants.TAG_CERT_LAB] = cert_lab
+
+    except Exception as e:
+        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        logger.error(error_msg)
+        return error_msg, None
+
+    return constants.RETURNCODE_OK, items_found
+
+
+# Port from old-api branch
+def search_only_headers_niap(filepath: Path):
+    LINE_SEPARATOR_STRICT = " "
+    NUM_LINES_TO_INVESTIGATE = 15
+    items_found: Dict[str, str] = {}
+
+    try:
+        # Process front page with info: cert_id, certified_item and developer
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
+        )
+
+        certified_item = ""
+        cert_id = ""
+
+        lines = whole_text_with_newlines.splitlines()
+        no_match_yet = True
+        item_offset = -1
+
+        for line_index in range(0, len(lines)):
+            line = lines[line_index]
+
+            if "Validation Report" in line:
+                item_offset = line_index + 1
+
+            REPORTNUM_STR = "Report Number:"
+            if REPORTNUM_STR in line:
+                if no_match_yet:
+                    items_found = {}
+                    no_match_yet = False
+
+                # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
+                certified_item = ""
+                for name_index in range(item_offset, line_index):
+                    certified_item += lines[name_index] + " "
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                break
+
+        if not no_match_yet:
+            items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
+            items_found[constants.TAG_CERT_ITEM] = normalize_match_string(certified_item)
+            items_found[constants.TAG_CERT_LAB] = "US NIAP"
+
+    except Exception as e:
+        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        logger.error(error_msg)
+        return error_msg, None
+
+    return constants.RETURNCODE_OK, items_found
+
+
+# Port from old-api branch
+def search_only_headers_canada(filepath: Path):
+    LINE_SEPARATOR_STRICT = " "
+    NUM_LINES_TO_INVESTIGATE = 20
+    items_found: Dict[str, str] = {}
+    try:
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
+        )
+
+        cert_id = ""
+
+        lines = whole_text_with_newlines.splitlines()
+        no_match_yet = True
+        for line_index in range(0, len(lines)):
+            line = lines[line_index]
+            if "Government of Canada, Communications Security Establishment" in line:
+                REPORTNUM_STR1 = "Evaluation number:"
+                REPORTNUM_STR2 = "Document number:"
+                matched_number_str = ""
+                line_certid = lines[line_index + 1]
+                if line_certid.startswith(REPORTNUM_STR1):
+                    matched_number_str = REPORTNUM_STR1
+                if line_certid.startswith(REPORTNUM_STR2):
+                    matched_number_str = REPORTNUM_STR2
+                if matched_number_str != "":
+                    if no_match_yet:
+                        items_found = {}
+                        no_match_yet = False
+
+                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str) :]
+                    break
+
+            if (
+                "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
+                in line
+            ):
+                REPORTNUM_STR = "Evaluation number:"
+                for offset in range(1, 20):
+                    line_certid = lines[line_index + offset]
+                    if "UNCLASSIFIED" in line_certid:
+                        if no_match_yet:
+                            items_found = {}
+                            no_match_yet = False
+                        line_certid = lines[line_index + offset - 4]
+                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                        break
+                if not no_match_yet:
+                    break
+
+            if (
+                "UNCLASSIFIED / NON CLASSIFIÉ" in line
+                and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
+            ):
+                line_certid = lines[line_index + 1]
+                if no_match_yet:
+                    items_found = {}
+                    no_match_yet = False
+                cert_id = line_certid
+                break
+
+        if not no_match_yet:
+            items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
+            items_found[constants.TAG_CERT_LAB] = "CANADA"
+
+    except Exception as e:
+        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        logger.error(error_msg)
+        return error_msg, None
+
+    return constants.RETURNCODE_OK, items_found
+
+
 def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
     try:
         result = parse_cert_file(filepath, cc_search_rules, -1, constants.LINE_SEPARATOR)[0]
