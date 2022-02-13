@@ -198,8 +198,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
-        cert_id: Optional[str] = field(default=None)  # TODO - delete this
-        normalized_cert_id: Optional[str] = field(default=None)
+        cert_id: Optional[str] = field(default=None)
         directly_affected_by: Optional[List[str]] = field(default=None)
         indirectly_affected_by: Optional[Set[str]] = field(default=None)
         directly_affecting: Optional[Set[str]] = field(default=None)
@@ -652,7 +651,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if not self.pdf_data:
             logger.error("Cannot compute sample id when pdf files were not processed.")
             return
-        self.heuristics.normalized_cert_id = self.pdf_data.cert_id
+        self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
 
     @staticmethod
@@ -755,7 +754,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return new_cert_id
 
     def get_cert_laboratory(self) -> str:
-        cert_id = self.heuristics.normalized_cert_id.strip()
+        cert_id = self.heuristics.cert_id.strip()
 
         if CommonCriteriaCert._is_anssi_cert(cert_id):
             return "anssi"
@@ -782,7 +781,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         cert_lab = self.get_cert_laboratory()
 
         # No need for any fix, bcs we do not know how
-        if self.heuristics.normalized_cert_id is None or cert_lab == "unknown":
+        if self.heuristics.cert_id is None or cert_lab == "unknown":
             return None
 
-        self.heuristics.normalized_cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)
+        self.heuristics.cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)
