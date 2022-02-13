@@ -693,10 +693,7 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         return cert_id.startswith("BSI-DSZ-CC-")
 
     @staticmethod
-    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
-        start_year = 1996
-        limit_year = datetime.now().year + 1
-        bsi_parts = cert_id.split("-")
+    def _extract_bsi_parts(bsi_parts: List[str]) -> Tuple:
         cert_num = None
         cert_version = None
         cert_year = None
@@ -711,6 +708,15 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         if len(bsi_parts) > 5:
             cert_year = bsi_parts[5]
 
+        return cert_num, cert_version, cert_year
+
+    @staticmethod
+    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
+        start_year = 1996
+        limit_year = datetime.now().year + 1
+        bsi_parts = cert_id.split("-")
+
+        cert_num, cert_version, cert_year = CommonCriteriaCert._extract_bsi_parts(bsi_parts)
         if cert_year is None:
             for year in range(start_year, limit_year):
                 cert_id_possible = cert_id + "-" + str(year)

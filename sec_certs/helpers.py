@@ -609,7 +609,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
 
 # Port from old-api branch
-def search_only_headers_nscib(filepath: Path):
+def search_only_headers_nscib(filepath: Path):  # noqa: C901
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 60
     items_found: Dict[str, str] = {}
@@ -740,7 +740,7 @@ def search_only_headers_niap(filepath: Path):
 
 
 # Port from old-api branch
-def search_only_headers_canada(filepath: Path):
+def search_only_headers_canada(filepath: Path):  # noqa: C901
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 20
     items_found: Dict[str, str] = {}
