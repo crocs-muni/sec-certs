@@ -12,8 +12,7 @@
     "name": "toy dataset",
     "description": "toy dataset description",
     "n_certs": 2,
-    "certs": [
-        {
+    "certs": [{
             "_type": "CommonCriteriaCert",
             "dgst": "309ac2fd7f2dcf17",
             "status": "active",
@@ -21,18 +20,27 @@
             "name": "NetIQ Identity Manager 4.7",
             "manufacturer": "NetIQ Corporation",
             "scheme": "SE",
-            "security_level": [
-                "ALC_FLR.2",
-                "EAL3+"
-            ],
+            "security_level": {
+                "_type": "Set",
+                "elements": [
+                    "ALC_FLR.2",
+                    "EAL3+"
+                ]
+            },
             "not_valid_before": "2020-06-15",
             "not_valid_after": "2025-06-15",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf",
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
             "cert_link": "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
             "manufacturer_web": "https://www.netiq.com/",
-            "protection_profiles": [],
-            "maintenance_updates": [],
+            "protection_profiles": {
+                "_type": "Set",
+                "elements": []
+            },
+            "maintenance_updates": {
+                "_type": "Set",
+                "elements": []
+            },
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,
@@ -74,22 +82,29 @@
             "name": "Magic SSO V4.0",
             "manufacturer": "Dreamsecurity Co., Ltd.",
             "scheme": "KR",
-            "security_level": [],
+            "security_level": {
+                "_type": "Set",
+                "elements": []
+            },
             "not_valid_before": "2019-11-15",
             "not_valid_after": "2024-11-15",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/KECS-CR-19-70%20Magic%20SSO%20V4.0(eng)%20V1.0.pdf",
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf",
             "cert_link": null,
             "manufacturer_web": "https://www.dreamsecurity.com/",
-            "protection_profiles": [
-                {
+            "protection_profiles": {
+                "_type": "Set",
+                "elements": [{
                     "_type": "ProtectionProfile",
                     "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
                     "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
                     "pp_ids": null
-                }
-            ],
-            "maintenance_updates": [],
+                }]
+            },
+            "maintenance_updates": {
+                "_type": "Set",
+                "elements": []
+            },
             "state": {
                 "_type": "InternalState",
                 "st_download_ok": true,

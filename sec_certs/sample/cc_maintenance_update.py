@@ -57,7 +57,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         return ["dgst"] + list(self.__class__.__init__.__code__.co_varnames)[1:]
 
     @property
-    def dgst(self):
+    def dgst(self) -> str:
         return "cert_" + self.related_cert_digest + "_update_" + helpers.get_first_16_bytes_sha256(self.name)
 
     @property
@@ -67,10 +67,10 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
     @classmethod
     def from_dict(cls, dct: Dict) -> "CommonCriteriaMaintenanceUpdate":
         dct.pop("dgst")
-        return cls(*(tuple(dct.values())))  # TODO: Deserves some inheritance
+        return cls(*(tuple(dct.values())))
 
     @classmethod
-    def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert):
+    def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert) -> List["CommonCriteriaMaintenanceUpdate"]:
         if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 

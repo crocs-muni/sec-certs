@@ -9,7 +9,7 @@ from datetime import date, datetime
 from enum import Enum
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Dict, Hashable, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Dict, Generator, Hashable, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,9 +79,9 @@ def get_first_16_bytes_sha256(string: str) -> str:
     return hashlib.sha256(string.encode("utf-8")).hexdigest()[:16]
 
 
-def get_sha256_filepath(filepath):
+def get_sha256_filepath(filepath: Union[str, Path]) -> str:
     hash_sha256 = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with Path(filepath).open("rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_sha256.update(chunk)
     return hash_sha256.hexdigest()
@@ -98,12 +98,13 @@ def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[dat
         return None
     elif isinstance(record, pd.Timestamp):
         return record.date()
-    else:
-        return record  # type: ignore
+    elif isinstance(record, (date, type(None))):
+        return record
+    raise ValueError("Unsupported type given as input")
 
 
 def sanitize_string(record: str) -> str:
-    # TODO: There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
+    # There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
     string = html.unescape(html.unescape(record)).replace("\n", "")
     return " ".join(string.split())
 
@@ -127,7 +128,6 @@ def sanitize_protection_profiles(record: str) -> list:
     return record.split(",")
 
 
-# TODO: realize whether this stays or goes somewhere else
 def parse_list_of_tables(txt: str) -> Set[str]:
     """
     Parses list of tables from function find_tables(), finds ones that mention algorithms
@@ -161,7 +161,7 @@ def find_tables_iterative(file_text: str) -> List[int]:
     return list(pages)
 
 
-def find_tables(txt: str, file_name: Path) -> Optional[List]:
+def find_tables(txt: str, file_name: Path) -> Optional[Union[List[str], List[int]]]:
     """
     Function that tries to pages in security policy pdf files, where it's possible to find a table containing
     algorithms
@@ -185,7 +185,7 @@ def find_tables(txt: str, file_name: Path) -> Optional[List]:
     return table_page_indices if table_page_indices else None
 
 
-def repair_pdf(file: Path):
+def repair_pdf(file: Path) -> None:
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
     By opening this file in a pdf reader, we can already extract number of pages
@@ -196,7 +196,7 @@ def repair_pdf(file: Path):
     pdf.save(file)
 
 
-def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
+def convert_pdf_file(pdf_path: Path, txt_path: Path, options) -> str:
     response = subprocess.run(
         ["pdftotext", *options, pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60
     ).returncode
@@ -206,22 +206,29 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path, options):
         return constants.RETURNCODE_NOK
 
 
-def extract_pdf_metadata(filepath: Path):
+def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
     metadata = dict()
 
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size
         with filepath.open("rb") as handle:
-            pdf = PdfFileReader(handle)
-
+            pdf = PdfFileReader(handle, strict=False)
             metadata["pdf_is_encrypted"] = pdf.getIsEncrypted()
-            metadata["pdf_number_of_pages"] = pdf.getNumPages()
 
+        # see https://stackoverflow.com/questions/26242952/pypdf-2-decrypt-not-working
+        if metadata["pdf_is_encrypted"]:
+            pikepdf.open(filepath, allow_overwriting_input=True).save()
+
+        with filepath.open("rb") as handle:
+            pdf = PdfFileReader(handle, strict=False)
+            metadata["pdf_number_of_pages"] = pdf.getNumPages()
             pdf_document_info = pdf.getDocumentInfo()
-            metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
+
+        metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
 
     except Exception as e:
-        error_msg = f"Failed to read metadata of {filepath}, error: {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to read metadata of {relative_filepath}, error: {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -484,7 +491,8 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
                 items_found[constants.TAG_CERT_LAB] = normalize_match_string(match_groups[index_next_item])
                 index_next_item += 1
     except Exception as e:
-        error_msg = f"Failed to parse ANSSI frontpage headers from {filepath}; {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse ANSSI frontpage headers from {relative_filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -592,7 +600,8 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
         # print('Total no hits files: {}'.format(len(files_without_match)))
         # print('\n**********************************')
     except Exception as e:
-        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse BSI headers from frontpage: {relative_filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -600,7 +609,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
 
 # Port from old-api branch
-def search_only_headers_nscib(filepath: Path):
+def search_only_headers_nscib(filepath: Path):  # noqa: C901
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 60
     items_found: Dict[str, str] = {}
@@ -731,7 +740,7 @@ def search_only_headers_niap(filepath: Path):
 
 
 # Port from old-api branch
-def search_only_headers_canada(filepath: Path):
+def search_only_headers_canada(filepath: Path):  # noqa: C901
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 20
     items_found: Dict[str, str] = {}
@@ -813,7 +822,8 @@ def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, 
             processed_result[key] = {key: val for key, val in gen_dict_extract(result[key])}
 
     except Exception as e:
-        error_msg = f"Failed to parse keywords from: {filepath}; {e}"
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
     return constants.RETURNCODE_OK, processed_result
@@ -828,7 +838,7 @@ def plot_dataframe_graph(
     bins: int = 50,
     log: bool = True,
     show: bool = True,
-):
+) -> None:
     pd_data = pd.Series(data)
     pd_data.hist(bins=bins, label=label, density=density, cumulative=cumulative)
     plt.savefig(file_name)
@@ -841,7 +851,7 @@ def plot_dataframe_graph(
     logger.info(sorted_data.where(sorted_data > 1).dropna())
 
 
-def is_in_dict(target_dict, path):
+def is_in_dict(target_dict: Dict, path: str) -> bool:
     current_level = target_dict
     for item in path:
         if item not in current_level:
@@ -851,16 +861,16 @@ def is_in_dict(target_dict, path):
     return True
 
 
-def search_files(folder):
-    for root, dirs, files in os.walk(folder):
+def search_files(folder: str) -> Iterator[str]:
+    for root, _, files in os.walk(folder):
         yield from [os.path.join(root, x) for x in files]
 
 
-def save_modified_cert_file(target_file, modified_cert_file_text, is_unicode_text):
+def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_text: str, is_unicode_text: bool) -> None:
     if is_unicode_text:
-        write_file = open(target_file, "w", encoding="utf8", errors="replace")
+        write_file = Path(target_file).open("w", encoding="utf8", errors="replace")
     else:
-        write_file = open(target_file, "w", errors="replace")
+        write_file = Path(target_file).open("w", errors="replace")
 
     try:
         write_file.write(modified_cert_file_text)
@@ -942,15 +952,17 @@ def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=
     return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
 
 
-def normalize_match_string(match):
+def normalize_match_string(match: str) -> str:
     match = match.strip().rstrip('];.”":)(,').rstrip(os.sep).replace("  ", " ")
     return "".join(filter(str.isprintable, match))
 
 
-def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR):
+def load_cert_file(
+    file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
+) -> Tuple[str, str, bool]:
     lines = []
     was_unicode_decode_error = False
-    with open(file_name, "r", errors=FILE_ERRORS_STRATEGY) as f:
+    with Path(file_name).open("r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
             lines = f.readlines()
         except UnicodeDecodeError:
@@ -989,7 +1001,7 @@ def load_cert_file(file_name, limit_max_lines=-1, line_separator=LINE_SEPARATOR)
     return whole_text, whole_text_with_newlines, was_unicode_decode_error
 
 
-def load_cert_html_file(file_name):
+def load_cert_html_file(file_name: str) -> str:
     with open(file_name, "r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
             whole_text = f.read()
@@ -1003,7 +1015,7 @@ def load_cert_html_file(file_name):
     return whole_text
 
 
-def gen_dict_extract(dct: Dict, searched_key: Hashable = "count"):
+def gen_dict_extract(dct: Dict, searched_key: Hashable = "count") -> Generator[Any, None, None]:
     """
     Function to flatten dictionary with some serious limitations. We only expect to use it temporarily on dictionary
     produced by extract_keywords that contains many layers. On the deepest level in that dictionary, 'some_match': {'count': frequency}.
@@ -1060,9 +1072,3 @@ def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:
 
 def tokenize(string: str, keywords: Set[str]) -> str:
     return " ".join([x for x in string.split() if x.lower() in keywords])
-
-
-def filter_shortly_described_cves(x, y):
-    n_tokens = np.array(list(map(lambda item: len(item.split(" ")), x)))
-    indices = np.where(n_tokens > 5)
-    return np.array(x)[indices], np.array(y)[indices]

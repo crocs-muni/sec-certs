@@ -6,29 +6,34 @@
     "name": "Sample certificate name",
     "manufacturer": "Sample manufacturer",
     "scheme": "Sample scheme",
-    "security_level": [
-        "Sample security level"
-    ],
+    "security_level": {
+        "_type": "Set",
+        "elements": [
+            "Sample security level"
+        ]
+    },
     "not_valid_before": "1900-01-02",
     "not_valid_after": "1900-01-03",
     "manufacturer_web": "https://path.to/manufacturer/web",
-    "protection_profiles": [
-        {
+    "protection_profiles": {
+        "_type": "Set",
+        "elements": [{
             "_type": "ProtectionProfile",
             "pp_name": "sample_pp",
             "pp_link": "https://sample.pp",
             "pp_ids": null
-        }
-    ],
-    "maintenance_updates": [
-        {
+        }]
+    },
+    "maintenance_updates": {
+        "_type": "Set",
+        "elements": [{
             "_type": "MaintenanceReport",
             "maintenance_date": "1900-01-01",
             "maintenance_title": "Sample maintenance",
             "maintenance_report_link": "https://maintenance.up",
             "maintenance_st_link": "https://maintenance.up"
-        }
-    ],
+        }]
+    },
     "state": {
         "_type": "InternalState",
         "st_download_ok": true,

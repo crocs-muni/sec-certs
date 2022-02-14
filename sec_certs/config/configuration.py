@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
-from typing import Union
+from typing import Any, Union
 
 import jsonschema
 import yaml
 
 
 class Configuration(object):
-    def load(self, filepath: Union[str, Path]):
+    def load(self, filepath: Union[str, Path]) -> None:
         with Path(filepath).open("r") as file:
             state = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -24,7 +24,7 @@ class Configuration(object):
         for k, v in state.items():
             setattr(self, k, v)
 
-    def __getattribute__(self, key):
+    def __getattribute__(self, key: str) -> Any:
         res = object.__getattribute__(self, key)
         if isinstance(res, dict) and "value" in res:
             return res["value"]

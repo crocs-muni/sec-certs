@@ -15,7 +15,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"  # type: ignore  # mypy issue #1422
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
     tmp_dir: ClassVar[tempfile.TemporaryDirectory]
     cc_dset: CCDataset

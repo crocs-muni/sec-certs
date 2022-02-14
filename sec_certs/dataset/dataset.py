@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Collection, Dict, List, Mapping, Optional, Set, Tuple, Type, TypeVar, Union
+from typing import Any, Collection, Dict, Generic, Iterator, List, Optional, Set, Tuple, Type, TypeVar, Union, cast
 
 import requests
 
@@ -22,12 +22,14 @@ from sec_certs.serialization.json import ComplexSerializableType, serialize
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
+CertSubType = TypeVar("CertSubType", bound=Certificate)
+DatasetSubType = TypeVar("DatasetSubType", bound="Dataset")
 
 
-class Dataset(ABC):
+class Dataset(Generic[CertSubType], ABC):
     def __init__(
         self,
-        certs: Mapping[str, "Certificate"],
+        certs: Dict[str, CertSubType],
         root_dir: Path,
         name: str = "dataset name",
         description: str = "dataset_description",
@@ -40,11 +42,11 @@ class Dataset(ABC):
         self.certs = certs
 
     @property
-    def root_dir(self):
+    def root_dir(self) -> Path:
         return self._root_dir
 
     @root_dir.setter
-    def root_dir(self, new_dir: Union[str, Path]):
+    def root_dir(self, new_dir: Union[str, Path]) -> None:
         new_dir = Path(new_dir)
         new_dir.mkdir(exist_ok=True)
         self._root_dir = new_dir
@@ -73,19 +75,21 @@ class Dataset(ABC):
     def json_path(self) -> Path:
         return self.root_dir / (self.name + ".json")
 
-    def __contains__(self, item):
-        if not issubclass(type(item), Certificate):
-            return False
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, Certificate):
+            raise TypeError(
+                f"You attempted to check if {type(item)} is member of {type(self)}, but only {type(Certificate)} are allowed to be members."
+            )
         return item.dgst in self.certs
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[CertSubType]:
         yield from self.certs.values()
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, item: str) -> CertSubType:
         return self.certs.__getitem__(item.lower())
 
-    def __setitem__(self, key: str, value: "Certificate"):
-        self.certs.__setitem__(key.lower(), value)  # type: ignore
+    def __setitem__(self, key: str, value: CertSubType):
+        self.certs.__setitem__(key.lower(), value)
 
     def __len__(self) -> int:
         return len(self.certs)
@@ -98,7 +102,7 @@ class Dataset(ABC):
     def __str__(self) -> str:
         return str(type(self).__name__) + ":" + self.name + ", " + str(len(self)) + " certificates"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "timestamp": self.timestamp,
             "sha256_digest": self.sha256_digest,
@@ -109,7 +113,7 @@ class Dataset(ABC):
         }
 
     @classmethod
-    def from_dict(cls, dct: Dict):
+    def from_dict(cls: Type[DatasetSubType], dct: Dict) -> DatasetSubType:
         certs = {x.dgst: x for x in dct["certs"]}
         dset = cls(certs, Path("../"), dct["name"], dct["description"])
         if len(dset) != (claimed := dct["n_certs"]):
@@ -119,29 +123,29 @@ class Dataset(ABC):
         return dset
 
     @classmethod
-    def from_json(cls: Type[T], input_path: Union[str, Path]) -> T:
-        dset = ComplexSerializableType.from_json(input_path)
+    def from_json(cls: Type[DatasetSubType], input_path: Union[str, Path]) -> DatasetSubType:
+        dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
         dset.root_dir = Path(input_path).parent.absolute()
         dset.set_local_paths()
         return dset
 
-    def set_local_paths(self):
+    def set_local_paths(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def get_certs_from_web(self):
+    def get_certs_from_web(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def convert_all_pdfs(self):
+    def convert_all_pdfs(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None):
+    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @staticmethod
-    def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True):
+    def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True) -> None:
         exit_codes = cert_processing.process_parallel(
             helpers.download_file, list(zip(urls, paths)), config.n_threads, unpack=True
         )
@@ -158,7 +162,7 @@ class Dataset(ABC):
                     logger.error(f"Corrupted file at: {p}")
                     p.unlink()
 
-    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False):
+    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
         logger.info("Preparing CPE dataset.")
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
@@ -187,12 +191,14 @@ class Dataset(ABC):
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
 
-    def _compute_candidate_versions(self):
+    def _compute_candidate_versions(self) -> None:
         logger.info("Computing heuristics: possible product versions in sample name")
-        for cert in self:
+        for cert in cast(Iterator[Certificate], self):
             cert.compute_heuristics_version()
 
-    def _compute_cpe_matches(self, download_fresh_cpes: bool = False) -> Tuple[CPEClassifier, CPEDataset]:
+    def _compute_cpe_matches(
+        self, download_fresh_cpes: bool = False
+    ) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
         def filter_condition(cpe: CPE) -> bool:
             """
             Filters out very weak CPE matches that don't improve our database.
@@ -214,6 +220,7 @@ class Dataset(ABC):
 
         logger.info("Computing heuristics: Finding CPE matches for certificates")
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
+        cve_dset = None
         if not cpe_dset.was_enhanced_with_vuln_cpes:
             cve_dset = self._prepare_cve_dataset(False)
             cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)
@@ -224,16 +231,16 @@ class Dataset(ABC):
         for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
             cert.compute_heuristics_cpe_match(clf)
 
-        return clf, cpe_dset
+        return clf, cpe_dset, cve_dset
 
     @serialize
-    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset]:
+    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
         self._compute_candidate_versions()
         return self._compute_cpe_matches()
 
-    def to_label_studio_json(self, output_path: Union[str, Path]):
+    def to_label_studio_json(self, output_path: Union[str, Path]) -> None:
         lst = []
-        for cert in [x for x in self if x.heuristics.cpe_matches]:
+        for cert in [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]:
             dct = {"text": cert.label_studio_title}
             candidates = [x[1].title for x in cert.heuristics.cpe_matches]
             candidates += ["No good match"] * (config.cc_cpe_max_matches - len(candidates))
@@ -245,7 +252,7 @@ class Dataset(ABC):
             json.dump(lst, handle, indent=4)
 
     @serialize
-    def load_label_studio_labels(self, input_path: Union[str, Path]):
+    def load_label_studio_labels(self, input_path: Union[str, Path]) -> None:
         with Path(input_path).open("r") as handle:
             data = json.load(handle)
 
@@ -260,7 +267,7 @@ class Dataset(ABC):
             match_keys = [x.lstrip("$") for x in match_keys]
             predicted_annotations = [annotation[x] for x in match_keys if annotation[x] != "No good match"]
 
-            cpes: Set[Optional[CPE]] = set()
+            cpes: Set[CPE] = set()
             for x in predicted_annotations:
                 if x not in cpe_dset.title_to_cpes:
                     print(f"Error: {x} not in dataset")
@@ -269,11 +276,7 @@ class Dataset(ABC):
                     if to_update and not cpes:
                         cpes = to_update
                     elif to_update and cpes:
-                        # TODO: This was here like cpes = cpes.update(to_update), but update() does not return anything.
-                        # Did you try to hack something using that or was that just a typo?
                         cpes.update(to_update)
-
-            # cpes = set(itertools.chain.from_iterable([cpe_dset.title_to_cpes.get(x, []) for x in predicted_annotations]))
 
             # distinguish between FIPS and CC
             if "\n" in annotation["text"]:
@@ -286,14 +289,14 @@ class Dataset(ABC):
             for c in certs:
                 c.heuristics.verified_cpe_matches = {x.uri for x in cpes if x is not None} if cpes else None
 
-    def get_certs_from_name(self, name: str) -> List[Certificate]:
+    def get_certs_from_name(self, name: str) -> List[CertSubType]:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    def enrich_automated_cpes_with_manual_labels(self):
+    def enrich_automated_cpes_with_manual_labels(self) -> None:
         """
         Prior to CVE matching, it is wise to expand the database of automatic CPE matches with those that were manually assigned.
         """
-        for cert in self:
+        for cert in cast(Iterator[Certificate], self):
             if not cert.heuristics.cpe_matches and cert.heuristics.verified_cpe_matches:
                 cert.heuristics.cpe_matches = cert.heuristics.verified_cpe_matches
             elif cert.heuristics.cpe_matches and cert.heuristics.verified_cpe_matches:
@@ -302,12 +305,18 @@ class Dataset(ABC):
                 )
 
     @serialize
-    def compute_related_cves(self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True):
+    def compute_related_cves(
+        self,
+        download_fresh_cves: bool = False,
+        use_nist_cpe_matching_dict: bool = True,
+        cve_dset: Optional[CVEDataset] = None,
+    ) -> None:
         logger.info("Retrieving related CVEs to verified CPE matches")
-        cve_dset = self._prepare_cve_dataset(download_fresh_cves, use_nist_cpe_matching_dict)
+        if download_fresh_cves or not cve_dset:
+            cve_dset = self._prepare_cve_dataset(download_fresh_cves, use_nist_cpe_matching_dict)
 
         self.enrich_automated_cpes_with_manual_labels()
-        cpe_rich_certs = [x for x in self if x.heuristics.cpe_matches]
+        cpe_rich_certs = [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]
 
         if not cpe_rich_certs:
             logger.error(

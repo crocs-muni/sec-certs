@@ -4,18 +4,18 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T", bound="Certificate")
 
-class Certificate(ABC, ComplexSerializableType):
-    T = TypeVar("T", bound="Certificate")
 
+class Certificate(Generic[T], ABC, ComplexSerializableType):
     heuristics: Any
 
     def __init__(self, *args, **kwargs):
@@ -39,10 +39,10 @@ class Certificate(ABC, ComplexSerializableType):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Certificate):
-            return NotImplemented
+            return False
         return self.dgst == other.dgst
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             **{"dgst": self.dgst},
             **{key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes},
@@ -53,32 +53,20 @@ class Certificate(ABC, ComplexSerializableType):
         dct.pop("dgst")
         return cls(**dct)
 
-    def to_json(self, output_path: Optional[Union[str, Path]] = None):
-        if output_path is None:
-            raise RuntimeError(
-                f"You tried to serialize an object ({type(self)}) that does not have implicit json path. Please provide json_path."
-            )
-        with Path(output_path).open("w") as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
-
     @classmethod
-    def from_json(cls, input_path: Union[Path, str]):
+    def from_json(cls: Type[T], input_path: Union[Path, str]) -> T:
         with Path(input_path).open("r") as handle:
             return json.load(handle, cls=CustomJSONDecoder)
 
     @abstractmethod
-    def compute_heuristics_version(self):
+    def compute_heuristics_version(self) -> None:
         raise NotImplementedError("Not meant to be implemented")
 
     @abstractmethod
-    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
         raise NotImplementedError("Not meant to be implemented")
 
-    @abstractmethod
-    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
-        raise NotImplementedError("Not meant to be implemented")
-
-    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset):
+    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset) -> None:
         if self.heuristics.cpe_matches:
             related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x) for x in self.heuristics.cpe_matches]
             related_cves = list(filter(lambda x: x is not None, related_cves))

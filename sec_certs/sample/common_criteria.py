@@ -26,7 +26,7 @@ HEADERS = {
 }
 
 
-class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializableType):
+class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableType, ComplexSerializableType):
     cc_url = "http://www.commoncriteriaportal.org"
     empty_st_url = "http://www.commoncriteriaportal.org/files/epfiles/"
 
@@ -68,7 +68,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         report_convert_ok: bool
         st_extract_ok: bool
         report_extract_ok: bool
-        errors: Optional[List[str]]
+        errors: List[str]
 
         st_pdf_path: Path
         report_pdf_path: Path
@@ -91,11 +91,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             self.report_convert_ok = report_convert_ok
             self.st_extract_ok = st_extract_ok
             self.report_extract_ok = report_extract_ok
-
-            if errors is None:
-                self.errors = []
-            else:
-                self.errors = errors
+            self.errors = errors if errors else []
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -109,25 +105,25 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
                 "errors",
             ]
 
-        def report_is_ok_to_download(self, fresh: bool = True):
+        def report_is_ok_to_download(self, fresh: bool = True) -> bool:
             return True if fresh else not self.report_download_ok
 
-        def st_is_ok_to_download(self, fresh: bool = True):
+        def st_is_ok_to_download(self, fresh: bool = True) -> bool:
             return True if fresh else not self.st_download_ok
 
-        def report_is_ok_to_convert(self, fresh: bool = True):
+        def report_is_ok_to_convert(self, fresh: bool = True) -> bool:
             return self.report_download_ok if fresh else self.report_download_ok and not self.report_convert_ok
 
-        def st_is_ok_to_convert(self, fresh: bool = True):
+        def st_is_ok_to_convert(self, fresh: bool = True) -> bool:
             return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
 
-        def report_is_ok_to_analyze(self, fresh: bool = True):
+        def report_is_ok_to_analyze(self, fresh: bool = True) -> bool:
             if fresh is True:
                 return self.report_download_ok and self.report_convert_ok and self.report_extract_ok
             else:
                 return self.report_download_ok and self.report_convert_ok and not self.report_extract_ok
 
-        def st_is_ok_to_analyze(self, fresh: bool = True):
+        def st_is_ok_to_analyze(self, fresh: bool = True) -> bool:
             if fresh is True:
                 return self.st_download_ok and self.st_convert_ok and self.st_extract_ok
             else:
@@ -142,7 +138,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         report_keywords: Optional[Dict[str, Any]] = field(default=None)
         st_keywords: Optional[Dict[str, Any]] = field(default=None)
 
-        def __bool__(self):
+        def __bool__(self) -> bool:
             return any([x is not None for x in vars(self)])
 
         @property
@@ -213,9 +209,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         indirectly_affected_by: Optional[Set[str]] = field(default=None)
         directly_affecting: Optional[Set[str]] = field(default=None)
         indirectly_affecting: Optional[Set[str]] = field(default=None)
-
-        # manufacturer_list: Optional[List[str]]
-
         cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
         @property
@@ -224,7 +217,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             all_vars.remove("cpe_candidate_vendors")
             return all_vars
 
-        def __post_init__(self):
+        def __post_init__(self) -> None:
             self.cpe_candidate_vendors = None
 
     pandas_columns: ClassVar[List[str]] = [
@@ -314,11 +307,11 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
     @property
-    def label_studio_title(self):
+    def label_studio_title(self) -> str:
         return self.name
 
     @property
-    def pandas_tuple(self):
+    def pandas_tuple(self) -> Tuple:
         return (
             self.dgst,
             self.heuristics.cert_id,
@@ -343,11 +336,11 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             self.heuristics.indirectly_affecting,
         )
 
-    def __str__(self):
-        # TODO - if some of the values is None -> TypeError is raised
-        return str(self.manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
+    def __str__(self) -> str:
+        printed_manufacturer = self.manufacturer if self.manufacturer else "Unknown manufacturer"
+        return str(printed_manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
 
-    def merge(self, other: "CommonCriteriaCert", other_source: Optional[str] = None):
+    def merge(self, other: "CommonCriteriaCert", other_source: Optional[str] = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
@@ -435,7 +428,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
     @staticmethod
     def _html_row_get_report_st_links(cell: Tag) -> Tuple[str, str]:
         links = cell.find_all("a")
-        # TODO: Exception checks
         assert links[1].get("title").startswith("Certification Report")
         assert links[2].get("title").startswith("Security Target")
 
@@ -458,7 +450,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return None
 
     @staticmethod
-    def _html_row_get_maintenance_updates(main_div: Tag) -> set:
+    def _html_row_get_maintenance_updates(main_div: Tag) -> Set["CommonCriteriaCert.MaintenanceReport"]:
         possible_updates = list(main_div.find_all("li"))
         maintenance_updates = set()
         for u in possible_updates:
@@ -532,7 +524,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         st_pdf_dir: Optional[Union[str, Path]],
         report_txt_dir: Optional[Union[str, Path]],
         st_txt_dir: Optional[Union[str, Path]],
-    ):
+    ) -> None:
         if report_pdf_dir is not None:
             self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
         if st_pdf_dir is not None:
@@ -553,8 +545,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.report_download_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -569,8 +559,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = f"failed to download ST from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_download_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -581,8 +569,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = "failed to convert report pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.report_convert_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -593,8 +579,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
             error_msg = "failed to convert security target pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_convert_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(error_msg)
         return cert
 
@@ -603,8 +587,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -613,8 +595,6 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
@@ -660,22 +640,18 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            if not cert.state.errors:
-                cert.state.errors = []
             cert.state.errors.append(response)
         return cert
 
-    def compute_heuristics_version(self):
+    def compute_heuristics_version(self) -> None:
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
-    def compute_heuristics_cpe_vendors(self, cpe_classifier: CPEClassifier):
-        # TODO: This method probably can be deleted.
-        self.heuristics.cpe_candidate_vendors = cpe_classifier.get_candidate_list_of_vendors(self.manufacturer)  # type: ignore
+    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
+        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(
+            self.manufacturer, self.name, self.heuristics.extracted_versions
+        )
 
-    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier):
-        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(self.manufacturer, self.name, self.heuristics.extracted_versions)  # type: ignore
-
-    def compute_heuristics_cert_lab(self):
+    def compute_heuristics_cert_lab(self) -> None:
         if not self.pdf_data:
             logger.error("Cannot compute sample lab when pdf files were not processed.")
             return
@@ -717,10 +693,7 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         return cert_id.startswith("BSI-DSZ-CC-")
 
     @staticmethod
-    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
-        start_year = 1996
-        limit_year = datetime.now().year + 1
-        bsi_parts = cert_id.split("-")
+    def _extract_bsi_parts(bsi_parts: List[str]) -> Tuple:
         cert_num = None
         cert_version = None
         cert_year = None
@@ -735,6 +708,15 @@ class CommonCriteriaCert(Certificate, PandasSerializableType, ComplexSerializabl
         if len(bsi_parts) > 5:
             cert_year = bsi_parts[5]
 
+        return cert_num, cert_version, cert_year
+
+    @staticmethod
+    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
+        start_year = 1996
+        limit_year = datetime.now().year + 1
+        bsi_parts = cert_id.split("-")
+
+        cert_num, cert_version, cert_year = CommonCriteriaCert._extract_bsi_parts(bsi_parts)
         if cert_year is None:
             for year in range(start_year, limit_year):
                 cert_id_possible = cert_id + "-" + str(year)
