@@ -85,4 +85,4 @@ def evaluate(
 
     if outpath:
         with Path(outpath).open("w") as handle:
-            json.dump(results, handle, indent=4, cls=CustomJSONEncoder)
+            json.dump(results, handle, indent=4, cls=CustomJSONEncoder, sort_keys=True)
