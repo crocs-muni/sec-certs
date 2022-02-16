@@ -66,11 +66,12 @@ class CVEDataset(ComplexSerializableType):
         if use_nist_mapping:
             matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
+        cve: CVE
         for cve in helpers.tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
-                vulnerable_configurations = itertools.chain.from_iterable(
-                    [matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes]
+                vulnerable_configurations = list(
+                    itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
                 )
             else:
                 vulnerable_configurations = cve.vulnerable_cpes
@@ -145,8 +146,6 @@ class CVEDataset(ComplexSerializableType):
         return dset
 
     def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[List[str]]:
-        if not isinstance(cpe_uri, str):
-            return None
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
 
     def filter_related_cpes(self, relevant_cpes: Set[CPE]):
@@ -175,7 +174,7 @@ class CVEDataset(ComplexSerializableType):
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
         return df.set_index("cve_id")
 
-    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]):
+    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]) -> Dict[CPE, List[CPE]]:
         def parse_key_cpe(field: Dict) -> CPE:
             start_version = None
             if "versionStartIncluding" in field:

@@ -3,7 +3,7 @@ import logging
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
 
@@ -22,13 +22,18 @@ class CPEDataset(ComplexSerializableType):
     was_enhanced_with_vuln_cpes: bool
     json_path: Path
     cpes: Dict[str, CPE]
-    vendor_to_versions: Dict[str, Set[str]] = field(init=False)  # Look-up dict cpe_vendor: list of viable versions
+    vendor_to_versions: Dict[str, Set[str]] = field(
+        init=False, default_factory=dict
+    )  # Look-up dict cpe_vendor: list of viable versions
     vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(
-        init=False
+        init=False, default_factory=dict
     )  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
-    title_to_cpes: Dict[str, Set[CPE]] = field(init=False)  # Look-up dict title: List of cert items
-    vendors: Set[str] = field(init=False)
+    title_to_cpes: Dict[str, Set[CPE]] = field(
+        init=False, default_factory=dict
+    )  # Look-up dict title: List of cert items
+    vendors: Set[str] = field(init=False, default_factory=set)
 
+    init_lookup_dicts: InitVar[bool] = True
     cpe_xml_basename: ClassVar[str] = "official-cpe-dictionary_v2.3.xml"
     cpe_url: ClassVar[str] = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/" + cpe_xml_basename + ".zip"
 
@@ -56,8 +61,9 @@ class CPEDataset(ComplexSerializableType):
     def serialized_attributes(self) -> List[str]:
         return ["was_enhanced_with_vuln_cpes", "json_path", "cpes"]
 
-    def __post_init__(self) -> None:
-        self.build_lookup_dicts()
+    def __post_init__(self, init_lookup_dicts: bool):
+        if init_lookup_dicts:
+            self.build_lookup_dicts()
 
     def build_lookup_dicts(self) -> None:
         """
@@ -82,7 +88,7 @@ class CPEDataset(ComplexSerializableType):
                     self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
-    def from_web(cls, json_path: Union[str, Path]) -> "CPEDataset":
+    def from_web(cls, json_path: Union[str, Path], init_lookup_dicts: bool = True) -> "CPEDataset":
         with tempfile.TemporaryDirectory() as tmp_dir:
             xml_path = Path(tmp_dir) / cls.cpe_xml_basename
             zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + ".zip")
@@ -91,10 +97,12 @@ class CPEDataset(ComplexSerializableType):
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_dir)
 
-            return cls.from_xml(xml_path, json_path)
+            return cls.from_xml(xml_path, json_path, init_lookup_dicts)
 
     @classmethod
-    def from_xml(cls, xml_path: Union[str, Path], json_path: Union[str, Path]) -> "CPEDataset":
+    def from_xml(
+        cls, xml_path: Union[str, Path], json_path: Union[str, Path], init_lookup_dicts: bool = True
+    ) -> "CPEDataset":
         logger.info("Loading CPE dataset from XML.")
         root = ET.parse(xml_path).getroot()
         dct = {}
@@ -114,7 +122,8 @@ class CPEDataset(ComplexSerializableType):
             cpe_uri = found_cpe_uri.attrib["name"]
 
             dct[cpe_uri] = cached_cpe(cpe_uri, title)
-        return cls(False, Path(json_path), dct)
+
+        return cls(False, Path(json_path), dct, init_lookup_dicts)
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]) -> "CPEDataset":
@@ -123,8 +132,8 @@ class CPEDataset(ComplexSerializableType):
         return dset
 
     @classmethod
-    def from_dict(cls, dct: Dict[str, Any]) -> "CPEDataset":
-        return cls(dct["was_enhanced_with_vuln_cpes"], Path("../"), dct["cpes"])
+    def from_dict(cls, dct: Dict[str, Any], init_lookup_dicts: bool = True) -> "CPEDataset":
+        return cls(dct["was_enhanced_with_vuln_cpes"], Path("../"), dct["cpes"], init_lookup_dicts)
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns)
@@ -145,6 +154,8 @@ class CPEDataset(ComplexSerializableType):
         for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc="Enriching CPE dataset with new CPEs"):
             if cpe not in self:
                 self[cpe.uri] = cpe
+
+        self.build_lookup_dicts()
 
         logger.info(f"Enriched the CPE dataset with {len(self.cpes) - old_len} new CPE records.")
         self.was_enhanced_with_vuln_cpes = True
