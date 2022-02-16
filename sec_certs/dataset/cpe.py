@@ -47,13 +47,19 @@ class CPEDataset(ComplexSerializableType):
     def __contains__(self, item: CPE) -> bool:
         if not isinstance(item, CPE):
             raise ValueError(f"{item} is not of CPE class")
-        return item.uri in self.cpes.keys()
+        return item.uri in self.cpes.keys() and self.cpes[item.uri] == item
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, CPEDataset) and self.cpes == other.cpes
 
     @property
     def serialized_attributes(self) -> List[str]:
         return ["was_enhanced_with_vuln_cpes", "json_path", "cpes"]
 
     def __post_init__(self) -> None:
+        self.build_lookup_dicts()
+
+    def build_lookup_dicts(self) -> None:
         """
         Will build look-up dictionaries that are used for fast matching
         """
