@@ -34,6 +34,7 @@ from sec_certs.constants import (
 logger = logging.getLogger(__name__)
 
 
+# TODO: Once typehints in tqdm are implemented, we should use them: https://github.com/tqdm/tqdm/issues/260
 def tqdm(*args, **kwargs):
     if "disable" in kwargs:
         return tqdm_original(*args, **kwargs)
@@ -1035,7 +1036,7 @@ def gen_dict_extract(dct: Dict, searched_key: Hashable = "count") -> Generator[A
                     yield key, result
 
 
-def compute_heuristics_version(cert_name: str) -> List[str]:
+def compute_heuristics_version(cert_name: str) -> Set[str]:
     """
     Will extract possible versions from the name of sample
     """
@@ -1060,10 +1061,10 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     # return identified_versions if identified_versions else ['-']
 
     if not matches:
-        return ["-"]
+        return {"-"}
 
     matched = [re.search(normalizer, x) for x in matches]
-    return [x.group() for x in matched if x is not None]
+    return {x.group() for x in matched if x is not None}
 
 
 def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:

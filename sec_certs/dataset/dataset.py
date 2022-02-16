@@ -191,11 +191,6 @@ class Dataset(Generic[CertSubType], ABC):
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
 
-    def _compute_candidate_versions(self) -> None:
-        logger.info("Computing heuristics: possible product versions in sample name")
-        for cert in cast(Iterator[Certificate], self):
-            cert.compute_heuristics_version()
-
     def _compute_cpe_matches(
         self, download_fresh_cpes: bool = False
     ) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
@@ -230,6 +225,7 @@ class Dataset(Generic[CertSubType], ABC):
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
         clf.fit([x for x in cpe_dset if filter_condition(x)])
 
+        cert: CertSubType
         for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
             cert.compute_heuristics_cpe_match(clf)
 
@@ -237,7 +233,6 @@ class Dataset(Generic[CertSubType], ABC):
 
     @serialize
     def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
-        self._compute_candidate_versions()
         return self._compute_cpe_matches()
 
     def to_label_studio_json(self, output_path: Union[str, Path]) -> None:

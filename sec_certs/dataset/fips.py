@@ -304,7 +304,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.heuristics = FIPSCertificate.FIPSHeuristics(None, [], [], 0)
+            cert.heuristics = FIPSCertificate.FIPSHeuristics(dict(), [], [], 0)
 
         self.match_algs()
 
