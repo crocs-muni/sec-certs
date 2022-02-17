@@ -788,10 +788,13 @@ class CommonCriteriaCert(
             "ocsi": CommonCriteriaCert._fix_ocsi_cert_id,
         }
 
-        cert_lab = self.get_cert_laboratory()
+        try:
+            cert_lab = self.get_cert_laboratory()
+        except ValueError:
+            return None
 
         # No need for any fix, bcs we do not know how
-        if self.heuristics.cert_id is None or cert_lab == "unknown":
+        if cert_lab == "unknown":
             return None
 
         self.heuristics.cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)
