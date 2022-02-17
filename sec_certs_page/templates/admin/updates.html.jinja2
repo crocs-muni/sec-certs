@@ -9,6 +9,7 @@
                 <table class="table">
                     <thead>
                     <tr>
+                        <th>Id</th>
                         <th>Date</th>
                         <th>Duration</th>
                         <th>Result</th>
@@ -20,6 +21,7 @@
                     <tbody>
                     {% for log_entry in cc_log %}
                         <tr>
+                            <td><a href="{{ url_for(".update_run", id=log_entry["_id"]) }}" class="font-monospace">{{ log_entry["_id"] }}</a></td>
                             <td>{{ log_entry["start_time"]|strftime("%d.%m.%Y") }}</td>
                             <td>{{ log_entry["end_time"] - log_entry["start_time"] }}</td>
                             <td>{% if log_entry["ok"] %}
@@ -53,6 +55,7 @@
                 <table class="table">
                     <thead>
                     <tr>
+                        <th>Id</th>
                         <th>Date</th>
                         <th>Duration</th>
                         <th>Result</th>
@@ -63,6 +66,7 @@
                     <tbody>
                     {% for log_entry in fips_log %}
                         <tr>
+                            <td><a href="{{ url_for(".update_run", id=log_entry["_id"]) }}" class="font-monospace">{{ log_entry["_id"] }}</a></td>
                             <td>{{ log_entry["start_time"]|strftime("%d.%m.%Y") }}</td>
                             <td>{{ log_entry["end_time"] - log_entry["start_time"] }}</td>
                             <td>{% if log_entry["ok"] %}

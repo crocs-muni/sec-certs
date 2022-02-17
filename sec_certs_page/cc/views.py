@@ -260,7 +260,9 @@ def entry(hashid):
                 if found:
                     profiles[profile["pp_ids"]] = load(found)
         with sentry_sdk.start_span(op="mongo", description="Find diffs"):
-            diffs = list(map(load, mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])))
+            diffs = list(mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
+            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diffs = list(map(load, diffs))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -279,6 +281,7 @@ def entry(hashid):
             hashid=hashid,
             profiles=profiles,
             diffs=diffs,
+            diff_jsons=diff_jsons,
             cves=cves,
             cpes=cpes,
             local_files=local_files,

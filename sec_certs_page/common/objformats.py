@@ -2,6 +2,7 @@ from abc import ABC
 from datetime import date
 from pathlib import Path
 
+from bson.objectid import ObjectId
 from jsondiff.symbols import Symbol
 from sec_certs.serialization.json import ComplexSerializableType
 
@@ -69,6 +70,8 @@ class StorageFormat(Format):
                 return str(obj)
             elif isinstance(obj, list):
                 return list(map(walk, obj))
+            elif isinstance(obj, ObjectId):
+                return str(obj)
             return obj
 
         return walk(self.obj)

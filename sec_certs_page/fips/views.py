@@ -349,6 +349,10 @@ def entry(hashid):
         raw_doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if raw_doc:
         doc = load(raw_doc)
+        with sentry_sdk.start_span(op="mongo", description="Find diffs"):
+            diffs = list(mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
+            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diffs = list(map(load, diffs))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -367,6 +371,8 @@ def entry(hashid):
             "fips/entry.html.jinja2",
             cert=doc,
             hashid=hashid,
+            diffs=diffs,
+            diff_jsons=diff_jsons,
             cves=cves,
             cpes=cpes,
             local_files=local_files,

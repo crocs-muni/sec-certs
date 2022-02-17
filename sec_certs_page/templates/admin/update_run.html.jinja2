@@ -1,0 +1,60 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div>
+                <h1>{{ type|upper }} Update run</h1>
+                <b>Id:</b> {{ run["_id"] }} {% if run["ok"] %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                                {{ run["error"] }}
+                            {% endif %}<br/>
+                <b>Start:</b> {{ run["start_time"]|strftime("%d.%m.%Y %H:%M") }}<br/>
+                <b>End:</b> {{ run["end_time"]|strftime("%d.%m.%Y %H:%M") }}<br/>
+                <b>Duration:</b> {{ run["end_time"] - run["start_time"] }}<br/>
+                <b>Tool version:</b> {{ run["tool_version"] }}<br/>
+                {% if state in run %}
+                <b>State:</b> <i title="meta_sources_parsed"
+                                   class="fas fa-align-left {% if run["state"]["meta_sources_parsed"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="pdfs_downloaded"
+                                   class="fas fa-file-download {% if run["state"]["pdfs_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="pdfs_converted"
+                                   class="fas fa-file-pdf {% if run["state"]["pdfs_converted"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="certs_analyzed"
+                                   class="fas fa-glasses {% if run["state"]["certs_analyzed"] %}text-success{% else %}text-danger{% endif %}"></i><br/>
+                {% endif %}
+                <b>Length:</b> {{ run["length"] }}<br/>
+                <b title="Includes new certificates, changes, removals and reappearances."># Diffs:</b> {{ diffs|length }}<br/>
+                {% if "stats" in run and "cert_states" in run["stats"] %}
+                    <b>Cert states:</b>
+                    <ul>
+                        {% for state, num in run["stats"]["cert_states"].items() %}
+                            <li>{{ state }}: {{ num }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Diff id</th>
+                            <th>Cert id</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for diff in diffs %}
+                            <tr>
+                            <td><a href="{{ url_for(".update_diff", id=diff["_id"]) }}" class="font-monospace">{{ diff["_id"] }}</a></td>
+                            <td><a href="{{ url_for(type + ".entry", hashid=diff["dgst"]) }}" class="font-monospace">{{ diff["dgst"] }}</a></td>
+                            <td>{{ diff["type"] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+{% endblock %}

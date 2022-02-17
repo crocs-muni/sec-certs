@@ -1,10 +1,11 @@
 import pymongo
-from flask import current_app, flash, redirect, render_template, request, session, url_for
+from flask import abort, current_app, flash, redirect, render_template, request, session, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, identity_changed
 
 from .. import mongo
+from ..common.objformats import StorageFormat
 from ..common.views import Pagination
 from . import admin
 from .forms import LoginForm
@@ -38,6 +39,44 @@ def updates():
                 {"run_id": log_entry["_id"], "type": "change"}
             )
     return render_template("admin/updates.html.jinja2", cc_log=cc_log, fips_log=fips_log)
+
+
+@admin.route("/update/<ObjectId:id>")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(
+    admin,
+    ".updates.update",
+    "",
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],
+)
+def update_run(id):
+    cc_run = mongo.db.cc_log.find_one({"_id": id})
+    if cc_run:
+        cc_diffs = list(mongo.db.cc_diff.find({"run_id": id}))
+        return render_template("admin/update_run.html.jinja2", run=cc_run, diffs=cc_diffs, type="cc")
+    fips_run = mongo.db.fips_log.find_one({"_id": id})
+    if fips_run:
+        fips_diffs = list(mongo.db.fips_diff.find({"run_id": id}))
+        return render_template("admin/update_run.html.jinja2", run=fips_run, diffs=fips_diffs, type="fips")
+    return abort(404)
+
+
+@admin.route("/update/diff/<ObjectId:id>")
+@login_required
+@admin_permission.require()
+def update_diff(id):
+    cc_diff = mongo.db.cc_diff.find_one({"_id": id})
+    if cc_diff:
+        cc_run = mongo.db.cc_log.find_one({"_id": cc_diff["run_id"]})
+        json = StorageFormat(cc_diff).to_json_mapping()
+        return render_template("admin/update_diff.html.jinja2", diff=cc_diff, json=json, run=cc_run, type="cc")
+    fips_diff = mongo.db.fips_diff.find_one({"_id": id})
+    if fips_diff:
+        fips_run = mongo.db.fips_log.find_one({"_id": fips_diff["run_id"]})
+        json = StorageFormat(fips_diff).to_json_mapping()
+        return render_template("admin/update_diff.html.jinja2", diff=fips_diff, json=json, run=fips_run, type="fips")
+    return abort(404)
 
 
 @admin.route("/feedback")

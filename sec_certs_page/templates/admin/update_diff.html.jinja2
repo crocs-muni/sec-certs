@@ -1,0 +1,16 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = False %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div>
+                <h1>{{ type|upper }} Update diff</h1>
+                <b>Id:</b> {{ diff["_id"] }} <br/>
+                <b>Run:</b> <a href="{{ url_for(".update_run", id=run["_id"]) }}">{{ run["_id"] }}</a> <br/>
+                <b>Certificate:</b> <a href="{{ url_for(type + ".entry", hashid=diff["dgst"]) }}" class="font-monospace">{{ diff["dgst"] }}</a>
+                <pre class="listing mt-3"><code>{{ json|tojson(indent=2) }}</code></pre>
+            </div>
+        </div>
+    </main>
+{% endblock %}

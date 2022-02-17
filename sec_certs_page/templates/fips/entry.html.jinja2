@@ -21,6 +21,9 @@
         <a class="nav-link" href="#reference-graph">References</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="#updates">Updates</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="#raw-data-head">Raw data</a>
     </li>
 {% endblock %}
@@ -214,6 +217,38 @@
                 <div class="border">
                     {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for(".types"), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
                 </div>
+            </div>
+
+            <div class="mt-5 mb-5">
+                <h2 class="anchor" id="updates">Updates
+                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
+                          data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
+                </h2>
+                <ul>
+                    {% for diff, json_diff in zip(diffs, diff_jsons) %}
+                        <li>
+                        {% if diff["type"] == "new" %}
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
+                        {% elif diff["type"] == "change" %}
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
+                        {% elif diff["type"] == "remove" %}
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable,
+                            either the certification report or the security target was unavailable during
+                            processing.
+                        {% elif diff["type"] == "back" %}
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available
+                            again.
+                        {% endif %}
+                        {% if is_admin() %}
+                            <button type="button" data-bs-toggle="collapse" data-bs-target="#diff-data{{ loop.index }}"
+                                style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                                title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+                            <pre id="diff-data{{ loop.index }}" class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
+                        {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
 
             <div class="mt-5 mb-5">

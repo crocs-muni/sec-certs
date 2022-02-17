@@ -292,27 +292,27 @@
                           title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
                 </h2>
                 <ul>
-                    {% for diff in diffs %}
+                    {% for diff, json_diff in zip(diffs, diff_jsons) %}
+                        <li>
                         {% if diff["type"] == "new" %}
-                            <li>
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
-                            </li>
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
                         {% elif diff["type"] == "change" %}
-                            <li>
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
-                            </li>
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
                         {% elif diff["type"] == "remove" %}
-                            <li>
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable,
-                                either the certification report or the security target was unavailable during
-                                processing.
-                            </li>
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable,
+                            either the certification report or the security target was unavailable during
+                            processing.
                         {% elif diff["type"] == "back" %}
-                            <li>
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available
-                                again.
-                            </li>
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available
+                            again.
                         {% endif %}
+                        {% if is_admin() %}
+                            <button type="button" data-bs-toggle="collapse" data-bs-target="#diff-data{{ loop.index }}"
+                                style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                                title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
+                            <pre id="diff-data{{ loop.index }}" class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
+                        {% endif %}
+                        </li>
                     {% endfor %}
                 </ul>
             </div>

@@ -32,6 +32,7 @@ app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 app.jinja_env.cache = {}
 app.jinja_env.autoescape = True
+app.jinja_env.globals.update(zip=zip)
 public(app=app)
 
 if os.environ.get("TESTING", False):
