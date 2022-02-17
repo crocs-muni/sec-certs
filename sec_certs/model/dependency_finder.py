@@ -3,9 +3,9 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 
 Certificates = Dict[str, CommonCriteriaCert]
-ReferencedByDirect = Dict[str, List[str]]
+ReferencedByDirect = Dict[str, Set[str]]
 ReferencedByIndirect = Dict[str, Set[str]]
-Dependencies = Dict[str, Dict[str, Union[Optional[List[str]], Optional[Set[str]]]]]
+Dependencies = Dict[str, Dict[str, Optional[Set[str]]]]
 
 
 class DependencyFinder:
@@ -15,9 +15,9 @@ class DependencyFinder:
     @staticmethod
     def _update_direct_references(referenced_by: ReferencedByDirect, cert_id: str, this_cert_id: str) -> None:
         if cert_id not in referenced_by:
-            referenced_by[cert_id] = []
+            referenced_by[cert_id] = set()
         if this_cert_id not in referenced_by[cert_id]:
-            referenced_by[cert_id].append(this_cert_id)
+            referenced_by[cert_id].add(this_cert_id)
 
     @staticmethod
     def _process_references(referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect) -> None:
@@ -85,7 +85,7 @@ class DependencyFinder:
         return filter_indirect if filter_indirect else None
 
     @staticmethod
-    def _get_affected_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[List[str]]:
+    def _get_affected_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[Set[str]]:
         return referenced_by_direct.get(cert, None)
 
     @staticmethod
@@ -118,9 +118,9 @@ class DependencyFinder:
                 cert_id, referenced_by_indirect
             )
 
-    def get_directly_affected_by(self, dgst: str) -> Optional[List[str]]:
+    def get_directly_affected_by(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("directly_affected_by", None)
-        return list(res) if res else None
+        return set(res) if res else None
 
     def get_indirectly_affected_by(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("indirectly_affected_by", None)

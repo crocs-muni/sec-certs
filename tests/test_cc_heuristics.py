@@ -241,7 +241,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         dependency_dataset._compute_dependencies()
         test_cert = dependency_dataset["692e91451741ef49"]
 
-        self.assertEqual(test_cert.heuristics.directly_affected_by, ["BSI-DSZ-CC-0370-2006"])
+        self.assertEqual(test_cert.heuristics.directly_affected_by, {"BSI-DSZ-CC-0370-2006"})
         self.assertEqual(test_cert.heuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
         self.assertEqual(test_cert.heuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
         self.assertEqual(test_cert.heuristics.indirectly_affecting, {"BSI-DSZ-CC-0268-2005"})
