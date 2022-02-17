@@ -17,6 +17,7 @@ import pandas as pd
 import pikepdf
 import requests
 from PyPDF2 import PdfFileReader
+from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObject
 from tqdm import tqdm as tqdm_original
 
 import sec_certs.constants as constants
@@ -207,6 +208,20 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path, options) -> str:
 
 
 def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
+    def map_metadata_value(val, nope_out=False):
+        if isinstance(val, BooleanObject):
+            val = val.value
+        elif isinstance(val, FloatObject):
+            val = float(val)
+        elif isinstance(val, NumberObject):
+            val = int(val)
+        elif isinstance(val, IndirectObject) and not nope_out:
+            # Let's make sure to nope out in case of cycles
+            val = map_metadata_value(val.getObject(), nope_out=True)
+        else:
+            val = str(val)
+        return val
+
     metadata = dict()
 
     try:
@@ -224,7 +239,8 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             metadata["pdf_number_of_pages"] = pdf.getNumPages()
             pdf_document_info = pdf.getDocumentInfo()
 
-        metadata.update({key: str(val) for key, val in pdf_document_info.items()} if pdf_document_info else {})
+        for key, val in pdf_document_info.items():
+            metadata[str(key)] = map_metadata_value(val)
 
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
