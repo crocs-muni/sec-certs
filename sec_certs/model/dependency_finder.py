@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, Optional, Set, Tuple
 
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 
