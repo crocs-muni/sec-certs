@@ -45,9 +45,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         self.end_version = end_version
 
     def __lt__(self, other: "CPE") -> bool:
-        if self.title is None or other.title is None:
-            raise RuntimeError("Cannot compare CPEs because title is missing.")
-        return self.title < other.title
+        return self.uri < other.uri
 
     @classmethod
     def from_dict(cls, dct: Dict[str, Any]) -> "CPE":

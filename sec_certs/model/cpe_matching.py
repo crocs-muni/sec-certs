@@ -1,5 +1,6 @@
 import itertools
 import logging
+import operator
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
@@ -109,6 +110,7 @@ class CPEClassifier(BaseEstimator):
         ]
         threshold = self.match_threshold if not relax_version else 100
         final_matches_aux: List[Tuple[float, CPE]] = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
+        final_matches_aux = sorted(final_matches_aux, key=operator.itemgetter(0, 1), reverse=True)
         final_matches: Optional[Set[str]] = set(
             [x[1].uri for x in final_matches_aux[: self.n_max_matches] if x[1].uri is not None]
         )
