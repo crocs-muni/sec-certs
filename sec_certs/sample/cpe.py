@@ -91,12 +91,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return hash((self.uri, self.start_version, self.end_version))
 
     def __eq__(self, other: object) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.uri == other.uri
-            and self.start_version == other.start_version
-            and self.end_version == other.end_version
-        )
+        return isinstance(other, self.__class__) and self.uri == other.uri
 
 
 @lru_cache(maxsize=4096)

@@ -1,3 +1,4 @@
+import copy
 import itertools
 import logging
 import tempfile
@@ -9,7 +10,7 @@ from typing import Any, ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
 
 import pandas as pd
 
-import sec_certs.helpers as helpers
+from sec_certs import constants, helpers
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType, serialize
@@ -142,6 +143,24 @@ class CPEDataset(ComplexSerializableType):
 
     @serialize
     def enhance_with_cpes_from_cve_dataset(self, cve_dset: Union[CVEDataset, str, Path]) -> None:
+        def adding_condition(
+            considered_cpe: CPE,
+            vndr_item_lookup: Set[Tuple[str, str]],
+            vndr_item_version_lookup: Set[Tuple[str, str, str]],
+        ) -> bool:
+            if (
+                considered_cpe.version == constants.CPE_VERSION_NA
+                and (considered_cpe.vendor, considered_cpe.item_name) not in vndr_item_lookup
+            ):
+                return True
+            elif (
+                considered_cpe.version != constants.CPE_VERSION_NA
+                and (considered_cpe.vendor, considered_cpe.item_name, considered_cpe.version)
+                not in vndr_item_version_lookup
+            ):
+                return True
+            return False
+
         if isinstance(cve_dset, (str, Path)):
             cve_dset = CVEDataset.from_json(cve_dset)
 
@@ -151,10 +170,15 @@ class CPEDataset(ComplexSerializableType):
 
         old_len = len(self.cpes)
 
+        # We only enrich if tuple (vendor, item_name) is not already in the dataset
+        vendor_item_lookup = {(cpe.vendor, cpe.item_name) for cpe in self}
+        vendor_item_version_lookup = {(cpe.vendor, cpe.item_name, cpe.version) for cpe in self}
         for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc="Enriching CPE dataset with new CPEs"):
-            if cpe not in self:
-                self[cpe.uri] = cpe
-
+            if adding_condition(cpe, vendor_item_lookup, vendor_item_version_lookup):
+                new_cpe = copy.deepcopy(cpe)
+                new_cpe.start_version = None
+                new_cpe.end_version = None
+                self[new_cpe.uri] = new_cpe
         self.build_lookup_dicts()
 
         logger.info(f"Enriched the CPE dataset with {len(self.cpes) - old_len} new CPE records.")
