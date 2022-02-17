@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
-from sec_certs import helpers
+from sec_certs import constants, helpers
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -42,13 +42,22 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         splitted = helpers.split_unescape(self.uri, ":")
         self.vendor = " ".join(splitted[3].split("_"))
         self.item_name = " ".join(splitted[4].split("_"))
-        self.version = " ".join(splitted[5].split("_"))
+        self.version = self.normalize_version(" ".join(splitted[5].split("_")))
         self.title = title
         self.start_version = start_version
         self.end_version = end_version
 
     def __lt__(self, other: "CPE") -> bool:
         return self.uri < other.uri
+
+    @staticmethod
+    def normalize_version(version: str) -> str:
+        """
+        Maps common empty versions (empty '', asterisk '*') to unified empty version (constants.CPE_VERSION_NA)
+        """
+        if version in {"", "*"}:
+            return constants.CPE_VERSION_NA
+        return version
 
     @classmethod
     def from_dict(cls, dct: Dict[str, Any]) -> "CPE":

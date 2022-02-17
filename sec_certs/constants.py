@@ -17,6 +17,8 @@ class CertFramework(Enum):
     FIPS = "FIPS"
 
 
+CPE_VERSION_NA = "-"
+
 FIPS_BASE_URL = "https://csrc.nist.gov"
 FIPS_MODULE_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/"
 

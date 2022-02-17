@@ -8,6 +8,7 @@ from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
 import sec_certs.helpers as helpers
+from sec_certs import constants
 from sec_certs.sample.cpe import CPE
 
 logger = logging.getLogger(__name__)
@@ -122,7 +123,7 @@ class CPEClassifier(BaseEstimator):
 
         if not relax_version and not final_matches:
             final_matches = self.predict_single_cert(
-                vendor, product_name, {"-"}, relax_version=True, relax_title=relax_title
+                vendor, product_name, {constants.CPE_VERSION_NA}, relax_version=True, relax_title=relax_title
             )
 
         return final_matches if final_matches else None

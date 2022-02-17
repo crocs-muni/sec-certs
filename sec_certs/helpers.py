@@ -1061,7 +1061,7 @@ def compute_heuristics_version(cert_name: str) -> Set[str]:
     # return identified_versions if identified_versions else ['-']
 
     if not matches:
-        return {"-"}
+        return {constants.CPE_VERSION_NA}
 
     matched = [re.search(normalizer, x) for x in matches]
     return {x.group() for x in matched if x is not None}

@@ -5,6 +5,7 @@ from typing import ClassVar, Dict, List
 from unittest import TestCase
 
 import tests.data.test_cc_heuristics
+from sec_certs import constants
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
@@ -127,10 +128,10 @@ class TestCommonCriteriaHeuristics(TestCase):
         potentially_problematic_cpes = {
             'cpe:2.3:a:bayashi:dopvstar\::0091:*:*:*:*:*:*:*"': ("bayashi", "dopvstar:", "0091"),  # noqa: W605
             "cpe:2.3:a:moundlabs:\:\:mound\:\::2.1.6:*:*:*:*:*:*:*": ("moundlabs", "::mound::", "2.1.6"),  # noqa: W605
-            "cpe:2.3:a:lemonldap-ng:lemonldap\:\::2.0.3:*:*:*:*:*:*:*": (  # noqa: W605
+            "cpe:2.3:a:lemonldap-ng:lemonldap\:\::*:*:*:*:*:*:*:*": (  # noqa: W605
                 "lemonldap-ng",
                 "lemonldap::",
-                "2.0.3",
+                constants.CPE_VERSION_NA,
             ),
             "cpe:2.3:o:cisco:nx-os:5.0\\\\\\(3\\\\\\)u5\\\\\\(1g\\\\\\):*:*:*:*:*:*:*": (
                 "cisco",
@@ -142,10 +143,10 @@ class TestCommonCriteriaHeuristics(TestCase):
                 "@thi.ng/egf",
                 "-",
             ),
-            "cpe:2.3:a:oracle:communications_diameter_signaling_router_idih\\::8.0.0:*:*:*:*:*:*:*": (
+            "cpe:2.3:a:oracle:communications_diameter_signaling_router_idih\\:::*:*:*:*:*:*:*": (
                 "oracle",
                 "communications diameter signaling router idih:",
-                "8.0.0",
+                constants.CPE_VERSION_NA,
             ),
         }
 
