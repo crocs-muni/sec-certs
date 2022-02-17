@@ -35,6 +35,7 @@ from sec_certs.constants import (
 logger = logging.getLogger(__name__)
 
 
+# TODO: Once typehints in tqdm are implemented, we should use them: https://github.com/tqdm/tqdm/issues/260
 def tqdm(*args, **kwargs):
     if "disable" in kwargs:
         return tqdm_original(*args, **kwargs)
@@ -1051,7 +1052,7 @@ def gen_dict_extract(dct: Dict, searched_key: Hashable = "count") -> Generator[A
                     yield key, result
 
 
-def compute_heuristics_version(cert_name: str) -> List[str]:
+def compute_heuristics_version(cert_name: str) -> Set[str]:
     """
     Will extract possible versions from the name of sample
     """
@@ -1076,10 +1077,10 @@ def compute_heuristics_version(cert_name: str) -> List[str]:
     # return identified_versions if identified_versions else ['-']
 
     if not matches:
-        return ["-"]
+        return {constants.CPE_VERSION_NA}
 
     matched = [re.search(normalizer, x) for x in matches]
-    return [x.group() for x in matched if x is not None]
+    return {x.group() for x in matched if x is not None}
 
 
 def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:
@@ -1088,3 +1089,40 @@ def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:
 
 def tokenize(string: str, keywords: Set[str]) -> str:
     return " ".join([x for x in string.split() if x.lower() in keywords])
+
+
+# Credit: https://stackoverflow.com/questions/18092354/
+def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> List[str]:
+    """
+    >>> split_unescape('foo,bar', ',')
+    ['foo', 'bar']
+    >>> split_unescape('foo$,bar', ',', '$')
+    ['foo,bar']
+    >>> split_unescape('foo$$,bar', ',', '$', unescape=True)
+    ['foo$', 'bar']
+    >>> split_unescape('foo$$,bar', ',', '$', unescape=False)
+    ['foo$$', 'bar']
+    >>> split_unescape('foo$', ',', '$', unescape=True)
+    ['foo$']
+    """
+    ret = []
+    current = []
+    itr = iter(s)
+    for ch in itr:
+        if ch == escape:
+            try:
+                # skip the next character; it has been escaped!
+                if not unescape:
+                    current.append(escape)
+                current.append(next(itr))
+            except StopIteration:
+                if unescape:
+                    current.append(escape)
+        elif ch == delim:
+            # split! (add current to the list and reset it)
+            ret.append("".join(current))
+            current = []
+        else:
+            current.append(ch)
+    ret.append("".join(current))
+    return ret

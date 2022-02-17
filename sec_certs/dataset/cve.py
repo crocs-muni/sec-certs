@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
-    cpe_to_cve_ids_lookup: Dict[str, List[str]] = field(init=False)
+    cpe_to_cve_ids_lookup: Dict[str, Set[str]] = field(init=False)
     cve_url: Final[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
     cpe_match_feed_url: Final[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
 
@@ -51,6 +51,7 @@ class CVEDataset(ComplexSerializableType):
 
     def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Optional[Path] = None):
         """
+        Builds look-up dictionary CPE -> Set[CVE]
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
         feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
         to add corner cases and manual fixes. According to our investigation, the suffereing CPEs are:
@@ -66,19 +67,20 @@ class CVEDataset(ComplexSerializableType):
         if use_nist_mapping:
             matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
+        cve: CVE
         for cve in helpers.tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
-                vulnerable_configurations = itertools.chain.from_iterable(
-                    [matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes]
+                vulnerable_configurations = list(
+                    itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
                 )
             else:
                 vulnerable_configurations = cve.vulnerable_cpes
             for cpe in vulnerable_configurations:
                 if cpe.uri not in self.cpe_to_cve_ids_lookup:
-                    self.cpe_to_cve_ids_lookup[cpe.uri] = [cve.cve_id]
+                    self.cpe_to_cve_ids_lookup[cpe.uri] = {cve.cve_id}
                 else:
-                    self.cpe_to_cve_ids_lookup[cpe.uri].append(cve.cve_id)
+                    self.cpe_to_cve_ids_lookup[cpe.uri].add(cve.cve_id)
 
     @classmethod
     def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
@@ -144,9 +146,7 @@ class CVEDataset(ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 
-    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[List[str]]:
-        if not isinstance(cpe_uri, str):
-            return None
+    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[Set[str]]:
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
 
     def filter_related_cpes(self, relevant_cpes: Set[CPE]):
@@ -175,7 +175,11 @@ class CVEDataset(ComplexSerializableType):
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
         return df.set_index("cve_id")
 
-    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]):
+    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]) -> Dict[CPE, List[CPE]]:
+        """
+        Computes dictionary that maps complex CPEs to list of simple CPEs.
+        """
+
         def parse_key_cpe(field: Dict) -> CPE:
             start_version = None
             if "versionStartIncluding" in field:

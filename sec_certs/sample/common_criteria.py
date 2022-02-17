@@ -12,7 +12,7 @@ from bs4 import Tag
 from sec_certs import constants as constants
 from sec_certs import helpers
 from sec_certs.model.cpe_matching import CPEClassifier
-from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
@@ -26,7 +26,11 @@ HEADERS = {
 }
 
 
-class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableType, ComplexSerializableType):
+class CommonCriteriaCert(
+    Certificate["CommonCriteriaCert", "CommonCriteriaCert.CCHeuristics"],
+    PandasSerializableType,
+    ComplexSerializableType,
+):
     cc_url = "http://www.commoncriteriaportal.org"
     empty_st_url = "http://www.commoncriteriaportal.org/files/epfiles/"
 
@@ -198,27 +202,21 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
 
     @dataclass
-    class CCHeuristics(ComplexSerializableType):
-        extracted_versions: Optional[List[str]] = field(default=None)
+    class CCHeuristics(Heuristics, ComplexSerializableType):
+        extracted_versions: Optional[Set[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
-        directly_affected_by: Optional[List[str]] = field(default=None)
+        directly_affected_by: Optional[Set[str]] = field(default=None)
         indirectly_affected_by: Optional[Set[str]] = field(default=None)
         directly_affecting: Optional[Set[str]] = field(default=None)
         indirectly_affecting: Optional[Set[str]] = field(default=None)
-        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
 
         @property
         def serialized_attributes(self) -> List[str]:
-            all_vars = copy.deepcopy(super().serialized_attributes)
-            all_vars.remove("cpe_candidate_vendors")
-            return all_vars
-
-        def __post_init__(self) -> None:
-            self.cpe_candidate_vendors = None
+            return copy.deepcopy(super().serialized_attributes)
 
     pandas_columns: ClassVar[List[str]] = [
         "dgst",
@@ -284,18 +282,9 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintenance_updates = maintenance_updates
-
-        if state is None:
-            state = self.InternalState()
-        self.state = state
-
-        if pdf_data is None:
-            pdf_data = self.PdfData()
-        self.pdf_data = pdf_data
-
-        if heuristics is None:
-            heuristics = self.CCHeuristics()
-        self.heuristics = heuristics
+        self.state = self.InternalState() if not state else state
+        self.pdf_data = self.PdfData() if not pdf_data else pdf_data
+        self.heuristics: "CommonCriteriaCert.CCHeuristics" = self.CCHeuristics() if not heuristics else heuristics
 
     @property
     def dgst(self) -> str:
@@ -643,10 +632,13 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             cert.state.errors.append(response)
         return cert
 
-    def compute_heuristics_version(self) -> None:
+    def _compute_heuristics_version(self) -> None:
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
+        self._compute_heuristics_version()
+        assert self.heuristics.extracted_versions is not None
+
         self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(
             self.manufacturer, self.name, self.heuristics.extracted_versions
         )
@@ -770,6 +762,8 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
         return new_cert_id
 
     def get_cert_laboratory(self) -> str:
+        if not self.heuristics.cert_id:
+            raise ValueError("Cert ID was None but cert laboratory was to be computed based on its value.")
         cert_id = self.heuristics.cert_id.strip()
 
         if CommonCriteriaCert._is_anssi_cert(cert_id):
@@ -794,10 +788,13 @@ class CommonCriteriaCert(Certificate["CommonCriteriaCert"], PandasSerializableTy
             "ocsi": CommonCriteriaCert._fix_ocsi_cert_id,
         }
 
-        cert_lab = self.get_cert_laboratory()
+        try:
+            cert_lab = self.get_cert_laboratory()
+        except ValueError:
+            return None
 
         # No need for any fix, bcs we do not know how
-        if self.heuristics.cert_id is None or cert_lab == "unknown":
+        if cert_lab == "unknown":
             return None
 
         self.heuristics.cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)

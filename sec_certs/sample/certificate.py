@@ -4,7 +4,7 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Generic, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Optional, Set, Type, TypeVar, Union
 
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
@@ -13,10 +13,16 @@ from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDeco
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="Certificate")
+H = TypeVar("H", bound="Heuristics")
 
 
-class Certificate(Generic[T], ABC, ComplexSerializableType):
-    heuristics: Any
+class Heuristics:
+    cpe_matches: Optional[Set[str]]
+    related_cves: Optional[Set[str]]
+
+
+class Certificate(Generic[T, H], ABC, ComplexSerializableType):
+    heuristics: H
 
     def __init__(self, *args, **kwargs):
         pass
@@ -59,7 +65,7 @@ class Certificate(Generic[T], ABC, ComplexSerializableType):
             return json.load(handle, cls=CustomJSONDecoder)
 
     @abstractmethod
-    def compute_heuristics_version(self) -> None:
+    def _compute_heuristics_version(self) -> None:
         raise NotImplementedError("Not meant to be implemented")
 
     @abstractmethod

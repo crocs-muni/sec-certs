@@ -23,7 +23,7 @@ def main():
     dset.get_certs_from_web(to_download=True)
 
     # Automatically match CPEs and CVEs
-    dset.compute_cpe_heuristics()
+    _, cpe_dset, _ = dset.compute_cpe_heuristics()
     dset.compute_related_cves()
 
     # Load dataset of ground truth CPE labels
@@ -37,7 +37,7 @@ def main():
 
     # Evaluate CPE matching performance metrics (on validation set) and dump classification report into json
     y_valid = [(x.heuristics.verified_cpe_matches) for x in validation_certs]
-    evaluate(validation_certs, y_valid, "./my_debug_dataset/classification_report.json")
+    evaluate(validation_certs, y_valid, "./my_debug_dataset/classification_report.json", cpe_dset)
 
     logger.info(f"{dset.json_path} should now contain fully labeled dataset.")
 

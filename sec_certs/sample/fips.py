@@ -17,12 +17,12 @@ from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
 from sec_certs.model.cpe_matching import CPEClassifier
-from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 
 
-class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
+class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuristics"], ComplexSerializableType):
     FIPS_BASE_URL: ClassVar[str] = "https://csrc.nist.gov"
     FIPS_MODULE_URL: ClassVar[
         str
@@ -167,17 +167,16 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
             return str(self.cert_id)
 
     @dataclass(eq=True)
-    class FIPSHeuristics(ComplexSerializableType):
-        keywords: Optional[Dict[str, Dict]]
+    class FIPSHeuristics(Heuristics, ComplexSerializableType):
+        keywords: Dict[str, Dict]
         algorithms: List[Dict[str, Dict]]
         connections: List[str]
         unmatched_algs: int
 
-        extracted_versions: Optional[List[str]] = field(default=None)
+        extracted_versions: Optional[Set[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
-        related_cves: Optional[List[str]] = field(default=None)
-        cpe_candidate_vendors: Optional[List[str]] = field(init=False)
+        related_cves: Optional[Set[str]] = field(default=None)
 
         directly_affected_by: Optional[Set] = field(default=None)
         indirectly_affected_by: Optional[Set] = field(default=None)
@@ -186,12 +185,7 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
 
         @property
         def serialized_attributes(self) -> List[str]:
-            all_vars = copy.deepcopy(super().serialized_attributes)
-            all_vars.remove("cpe_candidate_vendors")
-            return all_vars
-
-        def __post_init__(self) -> None:
-            self.cpe_candidate_vendors = None
+            return copy.deepcopy(super().serialized_attributes)
 
         @property
         def dgst(self) -> str:
@@ -240,7 +234,7 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
         self.cert_id = cert_id
         self.web_scan = web_scan
         self.pdf_scan = pdf_scan
-        self.heuristics = heuristics
+        self.heuristics: "FIPSCertificate.FIPSHeuristics" = heuristics
         self.state = state
 
     @classmethod
@@ -544,7 +538,7 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
                 [] if not initialized else initialized.pdf_scan.algorithms,
                 [],  # connections
             ),
-            FIPSCertificate.FIPSHeuristics(None, [], [], 0),
+            FIPSCertificate.FIPSHeuristics(dict(), [], [], 0),
             state,
         )
 
@@ -840,7 +834,7 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
         )
         return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
 
-    def compute_heuristics_version(self) -> None:
+    def _compute_heuristics_version(self) -> None:
         versions_for_extraction = ""
         if self.web_scan.module_name:
             versions_for_extraction += f" {self.web_scan.module_name}"
@@ -851,6 +845,9 @@ class FIPSCertificate(Certificate["FIPSCertificate"], ComplexSerializableType):
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
     def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
+        self._compute_heuristics_version()
+        assert self.heuristics.extracted_versions is not None
+
         if not self.web_scan.module_name:
             self.heuristics.cpe_matches = None
         else:

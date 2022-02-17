@@ -162,13 +162,13 @@ class Dataset(Generic[CertSubType], ABC):
                     logger.error(f"Corrupted file at: {p}")
                     p.unlink()
 
-    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
+    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False, init_lookup_dicts: bool = True) -> CPEDataset:
         logger.info("Preparing CPE dataset.")
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
 
         if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
-            cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
+            cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path, init_lookup_dicts)
             cpe_dataset.to_json(str(self.cpe_dataset_path))
         else:
             cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
@@ -190,11 +190,6 @@ class Dataset(Generic[CertSubType], ABC):
 
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
-
-    def _compute_candidate_versions(self) -> None:
-        logger.info("Computing heuristics: possible product versions in sample name")
-        for cert in cast(Iterator[Certificate], self):
-            cert.compute_heuristics_version()
 
     def _compute_cpe_matches(
         self, download_fresh_cpes: bool = False
@@ -219,15 +214,18 @@ class Dataset(Generic[CertSubType], ABC):
             return True
 
         logger.info("Computing heuristics: Finding CPE matches for certificates")
-        cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
+        cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes, init_lookup_dicts=False)
         cve_dset = None
         if not cpe_dset.was_enhanced_with_vuln_cpes:
-            cve_dset = self._prepare_cve_dataset(False)
-            cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)
+            cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
+            cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
+        else:
+            cpe_dset.build_lookup_dicts()
 
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
         clf.fit([x for x in cpe_dset if filter_condition(x)])
 
+        cert: CertSubType
         for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
             cert.compute_heuristics_cpe_match(clf)
 
@@ -235,7 +233,6 @@ class Dataset(Generic[CertSubType], ABC):
 
     @serialize
     def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
-        self._compute_candidate_versions()
         return self._compute_cpe_matches()
 
     def to_label_studio_json(self, output_path: Union[str, Path]) -> None:
@@ -327,6 +324,7 @@ class Dataset(Generic[CertSubType], ABC):
         relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in cpe_rich_certs]))
         cve_dset.filter_related_cpes(relevant_cpes)
 
+        cert: Certificate
         for cert in helpers.tqdm(cpe_rich_certs, desc="Computing related CVES"):
             cert.compute_heuristics_related_cves(cve_dset)
 
