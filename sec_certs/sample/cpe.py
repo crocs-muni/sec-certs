@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
+from sec_certs import helpers
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -37,9 +38,11 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     ):
         super().__init__()
         self.uri = uri
-        self.vendor = " ".join(self.uri.split(":")[3].split("_"))
-        self.item_name = " ".join(self.uri.split(":")[4].split("_"))
-        self.version = self.uri.split(":")[5]
+
+        splitted = helpers.split_unescape(self.uri, ":")
+        self.vendor = " ".join(splitted[3].split("_"))
+        self.item_name = " ".join(splitted[4].split("_"))
+        self.version = " ".join(splitted[5].split("_"))
         self.title = title
         self.start_version = start_version
         self.end_version = end_version

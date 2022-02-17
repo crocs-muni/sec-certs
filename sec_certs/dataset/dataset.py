@@ -217,7 +217,7 @@ class Dataset(Generic[CertSubType], ABC):
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes, init_lookup_dicts=False)
         cve_dset = None
         if not cpe_dset.was_enhanced_with_vuln_cpes:
-            cve_dset = self._prepare_cve_dataset(False)
+            cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
             cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
         else:
             cpe_dset.build_lookup_dicts()

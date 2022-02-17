@@ -123,6 +123,40 @@ class TestCommonCriteriaHeuristics(TestCase):
             "The CPE lookup dictionary (vendor,version)->cpe does not match the template.",
         )
 
+    def test_cpe_parsing(self):
+        potentially_problematic_cpes = {
+            'cpe:2.3:a:bayashi:dopvstar\::0091:*:*:*:*:*:*:*"': ("bayashi", "dopvstar:", "0091"),  # noqa: W605
+            "cpe:2.3:a:moundlabs:\:\:mound\:\::2.1.6:*:*:*:*:*:*:*": ("moundlabs", "::mound::", "2.1.6"),  # noqa: W605
+            "cpe:2.3:a:lemonldap-ng:lemonldap\:\::2.0.3:*:*:*:*:*:*:*": (  # noqa: W605
+                "lemonldap-ng",
+                "lemonldap::",
+                "2.0.3",
+            ),
+            "cpe:2.3:o:cisco:nx-os:5.0\\\\\\(3\\\\\\)u5\\\\\\(1g\\\\\\):*:*:*:*:*:*:*": (
+                "cisco",
+                "nx-os",
+                "5.0\\(3\\)u5\\(1g\\)",
+            ),
+            "cpe:2.3:a:\\@thi.ng\\/egf_project:\\@thi.ng\\/egf:-:*:*:*:*:node.js:*:*": (
+                "@thi.ng/egf project",
+                "@thi.ng/egf",
+                "-",
+            ),
+            "cpe:2.3:a:oracle:communications_diameter_signaling_router_idih\\::8.0.0:*:*:*:*:*:*:*": (
+                "oracle",
+                "communications diameter signaling router idih:",
+                "8.0.0",
+            ),
+        }
+
+        for uri, tpl in potentially_problematic_cpes.items():
+            cpe = CPE(uri)
+            self.assertEqual(cpe.vendor, tpl[0], "Parsed CPE vendor differs from expected vendor. Broken escaping?")
+            self.assertEqual(
+                cpe.item_name, tpl[1], "Parsed CPE item name differs from expected item name. Broken escaping?"
+            )
+            self.assertEqual(cpe.version, tpl[2], "Parsed CPE version differs from expected version. Broken escaping?")
+
     def test_cve_lookup_dicts(self):
         alt_lookup = {x: set(y) for x, y in self.cve_dset.cpe_to_cve_ids_lookup.items()}
         self.assertEqual(
