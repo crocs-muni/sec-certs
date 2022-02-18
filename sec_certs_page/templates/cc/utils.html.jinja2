@@ -94,6 +94,12 @@
             {% set frontpage = cert["pdf_data"][doc_type]["anssi"] %}
         {% elif cert["pdf_data"][doc_type]["bsi"] %}
             {% set frontpage = cert["pdf_data"][doc_type]["bsi"] %}
+        {% elif cert["pdf_data"][doc_type]["niap"] %}
+            {% set frontpage = cert["pdf_data"][doc_type]["niap"] %}
+        {% elif cert["pdf_data"][doc_type]["canada"] %}
+            {% set frontpage = cert["pdf_data"][doc_type]["canada"] %}
+        {% elif cert["pdf_data"][doc_type]["nscib"] %}
+            {% set frontpage = cert["pdf_data"][doc_type]["nscib"] %}
         {% endif %}
         {% if frontpage %}
             <h3 class="mt-3">Frontpage</h3>
