@@ -693,8 +693,15 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
 
     def _compute_dependencies(self) -> None:
+        def ref_lookup(kw_attr):
+            def func(cert):
+                kws = getattr(cert.pdf_data, kw_attr)
+                if not kws:
+                    return set()
+                return set(kws["rules_cert_id"].keys())
+            return func
         finder = DependencyFinder()
-        finder.fit(self.certs)
+        finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup("report_keywords"))
 
         for dgst in self.certs:
             self.certs[dgst].heuristics.directly_referencing = finder.get_directly_referencing(dgst)

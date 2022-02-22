@@ -1,11 +1,13 @@
-from typing import Dict, Optional, Set, Tuple
+from typing import Dict, Optional, Set, Tuple, Callable
 
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.certificate import Certificate
 
-Certificates = Dict[str, CommonCriteriaCert]
+Certificates = Dict[str, Certificate]
 ReferencedByDirect = Dict[str, Set[str]]
 ReferencedByIndirect = Dict[str, Set[str]]
 Dependencies = Dict[str, Dict[str, Optional[Set[str]]]]
+IDLookupFunc = Callable[[Certificate], str]
+ReferenceLookupFunc = Callable[[Certificate], Set[str]]
 
 
 class DependencyFinder:
@@ -38,19 +40,18 @@ class DependencyFinder:
                         new_change_detected = True if newly_discovered_references else False
 
     @staticmethod
-    def _build_cert_references(certificates: Certificates) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
+    def _build_cert_references(certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
         referenced_by: ReferencedByDirect = {}
 
         for cert_obj in certificates.values():
-            if cert_obj.pdf_data.report_keywords is None:
+            refs = ref_lookup_func(cert_obj)
+            if refs is None:
                 continue
 
-            this_cert_id = None
-            if cert_obj.pdf_data.processed_cert_id is not None:
-                this_cert_id = cert_obj.pdf_data.processed_cert_id
+            this_cert_id = id_func(cert_obj)
 
             # Direct reference
-            for cert_id in cert_obj.pdf_data.report_keywords["rules_cert_id"]:
+            for cert_id in refs:
                 if cert_id != this_cert_id and this_cert_id is not None:
                     DependencyFinder._update_direct_references(referenced_by, cert_id, this_cert_id)
 
@@ -92,11 +93,11 @@ class DependencyFinder:
     def _get_referenced_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Optional[Set[str]]:
         return referenced_by_indirect.get(cert, None)
 
-    def fit(self, certificates: Certificates) -> None:
-        referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(certificates)
+    def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
+        referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(certificates, id_func, ref_lookup_func)
 
         for dgst in certificates:
-            cert_id = certificates[dgst].pdf_data.cert_id
+            cert_id = id_func(certificates[dgst])
             self.dependencies[dgst] = {}
 
             if not cert_id:
