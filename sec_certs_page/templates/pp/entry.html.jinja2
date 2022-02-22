@@ -5,8 +5,21 @@
 {% from "cc/utils.html.jinja2" import render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
-        {{ profile["csv_scan"]["cc_pp_name"]|default("") + " | seccerts.org" }}
+        {{ profile["csv_scan"]["cc_pp_name"]|default("", true) + " | seccerts.org" }}
     </title>
+{% endblock %}
+{% block metadata %}
+    <meta property="twitter:card" content="summary"/>
+    <meta property="twitter:site" content="@CRoCS_MUNI"/>
+    <meta property="twitter:title" content="{{ profile["csv_scan"]["cc_pp_name"]|default("seccerts.org", true) }}"/>
+    <meta property="twitter:image" content="{{ url_for("static", filename="img/pp_card.png", _external=True) }}"/>
+    <meta property="twitter:description" content="Common Criteria protection profile {{ profile["csv_scan"]["cc_pp_name"]|default("", true) }}"/>
+    <meta property="og:title" content="{{ profile["csv_scan"]["cc_pp_name"]|default("seccerts.org", true) }}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
+    <meta property="og:image" content="{{ url_for("static", filename="img/pp_card.png", _external=True) }}"/>
+    <meta property="og:description" content="Common Criteria protection profile {{ profile["csv_scan"]["cc_pp_name"]|default("", true) }}"/>
+    <meta property="og:site_name" content="seccerts.org"/>
 {% endblock %}
 {% block navbar %}
     {{ super() }}

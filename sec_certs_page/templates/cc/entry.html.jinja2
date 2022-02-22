@@ -9,6 +9,19 @@
         {{ cert["name"]|default("", true) + " | seccerts.org" }}
     </title>
 {% endblock %}
+{% block metadata %}
+    <meta property="twitter:card" content="summary"/>
+    <meta property="twitter:site" content="@CRoCS_MUNI"/>
+    <meta property="twitter:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
+    <meta property="twitter:image" content="{{ url_for("static", filename="img/cc_card.png", _external=True) }}"/>
+    <meta property="twitter:description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="og:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
+    <meta property="og:image" content="{{ url_for("static", filename="img/cc_card.png", _external=True) }}"/>
+    <meta property="og:description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="og:site_name" content="seccerts.org"/>
+{% endblock %}
 {% block navbar %}
     {{ super() }}
     <li class="nav-item">

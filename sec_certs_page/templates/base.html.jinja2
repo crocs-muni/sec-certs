@@ -5,8 +5,14 @@
     {% block head %}
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta name="application-name" content="Security Certifications"/>
+        <meta name="application-name" content="seccerts.org"/>
         {% block title %}<title>{{ title|default("seccerts.org") }}</title>{% endblock %}
+        {% block metadata %}
+            <meta property="og:title" content="{{ title|default("seccerts.org") }}"/>
+            <meta property="og:description" content="{{ description|default("seccerts.org") }}"/>
+            <meta property="og:image" content="{{ url_for("static", filename="img/card.png", _external=True) }}"/>
+            <meta property="og:url" content="{{ request.url }}"/>
+        {% endblock %}
         <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}"/>
         {% assets output="gen/libs.css",
                 "lib/bootstrap.min.css", "lib/fontawesome.min.css", "lib/metropolis.css" %}
