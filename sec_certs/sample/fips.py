@@ -178,10 +178,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
 
-        directly_affected_by: Optional[Set] = field(default=None)
-        indirectly_affected_by: Optional[Set] = field(default=None)
-        directly_affecting: Optional[Set] = field(default=None)
-        indirectly_affecting: Optional[Set] = field(default=None)
+        directly_referenced_by: Optional[Set] = field(default=None)
+        indirectly_referenced_by: Optional[Set] = field(default=None)
+        directly_referencing: Optional[Set] = field(default=None)
+        indirectly_referencing: Optional[Set] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:

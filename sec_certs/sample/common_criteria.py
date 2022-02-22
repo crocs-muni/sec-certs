@@ -209,10 +209,10 @@ class CommonCriteriaCert(
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
-        directly_affected_by: Optional[Set[str]] = field(default=None)
-        indirectly_affected_by: Optional[Set[str]] = field(default=None)
-        directly_affecting: Optional[Set[str]] = field(default=None)
-        indirectly_affecting: Optional[Set[str]] = field(default=None)
+        directly_referenced_by: Optional[Set[str]] = field(default=None)
+        indirectly_referenced_by: Optional[Set[str]] = field(default=None)
+        directly_referencing: Optional[Set[str]] = field(default=None)
+        indirectly_referencing: Optional[Set[str]] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -236,10 +236,10 @@ class CommonCriteriaCert(
         "cpe_matches",
         "verified_cpe_matches",
         "related_cves",
-        "directly_affected_by",
-        "indirectly_affected_by",
-        "directly_affecting",
-        "indirectly_affecting",
+        "directly_referenced_by",
+        "indirectly_referenced_by",
+        "directly_referencing",
+        "indirectly_referencing",
     ]
 
     def __init__(
@@ -319,10 +319,10 @@ class CommonCriteriaCert(
             self.heuristics.cpe_matches,
             self.heuristics.verified_cpe_matches,
             self.heuristics.related_cves,
-            self.heuristics.directly_affected_by,
-            self.heuristics.indirectly_affected_by,
-            self.heuristics.directly_affecting,
-            self.heuristics.indirectly_affecting,
+            self.heuristics.directly_referenced_by,
+            self.heuristics.indirectly_referenced_by,
+            self.heuristics.directly_referencing,
+            self.heuristics.indirectly_referencing,
         )
 
     def __str__(self) -> str:

@@ -697,10 +697,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         finder.fit(self.certs)
 
         for dgst in self.certs:
-            self.certs[dgst].heuristics.directly_affecting = finder.get_directly_affecting(dgst)
-            self.certs[dgst].heuristics.indirectly_affecting = finder.get_indirectly_affecting(dgst)
-            self.certs[dgst].heuristics.directly_affected_by = finder.get_directly_affected_by(dgst)
-            self.certs[dgst].heuristics.indirectly_affected_by = finder.get_indirectly_affected_by(dgst)
+            self.certs[dgst].heuristics.directly_referencing = finder.get_directly_referencing(dgst)
+            self.certs[dgst].heuristics.indirectly_referencing = finder.get_indirectly_referencing(dgst)
+            self.certs[dgst].heuristics.directly_referenced_by = finder.get_directly_referenced_by(dgst)
+            self.certs[dgst].heuristics.indirectly_referenced_by = finder.get_indirectly_referenced_by(dgst)
 
     @serialize
     def analyze_certificates(self, fresh: bool = True) -> None:

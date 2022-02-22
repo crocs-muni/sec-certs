@@ -266,17 +266,19 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_single_record_dependency_heuristics(self):
         # Single record in daset is not affecting nor affected by other records
         heuristics = self.cc_dset["ebd276cca70fd723"].heuristics
-        self.assertEqual(heuristics.directly_affected_by, None)
-        self.assertEqual(heuristics.indirectly_affected_by, None)
-        self.assertEqual(heuristics.directly_affecting, None)
-        self.assertEqual(heuristics.indirectly_affecting, None)
+        self.assertEqual(heuristics.directly_referenced_by, None)
+        self.assertEqual(heuristics.indirectly_referenced_by, None)
+        self.assertEqual(heuristics.directly_referencing, None)
+        self.assertEqual(heuristics.indirectly_referencing, None)
 
     def test_dependency_dataset(self):
         dependency_dataset = CCDataset.from_json(self.data_dir_path / "dependency_dataset.json")
         dependency_dataset._compute_dependencies()
         test_cert = dependency_dataset["692e91451741ef49"]
 
-        self.assertEqual(test_cert.heuristics.directly_affected_by, {"BSI-DSZ-CC-0370-2006"})
-        self.assertEqual(test_cert.heuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
-        self.assertEqual(test_cert.heuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
-        self.assertEqual(test_cert.heuristics.indirectly_affecting, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.directly_referenced_by, {"BSI-DSZ-CC-0370-2006"})
+        self.assertEqual(
+            test_cert.heuristics.indirectly_referenced_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"}
+        )
+        self.assertEqual(test_cert.heuristics.directly_referencing, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.indirectly_referencing, {"BSI-DSZ-CC-0268-2005"})
