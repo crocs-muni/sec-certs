@@ -12,6 +12,7 @@ from bs4 import Tag
 from sec_certs import constants as constants
 from sec_certs import helpers
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.model.dependency_finder import References
 from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
@@ -238,10 +239,8 @@ class CommonCriteriaCert(
         related_cves: Optional[Set[str]] = field(default=None)
         cert_lab: Optional[List[str]] = field(default=None)
         cert_id: Optional[str] = field(default=None)
-        directly_referenced_by: Optional[Set[str]] = field(default=None)
-        indirectly_referenced_by: Optional[Set[str]] = field(default=None)
-        directly_referencing: Optional[Set[str]] = field(default=None)
-        indirectly_referencing: Optional[Set[str]] = field(default=None)
+        st_references: References = field(default_factory=References)
+        report_references: References = field(default_factory=References)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -348,10 +347,10 @@ class CommonCriteriaCert(
             self.heuristics.cpe_matches,
             self.heuristics.verified_cpe_matches,
             self.heuristics.related_cves,
-            self.heuristics.directly_referenced_by,
-            self.heuristics.indirectly_referenced_by,
-            self.heuristics.directly_referencing,
-            self.heuristics.indirectly_referencing,
+            self.heuristics.report_references.directly_referenced_by,
+            self.heuristics.report_references.indirectly_referenced_by,
+            self.heuristics.report_references.directly_referencing,
+            self.heuristics.report_references.indirectly_referencing
         )
 
     def __str__(self) -> str:

@@ -702,14 +702,15 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
             return func
 
-        finder = DependencyFinder()
-        finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup("report_keywords"))  # type: ignore
+        for dep_source in ("report", "st"):
+            kw_source = f"{dep_source}_keywords"
+            dep_attr = f"{dep_source}_references"
 
-        for dgst in self.certs:
-            self.certs[dgst].heuristics.directly_referencing = finder.get_directly_referencing(dgst)
-            self.certs[dgst].heuristics.indirectly_referencing = finder.get_indirectly_referencing(dgst)
-            self.certs[dgst].heuristics.directly_referenced_by = finder.get_directly_referenced_by(dgst)
-            self.certs[dgst].heuristics.indirectly_referenced_by = finder.get_indirectly_referenced_by(dgst)
+            finder = DependencyFinder()
+            finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup(kw_source))  # type: ignore
+
+            for dgst in self.certs:
+                setattr(self.certs[dgst].heuristics, dep_attr, finder.get_references(dgst))
 
     @serialize
     def analyze_certificates(self, fresh: bool = True) -> None:

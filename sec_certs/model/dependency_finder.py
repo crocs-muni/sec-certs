@@ -1,6 +1,8 @@
+from dataclasses import dataclass, field
 from typing import Callable, Dict, Optional, Set, Tuple
 
 from sec_certs.sample.certificate import Certificate
+from sec_certs.serialization.json import ComplexSerializableType
 
 Certificates = Dict[str, Certificate]
 ReferencedByDirect = Dict[str, Set[str]]
@@ -8,6 +10,14 @@ ReferencedByIndirect = Dict[str, Set[str]]
 Dependencies = Dict[str, Dict[str, Optional[Set[str]]]]
 IDLookupFunc = Callable[[Certificate], str]
 ReferenceLookupFunc = Callable[[Certificate], Set[str]]
+
+
+@dataclass
+class References(ComplexSerializableType):
+    directly_referenced_by: Optional[Set[str]] = field(default=None)
+    indirectly_referenced_by: Optional[Set[str]] = field(default=None)
+    directly_referencing: Optional[Set[str]] = field(default=None)
+    indirectly_referencing: Optional[Set[str]] = field(default=None)
 
 
 class DependencyFinder:
@@ -138,3 +148,11 @@ class DependencyFinder:
     def get_indirectly_referencing(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("indirectly_referencing", None)
         return set(res) if res else None
+
+    def get_references(self, dgst: str) -> References:
+        return References(
+            self.get_directly_referenced_by(dgst),
+            self.get_indirectly_referenced_by(dgst),
+            self.get_directly_referencing(dgst),
+            self.get_indirectly_referencing(dgst),
+        )
