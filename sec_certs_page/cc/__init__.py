@@ -7,6 +7,7 @@ from flask import Blueprint, current_app, url_for
 from pymongo.errors import OperationFailure
 
 from .. import mongo
+from ..common.objformats import load
 from ..common.views import create_graph
 
 cc: Blueprint = Blueprint("cc", __name__, url_prefix="/cc")
@@ -36,12 +37,12 @@ def load_cc_data():
                 "category": 1,
                 "not_valid_before": 1,
                 "heuristics.cert_id": 1,
-                "pdf_data.st_keywords.rules_cert_id": 1,
-                "pdf_data.report_keywords.rules_cert_id": 1,
+                "heuristics.directly_affecting": 1,
             },
         )
         cc_references = {}
         for cert in data:
+            cert = load(cert)
             hashid = cert["_id"]
             cert_id = cert["heuristics"]["cert_id"]
             if not cert_id:
@@ -49,23 +50,10 @@ def load_cc_data():
             reference = {
                 "hashid": hashid,
                 "name": cert["name"],
-                "refs": [],
+                "refs": cert["heuristics"]["directly_affecting"] if cert["heuristics"]["directly_affecting"] else [],
                 "href": url_for("cc.entry", hashid=hashid),
                 "type": cc_categories[cert["category"]]["id"],
             }
-            # Process references
-            if (
-                current_app.config["CC_GRAPH"] in ("BOTH", "CERT_ONLY")
-                and cert["pdf_data"]["report_keywords"]["rules_cert_id"]
-            ):
-                # Add references from cert
-                reference["refs"].extend(cert["pdf_data"]["report_keywords"]["rules_cert_id"].keys())
-            if (
-                current_app.config["CC_GRAPH"] in ("BOTH", "ST_ONLY")
-                and cert["pdf_data"]["st_keywords"]["rules_cert_id"]
-            ):
-                # Add references from security target
-                reference["refs"].extend(cert["pdf_data"]["st_keywords"]["rules_cert_id"].keys())
             cc_references[cert_id] = reference
 
     with sentry_sdk.start_span(op="cc.load", description="Compute CC graph"):
