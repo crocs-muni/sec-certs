@@ -150,17 +150,28 @@ class CommonCriteriaCert(
             return self.report_frontpage.get("bsi", None) if self.report_frontpage else None
 
         @property
+        def niap_data(self) -> Optional[Dict[str, Any]]:
+            return self.report_frontpage.get("niap", None) if self.report_frontpage else None
+
+        @property
+        def nscib_data(self) -> Optional[Dict[str, Any]]:
+            return self.report_frontpage.get("nscib", None) if self.report_frontpage else None
+
+        @property
+        def canada_data(self) -> Optional[Dict[str, Any]]:
+            return self.report_frontpage.get("canada", None) if self.report_frontpage else None
+
+        @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
             return self.report_frontpage.get("anssi", None) if self.report_frontpage else None
 
         @property
         def cert_lab(self) -> Optional[List[str]]:
-            labs = []
-            if bsi_data := self.bsi_data:
-                labs.append(bsi_data["cert_lab"].split(" ")[0].upper())
-            if anssi_data := self.anssi_data:
-                labs.append(anssi_data["cert_lab"].split(" ")[0].upper())
-
+            labs = [
+                data["cert_lab"].split(" ")[0].upper()
+                for data in [self.bsi_data, self.anssi_data, self.niap_data, self.nscib_data, self.canada_data]
+                if data
+            ]
             return labs if labs else None
 
         @property
@@ -168,18 +179,36 @@ class CommonCriteriaCert(
             return self.bsi_data.get("cert_id", None) if self.bsi_data else None
 
         @property
+        def niap_cert_id(self) -> Optional[str]:
+            return self.niap_data.get("cert_id", None) if self.niap_data else None
+
+        @property
+        def nscib_cert_id(self) -> Optional[str]:
+            return self.nscib_data.get("cert_id", None) if self.nscib_data else None
+
+        @property
+        def canada_cert_id(self) -> Optional[str]:
+            return self.canada_data.get("cert_id", None) if self.canada_data else None
+
+        @property
         def anssi_cert_id(self) -> Optional[str]:
             return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
         @property
         def processed_cert_id(self) -> Optional[str]:
-            if self.bsi_cert_id and self.anssi_cert_id:
-                logger.error("Both BSI and ANSSI cert_id set.")
-                raise ValueError("Both BSI and ANSSI cert_id set.")
-            if self.bsi_cert_id:
-                return self.bsi_cert_id
+            cert_ids = set(
+                filter(
+                    lambda x: x,
+                    {self.bsi_cert_id, self.niap_cert_id, self.nscib_cert_id, self.canada_cert_id, self.anssi_cert_id},
+                )
+            )
+            # Expect only one cert_id in the set above.
+            if len(cert_ids) >= 2:
+                raise ValueError("More than one cert_id set.")
+            elif len(cert_ids) == 1:
+                return cert_ids.pop()
             else:
-                return self.anssi_cert_id
+                return None
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
@@ -188,7 +217,7 @@ class CommonCriteriaCert(
         @property
         def keywords_cert_id(self) -> Optional[str]:
             """
-            :return: the most occuring among cert ids captured in keywords scan
+            :return: the most occurring among cert ids captured in keywords scan
             """
             if not self.keywords_rules_cert_id:
                 return None

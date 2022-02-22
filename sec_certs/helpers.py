@@ -698,7 +698,7 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
             items_found[constants.TAG_CERT_LAB] = cert_lab
 
     except Exception as e:
-        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        error_msg = f"Failed to parse NSCIB headers from frontpage: {filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -749,7 +749,7 @@ def search_only_headers_niap(filepath: Path):
             items_found[constants.TAG_CERT_LAB] = "US NIAP"
 
     except Exception as e:
-        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        error_msg = f"Failed to parse NIAP headers from frontpage: {filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 
@@ -822,7 +822,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
             items_found[constants.TAG_CERT_LAB] = "CANADA"
 
     except Exception as e:
-        error_msg = f"Failed to parse BSI headers from frontpage: {filepath}; {e}"
+        error_msg = f"Failed to parse Canada headers from frontpage: {filepath}; {e}"
         logger.error(error_msg)
         return error_msg, None
 

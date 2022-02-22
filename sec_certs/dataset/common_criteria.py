@@ -699,9 +699,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
                 if not kws:
                     return set()
                 return set(kws["rules_cert_id"].keys())
+
             return func
+
         finder = DependencyFinder()
-        finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup("report_keywords"))
+        finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup("report_keywords"))  # type: ignore
 
         for dgst in self.certs:
             self.certs[dgst].heuristics.directly_referencing = finder.get_directly_referencing(dgst)

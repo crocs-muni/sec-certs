@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Set, Tuple, Callable
+from typing import Callable, Dict, Optional, Set, Tuple
 
 from sec_certs.sample.certificate import Certificate
 
@@ -40,7 +40,9 @@ class DependencyFinder:
                         new_change_detected = True if newly_discovered_references else False
 
     @staticmethod
-    def _build_cert_references(certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
+    def _build_cert_references(
+        certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc
+    ) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
         referenced_by: ReferencedByDirect = {}
 
         for cert_obj in certificates.values():
@@ -94,7 +96,9 @@ class DependencyFinder:
         return referenced_by_indirect.get(cert, None)
 
     def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
-        referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(certificates, id_func, ref_lookup_func)
+        referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(
+            certificates, id_func, ref_lookup_func
+        )
 
         for dgst in certificates:
             cert_id = id_func(certificates[dgst])
