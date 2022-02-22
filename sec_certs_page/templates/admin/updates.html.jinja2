@@ -41,9 +41,10 @@
                                    class="fas fa-glasses {% if log_entry["state"]["certs_analyzed"] %}text-success{% else %}text-danger{% endif %}"></i>
                             </td>
                             <td>{{ log_entry["length"] }}</td>
-                            <td><b class="text-success" title="New">+{{ log_entry["stats"]["new_certs"] }}</b>,
+                            <td>{% if "stats" in log_entry %}
+                                <b class="text-success" title="New">+{{ log_entry["stats"]["new_certs"] }}</b>,
                                 <b class="text-warning" title="Changed">~{{ log_entry["stats"]["changed_ids"] }}</b>,
-                                <b class="text-danger" title="Removed">-{{ log_entry["stats"]["removed_ids"] }}</b></td>
+                                <b class="text-danger" title="Removed">-{{ log_entry["stats"]["removed_ids"] }}</b>{% endif %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

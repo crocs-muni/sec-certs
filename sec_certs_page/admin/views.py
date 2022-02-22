@@ -29,9 +29,10 @@ def index():
 def updates():
     cc_log = list(mongo.db.cc_log.find())
     for log_entry in cc_log:
-        log_entry["stats"]["changed_ids"] = mongo.db.cc_diff.count_documents(
-            {"run_id": log_entry["_id"], "type": "change"}
-        )
+        if "stats" in log_entry:
+            log_entry["stats"]["changed_ids"] = mongo.db.cc_diff.count_documents(
+                {"run_id": log_entry["_id"], "type": "change"}
+            )
     fips_log = list(mongo.db.fips_log.find())
     for log_entry in fips_log:
         if "stats" in log_entry:
