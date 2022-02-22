@@ -5,8 +5,11 @@
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
             <h1>Welcome {{ current_user.username }}!</h1>
-            <a href="{{ url_for("admin.feedback") }}" class="btn btn-primary">Collected feedback</a>
-            <a href="{{ url_for("admin.updates") }}" class="btn btn-primary">Update log</a>
+            <div>
+                <a href="{{ url_for("admin.feedback") }}" class="btn btn-primary">Collected feedback</a>
+                <a href="{{ url_for("admin.updates") }}" class="btn btn-primary">Update log</a>
+                <a href="/munin/" class="btn btn-primary" target="_blank">Munin</a>
+            </div>
         </div>
     </main>
 {% endblock %}
