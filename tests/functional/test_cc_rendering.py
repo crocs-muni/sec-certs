@@ -113,10 +113,10 @@ def test_entry_name_disambiguation(client: FlaskClient):
 
 @pytest.mark.remote
 def test_entry_graph(client: FlaskClient):
-    resp = client.get("/cc/08b09322ee9df0af/graph.json")
+    resp = client.get("/cc/602ff222d105acd3/graph.json")
     assert resp.is_json
     nodes = resp.json["nodes"]
     assert len(nodes) == 1
-    assert nodes[0]["id"] == "08b09322ee9df0af"
+    assert nodes[0]["id"] == "602ff222d105acd3"
     links = resp.json["links"]
     assert len(links) == 0

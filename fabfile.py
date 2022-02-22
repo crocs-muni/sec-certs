@@ -93,3 +93,26 @@ def deploy(c):
     print("Reloading uWSGI...")
     reload_uwsgi(c)
     ps(c)
+
+
+@task
+def dump(c):
+    """Dump MongoDB data and download them."""
+    print("Dumping...")
+    tmp_dir = c.run("mktemp -d").stdout.strip()
+    try:
+        with c.cd(tmp_dir):
+            c.run("mongodump -d seccerts")
+            c.run("tar --zstd -cf dump.tar.zst dump/")
+            c.get(f"{tmp_dir}/dump.tar.zst", "dump.tar.zst")
+    finally:
+        c.run(f"rm -r '{tmp_dir}'")
+
+
+@task
+def restore(c):
+    """Restore MongoDB data locally."""
+    print("Restoring...")
+    c.local("rm -rf dump/")
+    c.local("tar --zstd -xf dump.tar.zst")
+    c.local("mongorestore --nsInclude=seccerts.\\* --drop --maintainInsertionOrder")
