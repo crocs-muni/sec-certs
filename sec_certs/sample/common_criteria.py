@@ -350,7 +350,7 @@ class CommonCriteriaCert(
             self.heuristics.report_references.directly_referenced_by,
             self.heuristics.report_references.indirectly_referenced_by,
             self.heuristics.report_references.directly_referencing,
-            self.heuristics.report_references.indirectly_referencing
+            self.heuristics.report_references.indirectly_referencing,
         )
 
     def __str__(self) -> str:
