@@ -651,7 +651,7 @@ class CommonCriteriaCert(
 
     def compute_heuristics_cert_id(self, all_cert_ids: Set[str]):
         if not self.pdf_data:
-            logger.error("Cannot compute sample id when pdf files were not processed.")
+            logger.warning("Cannot compute sample id when pdf files were not processed.")
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
