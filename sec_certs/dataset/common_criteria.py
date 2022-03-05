@@ -693,14 +693,24 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
 
     def _compute_dependencies(self) -> None:
-        finder = DependencyFinder()
-        finder.fit(self.certs)
+        def ref_lookup(kw_attr):
+            def func(cert):
+                kws = getattr(cert.pdf_data, kw_attr)
+                if not kws:
+                    return set()
+                return set(kws["rules_cert_id"].keys())
 
-        for dgst in self.certs:
-            self.certs[dgst].heuristics.directly_affecting = finder.get_directly_affecting(dgst)
-            self.certs[dgst].heuristics.indirectly_affecting = finder.get_indirectly_affecting(dgst)
-            self.certs[dgst].heuristics.directly_affected_by = finder.get_directly_affected_by(dgst)
-            self.certs[dgst].heuristics.indirectly_affected_by = finder.get_indirectly_affected_by(dgst)
+            return func
+
+        for dep_source in ("report", "st"):
+            kw_source = f"{dep_source}_keywords"
+            dep_attr = f"{dep_source}_references"
+
+            finder = DependencyFinder()
+            finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup(kw_source))  # type: ignore
+
+            for dgst in self.certs:
+                setattr(self.certs[dgst].heuristics, dep_attr, finder.get_references(dgst))
 
     @serialize
     def analyze_certificates(self, fresh: bool = True) -> None:
