@@ -15,6 +15,7 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.helpers import fips_dgst
+from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 
@@ -304,7 +305,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.heuristics = FIPSCertificate.FIPSHeuristics(dict(), [], [], 0)
+            cert.heuristics = FIPSCertificate.FIPSHeuristics(dict(), [], 0)
 
         self.match_algs()
 
@@ -433,34 +434,27 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 return False
         return True
 
-    @staticmethod
-    def _find_connections(current_cert: FIPSCertificate) -> None:
-        current_cert.heuristics.connections = []
-        current_cert.web_scan.connections = []
-        current_cert.pdf_scan.connections = []
-        if not current_cert.state.file_status or not current_cert.heuristics.keywords:
-            return
-        if current_cert.heuristics.keywords["rules_cert_id"] == {}:
-            return
-        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
-            for cert in current_cert.heuristics.keywords["rules_cert_id"][rule]:
-                cert_id = "".join(filter(str.isdigit, cert))
-                if cert_id not in current_cert.heuristics.connections:
-                    current_cert.heuristics.connections.append(cert_id)
-                    current_cert.pdf_scan.connections.append(cert_id)
-
-        # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
-        if current_cert.web_scan.mentioned_certs:
-            for item in current_cert.web_scan.mentioned_certs:
-                cert_id = "".join(filter(str.isdigit, item))
-                if cert_id not in current_cert.heuristics.connections and cert_id != "":
-                    current_cert.heuristics.connections.append(cert_id)
-                    current_cert.web_scan.connections.append(cert_id)
-
     def validate_results(self) -> None:
         """
         Function that validates results and finds the final connection output
         """
+
+        def pdf_lookup(cert):
+            return set(
+                filter(
+                    lambda x: x,
+                    map(
+                        lambda cid: "".join(filter(str.isdigit, cid)),
+                        cert.heuristics.keywords["rules_cert_id"].values(),
+                    ),
+                )
+            )
+
+        def web_lookup(cert):
+            return set(
+                filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_scan.mentioned_certs))
+            )
+
         current_cert: FIPSCertificate
 
         for current_cert in self.certs.values():
@@ -468,8 +462,17 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 continue
             self._remove_false_positives_for_cert(current_cert)
 
-        for current_cert in self.certs.values():
-            FIPSDataset._find_connections(current_cert)
+        finder = DependencyFinder()
+        finder.fit(self.certs, lambda cert: cert.cert_id, pdf_lookup)  # type: ignore
+
+        for dgst in self.certs:
+            setattr(self.certs[dgst].heuristics, "st_references", finder.get_references(dgst))
+
+        finder = DependencyFinder()
+        finder.fit(self.certs, lambda cert: cert.cert_id, web_lookup)  # type: ignore
+
+        for dgst in self.certs:
+            setattr(self.certs[dgst].heuristics, "web_references", finder.get_references(dgst))
 
     @serialize
     def finalize_results(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):

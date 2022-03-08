@@ -17,6 +17,7 @@ from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.model.dependency_finder import References
 from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
@@ -115,7 +116,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         revoked_link: Optional[str]
         sw_versions: Optional[str]
         product_url: Optional[str]
-        connections: List[str]
 
         @property
         def dgst(self) -> str:
@@ -152,7 +152,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         cert_id: int
         keywords: Dict
         algorithms: List
-        connections: List[str]
 
         @property
         def dgst(self) -> str:
@@ -170,7 +169,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     class FIPSHeuristics(Heuristics, ComplexSerializableType):
         keywords: Dict[str, Dict]
         algorithms: List[Dict[str, Dict]]
-        connections: List[str]
         unmatched_algs: int
 
         extracted_versions: Optional[Set[str]] = field(default=None)
@@ -178,10 +176,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
 
-        directly_affected_by: Optional[Set] = field(default=None)
-        indirectly_affected_by: Optional[Set] = field(default=None)
-        directly_affecting: Optional[Set] = field(default=None)
-        indirectly_affecting: Optional[Set] = field(default=None)
+        st_references: References = field(default_factory=References)
+        web_references: References = field(default_factory=References)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -474,7 +470,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             state.tables_done = initialized.state.tables_done
             state.file_status = initialized.state.file_status
             state.txt_state = initialized.state.txt_state
-            initialized.heuristics.connections = []
 
         if redo:
             items_found = FIPSCertificate.initialize_dictionary()
@@ -530,15 +525,13 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                 items_found["revoked_link"] if "revoked_link" in items_found else None,
                 items_found["sw_versions"] if "sw_versions" in items_found else None,
                 items_found["product_url"] if "product_url" in items_found else None,
-                [],
-            ),  # connections
+            ),
             FIPSCertificate.PdfScan(
                 items_found["cert_id"],
                 {} if not initialized else initialized.pdf_scan.keywords,
                 [] if not initialized else initialized.pdf_scan.algorithms,
-                [],  # connections
             ),
-            FIPSCertificate.FIPSHeuristics(dict(), [], [], 0),
+            FIPSCertificate.FIPSHeuristics(dict(), [], 0),
             state,
         )
 

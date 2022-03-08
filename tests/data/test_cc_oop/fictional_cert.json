@@ -1,72 +1,86 @@
 {
-    "_type": "CommonCriteriaCert",
-    "dgst": "a9ccb81a92e547dc",
-    "status": "archived",
-    "category": "Sample category",
-    "name": "Sample certificate name",
-    "manufacturer": "Sample manufacturer",
-    "scheme": "Sample scheme",
-    "security_level": {
-        "_type": "Set",
-        "elements": [
-            "Sample security level"
-        ]
+  "_type": "CommonCriteriaCert",
+  "dgst": "a9ccb81a92e547dc",
+  "status": "archived",
+  "category": "Sample category",
+  "name": "Sample certificate name",
+  "manufacturer": "Sample manufacturer",
+  "scheme": "Sample scheme",
+  "security_level": {
+    "_type": "Set",
+    "elements": [
+      "Sample security level"
+    ]
+  },
+  "not_valid_before": "1900-01-02",
+  "not_valid_after": "1900-01-03",
+  "manufacturer_web": "https://path.to/manufacturer/web",
+  "protection_profiles": {
+    "_type": "Set",
+    "elements": [
+      {
+        "_type": "ProtectionProfile",
+        "pp_name": "sample_pp",
+        "pp_link": "https://sample.pp",
+        "pp_ids": null
+      }
+    ]
+  },
+  "maintenance_updates": {
+    "_type": "Set",
+    "elements": [
+      {
+        "_type": "MaintenanceReport",
+        "maintenance_date": "1900-01-01",
+        "maintenance_title": "Sample maintenance",
+        "maintenance_report_link": "https://maintenance.up",
+        "maintenance_st_link": "https://maintenance.up"
+      }
+    ]
+  },
+  "state": {
+    "_type": "InternalState",
+    "st_download_ok": true,
+    "report_download_ok": true,
+    "st_convert_ok": true,
+    "report_convert_ok": true,
+    "st_extract_ok": true,
+    "report_extract_ok": true,
+    "errors": []
+  },
+  "pdf_data": {
+    "_type": "PdfData",
+    "report_metadata": null,
+    "st_metadata": null,
+    "report_frontpage": null,
+    "st_frontpage": null,
+    "report_keywords": null,
+    "st_keywords": null
+  },
+  "heuristics": {
+    "_type": "CCHeuristics",
+    "extracted_versions": null,
+    "cpe_matches": null,
+    "verified_cpe_matches": null,
+    "related_cves": null,
+    "cert_lab": null,
+    "cert_id": null,
+    "report_references": {
+      "_type": "References",
+      "directly_referenced_by": null,
+      "directly_referencing": null,
+      "indirectly_referenced_by": null,
+      "indirectly_referencing": null
     },
-    "not_valid_before": "1900-01-02",
-    "not_valid_after": "1900-01-03",
-    "manufacturer_web": "https://path.to/manufacturer/web",
-    "protection_profiles": {
-        "_type": "Set",
-        "elements": [{
-            "_type": "ProtectionProfile",
-            "pp_name": "sample_pp",
-            "pp_link": "https://sample.pp",
-            "pp_ids": null
-        }]
-    },
-    "maintenance_updates": {
-        "_type": "Set",
-        "elements": [{
-            "_type": "MaintenanceReport",
-            "maintenance_date": "1900-01-01",
-            "maintenance_title": "Sample maintenance",
-            "maintenance_report_link": "https://maintenance.up",
-            "maintenance_st_link": "https://maintenance.up"
-        }]
-    },
-    "state": {
-        "_type": "InternalState",
-        "st_download_ok": true,
-        "report_download_ok": true,
-        "st_convert_ok": true,
-        "report_convert_ok": true,
-        "st_extract_ok": true,
-        "report_extract_ok": true,
-        "errors": []
-    },
-    "pdf_data": {
-        "_type": "PdfData",
-        "report_metadata": null,
-        "st_metadata": null,
-        "report_frontpage": null,
-        "st_frontpage": null,
-        "report_keywords": null,
-        "st_keywords": null
-    },
-    "heuristics": {
-        "_type": "CCHeuristics",
-        "extracted_versions": null,
-        "cpe_matches": null,
-        "verified_cpe_matches": null,
-        "related_cves": null,
-        "cert_lab": null,
-        "cert_id": null,
-        "directly_affected_by": null,
-        "indirectly_affected_by": null,
-        "directly_affecting": null,
-        "indirectly_affecting": null
-    },
-    "report_link": "https://path.to/report/link",
-    "st_link": "https://path.to/st/link",
-    "cert_link": "https://path.to/cert/link"
+    "st_references": {
+      "_type": "References",
+      "directly_referenced_by": null,
+      "directly_referencing": null,
+      "indirectly_referenced_by": null,
+      "indirectly_referencing": null
+    }
+  },
+  "report_link": "https://path.to/report/link",
+  "st_link": "https://path.to/st/link",
+  "cert_link": "https://path.to/cert/link"
 }
