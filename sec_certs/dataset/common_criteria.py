@@ -681,8 +681,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     def _compute_normalized_cert_ids(self):
         logger.info("Deriving information about sample ids from pdf scan.")
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
-        for cert in certs_to_process:
+        for cert in self:
             cert.compute_heuristics_cert_id(self.all_cert_ids)
 
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True) -> None:
