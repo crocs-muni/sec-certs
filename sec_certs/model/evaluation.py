@@ -19,7 +19,7 @@ def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
         return set(json.load(handle))
 
 
-def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs):
+def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
     prec = []
     for true, pred in zip(y, y_pred):
         set_pred = set(pred) if pred else set()
@@ -35,10 +35,10 @@ def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs):
 
 def evaluate(
     x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]],
-    y_valid: List[Optional[List[str]]],
+    y_valid: List[Optional[Set[str]]],
     outpath: Optional[Union[Path, str]],
     cpe_dset: CPEDataset,
-):
+) -> None:
     y_pred = [x.heuristics.cpe_matches for x in x_valid]
     precision = compute_precision(np.array(y_valid), np.array(y_pred))
 
@@ -48,10 +48,13 @@ def evaluate(
     n_newly_identified = 0
 
     for cert, predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
-        verified_cpes_set = set(verified_cpes) if verified_cpes else set()
-        verified_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes_set}
-        predicted_cpes_set = set(predicted_cpes) if predicted_cpes else set()
-        predicted_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes_set}
+        if not verified_cpes:
+            verified_cpes = set()
+        verified_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes}
+
+        if not predicted_cpes:
+            predicted_cpes = set()
+        predicted_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes}
 
         cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_scan.module_name
         vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_scan.vendor
@@ -63,14 +66,14 @@ def evaluate(
             "manually_assigned_cpes": verified_cpes_dict,
         }
 
-        if verified_cpes_set.issubset(predicted_cpes_set):
+        if verified_cpes.issubset(predicted_cpes):
             correctly_classified.append(record)
         else:
             badly_classified.append(record)
 
-        if not verified_cpes_set and predicted_cpes_set:
+        if not verified_cpes and predicted_cpes:
             n_new_certs_with_match += 1
-        n_newly_identified += len(predicted_cpes_set - verified_cpes_set)
+        n_newly_identified += len(predicted_cpes - verified_cpes)
 
     results = {
         "Precision": precision,
@@ -85,4 +88,4 @@ def evaluate(
 
     if outpath:
         with Path(outpath).open("w") as handle:
-            json.dump(results, handle, indent=4, cls=CustomJSONEncoder)
+            json.dump(results, handle, indent=4, cls=CustomJSONEncoder, sort_keys=True)

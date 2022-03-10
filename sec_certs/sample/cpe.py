@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
+from sec_certs import constants, helpers
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -9,14 +10,14 @@ from sec_certs.serialization.pandas import PandasSerializableType
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
     uri: str
+    version: str
+    vendor: str
+    item_name: str
     title: Optional[str]
-    version: Optional[str]
-    vendor: Optional[str]
-    item_name: Optional[str]
     start_version: Optional[Tuple[str, str]]
     end_version: Optional[Tuple[str, str]]
 
-    __slots__ = ["uri", "title", "version", "vendor", "item_name", "start_version", "end_version"]
+    __slots__ = ["uri", "version", "vendor", "item_name", "title", "start_version", "end_version"]
 
     pandas_columns: ClassVar[List[str]] = [
         "uri",
@@ -37,22 +38,29 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     ):
         super().__init__()
         self.uri = uri
+
+        splitted = helpers.split_unescape(self.uri, ":")
+        self.vendor = " ".join(splitted[3].split("_"))
+        self.item_name = " ".join(splitted[4].split("_"))
+        self.version = self.normalize_version(" ".join(splitted[5].split("_")))
         self.title = title
         self.start_version = start_version
         self.end_version = end_version
 
-        if self.uri:
-            self.vendor = " ".join(self.uri.split(":")[3].split("_"))
-            self.item_name = " ".join(self.uri.split(":")[4].split("_"))
-            self.version = self.uri.split(":")[5]
+    def __lt__(self, other: "CPE") -> bool:
+        return self.uri < other.uri
 
-    def __lt__(self, other: "CPE"):
-        if self.title is None or other.title is None:
-            raise RuntimeError("Cannot compare CPEs because title is missing.")
-        return self.title < other.title
+    @staticmethod
+    def normalize_version(version: str) -> str:
+        """
+        Maps common empty versions (empty '', asterisk '*') to unified empty version (constants.CPE_VERSION_NA)
+        """
+        if version in {"", "*"}:
+            return constants.CPE_VERSION_NA
+        return version
 
     @classmethod
-    def from_dict(cls, dct: Dict):
+    def from_dict(cls, dct: Dict[str, Any]) -> "CPE":
         if isinstance(dct["start_version"], list):
             dct["start_version"] = tuple(dct["start_version"])
         if isinstance(dct["end_version"], list):
@@ -76,19 +84,14 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return " ".join(self.uri.split(":")[11].split("_"))
 
     @property
-    def pandas_tuple(self):
+    def pandas_tuple(self) -> Tuple:
         return self.uri, self.vendor, self.item_name, self.version, self.title
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.uri, self.start_version, self.end_version))
 
-    def __eq__(self, other):
-        return (
-            isinstance(other, self.__class__)
-            and self.uri == other.uri
-            and self.start_version == other.start_version
-            and self.end_version == other.end_version
-        )
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, self.__class__) and self.uri == other.uri
 
 
 @lru_cache(maxsize=4096)

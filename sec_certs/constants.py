@@ -1,7 +1,6 @@
 from enum import Enum
 
 RESPONSE_OK = 200
-# TODO: types don't match
 RETURNCODE_OK = "ok"
 RETURNCODE_NOK = "nok"
 REQUEST_TIMEOUT = 10
@@ -17,6 +16,8 @@ class CertFramework(Enum):
     CC = "Common Criteria"
     FIPS = "FIPS"
 
+
+CPE_VERSION_NA = "-"
 
 FIPS_BASE_URL = "https://csrc.nist.gov"
 FIPS_MODULE_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/"

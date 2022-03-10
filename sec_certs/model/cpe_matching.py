@@ -1,13 +1,14 @@
 import itertools
 import logging
+import operator
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
-from packaging.version import parse
 from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
 import sec_certs.helpers as helpers
+from sec_certs import constants
 from sec_certs.sample.cpe import CPE
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class CPEClassifier(BaseEstimator):
         self.match_threshold = match_threshold
         self.n_max_matches = n_max_matches
 
-    def fit(self, X: List[CPE], y: Optional[List[str]] = None):
+    def fit(self, X: List[CPE], y: Optional[List[str]] = None) -> "CPEClassifier":
         """
         Just creates look-up structures from provided list of CPEs
         @param X: List of CPEs that can be matched with predict()
@@ -40,7 +41,7 @@ class CPEClassifier(BaseEstimator):
         return self
 
     @staticmethod
-    def filter_short_cpes(cpes: List[CPE]):
+    def filter_short_cpes(cpes: List[CPE]) -> List[CPE]:
         """
         Short CPE items are super easy to match with 100% rank, but they are hardly informative. This method discards them.
         @param cpes: List of CPEs to filtered
@@ -48,7 +49,7 @@ class CPEClassifier(BaseEstimator):
         """
         return list(filter(lambda x: x.item_name is not None and len(x.item_name) > 3, cpes))
 
-    def build_lookup_structures(self, X: List[CPE]):
+    def build_lookup_structures(self, X: List[CPE]) -> None:
         """
         Builds several look-up dictionaries for fast matching.
         - vendor_to_version_: each vendor is mapped to set of versions that appear in combination with vendor in CPE dataset
@@ -68,7 +69,7 @@ class CPEClassifier(BaseEstimator):
             else:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)].add(cpe)
 
-    def predict(self, X: List[Tuple[str, str, str]]) -> List[Optional[List[str]]]:
+    def predict(self, X: List[Tuple[str, str, str]]) -> List[Optional[Set[str]]]:
         """
         Will predict CPE uris for List of Tuples (vendor, product name, identified versions in product name)
         @param X: tuples (vendor, product name, identified versions in product name)
@@ -78,12 +79,12 @@ class CPEClassifier(BaseEstimator):
 
     def predict_single_cert(
         self,
-        vendor: str,
+        vendor: Optional[str],
         product_name: str,
-        versions: Optional[List[str]],
+        versions: Set[str],
         relax_version: bool = False,
         relax_title: bool = False,
-    ) -> Optional[List[str]]:
+    ) -> Optional[Set[str]]:
         """
         Predict List of CPE uris for triplet (vendor, product_name, list_of_version). The prediction is made as follows:
         1. Sanitize all strings
@@ -103,13 +104,17 @@ class CPEClassifier(BaseEstimator):
         sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
         candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
-        candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)  # type: ignore
-        ratings = [self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title) for cpe in candidates]  # type: ignore
+        candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
+        ratings = [
+            self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title)
+            for cpe in candidates
+        ]
         threshold = self.match_threshold if not relax_version else 100
         final_matches_aux: List[Tuple[float, CPE]] = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
-        final_matches: Optional[List[str]] = [
-            x[1].uri for x in final_matches_aux[: self.n_max_matches] if x[1].uri is not None
-        ]
+        final_matches_aux = sorted(final_matches_aux, key=operator.itemgetter(0, 1), reverse=True)
+        final_matches: Optional[Set[str]] = set(
+            [x[1].uri for x in final_matches_aux[: self.n_max_matches] if x[1].uri is not None]
+        )
 
         if not relax_title and not final_matches:
             final_matches = self.predict_single_cert(
@@ -118,7 +123,7 @@ class CPEClassifier(BaseEstimator):
 
         if not relax_version and not final_matches:
             final_matches = self.predict_single_cert(
-                vendor, product_name, ["-"], relax_version=True, relax_title=relax_title
+                vendor, product_name, {constants.CPE_VERSION_NA}, relax_version=True, relax_title=relax_title
             )
 
         return final_matches if final_matches else None
@@ -127,8 +132,8 @@ class CPEClassifier(BaseEstimator):
         self,
         cpe: CPE,
         product_name: str,
-        candidate_vendors: List[str],
-        versions: Optional[List[str]],
+        candidate_vendors: Optional[Set[str]],
+        versions: Set[str],
         relax_title: bool = False,
     ) -> float:
         """
@@ -142,14 +147,20 @@ class CPEClassifier(BaseEstimator):
         @return: Maximal value of the four string similarities discussed above.
         """
         if relax_title:
-            sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title) if cpe.title else CPEClassifier._fully_sanitize_string(cpe.vendor + " " + cpe.item_name + " " + cpe.version + " " + cpe.update + " " + cpe.target_hw)  # type: ignore
+            sanitized_title = (
+                CPEClassifier._fully_sanitize_string(cpe.title)
+                if cpe.title
+                else CPEClassifier._fully_sanitize_string(
+                    cpe.vendor + " " + cpe.item_name + " " + cpe.version + " " + cpe.update + " " + cpe.target_hw
+                )
+            )
         else:
             if cpe.title:
                 sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title)
             else:
                 return 0
-        sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)  # type: ignore
-        cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)  # type: ignore
+        sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
+        cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
         token_set_ratio_on_title = fuzz.token_set_ratio(product_name, sanitized_title)
         partial_ratio_on_title = fuzz.partial_ratio(product_name, sanitized_title)
@@ -175,12 +186,13 @@ class CPEClassifier(BaseEstimator):
         return string.replace("®", "").replace("™", "")
 
     @staticmethod
-    def _strip_manufacturer_and_version(string: str, manufacturers: List[str], versions: List[str]) -> str:
-        for x in manufacturers + versions:
+    def _strip_manufacturer_and_version(string: str, manufacturers: Optional[Set[str]], versions: Set[str]) -> str:
+        to_strip = versions | manufacturers if manufacturers else versions
+        for x in to_strip:
             string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), "").strip()
         return string
 
-    def _process_manufacturer(self, manufacturer: str, result: Set) -> Optional[List[str]]:
+    def _process_manufacturer(self, manufacturer: str, result: Set) -> Set[str]:
         tokenized = manufacturer.split()
         if tokenized[0] in self.vendors_:
             result.add(tokenized[0])
@@ -199,20 +211,20 @@ class CPEClassifier(BaseEstimator):
             result.add("athena-scs")
         if tokenized[0] == "the" and not result:
             candidate_result = self.get_candidate_list_of_vendors(" ".join(tokenized[1:]))
-            return list(candidate_result) if candidate_result else None
+            return set(candidate_result) if candidate_result else set()
 
-        return list(result) if result else None
+        return set(result) if result else set()
 
-    def get_candidate_list_of_vendors(self, manufacturer: str) -> Optional[List[str]]:
+    def get_candidate_list_of_vendors(self, manufacturer: Optional[str]) -> Set[str]:
         """
         Given manufacturer name, this method will find list of plausible vendors from CPE dataset that are likely related.
         @param manufacturer: manufacturer
         @return: List of related manufacturers, None if nothing relevant is found.
         """
+        result: Set[str] = set()
         if not manufacturer:
-            return None
+            return result
 
-        result: Set = set()
         splits = re.compile(r"[,/]").findall(manufacturer)
 
         if splits:
@@ -220,8 +232,8 @@ class CPEClassifier(BaseEstimator):
                 itertools.chain.from_iterable([[x.strip() for x in manufacturer.split(s)] for s in splits])
             )
             result_aux = [self.get_candidate_list_of_vendors(x) for x in vendor_tokens]
-            result_used = list(set(itertools.chain.from_iterable([x for x in result_aux if x])))
-            return result_used if result_used else None
+            result_used = set(set(itertools.chain.from_iterable([x for x in result_aux if x])))
+            return result_used if result_used else set()
 
         if manufacturer in self.vendors_:
             result.add(manufacturer)
@@ -229,7 +241,7 @@ class CPEClassifier(BaseEstimator):
         return self._process_manufacturer(manufacturer, result)
 
     def get_candidate_vendor_version_pairs(
-        self, cert_candidate_cpe_vendors: List[str], cert_candidate_versions: List[str]
+        self, cert_candidate_cpe_vendors: Set[str], cert_candidate_versions: Set[str]
     ) -> Optional[List[Tuple[str, str]]]:
         """
         Given parameters, will return Pairs (cpe_vendor, cpe_version) that are relevant to a given sample
@@ -238,7 +250,7 @@ class CPEClassifier(BaseEstimator):
         @return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
 
-        def is_cpe_version_among_cert_versions(cpe_version: Optional[str], cert_versions: List[str]) -> bool:
+        def is_cpe_version_among_cert_versions(cpe_version: Optional[str], cert_versions: Set[str]) -> bool:
             def simple_startswith(seeked_version: str, checked_string: str) -> bool:
                 if seeked_version == checked_string:
                     return True
@@ -269,19 +281,7 @@ class CPEClassifier(BaseEstimator):
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs
 
-    # TODO: Start using it or delete.
-    def new_get_candidate_vendor_version_pairs(self, cert_cpe_vendors, cert_versions):
-        if not cert_cpe_vendors:
-            return None
-
-        candidate_vendor_version_pairs = []
-        for vendor in cert_cpe_vendors:
-            viable_cpe_versions = {parse(x) for x in self.vendor_to_versions_[vendor]}
-            intersection = viable_cpe_versions.intersection({parse(x) for x in cert_versions})
-            candidate_vendor_version_pairs.extend([(vendor, str(x)) for x in intersection])
-        return candidate_vendor_version_pairs
-
-    def get_candidate_cpe_matches(self, candidate_vendors: List[str], candidate_versions: List[str]):
+    def get_candidate_cpe_matches(self, candidate_vendors: Set[str], candidate_versions: Set[str]) -> List[CPE]:
         """
         Given List of candidate vendors and candidate versions found in certificate, candidate CPE matches are found
         @param candidate_vendors: List of version strings that were found in the certificate

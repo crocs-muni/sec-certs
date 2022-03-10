@@ -5,6 +5,7 @@ from typing import ClassVar, Dict, List
 from unittest import TestCase
 
 import tests.data.test_cc_heuristics
+from sec_certs import constants
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
@@ -15,7 +16,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 class TestCommonCriteriaHeuristics(TestCase):
-    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"  # type: ignore  # mypy issue #1422
+    dataset_json_path: ClassVar[Path] = Path(tests.data.test_cc_heuristics.__path__[0]) / "vulnerable_dataset.json"
     data_dir_path: ClassVar[Path] = dataset_json_path.parent
     tmp_dir: ClassVar[tempfile.TemporaryDirectory]
     cc_dset: CCDataset
@@ -123,6 +124,40 @@ class TestCommonCriteriaHeuristics(TestCase):
             "The CPE lookup dictionary (vendor,version)->cpe does not match the template.",
         )
 
+    def test_cpe_parsing(self):
+        potentially_problematic_cpes = {
+            'cpe:2.3:a:bayashi:dopvstar\::0091:*:*:*:*:*:*:*"': ("bayashi", "dopvstar:", "0091"),  # noqa: W605
+            "cpe:2.3:a:moundlabs:\:\:mound\:\::2.1.6:*:*:*:*:*:*:*": ("moundlabs", "::mound::", "2.1.6"),  # noqa: W605
+            "cpe:2.3:a:lemonldap-ng:lemonldap\:\::*:*:*:*:*:*:*:*": (  # noqa: W605
+                "lemonldap-ng",
+                "lemonldap::",
+                constants.CPE_VERSION_NA,
+            ),
+            "cpe:2.3:o:cisco:nx-os:5.0\\\\\\(3\\\\\\)u5\\\\\\(1g\\\\\\):*:*:*:*:*:*:*": (
+                "cisco",
+                "nx-os",
+                "5.0\\(3\\)u5\\(1g\\)",
+            ),
+            "cpe:2.3:a:\\@thi.ng\\/egf_project:\\@thi.ng\\/egf:-:*:*:*:*:node.js:*:*": (
+                "@thi.ng/egf project",
+                "@thi.ng/egf",
+                "-",
+            ),
+            "cpe:2.3:a:oracle:communications_diameter_signaling_router_idih\\:::*:*:*:*:*:*:*": (
+                "oracle",
+                "communications diameter signaling router idih:",
+                constants.CPE_VERSION_NA,
+            ),
+        }
+
+        for uri, tpl in potentially_problematic_cpes.items():
+            cpe = CPE(uri)
+            self.assertEqual(cpe.vendor, tpl[0], "Parsed CPE vendor differs from expected vendor. Broken escaping?")
+            self.assertEqual(
+                cpe.item_name, tpl[1], "Parsed CPE item name differs from expected item name. Broken escaping?"
+            )
+            self.assertEqual(cpe.version, tpl[2], "Parsed CPE version differs from expected version. Broken escaping?")
+
     def test_cve_lookup_dicts(self):
         alt_lookup = {x: set(y) for x, y in self.cve_dset.cpe_to_cve_ids_lookup.items()}
         self.assertEqual(
@@ -162,7 +197,7 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_version_extraction(self):
         self.assertEqual(
             self.cc_dset["ebd276cca70fd723"].heuristics.extracted_versions,
-            ["8.2"],
+            {"8.2"},
             "The version extracted from the sample does not match the template",
         )
         new_cert = CommonCriteriaCert(
@@ -184,7 +219,7 @@ class TestCommonCriteriaHeuristics(TestCase):
             None,
             None,
         )
-        new_cert.compute_heuristics_version()
+        new_cert._compute_heuristics_version()
         self.assertEqual(
             set(new_cert.heuristics.extracted_versions),
             {"5.4", "1.0"},
@@ -231,17 +266,20 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_single_record_dependency_heuristics(self):
         # Single record in daset is not affecting nor affected by other records
         heuristics = self.cc_dset["ebd276cca70fd723"].heuristics
-        self.assertEqual(heuristics.directly_affected_by, None)
-        self.assertEqual(heuristics.indirectly_affected_by, None)
-        self.assertEqual(heuristics.directly_affecting, None)
-        self.assertEqual(heuristics.indirectly_affecting, None)
+        self.assertEqual(heuristics.report_references.directly_referenced_by, None)
+        self.assertEqual(heuristics.report_references.indirectly_referenced_by, None)
+        self.assertEqual(heuristics.report_references.directly_referencing, None)
+        self.assertEqual(heuristics.report_references.indirectly_referencing, None)
 
     def test_dependency_dataset(self):
         dependency_dataset = CCDataset.from_json(self.data_dir_path / "dependency_dataset.json")
         dependency_dataset._compute_dependencies()
         test_cert = dependency_dataset["692e91451741ef49"]
 
-        self.assertEqual(test_cert.heuristics.directly_affected_by, ["BSI-DSZ-CC-0370-2006"])
-        self.assertEqual(test_cert.heuristics.indirectly_affected_by, {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"})
-        self.assertEqual(test_cert.heuristics.directly_affecting, {"BSI-DSZ-CC-0268-2005"})
-        self.assertEqual(test_cert.heuristics.indirectly_affecting, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.report_references.directly_referenced_by, {"BSI-DSZ-CC-0370-2006"})
+        self.assertEqual(
+            test_cert.heuristics.report_references.indirectly_referenced_by,
+            {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"},
+        )
+        self.assertEqual(test_cert.heuristics.report_references.directly_referencing, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.report_references.indirectly_referencing, {"BSI-DSZ-CC-0268-2005"})

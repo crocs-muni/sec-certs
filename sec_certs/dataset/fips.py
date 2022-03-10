@@ -3,7 +3,7 @@ import os
 import tempfile
 from itertools import groupby
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
@@ -15,19 +15,17 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.helpers import fips_dgst
-from sec_certs.sample.certificate import Certificate
+from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 
 logger = logging.getLogger(__name__)
 
 
-class FIPSDataset(Dataset, ComplexSerializableType):
-    certs: Dict[str, FIPSCertificate]
-
+class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def __init__(
         self,
-        certs: Mapping[str, "Certificate"],
+        certs: Dict[str, FIPSCertificate],
         root_dir: Path,
         name: str = "dataset name",
         description: str = "dataset_description",
@@ -62,7 +60,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
     def successful_pdf_scan(self) -> bool:
         return all(cert.pdf_scan for cert in self.certs.values() if cert is not None)
 
-    def get_certs_from_name(self, module_name: str) -> List[Certificate]:
+    def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
         return [crt for crt in self if crt.web_scan.module_name == module_name]
 
     def find_empty_pdfs(self) -> Tuple[List, List]:
@@ -76,7 +74,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         return missing, not_available
 
     @serialize
-    def pdf_scan(self, redo=False):
+    def pdf_scan(self, redo: bool = False) -> None:
         logger.info("Entering PDF scan.")
 
         self.fragments_dir.mkdir(parents=True, exist_ok=True)
@@ -91,7 +89,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
 
-    def match_algs(self) -> Dict:
+    def match_algs(self) -> Dict[str, int]:
         output = {}
         for cert in self.certs.values():
             # if the pdf has not been processed, no matching can be done
@@ -104,7 +102,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         output = {k: v for k, v in output.items() if v != 0}
         return output
 
-    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None):
+    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
         sp_paths, sp_urls = [], []
         self.policies_dir.mkdir(exist_ok=True)
         if cert_ids is None:
@@ -159,7 +157,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         return new_files
 
     @serialize
-    def convert_all_pdfs(self):
+    def convert_all_pdfs(self) -> None:
         logger.info("Converting FIPS sample reports to .txt")
         tuples = [
             (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
@@ -199,7 +197,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return cert_ids
 
-    def download_neccessary_files(self, cert_ids: Set[str]):
+    def download_neccessary_files(self, cert_ids: Set[str]) -> None:
         self.download_all_htmls(cert_ids)
         self.download_all_pdfs(cert_ids)
 
@@ -221,7 +219,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         return entries
 
     @serialize
-    def web_scan(self, cert_ids: Set[int], redo: bool = False):
+    def web_scan(self, cert_ids: Set[int], redo: bool = False) -> None:
         logger.info("Entering web scan.")
         for cert_id in cert_ids:
             dgst = fips_dgst(cert_id)
@@ -240,18 +238,22 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             )
 
     @classmethod
-    def from_web_latest(cls):
+    def from_web_latest(cls) -> "FIPSDataset":
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "fips_latest_dataset.json"
             logger.info("Downloading the latest FIPS dataset.")
             helpers.download_file(config.fips_latest_snapshot, dset_path)
             dset: FIPSDataset = cls.from_json(dset_path)
-            logger.info("The dataset with %s certs and %s algorithms.", len(dset), len(dset.algorithms))
+            logger.info(
+                "The dataset with %s certs and %s algorithms.",
+                len(dset),
+                len(dset.algorithms) if dset.algorithms is not None else 0,
+            )
             logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
             dset.finalize_results()
             return dset
 
-    def set_local_paths(self):
+    def set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
             cert.set_local_paths(self.policies_dir, self.web_dir, self.fragments_dir)
@@ -263,7 +265,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         no_download_algorithms: bool = False,
         update: bool = False,
         redo_web_scan=False,
-    ):
+    ) -> None:
         """Downloads HTML search pages, parses them, populates the dataset,
         and performs `web-scan` - extracting information from CMVP pages for
         each certificate.
@@ -296,14 +298,14 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.web_scan(cert_ids, redo=redo_web_scan)
 
     @serialize
-    def deprocess(self):
-        # TODO
+    def deprocess(self) -> None:
+        # TODO think of a better way to make resulting json smaller and easier to share
         logger.info(
             "Removing 'heuristics' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something"
         )
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.heuristics = FIPSCertificate.FIPSHeuristics(None, {}, [], 0)
+            cert.heuristics = FIPSCertificate.FIPSHeuristics(dict(), [], 0)
 
         self.match_algs()
 
@@ -334,17 +336,19 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             certificate.pdf_scan.algorithms += algorithms
         return not_decoded
 
-    def remove_algorithms_from_extracted_data(self):
+    def remove_algorithms_from_extracted_data(self) -> None:
         for cert in self.certs.values():
             cert.remove_algorithms()
 
-    def unify_algorithms(self):
-        certificate: FIPSCertificate
+    def unify_algorithms(self) -> None:
         for certificate in self.certs.values():
             new_algorithms: List[Dict] = []
             united_algorithms = [
                 x
-                for x in (certificate.web_scan.algorithms + certificate.pdf_scan.algorithms)
+                for x in (
+                    (certificate.web_scan.algorithms if certificate.web_scan.algorithms is not None else [])
+                    + certificate.pdf_scan.algorithms
+                )
                 if x != {"Certificate": []}
             ]
             for algorithm in united_algorithms:
@@ -356,7 +360,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
             # returns True if candidates should _not_ be matched
 
-    def _compare_certs(self, current_certificate: "FIPSCertificate", other_id: str):
+    def _compare_certs(self, current_certificate: FIPSCertificate, other_id: str) -> bool:
         other_dgst = fips_dgst(other_id)
         other_cert = self.certs[other_dgst]
 
@@ -378,7 +382,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             or cert_first.year < conn_first.year
         )
 
-    def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate):
+    def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate) -> None:
         if current_cert.heuristics.keywords is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
         for rule in current_cert.heuristics.keywords["rules_cert_id"]:
@@ -391,7 +395,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             ]
 
     @staticmethod
-    def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str):
+    def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
         for cert_alg in processed_cert.heuristics.algorithms:
             for certificate in cert_alg["Certificate"]:
                 curr_id = "".join(filter(str.isdigit, certificate))
@@ -430,34 +434,27 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 return False
         return True
 
-    @staticmethod
-    def _find_connections(current_cert: FIPSCertificate):
-        current_cert.heuristics.connections = []
-        current_cert.web_scan.connections = []
-        current_cert.pdf_scan.connections = []
-        if not current_cert.state.file_status or not current_cert.heuristics.keywords:
-            return
-        if current_cert.heuristics.keywords["rules_cert_id"] == {}:
-            return
-        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
-            for cert in current_cert.heuristics.keywords["rules_cert_id"][rule]:
-                cert_id = "".join(filter(str.isdigit, cert))
-                if cert_id not in current_cert.heuristics.connections:
-                    current_cert.heuristics.connections.append(cert_id)
-                    current_cert.pdf_scan.connections.append(cert_id)
-
-        # We want connections parsed in caveat to bypass age check, because we are 100 % sure they are right
-        if current_cert.web_scan.mentioned_certs:
-            for item in current_cert.web_scan.mentioned_certs:
-                cert_id = "".join(filter(str.isdigit, item))
-                if cert_id not in current_cert.heuristics.connections and cert_id != "":
-                    current_cert.heuristics.connections.append(cert_id)
-                    current_cert.web_scan.connections.append(cert_id)
-
-    def validate_results(self):
+    def validate_results(self) -> None:
         """
         Function that validates results and finds the final connection output
         """
+
+        def pdf_lookup(cert):
+            return set(
+                filter(
+                    lambda x: x,
+                    map(
+                        lambda cid: "".join(filter(str.isdigit, cid)),
+                        cert.heuristics.keywords["rules_cert_id"].values(),
+                    ),
+                )
+            )
+
+        def web_lookup(cert):
+            return set(
+                filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_scan.mentioned_certs))
+            )
+
         current_cert: FIPSCertificate
 
         for current_cert in self.certs.values():
@@ -465,8 +462,17 @@ class FIPSDataset(Dataset, ComplexSerializableType):
                 continue
             self._remove_false_positives_for_cert(current_cert)
 
-        for current_cert in self.certs.values():
-            FIPSDataset._find_connections(current_cert)
+        finder = DependencyFinder()
+        finder.fit(self.certs, lambda cert: cert.cert_id, pdf_lookup)  # type: ignore
+
+        for dgst in self.certs:
+            setattr(self.certs[dgst].heuristics, "st_references", finder.get_references(dgst))
+
+        finder = DependencyFinder()
+        finder.fit(self.certs, lambda cert: cert.cert_id, web_lookup)  # type: ignore
+
+        for dgst in self.certs:
+            setattr(self.certs[dgst].heuristics, "web_references", finder.get_references(dgst))
 
     @serialize
     def finalize_results(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):
@@ -475,10 +481,10 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         self.remove_algorithms_from_extracted_data()
         self.validate_results()
         if perform_cpe_heuristics:
-            self.compute_cpe_heuristics()
-            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
+            _, _, cve_dset = self.compute_cpe_heuristics()
+            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
 
-    def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str):
+    def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]
 
         if current_cert.web_scan.vendor != highlighted_vendor:
@@ -490,7 +496,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         if current_cert.web_scan.status == "Historical":
             dot.attr("node", color="gold3")
 
-    def _add_colored_node(self, dot: Digraph, current_dgst: str, highlighted_vendor: str):
+    def _add_colored_node(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]
         dot.attr("node", color="lightgreen")
         if current_cert.web_scan.status == "Revoked":
@@ -505,17 +511,17 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             else "" + "&#10;" + (current_cert.web_scan.module_name if current_cert.web_scan.module_name else ""),
         )
 
-    def _get_processed_list(self, connection_list: str, dgst: str):
+    def _get_processed_list(self, connection_list: str, dgst: str) -> List[str]:
         attr = {"pdf": "pdf_scan", "web": "web_scan", "heuristics": "heuristics"}[connection_list]
         return getattr(self.certs[dgst], attr).connections
 
-    def get_dot_graph(
+    def create_dot_graph(
         self,
         output_file_name: str,
         connection_list: str = "heuristics",
         highlighted_vendor: str = "Red Hat®, Inc.",
         show: bool = True,
-    ):
+    ) -> None:
         """
         Function that plots .dot graph of dependencies between certificates
         Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
@@ -573,7 +579,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         dot.render(self.root_dir / (str(output_file_name) + "_connections"), view=show)
         single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "timestamp": self.timestamp,
             "sha256_digest": self.sha256_digest,
@@ -585,7 +591,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
         }
 
     @classmethod
-    def from_dict(cls, dct: Dict):
+    def from_dict(cls, dct: Dict[str, Any]) -> "FIPSDataset":
         certs = dct["certs"]
         dset = cls(certs, Path("./"), dct["name"], dct["description"])
         dset.algorithms = dct["algs"]
@@ -595,8 +601,8 @@ class FIPSDataset(Dataset, ComplexSerializableType):
             )
         return dset
 
-    def group_vendors(self) -> Dict:
-        vendors = {}
+    def group_vendors(self) -> Dict[str, List[str]]:
+        vendors: Dict[str, List[str]] = {}
         v = {x.web_scan.vendor.lower() for x in self.certs.values() if x is not None and x.web_scan.vendor is not None}
         v_sorted = sorted(v, key=FIPSCertificate.get_compare)
         for prefix, a in groupby(v_sorted, key=FIPSCertificate.get_compare):
@@ -604,7 +610,7 @@ class FIPSDataset(Dataset, ComplexSerializableType):
 
         return vendors
 
-    def plot_graphs(self, show: bool = False):
-        self.get_dot_graph("full_graph", show=show)
-        self.get_dot_graph("web_only_graph", "web", show=show)
-        self.get_dot_graph("pdf_only_graph", "pdf", show=show)
+    def plot_graphs(self, show: bool = False) -> None:
+        self.create_dot_graph("full_graph", show=show)
+        self.create_dot_graph("web_only_graph", "web", show=show)
+        self.create_dot_graph("pdf_only_graph", "pdf", show=show)

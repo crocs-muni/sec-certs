@@ -1,6 +1,6 @@
 import time
 from multiprocessing.pool import ThreadPool
-from typing import Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, List, Optional, Union
 
 from billiard.pool import Pool
 
@@ -16,7 +16,7 @@ def process_parallel(
     progress_bar: bool = True,
     unpack: bool = False,
     progress_bar_desc: Optional[str] = None,
-):
+) -> List[Any]:
 
     pool: Union[Pool, ThreadPool] = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = (
