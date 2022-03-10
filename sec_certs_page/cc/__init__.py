@@ -37,7 +37,8 @@ def load_cc_data():
                 "category": 1,
                 "not_valid_before": 1,
                 "heuristics.cert_id": 1,
-                "heuristics.directly_affecting": 1,
+                "heuristics.st_references.directly_referencing": 1,
+                "heuristics.report_references.directly_referencing": 1
             },
         )
         cc_references = {}
@@ -50,7 +51,7 @@ def load_cc_data():
             reference = {
                 "hashid": hashid,
                 "name": cert["name"],
-                "refs": cert["heuristics"]["directly_affecting"] if cert["heuristics"]["directly_affecting"] else [],
+                "refs": cert["heuristics"]["report_references"]["directly_referencing"] if cert["heuristics"]["report_references"]["directly_referencing"] else [],
                 "href": url_for("cc.entry", hashid=hashid),
                 "type": cc_categories[cert["category"]]["id"],
             }
