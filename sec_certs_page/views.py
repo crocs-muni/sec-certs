@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import abort, jsonify, render_template, request
+from flask import abort, jsonify, render_template, request, url_for, make_response
 from flask_breadcrumbs import register_breadcrumb
 from werkzeug.exceptions import HTTPException
 
@@ -35,6 +35,14 @@ def feedback():
 @register_breadcrumb(app, ".about", "About")
 def about():
     return render_template("about.html.jinja2")
+
+
+@app.route("/robots.txt")
+def robots():
+    content = f"Sitemap: {url_for('flask_sitemap.sitemap', _external=True)}"
+    resp = make_response(content, 200)
+    resp.mimetype = "text/plain"
+    return resp
 
 
 @app.errorhandler(HTTPException)
