@@ -1,6 +1,6 @@
 amqp==5.0.9
 appdirs==1.4.4
-atpublic==2.3
+atpublic==3.0.1
 attrs==21.4.0
 backcall==0.2.0
 bcrypt==3.2.0
@@ -90,15 +90,15 @@ pycodestyle==2.7.0
 pycparser==2.21
 pyflakes==2.3.1
 Pygments==2.10.0
-pymongo==4.0.1
+pymongo==4.0.2
 PyNaCl==1.4.0
 pyparsing==3.0.6
 PyPDF2==1.26.0
 pyrsistent==0.18.0
-pytest==6.2.5
+pytest==7.0.1
 pytest-cov==3.0.0
 pytest-env==0.6.2
-pytest-mock==3.6.1
+pytest-mock==3.7.0
 python-dateutil==2.8.2
 pytz==2021.3
 PyYAML==6.0
@@ -108,8 +108,8 @@ regex==2021.8.28
 requests==2.27.0
 scikit-learn==1.0.2
 scipy==1.7.3
--e git+ssh://git@github.com/crocs-muni/sec-certs.git@5c9d861855ab03efa73b550a9a95d598bf4fe2ee#egg=sec_certs
-sentry-sdk==1.5.5
+-e git+ssh://git@github.com/crocs-muni/sec-certs.git@24c4965ed57687e29513a73914020c23560ae147#egg=sec_certs
+sentry-sdk==1.5.7
 six==1.16.0
 soupsieve==2.3.1
 tabula-py==2.3.0
@@ -117,7 +117,7 @@ tabulate==0.8.9
 threadpoolctl==3.0.0
 toml==0.10.2
 tomli==2.0.0
-tqdm==4.62.3
+tqdm==4.63.0
 traitlets==5.1.0
 typed-ast==1.4.3
 types-pkg-resources==0.1.3
