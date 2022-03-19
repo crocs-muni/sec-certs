@@ -718,9 +718,6 @@ class CommonCriteriaCert(
         if not vulnerabilities:
             return None
 
-        print(vulnerabilities)
-        print(f"Found cert ID {special_cert_id} {count} times!")
-
         return vulnerabilities
 
     def find_certificate_dependency_vulnerabilities(self, dset: "CCDataset"):
