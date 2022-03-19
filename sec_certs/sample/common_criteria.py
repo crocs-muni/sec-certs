@@ -2,6 +2,7 @@ import copy
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
@@ -11,13 +12,13 @@ from bs4 import Tag
 
 from sec_certs import constants as constants
 from sec_certs import helpers
+from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.model.dependency_finder import References
 from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-from enum import Enum
 
 HEADERS = {
     "anssi": helpers.search_only_headers_anssi,
@@ -702,15 +703,11 @@ class CommonCriteriaCert(
             return None
 
         vulnerabilities = set()
-        count = 0
-        special_cert_id = None
 
         for cert_id in dependency_type_dict[dependency_type]:
 
             for cert_obj in dset:
                 if cert_obj.heuristics.cert_id == cert_id:
-                    special_cert_id = cert_id
-                    count += 1
                     if cert_obj.heuristics.related_cves:
 
                         vulnerabilities.update(cert_obj.heuristics.related_cves)
