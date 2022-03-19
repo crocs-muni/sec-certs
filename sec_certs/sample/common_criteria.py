@@ -17,6 +17,7 @@ from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+from enum import Enum
 
 HEADERS = {
     "anssi": helpers.search_only_headers_anssi,
@@ -25,6 +26,11 @@ HEADERS = {
     "niap": helpers.search_only_headers_niap,
     "canada": helpers.search_only_headers_canada,
 }
+
+
+class DependencyCVEType(Enum):
+    DIRECT = "direct"
+    INDIRECT = "indirect"
 
 
 class CommonCriteriaCert(
@@ -686,45 +692,40 @@ class CommonCriteriaCert(
         self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
 
-    def _get_direct_dependency_cves(self, dset) -> Optional[Set[str]]:
-        if not self.heuristics.report_references.directly_referenced_by:
+    def _get_dependency_cves(self, dset: "CCDataset", dependency_type: DependencyCVEType) -> Optional[Set[str]]:
+        dependency_type_dict = {
+            "direct": self.heuristics.report_references.directly_referenced_by,
+            "indirect": self.heuristics.report_references.indirectly_referenced_by,
+        }
+
+        if not dependency_type_dict[dependency_type]:
             return None
 
-        direct_vulnerabilities = set()
+        vulnerabilities = set()
+        count = 0
+        special_cert_id = None
 
-        for cert_id in self.heuristics.report_references.directly_referenced_by:
+        for cert_id in dependency_type_dict[dependency_type]:
 
             for cert_obj in dset:
                 if cert_obj.heuristics.cert_id == cert_id:
+                    special_cert_id = cert_id
+                    count += 1
                     if cert_obj.heuristics.related_cves:
-                        direct_vulnerabilities.update(cert_obj.heuristics.related_cves)
 
-        if not direct_vulnerabilities:
+                        vulnerabilities.update(cert_obj.heuristics.related_cves)
+
+        if not vulnerabilities:
             return None
 
-        return direct_vulnerabilities
+        print(vulnerabilities)
+        print(f"Found cert ID {special_cert_id} {count} times!")
 
-    def _get_indirect_dependency_cves(self, dset) -> Optional[Set[str]]:
-        if not self.heuristics.report_references.indirectly_referenced_by:
-            return None
+        return vulnerabilities
 
-        indirect_vulnerabilities = set()
-
-        for cert_id in self.heuristics.report_references.indirectly_referenced_by:
-
-            for cert_obj in dset:
-                if cert_obj.heuristics.cert_id == cert_id:
-                    if cert_obj.heuristics.related_cves:
-                        indirect_vulnerabilities.update(cert_obj.heuristics.related_cves)
-
-        if not indirect_vulnerabilities:
-            return None
-
-        return indirect_vulnerabilities
-
-    def find_certificate_dependency_vulnerabilities(self, dset):
-        self.heuristics.direct_vulnerabilities = self._get_direct_dependency_cves(dset)
-        self.heuristics.indirect_vulnerabilities = self._get_indirect_dependency_cves(dset)
+    def find_certificate_dependency_vulnerabilities(self, dset: "CCDataset"):
+        self.heuristics.direct_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.DIRECT.value)
+        self.heuristics.indirect_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.INDIRECT.value)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
