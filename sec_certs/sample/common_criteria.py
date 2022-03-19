@@ -5,20 +5,23 @@ from datetime import date, datetime
 from enum import Enum
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from bs4 import Tag
 
 from sec_certs import constants as constants
 from sec_certs import helpers
-from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.model.dependency_finder import References
 from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+
+if TYPE_CHECKING:
+    from sec_certs.dataset.common_criteria import CCDataset
+
 
 HEADERS = {
     "anssi": helpers.search_only_headers_anssi,
