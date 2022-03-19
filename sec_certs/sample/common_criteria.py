@@ -241,6 +241,8 @@ class CommonCriteriaCert(
         cert_id: Optional[str] = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
+        direct_vulnerabilities: Optional[Set[str]] = field(default=None)
+        indirect_vulnerabilities: Optional[Set[str]] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -683,6 +685,27 @@ class CommonCriteriaCert(
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
+
+    def find_certificate_dependency_vulnerabilities(self, dset):
+        if not self.heuristics.report_references.directly_referenced_by:
+            return None
+
+        direct_vulnerabilities = set()
+
+        for cert_id in self.heuristics.report_references.directly_referenced_by:
+
+            for cert_obj in dset:
+                if cert_obj.heuristics.cert_id == cert_id:
+                    if cert_obj.heuristics.related_cves:
+                        print(f"Related CVEs: {cert_obj.heuristics.related_cves}")
+                        direct_vulnerabilities.update(cert_obj.heuristics.related_cves)
+
+        print(direct_vulnerabilities)
+
+        if not direct_vulnerabilities:
+            return None
+
+        self.heuristics.direct_vulnerabilities = direct_vulnerabilities
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:

@@ -684,12 +684,17 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         for cert in self:
             cert.compute_heuristics_cert_id(self.all_cert_ids)
 
+    def _compute_dependency_vulnerabilities(self):
+        for cert in self:
+            cert.find_certificate_dependency_vulnerabilities(self)
+
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True) -> None:
         self._compute_cert_labs()
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
         _, _, cve_dset = self.compute_cpe_heuristics()
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
+        self._compute_dependency_vulnerabilities()
 
     def _compute_dependencies(self) -> None:
         def ref_lookup(kw_attr):
