@@ -686,7 +686,7 @@ class CommonCriteriaCert(
         self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
 
-    def find_certificate_dependency_vulnerabilities(self, dset):
+    def _get_direct_dependency_cves(self, dset) -> Optional[Set[str]]:
         if not self.heuristics.report_references.directly_referenced_by:
             return None
 
@@ -697,15 +697,34 @@ class CommonCriteriaCert(
             for cert_obj in dset:
                 if cert_obj.heuristics.cert_id == cert_id:
                     if cert_obj.heuristics.related_cves:
-                        print(f"Related CVEs: {cert_obj.heuristics.related_cves}")
                         direct_vulnerabilities.update(cert_obj.heuristics.related_cves)
-
-        print(direct_vulnerabilities)
 
         if not direct_vulnerabilities:
             return None
 
-        self.heuristics.direct_vulnerabilities = direct_vulnerabilities
+        return direct_vulnerabilities
+
+    def _get_indirect_dependency_cves(self, dset) -> Optional[Set[str]]:
+        if not self.heuristics.report_references.indirectly_referenced_by:
+            return None
+
+        indirect_vulnerabilities = set()
+
+        for cert_id in self.heuristics.report_references.indirectly_referenced_by:
+
+            for cert_obj in dset:
+                if cert_obj.heuristics.cert_id == cert_id:
+                    if cert_obj.heuristics.related_cves:
+                        indirect_vulnerabilities.update(cert_obj.heuristics.related_cves)
+
+        if not indirect_vulnerabilities:
+            return None
+
+        return indirect_vulnerabilities
+
+    def find_certificate_dependency_vulnerabilities(self, dset):
+        self.heuristics.direct_vulnerabilities = self._get_direct_dependency_cves(dset)
+        self.heuristics.indirect_vulnerabilities = self._get_indirect_dependency_cves(dset)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:

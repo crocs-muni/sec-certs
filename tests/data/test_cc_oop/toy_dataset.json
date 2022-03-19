@@ -69,6 +69,8 @@
         "related_cves": null,
         "cert_lab": null,
         "cert_id": null,
+        "direct_vulnerabilities": null,
+        "indirect_vulnerabilities": null,
         "report_references": {
           "_type": "References",
           "directly_referenced_by": null,
@@ -145,6 +147,8 @@
         "related_cves": null,
         "cert_lab": null,
         "cert_id": null,
+        "direct_vulnerabilities": null,
+        "indirect_vulnerabilities": null,
         "report_references": {
           "_type": "References",
           "directly_referenced_by": null,
