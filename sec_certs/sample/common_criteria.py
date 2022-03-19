@@ -702,12 +702,14 @@ class CommonCriteriaCert(
             "indirect": self.heuristics.report_references.indirectly_referenced_by,
         }
 
-        if not dependency_type_dict[dependency_type]:
+        references = dependency_type_dict[dependency_type.value]
+
+        if not references:
             return None
 
         vulnerabilities = set()
 
-        for cert_id in dependency_type_dict[dependency_type]:
+        for cert_id in references:
 
             for cert_obj in dset:
                 if cert_obj.heuristics.cert_id == cert_id:
@@ -721,8 +723,8 @@ class CommonCriteriaCert(
         return vulnerabilities
 
     def find_certificate_dependency_vulnerabilities(self, dset: "CCDataset"):
-        self.heuristics.direct_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.DIRECT.value)
-        self.heuristics.indirect_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.INDIRECT.value)
+        self.heuristics.direct_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.DIRECT)
+        self.heuristics.indirect_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.INDIRECT)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
