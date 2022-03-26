@@ -25,7 +25,7 @@ from ..common.views import (
     network_graph_func,
     send_json_attachment,
 )
-from . import cc, cc_categories, cc_sars, cc_sfrs, get_cc_analysis, get_cc_graphs, get_cc_map
+from . import cc, cc_status, cc_categories, cc_sars, cc_sfrs, get_cc_analysis, get_cc_graphs, get_cc_map
 
 
 @cc.app_template_global("get_cc_sar")
@@ -69,6 +69,13 @@ def categories():
     return send_json_attachment(cc_categories)
 
 
+@cc.route("/status.json")
+@cache.cached(60 * 60)
+def status():
+    """Endpoint with CC status JSON."""
+    return send_json_attachment(cc_status)
+
+
 @cc.route("/")
 @register_breadcrumb(cc, ".", "Common Criteria")
 def index():
@@ -95,7 +102,7 @@ def dataset():
 @register_breadcrumb(cc, ".network", "References")
 def network():
     """Common criteria references visualization."""
-    return render_template("cc/network.html.jinja2", url=url_for(".network_graph"))
+    return render_template("cc/network.html.jinja2")
 
 
 @cc.route("/network/graph.json")

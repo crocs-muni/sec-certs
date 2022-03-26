@@ -291,7 +291,7 @@
                 </h2>
                 {% if cert["heuristics"]["cert_id"] %}
                     <div class="border">
-                        {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for('.categories'), height=400, linkDistance=45, linkCharge=-140, highlight=[hashid]) }}
+                        {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for('.categories'), url_for('.status'), height=400, linkDistance=45, linkCharge=-140, highlight=[hashid]) }}
                     </div>
                 {% else %}
                     <p>No references are available for this certificate as its ID was not successfully extracted.</p>

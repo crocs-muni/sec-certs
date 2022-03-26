@@ -1,0 +1,18 @@
+{
+  "Active": {
+    "name": "Active",
+    "desc": "Active certificates",
+    "color": "rgb(25,135,84)"
+  },
+  "Historical": {
+    "name": "Historical",
+    "desc": "Historical certificates",
+    "color": "rgb(255,193,7)"
+  },
+  "Revoked": {
+    "name": "Revoked",
+    "desc": "Revoked certificates",
+    "color": "rgb(220,53,69)"
+  }
+}
+

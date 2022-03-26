@@ -24,6 +24,8 @@ with cc.open_resource("sars.json") as f:
     cc_sars = json.load(f)
 with cc.open_resource("categories.json") as f:
     cc_categories = json.load(f)
+with cc.open_resource("status.json") as f:
+    cc_status = json.load(f)
 
 
 def load_cc_data():
@@ -35,6 +37,7 @@ def load_cc_data():
                 "_id": 1,
                 "name": 1,
                 "category": 1,
+                "status": 1,
                 "not_valid_before": 1,
                 "heuristics.cert_id": 1,
                 "heuristics.st_references.directly_referencing": 1,
@@ -54,6 +57,7 @@ def load_cc_data():
                 "refs": cert["heuristics"]["report_references"]["directly_referencing"] if cert["heuristics"]["report_references"]["directly_referencing"] else [],
                 "href": url_for("cc.entry", hashid=hashid),
                 "type": cc_categories[cert["category"]]["id"],
+                "status": cert["status"]
             }
             cc_references[cert_id] = reference
 

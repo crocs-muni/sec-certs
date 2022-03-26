@@ -73,11 +73,14 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
             name=value["name"],
             href=value["href"],
             type=value["type"],
+            status=value["status"]
         )
     for cert_id, reference in references.items():
         for ref_id in set(reference["refs"]):
             if ref_id in references and ref_id != cert_id:
                 graph.add_edge(reference["hashid"], references[ref_id]["hashid"])
+    for node in graph.nodes:
+        graph.nodes[node]["referenced"] = graph.degree(node) != 0
     graphs = []
     graph_map = {}
     for component in weakly_connected_components(graph):

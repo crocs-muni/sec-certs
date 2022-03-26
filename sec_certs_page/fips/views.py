@@ -23,7 +23,7 @@ from ..common.views import (
     network_graph_func,
     send_json_attachment,
 )
-from . import fips, fips_types, get_fips_graphs, get_fips_map
+from . import fips, fips_types, fips_status, get_fips_graphs, get_fips_map
 
 
 @fips.app_template_global("get_fips_type")
@@ -35,6 +35,12 @@ def get_fips_type(name):
 @cache.cached(60 * 60)
 def types():
     return send_json_attachment(fips_types)
+
+
+@fips.route("/status.json")
+@cache.cached(60 * 60)
+def status():
+    return send_json_attachment(fips_status)
 
 
 @fips.route("/")
@@ -172,7 +178,7 @@ def process_search(req, callback=None):
     )
     return {
         "pagination": pagination,
-        "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
+        "certs": list(map(load, cursor[(page - 1) * per_page: page * per_page])),
         "categories": categories,
         "q": q,
         "page": page,

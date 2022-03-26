@@ -1,4 +1,4 @@
-{% macro render_network(net_url, type_url, width=600, height=600, linkDistance=30, linkCharge=-100, forceCenter=False, highlight=[]) %}
+{% macro render_network(net_url, type_url, status_url, width=600, height=600, linkDistance=30, linkCharge=-100, forceCenter=False, highlight=[]) %}
     <style>
         #network {
             width: 100%;
@@ -7,14 +7,16 @@
     </style>
     <div id="network"></div>
     <script>
-        function renderNetwork(data, types, highlighted) {
+        function renderNetwork(data, types, statuses, highlighted) {
             let height = {{ height }};
             let width = {{ width }};
             let color = d => {
                 if (highlighted.includes(d.id)) {
-                    return "#d62728"
-                } else {
                     return "#0d6efd"
+                } else if (d.status in statuses) {
+                    return statuses[d.status]["color"];
+                } else {
+                    return "#6c757d";
                 }
             }
             let drag = simulation => {
@@ -40,6 +42,8 @@
                     .on("drag", dragged)
                     .on("end", dragended);
             }
+            data.nodes.forEach(val => val.highlighted = highlighted.includes(val.id));
+            data.nodes = data.nodes.filter(val => val.referenced);
 
             const links = data.links.map(d => Object.create(d));
             const nodes = data.nodes.map(d => Object.create(d));
@@ -177,13 +181,14 @@
 
         let highlighted = {{ highlight|safe }};
 
-        Promise.all([d3.json("{{ net_url }}"), d3.json("{{ type_url }}")]).then(values => {
+        Promise.all([d3.json("{{ net_url }}"), d3.json("{{ type_url }}"), d3.json("{{ status_url }}")]).then(values => {
             let data = values[0];
             let types = values[1];
+            let statuses = values[2];
             if (("nodes" in data) && ("links" in data)) {
-                renderNetwork(data, types, highlighted);
+                renderNetwork(data, types, statuses, highlighted);
             } else {
-
+                console.log("Something went wrong.");
             }
         });
     </script>

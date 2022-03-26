@@ -1,0 +1,12 @@
+{
+  "active": {
+    "name": "Active",
+    "desc": "Active certificates",
+    "color": "rgb(25,135,84)"
+  },
+  "archived": {
+    "name": "Archived",
+    "desc": "Archived certificates",
+    "color": "rgb(255,193,7)"
+  }
+}

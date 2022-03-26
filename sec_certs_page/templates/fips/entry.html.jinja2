@@ -228,7 +228,7 @@
                           title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
                 </h2>
                 <div class="border">
-                    {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for(".types"), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
+                    {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for(".types"), url_for(".status"), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
                 </div>
             </div>
 

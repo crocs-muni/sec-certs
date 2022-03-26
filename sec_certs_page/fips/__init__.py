@@ -17,6 +17,8 @@ fips_mem_changes: ContextVar = ContextVar("fips_changes")
 
 with fips.open_resource("types.json") as f:
     fips_types = json.load(f)
+with fips.open_resource("status.json") as f:
+    fips_status = json.load(f)
 
 
 def load_fips_data():
@@ -28,6 +30,7 @@ def load_fips_data():
                 "cert_id": 1,
                 "web_scan.module_name": 1,
                 "web_scan.module_type": 1,
+                "web_scan.status": 1,
                 "heuristics.st_references.directly_referencing": 1,
                 "heuristics.web_references.directly_referencing": 1,
             },
@@ -40,9 +43,8 @@ def load_fips_data():
                 "name": cert["web_scan"]["module_name"],
                 "refs": cert["heuristics"]["st_references"]["directly_referencing"] if cert["heuristics"]["st_references"]["directly_referencing"] else [],
                 "href": url_for("fips.entry", hashid=cert["_id"]),
-                "type": fips_types[cert["web_scan"]["module_type"]]["id"]
-                if cert["web_scan"]["module_type"] in fips_types
-                else ""
+                "type": fips_types[cert["web_scan"]["module_type"]]["id"] if cert["web_scan"]["module_type"] in fips_types else "",
+                "status": cert["web_scan"]["status"]
             }
             fips_references[str(cert["cert_id"])] = reference
 
