@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 
 RESPONSE_OK = 200
@@ -21,6 +22,10 @@ CPE_VERSION_NA = "-"
 
 FIPS_BASE_URL = "https://csrc.nist.gov"
 FIPS_MODULE_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/"
+FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
+FIPS_ALG_URL = "https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&page="
+
+FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
 
 TAG_MATCH_COUNTER = "count"
 TAG_MATCH_MATCHES = "matches"
@@ -49,8 +54,7 @@ TAG_PP_SPONSOR = "pp_sponsor"
 TAG_PP_EDITOR = "pp_editor"
 TAG_PP_REVIEWER = "pp_reviewer"
 TAG_KEYWORDS = "keywords"
-FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
-FIPS_ALG_URL = "https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&page="
+
 
 FILE_ERRORS_STRATEGY = "surrogateescape"
 STOP_ON_UNEXPECTED_NUMS = False

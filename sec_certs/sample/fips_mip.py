@@ -8,6 +8,7 @@ from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from sec_certs.constants import FIPS_MIP_STATUS_RE
 from sec_certs.helpers import to_utc
 from sec_certs.serialization.json import ComplexSerializableType
 
@@ -27,9 +28,14 @@ class MIPEntry(ComplexSerializableType):
     vendor_name: str
     standard: str
     status: Optional[MIPStatus]
+    status_since: Optional[date]
 
-    def to_dict(self) -> Dict[str, Union[str, Optional[MIPStatus]]]:
-        return {**self.__dict__, "status": self.status.value if self.status else None}
+    def to_dict(self) -> Dict[str, Union[str, Optional[MIPStatus], Optional[date]]]:
+        return {
+            **self.__dict__,
+            "status": self.status.value if self.status else None,
+            "status_since": self.status_since.isoformat() if self.status_since else None,
+        }
 
     @classmethod
     def from_dict(cls, dct: Mapping) -> "MIPEntry":
@@ -38,6 +44,7 @@ class MIPEntry(ComplexSerializableType):
             dct["vendor_name"],
             dct["standard"],
             MIPStatus(dct["status"]) if dct["status"] else None,
+            date.fromisoformat(dct["status_since"]) if dct.get("status_since") else None,
         )
 
 
@@ -78,6 +85,76 @@ class MIPSnapshot(ComplexSerializableType):
         )
 
     @classmethod
+    def _extract_entries_1(cls, lines):
+        """Works until 2020.10.28 (including)."""
+        entries = set()
+        for tr in lines:
+            tds = tr.find_all("td")
+            status = None
+            if "mip-highlight" in tds[-1]["class"]:
+                status = MIPStatus.FINALIZATION
+            elif "mip-highlight" in tds[-2]["class"]:
+                status = MIPStatus.COORDINATION
+            elif "mip-highlight" in tds[-3]["class"]:
+                status = MIPStatus.REVIEW_PENDING
+            elif "mip-highlight" in tds[-4]["class"]:
+                status = MIPStatus.IN_REVIEW
+            entries.add(MIPEntry(str(tds[0].string), str(tds[1].string), str(tds[2].string), status, None))
+        return entries
+
+    @classmethod
+    def _extract_entries_2(cls, lines):
+        """Works until 2021.04.20 (including)."""
+        return {
+            MIPEntry(
+                str(line[0].string), str(line[1].string), str(line[2].string), MIPStatus(str(line[3].string)), None
+            )
+            for line in map(lambda tr: tr.find_all("td"), lines)
+        }
+
+    @classmethod
+    def _extract_entries_3(cls, lines):
+        """Works until 2022.03.23 (including)."""
+        return {
+            MIPEntry(
+                str(line[0].string),
+                str(" ".join(line[1].find_all(text=True, recursive=False)).strip()),
+                str(line[2].string),
+                MIPStatus(str(line[3].string)),
+                None,
+            )
+            for line in map(lambda tr: tr.find_all("td"), lines)
+        }
+
+    @classmethod
+    def _extract_entries_4(cls, lines):
+        """Works now."""
+        entries = set()
+        for line in map(lambda tr: tr.find_all("td"), lines):
+            module_name = str(line[0].string)
+            vendor_name = str(" ".join(line[1].find_all(text=True, recursive=False)).strip())
+            standard = str(line[2].string)
+            status_line = FIPS_MIP_STATUS_RE.match(str(line[3].string))
+            if status_line is None:
+                raise ValueError("Cannot parse MIP status line.")
+            status = MIPStatus(status_line.group("status"))
+            since = datetime.strptime(status_line.group("since"), "%m/%d/%Y").date()
+            entries.add(MIPEntry(module_name, vendor_name, standard, status, since))
+        return entries
+
+    @classmethod
+    def _extract_entries(cls, lines, snapshot_date):
+        if snapshot_date <= datetime(2020, 10, 28):
+            entries = cls._extract_entries_1(lines)
+        elif snapshot_date <= datetime(2021, 4, 20):
+            entries = cls._extract_entries_2(lines)
+        elif snapshot_date <= datetime(2022, 3, 23):
+            entries = cls._extract_entries_3(lines)
+        else:
+            entries = cls._extract_entries_4(lines)
+        return entries
+
+    @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> "MIPSnapshot":
         if not content:
             raise ValueError("Empty content in MIP.")
@@ -99,49 +176,7 @@ class MIPSnapshot(ComplexSerializableType):
         # Parse entries
         table = tables[0].find("tbody")
         lines = table.find_all("tr")
-        if snapshot_date <= datetime(2020, 10, 28):
-            # NIST had a different format of the MIP table before this date, handle it.
-            entries = set()
-            for tr in lines:
-                tds = tr.find_all("td")
-                status = None
-                if "mip-highlight" in tds[-1]["class"]:
-                    status = MIPStatus.FINALIZATION
-                elif "mip-highlight" in tds[-2]["class"]:
-                    status = MIPStatus.COORDINATION
-                elif "mip-highlight" in tds[-3]["class"]:
-                    status = MIPStatus.REVIEW_PENDING
-                elif "mip-highlight" in tds[-4]["class"]:
-                    status = MIPStatus.IN_REVIEW
-                entries.add(
-                    MIPEntry(
-                        str(tds[0].string),
-                        str(tds[1].string),
-                        str(tds[2].string),
-                        status,
-                    )
-                )
-        elif snapshot_date <= datetime(2021, 4, 20):
-            # Yet another format change
-            entries = {
-                MIPEntry(
-                    str(line[0].string),
-                    str(line[1].string),
-                    str(line[2].string),
-                    MIPStatus(str(line[3].string)),
-                )
-                for line in map(lambda tr: tr.find_all("td"), lines)
-            }
-        else:
-            entries = {
-                MIPEntry(
-                    str(line[0].string),
-                    str(" ".join(line[1].find_all(text=True, recursive=False)).strip()),
-                    str(line[2].string),
-                    MIPStatus(str(line[3].string)),
-                )
-                for line in map(lambda tr: tr.find_all("td"), lines)
-            }
+        entries = cls._extract_entries(lines, snapshot_date)
 
         # Parse footer
         footer = soup.find(id="MIPFooter")
