@@ -6,6 +6,7 @@ from flask import Blueprint, url_for
 from pymongo.errors import OperationFailure
 
 from .. import mongo
+from ..common.objformats import load
 from ..common.views import create_graph
 
 fips: Blueprint = Blueprint("fips", __name__, url_prefix="/fips")
@@ -38,13 +39,20 @@ def load_fips_data():
         fips_references = {}
         for cert in data:
             cert = load(cert)
+            refs = []
+            if cert["heuristics"]["st_references"]["directly_referencing"]:
+                refs.extend(cert["heuristics"]["st_references"]["directly_referencing"])
+            if cert["heuristics"]["web_references"]["directly_referencing"]:
+                refs.extend(cert["heuristics"]["web_references"]["directly_referencing"])
             reference = {
                 "hashid": cert["_id"],
                 "name": cert["web_scan"]["module_name"],
-                "refs": cert["heuristics"]["st_references"]["directly_referencing"] if cert["heuristics"]["st_references"]["directly_referencing"] else [],
+                "refs": refs,
                 "href": url_for("fips.entry", hashid=cert["_id"]),
-                "type": fips_types[cert["web_scan"]["module_type"]]["id"] if cert["web_scan"]["module_type"] in fips_types else "",
-                "status": cert["web_scan"]["status"]
+                "type": fips_types[cert["web_scan"]["module_type"]]["id"]
+                if cert["web_scan"]["module_type"] in fips_types
+                else "",
+                "status": cert["web_scan"]["status"],
             }
             fips_references[str(cert["cert_id"])] = reference
 

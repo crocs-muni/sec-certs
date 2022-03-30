@@ -41,7 +41,7 @@ def load_cc_data():
                 "not_valid_before": 1,
                 "heuristics.cert_id": 1,
                 "heuristics.st_references.directly_referencing": 1,
-                "heuristics.report_references.directly_referencing": 1
+                "heuristics.report_references.directly_referencing": 1,
             },
         )
         cc_references = {}
@@ -49,15 +49,20 @@ def load_cc_data():
             cert = load(cert)
             hashid = cert["_id"]
             cert_id = cert["heuristics"]["cert_id"]
+            refs = []
+            if cert["heuristics"]["report_references"]["directly_referencing"]:
+                refs.extend(cert["heuristics"]["report_references"]["directly_referencing"])
+            if cert["heuristics"]["st_references"]["directly_referencing"]:
+                refs.extend(cert["heuristics"]["st_references"]["directly_referencing"])
             if not cert_id:
                 continue
             reference = {
                 "hashid": hashid,
                 "name": cert["name"],
-                "refs": cert["heuristics"]["report_references"]["directly_referencing"] if cert["heuristics"]["report_references"]["directly_referencing"] else [],
+                "refs": refs,
                 "href": url_for("cc.entry", hashid=hashid),
                 "type": cc_categories[cert["category"]]["id"],
-                "status": cert["status"]
+                "status": cert["status"],
             }
             cc_references[cert_id] = reference
 

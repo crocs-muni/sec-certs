@@ -23,7 +23,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
         <script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
         {% assets output="gen/libs.js",
-                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js" %}
+                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
         <!-- Matomo -->

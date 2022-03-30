@@ -1,13 +1,44 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "utils.html.jinja2" import render_network %}
+{% block title %}
+    <title>FIPS 140 reference network | seccerts.org</title>
+{% endblock %}
+{% block head %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ url_for("static", filename="network.js") }}"></script>
+{% endblock %}
 {% block content %}
-    <h1 class="mb-4">FIPS 140</h1>
-    <div class="alert alert-warning d-sm-none" role="alert">
-        <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
-    </div>
-    <div class="border">
-        {{ render_network(url_for(".network_graph"), url_for(".types"), url_for(".status")) }}
-    </div>
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1 class="mb-4">FIPS 140</h1>
+            <div class="alert alert-warning d-sm-none" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <p>The following interactive graph represents the network of FIPS 140 certificate references.
+                        Each node represents a certificate and an edge corresponds to one certificate
+                        referencing the certificate ID of another one. This reference information
+                        is based on a heuristic and is extracted from the certificate website and security policy
+                        document, and thus may contain errors.</p>
+                    <p><b>Zoom out</b> to see the big picture, <b>move nodes</b> around, and <b>filter</b> them using
+                        the controls below.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border">
+            <div id="network"></div>
+        </div>
+        <script>
+            let network = createNetwork('network',
+                '{{ url_for(".network_graph")}}',
+                '{{ url_for(".types") }}',
+                '{{ url_for(".status") }}',
+                [],
+                600,
+                300);
+        </script>
+    </main>
 {% endblock %}

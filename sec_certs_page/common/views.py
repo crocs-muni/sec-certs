@@ -73,7 +73,7 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
             name=value["name"],
             href=value["href"],
             type=value["type"],
-            status=value["status"]
+            status=value["status"],
         )
     for cert_id, reference in references.items():
         for ref_id in set(reference["refs"]):
@@ -99,7 +99,7 @@ def network_graph_func(graphs) -> Response:
         link_data = node_link_data(graph)
         nodes.extend(link_data["nodes"])
         edges.extend(link_data["links"])
-    random.shuffle(nodes)
+    # random.shuffle(nodes)
     network = {"nodes": nodes, "links": edges}
     return send_json_attachment(network)
 
