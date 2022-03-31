@@ -40,4 +40,4 @@ threadpoolctl==3.0.0
 tqdm==4.62.3
 urllib3==1.26.7
 webencodings==0.5.1
-pdftotext=2.2.2
+pdftotext==2.2.2
