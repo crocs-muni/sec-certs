@@ -2,12 +2,16 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "utils.html.jinja2" import render_network, render_cves %}
+{% from "utils.html.jinja2" import render_cves %}
 {% from "common/entry.html.jinja2" import render_local_files %}
 {% block title %}
     <title>
         {{ cert["web_scan"]["module_name"]|default("", true) + " | seccerts.org" }}
     </title>
+{% endblock %}
+{% block head %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ url_for("static", filename="network.js") }}"></script>
 {% endblock %}
 {% block metadata %}
     <meta property="twitter:card" content="summary"/>
@@ -224,12 +228,21 @@
             <div class="mt-5 mb-5">
                 <h2 class="anchor" id="reference-graph">References
                     <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                          data-toggle="tooltip" data-placement="top"
+                          data-bs-toggle="tooltip" data-bs-placement="top"
                           title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
                 </h2>
                 <div class="border">
-                    {{ render_network(url_for('.entry_graph_json', hashid=hashid), url_for(".types"), url_for(".status"), height=400, linkDistance=45, linkCharge=-80, highlight=[hashid]) }}
-                </div>
+                        <div id="network"></div>
+                    </div>
+                    <script>
+                        let network = createNetwork('network',
+                            '{{ url_for(".entry_graph_json", hashid=hashid)}}',
+                            '{{ url_for(".types") }}',
+                            '{{ url_for(".status") }}',
+                            ['{{ hashid }}'],
+                            600,
+                            300);
+                    </script>
             </div>
 
             <div class="mt-5 mb-5">
