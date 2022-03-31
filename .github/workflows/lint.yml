@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install external dependencies
-        run: apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev poppler-utils -y
+        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev poppler-utils -y
       - name: Install python dependencies
         run: pip install -r requirements.txt
       - name: Install mypy and types
