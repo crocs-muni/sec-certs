@@ -202,7 +202,7 @@ def repair_pdf(file: Path) -> None:
 
 def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
     response = subprocess.run(
-        ["pdftotext", "-raw", pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60
+        ["pdftotext", pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60
     ).returncode
     if response == 0:
         return constants.RETURNCODE_OK
