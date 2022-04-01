@@ -55,6 +55,8 @@ def process_new_certs(collection, diff_collection, dset, new_ids, run_id, timest
 def process_updated_certs(collection, diff_collection, dset, updated_ids, run_id, timestamp):  # pragma: no cover
     with sentry_sdk.start_span(op=f"{collection}.db.updated", description="Process updated certs."):
         logger.info(f"Processing {len(updated_ids)} updated certificates.")
+        diffs = 0
+        appearances = 0
         for id in updated_ids:
             # Process an updated cert, it can also be that a "removed" cert reappeared
             working_current_cert = (
@@ -79,6 +81,7 @@ def process_updated_certs(collection, diff_collection, dset, updated_ids, run_id
                         "diff": working_diff.to_storage_format().get(),
                     }
                 )
+                diffs += 1
             elif last_diff and last_diff["type"] == "remove":
                 # The cert did not change but came back from being marked removed
                 mongo.db[diff_collection].insert_one(
@@ -89,6 +92,10 @@ def process_updated_certs(collection, diff_collection, dset, updated_ids, run_id
                         "type": "back",
                     }
                 )
+                appearances += 1
+        logger.info(
+            f"Processed {diffs} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids)-diffs-appearances} unchanged."
+        )
 
 
 def process_removed_certs(collection, diff_collection, dset, removed_ids, run_id, timestamp):  # pragma: no cover

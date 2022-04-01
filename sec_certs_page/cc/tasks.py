@@ -9,9 +9,13 @@ from celery.utils.log import get_task_logger
 from flask import current_app
 from pkg_resources import get_distribution
 from sec_certs.dataset.common_criteria import CCDataset
+from tqdm import tqdm
 
 from .. import celery, mongo
+from ..common.search import get_index
 from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
+from ..common.views import entry_file_path
+from . import cc_categories
 
 logger = get_task_logger(__name__)
 
@@ -21,6 +25,33 @@ def notify(run_id):  # pragma: no cover
     # run = mongo.db.cc_log.find_one({"_id": run_id})
     # diffs = mongo.db.cc_diff.find({"run_id": run_id})
     pass
+
+
+@celery.task(ignore_result=True)
+def reindex_collection(to_reindex):  # pragma: no cover
+    logger.info(f"Reindexing {len(to_reindex)} files.")
+    ix = get_index()
+    writer = ix.writer()
+    for dgst, document in tqdm(to_reindex):
+        fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
+        try:
+            with fpath.open("r") as f:
+                content = f.read()
+        except FileNotFoundError:
+            continue
+        cert = mongo.db.cc.find_one({"_id": dgst})
+        category_id = cc_categories[cert["category"]]["id"]
+        writer.update_document(
+            dgst=dgst,
+            name=cert["name"],
+            document_type=document,
+            cert_schema="cc",
+            category=category_id,
+            status=cert["status"],
+            content=content,
+        )
+    writer.commit()
+    ix.close()
 
 
 @celery.task(ignore_result=True)
@@ -45,6 +76,7 @@ def update_data():  # pragma: no cover
 
     update_result = None
     try:
+        to_reindex = set()
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
             if not current_app.config["CC_SKIP_UPDATE"] or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"):
@@ -59,6 +91,8 @@ def update_data():  # pragma: no cover
                     dset.process_protection_profiles(update_json=False)
                 with sentry_sdk.start_span(op="cc.maintenance_updates", description="Process maintenance updates"):
                     dset.process_maintenance_updates()
+                with sentry_sdk.start_span(op="cc.protection_profiles", description="Process protection profiles"):
+                    dset.process_protection_profiles()
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"):
                     dset.to_json(paths["output_path"])
 
@@ -72,6 +106,7 @@ def update_data():  # pragma: no cover
                         dst = paths["report_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or dst.stat().st_size < cert.state.report_txt_path.stat().st_size:
                             cert.state.report_txt_path.replace(dst)
+                            to_reindex.add((cert.dgst, "report"))
                     if cert.state.st_pdf_path and cert.state.st_pdf_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or dst.stat().st_size < cert.state.st_pdf_path.stat().st_size:
@@ -80,6 +115,7 @@ def update_data():  # pragma: no cover
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or dst.stat().st_size < cert.state.st_txt_path.stat().st_size:
                             cert.state.st_txt_path.replace(dst)
+                            to_reindex.add((cert.dgst, "target"))
         old_ids = set(map(itemgetter("_id"), mongo.db.cc.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
 
@@ -113,7 +149,9 @@ def update_data():  # pragma: no cover
             process_new_certs("cc", "cc_diff", dset, new_ids, update_result.inserted_id, start)
             process_updated_certs("cc", "cc_diff", dset, updated_ids, update_result.inserted_id, start)
             process_removed_certs("cc", "cc_diff", dset, removed_ids, update_result.inserted_id, start)
+
         notify.delay(str(update_result.inserted_id))
+        reindex_collection.delay(list(to_reindex))
     except Exception as e:
         end = datetime.now()
         result = {

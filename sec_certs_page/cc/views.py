@@ -1,6 +1,7 @@
 """Common Criteria views."""
-
+import operator
 import random
+from functools import reduce
 from operator import itemgetter
 from pathlib import Path
 
@@ -12,9 +13,11 @@ from flask_cachecontrol import cache_for
 from networkx import node_link_data
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
+from whoosh.qparser import QueryParser, query
 
 from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
+from ..common.search import get_index, index_schema
 from ..common.views import (
     Pagination,
     entry_download_files,
@@ -22,10 +25,11 @@ from ..common.views import (
     entry_download_report_txt,
     entry_download_target_pdf,
     entry_download_target_txt,
+    entry_file_path,
     network_graph_func,
     send_json_attachment,
 )
-from . import cc, cc_status, cc_categories, cc_sars, cc_sfrs, get_cc_analysis, get_cc_graphs, get_cc_map
+from . import cc, cc_categories, cc_sars, cc_sfrs, cc_status, get_cc_analysis, get_cc_graphs, get_cc_map
 
 
 @cc.app_template_global("get_cc_sar")
@@ -207,6 +211,103 @@ def search():
         "cc/search.html.jinja2",
         **res,
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | seccerts.org",
+    )
+
+
+@cc.route("/ftsearch/")
+@register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
+def fulltext_search():
+    categories = cc_categories.copy()
+    try:
+        page = int(request.args.get("page", 1))
+    except ValueError:
+        raise BadRequest(description="Invalid page number.")
+    q = request.args.get("q", None)
+    cat = request.args.get("cat", None)
+    q_filter = query.Term("cert_schema", "cc")
+    if cat is not None:
+        cat_terms = []
+        for name, category in categories.items():
+            if category["id"] in cat:
+                cat_terms.append(query.Term("category", category["id"]))
+                category["selected"] = True
+            else:
+                category["selected"] = False
+        q_filter &= reduce(operator.or_, cat_terms)
+    else:
+        for category in categories.values():
+            category["selected"] = True
+
+    type = request.args.get("type", "any")
+    if type not in ("any", "report", "target"):
+        raise BadRequest(description="Invalid type.")
+    if type != "any":
+        q_filter &= query.Term("document_type", type)
+
+    status = request.args.get("status", "any")
+    if status not in ("any", "active", "archived"):
+        raise BadRequest(description="Invalid status.")
+    if status != "any":
+        q_filter &= query.Term("status", status)
+
+    if q is None:
+        return render_template(
+            "cc/fulltext_search.html.jinja2",
+            categories=categories,
+            status=status,
+            document_type=type,
+            results=[],
+            pagination=None,
+            q=q,
+        )
+
+    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+
+    parser = QueryParser("content", schema=index_schema)
+    qr = parser.parse(q)
+    ix = get_index()
+    results = []
+    with ix.searcher() as searcher:
+        res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
+        runtime = res.results.runtime
+        # print("total", res.total)
+        # print("len", len(res))
+        # print("scored", res.scored_length())
+        # print("filtered", res.results.filtered_count)
+        count = len(res)
+        for hit in res:
+            dgst = hit["dgst"]
+            cert = mongo.db.cc.find_one({"_id": dgst})
+            entry = {"hit": hit, "cert": cert}
+            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], hit["document_type"], "txt")
+            try:
+                with open(fpath) as f:
+                    contents = f.read()
+                hlt = hit.highlights("content", text=contents)
+                entry["highlights"] = hlt
+            except FileNotFoundError:
+                pass
+            results.append(entry)
+    ix.close()
+
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        search=True,
+        found=count,
+        total=mongo.db.cc.count_documents({}),
+        css_framework="bootstrap5",
+        alignment="center",
+    )
+    return render_template(
+        "cc/fulltext_search.html.jinja2",
+        q=q,
+        results=results,
+        categories=categories,
+        status=status,
+        pagination=pagination,
+        document_type=type,
+        runtime=runtime,
     )
 
 

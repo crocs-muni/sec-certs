@@ -11,12 +11,23 @@ from pkg_resources import get_distribution
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
+from tqdm import tqdm
 
 from .. import celery, mongo
 from ..common.objformats import ObjFormat
+from ..common.search import get_index
 from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
+from ..common.views import entry_file_path
+from . import fips_types
 
 logger = get_task_logger(__name__)
+
+
+@celery.task(ignore_result=True)
+def notify(run_id):  # pragma: no cover
+    # run = mongo.db.fips_log.find_one({"_id": run_id})
+    # diffs = mongo.db.fips_diff.find({"run_id": run_id})
+    pass
 
 
 @celery.task(ignore_result=True)
@@ -31,6 +42,33 @@ def update_mip_data():  # pragma: no cover
     snapshot = MIPSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
     mongo.db.fips_mip.insert_one(snap_data)
+
+
+@celery.task(ignore_result=True)
+def reindex_collection(to_reindex):  # pragma: no cover
+    logger.info(f"Reindexing {len(to_reindex)} files.")
+    ix = get_index()
+    writer = ix.writer()
+    for dgst, document in tqdm(to_reindex):
+        fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_FIPS_DIR"], document, "txt")
+        try:
+            with fpath.open("r") as f:
+                content = f.read()
+        except FileNotFoundError:
+            continue
+        cert = mongo.db.fips.find_one({"_id": dgst})
+        category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
+        writer.update_document(
+            dgst=dgst,
+            name=cert["web_scan"]["module_name"],
+            document_type=document,
+            cert_schema="fips",
+            category=category_id,
+            status=cert["web_scan"]["status"],
+            content=content,
+        )
+    writer.commit()
+    ix.close()
 
 
 @celery.task(ignore_result=True)
@@ -56,6 +94,7 @@ def update_data():  # pragma: no cover
 
     update_result = None
     try:
+        to_reindex = set()
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
             if not skip_update:
                 with sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"):
@@ -84,6 +123,7 @@ def update_data():  # pragma: no cover
                             txt_dst = paths["target_txt"] / f"{cert.dgst}.txt"
                             if not txt_dst.exists() or txt_dst.stat().st_size < txt_path.stat().st_size:
                                 txt_path.replace(txt_dst)
+                                to_reindex.add((cert.dgst, "target"))
 
         old_ids = set(map(itemgetter("_id"), mongo.db.fips.find({}, projection={"_id": 1})))
         current_ids = set(dset.certs.keys())
@@ -117,6 +157,9 @@ def update_data():  # pragma: no cover
             process_new_certs("fips", "fips_diff", dset, new_ids, update_result.inserted_id, start)
             process_updated_certs("fips", "fips_diff", dset, updated_ids, update_result.inserted_id, start)
             process_removed_certs("fips", "fips_diff", dset, removed_ids, update_result.inserted_id, start)
+
+        notify.delay(str(update_result.inserted_id))
+        reindex_collection.delay(list(to_reindex))
     except Exception as e:
         end = datetime.now()
         result = {

@@ -46,6 +46,9 @@ CELERY_RESULT_BACKEND = REDIS_BASE + "1"
 CACHE_TYPE = "RedisCache"
 CACHE_REDIS_URL = REDIS_BASE + "2"
 
+# WHOOSH
+WHOOSH_INDEX_PATH = "search"
+
 # The way the Common Criteria certificate reference graphs are built.
 # Can be "BOTH" to collect the references from both certificate documents and security targets,
 # or "CERT_ONLY" for collecting references from certs only,

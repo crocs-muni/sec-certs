@@ -26,7 +26,7 @@
 
 [aria-expanded="false"] .fa-chevron-up,
 [aria-expanded="true"] .fa-chevron-down {
-    display:none;
+    display: none;
 }
 
 #feedback {
@@ -61,7 +61,7 @@
     margin-right: -3.9rem;
     padding-left: 1rem;
     padding-right: 1rem;
-    border-radius: 0 0 0.25rem  0.25rem ;
+    border-radius: 0 0 0.25rem 0.25rem;
     background-color: #6c757d;
     transform: rotate(90deg);
 }
@@ -138,6 +138,11 @@
     border-radius: 0.5em;
     border: 1px solid rgba(0, 0, 0, 0.2);
     background-color: rgba(0, 0, 0, .03)
+}
+
+#search-categories div {
+    display: flex;
+    flex-direction: column;
 }
 
 /*tr:nth-child(even) {
