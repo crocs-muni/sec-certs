@@ -73,6 +73,14 @@
 	{% endif %}
 {%- endmacro %}
 
+{% macro render_document_type(document_type) %}
+    {% if document_type == "report" %}
+        <span>Certification Report</span>
+    {% elif document_type == "target" %}
+        <span>Security Policy</span>
+    {% endif %}
+{%- endmacro %}
+
 {% macro render_type(name) %}
     <span title="{{ name }}">
         {% set ftype = get_fips_type(name) %}

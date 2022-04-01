@@ -1,7 +1,7 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type %}
+{% from "fips/utils.html.jinja2" import render_status, render_type, render_document_type %}
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
@@ -30,7 +30,7 @@
                         <button id="cat-deselect-all" class="btn btn-outline-primary">Deselect all</button>
                         <div id="search-categories" class="row">
                             {% for name, val in categories.items() %}
-                                {% if loop.index0 % 5 == 0 %}
+                                {% if loop.index0 % 3 == 0 %}
                                     <div class="col">
                                 {% endif %}
                             <div class="form-check">
@@ -42,7 +42,7 @@
                                         </label>
                                     </span>
                             </div>
-                            {% if (loop.index0 + 1) % 5 == 0 %}
+                            {% if (loop.index0 + 1) % 3 == 0 %}
                                 </div>
                             {% endif %}
                             {% endfor %}
@@ -51,12 +51,15 @@
                     <div class="mt-3 mb-3">
                         <h4><label for="search-status">Status</label></h4>
                         <select id="search-status" class="form-control">
-                            <option value="any" {% if status == "any" %}selected="selected"{% endif %}>Any</option>
-                            <option value="active" class="text-success"
+                            <option value="Any" {% if status == "Any" %}selected="selected"{% endif %}>Any</option>
+                            <option value="Active" class="text-success"
                                     {% if status == "active" %}selected="selected"{% endif %}>Active
                             </option>
-                            <option value="archived" class="text-warning"
-                                    {% if status == "archived" %}selected="selected"{% endif %}>Archived
+                            <option value="Historical" class="text-warning"
+                                    {% if status == "Historical" %}selected="selected"{% endif %}>Historical
+                            </option>
+                            <option value="Revoked" class="text-danger"
+                                    {% if status == "Revoked" %}selected="selected"{% endif %}>Revoked
                             </option>
                         </select>
                     </div>
@@ -69,7 +72,7 @@
                                 Certification Report
                             </option>
                             <option value="target" {% if document_type == "target" %}selected="selected"{% endif %}>
-                                Security Target
+                                Security Policy
                             </option>
                         </select>
                     </div>
@@ -103,7 +106,7 @@
             <div id="pagination">
                 {% if pagination %}
                     <div style="text-align: center">
-                    Took {{ "{:.3}".format(runtime) }} seconds
+                        Took {{ "{:.3}".format(runtime) }} seconds
                         {{ pagination.info }}
                     </div>
                     <div class="mt-4 mb-4">
@@ -116,7 +119,7 @@
                         <table class="table table-bordered table-striped">
                             <tbody>
                             <tr>
-                                <td class="pl-1">{{ render_category(result["cert"]["category"]) }}&nbsp;{{ idd }}</td>
+                                <td class="pl-1">{{ render_type(result["cert"]["category"]) }}&nbsp;{{ idd }}</td>
                                 <td>
                                     <a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}">{{ result["hit"]["name"] }}</a>
                                 </td>
