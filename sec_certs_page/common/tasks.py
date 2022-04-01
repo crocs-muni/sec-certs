@@ -1,3 +1,4 @@
+from functools import wraps
 from itertools import product
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from flask import current_app
 from jsondiff import diff
 from pymongo import DESCENDING
 
-from .. import mongo
+from .. import mongo, redis
 from .objformats import ObjFormat, StorageFormat, WorkingFormat
 
 logger = get_task_logger(__name__)
@@ -94,7 +95,7 @@ def process_updated_certs(collection, diff_collection, dset, updated_ids, run_id
                 )
                 appearances += 1
         logger.info(
-            f"Processed {diffs} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids)-diffs-appearances} unchanged."
+            f"Processed {diffs} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids) - diffs - appearances} unchanged."
         )
 
 
@@ -115,3 +116,19 @@ def process_removed_certs(collection, diff_collection, dset, removed_ids, run_id
                     "type": "remove",
                 }
             )
+
+
+def no_simultaneous_execution(lock_name):
+    def deco(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            lock = redis.lock(lock_name, sleep=1, timeout=3600 * 8)
+            lock.acquire()
+            try:
+                return f(*args, **kwargs)
+            finally:
+                lock.release()
+
+        return wrapper
+
+    return deco

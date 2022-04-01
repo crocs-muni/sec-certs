@@ -13,7 +13,13 @@ from tqdm import tqdm
 
 from .. import celery, mongo
 from ..common.search import get_index
-from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
+from ..common.tasks import (
+    make_dataset_paths,
+    no_simultaneous_execution,
+    process_new_certs,
+    process_removed_certs,
+    process_updated_certs,
+)
 from ..common.views import entry_file_path
 from . import cc_categories
 
@@ -28,6 +34,7 @@ def notify(run_id):  # pragma: no cover
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     logger.info(f"Reindexing {len(to_reindex)} files.")
     ix = get_index()
