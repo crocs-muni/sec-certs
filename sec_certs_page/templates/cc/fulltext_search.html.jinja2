@@ -103,7 +103,7 @@
             <div id="pagination">
                 {% if pagination %}
                     <div style="text-align: center">
-                    Took {{ "{:.3}".format(runtime) }} seconds
+                        Took {{ "{:.3}".format(runtime) }} seconds
                         {{ pagination.info }}
                     </div>
                     <div class="mt-4 mb-4">
@@ -112,9 +112,15 @@
                 {% endif %}
                 {% for result in results %}
                     {% set idd = result["cert"]["heuristics"]["cert_id"]|default("", true) %}
-                    <div class="my-3">
-                        <table class="table table-bordered table-striped">
-                            <tbody>
+                    <div class="my-5">
+                        <table class="table table-bordered table-light table-responsive">
+                            <colgroup>
+                                <col style="width:20%">
+                                <col style="width:60%">
+                                <col style="width:10%">
+                                <col style="width:10%">
+                            </colgroup>
+                            <thead style="border-top-color: #dfe0e1">
                             <tr>
                                 <td class="pl-1">{{ render_category(result["cert"]["category"]) }}&nbsp;{{ idd }}</td>
                                 <td>
@@ -123,6 +129,8 @@
                                 <td>{{ render_document_type(result["hit"]["document_type"]) }}</td>
                                 <td>{{ render_status(result["hit"]["status"]) }}</td>
                             </tr>
+                            </thead>
+                            <tbody style="border-top-color: #dfe0e1">
                             {% if "highlights" in result %}
                                 <tr>
                                     <td colspan="4">

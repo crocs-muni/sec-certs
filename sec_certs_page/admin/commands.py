@@ -74,14 +74,6 @@ def init_collections():  # pragma: no cover
 
 @app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
 def index_collections():
-    click.echo("Getting index...")
-    try:
-        ix = get_index()
-    except EmptyIndexError:
-        click.echo("Index not found, creating it...")
-        ix = create_index()
-    ix.close()
-
     click.echo("Building CC entries to index...")
     cc_entries = []
     for id in tqdm(mongo.db.cc.find({}, {"_id": 1})):

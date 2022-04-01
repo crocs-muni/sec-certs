@@ -20,7 +20,7 @@
                                    value="{{ q|default('', true) }}"/>
                             <button id="search-btn" class="btn btn-primary">Search</button>
                         </div>
-                        <small class="text-muted">Search certificate reports and security targets.
+                        <small class="text-muted">Search certificate reports and security policies.
                             Supports the <a href="https://whoosh.readthedocs.io/en/latest/querylang.html"
                                             target="_blank" rel="noopener">Whoosh query language</a>.</small>
                     </div>
@@ -114,18 +114,26 @@
                     </div>
                 {% endif %}
                 {% for result in results %}
-                    {% set idd = result["cert"]["heuristics"]["cert_id"]|default("", true) %}
-                    <div class="my-3">
-                        <table class="table table-bordered table-striped">
-                            <tbody>
+                    {% set idd = result["cert"]["cert_id"]|default("", true) %}
+                    <div class="my-5">
+                        <table class="table table-bordered table-light table-responsive">
+                            <colgroup>
+                                <col style="width:10%">
+                                <col style="width:70%">
+                                <col style="width:10%">
+                                <col style="width:10%">
+                            </colgroup>
+                            <thead style="border-top-color: #dfe0e1">
                             <tr>
-                                <td class="pl-1">{{ render_type(result["cert"]["category"]) }}&nbsp;{{ idd }}</td>
+                                <td class="pl-1">{{ render_type(result["cert"]["web_scan"]["module_type"]) }}&nbsp;#{{ idd }}</td>
                                 <td>
                                     <a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}">{{ result["hit"]["name"] }}</a>
                                 </td>
                                 <td>{{ render_document_type(result["hit"]["document_type"]) }}</td>
                                 <td>{{ render_status(result["hit"]["status"]) }}</td>
                             </tr>
+                            </thead>
+                            <tbody style="border-top-color: #dfe0e1">
                             {% if "highlights" in result %}
                                 <tr>
                                     <td colspan="4">

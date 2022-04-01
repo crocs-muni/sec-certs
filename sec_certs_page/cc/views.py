@@ -13,11 +13,12 @@ from flask_cachecontrol import cache_for
 from networkx import node_link_data
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
+from whoosh import highlight
 from whoosh.qparser import QueryParser, query
 
 from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
-from ..common.search import get_index, index_schema
+from ..common.search import index_schema
 from ..common.views import (
     Pagination,
     entry_download_files,
@@ -29,7 +30,17 @@ from ..common.views import (
     network_graph_func,
     send_json_attachment,
 )
-from . import cc, cc_categories, cc_sars, cc_sfrs, cc_status, get_cc_analysis, get_cc_graphs, get_cc_map
+from . import (
+    cc,
+    cc_categories,
+    cc_sars,
+    cc_sfrs,
+    cc_status,
+    get_cc_analysis,
+    get_cc_graphs,
+    get_cc_map,
+    get_cc_searcher,
+)
 
 
 @cc.app_template_global("get_cc_sar")
@@ -149,8 +160,9 @@ def select_certs(q, cat, status, sort):
     if status is not None and status != "any":
         query["status"] = status
 
-    cursor = mongo.db.cc.find(query, projection)
-    count = mongo.db.cc.count_documents(query)
+    with sentry_sdk.start_span(op="mongo", description="Find certs."):
+        cursor = mongo.db.cc.find(query, projection)
+        count = mongo.db.cc.count_documents(query)
 
     if sort == "match" and q is not None and q != "":
         cursor.sort([("score", {"$meta": "textScore"}), ("name", pymongo.ASCENDING)])
@@ -265,16 +277,23 @@ def fulltext_search():
 
     parser = QueryParser("content", schema=index_schema)
     qr = parser.parse(q)
-    ix = get_index()
     results = []
-    with ix.searcher() as searcher:
+    searcher = get_cc_searcher()
+    with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
         res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
-        runtime = res.results.runtime
-        # print("total", res.total)
-        # print("len", len(res))
-        # print("scored", res.scored_length())
-        # print("filtered", res.results.filtered_count)
-        count = len(res)
+    res.results.fragmenter.charlimit = None
+    res.results.fragmenter.maxchars = 300
+    res.results.fragmenter.surround = 40
+    res.results.order = highlight.SCORE
+    hf = highlight.HtmlFormatter(between="<br/>")
+    res.results.formatter = hf
+    runtime = res.results.runtime
+    # print("total", res.total)
+    # print("len", len(res))
+    # print("scored", res.scored_length())
+    # print("filtered", res.results.filtered_count)
+    count = len(res) - res.results.filtered_count
+    with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
         for hit in res:
             dgst = hit["dgst"]
             cert = mongo.db.cc.find_one({"_id": dgst})
@@ -288,7 +307,6 @@ def fulltext_search():
             except FileNotFoundError:
                 pass
             results.append(entry)
-    ix.close()
 
     pagination = Pagination(
         page=page,

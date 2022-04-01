@@ -13,6 +13,7 @@ from flask_breadcrumbs import register_breadcrumb
 from networkx import node_link_data
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
+from whoosh import highlight
 from whoosh.qparser import QueryParser, query
 
 from .. import cache, mongo, sitemap
@@ -27,7 +28,7 @@ from ..common.views import (
     network_graph_func,
     send_json_attachment,
 )
-from . import fips, fips_status, fips_types, get_fips_graphs, get_fips_map
+from . import fips, fips_status, fips_types, get_fips_graphs, get_fips_map, get_fips_searcher
 
 
 @fips.app_template_global("get_fips_type")
@@ -126,8 +127,9 @@ def select_certs(q, cat, status, sort):
     if status is not None and status != "Any":
         query["web_scan.status"] = status
 
-    cursor = mongo.db.fips.find(query, projection)
-    count = mongo.db.fips.count_documents(query)
+    with sentry_sdk.start_span(op="mongo", description="Find certs."):
+        cursor = mongo.db.fips.find(query, projection)
+        count = mongo.db.fips.count_documents(query)
 
     if sort == "match" and q is not None and q != "":
         cursor.sort(
@@ -253,16 +255,23 @@ def fulltext_search():
 
     parser = QueryParser("content", schema=index_schema)
     qr = parser.parse(q)
-    ix = get_index()
     results = []
-    with ix.searcher() as searcher:
+    searcher = get_fips_searcher()
+    with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
         res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
-        runtime = res.results.runtime
-        # print("total", res.total)
-        # print("len", len(res))
-        # print("scored", res.scored_length())
-        # print("filtered", res.results.filtered_count)
-        count = len(res)
+    res.results.fragmenter.charlimit = None
+    res.results.fragmenter.maxchars = 300
+    res.results.fragmenter.surround = 40
+    res.results.order = highlight.SCORE
+    hf = highlight.HtmlFormatter(between="<br/>")
+    res.results.formatter = hf
+    runtime = res.results.runtime
+    # print("total", res.total)
+    # print("len", len(res))
+    # print("scored", res.scored_length())
+    # print("filtered", res.results.filtered_count)
+    count = len(res) - res.results.filtered_count
+    with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
         for hit in res:
             dgst = hit["dgst"]
             cert = mongo.db.fips.find_one({"_id": dgst})
@@ -276,7 +285,6 @@ def fulltext_search():
             except FileNotFoundError:
                 pass
             results.append(entry)
-    ix.close()
 
     pagination = Pagination(
         page=page,

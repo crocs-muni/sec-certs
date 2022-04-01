@@ -5,7 +5,7 @@ import sentry_sdk
 from flask import Blueprint, url_for
 from pymongo.errors import OperationFailure
 
-from .. import mongo
+from .. import mongo, whoosh_index
 from ..common.objformats import load
 from ..common.views import create_graph
 
@@ -20,6 +20,9 @@ with fips.open_resource("types.json") as f:
     fips_types = json.load(f)
 with fips.open_resource("status.json") as f:
     fips_status = json.load(f)
+
+
+fips_searcher: ContextVar = ContextVar("fips_searcher")
 
 
 def load_fips_data():
@@ -90,6 +93,16 @@ def get_fips_graphs():
 def get_fips_map():
     _update_fips_data()
     return fips_mem_map.get()
+
+
+def get_fips_searcher():
+    try:
+        searcher = fips_searcher.get()
+        searcher = searcher.refresh()
+    except LookupError:
+        searcher = whoosh_index.searcher()
+    fips_searcher.set(searcher)
+    return searcher
 
 
 from .commands import *

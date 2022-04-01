@@ -25,6 +25,9 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
+from whoosh.index import EmptyIndexError, Index
+
+from .common.search import create_index, get_index
 
 app: Flask = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -112,6 +115,14 @@ public(breadcrumbs=breadcrumbs)
 
 sitemap: Sitemap = Sitemap(app)
 public(sitemap=sitemap)
+
+whoosh_index: Index
+with app.app_context():
+    try:
+        whoosh_index = get_index()
+    except EmptyIndexError:
+        whoosh_index = create_index()
+public(whoosh_index=whoosh_index)
 
 
 @app.before_request
