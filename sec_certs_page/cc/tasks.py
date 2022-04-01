@@ -9,7 +9,7 @@ from celery.utils.log import get_task_logger
 from flask import current_app
 from pkg_resources import get_distribution
 from sec_certs.dataset.common_criteria import CCDataset
-from tqdm import tqdm
+from sec_certs.helpers import tqdm
 
 from .. import celery, mongo
 from ..common.search import get_index

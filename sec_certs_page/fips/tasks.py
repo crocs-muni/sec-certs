@@ -11,7 +11,7 @@ from pkg_resources import get_distribution
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
-from tqdm import tqdm
+from sec_certs.helpers import tqdm
 
 from .. import celery, mongo
 from ..common.objformats import ObjFormat
