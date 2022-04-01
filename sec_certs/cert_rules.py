@@ -12,7 +12,7 @@ rules_cert_id = [
     "BSI-DSZ-CC-[0-9]+-[0-9][0-9][0-9][0-9]",  # German BSI (number + year, no version)
     "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)",  # German BSI (number + version but no year => no - after version)
     # 'CC-Zert-.+?',
-    "ANSSI(?:-|-CC-)[0-9]+?/[0-9]+",  # French
+    "ANSSI(?:-|-CC-)[0-9]+?/[0-9]+(v[1-9])?",  # French
     "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9][0-9]+(?!-M|-S)",  # French (/two or more digits then NOT -M or -S)
     "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+[_/-]M[0-9]+",  # French, maintenance report (ANSSI-CC-2014_46_M01)
     "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+[_/-]S[0-9]+",  # French, surveillance report (ANSSI-CC-2012/70-S01)
@@ -52,7 +52,6 @@ rules_cert_id = [
     # will miss STQC/CC/14-15/12/ETR/0017
     "(?:IC3S|STQC/CC)/[^ ]+?/CR ",  # must end with CR, no space inside
     "CSA_CC_[0-9]+",  # Singapure (CSA_CC_19001)
-    "BTBD-.+?",  # Turkis CCCS
     "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*",  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
 ]
 
