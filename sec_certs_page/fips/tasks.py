@@ -11,12 +11,14 @@ from pkg_resources import get_distribution
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
+from tqdm import tqdm
 
 from .. import celery, mongo
 from ..common.objformats import ObjFormat
 from ..common.search import get_index
 from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
 from ..common.views import entry_file_path
+from . import fips_types
 
 logger = get_task_logger(__name__)
 
@@ -47,16 +49,23 @@ def reindex_collection(to_reindex):  # pragma: no cover
     logger.info(f"Reindexing {len(to_reindex)} files.")
     ix = get_index()
     writer = ix.writer()
-    for dgst, document in to_reindex:
+    for dgst, document in tqdm(to_reindex):
         fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_FIPS_DIR"], document, "txt")
         try:
             with fpath.open("r") as f:
                 content = f.read()
         except FileNotFoundError:
             continue
-        cert = mongo.db.cc.find_one({"_id": dgst})
+        cert = mongo.db.fips.find_one({"_id": dgst})
+        category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
         writer.update_document(
-            dgst=dgst, name=cert["web_scan"]["module_name"], type=document, cert_schema="fips", content=content
+            dgst=dgst,
+            name=cert["web_scan"]["module_name"],
+            document_type=document,
+            cert_schema="fips",
+            category=category_id,
+            status=cert["web_scan"]["status"],
+            content=content,
         )
     writer.commit()
     ix.close()

@@ -1,14 +1,18 @@
 from pathlib import Path
 
 from flask import current_app
-from whoosh.fields import ID, STORED, TEXT, Schema
+from whoosh.fields import ID, KEYWORD, TEXT, Schema
 from whoosh.index import Index, create_in, open_dir
 
 index_schema = Schema(
-    dgst=ID(stored=True),  # The certificate dgst
+    dgst=ID(stored=True, unique=True),  # The certificate dgst
     name=TEXT(stored=True),  # The certificate name
-    type=STORED,  # The type of document (one of "report", "target")
-    cert_schema=STORED,  # The certification scheme (one of "cc", "fips", maybe "pp" in the future)
+    document_type=KEYWORD(stored=True, unique=True),  # The type of document (one of "report", "target")
+    cert_schema=KEYWORD(
+        stored=True, unique=True
+    ),  # The certification scheme (one of "cc", "fips", maybe "pp" in the future)
+    category=KEYWORD(stored=True),
+    status=KEYWORD(stored=True),
     content=TEXT,  # The document content
 )
 

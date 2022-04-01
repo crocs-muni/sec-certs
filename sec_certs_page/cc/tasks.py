@@ -9,11 +9,13 @@ from celery.utils.log import get_task_logger
 from flask import current_app
 from pkg_resources import get_distribution
 from sec_certs.dataset.common_criteria import CCDataset
+from tqdm import tqdm
 
 from .. import celery, mongo
 from ..common.search import get_index
 from ..common.tasks import make_dataset_paths, process_new_certs, process_removed_certs, process_updated_certs
 from ..common.views import entry_file_path
+from . import cc_categories
 
 logger = get_task_logger(__name__)
 
@@ -30,7 +32,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
     logger.info(f"Reindexing {len(to_reindex)} files.")
     ix = get_index()
     writer = ix.writer()
-    for dgst, document in to_reindex:
+    for dgst, document in tqdm(to_reindex):
         fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
         try:
             with fpath.open("r") as f:
@@ -38,7 +40,16 @@ def reindex_collection(to_reindex):  # pragma: no cover
         except FileNotFoundError:
             continue
         cert = mongo.db.cc.find_one({"_id": dgst})
-        writer.update_document(dgst=dgst, name=cert["name"], type=document, cert_schema="cc", content=content)
+        category_id = cc_categories[cert["category"]]["id"]
+        writer.update_document(
+            dgst=dgst,
+            name=cert["name"],
+            document_type=document,
+            cert_schema="cc",
+            category=category_id,
+            status=cert["status"],
+            content=content,
+        )
     writer.commit()
     ix.close()
 

@@ -128,6 +128,14 @@
     {% endif %}
 {%- endmacro %}
 
+{% macro render_document_type(document_type) %}
+    {% if document_type == "report" %}
+        <span>Certification Report</span>
+    {% elif document_type == "target" %}
+        <span>Security Target</span>
+    {% endif %}
+{%- endmacro %}
+
 {% macro render_category(category) %}
     <span title="{{ category }}">
     {% set cat = get_cc_category(category) %}

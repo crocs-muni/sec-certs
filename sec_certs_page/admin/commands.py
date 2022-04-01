@@ -85,12 +85,12 @@ def index_collections():
     click.echo("Building CC entries to index...")
     cc_entries = []
     for id in tqdm(mongo.db.cc.find({}, {"_id": 1})):
-        cc_entries.append((id, "report"))
-        cc_entries.append((id, "target"))
+        cc_entries.append((id["_id"], "report"))
+        cc_entries.append((id["_id"], "target"))
     click.echo("Indexing CC entries...")
     reindex_cc(cc_entries)
 
     click.echo("Building FIPS entries to index...")
-    fips_entries = [(id, "target") for id in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
+    fips_entries = [(id["_id"], "target") for id in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
     click.echo("Indexing FIPS entries...")
     reindex_fips(fips_entries)
