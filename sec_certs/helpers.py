@@ -3,6 +3,7 @@ import html
 import logging
 import os
 import re
+import subprocess
 import time
 from datetime import date, datetime
 from enum import Enum
@@ -13,7 +14,8 @@ from typing import Any, Dict, Generator, Hashable, Iterator, List, Optional, Seq
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pdftotext
+
+# import pdftotext
 import pikepdf
 import requests
 from PyPDF2 import PdfFileReader
@@ -199,18 +201,25 @@ def repair_pdf(file: Path) -> None:
 
 
 def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
-    try:
-        with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)
-            txt = "".join(pdf)
-    except Exception as e:
-        logger.error(f"Error when converting pdf->txt: {e}")
+    response = subprocess.run(
+        ["pdftotext", "-raw", pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60
+    ).returncode
+    if response == 0:
+        return constants.RETURNCODE_OK
+    else:
         return constants.RETURNCODE_NOK
+    # try:
+    #     with pdf_path.open("rb") as pdf_handle:
+    #         pdf = pdftotext.PDF(pdf_handle, "", True)
+    #         txt = "".join(pdf)
+    # except Exception as e:
+    #     logger.error(f"Error when converting pdf->txt: {e}")
+    #     return constants.RETURNCODE_NOK
 
-    with txt_path.open("w", encoding="utf-8") as txt_handle:
-        txt_handle.write(txt)
+    # with txt_path.open("w", encoding="utf-8") as txt_handle:
+    #     txt_handle.write(txt)
 
-    return constants.RETURNCODE_OK
+    # return constants.RETURNCODE_OK
 
 
 def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
