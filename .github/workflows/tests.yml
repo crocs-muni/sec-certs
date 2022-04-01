@@ -22,4 +22,4 @@ jobs:
           pip install pytest-cov
           pip install ".[dev,test]"
       - name: Run tests
-        run: pytest --cov sec_certs
+        run: pytest --cov=sec_certs tests
