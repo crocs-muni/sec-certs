@@ -11,7 +11,7 @@ from pkg_resources import get_distribution
 from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.helpers import tqdm
 
-from .. import celery, mongo
+from .. import celery, mongo, whoosh_index
 from ..common.search import get_index
 from ..common.tasks import (
     make_dataset_paths,
@@ -37,28 +37,25 @@ def notify(run_id):  # pragma: no cover
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     logger.info(f"Reindexing {len(to_reindex)} files.")
-    ix = get_index()
-    writer = ix.writer()
-    for dgst, document in tqdm(to_reindex):
-        fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
-        try:
-            with fpath.open("r") as f:
-                content = f.read()
-        except FileNotFoundError:
-            continue
-        cert = mongo.db.cc.find_one({"_id": dgst})
-        category_id = cc_categories[cert["category"]]["id"]
-        writer.update_document(
-            dgst=dgst,
-            name=cert["name"],
-            document_type=document,
-            cert_schema="cc",
-            category=category_id,
-            status=cert["status"],
-            content=content,
-        )
-    writer.commit()
-    ix.close()
+    with whoosh_index.writer() as writer:
+        for dgst, document in tqdm(to_reindex):
+            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
+            try:
+                with fpath.open("r") as f:
+                    content = f.read()
+            except FileNotFoundError:
+                continue
+            cert = mongo.db.cc.find_one({"_id": dgst})
+            category_id = cc_categories[cert["category"]]["id"]
+            writer.update_document(
+                dgst=dgst,
+                name=cert["name"],
+                document_type=document,
+                cert_schema="cc",
+                category=category_id,
+                status=cert["status"],
+                content=content,
+            )
 
 
 @celery.task(ignore_result=True)

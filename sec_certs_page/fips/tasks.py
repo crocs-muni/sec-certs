@@ -9,11 +9,11 @@ from celery.utils.log import get_task_logger
 from flask import current_app
 from pkg_resources import get_distribution
 from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.helpers import tqdm
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
-from sec_certs.helpers import tqdm
 
-from .. import celery, mongo
+from .. import celery, mongo, whoosh_index
 from ..common.objformats import ObjFormat
 from ..common.search import get_index
 from ..common.tasks import (
@@ -54,28 +54,25 @@ def update_mip_data():  # pragma: no cover
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     logger.info(f"Reindexing {len(to_reindex)} files.")
-    ix = get_index()
-    writer = ix.writer()
-    for dgst, document in tqdm(to_reindex):
-        fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_FIPS_DIR"], document, "txt")
-        try:
-            with fpath.open("r") as f:
-                content = f.read()
-        except FileNotFoundError:
-            continue
-        cert = mongo.db.fips.find_one({"_id": dgst})
-        category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
-        writer.update_document(
-            dgst=dgst,
-            name=cert["web_scan"]["module_name"],
-            document_type=document,
-            cert_schema="fips",
-            category=category_id,
-            status=cert["web_scan"]["status"],
-            content=content,
-        )
-    writer.commit()
-    ix.close()
+    with whoosh_index.writer() as writer:
+        for dgst, document in tqdm(to_reindex):
+            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_FIPS_DIR"], document, "txt")
+            try:
+                with fpath.open("r") as f:
+                    content = f.read()
+            except FileNotFoundError:
+                continue
+            cert = mongo.db.fips.find_one({"_id": dgst})
+            category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
+            writer.update_document(
+                dgst=dgst,
+                name=cert["web_scan"]["module_name"],
+                document_type=document,
+                cert_schema="fips",
+                category=category_id,
+                status=cert["web_scan"]["status"],
+                content=content,
+            )
 
 
 @celery.task(ignore_result=True)
