@@ -19,6 +19,7 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
+from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -685,8 +686,13 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             cert.compute_heuristics_cert_id(self.all_cert_ids)
 
     def _compute_dependency_vulnerabilities(self):
-        for cert in self:
-            cert.find_certificate_dependency_vulnerabilities(self)
+        cve_dependency_finder = DependencyVulnerabilityFinder(self.certs)
+        cve_dependency_finder.fit()
+
+        for dgst in self.certs:
+            dependency_cve = cve_dependency_finder.get_dependency_cve(dgst)
+            self.certs[dgst].heuristics.direct_dependency_cves = dependency_cve.direct_dependency_cves
+            self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
 
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True) -> None:
         self._compute_cert_labs()

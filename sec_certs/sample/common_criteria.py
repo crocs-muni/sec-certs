@@ -1,12 +1,11 @@
 import copy
-import logging
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
 
 import requests
 from bs4 import Tag
@@ -19,10 +18,6 @@ from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-
-if TYPE_CHECKING:
-    from sec_certs.dataset.common_criteria import CCDataset
-
 
 HEADERS = {
     "anssi": helpers.search_only_headers_anssi,
@@ -696,42 +691,6 @@ class CommonCriteriaCert(
             return
         self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
-
-    def _get_dependency_cves(self, dset: "CCDataset", dependency_type: DependencyType) -> Optional[Set[str]]:
-        dependency_type_dict = {
-            DependencyType.DIRECT.value: self.heuristics.report_references.directly_referenced_by,
-            DependencyType.INDIRECT.value: self.heuristics.report_references.indirectly_referenced_by,
-        }
-
-        references = dependency_type_dict[dependency_type.value]
-
-        if not references:
-            return None
-
-        vulnerabilities = set()
-        dataset_cert_id_occurrences = dset.get_dataset_cert_ids_occurrences()
-        thrown_away_counter = 0
-
-        for cert_id in references:
-            cert_id_occurrence = dataset_cert_id_occurrences.get(cert_id, None)
-
-            # Not in dataset or more than 2 occurrences in dataset -> skip
-            if cert_id_occurrence is None or cert_id_occurrence >= 2:
-                thrown_away_counter += 1
-                continue
-
-            for cert_obj in dset:
-                if cert_obj.heuristics.cert_id == cert_id and cert_obj.heuristics.related_cves:
-                    vulnerabilities.update(cert_obj.heuristics.related_cves)
-
-        if thrown_away_counter >= 1:
-            logging.warning("There were total of %s certificates skipped due to duplicity", thrown_away_counter)
-
-        return vulnerabilities if vulnerabilities else None
-
-    def find_certificate_dependency_vulnerabilities(self, dset: "CCDataset"):
-        self.heuristics.direct_dependency_cves = self._get_dependency_cves(dset, DependencyType.DIRECT)
-        self.heuristics.indirect_dependency_cves = self._get_dependency_cves(dset, DependencyType.INDIRECT)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
