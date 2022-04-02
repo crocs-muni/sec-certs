@@ -57,6 +57,12 @@ def test_search_bad(client: FlaskClient):
 
 
 @pytest.mark.remote
+def test_fulltext_search(client: FlaskClient):
+    resp = client.get("/cc/ftsearch/?q=hardcoded&page=1&cat=abcdefghijklmop&status=any&type=report")
+    assert resp.status_code == 200
+
+
+@pytest.mark.remote
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/cc/random/", follow_redirects=True)

@@ -256,7 +256,8 @@ def fulltext_search():
     parser = QueryParser("content", schema=index_schema)
     qr = parser.parse(q)
     results = []
-    searcher = get_fips_searcher()
+    with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
+        searcher = get_fips_searcher()
     with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
         res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
     res.results.fragmenter.charlimit = None
@@ -270,7 +271,7 @@ def fulltext_search():
     # print("len", len(res))
     # print("scored", res.scored_length())
     # print("filtered", res.results.filtered_count)
-    count = len(res) - res.results.filtered_count
+    count = len(res)
     with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
         for hit in res:
             dgst = hit["dgst"]
