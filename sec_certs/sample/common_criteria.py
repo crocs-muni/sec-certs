@@ -1,4 +1,5 @@
 import copy
+import logging
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -32,7 +33,7 @@ HEADERS = {
 }
 
 
-class DependencyCVEType(Enum):
+class DependencyType(Enum):
     DIRECT = "direct"
     INDIRECT = "indirect"
 
@@ -251,8 +252,8 @@ class CommonCriteriaCert(
         cert_id: Optional[str] = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
-        direct_vulnerabilities: Optional[Set[str]] = field(default=None)
-        indirect_vulnerabilities: Optional[Set[str]] = field(default=None)
+        direct_dependency_cves: Optional[Set[str]] = field(default=None)
+        indirect_dependency_cves: Optional[Set[str]] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -696,10 +697,10 @@ class CommonCriteriaCert(
         self.heuristics.cert_id = self.pdf_data.cert_id
         self.normalize_cert_id(all_cert_ids)
 
-    def _get_dependency_cves(self, dset: "CCDataset", dependency_type: DependencyCVEType) -> Optional[Set[str]]:
+    def _get_dependency_cves(self, dset: "CCDataset", dependency_type: DependencyType) -> Optional[Set[str]]:
         dependency_type_dict = {
-            "direct": self.heuristics.report_references.directly_referenced_by,
-            "indirect": self.heuristics.report_references.indirectly_referenced_by,
+            DependencyType.DIRECT.value: self.heuristics.report_references.directly_referenced_by,
+            DependencyType.INDIRECT.value: self.heuristics.report_references.indirectly_referenced_by,
         }
 
         references = dependency_type_dict[dependency_type.value]
@@ -709,27 +710,28 @@ class CommonCriteriaCert(
 
         vulnerabilities = set()
         dataset_cert_id_occurrences = dset.get_dataset_cert_ids_occurrences()
+        thrown_away_counter = 0
 
         for cert_id in references:
             cert_id_occurrence = dataset_cert_id_occurrences.get(cert_id, None)
 
             # Not in dataset or more than 2 occurrences in dataset -> skip
             if cert_id_occurrence is None or cert_id_occurrence >= 2:
+                thrown_away_counter += 1
                 continue
 
             for cert_obj in dset:
-                if cert_obj.heuristics.cert_id == cert_id:
-                    if cert_obj.heuristics.related_cves:
-                        vulnerabilities.update(cert_obj.heuristics.related_cves)
+                if cert_obj.heuristics.cert_id == cert_id and cert_obj.heuristics.related_cves:
+                    vulnerabilities.update(cert_obj.heuristics.related_cves)
 
-        if not vulnerabilities:
-            return None
+        if thrown_away_counter >= 1:
+            logging.warning("There were total of %s certificates skipped due to duplicity", thrown_away_counter)
 
-        return vulnerabilities
+        return vulnerabilities if vulnerabilities else None
 
     def find_certificate_dependency_vulnerabilities(self, dset: "CCDataset"):
-        self.heuristics.direct_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.DIRECT)
-        self.heuristics.indirect_vulnerabilities = self._get_dependency_cves(dset, DependencyCVEType.INDIRECT)
+        self.heuristics.direct_dependency_cves = self._get_dependency_cves(dset, DependencyType.DIRECT)
+        self.heuristics.indirect_dependency_cves = self._get_dependency_cves(dset, DependencyType.INDIRECT)
 
     @staticmethod
     def _is_anssi_cert(cert_id: str) -> bool:
