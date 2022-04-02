@@ -754,6 +754,18 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         keywords.add("1.02.013")
         return {x for x in keywords if len(x) > config.minimal_token_length}
 
+    def get_dataset_cert_ids_occurrences(self) -> Dict[str, int]:
+        all_cert_ids: Dict[str, int] = {}
+
+        for cert_obj in self:
+            if cert_obj.heuristics.cert_id is None:
+                continue
+
+            cert_id = cert_obj.heuristics.cert_id
+            all_cert_ids[cert_id] = all_cert_ids.get(cert_id, 0) + 1
+
+        return all_cert_ids
+
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """

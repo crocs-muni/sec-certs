@@ -708,13 +708,18 @@ class CommonCriteriaCert(
             return None
 
         vulnerabilities = set()
+        dataset_cert_id_occurrences = dset.get_dataset_cert_ids_occurrences()
 
         for cert_id in references:
+            cert_id_occurrence = dataset_cert_id_occurrences.get(cert_id, None)
+
+            # Not in dataset or more than 2 occurrences in dataset -> skip
+            if cert_id_occurrence is None or cert_id_occurrence >= 2:
+                continue
 
             for cert_obj in dset:
                 if cert_obj.heuristics.cert_id == cert_id:
                     if cert_obj.heuristics.related_cves:
-
                         vulnerabilities.update(cert_obj.heuristics.related_cves)
 
         if not vulnerabilities:
