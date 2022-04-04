@@ -216,7 +216,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
         logger.error(f"Error when converting pdf->txt: {e}")
         return constants.RETURNCODE_NOK
 
-    with txt_path.open("w", encoding="utf-8") as txt_handle:
+    with txt_path.open("w") as txt_handle:
         txt_handle.write(txt)
 
     return constants.RETURNCODE_OK
