@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:jammy
 
 ENV USER="user"
 ENV HOME /home/${USER}
@@ -10,7 +10,6 @@ RUN apt-get install python3-pip -y
 RUN apt-get install python3-venv -y
 RUN apt-get install git -y
 RUN apt-get install curl -y
-RUN apt-get install python3.8-venv -y
 
 # Install dependencies fo PyPDF2 and pdftotext
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata

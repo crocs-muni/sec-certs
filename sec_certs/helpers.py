@@ -201,22 +201,15 @@ def repair_pdf(file: Path) -> None:
 
 
 def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
-    # response = subprocess.run(
-    #     ["pdftotext", pdf_path, txt_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60
-    # ).returncode
-    # if response == 0:
-    #     return constants.RETURNCODE_OK
-    # else:
-    #     return constants.RETURNCODE_NOK
     try:
         with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password and Raw=True
+            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
             txt = "".join(pdf)
     except Exception as e:
         logger.error(f"Error when converting pdf->txt: {e}")
         return constants.RETURNCODE_NOK
 
-    with txt_path.open("w") as txt_handle:
+    with txt_path.open("w", encoding="utf-8") as txt_handle:
         txt_handle.write(txt)
 
     return constants.RETURNCODE_OK
