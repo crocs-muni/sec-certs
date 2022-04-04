@@ -13,7 +13,7 @@ RUN apt-get install curl -y
 
 # Install dependencies fo PyPDF2 and pdftotext
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev poppler-utils -y
+RUN apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
 RUN apt-get install libqpdf-dev -y
 RUN apt-get install default-jdk -y
 RUN apt-get install graphviz -y
@@ -40,6 +40,7 @@ ENV PATH="${VENV_PATH}/bin:$PATH"
 
 # Install dependencies, notebook is because of mybinder.org
 RUN \
+    pip3 install -U pip && \
     pip3 install wheel && \
     pip3 install -r requirements.txt && \
     pip3 install --no-cache notebook

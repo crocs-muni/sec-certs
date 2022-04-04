@@ -3,8 +3,6 @@ import html
 import logging
 import os
 import re
-
-# import subprocess
 import time
 from datetime import date, datetime
 from enum import Enum
