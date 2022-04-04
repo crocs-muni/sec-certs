@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install external dependencies
-        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev poppler-utils -y
       - uses: actions/checkout@v2
       - name: Setup python
         uses: actions/setup-python@v2
