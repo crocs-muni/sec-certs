@@ -2,13 +2,22 @@ name: Tests
 on:
   push:
   workflow_dispatch:
+env:
+  DEBIAN_FRONTEND: noninteractive
+
 
 jobs:
   run-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Install external dependencies
-        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev poppler-utils -y
+      - name: Install Poppler 21.06
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo apt-get update
+          sudo add-apt-repository ppa:hlprasu/poppler
+          sudo apt-get update
+          sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
       - uses: actions/checkout@v2
       - name: Setup python
         uses: actions/setup-python@v2
