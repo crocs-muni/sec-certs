@@ -1,0 +1,13 @@
+mypy
+types-PyYAML
+types-python-dateutil
+types-requests
+pytest
+pytest-cov
+pytest-monitor
+pytest-profiling
+black
+isort
+flake8
+pre-commit
+pip-tools

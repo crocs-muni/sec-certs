@@ -1,0 +1,53 @@
+attrs==21.4.0             # via pytest
+black==22.3.0             # via -r dev_requirements.in
+certifi==2021.10.8        # via requests
+cfgv==3.3.1               # via pre-commit
+charset-normalizer==2.0.12  # via requests
+click==8.1.2              # via black, pip-tools
+coverage[toml]==6.3.2     # via pytest-cov
+distlib==0.3.4            # via virtualenv
+filelock==3.6.0           # via virtualenv
+flake8==4.0.1             # via -r dev_requirements.in
+gprof2dot==2021.2.21      # via pytest-profiling
+identify==2.4.12          # via pre-commit
+idna==3.3                 # via requests
+iniconfig==1.1.1          # via pytest
+isort==5.10.1             # via -r dev_requirements.in
+mccabe==0.6.1             # via flake8
+memory-profiler==0.60.0   # via pytest-monitor
+mypy==0.942               # via -r dev_requirements.in
+mypy-extensions==0.4.3    # via black, mypy
+nodeenv==1.6.0            # via pre-commit
+packaging==21.3           # via pytest
+pathspec==0.9.0           # via black
+pep517==0.12.0            # via pip-tools
+pip-tools==6.5.1          # via -r dev_requirements.in
+platformdirs==2.5.1       # via black, virtualenv
+pluggy==1.0.0             # via pytest
+pre-commit==2.18.1        # via -r dev_requirements.in
+psutil==5.9.0             # via memory-profiler, pytest-monitor
+py==1.11.0                # via pytest
+pycodestyle==2.8.0        # via flake8
+pyflakes==2.4.0           # via flake8
+pyparsing==3.0.7          # via packaging
+pytest==7.1.1             # via -r dev_requirements.in, pytest-cov, pytest-monitor, pytest-profiling
+pytest-cov==3.0.0         # via -r dev_requirements.in
+pytest-monitor==1.6.3     # via -r dev_requirements.in
+pytest-profiling==1.7.0   # via -r dev_requirements.in
+pyyaml==6.0               # via pre-commit
+requests==2.27.1          # via pytest-monitor
+six==1.16.0               # via pytest-profiling, virtualenv
+toml==0.10.2              # via pre-commit
+tomli==2.0.1              # via black, coverage, mypy, pep517, pytest
+types-python-dateutil==2.8.10  # via -r dev_requirements.in
+types-pyyaml==6.0.5       # via -r dev_requirements.in
+types-requests==2.27.16   # via -r dev_requirements.in
+types-urllib3==1.26.11    # via types-requests
+typing-extensions==4.1.1  # via black, mypy
+urllib3==1.26.9           # via requests
+virtualenv==20.14.0       # via pre-commit
+wheel==0.37.1             # via pip-tools, pytest-monitor
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip
+# setuptools

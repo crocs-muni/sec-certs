@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 from setuptools import find_packages, setup
 
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
-
 setup(
     name="sec-certs",
-    author="Petr Svenda, Stanislav Bobon, Jan Jancar, Adam Janovsky",
+    author="Petr Svenda, Stanislav Bobon, Jan Jancar, Adam Janovsky, Jiri Michalik",
     author_email="svenda@fi.muni.cz",
     version_config=True,
     setup_requires=["setuptools-git-versioning"],
@@ -27,8 +24,11 @@ setup(
         "Intended Audience :: Science/Research",
     ],
     python_requires=">=3.8",
-    install_requires=requirements,
-    extras_require={"dev": ["mypy", "flake8"], "test": ["pytest", "coverage"]},
+    install_requires=open("requirements/requirements.in", "r").read().splitlines(),
+    extras_require={
+        "dev": open("requirements/dev_requirements.in", "r").read().splitlines(),
+        "test": open("requirements/test_requirements.in", "r").read().splitlines(),
+    },
     include_package_data=True,
     package_data={"sec_certs": ["settings.yaml", "settings-schema.json"]},
     entry_points={"console_scripts": ["cc-certs=cc_cli:main", "fips-certs=fips_cli:main"]},
