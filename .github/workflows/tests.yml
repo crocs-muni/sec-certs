@@ -2,12 +2,22 @@ name: Tests
 on:
   push:
   workflow_dispatch:
+env:
+  DEBIAN_FRONTEND: noninteractive
+
 
 jobs:
   run-test:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo apt-get install poppler-utils
+      - name: Install Poppler 21.06
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo apt-get update
+          sudo add-apt-repository ppa:hlprasu/poppler
+          sudo apt-get update
+          sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
       - uses: actions/checkout@v2
       - name: Setup python
         uses: actions/setup-python@v2
@@ -21,4 +31,4 @@ jobs:
           pip install pytest-cov
           pip install ".[dev,test]"
       - name: Run tests
-        run: pytest --cov sec_certs
+        run: pytest --cov=sec_certs tests

@@ -539,7 +539,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def convert_pdf_file(tup: Tuple["FIPSCertificate", Path, Path]) -> "FIPSCertificate":
         cert, pdf_path, txt_path = tup
         if not cert.state.txt_state:
-            exit_code = helpers.convert_pdf_file(pdf_path, txt_path, ["-raw"])
+            exit_code = helpers.convert_pdf_file(pdf_path, txt_path)
             if exit_code != constants.RETURNCODE_OK:
                 logger.error(f"Cert dgst: {cert.cert_id} failed to convert security policy pdf->txt")
                 cert.state.txt_state = False

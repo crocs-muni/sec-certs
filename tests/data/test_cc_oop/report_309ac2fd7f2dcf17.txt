@@ -1,16 +1,16 @@
-�rendetyp: 6 Diarienummer: 18FMV7705-43:1
+Ärendetyp: 6 Diarienummer: 18FMV7705-43:1
 HEMLIG/
 enligt Offentlighets- och sekretesslagen
 (2009:400)
 2020-06-15
 Country of origin: Sweden
-F�rsvarets materielverk
+Försvarets materielverk
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 Issue: 1.0, 2020-Jun-15
-Authorisation: Hel�n Svensson, Lead Certifier , CSEC
+Authorisation: Helén Svensson, Lead Certifier , CSEC
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 2 (18)
 Table of Contents
@@ -42,7 +42,7 @@ Appendix A Scheme Versions 18
 A.1 Scheme/Quality Management System 18
 A.2 Scheme Notes 18
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 3 (18)
 1 Executive Summary
@@ -50,13 +50,13 @@ The TOE is NetIQ Identity Manager 4.7.
 It is a software TOE consisting of the components listed below that can be setup on
 separate hardware platforms, see the [ST], or as a virtual appliances.
 TOE Components:
- Identity Applications (RBPM) 4.7.3.0.1109
- Identity Manager Engine 4.7.3.0.AE
- Identity Reporting Module 6.5.0. F14508F
- Sentinel Log Management for Identity Governance and Administration
+ Identity Applications (RBPM) 4.7.3.0.1109
+ Identity Manager Engine 4.7.3.0.AE
+ Identity Reporting Module 6.5.0. F14508F
+ Sentinel Log Management for Identity Governance and Administration
 8.2.2.0_5415
- One SSO Provider (OSP) 6.3.3.0
- Self Service Password Reset (SSPR) 4.4.0.2 B366 r39762
+ One SSO Provider (OSP) 6.3.3.0
+ Self Service Password Reset (SSPR) 4.4.0.2 B366 r39762
 The TOE is delivered as software with documentation and can be installed in a physi-
 cal or virtual environment.
 It is important to verify the integrity of the TOE for secure acceptance of the TOE in
@@ -65,9 +65,9 @@ nection, the CA certificate and the file hash. It is also important to update th
 cluding 3rd party software) and the operational environment of the TOE in accordance
 with the preparative procedures of the guidance to mitigate known vulnerabilities.
 No conformance claims to any PP are made for the TOE.
-The evaluation has been performed by Combitech AB in V�xj�, Sweden and by
+The evaluation has been performed by Combitech AB in Växjö, Sweden and by
 EWA-Canada in Ottawa, Canada. Site Visit and parts of the testing was performed at
-the developer's site in Bangalore, India.
+the developer’s site in Bangalore, India.
 The evaluation was completed on 2020-06-02. The evaluation was conducted in ac-
 cordance with the requirements of Common Criteria, version 3.1 R5.
 Combitech AB is a licensed evaluation facility for Common Criteria under the Swe-
@@ -89,7 +89,7 @@ ganisation that recognises or gives effect to this certificate, and no warranty 
 IT product by CSEC or any other organisation that recognises or gives effect to this
 certificate is either expressed or implied.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 4 (18)
 As specified in the security target of this evaluation, the invocation of cryptographic
@@ -104,7 +104,7 @@ Users of this product are advised to consider their acceptance of this third par
 firmation regarding the correctness of implementation of the cryptographic primi-
 tives.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 5 (18)
 2 Identification
@@ -112,15 +112,15 @@ Certification Identification
 Certification ID CSEC2018013
 Name and version of the cer-
 tified IT product
-NetIQ� Identity Manager 4.7
+NetIQ® Identity Manager 4.7
 TOE components:
- Identity Applications (RBPM) 4.7.3.0.1109
- Identity Manager Engine 4.7.3.0.AE
- Identity Reporting Module 6.5.0. F14508F
- Sentinel Log Management for Identity Govern-
+ Identity Applications (RBPM) 4.7.3.0.1109
+ Identity Manager Engine 4.7.3.0.AE
+ Identity Reporting Module 6.5.0. F14508F
+ Sentinel Log Management for Identity Govern-
 ance and Administration 8.2.2.0_5415
- One SSO Provider (OSP) 6.3.3.0
- Self Service Password Reset (SSPR) 4.4.0.2
+ One SSO Provider (OSP) 6.3.3.0
+ Self Service Password Reset (SSPR) 4.4.0.2
 B366 r39762
 Security Target Identification NetIQ Identity Manager 4.7 Security Target (ST),
 NetIQ Corporation , 2020-06-01, document version
@@ -136,36 +136,36 @@ Scheme Notes Release 15.0
 Recognition Scope CCRA, SOGIS and EA/MLA
 Certification date 2020-06-15
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 6 (18)
 3 Security Policy
 The security features performed by the TOE are as follows:
- Security Management
- Security Audit
- Identification and Authentication
- User Data Protection
- Trusted Path / Channels
- Cryptographic Support
+ Security Management
+ Security Audit
+ Identification and Authentication
+ User Data Protection
+ Trusted Path / Channels
+ Cryptographic Support
 3.1 Security Management
 The TOE maintains operator roles. The individual roles are categorized into two main
 roles: the Administrator and the User.
 Administrator - A user who has rights to configure and manage all aspects of the TOE
-User - The user's capabilities can be configured to:
- View hierarchical relationships between User objects
- View and edit user information (with appropriate rights).
- Search for users or resources using advanced search criteria (which can be saved
+User - The user’s capabilities can be configured to:
+ View hierarchical relationships between User objects
+ View and edit user information (with appropriate rights).
+ Search for users or resources using advanced search criteria (which can be saved
 for later reuse).
- Recover forgotten passwords.
+ Recover forgotten passwords.
 Only an Administrator can determine the behavior of, disable, enable, and modify the
 behavior of the functions that implement the Discretionary Access Control SFP. The
 TPE ensures only secure values are accepted for the security attributes listed with Dis-
 cretionary Access Control SFP.
 3.2 Security Audit
 The TOE generates the following audit data:
- Start-up and shutdown of the audit functions (instantiated by startup of the TOE)
- User login/logout
- Login failures
+ Start-up and shutdown of the audit functions (instantiated by startup of the TOE)
+ User login/logout
+ Login failures
 The TOE provides the Administrator with the capability to read all audit data gener-
 ated within the TOE via the console. The GUI provides a suitable means for an Ad-
 ministrator to interpret the information from the audit log.
@@ -182,15 +182,15 @@ ment are queried to individually authenticate administrators or users. The TOE m
 tains authorization information that determines which TOE functions an authenticated
 administrators or users (of a given role) may perform.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 7 (18)
 The TOE maintains the following list of security attributes belonging to individual us-
 ers:
- User Identity (i.e., user name)
- Authentication Status (whether the IT Environment validated the username/pass-
+ User Identity (i.e., user name)
+ Authentication Status (whether the IT Environment validated the username/pass-
 word)
- Privilege Level (Administrator or User)
+ Privilege Level (Administrator or User)
 3.4 User Data Protection
 The TOE implements a discretionary access control policy to define what roles can
 access particular functions of the TOE. All access and actions for system reports, com-
@@ -212,7 +212,7 @@ current Distribution password in the Identity Vault.
 3.5 Trusted Path / Channel
 The TOE provides a trusted channel between the TOE and external web servers.
 The TOE provides a trusted path for TOE administrators and TOE users to communi-
-cate with the TOE. The trusted path is implemented using HTTPS. The TOE's imple-
+cate with the TOE. The trusted path is implemented using HTTPS. The TOE’s imple-
 mentation of TLS is described in the previous section (Trusted Channel).
 3.6 Cryptographic Support
 Cryptographic protection of data in transit between the TOE and remote users, and be-
@@ -220,7 +220,7 @@ tween the TOE and external web servers is provided by the OpenSSL FIPS Object
 Module software version 2.0.10 (Cryptographic Module Validation Program (CMVP)
 certificate number 1747) libraries.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 8 (18)
 4 Assumptions and Clarification of Scope
@@ -258,53 +258,53 @@ been considered during the evaluation.
 P.REMOTE_DATA - Passwords and account information from network-attached sys-
 tems shall be monitored and managed.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 9 (18)
 5 Architectural Information
 The TOE consists of the following components:
- Administration Workstation (Console)2
- Identity Applications (RBPM)
- Designer aka Identity Manager Designer
- Analyzer aka Identity Manager Analyzer
- Identity Manager
- Identity Manager Engine
- Identity Vault
- iManager
- Reporting Server
- Identity Reporting Module
- Log Manager
- Sentinel Log Management for Identity Governance and Administration
- SSO Provider
- One SSO Provider (OSP)
- Self Service Password Reset
- Self Service Password Reset (SSPR)
+ Administration Workstation (Console)2
+ Identity Applications (RBPM)
+ Designer aka Identity Manager Designer
+ Analyzer aka Identity Manager Analyzer
+ Identity Manager
+ Identity Manager Engine
+ Identity Vault
+ iManager
+ Reporting Server
+ Identity Reporting Module
+ Log Manager
+ Sentinel Log Management for Identity Governance and Administration
+ SSO Provider
+ One SSO Provider (OSP)
+ Self Service Password Reset
+ Self Service Password Reset (SSPR)
 Figure 1, TOE Deployment with subsystems
 The TOE provides the following functions: data synchronization, role management,
 auditing/reporting, and management.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 10 (18)
- Data synchronization, including password synchronization, is provided by the
+ Data synchronization, including password synchronization, is provided by the
 base components of the Identity Manager solution: the Identity Vault, Identity
 Manager engine, drivers, Remote Loader, and connected applications
- Role management is provided by the User Application
- Auditing and reporting are provided by the Identity Reporting Module
+ Role management is provided by the User Application
+ Auditing and reporting are provided by the Identity Reporting Module
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 11 (18)
 6 Documentation
 The TOE includes the following guidance documentation:
- Quick Start Guide for Installing NetIQ Identity Manager 4.7 February 2018
+ Quick Start Guide for Installing NetIQ Identity Manager 4.7 February 2018
 [QSIM]
- NetIQ Identity Manager Setup Guide for Linux February 2018 [SUL]
- NetIQ Identity Manager 4.7, Operational User Guidance and Preparative Proce-
+ NetIQ Identity Manager Setup Guide for Linux February 2018 [SUL]
+ NetIQ Identity Manager 4.7, Operational User Guidance and Preparative Proce-
 dures Supplement (AGD-IGS), version 0.6, is supplied for those customers that
 need guidance on how to set the TOE in the evaluated configuration. [AGD]
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 12 (18)
 7 IT Product Testing
@@ -313,13 +313,13 @@ There are 30 test cases covering all SFRs with at least one test per SFR. All te
 successful with a pass verdict.
 7.2 Evaluator Testing
 Since all SFRs and security function requirements were tested by the developer the
-evaluator focused on repetition of the developer's test cases and penetration testing.
+evaluator focused on repetition of the developer’s test cases and penetration testing.
 7.3 Penetration Testing
 Port and vulnerability scan were performed on Identity manager engine, Identity appli-
 cations (RBPM), and Identity reporting module.
 No unforeseen ports or vulnerabilities were found.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 13 (18)
 8 Evaluated Configuration
@@ -346,14 +346,14 @@ Self Service Password Reset SUSE Linux Enterprise Server 12 SP4
 In addition to the platform requirements mentioned above, the following hardware re-
 sources are needed in order to install and configure Identity Manager on each plat-
 form:
- A minimum of 8 GB RAM
- 15 GB available disk space to install all the components.
- Additional disk space to configure and populate data. This might vary depending
+ A minimum of 8 GB RAM
+ 15 GB available disk space to install all the components.
+ Additional disk space to configure and populate data. This might vary depending
 on your connected systems and number of objects in the Identity Vault.
 For server-based components, it is recommended that the platform have a minimum of
 2 CPUs or cores.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 14 (18)
 9 Results of the Evaluation
@@ -396,13 +396,13 @@ Independent testing - sample ATE_IND.2 PASS
 Vulnerability assessment AVA: PASS
 Vulnerability analysis AVA_VAN.2 PASS
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 15 (18)
 10 Evaluator Comments and Recommendations
 None.
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 16 (18)
 11 Glossary
@@ -424,7 +424,7 @@ SSPR Self Service Password Reset
 ST Security Target
 TOE Target of Evaluation
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 17 (18)
 12 Bibliography
@@ -447,7 +447,7 @@ Evaluation, version 3.1 revision 5, CCMB-2017-04-004
 SP-002 SP-002 Evaluation and Certification, CSEC, 2019-09-24, document
 version 31.0
 Swedish Certification Body for IT Security
-Certification Report NetIQ� Identity Manager 4.7
+Certification Report NetIQ® Identity Manager 4.7
 18FMV7705-43:1 1.0 2020-06-15
 18 (18)
 Appendix A Scheme Versions
@@ -466,16 +466,16 @@ QMS 1.23.1 valid from 2020-03-06
 QMS 1.23.2 valid from 2020-05-11
 In order to ensure consistency in the outcome of the certification, the certifier has ex-
 amined the changes introduced in each update of the quality management system.
-The changes between consecutive versions are outlined in "�ndringslista CSEC QMS
-1.23.1". The certifier concluded that, from QMS 1.21.5 to the current QMS 1.23.2,
+The changes between consecutive versions are outlined in “Ändringslista CSEC QMS
+1.23.1”. The certifier concluded that, from QMS 1.21.5 to the current QMS 1.23.2,
 there are no changes with impact on the result of the certification.
 Note that the SP-188 Scheme Crypto Policy version 9.0 was introduced in QMS 1.23.
 The certification application was submitted before the SP-188 Scheme Crypto Policy
 version 9.0 was introduced and therefore version 8.0 was used.
 A.2 Scheme Notes
 The following Scheme interpretations have been considered during the certification.
- Scheme Note 15 - Demonstration of test Coverage
- Scheme Note 18 - Highlighted Requirements on the Security Target
- Scheme Note 22 - Vulnerability assessment
- Scheme Note 28 - Updated procedures for application, evaluation and certification
+ Scheme Note 15 - Demonstration of test Coverage
+ Scheme Note 18 - Highlighted Requirements on the Security Target
+ Scheme Note 22 - Vulnerability assessment
+ Scheme Note 28 - Updated procedures for application, evaluation and certification
 

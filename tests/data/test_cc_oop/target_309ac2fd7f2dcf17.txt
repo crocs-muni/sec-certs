@@ -72,7 +72,7 @@ Information Flow Control (FDP) .................................................
 FDP_ACC.1 Subset Access Control...........................................................................................23
 FDP_ACF.1 Security Attribute Based Access Control...............................................................23
 Identification and Authentication (FIA) .....................................................................................24
-FIA_ATD.1 � User Attribute Definition.....................................................................................24
+FIA_ATD.1 – User Attribute Definition.....................................................................................24
 FIA_UAU.2 User Authentication before Any Action ................................................................24
 FIA_UID.2 User Identification before Any Action....................................................................24
 Security Management (FMT)......................................................................................................24
@@ -106,36 +106,36 @@ Trusted Channel.................................................................
 Trusted Path:...............................................................................................................................35
 Cryptographic Support................................................................................................................35
 List of Tables
-Table 1 � ST Organization and Section Descriptions...................................................................................6
-Table 2 � Acronyms Used in Security Target...............................................................................................7
-Table 3 � CAVP Certificate Numbers ..........................................................................................................9
-Table 4 � Virtual Machine Environment Requirements .............................................................................11
-Table 5 � IT Environment Component Requirements................................................................................11
-Table 6 � Logical Boundary Descriptions ..................................................................................................12
-Table 7 � IT Environment Components - Not In TOE ...............................................................................13
+Table 1 – ST Organization and Section Descriptions...................................................................................6
+Table 2 – Acronyms Used in Security Target...............................................................................................7
+Table 3 – CAVP Certificate Numbers ..........................................................................................................9
+Table 4 – Virtual Machine Environment Requirements .............................................................................11
+Table 5 – IT Environment Component Requirements................................................................................11
+Table 6 – Logical Boundary Descriptions ..................................................................................................12
+Table 7 – IT Environment Components - Not In TOE ...............................................................................13
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 4 of 36
-Table 8 � Threats Addressed by the TOE...................................................................................................15
-Table 9 � Organizational Security Policies.................................................................................................15
-Table 10 � Assumptions..............................................................................................................................16
-Table 11 � TOE Security Objectives ..........................................................................................................17
-Table 12 � Operational Environment Security Objectives .........................................................................17
-Table 13 � Mapping of Assumptions, Threats, Policies and ORSP s to Security Objectives.....................18
-Table 14 � Mapping of Threats, Policies, and Assumptions to Objectives ................................................19
-Table 15 � TOE Security Functional Requirements ...................................................................................21
-Table 16 � Cryptographic Standards...........................................................................................................22
-Table 17 � Cryptographic Operations.........................................................................................................23
-Table 18 � Management of TSF data..........................................................................................................25
-Table 19 � Mapping of TOE Security Functional Requirements and Objectives.......................................27
-Table 20 � Mapping of SFR to Dependencies and Rationales....................................................................28
-Table 20 � Rationale for TOE SFRs to Objectives.....................................................................................30
-Table 22 � Security Assurance Requirements at EAL3..............................................................................30
-Table 23 � Security Assurance Rationale and Measures ............................................................................32
-Table 24 � Roles and Functions..................................................................................................................34
-Table 22 � CAVP........................................................................................................................................36
+Table 8 – Threats Addressed by the TOE...................................................................................................15
+Table 9 – Organizational Security Policies.................................................................................................15
+Table 10 – Assumptions..............................................................................................................................16
+Table 11 – TOE Security Objectives ..........................................................................................................17
+Table 12 – Operational Environment Security Objectives .........................................................................17
+Table 13 – Mapping of Assumptions, Threats, Policies and ORSP s to Security Objectives.....................18
+Table 14 – Mapping of Threats, Policies, and Assumptions to Objectives ................................................19
+Table 15 – TOE Security Functional Requirements ...................................................................................21
+Table 16 – Cryptographic Standards...........................................................................................................22
+Table 17 – Cryptographic Operations.........................................................................................................23
+Table 18 – Management of TSF data..........................................................................................................25
+Table 19 – Mapping of TOE Security Functional Requirements and Objectives.......................................27
+Table 20 – Mapping of SFR to Dependencies and Rationales....................................................................28
+Table 20 – Rationale for TOE SFRs to Objectives.....................................................................................30
+Table 22 – Security Assurance Requirements at EAL3..............................................................................30
+Table 23 – Security Assurance Rationale and Measures ............................................................................32
+Table 24 – Roles and Functions..................................................................................................................34
+Table 22 – CAVP........................................................................................................................................36
 List of Figures
-Figure 1 � TOE Deployment with Subsystems.............................................................................................7
-Figure 2 � Sample Download List ..............................................................................................................10
+Figure 1 – TOE Deployment with Subsystems.............................................................................................7
+Figure 2 – Sample Download List ..............................................................................................................10
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 5 of 36
 1. Introduction
@@ -192,22 +192,22 @@ Specification
 Identifies the IT security functions provided by the
 TOE and also identifies the assurance measures
 targeted to meet the assurance requirements.
-Table 1 � ST Organization and Section Descriptions
+Table 1 – ST Organization and Section Descriptions
 Document Conventions
 The notation, formatting, and conventions used in this Security Target are consistent with those
 used in Version 3.1 of the Common Criteria. Selected presentation choices are discussed here
 to aid the Security Target reader. The Common Criteria allows several operations to be
 performed on functional requirements: The allowable operations defined in Part 2 of the
 Common Criteria are refinement, selection, assignment and iteration.
- The refinement operation is used to add detail to a requirement, and thus further
+ The refinement operation is used to add detail to a requirement, and thus further
 restricts a requirement. Refinement of security requirements is denoted by bold text.
 Any text removed is indicated with a strikethrough format (Example: TSF).
- The selection operation is picking one or more items from a list in order to narrow the
+ The selection operation is picking one or more items from a list in order to narrow the
 scope of a component element. Selections are denoted by italicized text.
- The assignment operation is used to assign a specific value to an unspecified parameter,
+ The assignment operation is used to assign a specific value to an unspecified parameter,
 such as the length of a password. An assignment operation is indicated by showing the
 value in square brackets, i.e. [assignment_value(s)].
- Iterated functional and assurance requirements are given unique identifiers by
+ Iterated functional and assurance requirements are given unique identifiers by
 appending to the base requirement identifier from the Common Criteria an iteration
 number inside parenthesis, for example, FMT_MTD.1.1 (1) and FMT_MTD.1.1 (2) refer
 to separate instances of the FMT_MTD.1 security functional requirement component.
@@ -236,7 +236,7 @@ SSPR Self Service Password Reset
 ST Security Target
 TOE Target of Evaluation
 TSF TOE Security Function
-Table 2 � Acronyms Used in Security Target
+Table 2 – Acronyms Used in Security Target
 TOE Overview
 The TOE is NetIQ Identity Manager 4.7. NetIQ Identity Manager provides data sharing and
 synchronization services which enable applications, directories, and databases to share
@@ -305,15 +305,15 @@ Administration
 Workstation
 (Console) 7b
 Separate communication paths to Sentinel Log Manager
-7a � Identity Vault to Sentinel Log Manager
-7b � iManager to Sentinel Log Manager
+7a – Identity Vault to Sentinel Log Manager
+7b – iManager to Sentinel Log Manager
 C
 A
 iManager
 Designer / Analyzer
 = TOE Sub Component
 OpenSSL
-Figure 1 � TOE Deployment with Subsystems1
+Figure 1 – TOE Deployment with Subsystems1
 The TOE provides the following functions: data synchronization, role management,
 auditing/reporting, and management.
 11
@@ -321,11 +321,11 @@ Note the Administration Workstation Console is not included in the evaluation as
 explicitly a workstation console. It is included in the document as a component required for access.to the TOE.
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 8 of 36
- Data synchronization, including password synchronization, is provided by the base
+ Data synchronization, including password synchronization, is provided by the base
 components of the Identity Manager solution: the Identity Vault, Identity Manager
 engine, drivers, Remote Loader, and connected applications
- Role management is provided by the User Application
- Auditing and reporting are provided by the Identity Reporting Module
+ Role management is provided by the User Application
+ Auditing and reporting are provided by the Identity Reporting Module
 TOE Description
 NetIQ Identity Manager 4.7 is a comprehensive identity management suite. It provides an
 intelligent identity framework that leverages your existing IT assets and new computing
@@ -340,20 +340,20 @@ The TOE is a software TOE and includes the following functions.
 Each function contains the components as follows:
 1. Administration Workstation (Console)2
 2. Identity Applications (RBPM) 4.7.3.0.1109
- Designer aka Identity Manager Designer 4.7.3.0.20190614
- Analyzer aka Identity Manager Analyzer
+ Designer aka Identity Manager Designer 4.7.3.0.20190614
+ Analyzer aka Identity Manager Analyzer
 3. Identity Manager
- Identity Manager Engine 4.7.3.0.AE
+ Identity Manager Engine 4.7.3.0.AE
 o Identity Vault 9.1.4
 o iManager 3.1.4
 4. Reporting Server
- Identity Reporting Module 6.5.0. F14508F
+ Identity Reporting Module 6.5.0. F14508F
 5. Log Manager
- Sentinel Log Management for Identity Governance and Administration 8.2.2.0_5415
+ Sentinel Log Management for Identity Governance and Administration 8.2.2.0_5415
 6. SSO Provider
- One SSO Provider (OSP) 6.3.3.0
+ One SSO Provider (OSP) 6.3.3.0
 7. Self Service Password Reset
- Self Service Password Reset (SSPR) 4.4.0.2 B366 r39762
+ Self Service Password Reset (SSPR) 4.4.0.2 B366 r39762
 Administration Workstation (Console):
 The Administration Workstation (Console) is used to access the Identity Applications (RBPM),
 Identity Manager, and the Reporting Server. Each of these functions is described below.
@@ -390,7 +390,7 @@ Component CAVP Cert #
 AES Certs. #3090 and #3264
 HMAC Certs. #1937 and #2063
 RSA Certs. #1581 and #1664
-Table 3 � CAVP Certificate Numbers
+Table 3 – CAVP Certificate Numbers
 Reporting Server:
 The reporting server houses the Identity Reporting Module. The Identity Reporting Module
 generates reports that show critical business information about various aspects of your
@@ -401,11 +401,11 @@ option to import custom reports defined in a third-party tool. The user interfac
 reporting module makes it easy to schedule reports to run at off-peak times to optimize
 performance.
 The IDM Tools are used to manage the Identity Manager solution. This includes functions to:
- Analyze, enhance, and control all data stores throughout the enterprise
- Design, deploy, and document the TOE
- Manage Identity Manager and receive real-time health and status information
+ Analyze, enhance, and control all data stores throughout the enterprise
+ Design, deploy, and document the TOE
+ Manage Identity Manager and receive real-time health and status information
 about the Identity Manager system
- Define and maintain which authorizations are associated with which business roles
+ Define and maintain which authorizations are associated with which business roles
 Log Manager:
 The Log Manager, also known as Sentinel Log Manager for Identity Governance and
 Administration (SLM for IGA), collects and acknowledges receipt of auditing data from all
@@ -426,16 +426,16 @@ The TOE software is provided to customers via secure download from the download 
 (https://dl.netiq.com/index.jsp). The software is available as either a gnu zip (.gz), iso
 formatted optical disk (.iso). zip (.zip) or dmg (if mac) depending on your destination platform.
 Once downloaded, and extracted, the setup files can be executed to perform the installation.
-Figure 2 � Sample Download List
+Figure 2 – Sample Download List
 TOE Environment
 Virtual Machines
 The following TOE components can be installed in virtual machines (VM).
- Console / Administration Workstation (Identity Applications)
- Identity Manager
- Reporting Server
- Sentinel Log Manager
- One SSO Provider
- Self Service Password Reset (SSPR)
+ Console / Administration Workstation (Identity Applications)
+ Identity Manager
+ Reporting Server
+ Sentinel Log Manager
+ One SSO Provider
+ Self Service Password Reset (SSPR)
 The hardware and software requirements for the operational environment to support the VM
 are listed in the table below:
 June 1, 2020 NetIQ Identity Manager 4.7 ST
@@ -478,7 +478,7 @@ cores
 cores
 2 CPU cores
 Memory 8 GB 8 GB 8 GB 8 to 16 GB 8 GB 8 GB
-Table 4 � Virtual Machine Environment Requirements
+Table 4 – Virtual Machine Environment Requirements
 Hardware and Software Supplied by the IT Environment
 The TOE consists of a set of software applications run on one or multiple distributed systems.
 The TOE requires the following software components as part of the evaluated configuration:
@@ -502,12 +502,12 @@ SSO Provider (OneSSO
 Provider)
 SUSE Linux Enterprise Server 12 SP4
 Self Service Password Reset SUSE Linux Enterprise Server 12 SP4
-Table 5 � IT Environment Component Requirements
+Table 5 – IT Environment Component Requirements
 In addition to the platform requirements mentioned above, the following hardware resources
 are needed in order to install and configure Identity Manager on each platform:
- A minimum of 8 GB RAM
- 15 GB available disk space to install all the components.
- Additional disk space to configure and populate data. This might vary depending
+ A minimum of 8 GB RAM
+ 15 GB available disk space to install all the components.
+ Additional disk space to configure and populate data. This might vary depending
 on your connected systems and number of objects in the Identity Vault.
 For server-based components, it is recommended that the platform have a minimum of 2 CPUs
 or cores
@@ -550,7 +550,7 @@ Trusted Path /
 Channels
 The TOE utilizes HTTPS/TLS to provide trusted paths and inter-TSF
 trusted channels.
-Table 6 � Logical Boundary Descriptions
+Table 6 – Logical Boundary Descriptions
 TOE Security Functional Policies
 The TOE supports the following Security Functional Policy:
 Discretionary Access Control SFP
@@ -561,9 +561,9 @@ Management Console.
 TOE Vendor Documentation / Guidance
 In addition to the documentation generated for the certification, the TOE includes the following
 product and guidance documentation generated by NetIQ:
- Quick Start Guide for Installing NetIQ Identity Manager 4.7 February 2018
- NetIQ Identity Manager Setup Guide for Linux February 2018
- NetIQ Identity Manager 4.7, Operational User Guidance and Preparative Procedures
+ Quick Start Guide for Installing NetIQ Identity Manager 4.7 February 2018
+ NetIQ Identity Manager Setup Guide for Linux February 2018
+ NetIQ Identity Manager 4.7, Operational User Guidance and Preparative Procedures
 Supplement (AGD-IGS), version 0.6, is supplied for those customers that need
 guidance on how to set the TOE in the evaluated configuration.
 Features / Functionality NOT Included in the TOE
@@ -574,8 +574,8 @@ Administration Workstation (Console) Web Browsers
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 13 of 36
 Functions Requirements
- Internet Explorer 11
- Google Chrome
+ Internet Explorer 11
+ Google Chrome
 Identity Applications (Includes Designer /
 Analyzer)
 RHEL 7.5
@@ -598,7 +598,7 @@ RHEL 7.5
 Windows Server 2016
 Self Service Password Reset (SSPR) RHEL 7.5
 Windows Server 2016
-Table 7 � IT Environment Components - Not In TOE
+Table 7 – IT Environment Components - Not In TOE
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 14 of 36
 2. Conformance Claims
@@ -619,10 +619,10 @@ NetIQ Corporation Page 15 of 36
 3. Security Problem Definition
 In order to clarify the nature of the security problem that the TOE is intended to solve, this
 section describes the following:
- Any known or assumed threats to the assets against which specific protection within the TOE or
+ Any known or assumed threats to the assets against which specific protection within the TOE or
 its environment is required
- Any organizational security policy statements or rules with which the TOE must comply
- Any assumptions about the security aspects of the environment and/or of the manner in which
+ Any organizational security policy statements or rules with which the TOE must comply
+ Any assumptions about the security aspects of the environment and/or of the manner in which
 the TOE is intended to be used.
 This chapter identifies assumptions as A.assumption, threats as T.threat and policies as P.policy.
 Threats
@@ -643,13 +643,13 @@ T.PASSWD_COMPROMISE An unauthorized user may be able to obtain and use user
 passwords.
 T.PROT_TRANS An unauthorized user may be able to gather information from
 communications between components.
-Table 8 � Threats Addressed by the TOE
+Table 8 – Threats Addressed by the TOE
 Organizational Security Policies
 The TOE meets the following organizational security policies:
 ASSUMPTION DESCRIPTION
 P.REMOTE_DATA Passwords and account information from network-attached systems
 shall be monitored and managed.
-Table 9 � Organizational Security Policies
+Table 9 – Organizational Security Policies
 Assumptions
 The TOE is assured to provide effective security measures in a co-operative non-hostile
 environment only if it is installed, managed, and used correctly. The following specific
@@ -668,7 +668,7 @@ located within a facility that provides controlled access
 A.CONFIG The TOE is configured to receive all passwords and associated data
 from network-attached systems.
 A.TIMESOURCE The TOE has a trusted source for system time via NTP server
-Table 10 � Assumptions
+Table 10 – Assumptions
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 17 of 36
 4. Security Objectives
@@ -686,7 +686,7 @@ via cryptographic processes including the ability to generate and destroy
 keys.
 O.TRANS_PROT The TOE shall provide mechanisms to protect data that is in transit
 between elements within the TOE.
-Table 11 � TOE Security Objectives
+Table 11 – TOE Security Objectives
 Security Objectives for the Operational Environment
 The security objectives for the operational environment are addressed below:
 OBJECTIVE DESCRIPTION
@@ -703,7 +703,7 @@ authentication credentials to any individual not authorized for access to
 the TOE.
 OE.PHYSEC The facility surrounding the processing platform in which the TOE
 resides must provide a controlled means of access into the facility
-Table 12 � Operational Environment Security Objectives
+Table 12 – Operational Environment Security Objectives
 Security Objectives Rationale
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 18 of 36
@@ -720,32 +720,32 @@ OE.TIME
 OE.ENV_PROTECT
 OE.PERSONNEL
 OE.PHYSEC
-A.CONFIG   
-A.MANAGE 
-A.NOEVIL 
-A.LOCATE 
-A.TIMESOURCE 
-T.NO_AUTH 
-T.NO_PRIV 
-T.USER_ACCESS_DENY 
-T.PASSWD_COMPROMISE 
-T.PROT_TRANS 
-P. REMOTE_DATA 
-Table 13 � Mapping of Assumptions, Threats, Policies and ORSP s to Security Objectives
+A.CONFIG   
+A.MANAGE 
+A.NOEVIL 
+A.LOCATE 
+A.TIMESOURCE 
+T.NO_AUTH 
+T.NO_PRIV 
+T.USER_ACCESS_DENY 
+T.PASSWD_COMPROMISE 
+T.PROT_TRANS 
+P. REMOTE_DATA 
+Table 13 – Mapping of Assumptions, Threats, Policies and ORSP s to Security Objectives
 Mapping of Objectives
 ASSUMPTION /THREAT/
 POLICY
 RATIONALE
 A.CONFIG This assumption is addressed by
- OE.ENV_PROTECT, which ensures that TSF components
+ OE.ENV_PROTECT, which ensures that TSF components
 cannot be tampered with or bypassed
- OE.PERSONNEL, which ensures that the TOE is managed
+ OE.PERSONNEL, which ensures that the TOE is managed
 and administered by in a secure manner by a competent
 and security aware personnel in accordance with the
 administrator documentation. This objective also ensures
 that those responsible for the TOE install, manage, and
 operate the TOE in a secure manner
- OE.PHYSEC, which ensures that the facility surrounding the
+ OE.PHYSEC, which ensures that the facility surrounding the
 processing platform in which the TOE resides provides a
 controlled means of access into the facility
 June 1, 2020 NetIQ Identity Manager 4.7 ST
@@ -754,7 +754,7 @@ ASSUMPTION /THREAT/
 POLICY
 RATIONALE
 A.MANAGE This assumption is addressed by
- OE.PERSONNEL, which ensures that the TOE is managed
+ OE.PERSONNEL, which ensures that the TOE is managed
 and administered by in a secure manner by a competent
 and security aware personnel in accordance with the
 administrator documentation. This objective also ensures
@@ -773,7 +773,7 @@ facility
 A.TIMESOURCE This assumption is addressed by OE.TIME, which ensures the
 provision of an accurate time source.
 T.NO_AUTH This threat is countered by the following:
- O.SEC_ACCESS, which ensures that the TOE allows access to
+ O.SEC_ACCESS, which ensures that the TOE allows access to
 the security functions, configuration, and associated data
 only by authorized users and applications
 T.NO_PRIV This threat is countered by O.SEC_ACCESS, which ensures that
@@ -785,13 +785,13 @@ authorized users for use.
 T.PROT_TRANS This threat is countered by O.TRANS_PROT, which protects data
 that is in transit between elements within the TOE.
 P.REMOTE_DATA This organizational security policy is enforced by
- O.MANAGE_DATA, which ensures that the TOE provide a
+ O.MANAGE_DATA, which ensures that the TOE provide a
 means to manage secrets and data associated with remote
 IT systems.
 T.USER_ACCESS_DENY This threat is countered by O.MANAGE_POLICY which ensures
 that the TOE provides a workflow to manage authentication and
 access control policies.
-Table 14 � Mapping of Threats, Policies, and Assumptions to Objectives
+Table 14 – Mapping of Threats, Policies, and Assumptions to Objectives
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 20 of 36
 5. Extended Components Definition
@@ -830,7 +830,7 @@ Protection of the TSF FPT_TDC.1 Inter-TSF basic TSF data consistency
 Trusted Path / Channels
 FTP_ITC.1 Trusted Channel
 FTP_TRP.1 Trusted Path
-Table 15 � TOE Security Functional Requirements
+Table 15 – TOE Security Functional Requirements
 Security Audit (FAU)
 FAU_GEN.1 Audit Data Generation
 FAU_GEN.1.1 The TSF shall be able to generate an audit record of the following
@@ -869,7 +869,7 @@ Generator (DRBG)
 Diffie-Hellman Diffie-Hellman Key
 Generation
 1024, 2048 FIPS 186-4
-Table 16 � Cryptographic Standards
+Table 16 – Cryptographic Standards
 FCS_CKM.4 Cryptographic key destruction
 FCS_CKM.4.1 The TSF shall destroy cryptographic keys in accordance with a
 specified cryptographic key destruction method [zeroize] that meets
@@ -934,7 +934,7 @@ of TLS
 Rivest, Shamir,
 Adleman (RSA)
 2048 FIPS 186-4
-Table 17 � Cryptographic Operations
+Table 17 – Cryptographic Operations
 Information Flow Control (FDP)
 FDP_ACC.1 Subset Access Control
 FDP_ACC.1.1 The TSF shall enforce the [Discretionary Access Control SFP] on [
@@ -966,7 +966,7 @@ FDP_ACF.1.4 The TSF shall explicitly deny access of subjects to objects based on
 following additional rules [ password restrictions, login restrictions,
 time based access controls, ip access controls, intruder lockout]
 Identification and Authentication (FIA)
-FIA_ATD.1 � User Attribute Definition
+FIA_ATD.1 – User Attribute Definition
 FIA_ATD.1.1 The TSF shall maintain the following list of security attributes
 belonging to individual users: [User Identity, Authentication Status,
 and Privilege Level].
@@ -999,13 +999,13 @@ table below] to [Administrator]:
 DATA CHANGE QUERY MODIFY DELETE CLEAR
 Discretionary
 Access Control SFP
-    
+    
 User Account
 Attributes
- 
-Audit Logs 
-Date/Time 
-Table 18 � Management of TSF data
+ 
+Audit Logs 
+Date/Time 
+Table 18 – Management of TSF data
 FMT_SMF.1 Specification of Management Functions
 FMT_SMF.1.1 The TSF shall be capable of performing the following management
 functions: [
@@ -1041,7 +1041,7 @@ FTP_ITC.1.2 The TSF shall permit [the TSF] to initiate communication via the
 trusted channel.
 FTP_ITC.1.3 The TSF shall initiate communication via the trusted channel for
 [HTTPS/TLS connections
- for communications labeled 1 � 12 in Figure 1]
+ for communications labeled 1 – 12 in Figure 1]
 Application Note: The TOE supports TLS v1.1 and 1.2 as configured by
 the Administrator.
 Application Note: Crypto as claimed in FCS_COP_1 is used to support
@@ -1055,9 +1055,9 @@ FTP_TRP.1.2 The TSF shall permit [the TSF] to initiate communication via the
 trusted path.
 FTP_TRP.1.3 The TSF shall require the use of the trusted path for [key requests, and
 encryption operations
- for communications labeled A, B, and C in Figure 1]
+ for communications labeled A, B, and C in Figure 1]
 Security Assurance Requirements
-The Security Assurance Requirements for this evaluation are listed in Section 6.3.4 � Security
+The Security Assurance Requirements for this evaluation are listed in Section 6.3.4 – Security
 Assurance Requirements.
 Security Requirements Rationale
 Security Functional Requirements
@@ -1072,26 +1072,26 @@ O.MANAGE_POLICY
 O.SEC_ACCESS
 O.PASSWD_PROT
 O.TRANS_PROT
-FAU_GEN.1 
-FAU_SAR.1 
-FCS_CKM.1 
-FCS_CKM.4 
-FCS_COP.1 
-FDP_ACC.1 
-FDP_ACF.1 
-FIA_ATD.1 
-FIA_UID.2 
-FIA_UAU.2 
-FMT_MSA.1 
-FMT_MSA.2 
-FMT_MSA.3 
-FMT_MTD.1 
-FMT_SMF.1 
-FMT_SMR.1 
-FPT_TDC.1 
-FTP_ITC.1 
-FTP_TRP.1 
-Table 19 � Mapping of TOE Security Functional Requirements and Objectives
+FAU_GEN.1 
+FAU_SAR.1 
+FCS_CKM.1 
+FCS_CKM.4 
+FCS_COP.1 
+FDP_ACC.1 
+FDP_ACF.1 
+FIA_ATD.1 
+FIA_UID.2 
+FIA_UAU.2 
+FMT_MSA.1 
+FMT_MSA.2 
+FMT_MSA.3 
+FMT_MTD.1 
+FMT_SMF.1 
+FMT_SMR.1 
+FPT_TDC.1 
+FTP_ITC.1 
+FTP_TRP.1 
+Table 19 – Mapping of TOE Security Functional Requirements and Objectives
 Dependency Rationale
 This ST satisfies all the security functional requirement dependencies of the Common Criteria.
 The table below lists each SFR to which the TOE claims conformance with a dependency and
@@ -1163,7 +1163,7 @@ dependency.
 FPT_TDC.1 N/A N/A
 FTP_ITC.1 N/A N/A
 FTP_TRP.1 N/A N/A
-Table 20 � Mapping of SFR to Dependencies and Rationales
+Table 20 – Mapping of SFR to Dependencies and Rationales
 Sufficiency of Security Requirements
 The following table presents a mapping of the rationale of TOE Security Requirements to
 Objectives.
@@ -1174,46 +1174,46 @@ O.MANAGE_DATA The objective to ensure that the TOE will collect events from secu
 products and non-security products deployed within a network and
 applies analytical processes to derive conclusions about the events is
 met by the following security requirements:
- FPT_TDC.1 ensures that the TOE provides consistency between
+ FPT_TDC.1 ensures that the TOE provides consistency between
 passwords used on remote IT systems and those
 stored/managed within the TOE.
 O.MANAGE_POLICY The objective to ensure that the TOE provides a workflow to manage
 authentication and access control policies is met by the following
 security requirements:
- FAU_GEN.1 and FAU_SAR.1 define the auditing capability for
+ FAU_GEN.1 and FAU_SAR.1 define the auditing capability for
 incidents and administrative access control and requires that
 authorized users will have the capability to read and interpret
 data stored in the audit logs
- FMT_SMF.1 and FMT_SMR.1 support the security functions
+ FMT_SMF.1 and FMT_SMR.1 support the security functions
 relevant to the TOE and ensure the definition of an authorized
 administrator role
 O.SEC_ACCESS This objective ensures that the TOE allows access to the security
 functions, configuration, and associated data only by authorized users
 and applications.
- FDP_ACC.1 requires that all user actions resulting in the access
+ FDP_ACC.1 requires that all user actions resulting in the access
 to TOE security functions and configuration data are controlled
- FDP_ACF.1 supports FDP_ACC.1 by ensuring that access to TOE
+ FDP_ACF.1 supports FDP_ACC.1 by ensuring that access to TOE
 security functions, configuration data, audit logs, and account
 attributes is based on the user privilege level and their
 allowable actions
- FIA_UID.2 requires the TOE to enforce identification of all users
+ FIA_UID.2 requires the TOE to enforce identification of all users
 prior to configuration of the TOE
- FIA_UAU.2 requires the TOE to enforce authentication of all
+ FIA_UAU.2 requires the TOE to enforce authentication of all
 users prior to configuration of the TOE
- FIA_ATD.1 specifies security attributes for users of the TOE
- FMT_MTD.1 restricts the ability to query, add or modify TSF
+ FIA_ATD.1 specifies security attributes for users of the TOE
+ FMT_MTD.1 restricts the ability to query, add or modify TSF
 data to authorized users.
- FMT_MSA.1 specifies that only privileged administrators can
+ FMT_MSA.1 specifies that only privileged administrators can
 access the TOE security functions and related configuration
 data.
- FMT_MSA.2 specifies that only secure values are accepted for
+ FMT_MSA.2 specifies that only secure values are accepted for
 security attributes listed with access control policies.
- FMT_MSA.3 ensures that the default values of security
+ FMT_MSA.3 ensures that the default values of security
 attributes are restrictive in nature as to enforce the access
 control policy for the TOE
- FTP_ITC.1 specifies that the trusted channel exists for components
+ FTP_ITC.1 specifies that the trusted channel exists for components
 HTTPS/TLS.
- FTP_TRP.1 specifies that the trusted path exists for components
+ FTP_TRP.1 specifies that the trusted path exists for components
 HTTPS/TLS.
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 30 of 36
@@ -1227,7 +1227,7 @@ O.TRANS_PROT This objective ensures that the TOE protects data in transit betwee
 elements within the TOE. This objective is met by FTP_ITC (which
 specifies that the trusted channel exists for components) and FTP_TRP
 (which ensures that the trusted path exists for components).
-Table 21 � Rationale for TOE SFRs to Objectives
+Table 21 – Rationale for TOE SFRs to Objectives
 Security Assurance Requirements
 The assurance security requirements for this Security Target are taken from Part 3 of the CC.
 These assurance requirements compose an Evaluation Assurance Level 3 (EAL3). The assurance
@@ -1258,7 +1258,7 @@ ATE_IND.2 Independent Testing - Sample
 AVA: Vulnerability
 Assessment
 AVA_VAN.2 Vulnerability Analysis
-Table 22 � Security Assurance Requirements at EAL3
+Table 22 – Security Assurance Requirements at EAL3
 Security Assurance Requirements Rationale
 The ST specifies Evaluation Assurance Level 3. EAL3 was chosen because it is based upon good
 commercial development practices with thorough functional testing. EAL3 provides the
@@ -1337,24 +1337,24 @@ EVIDENCE TITLE
 ATE_FUN.1Functional Testing
 NetIQ Identity Manager 4.7
 Test Plan and Coverage Analysis (ATE)
-Table 23 � Security Assurance Rationale and Measures
+Table 23 – Security Assurance Rationale and Measures
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 33 of 36
 7. TOE Summary Specification
 This section presents the Security Functions implemented by the TOE.
 TOE Security Functions
 The security functions performed by the TOE are as follows:
- Security Management
- Security Audit
- Identification and Authentication
- User Data Protection
- Trusted Path / Channels
- Cryptographic Support
+ Security Management
+ Security Audit
+ Identification and Authentication
+ User Data Protection
+ Trusted Path / Channels
+ Cryptographic Support
 Security Audit
 The TOE generates the following audit data:
- Start-up and shutdown of the audit functions (instantiated by startup of the TOE)
- User login/logout
- Login failures
+ Start-up and shutdown of the audit functions (instantiated by startup of the TOE)
+ User login/logout
+ Login failures
 The TOE provides the Administrator with the capability to read all audit data generated within
 the TOE via the console. The GUI provides a suitable means for an Administrator to interpret the
 information from the audit log.
@@ -1364,8 +1364,8 @@ operational environment are used to form the timestamps. The TOE ensures that th
 data is stamped when recorded with a dependable date and time received from the OE
 (operating system). In this manner, accurate time and date is maintained on the TOE.
 The Security Audit function is designed to satisfy the following security functional requirements:
- FAU_GEN.1
- FAU_SAR.1
+ FAU_GEN.1
+ FAU_SAR.1
 Identification and Authentication
 The IDM console application provides user interfaces that administrators may use to manage
 TOE functions. The operating system and the database in the TOE Environment are queried to
@@ -1373,14 +1373,14 @@ individually authenticate administrators or users. The TOE maintains authorizati
 that determines which TOE functions an authenticated administrators or users (of a given role)
 may perform.
 The TOE maintains the following list of security attributes belonging to individual users:
- User Identity (i.e., user name)
- Authentication Status (whether the IT Environment validated the username/password)
- Privilege Level (Administrator or User)
+ User Identity (i.e., user name)
+ Authentication Status (whether the IT Environment validated the username/password)
+ Privilege Level (Administrator or User)
 The Identification and Authentication function is designed to satisfy the following security
 functional requirements:
- FIA_ATD.1
- FIA_UAU.2
- FIA_UID.2
+ FIA_ATD.1
+ FIA_UAU.2
+ FIA_UID.2
 User Data Protection
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 34 of 36
@@ -1402,54 +1402,54 @@ noncompliant password on the connected system by using the current Distribution 
 the Identity Vault.
 The User Data Protection function is designed to satisfy the following security functional
 requirements:
- FDP_ACC.1
- FDP_ACF.1
- FPT_TDC.1
+ FDP_ACC.1
+ FDP_ACF.1
+ FPT_TDC.1
 Security Management
 The TOE maintains the operator roles described in the following table. The individual roles are
 categorized into two main roles: the Administrator and the User.
 ROLE MANAGEMENT FUNCTIONS
 Administrator A user who has rights to configure and manage all aspects of the TOE
-User The user's capabilities can be configured to:
+User The user’s capabilities can be configured to:
 View hierarchical relationships between User objects
 View and edit user information (with appropriate rights).
 Search for users or resources using advanced search criteria
 (which can be saved for later reuse).
 Recover forgotten passwords.
-Table 24 � Roles and Functions
+Table 24 – Roles and Functions
 Only an Administrator can determine the behavior of, disable, enable, and modify the behavior
 of the functions that implement the Discretionary Access Control SFP. The TPE ensures only
 secure values are accepted for the security attributes listed with Discretionary Access Control
 SFP.
 The Security Management function is designed to satisfy the following security functional
 requirements:
- FMT_MTD.1
- FMT_MSA.1
- FMT_MSA.2
- FMT_MSA.3
- FMT_SMF.1
- FMT_SMR.1
+ FMT_MTD.1
+ FMT_MSA.1
+ FMT_MSA.2
+ FMT_MSA.3
+ FMT_SMF.1
+ FMT_SMR.1
 June 1, 2020 NetIQ Identity Manager 4.7 ST
 NetIQ Corporation Page 35 of 36
 Trusted Path / Channels
 The Trusted Path/Channels function is designed to satisfy the following security functional
 requirements:
- FTP_ITC.1 � the TOE supports establishment of trusted channels for communicating
+ FTP_ITC.1 – the TOE supports establishment of trusted channels for communicating
 TOE entities using HTTPS.
- FTP_TRP.1 � the TOE provides a trusted path for TOE Users, using HTTPS
+ FTP_TRP.1 – the TOE provides a trusted path for TOE Users, using HTTPS
 Trusted Channel
 The TOE provides a trusted channel between the TOE and external web servers.
 Trusted channels are implemented using HTTPS. The TOE supports TLS v1.1 and TLS v1.2. The
 TOE supports the following TLS cipher suites, as defined in RFC 2246, RFC 4346 and RFC 5246:
- TLS_RSA_WITH_AES_128_CBC_SHA
- TLS_RSA_WITH_AES_128_GCM_SHA256
- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
- TLS_ECDHE_ECDSA_WITH_AES_256_ CBC_SHA
- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+ TLS_RSA_WITH_AES_128_CBC_SHA
+ TLS_RSA_WITH_AES_128_GCM_SHA256
+ TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+ TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+ TLS_ECDHE_ECDSA_WITH_AES_256_ CBC_SHA
+ TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
 Trusted Path:
 The TOE provides a trusted path for TOE administrators and TOE users to communicate with
-the TOE. The trusted path is implemented using HTTPS. The TOE's implementation of TLS is
+the TOE. The trusted path is implemented using HTTPS. The TOE’s implementation of TLS is
 described in the previous section (Trusted Channel).
 Cryptographic Support
 Cryptographic protection of data in transit between the TOE and remote users, and between
@@ -1488,10 +1488,10 @@ RSA RSA 1664
 Authentication algorithm in
 support of TLS
 ECDSA ECDSA 620
-Table 25 � CAVP
+Table 25 – CAVP
 The Cryptographic Support function is designed to satisfy the following security functional
 requirements:
- FCS_CKM.1
- FCS_CKM.4
- FCS_COP.1
+ FCS_CKM.1
+ FCS_CKM.4
+ FCS_COP.1
 

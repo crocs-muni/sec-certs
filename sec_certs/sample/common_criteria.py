@@ -581,7 +581,7 @@ class CommonCriteriaCert(
 
     @staticmethod
     def convert_report_pdf(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path, ["-raw"])
+        exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert report pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
@@ -591,7 +591,7 @@ class CommonCriteriaCert(
 
     @staticmethod
     def convert_target_pdf(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
-        exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path, ["-raw"])
+        exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert security target pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
