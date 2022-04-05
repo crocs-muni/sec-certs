@@ -19,3 +19,4 @@ requests
 scikit-learn
 tabula-py
 tqdm
+ipykernel
