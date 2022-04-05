@@ -42,7 +42,7 @@ ENV PATH="${VENV_PATH}/bin:$PATH"
 RUN \
     pip3 install -U pip && \
     pip3 install wheel && \
-    pip3 install -r requirements.txt && \
+    pip3 install -r requirements/requirements.txt && \
     pip3 install --no-cache notebook
 
 # #just to be sure that pdftotext is in $PATH
