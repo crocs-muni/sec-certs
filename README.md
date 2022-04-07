@@ -13,24 +13,23 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 
 ## Installation
 
-The tool requires `Python >=3.8`. Alongside `Python`, [pdftotext](https://www.xpdfreader.com/pdftotext-man.html), [graphviz](https://graphviz.org/),
-and [java](https://www.java.com/en) binaries must be accessible somewhere on `PATH`.
+The tool can be pulled as a docker image with
 
-The stable release is published on [GitHub](https://github.com/crocs-muni/sec-certs/releases), [PyPi](https://pypi.org/project/sec-certs/), and[DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs), you can install it with:
-
-```
-pip install -U sec-certs
-```
-
-or
-
-```
+```bash
 docker pull seccerts/sec-certs
 ```
 
-Alternatively, you can [download a release](https://github.com/crocs-muni/sec-certs/releases) and setup the tool for development in virtual environment:
+Alternatively, it can be installed from PyPi with
 
+```bash
+pip install -U sec-certs
 ```
+
+Note, however, that `Python>=3.8` is required and there are some [additional dependencies](https://github.com/crocs-muni/sec-certs/blob/main/CONTRIBUTING.md#dependencies).
+
+The stable release is also published on [GitHub](https://github.com/crocs-muni/sec-certs/releases) from where it can be setup for development with
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -e .
@@ -43,7 +42,7 @@ There are two main steps in exploring the world of Common Criteria certificates:
 1. Processing all the certificates
 2. Data exploration
 
-For the first step, we currently provide CLI and our already processed fresh snapshot. For the second step, we provide simple API that can be used directly inside our Jupyter notebook or locally, at your machine. 
+For the first step, we currently provide CLI and our already processed fresh snapshot. For the second step, we provide simple API that can be used directly inside our Jupyter notebook or locally, at your machine.
 
 ### Explore data with MyBinder Jupyter notebook
 
@@ -97,7 +96,7 @@ Options:
   --help                  Show this message and exit.
 ```
 
-### Process CC data with Docker 
+### Process CC data with Docker
 
  1. pull the image from the DockerHub repository : `docker pull seccerts/sec-certs`
  2. run `docker run --volume ./processed_data:/home/user/sec-certs/examples/debug_dataset -it seccerts/sec-certs`
@@ -105,7 +104,7 @@ Options:
 
 ## Usage (FIPS)
 
-Currently, the main goal of the FIPS module is to find dependencies between the certified products. 
+Currently, the main goal of the FIPS module is to find dependencies between the certified products.
 
 ### MyBinder Jupyter Notebook
 
@@ -209,14 +208,14 @@ The first time you are using the FIPS module, use the following command:
 ```
 fips-certs new-run --output <directory name> --name <dataset name>
 ```
-where `<directory name>` is the name of the working directory of the FIPS module 
+where `<directory name>` is the name of the working directory of the FIPS module
 (e.g. where all the metadata will be stored), and `<dataset name>` is the name of the resulting dataset.
 
 This will download a large amount of data (4-5 GB) and can take up to 4 hours to finish.
 
 #### Next runs
 
-When a dataset is successfully created using `new-run`, you can use the command `all` to update the dataset 
+When a dataset is successfully created using `new-run`, you can use the command `all` to update the dataset
 (download latest files, redo scans for failed certificates, etc.). It is also **strongly advised** to use the `--higher-precision-results`
 switch on the **second run**. The following command should be used to update the dataset:
 ```

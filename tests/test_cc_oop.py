@@ -103,8 +103,8 @@ class TestCommonCriteriaOOP(TestCase):
             "8cf86948f02f047d": "3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be",
         }
 
-        self.template_report_txt_path = self.test_data_dir / "report_869415cc4b91282e.txt"
-        self.template_target_txt_path = self.test_data_dir / "target_869415cc4b91282e.txt"
+        self.template_report_txt_path = self.test_data_dir / "report_309ac2fd7f2dcf17.txt"
+        self.template_target_txt_path = self.test_data_dir / "target_309ac2fd7f2dcf17.txt"
 
     def test_certificate_input_sanity(self):
         self.assertEqual(

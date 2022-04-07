@@ -4,9 +4,26 @@ You contribution is warmly welcomed. You can help by:
 
  0. Spread the word about this project, look at generated processed webpages
  1. Trying the tool and reporting issues and suggestions for improvement (open Github issue)
- 2. Add new regular expressions to extract relevant information from certificates (update cert_rules.py) 
+ 2. Add new regular expressions to extract relevant information from certificates (update cert_rules.py)
  3. Perform additional analysis with extracted data (analyze_certificates.py)
  3. Improve the code (TODO: Follow Github contribution guidelines, ideally contact us first about your plan)
+
+## Dependencies
+
+Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/docker/Dockerfile) presents all the required dependencies, elaborated below.
+
+- [Java](https://www.java.com/en) is needed to parse tables in FIPS pdf documents, must be available from `PATH`.
+- Some imported libraries have non-trivial dependencies to resolve:
+    - [pdftotext](https://github.com/jalan/pdftotext) requires [Poppler](https://poppler.freedesktop.org/) to be installed. We've experienced issues with older versions of Poppler (`0.x`), make sure to install `20.x` version of these libraries.
+    - [graphviz](https://pypi.org/project/graphviz/) requires `graphviz` to be on the path
+
+### Requirements
+
+Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-tools). The main ideas are:
+- List actual dependencies in `.in` files inside [requirements](requirements) folder without pinning them.
+- Those dependencies are loaded into [setup.py](setup.py) file.
+- Additionally, [compile.sh](requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
+- Tests, linting and Docker all run against this reproducible environment of pinned requirements.
 
 ## Branches and releases
 
@@ -23,7 +40,7 @@ All commits shall pass the lint pipeline of the following tools:
 - isort (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/dev/pyproject.toml) for settings)
 - Flake8 (see [.flake8](https://github.com/crocs-muni/sec-certs/blob/dev/.flake8) for settings)
 
-These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/dev/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you. 
+These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/dev/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
 It should thus suffice to:
 
