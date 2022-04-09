@@ -686,11 +686,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             cert.compute_heuristics_cert_id(self.all_cert_ids)
 
     def _compute_dependency_vulnerabilities(self):
-        cve_dependency_finder = DependencyVulnerabilityFinder(self.certs)
-        cve_dependency_finder.fit()
+        cve_dependency_finder = DependencyVulnerabilityFinder()
+        cve_dependency_finder.fit(self.certs)
 
         for dgst in self.certs:
-            dependency_cve = cve_dependency_finder.get_dependency_vulnerabilities(dgst)
+            dependency_cve = cve_dependency_finder.predict_single_cert(dgst)
             self.certs[dgst].heuristics.direct_dependency_cves = dependency_cve.direct_dependency_cves
             self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
 
