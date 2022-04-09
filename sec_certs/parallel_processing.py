@@ -36,5 +36,6 @@ def process_parallel(
 
     pool.close()
     pool.join()
+    pool.terminate()
 
     return [r.get() for r in results]

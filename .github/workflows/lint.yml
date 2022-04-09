@@ -11,14 +11,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
+      - name: Install external dependencies
+        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
       - name: Install python dependencies
-        run: pip install -r requirements.txt
-      - name: Install mypy and types
         run: |
-          pip install mypy
-          python3 -m pip install types-PyYAML
-          python3 -m pip install types-python-dateutil
-          python3 -m pip install types-requests
+          pip install -r requirements/requirements.txt
+          pip install -r requirements/dev_requirements.txt
       - name: Run mypy
         run: mypy .
   black:
@@ -35,7 +33,7 @@ jobs:
           python-version: 3.8
       - uses: isort/isort-action@master
         with:
-            requirementsFiles: "requirements.txt dev_requirements.txt"
+            requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
   flake8-lint:
     runs-on: ubuntu-latest
     name: Flake8
