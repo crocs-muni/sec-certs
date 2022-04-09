@@ -691,6 +691,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         for dgst in self.certs:
             dependency_cve = cve_dependency_finder.predict_single_cert(dgst)
+
+            if dependency_cve.direct_dependency_cves:
+                print(self.certs[dgst])
+
             self.certs[dgst].heuristics.direct_dependency_cves = dependency_cve.direct_dependency_cves
             self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
 
