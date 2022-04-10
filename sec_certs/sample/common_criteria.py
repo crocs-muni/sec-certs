@@ -2,6 +2,7 @@ import copy
 import operator
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
@@ -25,6 +26,11 @@ HEADERS = {
     "niap": helpers.search_only_headers_niap,
     "canada": helpers.search_only_headers_canada,
 }
+
+
+class DependencyType(Enum):
+    DIRECT = "direct"
+    INDIRECT = "indirect"
 
 
 class CommonCriteriaCert(
@@ -241,6 +247,8 @@ class CommonCriteriaCert(
         cert_id: Optional[str] = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
+        direct_dependency_cves: Optional[Set[str]] = field(default=None)
+        indirect_dependency_cves: Optional[Set[str]] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:

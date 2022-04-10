@@ -19,6 +19,7 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
+from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -684,12 +685,23 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         for cert in self:
             cert.compute_heuristics_cert_id(self.all_cert_ids)
 
+    def _compute_dependency_vulnerabilities(self):
+        cve_dependency_finder = DependencyVulnerabilityFinder()
+        cve_dependency_finder.fit(self.certs)
+
+        for dgst in self.certs:
+            dependency_cve = cve_dependency_finder.predict_single_cert(dgst)
+
+            self.certs[dgst].heuristics.direct_dependency_cves = dependency_cve.direct_dependency_cves
+            self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
+
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True) -> None:
         self._compute_cert_labs()
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
         _, _, cve_dset = self.compute_cpe_heuristics()
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
+        self._compute_dependency_vulnerabilities()
 
     def _compute_dependencies(self) -> None:
         def ref_lookup(kw_attr):
@@ -709,7 +721,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup(kw_source))  # type: ignore
 
             for dgst in self.certs:
-                setattr(self.certs[dgst].heuristics, dep_attr, finder.get_references(dgst))
+                setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst))
 
     @serialize
     def analyze_certificates(self, fresh: bool = True) -> None:

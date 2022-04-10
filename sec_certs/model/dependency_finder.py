@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Optional, Set, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import ComplexSerializableType
@@ -133,26 +133,34 @@ class DependencyFinder:
                 cert_id, referenced_by_indirect
             )
 
-    def get_directly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
+    def _get_directly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("directly_referenced_by", None)
         return set(res) if res else None
 
-    def get_indirectly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
+    def _get_indirectly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("indirectly_referenced_by", None)
         return set(res) if res else None
 
-    def get_directly_referencing(self, dgst: str) -> Optional[Set[str]]:
+    def _get_directly_referencing(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("directly_referencing", None)
         return set(res) if res else None
 
-    def get_indirectly_referencing(self, dgst: str) -> Optional[Set[str]]:
+    def _get_indirectly_referencing(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("indirectly_referencing", None)
         return set(res) if res else None
 
-    def get_references(self, dgst: str) -> References:
+    def predict_single_cert(self, dgst: str) -> References:
         return References(
-            self.get_directly_referenced_by(dgst),
-            self.get_indirectly_referenced_by(dgst),
-            self.get_directly_referencing(dgst),
-            self.get_indirectly_referencing(dgst),
+            self._get_directly_referenced_by(dgst),
+            self._get_indirectly_referenced_by(dgst),
+            self._get_directly_referencing(dgst),
+            self._get_indirectly_referencing(dgst),
         )
+
+    def predict(self, dgst_list: List[str]) -> Dict[str, References]:
+        cert_references = {}
+
+        for dgst in dgst_list:
+            cert_references[dgst] = self.predict_single_cert(dgst)
+
+        return cert_references

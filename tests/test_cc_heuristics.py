@@ -283,3 +283,15 @@ class TestCommonCriteriaHeuristics(TestCase):
         )
         self.assertEqual(test_cert.heuristics.report_references.directly_referencing, {"BSI-DSZ-CC-0268-2005"})
         self.assertEqual(test_cert.heuristics.report_references.indirectly_referencing, {"BSI-DSZ-CC-0268-2005"})
+
+    def test_direct_dependency_vulnerability_dataset(self):
+        dataset = CCDataset.from_json(self.data_dir_path / "dependency_vulnerability_dataset.json")
+        dataset._compute_dependency_vulnerabilities()
+        test_cert = dataset["d0705c9e6fbaeba3"]
+        self.assertEqual(test_cert.heuristics.direct_dependency_cves, {"CVE-2013-5385"})
+
+    def test_indirect_dependency_vulnerability_dataset(self):
+        dataset = CCDataset.from_json(self.data_dir_path / "dependency_vulnerability_dataset.json")
+        dataset._compute_dependency_vulnerabilities()
+        test_cert = dataset["d0705c9e6fbaeba3"]
+        self.assertEqual(test_cert.heuristics.indirect_dependency_cves, {"CVE-2013-5385"})
