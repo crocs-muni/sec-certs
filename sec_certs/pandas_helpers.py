@@ -1,9 +1,12 @@
 from pathlib import Path
+from shutil import copyfile
 from typing import List, Optional, Set, Union
 
+import numpy as np
 import pandas as pd
 from tqdm.notebook import tqdm
 
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.sar import SAR
 
 
@@ -72,3 +75,66 @@ def compute_cve_correlations(
         df_corr.to_csv(output_path)
 
     return df_corr
+
+
+def find_earliest_maintenance_after_cve(row):
+    "Given dataframe row, will return first maintenance date succeeding first published CVE related to a certificate if exists, else np.nan"
+    if isinstance(row["earliest_cve"], float):
+        return np.nan
+    maintenances_after_cve = list(filter(lambda x: x > row["earliest_cve"], row["maintenance_dates"]))
+    return min(maintenances_after_cve) if maintenances_after_cve else np.nan
+
+
+def expand_cc_df_with_cve_cols(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
+    df = cc_df.copy()
+    df["n_cves"] = df.related_cves.map(lambda x: len(x) if x is not np.nan else 0)
+    df["cve_published_dates"] = df.related_cves.map(
+        lambda x: [cve_dset[y].published_date.date() for y in x] if x is not np.nan else np.nan  # type: ignore
+    )
+    df["earliest_cve"] = df.cve_published_dates.map(lambda x: min(x) if isinstance(x, list) else np.nan)
+    df["worst_cve"] = df.related_cves.map(
+        lambda x: max([cve_dset[cve].impact.base_score for cve in x]) if x is not np.nan else np.nan
+    )
+    return df
+
+
+def compute_maintenances_that_should_fix_vulns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Given pre-processed CCDataset DataFrame (expanded with MU & CVE cols), computes time to fix CVE and earliest CVE after some vuln.
+    """
+    df_fixed = df.loc[(df.n_cves > 0) & (df.n_maintenances > 0)].copy()
+    df_fixed.maintenance_dates = df_fixed.maintenance_dates.map(
+        lambda x: [y.date() for y in x] if not isinstance(x, float) else x
+    )
+    df_fixed.loc[:, "earliest_maintenance"] = df_fixed.apply(find_earliest_maintenance_after_cve, axis=1)
+    df_fixed.loc[:, "time_to_fix_cve"] = df_fixed.earliest_maintenance - df_fixed.earliest_cve
+    df_fixed.index.name = "dgst"
+    return df_fixed
+
+
+def move_fixing_mu_to_directory(
+    df_fixed: pd.DataFrame, main_df: pd.DataFrame, outdir: Union[str, Path], inpath: Union[str, Path]
+) -> pd.DataFrame:
+    """
+    Localizes reports of maintenance updates that should fix some vulnerability and copies them into a directory.
+    df_fixed should be the output of compute_maintenances_that_should_fix_vulns method.
+    """
+    fixed_df_index = (
+        df_fixed.loc[~df_fixed.earliest_maintenance.isnull()]
+        .reset_index()
+        .set_index(["dgst", "earliest_maintenance"])
+        .index.to_flat_index()
+    )
+    main_df.maintenance_date = main_df.maintenance_date.map(lambda x: x.date())
+    main_prefiltered = main_df.reset_index().set_index(["related_cert_digest", "maintenance_date"])
+    mu_filenames = main_prefiltered.loc[main_prefiltered.index.isin(fixed_df_index), "dgst"]
+    mu_filenames = mu_filenames.map(lambda x: x + ".pdf")
+
+    inpath = Path(inpath)
+    if not inpath.exists():
+        inpath.mkdir()
+
+    for i in mu_filenames:
+        copyfile(inpath / i, Path(outdir) / i)
+
+    return mu_filenames
