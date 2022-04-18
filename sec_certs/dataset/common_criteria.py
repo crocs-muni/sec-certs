@@ -19,6 +19,7 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
+from sec_certs.model.sar_parser import SARParser
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -688,8 +689,14 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._compute_cert_labs()
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
+        self._compute_sars()
         _, _, cve_dset = self.compute_cpe_heuristics()
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
+
+    def _compute_sars(self) -> None:
+        parser = SARParser().fit([cert for cert in self])
+        for cert in self:
+            cert.heuristics.sars = parser.predict_single_cert(cert)
 
     def _compute_dependencies(self) -> None:
         def ref_lookup(kw_attr):

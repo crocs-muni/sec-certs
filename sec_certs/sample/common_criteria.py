@@ -15,6 +15,7 @@ from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.model.dependency_finder import References
 from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -241,6 +242,7 @@ class CommonCriteriaCert(
         cert_id: Optional[str] = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
+        sars: Optional[Set[SAR]] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -268,6 +270,7 @@ class CommonCriteriaCert(
         "indirectly_referenced_by",
         "directly_referencing",
         "indirectly_referencing",
+        "sars",
     ]
 
     def __init__(
@@ -351,6 +354,7 @@ class CommonCriteriaCert(
             self.heuristics.report_references.indirectly_referenced_by,
             self.heuristics.report_references.directly_referencing,
             self.heuristics.report_references.indirectly_referencing,
+            self.heuristics.sars,
         )
 
     def __str__(self) -> str:
