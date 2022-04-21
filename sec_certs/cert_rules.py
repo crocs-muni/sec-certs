@@ -42,12 +42,10 @@ rules_cert_id = [
     "CRP-C[0-9]+?-[0-9]+?",  # Japan
     "(?:CRP|ACR)-C[0-9]+-[0-9]+",  # Japan (CRP-C0595-01 ACR-C0417-03)
     "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+",  # Japan (JISEC-CC-CRP-C0689-01-2020)
-    "Certification No. C[0-9]+"  # Japan (Certification No. C0090)
-    "ISCB-[0-9]+?-RPT-[0-9]+?",  # Malaysia
+    "Certification No. C[0-9]+" "ISCB-[0-9]+?-RPT-[0-9]+?",  # Japan (Certification No. C0090)  # Malaysia
     # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
-    "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9]|)-[vV][0-9][a-z]?"
-    "OCSI/CERT/.+?",  # Italia
-    "OCSI/CERT/.+?/20[0-9]+(?:\w|/RC)",  # Italia  (OCSI/CERT/ATS/01/2018/RC)
+    "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9]|)-[vV][0-9][a-z]?" "OCSI/CERT/.+?",  # Italia
+    r"OCSI/CERT/.+?/20[0-9]+(?:\w|/RC)",  # Italia  (OCSI/CERT/ATS/01/2018/RC)
     "[0-9\\.]+?/TSE-CCCS-[0-9]+",  # Turkis CCCS (21.0.0sc/TSE-CCCS-75)
     "CSEC[0-9]+",  # Sweden (CSEC2019015)
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
@@ -57,8 +55,7 @@ rules_cert_id = [
     "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*",  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
     "[0-9][0-9][0-9](?: |-)(?:EWA|LSS)(?: |-)20[0-9][0-9]",  # Canada (522-EWA-2020, 524 LSS 2020)
     # Canada filename with space (518-LSS%20CR%20v1.0)
-    "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\.[0-9]",
-
+    r"[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\.[0-9]",
     # Australia (EFS-T048 ETR 1.0, EFS-T056-ETR 1.0, DXC-EFC-T092-ETR 1.0)
     "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+",
 ]
