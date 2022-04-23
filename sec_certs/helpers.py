@@ -201,7 +201,7 @@ def repair_pdf(file: Path) -> None:
 def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
     try:
         with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
+            pdf = pdftotext.PDF(pdf_handle, "", False)  # No password, Raw=False
             txt = "".join(pdf)
     except Exception as e:
         logger.error(f"Error when converting pdf->txt: {e}")
