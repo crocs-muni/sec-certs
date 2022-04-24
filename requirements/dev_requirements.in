@@ -11,3 +11,4 @@ isort
 flake8
 pre-commit
 pip-tools
+sphinx
