@@ -156,5 +156,11 @@ def get_cc_searcher():
     return searcher
 
 
+@cc.before_app_first_request
+def init_cc():
+    load_cc_data()
+    get_cc_searcher()
+
+
 from .commands import *
 from .views import *

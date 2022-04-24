@@ -21,7 +21,6 @@ with fips.open_resource("types.json") as f:
 with fips.open_resource("status.json") as f:
     fips_status = json.load(f)
 
-
 fips_searcher: ContextVar = ContextVar("fips_searcher")
 
 
@@ -103,6 +102,12 @@ def get_fips_searcher():
         searcher = whoosh_index.searcher()
     fips_searcher.set(searcher)
     return searcher
+
+
+@fips.before_app_first_request
+def init_fips():
+    load_fips_data()
+    get_fips_searcher()
 
 
 from .commands import *
