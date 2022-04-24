@@ -3,7 +3,7 @@ from datetime import date
 from pathlib import Path
 
 from bson.objectid import ObjectId
-from jsondiff.symbols import Symbol
+from jsondiff.symbols import Symbol, _all_symbols_
 from sec_certs.serialization.json import ComplexSerializableType
 
 from .frozendict import frozendict
@@ -16,6 +16,9 @@ def serializable_complex_types():
     if _sct is None:
         _sct = {x.__name__: x for x in ComplexSerializableType.__subclasses__()}
     return _sct
+
+
+_symbol_map = {f"__{s.label}__": s for s in _all_symbols_}
 
 
 class Format(ABC):
@@ -46,7 +49,7 @@ class StorageFormat(Format):
                 else:
                     res = {}
                     for key in obj.keys():
-                        res[key.replace("\uff0e", ".")] = walk(obj[key])
+                        res[_symbol_map[key] if key in _symbol_map else key.replace("\uff0e", ".")] = walk(obj[key])
                     return frozendict(res)
             elif isinstance(obj, list):
                 return list(map(walk, obj))

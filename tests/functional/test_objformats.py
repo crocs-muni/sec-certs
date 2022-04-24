@@ -35,5 +35,9 @@ def test_load_cert(cert1):
 
 def test_diff(cert1, cert2):
     d = diff(cert1[1], cert2[1], syntax="explicit")
-    WorkingFormat(d).to_storage_format().get()
-    WorkingFormat(d).to_raw_format().get()
+    print(d)
+    working = WorkingFormat(d)
+    storage = working.to_storage_format().get()
+    raw = working.to_raw_format().get()
+    working_back = working.to_storage_format().to_working_format().get()
+    assert working.get() == working_back
