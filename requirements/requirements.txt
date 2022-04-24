@@ -22,6 +22,8 @@ html5lib==1.1
     # via -r requirements.in
 idna==3.3
     # via requests
+importlib-resources==5.7.1
+    # via jsonschema
 jarowinkler==1.0.2
     # via rapidfuzz
 joblib==1.1.0
@@ -102,3 +104,5 @@ urllib3==1.26.9
     # via requests
 webencodings==0.5.1
     # via html5lib
+zipp==3.8.0
+    # via importlib-resources
