@@ -18,12 +18,14 @@
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
     <meta property="twitter:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
     <meta property="twitter:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
-    <meta property="twitter:description" content="FIPS 140 certificate {{ cert["web_scan"]["module_name"]|default("", true) }}"/>
+    <meta property="twitter:description"
+          content="FIPS 140 certificate {{ cert["web_scan"]["module_name"]|default("", true) }}"/>
     <meta property="og:title" content="{{ cert["web_scan"]["module_name"]|default("seccerts.org", true) }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
     <meta property="og:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
-    <meta property="og:description" content="FIPS 140 certificate {{ cert["web_scan"]["module_name"]|default("", true) }}"/>
+    <meta property="og:description"
+          content="FIPS 140 certificate {{ cert["web_scan"]["module_name"]|default("", true) }}"/>
     <meta property="og:site_name" content="seccerts.org"/>
 {% endblock %}
 {% block navbar %}
@@ -68,98 +70,153 @@
                               data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information extracted from the NIST CMVP web page of the certificate.">?</span>
                     </h2>
-                    <div data-cs-name="Status">
-                        <b>Status:</b> {{ render_status(cert["web_scan"]["status"]) }}<br/>
-                    </div>
-                    {% if cert["web_scan"]["historical_reason"] %}
-                        <div data-cs-name="Historical reason">
-                            <b>Historical reason:</b> {{ cert["web_scan"]["historical_reason"] }}<br/>
-                        </div>
-                    {% endif %}
-                    <div data-cs-name="Validation dates">
-                        <b>Validation dates:</b> {% for date in cert["web_scan"]["date_validation"] %}
-                        {{ date|strftime("%d.%m.%Y") }}
-                        {{ ", " if not loop.last else "" }}{% endfor %}<br/>
-                    </div>
-                    {% if cert["web_scan"]["date_sunset"] %}
-                        <div data-cs-name="Sunset date">
-                            <b>Sunset date:</b>
-                            {{ cert["web_scan"]["date_sunset"]|strftime("%d-%m-%Y") }}<br/>
-                        </div>
-                    {% endif %}
-                    <div data-cs-name="Standard">
-                        <b>Standard:</b> {{ cert["web_scan"]["standard"] }}<br/>
-                    </div>
-                    <div data-cs-name="Security level">
-                        <b>Security level:</b> {{ cert["web_scan"]["level"] }}<br/>
-                    </div>
-                    <div data-cs-name="Type">
-                        <b>Type:</b> {{ render_type(cert["web_scan"]["module_type"]) }} {{ cert["web_scan"]["module_type"] }}<br/>
-                    </div>
-                    <div data-cs-name="Embodiment">
-                        <b>Embodiment:</b> {{ cert["web_scan"]["embodiment"] }}<br/>
-                    </div>
-                    {% if cert["web_scan"]["caveat"] %}
-                        <div data-cs-name="Caveat">
-                            <b>Caveat:</b>
-                            {{ cert["web_scan"]["caveat"] }}
-                            <br/>
-                        </div>
-                    {% endif %}
-                    {% if cert["web_scan"]["exceptions"] %}
-                        <div data-cs-name="Exceptions">
-                            <b>Exceptions:</b>
-                            <ul>
-                                {% for exceptioon in cert["web_scan"]["exceptions"] %}
-                                    <li data-cs-name="Exceptions - {{ loop.index }}">{{ exceptioon }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    {% if cert["web_scan"]["description"] %}
-                        <div data-cs-name="Description">
-                            <b>Description:</b>
-                            {{ cert["web_scan"]["description"] }}
-                            <br/>
-                        </div>
-                    {% endif %}
-                    {% if cert["web_scan"]["hw_versions"] %}
-                        <b>Version (Hardware):</b>
-                        {{ cert["web_scan"]["hw_versions"] }}
-                        <br/>
-                    {% endif %}
-                    {% if cert["web_scan"]["fw_versions"] %}
-                        <b>Version (Firmware):</b>
-                        {{ cert["web_scan"]["fw_versions"] }}
-                        <br/>
-                    {% endif %}
-                    {% if cert["web_scan"]["tested_conf"] %}
-                        <b>Tested configurations:</b>
-                        <ul>
-                            {% for conf in cert["web_scan"]["tested_conf"] %}
-                                <li>{{ conf }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <b>Vendor:</b> {{ cert["web_scan"]["vendor"] }} <a
-                        href="{{ cert["web_scan"]['vendor_www'] }}">{{ cert["web_scan"]["vendor_www"] }}</a><br/>
-                    <b>Lab:</b> {{ cert["web_scan"]["lab"] }} {% if cert["web_scan"]["lab_nvlap"] %}(NVLAP Code:
-                    {{ cert["web_scan"]["lab_nvlap"] }}){% endif %}<br/>
-                    {% if cert["web_scan"]["algorithms"] %}
-                        <b>FIPS Algorithms:</b>
-                        <ul>
-                            {% for algo in cert["web_scan"]["algorithms"] %}
-                                {% if "Name" in algo %}
-                                    <li>{{ algo["Name"] }} -
-                                        {% for name in algo["Certificate"] %}
-                                            <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["Name"] }}&number={{ name.replace("#", "") }}"
-                                               target="_blank" rel="noopener">{{ name }}</a>
-                                            {{ ", " if not loop.last else "" }}
-                                        {% endfor %}</li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                    <table class="table table-sm table-borderless w-auto">
+                        <colgroup>
+                            <col style="width: 10%"/>
+                            <col style="width: 80%"/>
+                        </colgroup>
+                        <tbody>
+                        <tr data-cs-name="Certificate status">
+                            <th scope="row">Status</th>
+                            <td>{{ render_status(cert["web_scan"]["status"]) }}</td>
+                        </tr>
+                        {% if cert["web_scan"]["historical_reason"] %}
+                            <tr data-cs-name="Historical reason">
+                                <th scope="row">Historical reason</th>
+                                <td>{{ cert["web_scan"]["historical_reason"] }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["revoked_reason"] %}
+                            <tr data-cs-name="Revoked reason">
+                                <th scope="row">Revoked reason</th>
+                                <td>{{ cert["web_scan"]["revoked_reason"] }}
+                                    {% if cert["web_scan"]["revoked_link"] %}
+                                        <a href="{{ cert["web_scan"]["revoked_link"] }}" target="_blank" rel="noopener">{{ cert["web_scan"]["revoked_link"] }}</a>
+                                    {% endif %}</td>
+                            </tr>
+                        {% endif %}
+                        <tr data-cs-name="Validation dates">
+                            <th scope="row">Validation dates</th>
+                            <td>
+                                {% for date in cert["web_scan"]["date_validation"] %}
+                                    {{ date|strftime("%d.%m.%Y") }}
+                                    {{ ", " if not loop.last else "" }}{% endfor %}</td>
+                        </tr>
+                        {% if cert["web_scan"]["date_sunset"] %}
+                            <tr data-cs-name="Sunset date">
+                                <th scope="row">Sunset date</th>
+                                <td>{{ cert["web_scan"]["date_sunset"]|strftime("%d-%m-%Y") }}</td>
+                            </tr>
+                        {% endif %}
+                        <tr data-cs-name="Standard">
+                            <th scope="row">Standard</th>
+                            <td>{{ cert["web_scan"]["standard"] }}</td>
+                        </tr>
+                        <tr data-cs-name="Security level">
+                            <th scope="row">Security level</th>
+                            <td>{{ cert["web_scan"]["level"] }}</td>
+                        </tr>
+                        <tr data-cs-name="Type">
+                            <th scope="row">Type</th>
+                            <td>{{ render_type(cert["web_scan"]["module_type"]) }} {{ cert["web_scan"]["module_type"] }}</td>
+                        </tr>
+                        <tr data-cs-name="Embodiment">
+                            <th scope="row">Embodiment</th>
+                            <td>{{ cert["web_scan"]["embodiment"] }}</td>
+                        </tr>
+                        {% if cert["web_scan"]["caveat"] %}
+                            <tr data-cs-name="Caveat">
+                                <th scope="row">Caveat</th>
+                                <td>{{ cert["web_scan"]["caveat"] }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["exceptions"] %}
+                            <tr data-cs-name="Exceptions">
+                                <th scope="row">Exceptions</th>
+                                <td>
+                                    <ul>
+                                        {% for exceptioon in cert["web_scan"]["exceptions"] %}
+                                            <li data-cs-name="Exceptions - {{ loop.index }}">{{ exceptioon }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["description"] %}
+                            <tr data-cs-name="Description">
+                                <th scope="row">Description</th>
+                                <td>{{ cert["web_scan"]["description"] }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["hw_versions"] %}
+                            <tr>
+                                <th scope="row">Version (Hardware)</th>
+                                <td>{{ cert["web_scan"]["hw_versions"] }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["fw_versions"] %}
+                            <tr>
+                                <th scope="row">Version (Firmware)</th>
+                                <td>{{ cert["web_scan"]["fw_versions"] }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["tested_conf"] %}
+                            <tr>
+                                <th scope="row">Tested configurations</th>
+                                <td>
+                                    <ul>
+                                        {% for conf in cert["web_scan"]["tested_conf"] %}
+                                            <li>{{ conf }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <th scope="row">Vendor</th>
+                            <td>
+                                {{ cert["web_scan"]["vendor"] }} <a
+                                    href="{{ cert["web_scan"]['vendor_www'] }}" target="_blank" rel="noopener">{{ cert["web_scan"]["vendor_www"] }}</a>
+                            </td>
+                        </tr>
+                        {% if cert["web_scan"]["lab"] %}
+                            <tr>
+                                <th scope="row">Lab</th>
+                                <td>
+                                    {{ cert["web_scan"]["lab"] }} {% if cert["web_scan"]["lab_nvlap"] %}(NVLAP Code:
+                                    {{ cert["web_scan"]["lab_nvlap"] }}){% endif %}</td>
+                            </tr>
+                        {% endif %}
+                        {% if cert["web_scan"]["algorithms"] %}
+                            <tr>
+                                <th scope="row">Algorithms</th>
+                                <td>
+                                    <ul>
+                                        {% for algo in cert["web_scan"]["algorithms"] %}
+                                            {% if "Name" in algo %}
+                                                <li>{{ algo["Name"] }}{% if algo["Certificate"] %} - {% endif %}
+                                                    {% for name in algo["Certificate"] %}
+                                                        <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["Name"] }}&number={{ name.replace("#", "") }}"
+                                                           target="_blank" rel="noopener">{{ name }}</a>
+                                                        {{ ", " if not loop.last else "" }}
+                                                    {% endfor %}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <th scope="row">References</th>
+                            <td><p>This certificate's webpage directly references
+                                {{ cert["heuristics"]["web_references"]["directly_referencing"]|default("", true)|length }}
+                                certificates,
+                                transitively this expands
+                                into {{ cert["heuristics"]["web_references"]["indirectly_referencing"]|default("", true)|length }}
+                                certificates.</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
 
                     <div class="mt-2 mb-2">
                         {{ render_local_files(hashid, local_files, cert["web_scan"]["certificate_www"], None, cert["web_scan"]["security_policy_www"]) }}
@@ -192,6 +249,14 @@
                     {{ device_keywords(cert["heuristics"]["keywords"], "policy") }}
                     {{ security_keywords(cert["heuristics"]["keywords"], "policy") }}
                     {{ other_keywords(cert["heuristics"]["keywords"], "policy") }}
+
+                    <h3 class="mt-3">References</h3>
+                    <p>This certificate's security target directly references
+                        {{ cert["heuristics"]["st_references"]["directly_referencing"]|default("", true)|length }}
+                        certificates,
+                        transitively this expands
+                        into {{ cert["heuristics"]["st_references"]["indirectly_referencing"]|default("", true)|length }}
+                        certificates.</p>
                 </div>
             </div>
         </div>
@@ -203,6 +268,9 @@
                           data-bs-toggle="tooltip" data-bs-placement="top"
                           title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
                 </h2>
+                {% if not cpes and not cves %}
+                    <p>No heuristics are available for this certificate.</p>
+                {% endif %}
                 {% if cpes %}
                     <div data-cs-name="CPE matches">
                         <h3><abbr title="Common Platform Enumeration">CPE</abbr> matches</h3>
@@ -232,17 +300,17 @@
                           title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
                 </h2>
                 <div class="border">
-                        <div id="network"></div>
-                    </div>
-                    <script>
-                        let network = createNetwork('network',
-                            '{{ url_for(".entry_graph_json", hashid=hashid)}}',
-                            '{{ url_for(".types") }}',
-                            '{{ url_for(".status") }}',
-                            ['{{ hashid }}'],
-                            600,
-                            300);
-                    </script>
+                    <div id="network"></div>
+                </div>
+                <script>
+                    let network = createNetwork('network',
+                        '{{ url_for(".entry_graph_json", hashid=hashid)}}',
+                        '{{ url_for(".types") }}',
+                        '{{ url_for(".status") }}',
+                        ['{{ hashid }}'],
+                        600,
+                        300);
+                </script>
             </div>
 
             <div class="mt-5 mb-5">
@@ -254,24 +322,27 @@
                 <ul>
                     {% for diff, json_diff in zip(diffs, diff_jsons) %}
                         <li>
-                        {% if diff["type"] == "new" %}
-                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
-                        {% elif diff["type"] == "change" %}
-                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
-                        {% elif diff["type"] == "remove" %}
-                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable,
-                            either the certification report or the security target was unavailable during
-                            processing.
-                        {% elif diff["type"] == "back" %}
-                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available
-                            again.
-                        {% endif %}
-                        {% if is_admin() %}
-                            <button type="button" data-bs-toggle="collapse" data-bs-target="#diff-data{{ loop.index }}"
-                                style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                                title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
-                            <pre id="diff-data{{ loop.index }}" class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
-                        {% endif %}
+                            {% if diff["type"] == "new" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
+                            {% elif diff["type"] == "change" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
+                            {% elif diff["type"] == "remove" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable,
+                                either the certification report or the security target was unavailable during
+                                processing.
+                            {% elif diff["type"] == "back" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available
+                                again.
+                            {% endif %}
+                            {% if true %} {# is_admin() #}
+                                <button type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#diff-data{{ loop.index }}"
+                                        tabindex="0"
+                                        class="btn btn-outline-primary btn-sm"
+                                        title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff</button>
+                                <pre id="diff-data{{ loop.index }}"
+                                     class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
