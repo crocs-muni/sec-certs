@@ -12,5 +12,5 @@ flake8
 pre-commit
 pip-tools
 sphinx
-myst-parser
+myst-nb
 sphinx-book-theme
