@@ -1,12 +1,11 @@
-name: Main
+name: Create release draft
 
 on:
   push:
-    # branches:
-    #   - "main"
-    # tags:
-    #   - "*.*.*"
-    # Uncomment after testing
+    branches:
+      - "main"
+    tags:
+      - "*.*.*"
 
 jobs:
   build:
