@@ -263,8 +263,8 @@
 
                     <h3>References</h3>
                     <p>This certificate's report directly references
-                        {{ cert["heuristics"]["report_references"]["directly_referencing"]|length }} certificates,
-                        transitively this expands into {{ cert["heuristics"]["report_references"]["indirectly_referencing"]|length }} certificates.</p>
+                        {{ cert["heuristics"]["report_references"]["directly_referencing"]|default("", true)|length }} certificates,
+                        transitively this expands into {{ cert["heuristics"]["report_references"]["indirectly_referencing"]|default("", true)|length }} certificates.</p>
                 </div>
 
                 <div class="mt-5 mb-3">
@@ -320,8 +320,8 @@
 
                     <h3>References</h3>
                     <p>This certificate's security target directly references
-                        {{ cert["heuristics"]["st_references"]["directly_referencing"]|length }} certificates,
-                        transitively this expands into {{ cert["heuristics"]["st_references"]["indirectly_referencing"]|length }} certificates.</p>
+                        {{ cert["heuristics"]["st_references"]["directly_referencing"]|default("", true)|length }} certificates,
+                        transitively this expands into {{ cert["heuristics"]["st_references"]["indirectly_referencing"]|default("", true)|length }} certificates.</p>
                 </div>
             </div>
         </div>

@@ -93,6 +93,7 @@ def deploy(c):
     print("Reloading uWSGI...")
     reload_uwsgi(c)
     ps(c)
+    c.local("curl https://seccerts.org")
 
 
 @task
