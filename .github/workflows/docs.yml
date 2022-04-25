@@ -7,9 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Install python dependencies
-        run: |
-          pip install -r requirements/dev_requirements.txt
       - uses: ammaraskar/sphinx-action@master
         with:
+          pre-build-command: python -m pip install -r requirements/dev_requirements.txt
           docs-folder: "docs/"
