@@ -4,6 +4,8 @@ attrs==21.4.0
     # via pytest
 babel==2.10.1
     # via sphinx
+beautifulsoup4==4.11.1
+    # via pydata-sphinx-theme
 black==22.3.0
     # via -r dev_requirements.in
 certifi==2021.10.8
@@ -21,7 +23,10 @@ coverage[toml]==6.3.2
 distlib==0.3.4
     # via virtualenv
 docutils==0.17.1
-    # via sphinx
+    # via
+    #   myst-parser
+    #   pydata-sphinx-theme
+    #   sphinx
 filelock==3.6.0
     # via virtualenv
 flake8==4.0.1
@@ -41,11 +46,21 @@ iniconfig==1.1.1
 isort==5.10.1
     # via -r dev_requirements.in
 jinja2==3.1.1
-    # via sphinx
+    # via
+    #   myst-parser
+    #   sphinx
+markdown-it-py==2.1.0
+    # via
+    #   mdit-py-plugins
+    #   myst-parser
 markupsafe==2.1.1
     # via jinja2
 mccabe==0.6.1
     # via flake8
+mdit-py-plugins==0.3.0
+    # via myst-parser
+mdurl==0.1.1
+    # via markdown-it-py
 memory-profiler==0.60.0
     # via pytest-monitor
 mypy==0.942
@@ -54,10 +69,13 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
+myst-parser==0.17.2
+    # via -r dev_requirements.in
 nodeenv==1.6.0
     # via pre-commit
 packaging==21.3
     # via
+    #   pydata-sphinx-theme
     #   pytest
     #   sphinx
 pathspec==0.9.0
@@ -82,6 +100,8 @@ py==1.11.0
     # via pytest
 pycodestyle==2.8.0
     # via flake8
+pydata-sphinx-theme==0.8.1
+    # via sphinx-book-theme
 pyflakes==2.4.0
     # via flake8
 pygments==2.12.0
@@ -103,7 +123,10 @@ pytest-profiling==1.7.0
 pytz==2022.1
     # via babel
 pyyaml==6.0
-    # via pre-commit
+    # via
+    #   myst-parser
+    #   pre-commit
+    #   sphinx-book-theme
 requests==2.27.1
     # via
     #   pytest-monitor
@@ -114,7 +137,15 @@ six==1.16.0
     #   virtualenv
 snowballstemmer==2.2.0
     # via sphinx
+soupsieve==2.3.2.post1
+    # via beautifulsoup4
 sphinx==4.5.0
+    # via
+    #   -r dev_requirements.in
+    #   myst-parser
+    #   pydata-sphinx-theme
+    #   sphinx-book-theme
+sphinx-book-theme==0.3.2
     # via -r dev_requirements.in
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
@@ -149,6 +180,7 @@ typing-extensions==4.1.1
     # via
     #   black
     #   mypy
+    #   myst-parser
 urllib3==1.26.9
     # via requests
 virtualenv==20.14.0

@@ -1,4 +1,6 @@
-# ![](docs/_static/logo.svg)
+# Sec-certs
+
+![](docs/_static/logo.svg)
 
 Tool for analysis of security certificates and their security targets (Common Criteria, NIST FIPS140-2...).
 

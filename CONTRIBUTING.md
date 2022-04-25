@@ -1,4 +1,4 @@
-## Contributing
+# Contributing
 
 You contribution is warmly welcomed. You can help by:
 
@@ -20,9 +20,9 @@ Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/docker/Docker
 ### Requirements
 
 Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-tools). The main ideas are:
-- List actual dependencies in `.in` files inside [requirements](requirements) folder without pinning them.
-- Those dependencies are loaded into [setup.py](setup.py) file.
-- Additionally, [compile.sh](requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
+- List actual dependencies in `.in` files inside [requirements](https://github.com/crocs-muni/sec-certs/blob/main/requirements) folder without pinning them.
+- Those dependencies are loaded into [setup.py](https://github.com/crocs-muni/sec-certs/blob/main/setup.py) file.
+- Additionally, [compile.sh](https://github.com/crocs-muni/sec-certs/blob/main/requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
 - Tests, linting and Docker all run against this reproducible environment of pinned requirements.
 
 ## Branches and releases
@@ -35,12 +35,12 @@ Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-too
 
 All commits shall pass the lint pipeline of the following tools:
 
-- Mypy (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/dev/pyproject.toml) for settings)
-- Black (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/dev/pyproject.toml) for settings)
-- isort (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/dev/pyproject.toml) for settings)
-- Flake8 (see [.flake8](https://github.com/crocs-muni/sec-certs/blob/dev/.flake8) for settings)
+- Mypy (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
+- Black (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
+- isort (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
+- Flake8 (see [.flake8](https://github.com/crocs-muni/sec-certs/blob/main/.flake8) for settings)
 
-These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/dev/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
+These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
 It should thus suffice to:
 
