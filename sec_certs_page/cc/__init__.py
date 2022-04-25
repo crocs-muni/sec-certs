@@ -24,6 +24,8 @@ with cc.open_resource("sars.json") as f:
     cc_sars = json.load(f)
 with cc.open_resource("categories.json") as f:
     cc_categories = json.load(f)
+with cc.open_resource("eals.json") as f:
+    cc_eals = json.load(f)
 with cc.open_resource("status.json") as f:
     cc_status = json.load(f)
 

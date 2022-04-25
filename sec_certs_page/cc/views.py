@@ -33,6 +33,7 @@ from ..common.views import (
 from . import (
     cc,
     cc_categories,
+    cc_eals,
     cc_sars,
     cc_sfrs,
     cc_status,
@@ -82,6 +83,19 @@ def get_cc_category(name):
 def categories():
     """Endpoint with CC categories JSON."""
     return send_json_attachment(cc_categories)
+
+
+@cc.app_template_global("get_cc_eal")
+def get_cc_eal(name):
+    """Get the long name for the CC EAL."""
+    return cc_eals.get(name, None)
+
+
+@cc.route("/eals.json")
+@cache.cached(60 * 60)
+def eals():
+    """Endpoint with CC EALs JSON."""
+    return send_json_attachment(cc_eals)
 
 
 @cc.route("/status.json")

@@ -1,0 +1,23 @@
+{
+  "EAL1": {
+    "name": "Functionally tested"
+  },
+  "EAL2": {
+    "name": "Structurally tested"
+  },
+  "EAL3": {
+    "name": "Methodically tested and checked"
+  },
+  "EAL4": {
+    "name": "Methodically designed, tested, and reviewed"
+  },
+  "EAL5": {
+    "name": "Semiformally designed and tested"
+  },
+  "EAL6": {
+    "name": "Semiformally verified design and tested"
+  },
+  "EAL7": {
+    "name": "Formally verified design and tested"
+  }
+}
