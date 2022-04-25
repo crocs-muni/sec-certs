@@ -211,5 +211,53 @@ def load(doc):
     return StorageFormat(doc).to_working_format().get()
 
 
+def freeze(doc):
+    """
+    Recursively "freeze" an object, turning dicts into frozendicts and sets into frozensets.
+
+    :param doc: The object.
+    :return: The frozen object.
+    """
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            return frozendict({key: walk(value) for key, value in obj.items()})
+        elif isinstance(obj, list):
+            return list(map(walk, obj))
+        elif isinstance(obj, tuple):
+            return tuple(map(walk, obj))
+        elif isinstance(obj, set):
+            return set(map(walk, obj))
+        elif isinstance(obj, frozenset):
+            return frozenset(map(walk, obj))
+        return obj
+
+    return walk(doc)
+
+
+def unfreeze(doc):
+    """
+    Recursively "unfreeze" an object, turning frozendicts into dicts and frozensets into sets.
+
+    :param doc: The frozen object.
+    :return: The unfrozen object.
+    """
+
+    def walk(obj):
+        if isinstance(obj, frozendict):
+            return {key: walk(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return list(map(walk, obj))
+        elif isinstance(obj, tuple):
+            return tuple(map(walk, obj))
+        elif isinstance(obj, set):
+            return set(map(walk, obj))
+        elif isinstance(obj, frozenset):
+            return set(map(walk, obj))
+        return obj
+
+    return walk(doc)
+
+
 def store(doc):
     return WorkingFormat(doc).to_storage_format().get()
