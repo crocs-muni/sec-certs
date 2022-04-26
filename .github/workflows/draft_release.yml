@@ -2,25 +2,12 @@ name: Create release draft
 
 on:
   push:
-    # branches:
-    #   - "main"
-    # tags:
-    #   - "*.*.*"
+    branches:
+      - "main"
+    tags:
+      - "*.*.*"
 
 jobs:
-  check-version:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Read VERSION file
-        run: echo "ACTUAL_VERSION=$(cat VERSION)" >> $GITHUB_ENV
-      - name: Check versions
-        run: |
-          if ((${{env.PACKAGE_NUMBER}} != ${{github.ref_name}})) ; then
-            echo "Tag does not match version number in VERSION file"
-            exit 1
-          fi
   draft-release:
     runs-on: ubuntu-latest
     steps:

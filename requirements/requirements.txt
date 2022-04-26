@@ -50,6 +50,7 @@ packaging==21.3
     # via
     #   matplotlib
     #   pikepdf
+    #   setuptools-scm
 pandas==1.4.2
     # via
     #   -r requirements.in
@@ -88,6 +89,8 @@ scikit-learn==1.0.2
     # via -r requirements.in
 scipy==1.8.0
     # via scikit-learn
+setuptools-scm==6.4.2
+    # via -r requirements.in
 six==1.16.0
     # via
     #   html5lib
@@ -98,6 +101,8 @@ tabula-py==2.3.0
     # via -r requirements.in
 threadpoolctl==3.1.0
     # via scikit-learn
+tomli==2.0.1
+    # via setuptools-scm
 tqdm==4.64.0
     # via -r requirements.in
 urllib3==1.26.9
@@ -106,3 +111,6 @@ webencodings==0.5.1
     # via html5lib
 zipp==3.8.0
     # via importlib-resources
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

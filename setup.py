@@ -5,8 +5,6 @@ setup(
     name="sec-certs",
     author="Petr Svenda, Stanislav Bobon, Jan Jancar, Adam Janovsky, Jiri Michalik",
     author_email="svenda@fi.muni.cz",
-    version_config=True,
-    setup_requires=["setuptools-git-versioning"],
     packages=find_packages(),
     license="MIT",
     description="Tool for analysis of security certificates",

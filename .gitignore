@@ -5,6 +5,8 @@
 # results folder
 results*/
 
+# version file by setuptools-scm
+sec_certs/_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

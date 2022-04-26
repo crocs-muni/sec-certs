@@ -12,8 +12,8 @@
 #
 # import os
 # import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+# sys.path.insert(0, os.path.abspath("."))
+from importlib.metadata import version
 
 # -- Project information -----------------------------------------------------
 
@@ -22,8 +22,8 @@ copyright = "2022, Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanis
 author = "Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.4"
-
+# Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
+release = version("sec-certs")
 
 # -- General configuration ---------------------------------------------------
 
