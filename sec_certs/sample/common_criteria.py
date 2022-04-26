@@ -277,6 +277,8 @@ class CommonCriteriaCert(
         "indirectly_referenced_by",
         "directly_referencing",
         "indirectly_referencing",
+        "direct_dependency_cves",
+        "indirect_dependency_cves",
     ]
 
     def __init__(
@@ -361,6 +363,8 @@ class CommonCriteriaCert(
             self.heuristics.report_references.indirectly_referenced_by,
             self.heuristics.report_references.directly_referencing,
             self.heuristics.report_references.indirectly_referencing,
+            self.heuristics.direct_dependency_cves,
+            self.heuristics.indirect_dependency_cves,
         )
 
     def __str__(self) -> str:
