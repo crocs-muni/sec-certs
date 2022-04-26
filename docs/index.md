@@ -1,5 +1,7 @@
 # Sec-certs documentation
 
+The documentation currently does not have all modules documented with `autodoc`. Most of the API showcases are documented in the *notebooks* examples below. If you want, you can run the notebooks. They are stored in the [project repository](https://github.com/crocs-muni/sec-certs/tree/main/notebooks).
+
 ## Notebooks
 
 ```{toctree}
