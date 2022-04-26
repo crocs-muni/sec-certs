@@ -2,7 +2,7 @@ name: Build wheel
 on:
   push:
 env:
-  CIBW_BEFORE_BUILD_LINUX: "yum install libpoppler-cpp-dev pkg-config python3-dev"
+  CIBW_BEFORE_BUILD_LINUX: "yum install poppler-cpp-devel"
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
