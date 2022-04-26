@@ -13,7 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath("."))
-from importlib.metadata import version
+from importlib.metadata import version as get_version
 
 # -- Project information -----------------------------------------------------
 
@@ -23,7 +23,7 @@ author = "Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon
 
 # The full version, including alpha/beta/rc tags
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
-release = version("sec-certs")
+release = get_version("sec-certs")
 
 # -- General configuration ---------------------------------------------------
 
