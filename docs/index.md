@@ -9,7 +9,6 @@ There are three main parts of this documentation. *User's guide* describes high-
 installation.md
 quickstart.md
 tutorial.md
-web_dashboard.md
 ```
 
 ```{toctree}
