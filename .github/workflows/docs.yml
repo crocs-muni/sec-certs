@@ -10,6 +10,8 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: Install external dependencies
+        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
       - name: Install sec-certs and deps
         run: |
           pip install -r requirements/requirements.txt
