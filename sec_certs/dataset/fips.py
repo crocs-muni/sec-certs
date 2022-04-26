@@ -466,13 +466,13 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         finder.fit(self.certs, lambda cert: cert.cert_id, pdf_lookup)  # type: ignore
 
         for dgst in self.certs:
-            setattr(self.certs[dgst].heuristics, "st_references", finder.get_references(dgst))
+            setattr(self.certs[dgst].heuristics, "st_references", finder.predict_single_cert(dgst))
 
         finder = DependencyFinder()
         finder.fit(self.certs, lambda cert: cert.cert_id, web_lookup)  # type: ignore
 
         for dgst in self.certs:
-            setattr(self.certs[dgst].heuristics, "web_references", finder.get_references(dgst))
+            setattr(self.certs[dgst].heuristics, "web_references", finder.predict_single_cert(dgst))
 
     @serialize
     def finalize_results(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):

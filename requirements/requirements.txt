@@ -1,43 +1,108 @@
-attrs==21.4.0             # via jsonschema
-beautifulsoup4==4.10.0    # via -r requirements.in
-billiard==3.6.4.0         # via -r requirements.in
-certifi==2021.10.8        # via requests
-charset-normalizer==2.0.12  # via requests
-click==8.1.2              # via -r requirements.in
-cycler==0.11.0            # via matplotlib
-distro==1.7.0             # via tabula-py
-fonttools==4.31.2         # via matplotlib
-graphviz==0.19.1          # via -r requirements.in
-html5lib==1.1             # via -r requirements.in
-idna==3.3                 # via requests
-importlib-resources==5.6.0  # via jsonschema
-jarowinkler==1.0.2        # via rapidfuzz
-joblib==1.1.0             # via scikit-learn
-jsonschema==4.4.0         # via -r requirements.in
-kiwisolver==1.4.2         # via matplotlib
-lxml==4.8.0               # via -r requirements.in, pikepdf
-matplotlib==3.5.1         # via -r requirements.in
-numpy==1.22.3             # via -r requirements.in, matplotlib, pandas, scikit-learn, scipy, tabula-py
-packaging==21.3           # via matplotlib, pikepdf
-pandas==1.4.2             # via -r requirements.in, tabula-py
-pdftotext==2.2.2          # via -r requirements.in
-pikepdf==5.1.1            # via -r requirements.in
-pillow==9.1.0             # via -r requirements.in, matplotlib, pikepdf
-pyparsing==3.0.7          # via matplotlib, packaging
-pypdf2==1.26.0            # via -r requirements.in
-pyrsistent==0.18.1        # via jsonschema
-python-dateutil==2.8.2    # via -r requirements.in, matplotlib, pandas
-pytz==2022.1              # via pandas
-pyyaml==6.0               # via -r requirements.in
-rapidfuzz==2.0.7          # via -r requirements.in
-requests==2.27.1          # via -r requirements.in
-scikit-learn==1.0.2       # via -r requirements.in
-scipy==1.8.0              # via scikit-learn
-six==1.16.0               # via html5lib, python-dateutil
-soupsieve==2.3.1          # via beautifulsoup4
-tabula-py==2.3.0          # via -r requirements.in
-threadpoolctl==3.1.0      # via scikit-learn
-tqdm==4.64.0              # via -r requirements.in
-urllib3==1.26.9           # via requests
-webencodings==0.5.1       # via html5lib
-zipp==3.8.0               # via importlib-resources
+attrs==21.4.0
+    # via jsonschema
+beautifulsoup4==4.10.0
+    # via -r requirements.in
+billiard==3.6.4.0
+    # via -r requirements.in
+certifi==2021.10.8
+    # via requests
+charset-normalizer==2.0.12
+    # via requests
+click==8.1.2
+    # via -r requirements.in
+cycler==0.11.0
+    # via matplotlib
+distro==1.7.0
+    # via tabula-py
+fonttools==4.31.2
+    # via matplotlib
+graphviz==0.19.1
+    # via -r requirements.in
+html5lib==1.1
+    # via -r requirements.in
+idna==3.3
+    # via requests
+importlib-resources==5.7.1
+    # via jsonschema
+jarowinkler==1.0.2
+    # via rapidfuzz
+joblib==1.1.0
+    # via scikit-learn
+jsonschema==4.4.0
+    # via -r requirements.in
+kiwisolver==1.4.2
+    # via matplotlib
+lxml==4.8.0
+    # via
+    #   -r requirements.in
+    #   pikepdf
+matplotlib==3.5.1
+    # via -r requirements.in
+numpy==1.22.3
+    # via
+    #   -r requirements.in
+    #   matplotlib
+    #   pandas
+    #   scikit-learn
+    #   scipy
+    #   tabula-py
+packaging==21.3
+    # via
+    #   matplotlib
+    #   pikepdf
+pandas==1.4.2
+    # via
+    #   -r requirements.in
+    #   tabula-py
+pdftotext==2.2.2
+    # via -r requirements.in
+pikepdf==5.1.1
+    # via -r requirements.in
+pillow==9.1.0
+    # via
+    #   -r requirements.in
+    #   matplotlib
+    #   pikepdf
+pyparsing==3.0.7
+    # via
+    #   matplotlib
+    #   packaging
+pypdf2==1.27.5
+    # via -r requirements.in
+pyrsistent==0.18.1
+    # via jsonschema
+python-dateutil==2.8.2
+    # via
+    #   -r requirements.in
+    #   matplotlib
+    #   pandas
+pytz==2022.1
+    # via pandas
+pyyaml==6.0
+    # via -r requirements.in
+rapidfuzz==2.0.7
+    # via -r requirements.in
+requests==2.27.1
+    # via -r requirements.in
+scikit-learn==1.0.2
+    # via -r requirements.in
+scipy==1.8.0
+    # via scikit-learn
+six==1.16.0
+    # via
+    #   html5lib
+    #   python-dateutil
+soupsieve==2.3.1
+    # via beautifulsoup4
+tabula-py==2.3.0
+    # via -r requirements.in
+threadpoolctl==3.1.0
+    # via scikit-learn
+tqdm==4.64.0
+    # via -r requirements.in
+urllib3==1.26.9
+    # via requests
+webencodings==0.5.1
+    # via html5lib
+zipp==3.8.0
+    # via importlib-resources
