@@ -18,3 +18,9 @@ def test_about(client: FlaskClient):
 def test_not_found(client: FlaskClient):
     resp = client.get("/some_path_that_does_not_exist/")
     assert resp.status_code == 404
+
+
+@pytest.mark.remote
+def test_sitemaps(client: FlaskClient):
+    resp = client.get("/sitemap.xml")
+    assert resp.status_code == 200

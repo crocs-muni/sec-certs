@@ -14,7 +14,7 @@ from .objformats import ObjFormat, StorageFormat, WorkingFormat
 logger = get_task_logger(__name__)
 
 
-def make_dataset_paths(collection):
+def make_dataset_paths(collection):  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     ns = current_app.config.get_namespace("DATASET_PATH_")
 
