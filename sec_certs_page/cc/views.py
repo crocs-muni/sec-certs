@@ -100,7 +100,7 @@ def eals():
 
 @cc.route("/status.json")
 @cache.cached(60 * 60)
-def status():
+def statuses():
     """Endpoint with CC status JSON."""
     return send_json_attachment(cc_status)
 
@@ -234,7 +234,7 @@ def search():
     """Common criteria search."""
     res = process_search(request)
     return render_template(
-        "cc/search.html.jinja2",
+        "cc/search/index.html.jinja2",
         **res,
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | seccerts.org",
     )
@@ -278,7 +278,7 @@ def fulltext_search():
 
     if q is None:
         return render_template(
-            "cc/fulltext_search.html.jinja2",
+            "cc/search/fulltext.html.jinja2",
             categories=categories,
             status=status,
             document_type=type,
@@ -333,7 +333,7 @@ def fulltext_search():
         alignment="center",
     )
     return render_template(
-        "cc/fulltext_search.html.jinja2",
+        "cc/search/fulltext.html.jinja2",
         q=q,
         results=results,
         categories=categories,
@@ -352,7 +352,7 @@ def search_pagination():
         return url_for(".search", **kwargs)
 
     res = process_search(request, callback=callback)
-    return render_template("cc/search_pagination.html.jinja2", **res)
+    return render_template("cc/search/pagination.html.jinja2", **res)
 
 
 @cc.route("/analysis/")
@@ -385,7 +385,7 @@ def entry_old(old_id, npath=None):
 
 @cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
-    cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]
+    cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]  # type: ignore
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
@@ -417,7 +417,7 @@ def entry(hashid):
         with sentry_sdk.start_span(op="files", description="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
         return render_template(
-            "cc/entry.html.jinja2",
+            "cc/entry/index.html.jinja2",
             cert=doc,
             hashid=hashid,
             profiles=profiles,
@@ -496,7 +496,7 @@ def entry_name(name):
             return redirect(url_for("cc.entry", hashid=ids[0]["_id"]))
         else:
             docs = list(map(load, mongo.db.cc.find({"_id": {"$in": list(map(itemgetter("_id"), ids))}})))
-            return render_template("cc/disambiguate.html.jinja2", certs=docs, name=name)
+            return render_template("cc/entry/disambiguate.html.jinja2", certs=docs, name=name)
     else:
         return abort(404)
 

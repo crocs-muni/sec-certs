@@ -18,7 +18,7 @@ from whoosh.qparser import QueryParser, query
 
 from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
-from ..common.search import get_index, index_schema
+from ..common.search import index_schema
 from ..common.views import (
     Pagination,
     entry_download_files,
@@ -44,7 +44,7 @@ def types():
 
 @fips.route("/status.json")
 @cache.cached(60 * 60)
-def status():
+def statuses():
     return send_json_attachment(fips_status)
 
 
@@ -198,7 +198,7 @@ def process_search(req, callback=None):
 def search():
     res = process_search(request)
     return render_template(
-        "fips/search.html.jinja2",
+        "fips/search/index.html.jinja2",
         **res,
         title=f"FIPS 140 [{res['q']}] ({res['page']}) | seccerts.org",
     )
@@ -242,7 +242,7 @@ def fulltext_search():
 
     if q is None:
         return render_template(
-            "fips/fulltext_search.html.jinja2",
+            "fips/search/fulltext.html.jinja2",
             categories=categories,
             status=status,
             document_type=type,
@@ -297,7 +297,7 @@ def fulltext_search():
         alignment="center",
     )
     return render_template(
-        "fips/fulltext_search.html.jinja2",
+        "fips/search/fulltext.html.jinja2",
         q=q,
         results=results,
         categories=categories,
@@ -314,7 +314,7 @@ def search_pagination():
         return url_for(".search", **kwargs)
 
     res = process_search(request, callback=callback)
-    return render_template("fips/search_pagination.html.jinja2", **res)
+    return render_template("fips/search/pagination.html.jinja2", **res)
 
 
 @fips.route("/analysis/")
@@ -346,7 +346,7 @@ def mip_index():
         css_framework="bootstrap5",
         alignment="center",
     )
-    return render_template("fips/mip_index.html.jinja2", snapshots=mip_snapshots, pagination=pagination)
+    return render_template("fips/mip/mip_index.html.jinja2", snapshots=mip_snapshots, pagination=pagination)
 
 
 @fips.route("/mip/<ObjectId:id>")
@@ -354,11 +354,11 @@ def mip_index():
     fips,
     ".mip.snapshot",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
 )
 def mip_snapshot(id):
     snapshot = mongo.db.fips_mip.find_one_or_404(id)
-    return render_template("fips/mip.html.jinja2", snapshot=snapshot)
+    return render_template("fips/mip/mip.html.jinja2", snapshot=snapshot)
 
 
 @fips.route("/mip/entry/<path:name>")
@@ -366,7 +366,7 @@ def mip_snapshot(id):
     fips,
     ".mip.entry",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["name"]}],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["name"]}],  # type: ignore
 )
 def mip_entry(name):
     snapshots = list(mongo.db.fips_mip.find({"entries.module_name": name}).sort([("timestamp", pymongo.ASCENDING)]))
@@ -375,7 +375,7 @@ def mip_entry(name):
     for snap in snapshots:
         snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
     present = datetime.fromisoformat(snapshots[-1]["timestamp"]) - datetime.fromisoformat(snapshots[0]["timestamp"])
-    return render_template("fips/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
+    return render_template("fips/mip/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
 
 
 @fips.route("/iut/")
@@ -401,7 +401,7 @@ def iut_index():
         css_framework="bootstrap5",
         alignment="center",
     )
-    return render_template("fips/iut_index.html.jinja2", snapshots=iut_snapshots, pagination=pagination)
+    return render_template("fips/iut/iut_index.html.jinja2", snapshots=iut_snapshots, pagination=pagination)
 
 
 @fips.route("/iut/<ObjectId:id>")
@@ -409,11 +409,11 @@ def iut_index():
     fips,
     ".iut.snapshot",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
 )
 def iut_snapshot(id):
     snapshot = mongo.db.fips_iut.find_one_or_404(id)
-    return render_template("fips/iut.html.jinja2", snapshot=snapshot)
+    return render_template("fips/iut/iut.html.jinja2", snapshot=snapshot)
 
 
 @fips.route("/iut/entry/<path:name>")
@@ -421,7 +421,7 @@ def iut_snapshot(id):
     fips,
     ".iut.entry",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["name"]}],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["name"]}],  # type: ignore
 )
 def iut_entry(name):
     snapshots = list(mongo.db.fips_iut.find({"entries.module_name": name}).sort([("timestamp", pymongo.ASCENDING)]))
@@ -430,7 +430,7 @@ def iut_entry(name):
     for snap in snapshots:
         snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
     present = datetime.fromisoformat(snapshots[-1]["timestamp"]) - datetime.fromisoformat(snapshots[0]["timestamp"])
-    return render_template("fips/iut_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
+    return render_template("fips/iut/iut_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
 
 
 @fips.route("/random/")
@@ -458,7 +458,7 @@ def entry_old(old_id, npath=None):
     fips,
     ".entry",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],  # type: ignore
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
@@ -484,7 +484,7 @@ def entry(hashid):
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
             )
         return render_template(
-            "fips/entry.html.jinja2",
+            "fips/entry/index.html.jinja2",
             cert=doc,
             hashid=hashid,
             diffs=diffs,
@@ -552,7 +552,7 @@ def entry_name(name):
             return redirect(url_for("fips.entry", hashid=ids[0]["_id"]))
         else:
             docs = list(map(load, mongo.db.fips.find({"_id": {"$in": list(map(itemgetter("_id"), ids))}})))
-            return render_template("fips/disambiguate.html.jinja2", certs=docs, name=name)
+            return render_template("fips/entry/disambiguate.html.jinja2", certs=docs, name=name)
     else:
         return abort(404)
 

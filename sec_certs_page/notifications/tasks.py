@@ -18,7 +18,7 @@ def send_confirmation_email(token):  # pragma: no cover
     email = subscription_requests[0]["email"]
     email_token = subscription_requests[0]["email_token"]
     body = render_template(
-        "notifications/confirmation_email.html.jinja2",
+        "notifications/email/confirmation_email.html.jinja2",
         token=token,
         email_token=email_token,
     )
@@ -39,7 +39,7 @@ def send_unsubscription_email(email):  # pragma: no cover
         logger.warning("Subscription requests not found, likely a race.")
         return
     email_token = subscription_requests[0]["email_token"]
-    body = render_template("notifications/unsubscription_email.html.jinja2", email_token=email_token)
+    body = render_template("notifications/email/unsubscription_email.html.jinja2", email_token=email_token)
     msg = Message("Unsubscription request | seccerts.org", recipients=[email], html=body)
     mail.send(msg)
     logger.info(f"Sent unsubscription email for email_token = {email_token}")

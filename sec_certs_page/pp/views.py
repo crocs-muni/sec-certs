@@ -158,7 +158,7 @@ def search_pagination():
     pp,
     ".entry",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],  # type: ignore
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
