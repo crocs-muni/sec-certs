@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from functools import wraps
 from itertools import product
 from pathlib import Path
@@ -8,10 +9,33 @@ from flask import current_app
 from jsondiff import diff
 from pymongo import DESCENDING
 
-from .. import mongo, redis
+from .. import mongo, redis, whoosh_index
 from .objformats import ObjFormat, StorageFormat, WorkingFormat
+from .views import entry_file_path
 
 logger = get_task_logger(__name__)
+
+
+class Indexer:  # pragma: no cover
+    dataset_path: Path
+    cert_schema: str
+
+    @abstractmethod
+    def create_document(self, dgst, document, cert, content):
+        ...
+
+    def reindex(self, to_reindex):
+        logger.info(f"Reindexing {len(to_reindex)} files.")
+        with whoosh_index.writer() as writer:
+            for dgst, document in to_reindex:
+                fpath = entry_file_path(dgst, self.dataset_path, document, "txt")
+                try:
+                    with fpath.open("r") as f:
+                        content = f.read()
+                except FileNotFoundError:
+                    continue
+                cert = mongo.db[self.cert_schema].find_one({"_id": dgst})
+                writer.update_document(**self.create_document(dgst, document, cert, content))
 
 
 def make_dataset_paths(collection):  # pragma: no cover

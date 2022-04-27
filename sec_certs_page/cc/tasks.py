@@ -12,8 +12,8 @@ from sec_certs.dataset.common_criteria import CCDataset
 from sec_certs.helpers import tqdm
 
 from .. import celery, mongo, whoosh_index
-from ..common.search import get_index
 from ..common.tasks import (
+    Indexer,
     make_dataset_paths,
     no_simultaneous_execution,
     process_new_certs,
@@ -33,29 +33,29 @@ def notify(run_id):  # pragma: no cover
     pass
 
 
+class CCIndexer(Indexer):  # pragma: no cover
+    def __init__(self):
+        self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
+        self.cert_schema = "cc"
+
+    def create_document(self, dgst, document, cert, content):
+        category_id = cc_categories[cert["category"]]["id"]
+        return {
+            "dgst": dgst,
+            "name": cert["name"],
+            "document_type": document,
+            "cert_schema": self.cert_schema,
+            "category": category_id,
+            "status": cert["status"],
+            "content": content,
+        }
+
+
 @celery.task(ignore_result=True)
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
-    logger.info(f"Reindexing {len(to_reindex)} files.")
-    with whoosh_index.writer() as writer:
-        for dgst, document in tqdm(to_reindex):
-            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
-            try:
-                with fpath.open("r") as f:
-                    content = f.read()
-            except FileNotFoundError:
-                continue
-            cert = mongo.db.cc.find_one({"_id": dgst})
-            category_id = cc_categories[cert["category"]]["id"]
-            writer.update_document(
-                dgst=dgst,
-                name=cert["name"],
-                document_type=document,
-                cert_schema="cc",
-                category=category_id,
-                status=cert["status"],
-                content=content,
-            )
+    indexer = CCIndexer()
+    indexer.reindex(to_reindex)
 
 
 @celery.task(ignore_result=True)

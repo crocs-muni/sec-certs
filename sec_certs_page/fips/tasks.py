@@ -17,6 +17,7 @@ from .. import celery, mongo, whoosh_index
 from ..common.objformats import ObjFormat
 from ..common.search import get_index
 from ..common.tasks import (
+    Indexer,
     make_dataset_paths,
     no_simultaneous_execution,
     process_new_certs,
@@ -50,29 +51,29 @@ def update_mip_data():  # pragma: no cover
     mongo.db.fips_mip.insert_one(snap_data)
 
 
+class FIPSIndexer(Indexer):  # pragma: no cover
+    def __init__(self):
+        self.dataset_path = current_app.config["DATASET_PATH_FIPS_DIR"]
+        self.cert_schema = "fips"
+
+    def create_document(self, dgst, document, cert, content):
+        category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
+        return {
+            "dgst": dgst,
+            "name": cert["web_scan"]["module_name"],
+            "document_type": document,
+            "cert_schema": self.cert_schema,
+            "category": category_id,
+            "status": cert["web_scan"]["status"],
+            "content": content,
+        }
+
+
 @celery.task(ignore_result=True)
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
-    logger.info(f"Reindexing {len(to_reindex)} files.")
-    with whoosh_index.writer() as writer:
-        for dgst, document in tqdm(to_reindex):
-            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_FIPS_DIR"], document, "txt")
-            try:
-                with fpath.open("r") as f:
-                    content = f.read()
-            except FileNotFoundError:
-                continue
-            cert = mongo.db.fips.find_one({"_id": dgst})
-            category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
-            writer.update_document(
-                dgst=dgst,
-                name=cert["web_scan"]["module_name"],
-                document_type=document,
-                cert_schema="fips",
-                category=category_id,
-                status=cert["web_scan"]["status"],
-                content=content,
-            )
+    indexer = FIPSIndexer()
+    indexer.reindex(to_reindex)
 
 
 @celery.task(ignore_result=True)
