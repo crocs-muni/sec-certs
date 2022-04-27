@@ -180,6 +180,7 @@ def is_admin():
 
 from .admin import admin
 from .cc import cc
+from .docs import docs
 from .fips import fips
 from .notifications import notifications
 from .pp import pp
@@ -189,6 +190,7 @@ app.register_blueprint(cc)
 app.register_blueprint(fips)
 app.register_blueprint(notifications)
 app.register_blueprint(pp)
+app.register_blueprint(docs)
 
 from .tasks import run_updates
 from .views import *
