@@ -2,8 +2,7 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "utils.html.jinja2" import render_cves %}
-{% from "common/entry.html.jinja2" import render_local_files %}
+{% from "common/entry.html.jinja2" import render_local_files, render_cves %}
 {% block title %}
     <title>
         {{ cert["web_scan"]["module_name"]|default("", true) + " | seccerts.org" }}
@@ -361,9 +360,9 @@
             <script>
                 let certificate_data = {
                     name: "{{ cert["web_scan"]["module_name"]|default("", true) }}",
-                    hashid: "{{ cert["_id"] }}",
+                    hashid: "{{ hashid }}",
                     type: "fips",
-                    url: "{{ url_for("fips.entry", hashid=cert["_id"]) }}"
+                    url: "{{ url_for("fips.entry", hashid=hashid) }}"
                 };
                 $(function () {
                     let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

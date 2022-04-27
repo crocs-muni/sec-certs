@@ -81,6 +81,10 @@
                             class="fa fa-user"></i> Admin</a>
                 </div>
             {% endif %}
+            <div class="mx-2">
+                <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-secondary px-4" role="button"><i
+                        class="fa fa-file"></i> Docs</a>
+            </div>
         </div>
     </nav>
     <div id="page-content-wrapper" class="container-fluid">
@@ -124,7 +128,8 @@
                         </div>
                         <div class="modal-body">
                             {% if not config["SUBSCRIPTIONS_ENABLED"] %}
-                                <p class="fw-bold"><i class="fas fa-exclamation-triangle"></i> Notification subscriptions are currently disabled.</p>
+                                <p class="fw-bold"><i class="fas fa-exclamation-triangle"></i> Notification
+                                    subscriptions are currently disabled.</p>
                             {% endif %}
                             <p id="notification-none">
                                 You currently have no selected certificates. Add certificates on
@@ -165,7 +170,8 @@
                                         <input type="email" class="form-control" id="notifications-email" required/>
                                         <p class="form-text">Your email will only be used to send you notifications.
                                             Each notification contains an unsubscribe link. For more, see our
-                                            <a href="{{ url_for("about", _anchor="privacy-policy") }}" target="_blank">privacy policy</a>.</p>
+                                            <a href="{{ url_for("about", _anchor="privacy-policy") }}" target="_blank">privacy
+                                                policy</a>.</p>
                                     </div>
                                     <div id="hcaptcha" class="h-captcha" data-sitekey="{{ config["HCAPTCHA_SITEKEY"] }}"
                                          data-size="invisible"></div>

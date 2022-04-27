@@ -389,7 +389,7 @@ def entry_old(old_id, npath=None):
 )
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        raw_doc = mongo.db.cc.find_one({"_id": hashid})
+        raw_doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 0})
     if raw_doc:
         doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
