@@ -36,7 +36,7 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == "refs/heads/main" && github.repository == "crocs-muni/sec-certs"  # Potentially change this into a check on release.
+    if: github.ref == 'refs/heads/main' && github.repository == 'crocs-muni/sec-certs'  # Potentially change this into a check on release.
     steps:
       - name: Get docs artifact
         uses: actions/download-artifact@v3
