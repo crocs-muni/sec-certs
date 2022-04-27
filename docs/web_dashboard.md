@@ -1,3 +1,0 @@
-# Web dashboard
-
-TBA
