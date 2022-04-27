@@ -3,7 +3,7 @@ on:
   push:
   workflow_dispatch:
 jobs:
-  docs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,3 +23,25 @@ jobs:
         run: |
           cd docs
           make html
+      - name: Archive docs
+        run: |
+          cd _build/html
+          zip -r docs.zip *
+          cd ../..
+      - name: Save docs artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: _build/html/docs.zip
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == "refs/heads/main" && github.repository == "crocs-muni/sec-certs"  # Potentially change this into a check on release.
+    steps:
+      - name: Get docs artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docs
+      - name: Push docs to website
+        run: |
+          curl -F data=@docs.zip https://seccerts.org/docs/upload?token=${{ secrets.DOCS_AUTH_TOKEN }}
