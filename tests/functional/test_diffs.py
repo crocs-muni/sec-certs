@@ -1,9 +1,21 @@
+import random
+
 import pymongo
 import pytest
 
 from sec_certs_page import mongo
+from sec_certs_page.cc.tasks import render_diff
 from sec_certs_page.common.diffs import apply_explicit_diff
 from sec_certs_page.common.objformats import freeze, load
+
+
+def test_cc_diff_renders(client):
+    all_diffs = list(mongo.db.cc_diff.find({}, {"_id": True}))
+    for _ in range(100):
+        id = random.choice(all_diffs)
+        diff = load(mongo.db.cc_diff.find_one(id))
+        cert = load(mongo.db.cc.find_one(diff["dgst"]))
+        assert render_diff(cert, diff) is not None
 
 
 @pytest.mark.parametrize("dgst", ["d492f0e3e19d32f6", "2ff8ceac4a6ca519", "0adbded2df213f16", "fb8945b7036e2361"])

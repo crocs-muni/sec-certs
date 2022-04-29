@@ -1,20 +1,159 @@
 import sentry_sdk
+from bs4 import BeautifulSoup
 from celery.utils.log import get_task_logger
-from flask import current_app
 from sec_certs.dataset.common_criteria import CCDataset
+from flask import current_app, render_template
+from flask_mail import Message
+from jsondiff import symbols
 
-from .. import celery
+from .. import celery, mail, mongo
+from ..common.diffs import has_symbols
+from ..common.html import clean_css
+from ..common.objformats import WorkingFormat, load
 from ..common.tasks import Indexer, Updater, no_simultaneous_execution
 from . import cc_categories
 
 logger = get_task_logger(__name__)
 
 
+def render_diff(cert, diff):
+    if diff["type"] == "new":
+        return render_template("cc/notifications/diff_new.html.jinja2", cert=diff["diff"])
+    elif diff["type"] == "back":
+        return render_template("cc/notifications/diff_back.html.jinja2", cert=cert)
+    elif diff["type"] == "remove":
+        return render_template("cc/notifications/diff_remove.html.jinja2", cert=cert)
+    elif diff["type"] == "change":
+        changes = []
+        k2map = {
+            "pdf_data": ("PDF extraction data", False),
+            "state": ("state of the certificate object", False),
+            "heuristics": ("computed heuristics", True),
+            "maintenance_updates": ("Maintenance Updates of the certificate", True),
+            "protection_profiles": ("Protection profiles of the certificate", True),
+            "status": ("Status", False),
+            "not_valid_after": ("Valid until date", False),
+            "not_valid_before": ("Valid from date", False),
+        }
+        # This is so ugly but somewhat works.
+        for k1, v1 in diff["diff"].items():
+            if k1 == symbols.update:
+                for k2, v2 in v1.items():
+                    details = []
+                    if has_symbols(v2):
+                        for k3, v3 in v2.items():
+                            if k3 == symbols.update:
+                                if isinstance(v3, dict):
+                                    for prop, val in v3.items():
+                                        if has_symbols(val):
+                                            detail = f"The {prop} property was updated."
+                                            if symbols.insert in val:
+                                                vjson = (
+                                                    WorkingFormat(val[symbols.insert])
+                                                    .to_storage_format()
+                                                    .to_json_mapping()
+                                                )
+                                                detail += f" With the {vjson} values inserted."
+                                            if symbols.discard in val:
+                                                vjson = (
+                                                    WorkingFormat(val[symbols.discard])
+                                                    .to_storage_format()
+                                                    .to_json_mapping()
+                                                )
+                                                detail += f" With the {vjson} values discarded."
+                                            if symbols.update in val:
+                                                vjson = (
+                                                    WorkingFormat(val[symbols.update])
+                                                    .to_storage_format()
+                                                    .to_json_mapping()
+                                                )
+                                                detail += f" With the {vjson} data."
+                                            if symbols.add in val:
+                                                vjson = (
+                                                    WorkingFormat(val[symbols.add])
+                                                    .to_storage_format()
+                                                    .to_json_mapping()
+                                                )
+                                                detail += f" With the {vjson} values added."
+                                            details.append(detail)
+                                        else:
+                                            vjson = WorkingFormat(val).to_storage_format().to_json_mapping()
+                                            details.append(f"The {prop} property was set to {vjson}.")
+                            elif k3 == symbols.insert:
+                                if has_symbols(v3):
+                                    logger.error(f"Should not happen, ins: {k3}, {v3}")
+                                else:
+                                    vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
+                                    details.append(f"The following values were inserted: {vjson}.")
+                            elif k3 == symbols.delete:
+                                vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
+                                details.append(f"The following properties were deleted: {vjson}.")
+                            else:
+                                logger.error(f"Should not happen: {k3}, {v3}")
+                    else:
+                        vjson = WorkingFormat(v2).to_storage_format().to_json_mapping()
+                        details.append(f"The new value is {vjson}.")
+                    if k2 in k2map:
+                        changes.append((k2map[k2], details))
+                    else:
+                        changes.append(((k2, False), details))
+        return render_template("cc/notifications/diff_change.html.jinja2", cert=cert, changes=changes)
+
+
 @celery.task(ignore_result=True)
 def notify(run_id):  # pragma: no cover
-    # run = mongo.db.cc_log.find_one({"_id": run_id})
-    # diffs = mongo.db.cc_diff.find({"run_id": run_id})
-    pass
+    # Load up the diffs and certs
+    change_diffs = {obj["dgst"]: load(obj) for obj in mongo.db.cc_diff.find({"run_id": run_id, "type": "change"})}
+    change_dgsts = list(change_diffs.keys())
+    change_certs = {obj["dgst"]: load(obj) for obj in mongo.db.cc.find({"_id": {"$in": change_dgsts}})}
+
+    # Render the individual diffs
+    change_renders = {}
+    for dgst in change_dgsts:
+        change_renders[dgst] = render_diff(change_certs[dgst], change_diffs[dgst])
+
+    # Group the subscriptions by email
+    change_sub_emails = mongo.db.subs.find(
+        {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True}, {"email": 1}
+    )
+    emails = {sub["email"] for sub in change_sub_emails}
+
+    # Load Bootstrap CSS
+    with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
+        bootstrap_css = f.read()
+
+    # Get the run date
+    run = mongo.db.cc_log.find_one({"_id": run_id})
+    run_date = run["start_time"].strftime("%d.%m")
+
+    # Go over the subscribed emails
+    for email in emails:
+        subscriptions = mongo.db.subs.find(
+            {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True, "email": email}
+        )
+        cards = []
+        # Go over the subscriptions for a given email and accumulate its rendered diffs
+        for sub in subscriptions:
+            dgst = sub["certificate"]["hashid"]
+            # diff = change_diffs[dgst]
+            render = change_renders[dgst]
+            if sub["type"] == "vuln":
+                # TODO: Figure out if this diff notification should be sent.
+                pass
+            cards.append(render)
+        # Render diffs into body template
+        email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
+        # Filter out unused CSS rules
+        cleaned_css = clean_css(bootstrap_css, email_core_html)
+        # Inject final CSS into html
+        soup = BeautifulSoup(email_core_html, "lxml")
+        css_tag = soup.new_tag("style")
+        css_tag.insert(soup.new_string(cleaned_css))
+        soup.find("meta").insert_after(css_tag)
+        email_html = str(soup)
+        # Send out the message
+        msg = Message(f"Certificate changes from {run_date}", [email], html=email_html)
+        mail.send(msg)
 
 
 class CCIndexer(Indexer):  # pragma: no cover

@@ -1,0 +1,8 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Certificate reappeared</h5>
+        <p class="card-text">A Common Criteria certificate for a product named <b>{{ cert["name"] }}</b>
+            is available again.</p>
+        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}" class="card-link">Certificate page</a>
+    </div>
+</div>
