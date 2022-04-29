@@ -46,6 +46,7 @@ flask-redis
 flask-shell-ipython
 Flask-Sitemap
 Flask-WTF
+filtercss
 fonttools
 graphviz
 html5lib

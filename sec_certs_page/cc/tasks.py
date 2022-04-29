@@ -1,14 +1,15 @@
 import sentry_sdk
 from bs4 import BeautifulSoup
+from bson import ObjectId
 from celery.utils.log import get_task_logger
 from sec_certs.dataset.common_criteria import CCDataset
+from filtercss import filter_css, parse_css
 from flask import current_app, render_template
 from flask_mail import Message
 from jsondiff import symbols
 
 from .. import celery, mail, mongo
 from ..common.diffs import has_symbols
-from ..common.html import clean_css
 from ..common.objformats import WorkingFormat, load
 from ..common.tasks import Indexer, Updater, no_simultaneous_execution
 from . import cc_categories
@@ -101,9 +102,10 @@ def render_diff(cert, diff):
 
 
 @celery.task(ignore_result=True)
-def notify(run_id):  # pragma: no cover
+def notify(run_id):
+    run_oid = ObjectId(run_id)
     # Load up the diffs and certs
-    change_diffs = {obj["dgst"]: load(obj) for obj in mongo.db.cc_diff.find({"run_id": run_id, "type": "change"})}
+    change_diffs = {obj["dgst"]: load(obj) for obj in mongo.db.cc_diff.find({"run_id": run_oid, "type": "change"})}
     change_dgsts = list(change_diffs.keys())
     change_certs = {obj["dgst"]: load(obj) for obj in mongo.db.cc.find({"_id": {"$in": change_dgsts}})}
 
@@ -121,10 +123,11 @@ def notify(run_id):  # pragma: no cover
     # Load Bootstrap CSS
     with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
         bootstrap_css = f.read()
+    bootstrap_parsed = parse_css(bootstrap_css)
 
     # Get the run date
-    run = mongo.db.cc_log.find_one({"_id": run_id})
-    run_date = run["start_time"].strftime("%d.%m")
+    run = mongo.db.cc_log.find_one({"_id": run_oid})
+    run_date = run["start_time"].strftime("%d.%m.")
 
     # Go over the subscribed emails
     for email in emails:
@@ -137,18 +140,18 @@ def notify(run_id):  # pragma: no cover
             dgst = sub["certificate"]["hashid"]
             # diff = change_diffs[dgst]
             render = change_renders[dgst]
-            if sub["type"] == "vuln":
+            if sub["updates"] == "vuln":
                 # TODO: Figure out if this diff notification should be sent.
                 pass
             cards.append(render)
         # Render diffs into body template
         email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
         # Filter out unused CSS rules
-        cleaned_css = clean_css(bootstrap_css, email_core_html)
+        cleaned_css = filter_css(bootstrap_parsed, email_core_html, minify=True)
         # Inject final CSS into html
         soup = BeautifulSoup(email_core_html, "lxml")
         css_tag = soup.new_tag("style")
-        css_tag.insert(soup.new_string(cleaned_css))
+        css_tag.insert(0, soup.new_string(cleaned_css))
         soup.find("meta").insert_after(css_tag)
         email_html = str(soup)
         # Send out the message

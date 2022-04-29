@@ -3,7 +3,8 @@ from flask import url_for
 from flask.testing import FlaskClient
 from pytest_mock import MockerFixture
 
-from sec_certs_page import mongo
+from sec_certs_page import mail, mongo
+from sec_certs_page.cc.tasks import notify
 from sec_certs_page.notifications.tasks import send_confirmation_email, send_unsubscription_email
 
 
@@ -45,6 +46,7 @@ def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
     client.get(f"/notify/confirm/{unconfirmed_subscription['token']}")
     subscription = mongo.db.subs.find_one({"_id": unconfirmed_subscription["_id"]})
     yield subscription
+    mongo.db.subs.delete_one({"_id": subscription["_id"]})
 
 
 def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
@@ -164,3 +166,9 @@ def test_unsubscribe_request(client: FlaskClient, confirmed_subscription, mocker
     doesnt_exist_content = resp.data
     assert resp.status_code == 200
     assert exists_content == doesnt_exist_content
+
+
+def test_send_notification(app, mocker, confirmed_subscription):
+    m = mocker.patch.object(mail, "send")
+    notify("620efaa276a1d8b293b77132")
+    assert m.call_count == 1
