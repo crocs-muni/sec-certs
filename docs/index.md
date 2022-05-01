@@ -22,6 +22,10 @@ tutorial.md
 notebooks/examples/dataset.ipynb
 ```
 
+```{admonition} Launch notebooks in MyBinder
+Each of the notebooks can be launched interactively in MyBinder by clicking on 🚀 icon (top-right corner).
+```
+
 ```{toctree}
 :maxdepth: 2
 :caption: GitHub artifacts
