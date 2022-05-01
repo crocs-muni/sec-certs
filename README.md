@@ -15,7 +15,7 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 
 ## Installation
 
-Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs`. For more elaborate description, see [docs](seccerts.org/docs/installation)
+Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs`. For more elaborate description, see [docs](https://seccerts.org/docs/installation.html)
 
 ## Usage (CC)
 

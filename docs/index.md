@@ -19,7 +19,8 @@ tutorial.md
 
 ```{toctree}
 :caption: Notebook examples
-notebooks/examples/dataset.ipynb
+notebooks/examples/common_criteria.ipynb
+notebooks/examples/fips.ipynb
 ```
 
 ```{admonition} Launch notebooks in MyBinder

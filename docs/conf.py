@@ -18,8 +18,8 @@ from importlib.metadata import version as get_version
 # -- Project information -----------------------------------------------------
 
 project = "sec-certs"
-copyright = "2022, Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
-author = "Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
+copyright = "2020-2022, Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon."
+# author = "Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
 
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
 release = ".".join(get_version("sec-certs").split(".")[:3])
@@ -31,6 +31,9 @@ release = ".".join(get_version("sec-certs").split(".")[:3])
 # ones.
 extensions = ["myst_nb"]
 
+# Don't exeute notbooks
+nb_execution_mode = "off"
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -38,7 +41,6 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
-
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -59,7 +61,7 @@ html_theme_options = {
     "repository_url": "https://github.com/crocs-muni/sec-certs",
     "repository_branch": "issue/195-Docs",
     "launch_buttons": {"binderhub_url": "https://mybinder.org"},
+    "use_fullscreen_button": False,
 }
 
-# Don't exeute notbooks
-nb_execution_mode = "off"
+myst_heading_anchors = 3
