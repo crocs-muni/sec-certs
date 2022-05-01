@@ -22,7 +22,7 @@ source venv/bin/activate
 pip install -e .
 ```
 
-Alternatively, our Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/docker/Dockerfile) represents a reproducible way of setting up the environment.
+Alternatively, our Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/Dockerfile) represents a reproducible way of setting up the environment.
 
 ## Dependencies
 

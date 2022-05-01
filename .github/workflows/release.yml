@@ -1,5 +1,5 @@
 name: Release (PyPi, DockerHub)
-on: 
+on:
   release:
     types: [published]
 
@@ -27,7 +27,7 @@ jobs:
   docker_release:
     name: Release on DockerHub
     runs-on: ubuntu-latest
-    if: github.repository == 'crocs-muni/sec-certs'  
+    if: github.repository == 'crocs-muni/sec-certs'
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -47,6 +47,6 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          file: docker/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
