@@ -19,7 +19,7 @@ tutorial.md
 
 ```{toctree}
 :caption: Notebook examples
-notebooks/dataset.ipynb
+notebooks/examples/dataset.ipynb
 ```
 
 ```{toctree}
