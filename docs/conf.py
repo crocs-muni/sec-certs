@@ -21,9 +21,8 @@ project = "sec-certs"
 copyright = "2022, Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
 author = "Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
 
-# The full version, including alpha/beta/rc tags
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
-release = get_version("sec-certs")
+release = ".".join(get_version("sec-certs").split(".")[:3])
 
 # -- General configuration ---------------------------------------------------
 
