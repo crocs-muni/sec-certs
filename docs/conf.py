@@ -54,3 +54,12 @@ html_static_path = ["_static"]
 
 html_logo = "_static/logo.svg"
 html_favicon = "_static/logo_badge.svg"
+
+html_theme_options = {
+    "repository_url": "https://github.com/crocs-muni/sec-certs",
+    "repository_branch": "issue/195-Docs",
+    "launch_buttons": {"binderhub_url": "https://mybinder.org"},
+}
+
+# Don't exeute notbooks
+nb_execution_mode = "off"
