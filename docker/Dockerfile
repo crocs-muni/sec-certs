@@ -1,6 +1,7 @@
-FROM ubuntu:jammy
+FROM ubuntu:jammy-20220428
 
 ENV USER="user"
+ENV NB_UID=1000
 ENV HOME /home/${USER}
 
 #installing dependencies
@@ -20,7 +21,10 @@ RUN apt-get install graphviz -y
 
 RUN adduser --disabled-password \
   --gecos "Default user" \
+  --uid ${NB_UID} \
   ${USER}
+
+RUN chown -R ${NB_UID} ${HOME}
 USER ${USER}
 WORKDIR ${HOME}
 
@@ -43,7 +47,8 @@ RUN \
   pip3 install -U pip && \
   pip3 install wheel && \
   pip3 install -r requirements/requirements.txt && \
-  pip3 install --no-cache notebook jupyterlab
+  pip3 install --no-cache notebook jupyterlab && \
+  pip3 install -e .
 
 # #just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}
