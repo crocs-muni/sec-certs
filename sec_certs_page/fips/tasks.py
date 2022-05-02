@@ -1,6 +1,7 @@
 import sentry_sdk
 from celery.utils.log import get_task_logger
 from flask import current_app
+from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 
@@ -64,6 +65,7 @@ class FIPSUpdater(Updater):  # pragma: no cover
         self.diff_collection = "fips_diff"
         self.log_collection = "fips_log"
         self.skip_update = current_app.config["FIPS_SKIP_UPDATE"]
+        self.dset_class = FIPSDataset
 
     def process(self, dset, paths):
         to_reindex = set()
