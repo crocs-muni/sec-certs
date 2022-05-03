@@ -10,6 +10,7 @@ There are three main parts of this documentation. *User's guide* describes high-
 Seccerts homepage <https://seccerts.org/>
 Seccerts docs <https://seccerts.org/docs>
 GitHub repo <https://github.com/crocs-muni/sec-certs>
+Seccerts PyPi <https://pypi.org/project/sec-certs/>
 ```
 
 ```{toctree}
