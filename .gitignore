@@ -3,6 +3,7 @@
 .idea/
 .vscode/
 .coverage
+.pymon
 
 __pycache__/
 *.pyc
@@ -10,3 +11,4 @@ __pycache__/
 sec_certs_page/static/gen/
 .webassets-cache/
 .pytest_cache/
+.mypy_cache/

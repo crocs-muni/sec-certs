@@ -2,11 +2,11 @@ import sentry_sdk
 from bs4 import BeautifulSoup
 from bson import ObjectId
 from celery.utils.log import get_task_logger
-from sec_certs.dataset.common_criteria import CCDataset
 from filtercss import filter_css, parse_css
 from flask import current_app, render_template
 from flask_mail import Message
 from jsondiff import symbols
+from sec_certs.dataset.common_criteria import CCDataset
 
 from .. import celery, mail, mongo
 from ..common.diffs import has_symbols
@@ -138,12 +138,20 @@ def notify(run_id):
         # Go over the subscriptions for a given email and accumulate its rendered diffs
         for sub in subscriptions:
             dgst = sub["certificate"]["hashid"]
-            # diff = change_diffs[dgst]
+            diff = change_diffs[dgst]
             render = change_renders[dgst]
             if sub["updates"] == "vuln":
-                # TODO: Figure out if this diff notification should be sent.
-                pass
+                # This is a vuln only subscription so figure out if the change is in a vuln.
+                if h := diff["diff"][symbols.update].get("heuristics"):
+                    for action, val in h.items():
+                        if "related_cves" in val:
+                            break
+                    else:
+                        continue
             cards.append(render)
+        if not cards:
+            # Nothing to send, due to only "vuln" subscription and non-vuln diffs
+            continue
         # Render diffs into body template
         email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
         # Filter out unused CSS rules

@@ -8,13 +8,13 @@ from sec_certs_page.cc.tasks import notify
 from sec_certs_page.notifications.tasks import send_confirmation_email, send_unsubscription_email
 
 
-@pytest.fixture
-def certificate():
-    return mongo.db.cc.find_one({"_id": "54f754dc95137c47"})
+@pytest.fixture(params=["54f754dc95137c47", "2e14077d8d2ed82f"])
+def certificate(request):
+    return mongo.db.cc.find_one({"_id": request.param})
 
 
-@pytest.fixture
-def sub_obj(certificate):
+@pytest.fixture(params=["all", "vuln"])
+def sub_obj(certificate, request):
     return {
         "selected": [
             {
@@ -25,7 +25,7 @@ def sub_obj(certificate):
             }
         ],
         "email": "example@example.com",
-        "updates": "all",
+        "updates": request.param,
         "captcha": "...",
     }
 
@@ -62,6 +62,7 @@ def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
     assert subscription["token"]
     assert subscription["timestamp"]
     task.assert_called_once_with(subscription["token"])
+    mongo.db.subs.delete_one({"email": sub_obj["email"]})
 
 
 def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
@@ -170,5 +171,41 @@ def test_unsubscribe_request(client: FlaskClient, confirmed_subscription, mocker
 
 def test_send_notification(app, mocker, confirmed_subscription):
     m = mocker.patch.object(mail, "send")
-    notify("620efaa276a1d8b293b77132")
+    dgst = confirmed_subscription["certificate"]["hashid"]
+    if confirmed_subscription["updates"] == "vuln":
+        pytest.skip("Skip vuln only sub.")
+    diffs = list(mongo.db.cc_diff.find({"dgst": dgst}))
+    notify(str(diffs[-1]["run_id"]))
     assert m.call_count == 1
+
+
+@pytest.mark.slow
+def test_cve_notification(app, mocker, confirmed_subscription):
+    dgst = confirmed_subscription["certificate"]["hashid"]
+    diffs = list(mongo.db.cc_diff.find({"type": "change", "dgst": dgst}))
+    # c = Counter()
+    # for diff in diffs:
+    #     for k, v in diff["diff"].items():
+    #         if isinstance(v, dict):
+    #             for kk, vv in v.items():
+    #                 if isinstance(vv, (list, tuple, dict, set)):
+    #                     for kkk in vv:
+    #                         c[f"{k}.{kk}.{kkk}"] += 1
+    #                 else:
+    #                     c[f"{k}.{kk}"] += 1
+    # pprint(c)
+    m = mocker.patch.object(mail, "send")
+
+    for diff in diffs:
+        vuln_diff = False
+        if h := diff["diff"]["__update__"].get("heuristics"):
+            for action, val in h.items():
+                if "related_cves" in val:
+                    vuln_diff = True
+                    break
+        notify(str(diff["run_id"]))
+        if vuln_diff or confirmed_subscription["updates"] == "all":
+            assert m.call_count == 1
+        else:
+            assert m.call_count == 0
+        m.reset_mock()
