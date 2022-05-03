@@ -30,4 +30,9 @@ setup(
     include_package_data=True,
     package_data={"sec_certs": ["settings.yaml", "settings-schema.json"]},
     entry_points={"console_scripts": ["cc-certs=cc_cli:main", "fips-certs=fips_cli:main"]},
+    project_urls={
+        "Project homepage": "https://seccerts.org",
+        "GitHub repository": "https://github.com/crocs-muni/sec-certs/",
+        "Documentation": "https://seccerts.org/docs",
+    },
 )
