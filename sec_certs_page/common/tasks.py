@@ -10,15 +10,19 @@ from shutil import rmtree
 from typing import Type
 
 import sentry_sdk
+from bs4 import BeautifulSoup
+from bson import ObjectId
 from celery.utils.log import get_task_logger
-from flask import current_app
-from jsondiff import diff
+from filtercss import filter_css, parse_css
+from flask import current_app, render_template
+from flask_mail import Message
+from jsondiff import diff, symbols
 from pkg_resources import get_distribution
 from pymongo import DESCENDING
 from sec_certs.dataset.dataset import Dataset
 
-from .. import mongo, redis, whoosh_index
-from .objformats import ObjFormat, StorageFormat, WorkingFormat
+from .. import mail, mongo, redis, whoosh_index
+from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
 
 logger = get_task_logger(__name__)
@@ -255,6 +259,90 @@ class Updater:  # pragma: no cover
             raise e
         finally:
             rmtree(paths["dset_path"], ignore_errors=True)
+
+
+class Notifier:
+    collection: str
+    diff_collection: str
+    log_collection: str
+
+    @abstractmethod
+    def render_diff(self, cert, diff):
+        ...
+
+    def notify(self, run_id):
+        run_oid = ObjectId(run_id)
+        # Load up the diffs and certs
+        change_diffs = {
+            obj["dgst"]: load(obj) for obj in mongo.db[self.diff_collection].find({"run_id": run_oid, "type": "change"})
+        }
+        change_dgsts = list(change_diffs.keys())
+        change_certs = {
+            obj["dgst"]: load(obj) for obj in mongo.db[self.collection].find({"_id": {"$in": change_dgsts}})
+        }
+
+        # Render the individual diffs
+        change_renders = {}
+        for dgst in change_dgsts:
+            change_renders[dgst] = self.render_diff(change_certs[dgst], change_diffs[dgst])
+
+        # Group the subscriptions by email
+        change_sub_emails = mongo.db.subs.find(
+            {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True, "certificate.type": self.collection},
+            {"email": 1},
+        )
+        emails = {sub["email"] for sub in change_sub_emails}
+
+        # Load Bootstrap CSS
+        with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
+            bootstrap_css = f.read()
+        bootstrap_parsed = parse_css(bootstrap_css)
+
+        # Get the run date
+        run = mongo.db[self.log_collection].find_one({"_id": run_oid})
+        run_date = run["start_time"].strftime("%d.%m.")
+
+        # Go over the subscribed emails
+        for email in emails:
+            subscriptions = mongo.db.subs.find(
+                {
+                    "certificate.hashid": {"$in": change_dgsts},
+                    "confirmed": True,
+                    "email": email,
+                    "certificate.type": self.collection,
+                }
+            )
+            cards = []
+            # Go over the subscriptions for a given email and accumulate its rendered diffs
+            for sub in subscriptions:
+                dgst = sub["certificate"]["hashid"]
+                diff = change_diffs[dgst]
+                render = change_renders[dgst]
+                if sub["updates"] == "vuln":
+                    # This is a vuln only subscription so figure out if the change is in a vuln.
+                    if h := diff["diff"][symbols.update].get("heuristics"):
+                        for action, val in h.items():
+                            if "related_cves" in val:
+                                break
+                        else:
+                            continue
+                cards.append(render)
+            if not cards:
+                # Nothing to send, due to only "vuln" subscription and non-vuln diffs
+                continue
+            # Render diffs into body template
+            email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
+            # Filter out unused CSS rules
+            cleaned_css = filter_css(bootstrap_parsed, email_core_html, minify=True)
+            # Inject final CSS into html
+            soup = BeautifulSoup(email_core_html, "lxml")
+            css_tag = soup.new_tag("style")
+            css_tag.insert(0, soup.new_string(cleaned_css))
+            soup.find("meta").insert_after(css_tag)
+            email_html = str(soup)
+            # Send out the message
+            msg = Message(f"Certificate changes from {run_date}", [email], html=email_html)
+            mail.send(msg)
 
 
 def no_simultaneous_execution(lock_name):

@@ -1,20 +1,26 @@
 import sentry_sdk
-from bs4 import BeautifulSoup
-from bson import ObjectId
 from celery.utils.log import get_task_logger
-from filtercss import filter_css, parse_css
 from flask import current_app, render_template
-from flask_mail import Message
 from jsondiff import symbols
 from sec_certs.dataset.common_criteria import CCDataset
 
-from .. import celery, mail, mongo
+from .. import celery
 from ..common.diffs import has_symbols
-from ..common.objformats import WorkingFormat, load
-from ..common.tasks import Indexer, Updater, no_simultaneous_execution
+from ..common.objformats import WorkingFormat
+from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import cc_categories
 
 logger = get_task_logger(__name__)
+
+
+class CCMixin:
+    def __init__(self):
+        self.collection = "cc"
+        self.diff_collection = "cc_diff"
+        self.log_collection = "cc_log"
+        self.skip_update = current_app.config["CC_SKIP_UPDATE"]
+        self.dset_class = CCDataset
+        self.cert_schema = "cc"
 
 
 def render_diff(cert, diff):
@@ -101,77 +107,18 @@ def render_diff(cert, diff):
         return render_template("cc/notifications/diff_change.html.jinja2", cert=cert, changes=changes)
 
 
+class CCNotifier(Notifier, CCMixin):
+    def render_diff(self, cert, diff):
+        return render_diff(cert, diff)
+
+
 @celery.task(ignore_result=True)
 def notify(run_id):
-    run_oid = ObjectId(run_id)
-    # Load up the diffs and certs
-    change_diffs = {obj["dgst"]: load(obj) for obj in mongo.db.cc_diff.find({"run_id": run_oid, "type": "change"})}
-    change_dgsts = list(change_diffs.keys())
-    change_certs = {obj["dgst"]: load(obj) for obj in mongo.db.cc.find({"_id": {"$in": change_dgsts}})}
-
-    # Render the individual diffs
-    change_renders = {}
-    for dgst in change_dgsts:
-        change_renders[dgst] = render_diff(change_certs[dgst], change_diffs[dgst])
-
-    # Group the subscriptions by email
-    change_sub_emails = mongo.db.subs.find(
-        {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True}, {"email": 1}
-    )
-    emails = {sub["email"] for sub in change_sub_emails}
-
-    # Load Bootstrap CSS
-    with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
-        bootstrap_css = f.read()
-    bootstrap_parsed = parse_css(bootstrap_css)
-
-    # Get the run date
-    run = mongo.db.cc_log.find_one({"_id": run_oid})
-    run_date = run["start_time"].strftime("%d.%m.")
-
-    # Go over the subscribed emails
-    for email in emails:
-        subscriptions = mongo.db.subs.find(
-            {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True, "email": email}
-        )
-        cards = []
-        # Go over the subscriptions for a given email and accumulate its rendered diffs
-        for sub in subscriptions:
-            dgst = sub["certificate"]["hashid"]
-            diff = change_diffs[dgst]
-            render = change_renders[dgst]
-            if sub["updates"] == "vuln":
-                # This is a vuln only subscription so figure out if the change is in a vuln.
-                if h := diff["diff"][symbols.update].get("heuristics"):
-                    for action, val in h.items():
-                        if "related_cves" in val:
-                            break
-                    else:
-                        continue
-            cards.append(render)
-        if not cards:
-            # Nothing to send, due to only "vuln" subscription and non-vuln diffs
-            continue
-        # Render diffs into body template
-        email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
-        # Filter out unused CSS rules
-        cleaned_css = filter_css(bootstrap_parsed, email_core_html, minify=True)
-        # Inject final CSS into html
-        soup = BeautifulSoup(email_core_html, "lxml")
-        css_tag = soup.new_tag("style")
-        css_tag.insert(0, soup.new_string(cleaned_css))
-        soup.find("meta").insert_after(css_tag)
-        email_html = str(soup)
-        # Send out the message
-        msg = Message(f"Certificate changes from {run_date}", [email], html=email_html)
-        mail.send(msg)
+    notifier = CCNotifier()
+    notifier.notify(run_id)
 
 
-class CCIndexer(Indexer):  # pragma: no cover
-    def __init__(self):
-        self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
-        self.cert_schema = "cc"
-
+class CCIndexer(Indexer, CCMixin):  # pragma: no cover
     def create_document(self, dgst, document, cert, content):
         category_id = cc_categories[cert["category"]]["id"]
         return {
@@ -192,14 +139,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
     indexer.reindex(to_reindex)
 
 
-class CCUpdater(Updater):  # pragma: no cover
-    def __init__(self):
-        self.collection = "cc"
-        self.diff_collection = "cc_diff"
-        self.log_collection = "cc_log"
-        self.skip_update = current_app.config["CC_SKIP_UPDATE"]
-        self.dset_class = CCDataset
-
+class CCUpdater(Updater, CCMixin):  # pragma: no cover
     def process(self, dset, paths):
         to_reindex = set()
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
