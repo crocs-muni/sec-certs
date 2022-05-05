@@ -51,6 +51,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             state = self.DatasetInternalState()
         self.state = state
 
+    def __call__(self, certs):
+        return copy.deepcopy(self)
+
     def to_dict(self) -> Dict[str, Any]:
         return {**{"state": self.state}, **super().to_dict()}
 

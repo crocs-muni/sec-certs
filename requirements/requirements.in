@@ -21,3 +21,4 @@ tabula-py
 tqdm
 ipykernel
 ipywidgets
+spacy
