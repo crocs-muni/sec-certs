@@ -1,23 +1,50 @@
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from flask import current_app
+from flask import current_app, render_template
+from jsondiff import symbols
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 
 from .. import celery, mongo
-from ..common.objformats import ObjFormat
-from ..common.tasks import Indexer, Updater, no_simultaneous_execution
+from ..common.diffs import has_symbols
+from ..common.objformats import ObjFormat, WorkingFormat
+from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import fips_types
 
 logger = get_task_logger(__name__)
 
 
+class FIPSMixin:
+    def __init__(self):
+        self.collection = "fips"
+        self.diff_collection = "fips_diff"
+        self.log_collection = "fips_log"
+        self.skip_update = current_app.config["FIPS_SKIP_UPDATE"]
+        self.dset_class = FIPSDataset
+        self.cert_schema = "fips"
+
+
+class FIPSNotifier(Notifier, FIPSMixin):
+    def __init__(self):
+        super().__init__()
+        self.templates = {
+            "new": "fips/notifications/diff_new.html.jinja2",
+            "change": "fips/notifications/diff_change.html.jinja2",
+            "remove": "fips/notifications/diff_remove.html.jinja2",
+            "back": "fips/notifications/diff_back.html.jinja2",
+        }
+        self.k2map = {
+            "web_scan": ("web extraction data", False),
+            "pdf_scan": ("PDF extraction data", False),
+            "heuristics": ("computed heuristics", True),
+        }
+
+
 @celery.task(ignore_result=True)
 def notify(run_id):  # pragma: no cover
-    # run = mongo.db.fips_log.find_one({"_id": run_id})
-    # diffs = mongo.db.fips_diff.find({"run_id": run_id})
-    pass
+    notifier = FIPSNotifier()
+    notifier.notify(run_id)
 
 
 @celery.task(ignore_result=True)
@@ -34,11 +61,7 @@ def update_mip_data():  # pragma: no cover
     mongo.db.fips_mip.insert_one(snap_data)
 
 
-class FIPSIndexer(Indexer):  # pragma: no cover
-    def __init__(self):
-        self.dataset_path = current_app.config["DATASET_PATH_FIPS_DIR"]
-        self.cert_schema = "fips"
-
+class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
     def create_document(self, dgst, document, cert, content):
         category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
         return {
@@ -59,14 +82,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
     indexer.reindex(to_reindex)
 
 
-class FIPSUpdater(Updater):  # pragma: no cover
-    def __init__(self):
-        self.collection = "fips"
-        self.diff_collection = "fips_diff"
-        self.log_collection = "fips_log"
-        self.skip_update = current_app.config["FIPS_SKIP_UPDATE"]
-        self.dset_class = FIPSDataset
-
+class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
     def process(self, dset, paths):
         to_reindex = set()
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):

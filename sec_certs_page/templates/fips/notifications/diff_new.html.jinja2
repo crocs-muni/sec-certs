@@ -1,0 +1,8 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">New certificate</h5>
+        <p class="card-text">A new FIPS 140 certificate with the product name <b>{{ cert["name"] }}</b>
+            was processed.</p>
+        <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}" class="card-link">Certificate page</a>
+    </div>
+</div>

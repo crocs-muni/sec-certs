@@ -7,12 +7,12 @@ from sec_certs_page import mongo
 from sec_certs_page.notifications.tasks import send_confirmation_email, send_unsubscription_email
 
 
-@pytest.fixture
+@pytest.fixture()
 def certificate():
     return mongo.db.cc.find_one({"_id": "54f754dc95137c47"})
 
 
-@pytest.fixture
+@pytest.fixture()
 def sub_obj(certificate):
     return {
         "selected": [
@@ -45,6 +45,7 @@ def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
     client.get(f"/notify/confirm/{unconfirmed_subscription['token']}")
     subscription = mongo.db.subs.find_one({"_id": unconfirmed_subscription["_id"]})
     yield subscription
+    mongo.db.subs.delete_one({"_id": subscription["_id"]})
 
 
 def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
@@ -60,6 +61,7 @@ def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
     assert subscription["token"]
     assert subscription["timestamp"]
     task.assert_called_once_with(subscription["token"])
+    mongo.db.subs.delete_one({"email": sub_obj["email"]})
 
 
 def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):

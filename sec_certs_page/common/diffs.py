@@ -1,7 +1,7 @@
 from jsondiff.symbols import _all_symbols_, add, delete, discard, insert, update
 
 
-def _has_symbols(obj):
+def has_symbols(obj):
     def walk(o):
         if isinstance(o, dict):
             for k in o:
@@ -34,7 +34,7 @@ def apply_explicit_diff(dct, diff):
                 c.update(dict(d[insert]))
             if update in d:
                 for k, v in d[update].items():
-                    if _has_symbols(v):
+                    if has_symbols(v):
                         c[k] = walk(c[k], v)
                     else:
                         c[k] = v

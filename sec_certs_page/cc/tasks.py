@@ -1,27 +1,56 @@
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from flask import current_app
+from flask import current_app, render_template
+from jsondiff import symbols
 from sec_certs.dataset.common_criteria import CCDataset
 
 from .. import celery
-from ..common.tasks import Indexer, Updater, no_simultaneous_execution
+from ..common.diffs import has_symbols
+from ..common.objformats import WorkingFormat
+from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import cc_categories
 
 logger = get_task_logger(__name__)
 
 
-@celery.task(ignore_result=True)
-def notify(run_id):  # pragma: no cover
-    # run = mongo.db.cc_log.find_one({"_id": run_id})
-    # diffs = mongo.db.cc_diff.find({"run_id": run_id})
-    pass
-
-
-class CCIndexer(Indexer):  # pragma: no cover
+class CCMixin:
     def __init__(self):
-        self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
+        self.collection = "cc"
+        self.diff_collection = "cc_diff"
+        self.log_collection = "cc_log"
+        self.skip_update = current_app.config["CC_SKIP_UPDATE"]
+        self.dset_class = CCDataset
         self.cert_schema = "cc"
 
+
+class CCNotifier(Notifier, CCMixin):
+    def __init__(self):
+        super().__init__()
+        self.templates = {
+            "new": "cc/notifications/diff_new.html.jinja2",
+            "change": "cc/notifications/diff_change.html.jinja2",
+            "remove": "cc/notifications/diff_remove.html.jinja2",
+            "back": "cc/notifications/diff_back.html.jinja2",
+        }
+        self.k2map = {
+            "pdf_data": ("PDF extraction data", False),
+            "state": ("state of the certificate object", False),
+            "heuristics": ("computed heuristics", True),
+            "maintenance_updates": ("Maintenance Updates of the certificate", True),
+            "protection_profiles": ("Protection profiles of the certificate", True),
+            "status": ("Status", False),
+            "not_valid_after": ("Valid until date", False),
+            "not_valid_before": ("Valid from date", False),
+        }
+
+
+@celery.task(ignore_result=True)
+def notify(run_id):
+    notifier = CCNotifier()
+    notifier.notify(run_id)
+
+
+class CCIndexer(Indexer, CCMixin):  # pragma: no cover
     def create_document(self, dgst, document, cert, content):
         category_id = cc_categories[cert["category"]]["id"]
         return {
@@ -42,14 +71,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
     indexer.reindex(to_reindex)
 
 
-class CCUpdater(Updater):  # pragma: no cover
-    def __init__(self):
-        self.collection = "cc"
-        self.diff_collection = "cc_diff"
-        self.log_collection = "cc_log"
-        self.skip_update = current_app.config["CC_SKIP_UPDATE"]
-        self.dset_class = CCDataset
-
+class CCUpdater(Updater, CCMixin):  # pragma: no cover
     def process(self, dset, paths):
         to_reindex = set()
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):

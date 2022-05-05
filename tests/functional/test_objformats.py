@@ -5,7 +5,7 @@ import pytest
 from jsondiff import diff
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 
-from sec_certs_page.common.objformats import ObjFormat, WorkingFormat
+from sec_certs_page.common.objformats import ObjFormat, WorkingFormat, freeze, unfreeze
 
 
 @pytest.fixture(scope="module")
@@ -40,3 +40,12 @@ def test_diff(cert1, cert2):
     working.to_raw_format().get()
     working_back = working.to_storage_format().to_working_format().get()
     assert working.get() == working_back
+
+
+def test_freeze_unfreeze(cert1, cert2):
+    d = diff(cert1[1], cert2[1], syntax="explicit")
+
+    df = freeze(d)
+    duf = unfreeze(df)
+
+    assert d == duf

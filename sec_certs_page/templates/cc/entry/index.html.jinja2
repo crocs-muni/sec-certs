@@ -395,7 +395,7 @@
                 </h2>
                 <ul>
                     {% for diff, json_diff in zip(diffs, diff_jsons) %}
-                        <li>
+                        <li id="diff-{{ diff["_id"] }}">
                             {% if diff["type"] == "new" %}
                                 {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
                             {% elif diff["type"] == "change" %}

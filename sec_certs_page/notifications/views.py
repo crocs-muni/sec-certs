@@ -43,7 +43,8 @@ def subscribe():
             return jsonify({"error": "Invalid certificate type.", "status": "NOK"}), 400
         if not mongo.db[cert["type"]].find_one({"_id": cert["hashid"]}):
             return jsonify({"error": "Certificate not found.", "status": "NOK"}), 400
-        # TODO: Decide what to do with validation of cert name.
+        if not isinstance(cert["name"], str):
+            return jsonify({"error": "Certificate name not a string.", "status": "NOK"}), 400
         del cert["url"]
     request_time = datetime.now()
     token = token_hex(16)

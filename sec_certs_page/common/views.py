@@ -104,7 +104,7 @@ def network_graph_func(graphs) -> Response:
     return send_json_attachment(network)
 
 
-def validate_captcha(req, json) -> None:
+def validate_captcha(req, json) -> None:  # pragma: no cover
     if not request.is_json or not request.json or "captcha" not in request.json:
         if json:
             abort(make_response(jsonify({"error": "Captcha missing.", "status": "NOK"}), 400))

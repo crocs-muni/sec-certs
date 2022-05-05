@@ -26,7 +26,7 @@ def immutable(self, *args, **kwargs):
     raise AttributeError(f"'{self.__class__.__name__}' object is read-only")
 
 
-class frozendict(dict):
+class frozendict(dict):  # pragma: no cover
     r"""
     A simple immutable dictionary.
 
@@ -121,7 +121,7 @@ class frozendict(dict):
         raise TypeError(f"'{self.__class__.__name__}' object doesn't support item " "deletion")
 
 
-def frozendict_or(self, other, *args, **kwargs):
+def frozendict_or(self, other, *args, **kwargs):  # pragma: no cover
     res = {}
     res.update(self)
     res.update(other)
@@ -129,22 +129,13 @@ def frozendict_or(self, other, *args, **kwargs):
     return self.__class__(res)
 
 
-try:
-    frozendict.__or__
-except AttributeError:
-    frozendict.__or__ = frozendict_or  # type: ignore
+def frozendict_reversed(self, *args, **kwargs):  # pragma: no cover
+    return reversed(tuple(self))
 
+
+frozendict.__or__ = frozendict_or  # type: ignore
 frozendict.__ior__ = frozendict.__or__  # type: ignore
-
-try:
-    frozendict.__reversed__
-except AttributeError:
-
-    def frozendict_reversed(self, *args, **kwargs):
-        return reversed(tuple(self))
-
-    frozendict.__reversed__ = frozendict_reversed  # type: ignore
-
+frozendict.__reversed__ = frozendict_reversed  # type: ignore
 frozendict.clear = immutable  # type: ignore
 frozendict.pop = immutable  # type: ignore
 frozendict.popitem = immutable  # type: ignore
@@ -154,7 +145,7 @@ frozendict.__delattr__ = immutable  # type: ignore
 frozendict.__setattr__ = immutable  # type: ignore
 
 
-def frozen_new(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
+def frozen_new(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):  # pragma: no cover
     cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
 
     has_kwargs = bool(kwargs)

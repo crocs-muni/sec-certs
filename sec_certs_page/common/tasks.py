@@ -7,18 +7,23 @@ from itertools import product
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
-from typing import Type
+from typing import Mapping, Tuple, Type
 
 import sentry_sdk
+from bs4 import BeautifulSoup
+from bson import ObjectId
 from celery.utils.log import get_task_logger
-from flask import current_app
-from jsondiff import diff
+from filtercss import filter_css, parse_css
+from flask import current_app, render_template
+from flask_mail import Message
+from jsondiff import diff, symbols
 from pkg_resources import get_distribution
 from pymongo import DESCENDING
 from sec_certs.dataset.dataset import Dataset
 
-from .. import mongo, redis, whoosh_index
-from .objformats import ObjFormat, StorageFormat, WorkingFormat
+from .. import mail, mongo, redis, whoosh_index
+from .diffs import has_symbols
+from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
 
 logger = get_task_logger(__name__)
@@ -257,7 +262,169 @@ class Updater:  # pragma: no cover
             rmtree(paths["dset_path"], ignore_errors=True)
 
 
-def no_simultaneous_execution(lock_name):
+class Notifier:
+    collection: str
+    diff_collection: str
+    log_collection: str
+    templates: Mapping[str, str]
+    k2map: Mapping[str, Tuple[str, bool]]
+
+    def render_diff(self, cert, diff) -> str:
+        if diff["type"] == "new":
+            return render_template(self.templates["new"], cert=diff["diff"])
+        elif diff["type"] == "back":
+            return render_template(self.templates["back"], cert=cert)
+        elif diff["type"] == "remove":
+            return render_template(self.templates["remove"], cert=cert)
+        elif diff["type"] == "change":
+            changes = []
+            for k1, v1 in diff["diff"].items():
+                if k1 == symbols.update:
+                    for k2, v2 in v1.items():
+                        details = []
+                        if has_symbols(v2):
+                            for k3, v3 in v2.items():
+                                if k3 == symbols.update:
+                                    if isinstance(v3, dict):
+                                        for prop, val in v3.items():
+                                            if has_symbols(val):
+                                                detail = f"The {prop} property was updated."
+                                                if symbols.insert in val:
+                                                    vjson = (
+                                                        WorkingFormat(val[symbols.insert])
+                                                        .to_storage_format()
+                                                        .to_json_mapping()
+                                                    )
+                                                    detail += f" With the {vjson} values inserted."
+                                                if symbols.discard in val:
+                                                    vjson = (
+                                                        WorkingFormat(val[symbols.discard])
+                                                        .to_storage_format()
+                                                        .to_json_mapping()
+                                                    )
+                                                    detail += f" With the {vjson} values discarded."
+                                                if symbols.update in val:
+                                                    vjson = (
+                                                        WorkingFormat(val[symbols.update])
+                                                        .to_storage_format()
+                                                        .to_json_mapping()
+                                                    )
+                                                    detail += f" With the {vjson} data."
+                                                if symbols.add in val:
+                                                    vjson = (
+                                                        WorkingFormat(val[symbols.add])
+                                                        .to_storage_format()
+                                                        .to_json_mapping()
+                                                    )
+                                                    detail += f" With the {vjson} values added."
+                                                details.append(detail)
+                                            else:
+                                                vjson = WorkingFormat(val).to_storage_format().to_json_mapping()
+                                                details.append(f"The {prop} property was set to {vjson}.")
+                                elif k3 == symbols.insert:
+                                    if has_symbols(v3):
+                                        logger.error(f"Should not happen, ins: {k3}, {v3}")
+                                    else:
+                                        vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
+                                        details.append(f"The following values were inserted: {vjson}.")
+                                elif k3 == symbols.delete:
+                                    vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
+                                    details.append(f"The following properties were deleted: {vjson}.")
+                                else:
+                                    logger.error(f"Should not happen: {k3}, {v3}")
+                        else:
+                            vjson = WorkingFormat(v2).to_storage_format().to_json_mapping()
+                            details.append(f"The new value is {vjson}.")
+                        # Add the rendered change into the list.
+                        changes.append((self.k2map.get(k2, (k2, False)), details))
+            return render_template(self.templates["change"], cert=cert, changes=changes)
+        else:
+            raise ValueError("Invalid diff type")
+
+    def notify(self, run_id: str):
+        run_oid = ObjectId(run_id)
+        # Load up the diffs and certs
+        change_diffs = {
+            obj["dgst"]: load(obj) for obj in mongo.db[self.diff_collection].find({"run_id": run_oid, "type": "change"})
+        }
+        change_dgsts = list(change_diffs.keys())
+        change_certs = {
+            obj["dgst"]: load(obj) for obj in mongo.db[self.collection].find({"_id": {"$in": change_dgsts}})
+        }
+
+        # Render the individual diffs
+        change_renders = {}
+        for dgst in change_dgsts:
+            change_renders[dgst] = self.render_diff(change_certs[dgst], change_diffs[dgst])
+
+        # Group the subscriptions by email
+        change_sub_emails = mongo.db.subs.find(
+            {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True, "certificate.type": self.collection},
+            {"email": 1},
+        )
+        emails = {sub["email"] for sub in change_sub_emails}
+
+        # Load Bootstrap CSS
+        with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
+            bootstrap_css = f.read()
+        bootstrap_parsed = parse_css(bootstrap_css)
+
+        # Get the run date
+        run = mongo.db[self.log_collection].find_one({"_id": run_oid})
+        run_date = run["start_time"].strftime("%d.%m.")
+
+        # Go over the subscribed emails
+        for email in emails:
+            subscriptions = mongo.db.subs.find(
+                {
+                    "certificate.hashid": {"$in": change_dgsts},
+                    "confirmed": True,
+                    "email": email,
+                    "certificate.type": self.collection,
+                }
+            )
+            cards = []
+            # Go over the subscriptions for a given email and accumulate its rendered diffs
+            for sub in subscriptions:
+                dgst = sub["certificate"]["hashid"]
+                diff = change_diffs[dgst]
+                render = change_renders[dgst]
+                if sub["updates"] == "vuln":
+                    # This is a vuln only subscription so figure out if the change is in a vuln.
+                    if h := diff["diff"][symbols.update].get("heuristics"):
+                        for action, val in h.items():
+                            if "related_cves" in val:
+                                break
+                        else:
+                            continue
+                    else:
+                        continue
+                cards.append(render)
+            if not cards:
+                # Nothing to send, due to only "vuln" subscription and non-vuln diffs
+                continue
+            # Render diffs into body template
+            email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
+            # Filter out unused CSS rules
+            cleaned_css = filter_css(bootstrap_parsed, email_core_html, minify=True)
+            # Inject final CSS into html
+            soup = BeautifulSoup(email_core_html, "lxml")
+            css_tag = soup.new_tag("style")
+            css_tag.insert(0, soup.new_string(cleaned_css))
+            soup.find("meta").insert_after(css_tag)
+            email_html = str(soup)
+            # Send out the message
+            msg = Message(f"Certificate changes from {run_date}", [email], html=email_html)
+            mail.send(msg)
+
+
+def no_simultaneous_execution(lock_name: str):
+    """
+
+    :param lock_name:
+    :return:
+    """
+
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):

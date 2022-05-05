@@ -1,0 +1,93 @@
+import pytest
+from flask.testing import FlaskClient
+
+from sec_certs_page import mongo
+from sec_certs_page.admin import User, hash_password
+
+
+@pytest.fixture
+def admin(app):
+    username = "admin"
+    password = "password"
+    email = "example@example.com"
+    roles = ["admin"]
+    pwhash = hash_password(password)
+    user = User(username, pwhash, email, roles)
+    res = mongo.db.users.insert_one(user.dict)
+    yield user, password
+    mongo.db.users.delete_one({"_id": res.inserted_id})
+
+
+@pytest.fixture
+def logged_in_client(client: FlaskClient, admin, mocker):
+    user, password = admin
+    mocker.patch("flask_wtf.csrf.validate_csrf")
+    with client.post(
+        "/admin/login",
+        data={"username": user.username, "password": password, "remember_me": True},
+        follow_redirects=True,
+    ):
+        yield client
+
+
+@pytest.fixture
+def feedback(client: FlaskClient):
+    obj = {"element": "test-element", "comment": "test comment", "path": "/cc/some_path"}
+    client.post("/feedback/", json=obj)
+    yield mongo.db.feedback.find_one(obj)
+    mongo.db.feedback.delete_one(obj)
+
+
+def test_login(client: FlaskClient, admin, mocker):
+    user, password = admin
+    mocker.patch("flask_wtf.csrf.validate_csrf")
+
+    resp = client.get("/admin/login")
+    assert resp.status_code == 200
+
+    resp = client.post(
+        "/admin/login",
+        data={"username": user.username, "password": password, "remember_me": True},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+
+
+def test_logout(logged_in_client):
+    resp = logged_in_client.get("/admin/logout", follow_redirects=True)
+    assert resp.status_code == 200
+
+
+def test_home(logged_in_client):
+    resp = logged_in_client.get("/admin/")
+    assert resp.status_code == 200
+
+
+def test_updates(logged_in_client):
+    resp = logged_in_client.get("/admin/updates")
+    assert resp.status_code == 200
+
+
+def test_update(logged_in_client):
+    id = list(mongo.db.cc_log.find({}, {"_id": True}))[-1]["_id"]
+    resp = logged_in_client.get(f"/admin/update/{id}")
+    assert resp.status_code == 200
+
+    id = list(mongo.db.fips_log.find({}, {"_id": True}))[-1]["_id"]
+    resp = logged_in_client.get(f"/admin/update/{id}")
+    assert resp.status_code == 200
+
+
+def test_update_diff(logged_in_client):
+    id = list(mongo.db.cc_diff.find({}, {"_id": True}))[-1]["_id"]
+    resp = logged_in_client.get(f"/admin/update/diff/{id}")
+    assert resp.status_code == 200
+
+    id = list(mongo.db.fips_diff.find({}, {"_id": True}))[-1]["_id"]
+    resp = logged_in_client.get(f"/admin/update/diff/{id}")
+    assert resp.status_code == 200
+
+
+def test_feedback(logged_in_client, feedback):
+    resp = logged_in_client.get("/admin/feedback")
+    assert b"test comment" in resp.data
