@@ -73,7 +73,7 @@ def init_collections():  # pragma: no cover
 
 
 @app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
-def index_collections():
+def index_collections():  # pragma: no cover
     click.echo("Building CC entries to index...")
     cc_entries = []
     for id in tqdm(mongo.db.cc.find({}, {"_id": 1})):
