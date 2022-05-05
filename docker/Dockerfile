@@ -19,8 +19,8 @@ RUN apt-get install default-jdk -y
 RUN apt-get install graphviz -y
 
 RUN adduser --disabled-password \
-    --gecos "Default user" \
-    ${USER}
+  --gecos "Default user" \
+  ${USER}
 USER ${USER}
 WORKDIR ${HOME}
 
@@ -40,10 +40,13 @@ ENV PATH="${VENV_PATH}/bin:$PATH"
 
 # Install dependencies, notebook is because of mybinder.org
 RUN \
-    pip3 install -U pip && \
-    pip3 install wheel && \
-    pip3 install -r requirements/requirements.txt && \
-    pip3 install --no-cache notebook
+  pip3 install -U pip && \
+  pip3 install wheel && \
+  pip3 install -r requirements/requirements.txt && \
+  pip3 install --no-cache notebook
+
+# Download spacy language model
+RUN python3 -m spacy download en_core_web_sm
 
 # #just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}
