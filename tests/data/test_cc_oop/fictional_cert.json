@@ -65,6 +65,8 @@
     "related_cves": null,
     "cert_lab": null,
     "cert_id": null,
+    "direct_dependency_cves": null,
+    "indirect_dependency_cves": null,
     "report_references": {
       "_type": "References",
       "directly_referenced_by": null,
