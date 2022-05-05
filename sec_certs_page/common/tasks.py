@@ -397,6 +397,8 @@ class Notifier:
                                 break
                         else:
                             continue
+                    else:
+                        continue
                 cards.append(render)
             if not cards:
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
