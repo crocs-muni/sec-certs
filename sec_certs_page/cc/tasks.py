@@ -23,16 +23,16 @@ class CCMixin:
         self.cert_schema = "cc"
 
 
-def render_diff(cert, diff):
-    if diff["type"] == "new":
-        return render_template("cc/notifications/diff_new.html.jinja2", cert=diff["diff"])
-    elif diff["type"] == "back":
-        return render_template("cc/notifications/diff_back.html.jinja2", cert=cert)
-    elif diff["type"] == "remove":
-        return render_template("cc/notifications/diff_remove.html.jinja2", cert=cert)
-    elif diff["type"] == "change":
-        changes = []
-        k2map = {
+class CCNotifier(Notifier, CCMixin):
+    def __init__(self):
+        super().__init__()
+        self.templates = {
+            "new": "cc/notifications/diff_new.html.jinja2",
+            "change": "cc/notifications/diff_change.html.jinja2",
+            "remove": "cc/notifications/diff_remove.html.jinja2",
+            "back": "cc/notifications/diff_back.html.jinja2",
+        }
+        self.k2map = {
             "pdf_data": ("PDF extraction data", False),
             "state": ("state of the certificate object", False),
             "heuristics": ("computed heuristics", True),
@@ -42,74 +42,6 @@ def render_diff(cert, diff):
             "not_valid_after": ("Valid until date", False),
             "not_valid_before": ("Valid from date", False),
         }
-        # This is so ugly but somewhat works.
-        for k1, v1 in diff["diff"].items():
-            if k1 == symbols.update:
-                for k2, v2 in v1.items():
-                    details = []
-                    if has_symbols(v2):
-                        for k3, v3 in v2.items():
-                            if k3 == symbols.update:
-                                if isinstance(v3, dict):
-                                    for prop, val in v3.items():
-                                        if has_symbols(val):
-                                            detail = f"The {prop} property was updated."
-                                            if symbols.insert in val:
-                                                vjson = (
-                                                    WorkingFormat(val[symbols.insert])
-                                                    .to_storage_format()
-                                                    .to_json_mapping()
-                                                )
-                                                detail += f" With the {vjson} values inserted."
-                                            if symbols.discard in val:
-                                                vjson = (
-                                                    WorkingFormat(val[symbols.discard])
-                                                    .to_storage_format()
-                                                    .to_json_mapping()
-                                                )
-                                                detail += f" With the {vjson} values discarded."
-                                            if symbols.update in val:
-                                                vjson = (
-                                                    WorkingFormat(val[symbols.update])
-                                                    .to_storage_format()
-                                                    .to_json_mapping()
-                                                )
-                                                detail += f" With the {vjson} data."
-                                            if symbols.add in val:
-                                                vjson = (
-                                                    WorkingFormat(val[symbols.add])
-                                                    .to_storage_format()
-                                                    .to_json_mapping()
-                                                )
-                                                detail += f" With the {vjson} values added."
-                                            details.append(detail)
-                                        else:
-                                            vjson = WorkingFormat(val).to_storage_format().to_json_mapping()
-                                            details.append(f"The {prop} property was set to {vjson}.")
-                            elif k3 == symbols.insert:
-                                if has_symbols(v3):
-                                    logger.error(f"Should not happen, ins: {k3}, {v3}")
-                                else:
-                                    vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
-                                    details.append(f"The following values were inserted: {vjson}.")
-                            elif k3 == symbols.delete:
-                                vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
-                                details.append(f"The following properties were deleted: {vjson}.")
-                            else:
-                                logger.error(f"Should not happen: {k3}, {v3}")
-                    else:
-                        vjson = WorkingFormat(v2).to_storage_format().to_json_mapping()
-                        details.append(f"The new value is {vjson}.")
-                    if k2 in k2map:
-                        changes.append((k2map[k2], details))
-                    else:
-                        changes.append(((k2, False), details))
-        return render_template("cc/notifications/diff_change.html.jinja2", cert=cert, changes=changes)
-
-
-class CCNotifier(Notifier, CCMixin):
-    def render_diff(self, cert, diff):
-        return render_diff(cert, diff)
 
 
 @celery.task(ignore_result=True)
