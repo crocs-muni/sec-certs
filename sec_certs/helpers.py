@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import time
+from contextlib import nullcontext
 from datetime import date, datetime
 from enum import Enum
 from multiprocessing.pool import ThreadPool
@@ -42,19 +43,35 @@ def tqdm(*args, **kwargs):
     return tqdm_original(*args, **kwargs, disable=not config.enable_progress_bars)
 
 
-def download_file(url: str, output: Path, delay: float = 0) -> Union[str, int]:
+def download_file(
+    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: Optional[str] = None
+) -> Union[str, int]:
     try:
         time.sleep(delay)
-        r = requests.get(url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT)
+        # See https://github.com/psf/requests/issues/3953 for header justification
+        r = requests.get(
+            url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT, stream=True, headers={"Accept-Encoding": None}
+        )
+        ctx: Any = tqdm if show_progress_bar else nullcontext  # type: ignore
         if r.status_code == requests.codes.ok:
-            with output.open("wb") as f:
-                f.write(r.content)
-        return r.status_code
+            with ctx(
+                total=int(r.headers.get("content-length", 0)),
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                desc=progress_bar_desc,
+            ) as pbar:
+                with output.open("wb") as f:
+                    for data in r.iter_content(1024):
+                        f.write(data)
+                        pbar.update(len(data))
+            return r.status_code
     except requests.exceptions.Timeout:
         return requests.codes.timeout
     except Exception as e:
         logger.error(f"Failed to download from {url}; {e}")
         return constants.RETURNCODE_NOK
+    return constants.RETURNCODE_NOK
 
 
 def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:

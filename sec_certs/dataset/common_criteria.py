@@ -214,7 +214,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def from_web_latest(cls) -> "CCDataset":
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "cc_latest_dataset.json"
-            helpers.download_file(config.cc_latest_snapshot, dset_path)
+            helpers.download_file(
+                config.cc_latest_snapshot, dset_path, show_progress_bar=True, progress_bar_desc="Downloading CC Dataset"
+            )
             return cls.from_json(dset_path)
 
     @property
