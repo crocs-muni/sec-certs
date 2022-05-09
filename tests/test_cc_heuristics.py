@@ -13,6 +13,7 @@ from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.sample.sar import SAR
 
 
 class TestCommonCriteriaHeuristics(TestCase):
@@ -36,6 +37,7 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset.convert_all_pdfs()
         cls.cc_dset._extract_data()
         cls.cc_dset._compute_heuristics(use_nist_cpe_matching_dict=False)
+        cls.cc_dset.to_json("/Users/adam/Downloads/test.json")
 
         cpe_single_sign_on = CPE(
             "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
@@ -295,3 +297,30 @@ class TestCommonCriteriaHeuristics(TestCase):
         dataset._compute_dependency_vulnerabilities()
         test_cert = dataset["d0705c9e6fbaeba3"]
         self.assertEqual(test_cert.heuristics.indirect_dependency_cves, {"CVE-2013-5385"})
+
+    def test_sar_object(self):
+        alc_flr_one = SAR("ALC_FLR", 1)
+        alc_flr_one_copy = SAR("ALC_FLR", 1)
+        alc_flr_two = SAR("ALC_FLR", 2)
+
+        self.assertEqual(alc_flr_one, alc_flr_one_copy)
+        self.assertNotEqual(alc_flr_one, alc_flr_two)
+
+        with self.assertRaises(ValueError):
+            # does not contain level
+            SAR.from_string("ALC_FLR")
+
+        with self.assertRaises(ValueError):
+            # unknown family
+            SAR.from_string("XALC_FLR")
+
+    def test_sar_transformation(self):
+        test_cert = self.cc_dset["ebd276cca70fd723"]
+
+        # This one should be taken from security level and not overwritten by stronger SARs in ST
+        self.assertTrue(SAR("ALC_FLR", 1) in test_cert.heuristics.sars)
+        self.assertTrue(SAR("ALC_FLR", 2) not in test_cert.heuristics.sars)
+
+        # This one should be taken from ST and not overwritten by stronger SAR in report
+        self.assertTrue(SAR("ADV_FSP", 3) in test_cert.heuristics.sars)
+        self.assertTrue(SAR("ADV_FSP", 6) not in test_cert.heuristics.sars)
