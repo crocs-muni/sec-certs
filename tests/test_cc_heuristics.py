@@ -37,7 +37,6 @@ class TestCommonCriteriaHeuristics(TestCase):
         cls.cc_dset.convert_all_pdfs()
         cls.cc_dset._extract_data()
         cls.cc_dset._compute_heuristics(use_nist_cpe_matching_dict=False)
-        cls.cc_dset.to_json("/Users/adam/Downloads/test.json")
 
         cpe_single_sign_on = CPE(
             "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
