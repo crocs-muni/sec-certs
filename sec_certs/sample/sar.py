@@ -1,6 +1,10 @@
+from __future__ import annotations
+
+import re
 from dataclasses import dataclass
 from typing import Any
 
+from sec_certs.cert_rules import rules_security_assurance_components
 from sec_certs.serialization.json import ComplexSerializableType
 
 SAR_CLASS_MAPPING = {
@@ -29,16 +33,24 @@ class SAR(ComplexSerializableType):
         return SAR_CLASS_MAPPING.get(self.family.split("_")[0], None)
 
     @classmethod
-    def from_string(cls, string):
+    def from_string(cls, string: str) -> SAR:
+        if not cls.contains_level(string):
+            raise ValueError("SAR misses level integer")
+        if not cls.matches_re(string):
+            raise ValueError("SAR does not match any regular expression")
         family = string.split(".")[0]
         level = int(string.split(".")[1])
         return cls(family, level)
 
     @staticmethod
-    def is_correctly_formatted(string):
+    def contains_level(string: str) -> bool:
         if len(string.split(".")) == 1:
             return False
         return True
+
+    @staticmethod
+    def matches_re(string: str) -> bool:
+        return any([re.match(x, string) for x in rules_security_assurance_components])
 
     def __lt__(self, other: Any) -> bool:
         if not isinstance(other, SAR):

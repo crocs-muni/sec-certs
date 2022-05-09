@@ -751,6 +751,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._compute_dependency_vulnerabilities()
 
     def _compute_sars(self) -> None:
+        logger.info("Computing SARs")
         transformer = SARTransformer().fit(self.certs.values())
         for cert in self:
             cert.heuristics.sars = transformer.transform_single_cert(cert)
