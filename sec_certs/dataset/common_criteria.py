@@ -20,7 +20,7 @@ from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
-from sec_certs.model.sar_parser import SARParser
+from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -751,9 +751,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._compute_dependency_vulnerabilities()
 
     def _compute_sars(self) -> None:
-        parser = SARParser().fit([cert for cert in self])
+        transformer = SARTransformer().fit(self.certs.values())
         for cert in self:
-            cert.heuristics.sars = parser.predict_single_cert(cert)
+            cert.heuristics.sars = transformer.transform_single_cert(cert)
 
     def _compute_dependencies(self) -> None:
         def ref_lookup(kw_attr):

@@ -21,16 +21,18 @@ SAR_DICT_KEY = "rules_security_assurance_components"
 
 @dataclass(frozen=True, eq=True)
 class SAR(ComplexSerializableType):
-    assurance_class: str
     family: str
     level: int
 
+    @property
+    def assurance_class(self):
+        return SAR_CLASS_MAPPING.get(self.family.split("_")[0], None)
+
     @classmethod
     def from_string(cls, string):
-        assurance_class = SAR_CLASS_MAPPING.get(string.split("_")[0], None)
         family = string.split(".")[0]
         level = int(string.split(".")[1])
-        return cls(assurance_class, family, level)
+        return cls(family, level)
 
     @staticmethod
     def is_correctly_formatted(string):
