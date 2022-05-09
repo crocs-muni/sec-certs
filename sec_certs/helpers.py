@@ -7,6 +7,7 @@ import time
 from contextlib import nullcontext
 from datetime import date, datetime
 from enum import Enum
+from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, Dict, Generator, Hashable, Iterator, List, Optional, Sequence, Set, Tuple, Union
@@ -52,19 +53,26 @@ def download_file(
         r = requests.get(
             url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT, stream=True, headers={"Accept-Encoding": None}
         )
-        ctx: Any = tqdm if show_progress_bar else nullcontext  # type: ignore
-        if r.status_code == requests.codes.ok:
-            with ctx(
+        ctx: Any
+        if show_progress_bar:
+            ctx = partial(
+                tqdm,
                 total=int(r.headers.get("content-length", 0)),
                 unit="B",
                 unit_scale=True,
                 unit_divisor=1024,
                 desc=progress_bar_desc,
-            ) as pbar:
+            )
+        else:
+            ctx = nullcontext
+        if r.status_code == requests.codes.ok:
+            with ctx() as pbar:
                 with output.open("wb") as f:
                     for data in r.iter_content(1024):
                         f.write(data)
-                        pbar.update(len(data))
+                        if show_progress_bar:
+                            pbar.update(len(data))
+
             return r.status_code
     except requests.exceptions.Timeout:
         return requests.codes.timeout
@@ -128,7 +136,7 @@ def sanitize_string(record: str) -> str:
     return " ".join(string.split())
 
 
-def sanitize_security_levels(record: Union[str, set]) -> set:
+def sanitize_security_levels(record: Union[str, Set[str]]) -> Set[str]:
     if isinstance(record, str):
         record = set(record.split(","))
 
@@ -137,6 +145,8 @@ def sanitize_security_levels(record: Union[str, set]) -> set:
 
     if "None" in record:
         record.remove("None")
+
+    # TODO: There may be 'basic' in the levels. Delete as well?
 
     return record
 

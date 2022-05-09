@@ -288,7 +288,7 @@ class CommonCriteriaCert(
         name: str,
         manufacturer: Optional[str],
         scheme: str,
-        security_level: Union[str, set],
+        security_level: Set[str],
         not_valid_before: Optional[date],
         not_valid_after: Optional[date],
         report_link: str,
