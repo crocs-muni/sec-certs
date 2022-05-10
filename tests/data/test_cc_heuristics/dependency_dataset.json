@@ -12,8 +12,7 @@
     "name": "test dataset",
     "description": "test dataset for testing dependencies",
     "n_certs": 3,
-    "certs": [
-        {
+    "certs": [{
             "_type": "CommonCriteriaCert",
             "dgst": "c30de3192d2e8ec2",
             "status": "archived",
@@ -21,10 +20,13 @@
             "name": "Océ Digital Access Controller (DAC) R10.1.5 for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
             "manufacturer": "Océ N.V.",
             "scheme": "DE",
-            "security_level": [
-                "ALC_FLR.1",
-                "EAL2+"
-            ],
+            "security_level": {
+                "_type": "Set",
+                "elements": [
+                    "ALC_FLR.1",
+                    "EAL2+"
+                ]
+            },
             "not_valid_before": "2009-02-20",
             "not_valid_after": "2019-09-01",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0517a.pdf",
@@ -341,10 +343,13 @@
             "name": "Océ Digital Access Controller (DAC) R9.1.6",
             "manufacturer": "Océ N.V.",
             "scheme": "DE",
-            "security_level": [
-                "ALC_FLR.1",
-                "EAL2+"
-            ],
+            "security_level": {
+                "_type": "Set",
+                "elements": [
+                    "ALC_FLR.1",
+                    "EAL2+"
+                ]
+            },
             "not_valid_before": "2006-10-26",
             "not_valid_after": "2019-09-01",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0370a.pdf",
@@ -691,10 +696,13 @@
             "name": "Océ Digital Access Controller R8.1.10",
             "manufacturer": "Océ N.V.",
             "scheme": "DE",
-            "security_level": [
-                "ALC_FLR.1",
-                "EAL2+"
-            ],
+            "security_level": {
+                "_type": "Set",
+                "elements": [
+                    "ALC_FLR.1",
+                    "EAL2+"
+                ]
+            },
             "not_valid_before": "2006-01-27",
             "not_valid_after": "2019-09-01",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0325a.pdf",

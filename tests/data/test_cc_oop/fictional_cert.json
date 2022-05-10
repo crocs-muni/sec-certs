@@ -61,7 +61,7 @@
         "related_cves": null,
         "cert_lab": null,
         "cert_id": null,
-        "sars": null,
+        "extracted_sars": null,
         "direct_dependency_cves": null,
         "indirect_dependency_cves": null,
         "report_references": {

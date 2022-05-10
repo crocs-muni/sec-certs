@@ -69,29 +69,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             ~df.manufacturer.isnull()
         ]  # Manually delete one certificate with None manufacturer (seems to have many blank fields)
 
-        # Introduce highest security level EAL variable
-        eals = [
-            "EAL1",
-            "EAL1+",
-            "EAL2",
-            "EAL2+",
-            "EAL3",
-            "EAL3+",
-            "EAL4",
-            "EAL4+",
-            "EAL5",
-            "EAL5+",
-            "EAL6+",
-            "EAL7",
-            "EAL7+",
-        ]
-        df["highest_security_level"] = df.security_level.map(
-            lambda all_levels: [eal for eal in all_levels if eal.startswith("EAL")] if all_levels else np.nan
-        )
-        df.highest_security_level = df.highest_security_level.map(
-            lambda x: x[0] if x and isinstance(x, list) else np.nan
-        )
-        df.highest_security_level = pd.Categorical(df.highest_security_level, categories=eals, ordered=True)
+        # Categorize EAL
+        df.eal = df.eal.fillna(value=np.nan)
+        df.eal = pd.Categorical(df.eal, categories=sorted(df.eal.dropna().unique().tolist()), ordered=True)
 
         # Introduce year when cert got valid
         df["year_from"] = pd.DatetimeIndex(df.not_valid_before).year
@@ -754,7 +734,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         logger.info("Computing SARs")
         transformer = SARTransformer().fit(self.certs.values())
         for cert in self:
-            cert.heuristics.sars = transformer.transform_single_cert(cert)
+            cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
 
     def _compute_dependencies(self) -> None:
         def ref_lookup(kw_attr):

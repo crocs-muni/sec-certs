@@ -139,16 +139,7 @@ def sanitize_string(record: str) -> str:
 def sanitize_security_levels(record: Union[str, Set[str]]) -> Set[str]:
     if isinstance(record, str):
         record = set(record.split(","))
-
-    if "PP\xa0Compliant" in record:
-        record.remove("PP\xa0Compliant")
-
-    if "None" in record:
-        record.remove("None")
-
-    # TODO: There may be 'basic' in the levels. Delete as well?
-
-    return record
+    return record - {"Basic", "ND-PP", "PP\xa0Compliant", "None"}
 
 
 def sanitize_protection_profiles(record: str) -> list:
