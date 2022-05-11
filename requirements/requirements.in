@@ -19,3 +19,6 @@ requests
 scikit-learn
 tabula-py
 tqdm
+ipykernel
+ipywidgets
+spacy

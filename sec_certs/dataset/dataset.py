@@ -191,7 +191,8 @@ class Dataset(Generic[CertSubType], ABC):
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
 
-    def _compute_cpe_matches(
+    @serialize
+    def compute_cpe_heuristics(
         self, download_fresh_cpes: bool = False
     ) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
         def filter_condition(cpe: CPE) -> bool:
@@ -216,11 +217,14 @@ class Dataset(Generic[CertSubType], ABC):
         logger.info("Computing heuristics: Finding CPE matches for certificates")
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes, init_lookup_dicts=False)
         cve_dset = None
-        if not cpe_dset.was_enhanced_with_vuln_cpes:
-            cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
-            cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
-        else:
-            cpe_dset.build_lookup_dicts()
+
+        cpe_dset.build_lookup_dicts()
+        # Temporarily disabled, see: https://github.com/crocs-muni/sec-certs/issues/173
+        # if not cpe_dset.was_enhanced_with_vuln_cpes:
+        #     cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
+        #     cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
+        # else:
+        #     cpe_dset.build_lookup_dicts()
 
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
         clf.fit([x for x in cpe_dset if filter_condition(x)])
@@ -230,10 +234,6 @@ class Dataset(Generic[CertSubType], ABC):
             cert.compute_heuristics_cpe_match(clf)
 
         return clf, cpe_dset, cve_dset
-
-    @serialize
-    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
-        return self._compute_cpe_matches()
 
     def to_label_studio_json(self, output_path: Union[str, Path]) -> None:
         lst = []

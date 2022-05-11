@@ -1,5 +1,6 @@
 import copy
 import operator
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
@@ -12,10 +13,12 @@ from bs4 import Tag
 
 from sec_certs import constants as constants
 from sec_certs import helpers
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.model.dependency_finder import References
 from sec_certs.sample.certificate import Certificate, Heuristics, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -247,6 +250,7 @@ class CommonCriteriaCert(
         cert_id: Optional[str] = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
+        extracted_sars: Optional[Set[SAR]] = field(default=None)
         direct_dependency_cves: Optional[Set[str]] = field(default=None)
         indirect_dependency_cves: Optional[Set[str]] = field(default=None)
 
@@ -263,6 +267,7 @@ class CommonCriteriaCert(
         "manufacturer",
         "scheme",
         "security_level",
+        "eal",
         "not_valid_before",
         "not_valid_after",
         "report_link",
@@ -276,6 +281,7 @@ class CommonCriteriaCert(
         "indirectly_referenced_by",
         "directly_referencing",
         "indirectly_referencing",
+        "extracted_sars",
     ]
 
     def __init__(
@@ -285,7 +291,7 @@ class CommonCriteriaCert(
         name: str,
         manufacturer: Optional[str],
         scheme: str,
-        security_level: Union[str, set],
+        security_level: Union[str, Set[str]],
         not_valid_before: Optional[date],
         not_valid_after: Optional[date],
         report_link: str,
@@ -332,6 +338,33 @@ class CommonCriteriaCert(
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
     @property
+    def eal(self) -> Optional[str]:
+        res = [x for x in self.security_level if re.match(security_level_csv_scan, x)]
+        if not res:
+            return None
+
+        if not len(res) == 1:
+            raise ValueError(f"Expected single EAL in security_level field, got: {res}")
+        return res[0]
+
+    @property
+    def actual_sars(self) -> Optional[Set[SAR]]:
+        """
+        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs
+        :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
+        """
+        sars = dict()
+        if self.eal:
+            sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.eal[:4]]}
+
+        if self.heuristics.extracted_sars:
+            for sar in self.heuristics.extracted_sars:
+                if sar not in sars or sar.level > sars[sar.family].level:
+                    sars[sar.family] = sar
+
+        return set(sars.values()) if sars else None
+
+    @property
     def label_studio_title(self) -> str:
         return self.name
 
@@ -346,6 +379,7 @@ class CommonCriteriaCert(
             self.manufacturer,
             self.scheme,
             self.security_level,
+            self.eal,
             self.not_valid_before,
             self.not_valid_after,
             self.report_link,
@@ -359,6 +393,7 @@ class CommonCriteriaCert(
             self.heuristics.report_references.indirectly_referenced_by,
             self.heuristics.report_references.directly_referencing,
             self.heuristics.report_references.indirectly_referencing,
+            self.heuristics.extracted_sars,
         )
 
     def __str__(self) -> str:

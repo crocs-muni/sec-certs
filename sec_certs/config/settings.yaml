@@ -3,11 +3,13 @@ log_filepath:
   description: Path to the file, relative to working directory, where the log will be stored
   value: ./cert_processing_log.txt
 smallest_certificate_id_to_connect:
-  description: During validation we don't connect certificates with number lower than
+  description:
+    During validation we don't connect certificates with number lower than
     _this_ to connections
   value: 40
 year_difference_between_validations:
-  description: During validation we don't connect certificates with validation dates
+  description:
+    During validation we don't connect certificates with validation dates
     difference higher than _this_
   value: 7
 use_text_with_newlines_during_parsing:
@@ -18,7 +20,7 @@ n_threads:
   value: 8
 cpe_matching_threshold:
   description: Level of required string similarity between CPE and certificate name on CC CPE matching, 0-100. Lower values yield more false negatives, higher values more false positives
-  value: 100
+  value: 90
 cpe_n_max_matches:
   description: Maximum number of candidate CPE items that may be related to given certificate, >0
   value: 100

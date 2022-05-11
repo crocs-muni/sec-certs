@@ -242,7 +242,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "fips_latest_dataset.json"
             logger.info("Downloading the latest FIPS dataset.")
-            helpers.download_file(config.fips_latest_snapshot, dset_path)
+            helpers.download_file(
+                config.fips_latest_snapshot,
+                dset_path,
+                show_progress_bar=True,
+                progress_bar_desc="Downloading FIPS dataset",
+            )
             dset: FIPSDataset = cls.from_json(dset_path)
             logger.info(
                 "The dataset with %s certs and %s algorithms.",
