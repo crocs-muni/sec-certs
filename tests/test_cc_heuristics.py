@@ -221,7 +221,7 @@ class TestCommonCriteriaHeuristics(TestCase):
             None,
             None,
         )
-        new_cert._compute_heuristics_version()
+        new_cert.compute_heuristics_version()
         self.assertEqual(
             set(new_cert.heuristics.extracted_versions),
             {"5.4", "1.0"},

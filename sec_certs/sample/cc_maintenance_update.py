@@ -58,6 +58,8 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
 
     @property
     def dgst(self) -> str:
+        if not self.name:
+            raise RuntimeError("MaintenanceUpdate digest can't be computed, because name of update is missing.")
         return "cert_" + self.related_cert_digest + "_update_" + helpers.get_first_16_bytes_sha256(self.name)
 
     @property
