@@ -459,10 +459,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str
         ) -> Dict[str, "CommonCriteriaCert"]:
             tables = soup.find_all("table", id=table_id)
-            assert len(tables) <= 1
 
-            if not tables:
-                return {}
+            if not len(tables) == 1:
+                raise ValueError(
+                    f'The "{file.name}" was expected to contain exactly 1 <table> element. Instead, it contains: {len(tables)} <table> elements.'
+                )
 
             table = tables[0]
             rows = list(table.find_all("tr"))
@@ -475,9 +476,14 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             # The following unused snippet extracts expected number of certs from the table
             # caption_str = str(table.findAll('caption'))
             # n_expected_certs = int(caption_str.split(category_string + ' – ')[1].split(' Certified Products')[0])
-            table_certs = {
-                x.dgst: x for x in [CommonCriteriaCert.from_html_row(row, cert_status, category_string) for row in body]
-            }
+
+            try:
+                table_certs = {
+                    x.dgst: x
+                    for x in [CommonCriteriaCert.from_html_row(row, cert_status, category_string) for row in body]
+                }
+            except ValueError as e:
+                raise ValueError(f"Bad html file: {file.name} ({str(e)})") from e
 
             return table_certs
 

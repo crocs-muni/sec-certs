@@ -540,8 +540,7 @@ class CommonCriteriaCert(
 
         cells = list(row.find_all("td"))
         if len(cells) != 7:
-            logger.error("Unexpected number of cells in CC html row.")
-            raise
+            raise ValueError(f"Unexpected number of <td> elements in CC html row. Expected: 7, actual: {len(cells)}")
 
         name = CommonCriteriaCert._html_row_get_name(cells[0])
         manufacturer = CommonCriteriaCert._html_row_get_manufacturer(cells[1])
