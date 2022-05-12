@@ -40,10 +40,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     def __init__(
         self,
-        certs: Dict[str, CommonCriteriaCert],
-        root_dir: Path,
-        name: str = "dataset name",
-        description: str = "dataset_description",
+        certs: Dict[str, CommonCriteriaCert] = dict(),
+        root_dir: Optional[Path] = None,
+        name: str = "Common Criteria Dataset",
+        description: str = "No description",
         state: Optional[DatasetInternalState] = None,
     ):
         super().__init__(certs, root_dir, name, description)

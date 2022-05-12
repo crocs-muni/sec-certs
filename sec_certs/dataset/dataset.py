@@ -29,11 +29,13 @@ DatasetSubType = TypeVar("DatasetSubType", bound="Dataset")
 class Dataset(Generic[CertSubType], ABC):
     def __init__(
         self,
-        certs: Dict[str, CertSubType],
-        root_dir: Path,
+        certs: Dict[str, CertSubType] = dict(),
+        root_dir: Optional[Path] = None,
         name: str = "dataset name",
         description: str = "dataset_description",
     ):
+        if not root_dir:
+            root_dir = Path.cwd() / (type(self).__name__).lower()
         self._root_dir = root_dir
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
