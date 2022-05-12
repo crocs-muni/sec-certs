@@ -460,10 +460,13 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         ) -> Dict[str, "CommonCriteriaCert"]:
             tables = soup.find_all("table", id=table_id)
 
-            if not len(tables) == 1:
+            if not len(tables) <= 1:
                 raise ValueError(
-                    f'The "{file.name}" was expected to contain exactly 1 <table> element. Instead, it contains: {len(tables)} <table> elements.'
+                    f'The "{file.name}" was expected to contain <1 <table> element. Instead, it contains: {len(tables)} <table> elements.'
                 )
+
+            if not tables:
+                return {}
 
             table = tables[0]
             rows = list(table.find_all("tr"))
