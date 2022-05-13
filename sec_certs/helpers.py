@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import pdftotext
 import pikepdf
+import pkgconfig
 import requests
 from PyPDF2 import PdfFileReader
 from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObject
@@ -1149,3 +1150,27 @@ def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True
             current.append(ch)
     ret.append("".join(current))
     return ret
+
+
+def warn_if_missing_poppler() -> None:
+    """
+    Warns user if he misses a poppler dependency
+    """
+    try:
+        if not pkgconfig.installed("poppler-cpp", ">=0.30"):
+            logger.warning(
+                "Attempting to run pipeline with pdf->txt conversion, but poppler-cpp dependency was not found."
+            )
+    except EnvironmentError:
+        logger.warning("Attempting to find poppler-cpp, but pkg-config was not found.")
+
+
+def warn_if_missing_graphviz() -> None:
+    """
+    Warns user if he misses a graphviz dependency
+    """
+    try:
+        if not pkgconfig.installed("libcgraph", ">=2.0.0"):
+            logger.warning("Attempting to run pipeline that requires graphviz, but graphviz was not found.")
+    except EnvironmentError:
+        logger.warning("Attempting to find graphviz, but pkg-config was not found.")
