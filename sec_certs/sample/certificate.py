@@ -1,13 +1,11 @@
 import copy
-import itertools
 import json
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Generic, Optional, Set, Type, TypeVar, Union
 
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
 
 logger = logging.getLogger(__name__)
@@ -16,12 +14,22 @@ T = TypeVar("T", bound="Certificate")
 H = TypeVar("H", bound="Heuristics")
 
 
+@dataclass
+class References(ComplexSerializableType):
+    directly_referenced_by: Optional[Set[str]] = field(default=None)
+    indirectly_referenced_by: Optional[Set[str]] = field(default=None)
+    directly_referencing: Optional[Set[str]] = field(default=None)
+    indirectly_referencing: Optional[Set[str]] = field(default=None)
+
+
 class Heuristics:
     cpe_matches: Optional[Set[str]]
     related_cves: Optional[Set[str]]
 
 
 class Certificate(Generic[T, H], ABC, ComplexSerializableType):
+    manufacturer: Optional[str]
+    name: Optional[str]
     heuristics: H
 
     def __init__(self, *args, **kwargs):
@@ -65,20 +73,5 @@ class Certificate(Generic[T, H], ABC, ComplexSerializableType):
             return json.load(handle, cls=CustomJSONDecoder)
 
     @abstractmethod
-    def _compute_heuristics_version(self) -> None:
+    def compute_heuristics_version(self) -> None:
         raise NotImplementedError("Not meant to be implemented")
-
-    @abstractmethod
-    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
-        raise NotImplementedError("Not meant to be implemented")
-
-    def compute_heuristics_related_cves(self, cve_dataset: CVEDataset) -> None:
-        if self.heuristics.cpe_matches:
-            related_cves = [cve_dataset.get_cve_ids_for_cpe_uri(x) for x in self.heuristics.cpe_matches]
-            related_cves = list(filter(lambda x: x is not None, related_cves))
-            if related_cves:
-                self.heuristics.related_cves = set(
-                    itertools.chain.from_iterable([x for x in related_cves if x is not None])
-                )
-        else:
-            self.heuristics.related_cves = None

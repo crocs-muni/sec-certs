@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import ClassVar
 from unittest import TestCase
 
-from sec_certs.dataset.fips_mip import MIPDataset
-from sec_certs.sample.fips_mip import MIPSnapshot
+from sec_certs.dataset import MIPDataset
+from sec_certs.sample import MIPSnapshot
 
 
 class TestFIPSMIP(TestCase):

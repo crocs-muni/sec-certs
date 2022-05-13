@@ -8,7 +8,7 @@ from typing import List, Optional, Set
 import click
 
 from sec_certs.config.configuration import DEFAULT_CONFIG_PATH, config
-from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset import FIPSDataset
 
 logger = logging.getLogger(__name__)
 

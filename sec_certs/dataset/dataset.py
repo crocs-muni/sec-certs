@@ -233,7 +233,13 @@ class Dataset(Generic[CertSubType], ABC):
 
         cert: CertSubType
         for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
-            cert.compute_heuristics_cpe_match(clf)
+            cert.compute_heuristics_version()
+
+            cert.heuristics.cpe_matches = (
+                clf.predict_single_cert(cert.manufacturer, cert.name, cert.heuristics.extracted_versions)
+                if cert.name
+                else None
+            )
 
         return clf, cpe_dset, cve_dset
 
@@ -328,7 +334,15 @@ class Dataset(Generic[CertSubType], ABC):
 
         cert: Certificate
         for cert in helpers.tqdm(cpe_rich_certs, desc="Computing related CVES"):
-            cert.compute_heuristics_related_cves(cve_dset)
+            if cert.heuristics.cpe_matches:
+                related_cves = [cve_dset.get_cve_ids_for_cpe_uri(x) for x in cert.heuristics.cpe_matches]
+                related_cves = list(filter(lambda x: x is not None, related_cves))
+                if related_cves:
+                    cert.heuristics.related_cves = set(
+                        itertools.chain.from_iterable([x for x in related_cves if x is not None])
+                    )
+            else:
+                cert.heuristics.related_cves = None
 
         n_vulnerable = len([x for x in cpe_rich_certs if x.heuristics.related_cves])
         n_vulnerabilities = sum([len(x.heuristics.related_cves) for x in cpe_rich_certs if x.heuristics.related_cves])

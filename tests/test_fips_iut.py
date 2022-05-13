@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import ClassVar
 from unittest import TestCase
 
-from sec_certs.dataset.fips_iut import IUTDataset
-from sec_certs.sample.fips_iut import IUTSnapshot
+from sec_certs.dataset import IUTDataset
+from sec_certs.sample import IUTSnapshot
 
 
 class TestFIPSIUT(TestCase):

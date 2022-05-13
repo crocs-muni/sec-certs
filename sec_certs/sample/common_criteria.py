@@ -14,9 +14,7 @@ from bs4 import Tag
 from sec_certs import constants as constants
 from sec_certs import helpers
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan
-from sec_certs.model.cpe_matching import CPEClassifier
-from sec_certs.model.dependency_finder import References
-from sec_certs.sample.certificate import Certificate, Heuristics, logger
+from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
@@ -365,7 +363,7 @@ class CommonCriteriaCert(
         return set(sars.values()) if sars else None
 
     @property
-    def label_studio_title(self) -> str:
+    def label_studio_title(self) -> Optional[str]:
         return self.name
 
     @property
@@ -702,16 +700,8 @@ class CommonCriteriaCert(
             cert.state.errors.append(response)
         return cert
 
-    def _compute_heuristics_version(self) -> None:
-        self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name)
-
-    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
-        self._compute_heuristics_version()
-        assert self.heuristics.extracted_versions is not None
-
-        self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(
-            self.manufacturer, self.name, self.heuristics.extracted_versions
-        )
+    def compute_heuristics_version(self) -> None:
+        self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name) if self.name else set()
 
     def compute_heuristics_cert_lab(self) -> None:
         if not self.pdf_data:

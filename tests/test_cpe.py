@@ -3,8 +3,8 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.cpe import CPE
+from sec_certs.dataset import CPEDataset
+from sec_certs.sample import CPE
 
 
 class TestCPE:

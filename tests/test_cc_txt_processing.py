@@ -5,8 +5,8 @@ from typing import ClassVar
 from unittest import TestCase
 
 import tests.data.test_cc_heuristics
-from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.dataset import CCDataset
+from sec_certs.sample import CommonCriteriaCert
 
 
 class TestCommonCriteriaTextProcessing(TestCase):
