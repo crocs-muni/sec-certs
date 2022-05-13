@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset import FIPSDataset
 
 logger = logging.getLogger(__name__)
 

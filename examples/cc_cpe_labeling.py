@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from sec_certs.config.configuration import config
-from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.dataset import CCDataset
 from sec_certs.model.evaluation import evaluate, get_validation_dgsts
 
 logger = logging.getLogger(__name__)

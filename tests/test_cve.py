@@ -1,7 +1,7 @@
 import pytest
 
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.cve import CVE
+from sec_certs.dataset import CVEDataset
+from sec_certs.sample import CVE
 
 
 class TestCVE:
