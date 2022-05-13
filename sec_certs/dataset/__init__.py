@@ -1,3 +1,5 @@
+"""This package exposes Datasets of various Samples, both primary (Common Criteria, FIPS) and auxillary (CVEs, CPEs, ...)"""
+
 from sec_certs.dataset.common_criteria import CCDataset, CCDatasetMaintenanceUpdates
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
