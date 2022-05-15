@@ -195,6 +195,8 @@ pillow==9.1.0
     #   -r requirements.in
     #   matplotlib
     #   pikepdf
+pkgconfig==1.5.5
+    # via -r requirements.in
 preshed==3.0.6
     # via
     #   spacy
