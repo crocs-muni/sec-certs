@@ -2,7 +2,7 @@
 
 import click
 
-from sec_certs.dataset.fips_iut import IUTDataset
+from sec_certs.dataset import IUTDataset
 
 
 @click.command()

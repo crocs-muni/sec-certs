@@ -6,13 +6,9 @@ from unittest import TestCase
 
 import tests.data.test_cc_heuristics
 from sec_certs import constants
-from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
-from sec_certs.sample.cpe import CPE
-from sec_certs.sample.cve import CVE
-from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
+from sec_certs.dataset import CCDataset, CPEDataset, CVEDataset
+from sec_certs.sample import CPE, CVE, SAR, CommonCriteriaCert, ProtectionProfile
 
 
 class TestCommonCriteriaHeuristics(TestCase):
@@ -219,7 +215,7 @@ class TestCommonCriteriaHeuristics(TestCase):
             None,
             None,
         )
-        new_cert._compute_heuristics_version()
+        new_cert.compute_heuristics_version()
         self.assertEqual(
             set(new_cert.heuristics.extracted_versions),
             {"5.4", "1.0"},
@@ -295,3 +291,36 @@ class TestCommonCriteriaHeuristics(TestCase):
         dataset._compute_dependency_vulnerabilities()
         test_cert = dataset["d0705c9e6fbaeba3"]
         self.assertEqual(test_cert.heuristics.indirect_dependency_cves, {"CVE-2013-5385"})
+
+    def test_sar_object(self):
+        alc_flr_one = SAR("ALC_FLR", 1)
+        alc_flr_one_copy = SAR("ALC_FLR", 1)
+        alc_flr_two = SAR("ALC_FLR", 2)
+
+        self.assertEqual(alc_flr_one, alc_flr_one_copy)
+        self.assertNotEqual(alc_flr_one, alc_flr_two)
+
+        with self.assertRaises(ValueError):
+            # does not contain level
+            SAR.from_string("ALC_FLR")
+
+        with self.assertRaises(ValueError):
+            # unknown family
+            SAR.from_string("XALC_FLR")
+
+    def test_sar_transformation(self):
+        test_cert = self.cc_dset["ebd276cca70fd723"]
+
+        # This one should be taken from security level and not overwritten by stronger SARs in ST
+        self.assertTrue(SAR("ALC_FLR", 1) in test_cert.heuristics.extracted_sars)
+        self.assertTrue(SAR("ALC_FLR", 2) not in test_cert.heuristics.extracted_sars)
+
+        # This one should be taken from ST and not overwritten by stronger SAR in report
+        self.assertTrue(SAR("ADV_FSP", 3) in test_cert.heuristics.extracted_sars)
+        self.assertTrue(SAR("ADV_FSP", 6) not in test_cert.heuristics.extracted_sars)
+
+    def test_eal_implied_sar_inference(self):
+        test_cert = self.cc_dset["ebd276cca70fd723"]
+        actual_sars = test_cert.actual_sars
+        eal_3_sars = {SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL["EAL3"]}
+        self.assertTrue(eal_3_sars.issubset(actual_sars))

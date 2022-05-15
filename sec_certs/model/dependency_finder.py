@@ -1,8 +1,6 @@
-from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional, Set, Tuple
 
-from sec_certs.sample.certificate import Certificate
-from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.sample.certificate import Certificate, References
 
 Certificates = Dict[str, Certificate]
 ReferencedByDirect = Dict[str, Set[str]]
@@ -10,14 +8,6 @@ ReferencedByIndirect = Dict[str, Set[str]]
 Dependencies = Dict[str, Dict[str, Optional[Set[str]]]]
 IDLookupFunc = Callable[[Certificate], str]
 ReferenceLookupFunc = Callable[[Certificate], Set[str]]
-
-
-@dataclass
-class References(ComplexSerializableType):
-    directly_referenced_by: Optional[Set[str]] = field(default=None)
-    indirectly_referenced_by: Optional[Set[str]] = field(default=None)
-    directly_referencing: Optional[Set[str]] = field(default=None)
-    indirectly_referencing: Optional[Set[str]] = field(default=None)
 
 
 class DependencyFinder:

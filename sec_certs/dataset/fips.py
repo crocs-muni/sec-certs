@@ -25,10 +25,10 @@ logger = logging.getLogger(__name__)
 class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def __init__(
         self,
-        certs: Dict[str, FIPSCertificate],
-        root_dir: Path,
-        name: str = "dataset name",
-        description: str = "dataset_description",
+        certs: Dict[str, FIPSCertificate] = dict(),
+        root_dir: Optional[Path] = None,
+        name: str = "FIPS Dataset",
+        description: str = "No description",
     ):
         super().__init__(certs, root_dir, name, description)
         self.keywords: Dict[str, Dict] = {}
@@ -242,7 +242,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "fips_latest_dataset.json"
             logger.info("Downloading the latest FIPS dataset.")
-            helpers.download_file(config.fips_latest_snapshot, dset_path)
+            helpers.download_file(
+                config.fips_latest_snapshot,
+                dset_path,
+                show_progress_bar=True,
+                progress_bar_desc="Downloading FIPS dataset",
+            )
             dset: FIPSDataset = cls.from_json(dset_path)
             logger.info(
                 "The dataset with %s certs and %s algorithms.",
