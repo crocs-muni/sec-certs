@@ -4,6 +4,8 @@
         <p class="card-text">A Common Criteria certificate for a product named <b>{{ cert["name"] }}</b>
             is not available. This means that either its certification report or security target
             could not be downloaded during processing.</p>
-        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}" class="card-link">Certificate page</a>
+        {% if linkback %}
+            <a href="{{ url_for("cc.entry", hashid=hashid) }}" class="card-link">Certificate page</a>
+        {% endif %}
     </div>
 </div>

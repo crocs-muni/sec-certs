@@ -6,14 +6,16 @@
                 The {{ change }} {% if plural %}were{% else %}was{% endif %} updated.
             </p>
             {% if details %}
-            <ul class="mb-1">
-                {% for detail in details %}
-                    <li>{{ detail }}</li>
-                {% endfor %}
-            </ul>
+                <ul class="mb-1">
+                    {% for detail in details %}
+                        <li>{{ detail }}</li>
+                    {% endfor %}
+                </ul>
             {% endif %}
         {% endfor %}
-        <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}" class="card-link">Certificate page</a>
+        {% if linkback %}
+            <a href="{{ url_for("fips.entry", hashid=hashid) }}" class="card-link">Certificate page</a>
+        {% endif %}
     </div>
 </div>
 

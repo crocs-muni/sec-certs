@@ -19,7 +19,10 @@
     "related_cves": null,
     "verified_cpe_matches": null
   },
-  "maintenance_updates": [],
+  "maintenance_updates": {
+    "_type": "Set",
+    "elements": []
+  },
   "manufacturer": "Fujitsu Limited",
   "manufacturer_web": null,
   "name": "PalmSecure SDK Version 24 Premium",
@@ -332,12 +335,18 @@
     },
     "st_metadata": null
   },
-  "protection_profiles": [],
+  "protection_profiles": {
+    "_type": "Set",
+    "elements": []
+  },
   "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0511a.pdf",
   "scheme": "DE",
-  "security_level": [
-    "EAL2"
-  ],
+  "security_level": {
+    "_type": "Set",
+    "elements": [
+      "EAL2"
+    ]
+  },
   "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0511b.pdf",
   "state": {
     "errors": [

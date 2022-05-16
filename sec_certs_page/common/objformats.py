@@ -61,7 +61,7 @@ class StorageFormat(Format):
         def walk(obj):
             if isinstance(obj, dict):
                 if "_type" in obj and obj["_type"] in ("set", "frozenset"):
-                    return list(walk(obj["_value"]))
+                    return {"_type": "Set", "elements": walk(obj["_value"])}
                 elif "_type" in obj and obj["_type"] in ("Path", "date"):
                     return obj["_value"]
                 else:

@@ -22,7 +22,7 @@ from pymongo import DESCENDING
 from sec_certs.dataset.dataset import Dataset
 
 from .. import mail, mongo, redis, whoosh_index
-from .diffs import has_symbols
+from .diffs import DiffRenderer, has_symbols
 from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
 
@@ -262,85 +262,7 @@ class Updater:  # pragma: no cover
             rmtree(paths["dset_path"], ignore_errors=True)
 
 
-class Notifier:
-    collection: str
-    diff_collection: str
-    log_collection: str
-    templates: Mapping[str, str]
-    k2map: Mapping[str, Tuple[str, bool]]
-
-    def render_diff(self, cert, diff) -> str:
-        if diff["type"] == "new":
-            return render_template(self.templates["new"], cert=diff["diff"])
-        elif diff["type"] == "back":
-            return render_template(self.templates["back"], cert=cert)
-        elif diff["type"] == "remove":
-            return render_template(self.templates["remove"], cert=cert)
-        elif diff["type"] == "change":
-            changes = []
-            for k1, v1 in diff["diff"].items():
-                if k1 == symbols.update:
-                    for k2, v2 in v1.items():
-                        details = []
-                        if has_symbols(v2):
-                            for k3, v3 in v2.items():
-                                if k3 == symbols.update:
-                                    if isinstance(v3, dict):
-                                        for prop, val in v3.items():
-                                            if has_symbols(val):
-                                                detail = f"The {prop} property was updated."
-                                                if symbols.insert in val:
-                                                    vjson = (
-                                                        WorkingFormat(val[symbols.insert])
-                                                        .to_storage_format()
-                                                        .to_json_mapping()
-                                                    )
-                                                    detail += f" With the {vjson} values inserted."
-                                                if symbols.discard in val:
-                                                    vjson = (
-                                                        WorkingFormat(val[symbols.discard])
-                                                        .to_storage_format()
-                                                        .to_json_mapping()
-                                                    )
-                                                    detail += f" With the {vjson} values discarded."
-                                                if symbols.update in val:
-                                                    vjson = (
-                                                        WorkingFormat(val[symbols.update])
-                                                        .to_storage_format()
-                                                        .to_json_mapping()
-                                                    )
-                                                    detail += f" With the {vjson} data."
-                                                if symbols.add in val:
-                                                    vjson = (
-                                                        WorkingFormat(val[symbols.add])
-                                                        .to_storage_format()
-                                                        .to_json_mapping()
-                                                    )
-                                                    detail += f" With the {vjson} values added."
-                                                details.append(detail)
-                                            else:
-                                                vjson = WorkingFormat(val).to_storage_format().to_json_mapping()
-                                                details.append(f"The {prop} property was set to {vjson}.")
-                                elif k3 == symbols.insert:
-                                    if has_symbols(v3):
-                                        logger.error(f"Should not happen, ins: {k3}, {v3}")
-                                    else:
-                                        vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
-                                        details.append(f"The following values were inserted: {vjson}.")
-                                elif k3 == symbols.delete:
-                                    vjson = WorkingFormat(v3).to_storage_format().to_json_mapping()
-                                    details.append(f"The following properties were deleted: {vjson}.")
-                                else:
-                                    logger.error(f"Should not happen: {k3}, {v3}")
-                        else:
-                            vjson = WorkingFormat(v2).to_storage_format().to_json_mapping()
-                            details.append(f"The new value is {vjson}.")
-                        # Add the rendered change into the list.
-                        changes.append((self.k2map.get(k2, (k2, False)), details))
-            return render_template(self.templates["change"], cert=cert, changes=changes)
-        else:
-            raise ValueError("Invalid diff type")
-
+class Notifier(DiffRenderer):
     def notify(self, run_id: str):
         run_oid = ObjectId(run_id)
         # Load up the diffs and certs
@@ -355,7 +277,7 @@ class Notifier:
         # Render the individual diffs
         change_renders = {}
         for dgst in change_dgsts:
-            change_renders[dgst] = self.render_diff(change_certs[dgst], change_diffs[dgst])
+            change_renders[dgst] = self.render_diff(dgst, change_certs[dgst], change_diffs[dgst], linkback=True)
 
         # Group the subscriptions by email
         change_sub_emails = mongo.db.subs.find(
@@ -406,7 +328,7 @@ class Notifier:
             # Render diffs into body template
             email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
             # Filter out unused CSS rules
-            cleaned_css = filter_css(bootstrap_parsed, email_core_html, minify=True)
+            cleaned_css = filter_css(bootstrap_parsed, email_core_html)
             # Inject final CSS into html
             soup = BeautifulSoup(email_core_html, "lxml")
             css_tag = soup.new_tag("style")

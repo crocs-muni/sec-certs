@@ -319,7 +319,7 @@
                           title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
                 </h2>
                 <ul>
-                    {% for diff, json_diff in zip(diffs, diff_jsons) %}
+                    {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
                         <li id="diff-{{ diff["_id"] }}">
                             {% if diff["type"] == "new" %}
                                 {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
@@ -339,8 +339,12 @@
                                         tabindex="0"
                                         class="btn btn-outline-primary btn-sm"
                                         title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff</button>
-                                <pre id="diff-data{{ loop.index }}"
+                                <div id="diff-data{{ loop.index }}" class="collapse py-3">
+                                {{ diff_render|safe }}
+                                </div>
+                                {# <pre id="diff-data{{ loop.index }}"
                                      class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
+                                #}
                             {% endif %}
                         </li>
                     {% endfor %}
@@ -371,7 +375,7 @@
                     })
                     new bootstrap.Tooltip($("#raw-data-button").get(0));
                 });
-                $('#raw-data').on('show.bs.collapse', function () {
+                $('#raw-data').on('show.bs.collapse', function (e) {
                     $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
                 });
                 $('#raw-data').on('hide.bs.collapse', function () {

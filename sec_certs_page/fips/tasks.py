@@ -1,14 +1,13 @@
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from flask import current_app, render_template
-from jsondiff import symbols
+from flask import current_app
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 
 from .. import celery, mongo
-from ..common.diffs import has_symbols
-from ..common.objformats import ObjFormat, WorkingFormat
+from ..common.diffs import DiffRenderer
+from ..common.objformats import ObjFormat
 from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import fips_types
 
@@ -25,7 +24,7 @@ class FIPSMixin:
         self.cert_schema = "fips"
 
 
-class FIPSNotifier(Notifier, FIPSMixin):
+class FIPSRenderer(DiffRenderer, FIPSMixin):
     def __init__(self):
         super().__init__()
         self.templates = {
@@ -39,6 +38,10 @@ class FIPSNotifier(Notifier, FIPSMixin):
             "pdf_scan": ("PDF extraction data", False),
             "heuristics": ("computed heuristics", True),
         }
+
+
+class FIPSNotifier(Notifier, FIPSRenderer):
+    pass
 
 
 @celery.task(ignore_result=True)

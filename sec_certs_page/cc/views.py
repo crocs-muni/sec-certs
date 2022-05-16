@@ -42,6 +42,7 @@ from . import (
     get_cc_map,
     get_cc_searcher,
 )
+from .tasks import CCRenderer
 
 
 @cc.app_template_global("get_cc_sar")
@@ -400,10 +401,12 @@ def entry(hashid):
                 found = mongo.db.pp.find_one({"processed.cc_pp_csvid": {"$in": list(profile["pp_ids"])}})
                 if found:
                     profiles[profile["pp_ids"]] = load(found)
-        with sentry_sdk.start_span(op="mongo", description="Find diffs"):
+        renderer = CCRenderer()
+        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
             diffs = list(mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
+            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -423,6 +426,7 @@ def entry(hashid):
             profiles=profiles,
             diffs=diffs,
             diff_jsons=diff_jsons,
+            diff_renders=diff_renders,
             cves=cves,
             cpes=cpes,
             local_files=local_files,

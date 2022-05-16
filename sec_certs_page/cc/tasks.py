@@ -1,12 +1,10 @@
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from flask import current_app, render_template
-from jsondiff import symbols
+from flask import current_app
 from sec_certs.dataset.common_criteria import CCDataset
 
 from .. import celery
-from ..common.diffs import has_symbols
-from ..common.objformats import WorkingFormat
+from ..common.diffs import DiffRenderer
 from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import cc_categories
 
@@ -23,7 +21,7 @@ class CCMixin:
         self.cert_schema = "cc"
 
 
-class CCNotifier(Notifier, CCMixin):
+class CCRenderer(DiffRenderer, CCMixin):
     def __init__(self):
         super().__init__()
         self.templates = {
@@ -42,6 +40,10 @@ class CCNotifier(Notifier, CCMixin):
             "not_valid_after": ("Valid until date", False),
             "not_valid_before": ("Valid from date", False),
         }
+
+
+class CCNotifier(Notifier, CCRenderer):
+    pass
 
 
 @celery.task(ignore_result=True)

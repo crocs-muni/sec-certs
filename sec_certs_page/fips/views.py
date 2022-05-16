@@ -29,6 +29,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import fips, fips_status, fips_types, get_fips_graphs, get_fips_map, get_fips_searcher
+from .tasks import FIPSRenderer
 
 
 @fips.app_template_global("get_fips_type")
@@ -465,10 +466,12 @@ def entry(hashid):
         raw_doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if raw_doc:
         doc = load(raw_doc)
-        with sentry_sdk.start_span(op="mongo", description="Find diffs"):
+        renderer = FIPSRenderer()
+        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
             diffs = list(mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
+            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -489,6 +492,7 @@ def entry(hashid):
             hashid=hashid,
             diffs=diffs,
             diff_jsons=diff_jsons,
+            diff_renders=diff_renders,
             cves=cves,
             cpes=cpes,
             local_files=local_files,

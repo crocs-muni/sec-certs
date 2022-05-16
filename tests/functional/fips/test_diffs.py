@@ -16,7 +16,7 @@ def test_fips_diff_renders(client):
         id = random.choice(all_diffs)
         diff = load(mongo.db.fips_diff.find_one(id))
         cert = load(mongo.db.fips.find_one(diff["dgst"]))
-        r = notifier.render_diff(cert, diff)
+        r = notifier.render_diff(id["_id"], cert, diff)
         assert r is not None
 
 

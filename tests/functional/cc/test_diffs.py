@@ -16,7 +16,7 @@ def test_cc_diff_renders(client):
         id = random.choice(all_diffs)
         diff = load(mongo.db.cc_diff.find_one(id))
         cert = load(mongo.db.cc.find_one(diff["dgst"]))
-        assert notifier.render_diff(cert, diff) is not None
+        assert notifier.render_diff(id["_id"], cert, diff) is not None
 
 
 @pytest.mark.parametrize("dgst", ["d492f0e3e19d32f6", "2ff8ceac4a6ca519", "0adbded2df213f16", "fb8945b7036e2361"])
