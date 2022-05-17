@@ -160,6 +160,24 @@ class DiffRenderer:
                                             "The following properties were deleted: <code>{vjson}</code>.", v3
                                         )
                                     )
+                                elif k3 == symbols.add:
+                                    if has_symbols(v3):
+                                        logger.error(f"Should not happen, add: {k3}, {v3}")
+                                    else:
+                                        details.append(
+                                            render_code_template(
+                                                "The following values were added: <code>{vjson}</code>.", v3
+                                            )
+                                        )
+                                elif k3 == symbols.discard:
+                                    if has_symbols(v3):
+                                        logger.error(f"Should not happen, discard: {k3}, {v3}")
+                                    else:
+                                        details.append(
+                                            render_code_template(
+                                                "The following values were removed: <code>{vjson}</code>.", v3
+                                            )
+                                        )
                                 else:
                                     logger.error(f"Should not happen: {k3}, {v3}")
                         else:
