@@ -21,6 +21,7 @@ class FIPSMixin:
         self.log_collection = "fips_log"
         self.skip_update = current_app.config["FIPS_SKIP_UPDATE"]
         self.dset_class = FIPSDataset
+        self.dataset_path = current_app.config["DATASET_PATH_FIPS_DIR"]
         self.cert_schema = "fips"
 
 
