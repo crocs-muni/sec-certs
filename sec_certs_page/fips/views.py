@@ -356,7 +356,7 @@ def mip_index():
     pagination = Pagination(
         page=page,
         per_page=per_page,
-        search=True,
+        search=False,
         found=len(mip_snapshots),
         total=count,
         css_framework="bootstrap5",
@@ -388,10 +388,26 @@ def mip_entry(name):
     snapshots = list(mongo.db.fips_mip.find({"entries.module_name": name}).sort([("timestamp", pymongo.ASCENDING)]))
     if not snapshots:
         return abort(404)
+    first_present = datetime.fromisoformat(snapshots[0]["timestamp"]).replace(hour=0, minute=0, second=0)
+    last_present = datetime.fromisoformat(snapshots[-1]["timestamp"]).replace(hour=0, minute=0, second=0)
+    state_changes = []
     for snap in snapshots:
         snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
-    present = datetime.fromisoformat(snapshots[-1]["timestamp"]) - datetime.fromisoformat(snapshots[0]["timestamp"])
-    return render_template("fips/mip/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present)
+        one_entry = snap["entries"][0]
+        # TODO: More than one entry might be present, add a test?
+        if not state_changes or state_changes[-1][1] != one_entry["status"]:
+            change_date = datetime.fromisoformat(snap["timestamp"])
+            state_changes.append([change_date, one_entry["status"]])
+    for i, change in enumerate(state_changes):
+        if i + 1 == len(state_changes):
+            next_change = last_present
+        else:
+            next_change = state_changes[i + 1][0]
+        change.append((next_change - change[0]).days)
+    present = last_present - first_present
+    return render_template(
+        "fips/mip/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present, state_changes=state_changes
+    )
 
 
 @fips.route("/iut/")
@@ -411,7 +427,7 @@ def iut_index():
     pagination = Pagination(
         page=page,
         per_page=per_page,
-        search=True,
+        search=False,
         found=len(iut_snapshots),
         total=count,
         css_framework="bootstrap5",

@@ -8,6 +8,16 @@
             <h2>{{ name }}</h2>
             <p>The module is present on the MIP list for at least {{ present.days }} days.</p>
             <div class="row my-5">
+                <p class="mb-4">This module has undergone the following status changes:</p>
+                <ul>
+                    {% for date, status, length in state_changes %}
+                        <li>
+                            {{ date|strftime("%d.%m.%Y") }} - {{ status }} - {{ length }} days
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="row my-3">
                 <p class="mb-4">This module is present in the following snapshots:</p>
                 <ul>
                     {% for snap in snapshots %}
