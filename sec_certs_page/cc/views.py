@@ -1,6 +1,7 @@
 """Common Criteria views."""
 import operator
 import random
+import time
 from functools import reduce
 from operator import itemgetter
 from pathlib import Path
@@ -34,6 +35,7 @@ from . import (
     cc,
     cc_categories,
     cc_eals,
+    cc_reference_types,
     cc_sars,
     cc_sfrs,
     cc_status,
@@ -53,7 +55,7 @@ def get_cc_sar(sar):
 
 @cc.route("/sars.json")
 @cache.cached(60 * 60)
-@cache_for(hours=1)
+@cache_for(days=7)
 def sars():
     """Endpoint with CC SAR JSON."""
     return send_json_attachment(cc_sars)
@@ -67,7 +69,7 @@ def get_cc_sfr(sfr):
 
 @cc.route("/sfrs.json")
 @cache.cached(60 * 60)
-@cache_for(hours=1)
+@cache_for(days=7)
 def sfrs():
     """Endpoint with CC SFR JSON."""
     return send_json_attachment(cc_sfrs)
@@ -81,6 +83,7 @@ def get_cc_category(name):
 
 @cc.route("/categories.json")
 @cache.cached(60 * 60)
+@cache_for(days=7)
 def categories():
     """Endpoint with CC categories JSON."""
     return send_json_attachment(cc_categories)
@@ -94,6 +97,7 @@ def get_cc_eal(name):
 
 @cc.route("/eals.json")
 @cache.cached(60 * 60)
+@cache_for(days=7)
 def eals():
     """Endpoint with CC EALs JSON."""
     return send_json_attachment(cc_eals)
@@ -101,9 +105,18 @@ def eals():
 
 @cc.route("/status.json")
 @cache.cached(60 * 60)
+@cache_for(days=7)
 def statuses():
     """Endpoint with CC status JSON."""
     return send_json_attachment(cc_status)
+
+
+@cc.route("/reference_types.json")
+@cache.cached(60 * 60)
+@cache_for(days=7)
+def reference_types():
+    """Endpoint with CC reference_types JSON."""
+    return send_json_attachment(cc_reference_types)
 
 
 @cc.route("/")
@@ -137,6 +150,7 @@ def network():
 
 @cc.route("/network/graph.json")
 @cache.cached(5 * 60)
+@cache_for(hours=12)
 def network_graph():
     """Common criteria references data."""
     return network_graph_func(get_cc_graphs())
@@ -309,6 +323,7 @@ def fulltext_search():
     # print("scored", res.scored_length())
     # print("filtered", res.results.filtered_count)
     count = len(res)
+    highlite_start = time.perf_counter()
     with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
         for hit in res:
             dgst = hit["dgst"]
@@ -323,6 +338,7 @@ def fulltext_search():
             except FileNotFoundError:
                 pass
             results.append(entry)
+    highlite_runtime = time.perf_counter() - highlite_start
 
     pagination = Pagination(
         page=page,
@@ -342,6 +358,7 @@ def fulltext_search():
         pagination=pagination,
         document_type=type,
         runtime=runtime,
+        highlite_runtime=highlite_runtime,
     )
 
 

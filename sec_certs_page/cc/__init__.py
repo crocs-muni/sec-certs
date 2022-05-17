@@ -18,16 +18,18 @@ cc_mem_analysis: ContextVar = ContextVar("cc_analysis")
 cc_mem_map: ContextVar = ContextVar("cc_map")
 cc_mem_changes: ContextVar = ContextVar("cc_changes")
 
-with cc.open_resource("sfrs.json") as f:
+with cc.open_resource("resources/sfrs.json") as f:
     cc_sfrs = json.load(f)
-with cc.open_resource("sars.json") as f:
+with cc.open_resource("resources/sars.json") as f:
     cc_sars = json.load(f)
-with cc.open_resource("categories.json") as f:
+with cc.open_resource("resources/categories.json") as f:
     cc_categories = json.load(f)
-with cc.open_resource("eals.json") as f:
+with cc.open_resource("resources/eals.json") as f:
     cc_eals = json.load(f)
-with cc.open_resource("status.json") as f:
+with cc.open_resource("resources/status.json") as f:
     cc_status = json.load(f)
+with cc.open_resource("resources/reference_types.json") as f:
+    cc_reference_types = json.load(f)
 
 cc_searcher: ContextVar = ContextVar("cc_searcher")
 
@@ -53,11 +55,11 @@ def load_cc_data():
             cert = load(cert)
             hashid = cert["_id"]
             cert_id = cert["heuristics"]["cert_id"]
-            refs = []
+            refs = {}
             if cert["heuristics"]["report_references"]["directly_referencing"]:
-                refs.extend(cert["heuristics"]["report_references"]["directly_referencing"])
+                refs["report"] = cert["heuristics"]["report_references"]["directly_referencing"]
             if cert["heuristics"]["st_references"]["directly_referencing"]:
-                refs.extend(cert["heuristics"]["st_references"]["directly_referencing"])
+                refs["st"] = cert["heuristics"]["st_references"]["directly_referencing"]
             if not cert_id:
                 continue
             reference = {

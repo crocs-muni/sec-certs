@@ -76,9 +76,14 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
             status=value["status"],
         )
     for cert_id, reference in references.items():
-        for ref_id in set(reference["refs"]):
-            if ref_id in references and ref_id != cert_id:
-                graph.add_edge(reference["hashid"], references[ref_id]["hashid"])
+        for ref_type, refs in reference["refs"].items():
+            for ref_id in set(refs):
+                if ref_id in references and ref_id != cert_id:
+                    edge = (reference["hashid"], references[ref_id]["hashid"])
+                    if edge in graph.edges:
+                        graph.edges[edge]["type"].append(ref_type)
+                    else:
+                        graph.add_edge(*edge, type=[ref_type])
     for node in graph.nodes:
         graph.nodes[node]["referenced"] = graph.degree(node) != 0
     graphs = []

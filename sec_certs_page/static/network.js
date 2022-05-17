@@ -36,12 +36,13 @@ function drag(simulation) {
 
 
 class CertificateNetwork {
-    constructor(data, categories, statuses, highlighted) {
+    constructor(data, categories, statuses, refTypes, highlighted) {
         this.originalData = data;
         this.data = data;
         this.categories = categories;
         this.categoryIds = _.map(this.categories, "id");
         this.statuses = statuses;
+        this.refTypes = refTypes;
         this.highlighted = highlighted;
 
         this.nodeGroup = null;
@@ -54,7 +55,8 @@ class CertificateNetwork {
         this.filter = {
             status: "any",
             categories: new Set(this.categoryIds),
-            onlyRefd: false
+            onlyRefd: false,
+            refTypes: new Set(_.keys(this.refTypes))
         }
     }
 
@@ -196,7 +198,9 @@ class CertificateNetwork {
         referenceBox.append("h4")
             .text("References")
 
-        const referenceOnly = referenceBox.append("div")
+        const referenceFilter = referenceBox.append("div").classed("row", true);
+
+        const referenceOnly = referenceFilter.append("div")
             .classed("form-check", true)
             .append("span");
         referenceOnly.append("input")
@@ -207,10 +211,35 @@ class CertificateNetwork {
         referenceOnly.append("label")
             .attr("for", "reference-only")
             .classed("form-check-label", true)
-            .text("Only with references");
+            .text("Only nodes with references");
 
-        referenceOnly.selectAll("input").on("change", event => {
+        referenceOnly.selectAll("#reference-only").on("change", event => {
             this.filter.onlyRefd = event.target.checked;
+        });
+
+        for (const [type, value] of Object.entries(this.refTypes)) {
+            let elem = referenceFilter.append("div")
+                .classed("form-check", true)
+                .append("span");
+            elem.append("input")
+                .attr("id", "reftype-" + type)
+                .attr("data-type", type)
+                .attr("type", "checkbox")
+                .classed("form-check-input", true)
+                .property("checked", true);
+            elem.append("label")
+                .attr("for", "reftype-" + type)
+                .classed("form-check-label", true)
+                .text(value["name"] + " references");
+        }
+
+        referenceFilter.selectAll("input[data-type]").on("change", event => {
+            let refType = d3.select(event.target).attr("data-type");
+            if (event.target.checked) {
+                this.filter.refTypes.add(refType);
+            } else {
+                this.filter.refTypes.delete(refType)
+            }
         });
 
         element.append(() => referenceBox.node());
@@ -289,12 +318,23 @@ class CertificateNetwork {
         const colorFunc = _.partial(color, this.highlighted, this.statuses);
 
         let nodes = this.originalData.nodes;
-        nodes = nodes.filter(val => (val.status === this.filter.status || this.filter.status === "any"));
+        if (this.filter.status !== "any") {
+            nodes = nodes.filter(val => val.status === this.filter.status);
+        }
         nodes = nodes.filter(val => (this.filter.categories.has(val.type)));
-        nodes = nodes.filter(val => (!this.filter.onlyRefd || val.referenced));
+        if (this.filter.onlyRefd) {
+            nodes = nodes.filter(val => val.referenced);
+        }
 
         let links = this.originalData.links;
         links = links.filter(val => nodes.includes(val.source) && nodes.includes(val.target));
+        links = links.filter(val => _.some(_.map(val.type, type => this.filter.refTypes.has(type))));
+        if (this.filter.onlyRefd) {
+            let refd = new Set();
+            _.each(links, val => {refd.add(val.source); refd.add(val.target)});
+            nodes = nodes.filter(val => refd.has(val));
+        }
+
         this.data = {
             nodes: nodes,
             links: links
@@ -352,13 +392,14 @@ class CertificateNetwork {
     }
 }
 
-function createNetwork(element_id, data_url, types_url, status_url, highlighted, width, height) {
-    return Promise.all([d3.json(data_url), d3.json(types_url), d3.json(status_url)]).then(values => {
+function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, highlighted, width, height) {
+    return Promise.all([d3.json(data_url), d3.json(types_url), d3.json(status_url), d3.json(refTypes_url)]).then(values => {
         let data = values[0];
         let types = values[1];
         let statuses = values[2];
+        let refTypes = values[3];
         if (("nodes" in data) && ("links" in data)) {
-            let network = new CertificateNetwork(data, types, statuses, highlighted);
+            let network = new CertificateNetwork(data, types, statuses, refTypes, highlighted);
             network.render(element_id, width, height);
             return network;
         } else {

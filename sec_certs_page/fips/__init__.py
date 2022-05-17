@@ -16,10 +16,12 @@ fips_mem_graphs: ContextVar = ContextVar("fips_graphs")
 fips_mem_map: ContextVar = ContextVar("fips_map")
 fips_mem_changes: ContextVar = ContextVar("fips_changes")
 
-with fips.open_resource("types.json") as f:
+with fips.open_resource("resources/types.json") as f:
     fips_types = json.load(f)
-with fips.open_resource("status.json") as f:
+with fips.open_resource("resources/status.json") as f:
     fips_status = json.load(f)
+with fips.open_resource("resources/reference_types.json") as f:
+    fips_reference_types = json.load(f)
 
 fips_searcher: ContextVar = ContextVar("fips_searcher")
 
@@ -41,11 +43,11 @@ def load_fips_data():
         fips_references = {}
         for cert in data:
             cert = load(cert)
-            refs = []
+            refs = {}
             if cert["heuristics"]["st_references"]["directly_referencing"]:
-                refs.extend(cert["heuristics"]["st_references"]["directly_referencing"])
+                refs["st"] = cert["heuristics"]["st_references"]["directly_referencing"]
             if cert["heuristics"]["web_references"]["directly_referencing"]:
-                refs.extend(cert["heuristics"]["web_references"]["directly_referencing"])
+                refs["web"] = cert["heuristics"]["web_references"]["directly_referencing"]
             reference = {
                 "hashid": cert["_id"],
                 "name": cert["web_scan"]["module_name"],

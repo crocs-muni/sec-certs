@@ -20,7 +20,7 @@
                     <p>The following interactive graph represents the network of Common Criteria certificate references.
                         Each node represents a certificate and an edge corresponds to one certificate
                         referencing the certificate ID of another one. This reference information
-                        is based on a heuristic and is extracted from the certificate report and security policy
+                        is based on a heuristic and is extracted from the certificate report and security target
                         documents, and thus may contain errors.</p>
                     <p><b>Zoom out</b> to see the big picture, <b>move nodes</b> around, and <b>filter</b> them using
                         the controls below.</p>
@@ -36,6 +36,7 @@
                 '{{ url_for(".network_graph")}}',
                 '{{ url_for(".categories") }}',
                 '{{ url_for(".statuses") }}',
+                '{{ url_for(".reference_types") }}',
                 [],
                 600,
                 300);

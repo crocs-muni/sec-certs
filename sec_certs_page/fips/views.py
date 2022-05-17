@@ -1,6 +1,7 @@
 """FIPS views."""
 import operator
 import random
+import time
 from datetime import datetime
 from functools import reduce
 from operator import itemgetter
@@ -10,6 +11,7 @@ import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
+from flask_cachecontrol import cache_for
 from networkx import node_link_data
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
@@ -28,7 +30,7 @@ from ..common.views import (
     network_graph_func,
     send_json_attachment,
 )
-from . import fips, fips_status, fips_types, get_fips_graphs, get_fips_map, get_fips_searcher
+from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map, get_fips_searcher
 from .tasks import FIPSRenderer
 
 
@@ -39,14 +41,23 @@ def get_fips_type(name):
 
 @fips.route("/types.json")
 @cache.cached(60 * 60)
+@cache_for(days=7)
 def types():
     return send_json_attachment(fips_types)
 
 
 @fips.route("/status.json")
 @cache.cached(60 * 60)
+@cache_for(days=7)
 def statuses():
     return send_json_attachment(fips_status)
+
+
+@fips.route("/reference_types.json")
+@cache.cached(60 * 60)
+@cache_for(days=7)
+def reference_types():
+    return send_json_attachment(fips_reference_types)
 
 
 @fips.route("/")
@@ -85,6 +96,7 @@ def network():
 
 @fips.route("/network/graph.json")
 @cache.cached(5 * 60)
+@cache_for(hours=12)
 def network_graph():
     return network_graph_func(get_fips_graphs())
 
@@ -273,6 +285,7 @@ def fulltext_search():
     # print("scored", res.scored_length())
     # print("filtered", res.results.filtered_count)
     count = len(res)
+    highlite_start = time.perf_counter()
     with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
         for hit in res:
             dgst = hit["dgst"]
@@ -287,6 +300,7 @@ def fulltext_search():
             except FileNotFoundError:
                 pass
             results.append(entry)
+    highlite_runtime = time.perf_counter() - highlite_start
 
     pagination = Pagination(
         page=page,
@@ -306,6 +320,7 @@ def fulltext_search():
         pagination=pagination,
         document_type=type,
         runtime=runtime,
+        highlite_runtime=highlite_runtime,
     )
 
 

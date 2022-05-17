@@ -106,7 +106,7 @@
             <div id="pagination">
                 {% if pagination %}
                     <div style="text-align: center">
-                        Took {{ "{:.3}".format(runtime) }} seconds
+                        Took {{ "{:.3}".format(runtime + highlite_runtime) }} seconds
                         {{ pagination.info }}
                     </div>
                     <div class="mt-4 mb-4">
