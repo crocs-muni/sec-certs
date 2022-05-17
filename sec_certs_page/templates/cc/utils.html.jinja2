@@ -67,7 +67,8 @@
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
-																  "Technical reports": "rules_technical_reports"}, hidden, map_funcs) }}
+																  "Technical reports": "rules_technical_reports",
+																  "Certificate IDs": "rules_cert_id"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro opt_line(name, key, obj, title) %}

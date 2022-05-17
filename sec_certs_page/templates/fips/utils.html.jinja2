@@ -32,7 +32,12 @@
 {% endmacro %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"FIPS algorithms": "rules_fips_algorithms"}, hidden, map_funcs) }}
+	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"FIPS algorithms": "rules_fips_algorithms",
+	                                                                      "Algorithms": "rules_crypto_algs",
+																		  "Engines": "rules_crypto_engines",
+																		  "Libraries": "rules_crypto_libs",
+																		  "Elliptic Curves": "rules_ecc_curves",
+																		  "Block cipher modes": "rules_block_cipher_modes"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
@@ -45,18 +50,27 @@
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "rules_security_level"}, hidden, map_funcs) }}
+	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "rules_security_level",
+	                                                                    "Defenses": "rules_defenses",
+																		"Vulnerabilities": "rules_vulnerabilities"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id"}, hidden, map_funcs) }}
+	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
+	                                                              "Certificate IDs": "rules_cert_id"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro double_join(rule_dict, separator=", ", map_func=None) %}
 	{% for value in rule_dict.values() %}
-		{%- for inside in value.keys() -%}
-			{%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
-		{%- endfor -%}
+        {% if value is mapping %}
+            {%- for inside in value.keys() -%}
+                {%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
+            {%- endfor -%}
+        {% elif value is iterable %}
+            {%- for inside in value -%}
+                {%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
+            {%- endfor -%}
+        {% endif %}
 		{%- if not loop.last -%}{{ separator }}{%- endif -%}
 	{% endfor %}
 {%- endmacro %}
