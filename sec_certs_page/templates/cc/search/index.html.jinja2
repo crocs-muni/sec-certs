@@ -14,8 +14,10 @@
                     <div id="name" class="mt-1 mb-3">
                         <h4><label for="search">Name</label></h4>
                         <div class="form-inline">
-                            <input id="search" class="form-control" placeholder="Search" type="search" value="{{ q|default('', true) }}"/>
+                            <input id="search" class="form-control mb-2" placeholder="Search" type="search" value="{{ q|default('', true) }}"/>
                             <button id="search-btn" class="btn btn-primary">Search</button>
+                            <button id="network-btn" class="btn btn-warning" title="Experimental feature: Display the references network of the resulting certificates." data-bs-toggle="tooltip"><i
+                                        class="fas fa-flask fa-fw fa-spin"></i> Display network</button>
                         </div>
                         <small class="text-muted">Search by certificate name (case-insensitive, e.g. Infineon, card, applet).</small>
                     </div>
@@ -64,11 +66,11 @@
 
             </style>
             <script>
-                function searchParams() {
+                function searchParams(additional) {
                     let status = $("#search-status").val();
                     let sort = $("#search-sort").val();
                     let categories = $.makeArray($("#search-categories input").filter(":checked").map((i, elem) => $(elem).data("id"))).join("");
-                    return $.param({q: $("#search").val(), cat: categories, status: status, sort: sort});
+                    return $.param({q: $("#search").val(), cat: categories, status: status, sort: sort, ...additional});
                 }
                 function fullSearch() {
                     location.href = "{{ url_for("cc.search") }}?" + searchParams();
@@ -80,8 +82,12 @@
                         $("#pagination").replaceWith(data);
                     });
                 }
+                function networkSearch() {
+                    location.href = "{{ url_for("cc.network") }}?" + searchParams({search: "basic"});
+                }
 
                 $("#search-btn").click(fullSearch);
+                $("#network-btn").click(networkSearch);
                 $("#search-categories input").change(quickSearch);
                 $("#search-status").change(quickSearch);
                 $("#search-sort").change(quickSearch);

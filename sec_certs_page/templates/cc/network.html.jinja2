@@ -24,6 +24,16 @@
                         documents, and thus may contain errors.</p>
                     <p><b>Zoom out</b> to see the big picture, <b>move nodes</b> around, and <b>filter</b> them using
                         the controls below.</p>
+                    {% if query %}
+                        <p>The certificates shown are part of the results of a search query and their (weak) reference
+                            graph components. This means that all of the search results are displayed and also all
+                            certificates transitively referencing or being referenced by the search result
+                            certificates.</p>
+                        <a href="{{ url_for(".search") }}?{{ query|safe }}" class="btn btn-warning"
+                           title="Experimental feature" data-bs-toggle="tooltip"><i
+                                class="fas fa-flask fa-fw fa-spin"></i> Go back to search</a>
+                        <a href="{{ url_for(".network") }}" class="btn btn-secondary"> Clear</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -33,7 +43,7 @@
         </div>
         <script>
             let network = createNetwork('network',
-                '{{ url_for(".network_graph")}}',
+                '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
                 '{{ url_for(".categories") }}',
                 '{{ url_for(".statuses") }}',
                 '{{ url_for(".reference_types") }}',

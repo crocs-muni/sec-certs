@@ -167,8 +167,6 @@ class FulltextSearch:
 
         parser = QueryParser("content", schema=index_schema)
         qr = parser.parse(q)
-        print(q)
-        print(qr)
         with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
             searcher = get_cc_searcher()
         with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):

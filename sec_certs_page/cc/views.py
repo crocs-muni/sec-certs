@@ -1,27 +1,21 @@
 """Common Criteria views."""
-import operator
 import random
-import time
-from functools import reduce
 from operator import itemgetter
 from pathlib import Path
+from urllib.parse import urlencode
 
 import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
+from markupsafe import escape
 from networkx import node_link_data
-from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
-from whoosh import highlight
-from whoosh.qparser import QueryParser, query
 
 from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
-from ..common.search import index_schema
 from ..common.views import (
-    Pagination,
     entry_download_files,
     entry_download_report_pdf,
     entry_download_report_txt,
@@ -42,7 +36,6 @@ from . import (
     get_cc_analysis,
     get_cc_graphs,
     get_cc_map,
-    get_cc_searcher,
 )
 from .search import BasicSearch, FulltextSearch
 from .tasks import CCRenderer
@@ -146,14 +139,30 @@ def dataset():
 @register_breadcrumb(cc, ".network", "References")
 def network():
     """Common criteria references visualization."""
-    return render_template("cc/network.html.jinja2")
+    query = None
+    if request.args:
+        query = urlencode({escape(key): escape(value) for key, value in request.args.items()})
+    return render_template("cc/network.html.jinja2", query=query)
 
 
 @cc.route("/network/graph.json")
-@cache.cached(5 * 60)
-@cache_for(hours=12)
 def network_graph():
     """Common criteria references data."""
+    if "search" in request.args:
+        component_map = get_cc_map()
+        if request.args["search"] == "basic":
+            certs, count = BasicSearch.select_certs(**BasicSearch.parse_req(request))
+            components = {}
+            for cert in certs:
+                if cert["_id"] not in component_map:
+                    continue
+                component = component_map[cert["_id"]]
+                if id(component) not in components:
+                    components[id(component)] = component
+            return network_graph_func(list(components.values()))
+        elif request.args["search"] == "fulltext":
+            # TODO
+            pass
     return network_graph_func(get_cc_graphs())
 
 
