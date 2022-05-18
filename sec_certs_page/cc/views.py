@@ -44,6 +44,7 @@ from . import (
     get_cc_map,
     get_cc_searcher,
 )
+from .search import BasicSearch, FulltextSearch
 from .tasks import CCRenderer
 
 
@@ -156,209 +157,15 @@ def network_graph():
     return network_graph_func(get_cc_graphs())
 
 
-def select_certs(q, cat, status, sort):
-    categories = cc_categories.copy()
-    query = {}
-    projection = {
-        "_id": 1,
-        "name": 1,
-        "status": 1,
-        "not_valid_before": 1,
-        "not_valid_after": 1,
-        "category": 1,
-        "heuristics.cert_id": 1,
-    }
-
-    if q is not None and q != "":
-        projection["score"] = {"$meta": "textScore"}
-        query["$text"] = {"$search": q}
-
-    if cat is not None:
-        selected_cats = []
-        for name, category in categories.items():
-            if category["id"] in cat:
-                selected_cats.append(name)
-                category["selected"] = True
-            else:
-                category["selected"] = False
-        query["category"] = {"$in": selected_cats}
-    else:
-        for category in categories.values():
-            category["selected"] = True
-
-    if status is not None and status != "any":
-        query["status"] = status
-
-    with sentry_sdk.start_span(op="mongo", description="Find certs."):
-        cursor = mongo.db.cc.find(query, projection)
-        count = mongo.db.cc.count_documents(query)
-
-    if sort == "match" and q is not None and q != "":
-        cursor.sort([("score", {"$meta": "textScore"}), ("name", pymongo.ASCENDING)])
-    elif sort == "cert_date":
-        cursor.sort([("not_valid_before._value", pymongo.ASCENDING)])
-    elif sort == "archive_date":
-        cursor.sort([("not_valid_after._value", pymongo.ASCENDING)])
-    else:
-        cursor.sort([("name", pymongo.ASCENDING)])
-
-    return cursor, categories, count
-
-
-def process_search(req, callback=None):
-    try:
-        page = int(req.args.get("page", 1))
-    except ValueError:
-        raise BadRequest(description="Invalid page number.")
-    q = req.args.get("q", None)
-    cat = req.args.get("cat", None)
-    status = req.args.get("status", "any")
-    if status not in ("any", "active", "archived"):
-        raise BadRequest(description="Invalid status.")
-    sort = req.args.get("sort", "match")
-    if sort not in ("match", "name", "cert_date", "archive_date"):
-        raise BadRequest(description="Invalid sort.")
-
-    cursor, categories, count = select_certs(q, cat, status, sort)
-
-    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-    pagination = Pagination(
-        page=page,
-        per_page=per_page,
-        search=True,
-        found=count,
-        total=mongo.db.cc.count_documents({}),
-        css_framework="bootstrap5",
-        alignment="center",
-        url_callback=callback,
-    )
-    return {
-        "pagination": pagination,
-        "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
-        "categories": categories,
-        "q": q,
-        "page": page,
-        "status": status,
-        "sort": sort,
-    }
-
-
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():
     """Common criteria search."""
-    res = process_search(request)
+    res = BasicSearch.process_search(request)
     return render_template(
         "cc/search/index.html.jinja2",
         **res,
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | seccerts.org",
-    )
-
-
-@cc.route("/ftsearch/")
-@register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
-def fulltext_search():
-    categories = cc_categories.copy()
-    try:
-        page = int(request.args.get("page", 1))
-    except ValueError:
-        raise BadRequest(description="Invalid page number.")
-    q = request.args.get("q", None)
-    cat = request.args.get("cat", None)
-    q_filter = query.Term("cert_schema", "cc")
-    if cat is not None:
-        cat_terms = []
-        for name, category in categories.items():
-            if category["id"] in cat:
-                cat_terms.append(query.Term("category", category["id"]))
-                category["selected"] = True
-            else:
-                category["selected"] = False
-        q_filter &= reduce(operator.or_, cat_terms)
-    else:
-        for category in categories.values():
-            category["selected"] = True
-
-    type = request.args.get("type", "any")
-    if type not in ("any", "report", "target"):
-        raise BadRequest(description="Invalid type.")
-    if type != "any":
-        q_filter &= query.Term("document_type", type)
-
-    status = request.args.get("status", "any")
-    if status not in ("any", "active", "archived"):
-        raise BadRequest(description="Invalid status.")
-    if status != "any":
-        q_filter &= query.Term("status", status)
-
-    if q is None:
-        return render_template(
-            "cc/search/fulltext.html.jinja2",
-            categories=categories,
-            status=status,
-            document_type=type,
-            results=[],
-            pagination=None,
-            q=q,
-        )
-
-    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-
-    parser = QueryParser("content", schema=index_schema)
-    qr = parser.parse(q)
-    results = []
-    with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
-        searcher = get_cc_searcher()
-    with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
-        res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
-    res.results.fragmenter.charlimit = None
-    res.results.fragmenter.maxchars = 300
-    res.results.fragmenter.surround = 40
-    res.results.order = highlight.SCORE
-    hf = highlight.HtmlFormatter(between="<br/>")
-    res.results.formatter = hf
-    runtime = res.results.runtime
-    # print("total", res.total)
-    # print("len", len(res))
-    # print("scored", res.scored_length())
-    # print("filtered", res.results.filtered_count)
-    count = len(res)
-    highlite_start = time.perf_counter()
-    with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
-        for hit in res:
-            dgst = hit["dgst"]
-            cert = mongo.db.cc.find_one({"_id": dgst})
-            entry = {"hit": hit, "cert": cert}
-            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_CC_DIR"], hit["document_type"], "txt")
-            try:
-                with open(fpath) as f:
-                    contents = f.read()
-                hlt = hit.highlights("content", text=contents)
-                entry["highlights"] = hlt
-            except FileNotFoundError:
-                pass
-            results.append(entry)
-    highlite_runtime = time.perf_counter() - highlite_start
-
-    pagination = Pagination(
-        page=page,
-        per_page=per_page,
-        search=True,
-        found=count,
-        total=mongo.db.cc.count_documents({}),
-        css_framework="bootstrap5",
-        alignment="center",
-    )
-    return render_template(
-        "cc/search/fulltext.html.jinja2",
-        q=q,
-        results=results,
-        categories=categories,
-        status=status,
-        pagination=pagination,
-        document_type=type,
-        runtime=runtime,
-        highlite_runtime=highlite_runtime,
     )
 
 
@@ -369,8 +176,16 @@ def search_pagination():
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
-    res = process_search(request, callback=callback)
+    res = BasicSearch.process_search(request, callback=callback)
     return render_template("cc/search/pagination.html.jinja2", **res)
+
+
+@cc.route("/ftsearch/")
+@register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
+def fulltext_search():
+    """Fulltext search for Common Criteria."""
+    res = FulltextSearch.process_search(request)
+    return render_template("cc/search/fulltext.html.jinja2", **res)
 
 
 @cc.route("/analysis/")
