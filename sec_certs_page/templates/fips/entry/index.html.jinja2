@@ -275,7 +275,7 @@
                         <h3><abbr title="Common Platform Enumeration">CPE</abbr> matches</h3>
                         <ul>
                             {% for cpe in cpes %}
-                                <li>{{ cpe["uri"] }}
+                                <li><a href="{{ url_for("vuln.cpe", cpe_id=cpe["uri"]) }}">{{ cpe["uri"] }}</a>
                                     {% if cert["heuristics"]["verified_cpe_matches"] and cpe["uri"] in cert["heuristics"]["verified_cpe_matches"] %}
                                         <i class="fas fa-check-square text-success" title="Verified"></i>{% endif %}
                                 </li>

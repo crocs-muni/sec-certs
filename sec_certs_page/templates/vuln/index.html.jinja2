@@ -1,0 +1,90 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = Fse %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
+                <div class="col-sm-10 col-md-5 order-1 order-md-0">
+                    <h1>Vulnerability information</h1>
+                    <p class="lead">Vulnerabilities can affect certified devices. We use the data provided
+                        by MITRE in the form of the CVE database as well as data provided by NIST in its NVD to map
+                        vulnerabilities to certified products.</p>
+                </div>
+                <div class="col-5 d-flex justify-content-md-center align-items-md-center order-0 order-md-1">
+                    <img src="{{ url_for("static", filename="img/cve_logo.svg") }}" alt="seccerts"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); width: 10em"/>
+                </div>
+            </div>
+        </div>
+        <div class="row bg-dark p-3 mb-5">
+            <div class="col-10 mx-auto">
+                <div class="row my-5 row-cols-1 row-cols-lg-2 g-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">CVEs</h4>
+                                <p class="card-text">Browse through CVEs and see which certificates they impact.</p>
+                                <div class="form-inline">
+                                    <input id="cve-input" class="form-control mb-2" placeholder="CVE ID" type="search"
+                                           value=""/>
+                                </div>
+                                <button id="cve-button" class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Go
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">CPEs</h4>
+                                <p class="card-text">Browse through CPEs and see which certificates they match.</p>
+                                <div class="form-inline">
+                                    <input id="cpe-input" class="form-control mb-2" placeholder="CPE URI" type="search"
+                                           value=""/>
+                                </div>
+                                <button id="cpe-button" class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Go
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {#
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Analysis</h4>
+                                <p class="card-text">View a part of our results of our analysis of the Protection Profile
+                                    data.</p>
+                                <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
+                                        class="fas fa-chart-line fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Random</h4>
+                                <p class="card-text">Look at a random Common Criteria Protection Profile.</p>
+                                <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
+                                        class="fas fa-dice fa-fw"></i> Go</a>
+                            </div>
+                        </div>
+                    </div>
+                     #}
+                </div>
+            </div>
+        </div>
+        <script>
+            function cve_search() {
+                window.location.href = "{{ url_for("vuln.cve", cve_id="") }}" + $("#cve-input").val();
+            }
+
+            function cpe_search() {
+                window.location.href = "{{ url_for("vuln.cpe", cpe_id="") }}" + $("#cpe-input").val();
+            }
+
+            $("#cve-button").click(cve_search);
+            $("#cpe-button").click(cpe_search);
+        </script>
+    </main>
+{% endblock %}

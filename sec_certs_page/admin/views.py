@@ -27,7 +27,7 @@ def index():
 @admin_permission.require()
 @register_breadcrumb(admin, ".updates", "Updates")
 def updates():
-    pass
+    return render_template("admin/updates/index.html.jinja2")
 
 
 @admin.route("/updates/cc")

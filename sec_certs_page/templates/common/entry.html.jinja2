@@ -26,6 +26,36 @@
     {% endif %}
 {% endmacro %}
 
+{% macro render_cve_impact(cve) %}
+    {% if cve["impact"]["severity"] == "CRITICAL" %}
+        <span style="color: var(--bs-red)"><i class="fas fa-fw fa-exclamation-triangle"></i></span>
+        CRITICAL
+    {% elif cve["impact"]["severity"] == "HIGH" %}
+        <span style="color: var(--bs-orange)"><i class="fas fa-fw fa-exclamation-circle"></i></span>
+        HIGH
+    {% elif cve["impact"]["severity"] == "MEDIUM" %}
+        <span style="color: var(--bs-yellow)"><i class="fas fa-fw fa-exclamation"></i></span> MEDIUM
+    {% elif cve["impact"]["severity"] == "LOW" %}
+        <span style="color: var(--bs-green)"><i class="fas fa-fw fa-exclamation"></i></span> LOW
+    {% else %}
+        {{ cve["impact"]["severity"] }}
+    {% endif %}
+{% endmacro %}
+
+{% macro render_cve_links(cve, full=False) %}
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <a href="https://www.cve.org/CVERecord?id={{ cve["cve_id"] }}"
+           target="_blank" rel="noopener" title="CVE at cve.org"
+           class="btn btn-outline-secondary btn-sm">{% if full %}cve.org{% else %}C{% endif %}</a>
+        <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cve["cve_id"] }}"
+           target="_blank" rel="noopener" title="CVE at cve.mitre.org"
+           class="btn btn-outline-secondary btn-sm">{% if full %}cve.mitre.org{% else %}M{% endif %}</a>
+        <a href="https://nvd.nist.gov/vuln/detail/{{ cve["cve_id"] }}" target="_blank"
+           rel="noopener" title="CVE in NIST's Vulnerability Database"
+           class="btn btn-outline-secondary btn-sm">{% if full %}nvd.nist.gov{% else %}N{% endif %}</a>
+    </div>
+{% endmacro %}
+
 {% macro render_cves(cves) %}
     <table class="table table-striped my-2">
         <colgroup>
@@ -57,34 +87,12 @@
             {% set years.current = cve["cve_id"].split("-")[1] %}
             <tr {% if years.current != years.cve and years.cve %}
                 style="border-top: 2px solid var(--bs-dark)"{% endif %}>
-                <td>{{ cve["cve_id"] }}</td>
+                <td><a href="{{ url_for("vuln.cve", cve_id=cve["cve_id"]) }}">{{ cve["cve_id"] }}</a></td>
                 <td>
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                        <a href="https://www.cve.org/CVERecord?id={{ cve["cve_id"] }}"
-                           target="_blank" rel="noopener" title="CVE at cve.org"
-                           class="btn btn-outline-secondary btn-sm">C</a>
-                        <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cve["cve_id"] }}"
-                           target="_blank" rel="noopener" title="CVE at cve.mitre.org"
-                           class="btn btn-outline-secondary btn-sm">M</a>
-                        <a href="https://nvd.nist.gov/vuln/detail/{{ cve["cve_id"] }}" target="_blank"
-                           rel="noopener" title="CVE in NIST's Vulnerability Database"
-                           class="btn btn-outline-secondary btn-sm">N</a>
-                    </div>
+                    {{ render_cve_links(cve) }}
                 </td>
                 <td>
-                    {% if cve["impact"]["severity"] == "CRITICAL" %}
-                        <span style="color: var(--bs-red)"><i class="fas fa-fw fa-exclamation-triangle"></i></span>
-                        CRITICAL
-                    {% elif cve["impact"]["severity"] == "HIGH" %}
-                        <span style="color: var(--bs-orange)"><i class="fas fa-fw fa-exclamation-circle"></i></span>
-                        HIGH
-                    {% elif cve["impact"]["severity"] == "MEDIUM" %}
-                        <span style="color: var(--bs-yellow)"><i class="fas fa-fw fa-exclamation"></i></span> MEDIUM
-                    {% elif cve["impact"]["severity"] == "LOW" %}
-                        <span style="color: var(--bs-green)"><i class="fas fa-fw fa-exclamation"></i></span> LOW
-                    {% else %}
-                        {{ cve["impact"]["severity"] }}
-                    {% endif %}
+                    {{ render_cve_impact(cve) }}
                 </td>
                 <td>{{ cve["impact"]["base_score"] }}</td>
                 <td>{{ cve["impact"]["explotability_score"] }}</td>

@@ -9,7 +9,8 @@
                         Security certification frameworks like Common Criteria and FIPS 140 form a large landscape
                         of thousands of certificates, security targets and protection profiles.
                         This site presents ongoing research on this landscape done by the
-                        <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">Centre for Research on Cryptography and Security</a>.
+                        <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">Centre for Research on
+                            Cryptography and Security</a>.
                     </p>
                 </div>
                 <div class="col-12 col-sm-7 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
@@ -54,9 +55,9 @@
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
-                            <h4 class="card-title">About</h4>
-                            <p class="card-text">Want to learn more about our research?</p>
-                            <a href="{{ url_for(".about") }}" class="btn btn-primary">Go</a>
+                            <h4 class="card-title">Vulnerabilities</h4>
+                            <p class="card-text">Want to explore how vulnerabilities affect certified products?</p>
+                            <a href="{{ url_for("vuln.index") }}" class="btn btn-primary">Go</a>
                         </div>
                     </div>
                 </div>
@@ -98,7 +99,7 @@
                             <i class="fas fa-network-wired fa-fw"></i>
                         </div>
                         <h3>References</h3>
-                        <p>Explore the references between certificates and security targets in a graph. A certificate
+                        <p>Explore the references between certificates in a graph. A certificate
                             referencing another certificate usually means that it builds up on top of the referenced
                             certificate.</p>
                         <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
@@ -246,6 +247,11 @@
                         Documentation, including a quick-start guide, can be found on
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">this site</a>.
                     </p>
+                </div>
+                <div class="col-12 col-md-6">
+                    <h3>About</h3>
+                    <p>Want to learn more about our research? More information, including the privacy policy of this
+                        site can be found <a href="{{ url_for(".about") }}">here</a>.</p>
                 </div>
             </div>
         </div>

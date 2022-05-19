@@ -1,0 +1,139 @@
+{% extends "crowdsourced.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% from "common/entry.html.jinja2" import render_cve_impact, render_cve_links %}
+{% block title %}
+    <title>
+        {{ cve["_id"] }}
+    </title>
+{% endblock %}
+{% block metadata %}
+    <meta property="twitter:card" content="summary"/>
+    <meta property="twitter:site" content="@CRoCS_MUNI"/>
+    <meta property="twitter:title" content="{{ cve["_id"] }}"/>
+    <meta property="twitter:image" content="{{ url_for("static", filename="img/cve_card.png", _external=True) }}"/>
+    <meta property="twitter:description" content="{{ cve["_id"] }}"/>
+    <meta property="og:title" content="{{ cve["_id"] }}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{{ url_for(".cve", cve_id=cve["_id"], _external=True) }}"/>
+    <meta property="og:image" content="{{ url_for("static", filename="img/cve_card.png", _external=True) }}"/>
+    <meta property="og:description" content="{{ cve["_id"] }}"/>
+    <meta property="og:site_name" content="seccerts.org"/>
+{% endblock %}
+{% block navbar %}
+    {{ super() }}
+    <li class="nav-item">
+        <a class="nav-link" href="#data">Data</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#vulnerable-cpes">Vulnerable CPEs</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#vulnerable-certs">Vulnerable certificates</a>
+    </li>
+{% endblock %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="alert alert-warning d-sm-none" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+            </div>
+            <div>
+                <h1>{{ cve["_id"] }}</h1>
+
+                <div class="row pt-5">
+                    <div class="col-12 col-md-6">
+                        <h2 class="anchor" id="data">Data
+                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                  class="badge bg-secondary"
+                                  data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="Information extracted from CVE data from MITRE and NIST's NVD.">?</span>
+                        </h2>
+                        <table class="table table-sm table-borderless w-auto">
+                            <colgroup>
+                                <col style="width: 30%"/>
+                                <col style="width: 70%"/>
+                            </colgroup>
+                            <tbody>
+                            <tr data-cs-name="Vulnerability ID">
+                                <th scope="row">Vulnerability ID</th>
+                                <td>{{ cve["_id"] }}</td>
+                            </tr>
+                            <tr data-cs-name="Published on">
+                                <th scope="row">Published on</th>
+                                <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
+                            </tr>
+                            <tr data-cs-name="Severity">
+                                <th scope="row">Severity</th>
+                                <td>{{ render_cve_impact(cve) }}</td>
+                            </tr>
+                        </table>
+
+                        {{ render_cve_links(cve,full=True) }}
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <h2 class="anchor" id="vulnerable-cpes">Vulnerable CPEs
+                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                  class="badge bg-secondary"
+                                  data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="Information automatically extracted from NIST's NVD.">?</span>
+                        </h2>
+                        {% if cve["vulnerable_cpes"] %}
+                            <ul>
+                                {% for cpe in cve["vulnerable_cpes"] %}
+                                    <li><a href="{{ url_for(".cpe", cpe_id=cpe["uri"]) }}">{{ cpe["uri"] }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>This CVE has no vulnerable CPEs linked.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {#  heeeere #}
+        <div class="row bg-dark p-3">
+            <div class="col-10 mx-auto p-3 py-md-5 text-light">
+
+                <div class="mb-3">
+                    <h2 class="anchor" id="vulnerable-certs">Vulnerable certificates
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="Information automatically extracted TODO">?</span>
+                        {# TODO: heading #}
+                    </h2>
+                    <p>Note that this currently lists only certificates matched to the CVE via its CPEs, it does not
+                        include certificates that directly or indirectly reference the vulnerable certificate.</p>
+
+                    {% if cc_certs %}
+                        <div class="my-4">
+                            <h3>Common Criteria certificates</h3>
+                            <ul>
+                                {% for cert in cc_certs %}
+                                    <li>
+                                        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cert["name"]|default("", true) }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    {% if fips_certs %}
+                        <div class="my-4">
+                            <h3>FIPS 140 certificates</h3>
+                            <ul>
+                                {% for cert in fips_certs %}
+                                    <li>
+                                        <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">{{ cert["web_scan"]["module_name"]|default("", true) }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    {% if not cc_certs and not fips_certs %}
+                        <p>This CVE has no assigned vulnerable certificates.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
