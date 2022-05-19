@@ -1,0 +1,53 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div>
+                <h1>FIPS update log</h1>
+                <p>Newest first.</p>
+                <div class="mt-4 mb-4">
+                    {{ pagination.links }}
+                </div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Result</th>
+                        <th># certs</th>
+                        <th>Cert state</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for log_entry in fips_log %}
+                        <tr>
+                            <td><a href="{{ url_for(".update_run", id=log_entry["_id"]) }}"
+                                   class="font-monospace">{{ log_entry["_id"] }}</a></td>
+                            <td>{{ log_entry["start_time"]|strftime("%d.%m.%Y") }}</td>
+                            <td>{{ log_entry["end_time"] - log_entry["start_time"] }}</td>
+                            <td>{% if log_entry["ok"] %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                                {{ log_entry["error"] }}
+                            {% endif %}</td>
+                            <td>{{ log_entry["length"] }}</td>
+                            <td>{% if "stats" in log_entry %}
+                                <b class="text-success" title="New">+{{ log_entry["stats"]["new_certs"] }}</b>,
+                                <b class="text-warning" title="Changed">~{{ log_entry["stats"]["changed_ids"] }}</b>,
+                                <b class="text-danger"
+                                   title="Removed">-{{ log_entry["stats"]["removed_ids"] }}</b>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mt-4">
+                    {{ pagination.links }}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

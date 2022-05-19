@@ -7,7 +7,8 @@
             <h1>Welcome {{ current_user.username }}!</h1>
             <div>
                 <a href="{{ url_for("admin.feedback") }}" class="btn btn-primary">Collected feedback</a>
-                <a href="{{ url_for("admin.updates") }}" class="btn btn-primary">Update log</a>
+                <a href="{{ url_for("admin.updates_cc") }}" class="btn btn-primary">CC Update log</a>
+                <a href="{{ url_for("admin.updates_fips") }}" class="btn btn-primary">FIPS Update log</a>
                 <a href="/munin/" class="btn btn-primary" target="_blank">Munin</a>
             </div>
         </div>
