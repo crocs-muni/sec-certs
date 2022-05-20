@@ -32,6 +32,7 @@ Seccerts PyPi <https://pypi.org/project/sec-certs/>
 installation.md
 quickstart.md
 tutorial.md
+configuration.md
 ```
 
 ```{toctree}
@@ -44,7 +45,7 @@ notebooks/examples/model.ipynb
 ```
 
 ```{toctree}
-:caption: API
+:caption: API reference
 :hidden: True
 :maxdepth: 1
 api/sample.md
