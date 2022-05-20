@@ -1,5 +1,14 @@
 # Model package
 
+```{eval-rst}
+.. automodule:: sec_certs.model
+    :no-members:
+```
+
+```{tip}
+The examples related to this package can be found at [model notebook](./../notebooks/examples/model.ipynb).
+```
+
 ## CPEClassifier
 
 ```{eval-rst}
@@ -18,3 +27,16 @@
 
 ## DependencyFinder
 
+```{eval-rst}
+.. currentmodule:: sec_certs.model
+.. autoclass:: DependencyFinder
+    :members:
+```
+
+## DependencyVulnerabilityFinder
+
+```{eval-rst}
+.. currentmodule:: sec_certs.model
+.. autoclass:: DependencyVulnerabilityFinder
+    :members:
+```

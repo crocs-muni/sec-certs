@@ -1,18 +1,28 @@
 # Installation
 
+::::{tab-set}
+:::{tab-item} PyPi (pip)
+
+The tool can be installed from PyPi with
+
+```bash
+pip install -U sec-certs
+```
+
+Note, that `Python>=3.8` is required.
+
+:::
+
+:::{tab-item} Docker
+
 The tool can be pulled as a docker image with
 
 ```bash
 docker pull seccerts/sec-certs
 ```
 
-Alternatively, it can be installed from PyPi with
-
-```bash
-pip install -U sec-certs
-```
-
-Note, however, that `Python>=3.8` is required and there are some additional dependencies (see below) that are not shipped with the binary distribution.
+:::
+:::{tab-item} Build from sources
 
 The stable release is also published on [GitHub](https://github.com/crocs-muni/sec-certs/releases) from where it can be setup for development with
 
@@ -23,6 +33,11 @@ pip install -e .
 ```
 
 Alternatively, our Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/Dockerfile) represents a reproducible way of setting up the environment.
+
+:::
+::::
+
+If you're not using Docker, you must install the dependencies as described below.
 
 ## Dependencies
 
