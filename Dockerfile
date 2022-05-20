@@ -50,6 +50,9 @@ RUN \
   pip3 install --no-cache notebook jupyterlab && \
   pip3 install -e .
 
+# Download spacy language model
+RUN python3 -m spacy download en_core_web_sm
+
 # #just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}
 

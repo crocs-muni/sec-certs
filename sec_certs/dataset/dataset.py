@@ -29,11 +29,13 @@ DatasetSubType = TypeVar("DatasetSubType", bound="Dataset")
 class Dataset(Generic[CertSubType], ABC):
     def __init__(
         self,
-        certs: Dict[str, CertSubType],
-        root_dir: Path,
+        certs: Dict[str, CertSubType] = dict(),
+        root_dir: Optional[Path] = None,
         name: str = "dataset name",
         description: str = "dataset_description",
     ):
+        if not root_dir:
+            root_dir = Path.cwd() / (type(self).__name__).lower()
         self._root_dir = root_dir
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
@@ -191,7 +193,8 @@ class Dataset(Generic[CertSubType], ABC):
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
 
-    def _compute_cpe_matches(
+    @serialize
+    def compute_cpe_heuristics(
         self, download_fresh_cpes: bool = False
     ) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
         def filter_condition(cpe: CPE) -> bool:
@@ -216,24 +219,29 @@ class Dataset(Generic[CertSubType], ABC):
         logger.info("Computing heuristics: Finding CPE matches for certificates")
         cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes, init_lookup_dicts=False)
         cve_dset = None
-        if not cpe_dset.was_enhanced_with_vuln_cpes:
-            cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
-            cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
-        else:
-            cpe_dset.build_lookup_dicts()
+
+        cpe_dset.build_lookup_dicts()
+        # Temporarily disabled, see: https://github.com/crocs-muni/sec-certs/issues/173
+        # if not cpe_dset.was_enhanced_with_vuln_cpes:
+        #     cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
+        #     cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
+        # else:
+        #     cpe_dset.build_lookup_dicts()
 
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
         clf.fit([x for x in cpe_dset if filter_condition(x)])
 
         cert: CertSubType
         for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
-            cert.compute_heuristics_cpe_match(clf)
+            cert.compute_heuristics_version()
+
+            cert.heuristics.cpe_matches = (
+                clf.predict_single_cert(cert.manufacturer, cert.name, cert.heuristics.extracted_versions)
+                if cert.name
+                else None
+            )
 
         return clf, cpe_dset, cve_dset
-
-    @serialize
-    def compute_cpe_heuristics(self) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
-        return self._compute_cpe_matches()
 
     def to_label_studio_json(self, output_path: Union[str, Path]) -> None:
         lst = []
@@ -326,7 +334,15 @@ class Dataset(Generic[CertSubType], ABC):
 
         cert: Certificate
         for cert in helpers.tqdm(cpe_rich_certs, desc="Computing related CVES"):
-            cert.compute_heuristics_related_cves(cve_dset)
+            if cert.heuristics.cpe_matches:
+                related_cves = [cve_dset.get_cve_ids_for_cpe_uri(x) for x in cert.heuristics.cpe_matches]
+                related_cves = list(filter(lambda x: x is not None, related_cves))
+                if related_cves:
+                    cert.heuristics.related_cves = set(
+                        itertools.chain.from_iterable([x for x in related_cves if x is not None])
+                    )
+            else:
+                cert.heuristics.related_cves = None
 
         n_vulnerable = len([x for x in cpe_rich_certs if x.heuristics.related_cves])
         n_vulnerabilities = sum([len(x.heuristics.related_cves) for x in cpe_rich_certs if x.heuristics.related_cves])

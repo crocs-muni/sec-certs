@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from sec_certs.config.configuration import config
-from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset import FIPSDataset
 
 logger = logging.getLogger(__name__)
 

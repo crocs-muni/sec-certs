@@ -20,6 +20,7 @@ from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
+from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -39,10 +40,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     def __init__(
         self,
-        certs: Dict[str, CommonCriteriaCert],
-        root_dir: Path,
-        name: str = "dataset name",
-        description: str = "dataset_description",
+        certs: Dict[str, CommonCriteriaCert] = dict(),
+        root_dir: Optional[Path] = None,
+        name: str = "Common Criteria Dataset",
+        description: str = "No description",
         state: Optional[DatasetInternalState] = None,
     ):
         super().__init__(certs, root_dir, name, description)
@@ -50,6 +51,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         if state is None:
             state = self.DatasetInternalState()
         self.state = state
+
+    def __call__(self, certs):
+        return copy.deepcopy(self)
 
     def to_dict(self) -> Dict[str, Any]:
         return {**{"state": self.state}, **super().to_dict()}
@@ -60,8 +64,17 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
         df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
-        df = df.astype({"category": "category", "status": "category", "scheme": "category"})
-        df = df.fillna(value=np.nan)
+        df = df.astype({"category": "category", "status": "category", "scheme": "category"}).fillna(value=np.nan)
+        df = df.loc[
+            ~df.manufacturer.isnull()
+        ]  # Manually delete one certificate with None manufacturer (seems to have many blank fields)
+
+        # Categorize EAL
+        df.eal = df.eal.fillna(value=np.nan)
+        df.eal = pd.Categorical(df.eal, categories=sorted(df.eal.dropna().unique().tolist()), ordered=True)
+
+        # Introduce year when cert got valid
+        df["year_from"] = pd.DatetimeIndex(df.not_valid_before).year
 
         return df
 
@@ -132,6 +145,17 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def pp_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / "pp_dataset.json"
 
+    @property
+    def mu_dataset_path(self) -> Path:
+        return self.certs_dir / "maintenances"
+
+    @property
+    def mu_dataset(self) -> "CCDatasetMaintenanceUpdates":
+        if not self.mu_dataset_path.exists():
+            raise ValueError("The dataset with maintenance updates does not exist")
+
+        return CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path / "Maintenance updates.json")
+
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
     HTML_PRODUCTS_URL = {
@@ -170,7 +194,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def from_web_latest(cls) -> "CCDataset":
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "cc_latest_dataset.json"
-            helpers.download_file(config.cc_latest_snapshot, dset_path)
+            helpers.download_file(
+                config.cc_latest_snapshot, dset_path, show_progress_bar=True, progress_bar_desc="Downloading CC Dataset"
+            )
             return cls.from_json(dset_path)
 
     @property
@@ -433,7 +459,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str
         ) -> Dict[str, "CommonCriteriaCert"]:
             tables = soup.find_all("table", id=table_id)
-            assert len(tables) <= 1
+
+            if not len(tables) <= 1:
+                raise ValueError(
+                    f'The "{file.name}" was expected to contain <1 <table> element. Instead, it contains: {len(tables)} <table> elements.'
+                )
 
             if not tables:
                 return {}
@@ -449,9 +479,14 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             # The following unused snippet extracts expected number of certs from the table
             # caption_str = str(table.findAll('caption'))
             # n_expected_certs = int(caption_str.split(category_string + ' – ')[1].split(' Certified Products')[0])
-            table_certs = {
-                x.dgst: x for x in [CommonCriteriaCert.from_html_row(row, cert_status, category_string) for row in body]
-            }
+
+            try:
+                table_certs = {
+                    x.dgst: x
+                    for x in [CommonCriteriaCert.from_html_row(row, cert_status, category_string) for row in body]
+                }
+            except ValueError as e:
+                raise ValueError(f"Bad html file: {file.name} ({str(e)})") from e
 
             return table_certs
 
@@ -699,9 +734,16 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._compute_cert_labs()
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
+        self._compute_sars()
         _, _, cve_dset = self.compute_cpe_heuristics()
         self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
         self._compute_dependency_vulnerabilities()
+
+    def _compute_sars(self) -> None:
+        logger.info("Computing SARs")
+        transformer = SARTransformer().fit(self.certs.values())
+        for cert in self:
+            cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
 
     def _compute_dependencies(self) -> None:
         def ref_lookup(kw_attr):
@@ -739,7 +781,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
 
-    def process_maintenance_updates(self) -> None:
+    def process_maintenance_updates(self) -> "CCDatasetMaintenanceUpdates":
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
         updates = list(
             itertools.chain.from_iterable(
@@ -747,12 +789,14 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             )
         )
         update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates(
-            {x.dgst: x for x in updates}, root_dir=self.certs_dir / "maintenance", name="Maintenance updates"
+            {x.dgst: x for x in updates}, root_dir=self.mu_dataset_path, name="Maintenance updates"
         )
         update_dset.set_local_paths()
         update_dset.download_all_pdfs()
         update_dset.convert_all_pdfs()
         update_dset._extract_data()
+
+        return update_dset
 
     def generate_cert_name_keywords(self) -> Set[str]:
         df = self.to_pandas()
@@ -798,6 +842,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         with input_path.open("r") as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
+        # TODO: This does not set the root_path properly
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame(
@@ -817,3 +862,25 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
             dset_path = Path(tmp_dir) / "cc_maintenances_latest_dataset.json"
             helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)
             return cls.from_json(dset_path)
+
+    def get_n_maintenances_df(self) -> pd.DataFrame:
+        """
+        Returns a DataFrame with CommonCriteriaCert digest as an index, and number of registered maintenances as a value
+        """
+        main_df = self.to_pandas()
+        main_df.maintenance_date = main_df.maintenance_date.dt.date
+        n_maintenances = (
+            main_df.groupby("related_cert_digest").name.count().rename("n_maintenances").fillna(0).astype("int32")
+        )
+
+        n_maintenances.index.name = "dgst"
+        return n_maintenances
+
+    def get_maintenance_dates_df(self) -> pd.DataFrame:
+        """
+        Returns a DataFrame with CommonCriteriaCert digest as an index, and all the maintenance dates as a value.
+        """
+        main_dates = self.to_pandas()
+        main_dates.maintenance_date = main_dates.maintenance_date.map(lambda x: [x])
+        main_dates.index.name = "dgst"
+        return main_dates.groupby("related_cert_digest").maintenance_date.agg("sum").rename("maintenance_dates")

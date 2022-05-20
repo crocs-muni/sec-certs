@@ -16,9 +16,7 @@ from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
-from sec_certs.model.cpe_matching import CPEClassifier
-from sec_certs.model.dependency_finder import References
-from sec_certs.sample.certificate import Certificate, Heuristics, logger
+from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 
@@ -195,6 +193,15 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     @property
     def dgst(self) -> str:
         return fips_dgst(self.cert_id)
+
+    # TODO: Fix type errors, they exist because FIPS uses this as property to change variable names, while CC and abstract class have variables
+    @property
+    def manufacturer(self) -> Optional[str]:  # type: ignore
+        return self.web_scan.vendor
+
+    @property
+    def name(self) -> Optional[str]:  # type: ignore
+        return self.web_scan.module_name
 
     @property
     def label_studio_title(self) -> str:
@@ -827,7 +834,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         )
         return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
 
-    def _compute_heuristics_version(self) -> None:
+    def compute_heuristics_version(self) -> None:
         versions_for_extraction = ""
         if self.web_scan.module_name:
             versions_for_extraction += f" {self.web_scan.module_name}"
@@ -836,14 +843,3 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         if self.web_scan.fw_version:
             versions_for_extraction += f" {self.web_scan.fw_version}"
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
-
-    def compute_heuristics_cpe_match(self, cpe_classifier: CPEClassifier) -> None:
-        self._compute_heuristics_version()
-        assert self.heuristics.extracted_versions is not None
-
-        if not self.web_scan.module_name:
-            self.heuristics.cpe_matches = None
-        else:
-            self.heuristics.cpe_matches = cpe_classifier.predict_single_cert(
-                self.web_scan.vendor, self.web_scan.module_name, self.heuristics.extracted_versions
-            )

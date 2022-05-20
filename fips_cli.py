@@ -8,7 +8,8 @@ from typing import List, Optional, Set
 import click
 
 from sec_certs.config.configuration import DEFAULT_CONFIG_PATH, config
-from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset import FIPSDataset
+from sec_certs.helpers import warn_if_missing_graphviz, warn_if_missing_poppler
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +204,7 @@ def main(
         dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True, redo_web_scan=redo_web_scan)
 
     if "convert" in actions or "update" in actions:
+        warn_if_missing_poppler()
         dset.convert_all_pdfs()
 
     if "pdf-scan" in actions or "update" in actions:
@@ -219,6 +221,7 @@ def main(
         dset.finalize_results()
 
     if "graphs" in actions:
+        warn_if_missing_graphviz()
         dset.plot_graphs(show=True)
 
     end = datetime.now()

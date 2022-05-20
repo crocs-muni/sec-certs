@@ -4,6 +4,7 @@ import operator
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
+import spacy
 from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
@@ -22,14 +23,13 @@ class CPEClassifier(BaseEstimator):
     """
 
     vendor_to_versions_: Dict[str, Set[str]]  # Key: CPE vendor, Value: versions of all CPE records of that vendor
-    vendor_version_to_cpe_: Dict[
-        Tuple[str, str], Set[CPE]
-    ]  # Key: (CPE vendor, version), Value: All CPEs that are of (vendor, version)
+    vendor_version_to_cpe_: Dict[Tuple[str, str], Set[CPE]]  # Key: (CPE vendor, version), Value: CPEs (vendor, version)
     vendors_: Set[str]
 
-    def __init__(self, match_threshold: int = 80, n_max_matches: int = 10):
+    def __init__(self, match_threshold: int = 80, n_max_matches: int = 10, spacy_model_to_use: str = "en_core_web_sm"):
         self.match_threshold = match_threshold
         self.n_max_matches = n_max_matches
+        self.nlp = spacy.load(spacy_model_to_use, disable=["parser", "ner"])
 
     def fit(self, X: List[CPE], y: Optional[List[str]] = None) -> "CPEClassifier":
         """
@@ -87,13 +87,13 @@ class CPEClassifier(BaseEstimator):
     ) -> Optional[Set[str]]:
         """
         Predict List of CPE uris for triplet (vendor, product_name, list_of_version). The prediction is made as follows:
-        1. Sanitize all strings
+        1. Sanitize vendor name, lemmatize product name.
         2. Find vendors in CPE dataset that are related to the certificate
         3. Based on (vendors, versions) find all CPE items that are considered as candidates for match
         4. Compute string similarity of the candidate CPE matches and certificate name
         5. Evaluate best string similarity, if above threshold, declare it a match.
-        6. If no CPE item is matched, we tried again but relax version and check CPEs that don't have their version specified.
-        Also, we search for 100% CPE matches on item name instead of title.
+        6. If no CPE item is matched, try again but relax version and check CPEs that don't have their version specified.
+        Also, search for 100% CPE matches on item name instead of title.
         @param vendor: manufacturer of the certificate
         @param product_name: name of the certificate
         @param versions: List of versions that appear in the certificate name
@@ -101,12 +101,15 @@ class CPEClassifier(BaseEstimator):
         @param relax_title: bool
         @return:
         """
-        sanitized_vendor = CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
-        sanitized_product_name = CPEClassifier._fully_sanitize_string(product_name) if product_name else product_name
-        candidate_vendors = self.get_candidate_list_of_vendors(sanitized_vendor)
+
+        lemmatized_product_name = self._lemmatize_product_name(product_name)
+        candidate_vendors = self.get_candidate_list_of_vendors(
+            CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
+        )
         candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
+
         ratings = [
-            self.compute_best_match(cpe, sanitized_product_name, candidate_vendors, versions, relax_title=relax_title)
+            self.compute_best_match(cpe, lemmatized_product_name, candidate_vendors, versions, relax_title=relax_title)
             for cpe in candidates
         ]
         threshold = self.match_threshold if not relax_version else 100
@@ -159,12 +162,17 @@ class CPEClassifier(BaseEstimator):
                 sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title)
             else:
                 return 0
+
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
         cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
+        standard_version_product_name = self._standardize_version_in_cert_name(product_name, versions)
 
-        token_set_ratio_on_title = fuzz.token_set_ratio(product_name, sanitized_title)
-        partial_ratio_on_title = fuzz.partial_ratio(product_name, sanitized_title)
-        ratings = [token_set_ratio_on_title, partial_ratio_on_title]
+        ratings = [
+            fuzz.token_set_ratio(product_name, sanitized_title),
+            fuzz.token_set_ratio(standard_version_product_name, sanitized_title),
+            fuzz.partial_ratio(product_name, sanitized_title),
+            fuzz.partial_ratio(standard_version_product_name, sanitized_title),
+        ]
 
         if relax_title:
             token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped, sanitized_item_name)
@@ -190,6 +198,13 @@ class CPEClassifier(BaseEstimator):
         to_strip = versions | manufacturers if manufacturers else versions
         for x in to_strip:
             string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), "").strip()
+        return string
+
+    @staticmethod
+    def _standardize_version_in_cert_name(string: str, detected_versions: Set[str]) -> str:
+        for ver in detected_versions:
+            version_regex = r"(" + r"(\bversion)\s*" + ver + r"+) | (\bv\s*" + ver + r"+)"
+            string = re.sub(version_regex, " " + ver, string, flags=re.IGNORECASE)
         return string
 
     def _process_manufacturer(self, manufacturer: str, result: Set) -> Set[str]:
@@ -296,3 +311,8 @@ class CPEClassifier(BaseEstimator):
             if candidate_vendor_version_pairs
             else []
         )
+
+    def _lemmatize_product_name(self, product_name: str) -> str:
+        if not product_name:
+            return product_name
+        return " ".join([token.lemma_ for token in self.nlp(CPEClassifier._fully_sanitize_string(product_name))])

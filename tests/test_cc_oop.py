@@ -9,9 +9,8 @@ from unittest import TestCase
 
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
-from sec_certs.dataset.common_criteria import CCDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
-from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.dataset import CCDataset
+from sec_certs.sample import CommonCriteriaCert, ProtectionProfile
 
 
 class TestCommonCriteriaOOP(TestCase):

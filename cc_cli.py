@@ -8,7 +8,8 @@ from typing import List, Optional
 import click
 
 from sec_certs.config.configuration import config
-from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.dataset import CCDataset
+from sec_certs.helpers import warn_if_missing_poppler
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +127,7 @@ def main(
                 "Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first."
             )
             sys.exit(1)
+        warn_if_missing_poppler()
         dset.convert_all_pdfs()
 
     if "analyze" in actions_set:

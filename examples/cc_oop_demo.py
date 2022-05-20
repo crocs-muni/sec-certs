@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from sec_certs.config.configuration import config
-from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.dataset import CCDataset
 
 logger = logging.getLogger(__name__)
 
