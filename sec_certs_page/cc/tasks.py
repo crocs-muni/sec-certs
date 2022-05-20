@@ -90,11 +90,12 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                 with sentry_sdk.start_span(op="cc.protection_profiles", description="Process protection profiles"):
                     dset.process_protection_profiles(update_json=False)
                 with sentry_sdk.start_span(op="cc.maintenance_updates", description="Process maintenance updates"):
-                    dset.process_maintenance_updates()
+                    maintenance_updates = dset.process_maintenance_updates()
                 with sentry_sdk.start_span(op="cc.protection_profiles", description="Process protection profiles"):
                     dset.process_protection_profiles()
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"):
                     dset.to_json(paths["output_path"])
+                    maintenance_updates.to_json(paths["output_path_mu"])
 
             with sentry_sdk.start_span(op="cc.move", description="Move files"):
                 for cert in dset:

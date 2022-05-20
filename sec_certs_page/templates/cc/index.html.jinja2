@@ -48,7 +48,8 @@
                                     metadata.</p>
                                 <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
                                         class="fas fa-search fa-fw"></i> Go</a>
-                                <a href="{{ url_for(".fulltext_search") }}" class="btn btn-warning" title="Experimental feature: Fulltext search" data-bs-toggle="tooltip"><i
+                                <a href="{{ url_for(".fulltext_search") }}" class="btn btn-warning"
+                                   title="Experimental feature: Fulltext search" data-bs-toggle="tooltip"><i
                                         class="fas fa-flask fa-fw fa-spin"></i> Fulltext</a>
                             </div>
                         </div>
@@ -101,7 +102,8 @@
                     </p>
                     {% if last_ok_run %}
                         <p>
-                            The dataset was last successfully updated at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
+                            The dataset was last successfully updated
+                            at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
                             using version {{ last_ok_run["tool_version"] }} of the sec-certs tool
                             and it contains {{ last_ok_run["length"] }} certificates.
                         </p>
@@ -109,6 +111,9 @@
                     <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
                             class="fas fa-file"></i>
                         Download</a>
+                    <a href="{{ url_for(".maintenance_updates") }}" role="button" class="btn btn-primary"><i
+                            class="fas fa-file"></i>
+                        Maintenance updates</a>
                 </div>
             </div>
         </div>

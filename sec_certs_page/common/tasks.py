@@ -67,6 +67,9 @@ class Updater:  # pragma: no cover
             "cpe_path": instance_path / ns["cpe"],
             "dset_path": instance_path / ns[self.collection],
             "output_path": instance_path / ns[f"{self.collection}_out"],
+            "output_path_mu": (instance_path / ns[f"{self.collection}_out_mu"])
+            if f"{self.collection}_out_mu" in ns
+            else None,
             "dir_path": instance_path / ns[f"{self.collection}_dir"],
         }
 
