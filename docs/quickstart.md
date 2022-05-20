@@ -6,6 +6,8 @@
 1. Install the latest version with `pip install -U sec-certs` (see [installation](installation.md)).
 2. Use
 ```python
+from sec-certs.dataset import CCDataset
+
 dset = CCDataset.from_web_latest()
 ```
 to obtain to obtain freshly processed dataset from [seccerts.org](https://seccerts.org).
@@ -17,6 +19,8 @@ to obtain to obtain freshly processed dataset from [seccerts.org](https://seccer
 1. Install the latest version with `pip install -U sec-certs` (see [installation](installation.md)).
 2. Use
 ```python
+from sec-certs.dataset import FIPSDataset
+
 dset = FIPSDataset.from_web_latest()
 ```
 to obtain to obtain freshly processed dataset from [seccerts.org](https://seccerts.org).
@@ -46,3 +50,7 @@ $ fips-certs new-run
 ::::
 
 This script takes a long time to run (few hours) and will create `./cc_dset` or `./fips_dset` directory. To see all options, call the entrypoint with `--help`.
+
+:::{hint}
+If you installed the docker image, use `docker run -it sec-certs bash` to run the container interactively.
+:::
