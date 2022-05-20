@@ -34,30 +34,34 @@ class CPEClassifier(BaseEstimator):
     def fit(self, X: List[CPE], y: Optional[List[str]] = None) -> "CPEClassifier":
         """
         Just creates look-up structures from provided list of CPEs
-        @param X: List of CPEs that can be matched with predict()
-        @param y: will be ignored, specified to adhere to sklearn BaseEstimator interface
+
+        :param List[CPE] X: List of CPEs that can be matched with predict()
+        :param Optional[List[str]] y: will be ignored, specified to adhere to sklearn BaseEstimator interface, defaults to None
+        :return CPEClassifier: return self to allow method chaining
         """
-        self.build_lookup_structures(X)
+        self._build_lookup_structures(X)
         return self
 
     @staticmethod
-    def filter_short_cpes(cpes: List[CPE]) -> List[CPE]:
+    def _filter_short_cpes(cpes: List[CPE]) -> List[CPE]:
         """
         Short CPE items are super easy to match with 100% rank, but they are hardly informative. This method discards them.
-        @param cpes: List of CPEs to filtered
-        @return All CPEs in cpes variable which item name has at least 4 characters.
+
+        :param List[CPE] cpes: List of CPEs to filtered
+        :return List[CPE]: All CPEs in cpes variable which item name has at least 4 characters.
         """
         return list(filter(lambda x: x.item_name is not None and len(x.item_name) > 3, cpes))
 
-    def build_lookup_structures(self, X: List[CPE]) -> None:
+    def _build_lookup_structures(self, X: List[CPE]) -> None:
         """
         Builds several look-up dictionaries for fast matching.
         - vendor_to_version_: each vendor is mapped to set of versions that appear in combination with vendor in CPE dataset
         - vendor_version_to_cpe_: Each (vendor, version) tuple is mapped to a set of CPE items that appear in combination with this tuple in CPE dataset
         - vendors_: Just aggregates set of vendors, used for prunning later on.
-        @param X: List of CPEs that will be used to build the dictionaries
+
+        :param List[CPE] X: List of CPEs that will be used to build the dictionaries
         """
-        sufficiently_long_cpes = self.filter_short_cpes(X)
+        sufficiently_long_cpes = self._filter_short_cpes(X)
         self.vendor_to_versions_ = {x.vendor: set() for x in sufficiently_long_cpes}
         self.vendors_ = set(self.vendor_to_versions_.keys())
         self.vendor_version_to_cpe_ = dict()
@@ -72,8 +76,9 @@ class CPEClassifier(BaseEstimator):
     def predict(self, X: List[Tuple[str, str, str]]) -> List[Optional[Set[str]]]:
         """
         Will predict CPE uris for List of Tuples (vendor, product name, identified versions in product name)
-        @param X: tuples (vendor, product name, identified versions in product name)
-        @return: List of CPE uris that correspond to given input, None if nothing was found.
+
+        :param List[Tuple[str, str, str]] X: tuples (vendor, product name, identified versions in product name)
+        :return List[Optional[Set[str]]]: List of CPE uris that correspond to given input, None if nothing was found.
         """
         return [self.predict_single_cert(x[0], x[1], x[2]) for x in helpers.tqdm(X, desc="Predicting")]
 
@@ -93,23 +98,23 @@ class CPEClassifier(BaseEstimator):
         4. Compute string similarity of the candidate CPE matches and certificate name
         5. Evaluate best string similarity, if above threshold, declare it a match.
         6. If no CPE item is matched, try again but relax version and check CPEs that don't have their version specified.
-        Also, search for 100% CPE matches on item name instead of title.
-        @param vendor: manufacturer of the certificate
-        @param product_name: name of the certificate
-        @param versions: List of versions that appear in the certificate name
-        @param relax_version: bool, see step 6 above.
-        @param relax_title: bool
-        @return:
-        """
+        7. (Also, search for 100% CPE matches on item name instead of title.)
 
+        :param Optional[str] vendor: manufacturer of the certificate
+        :param str product_name: name of the certificate
+        :param Set[str] versions: List of versions that appear in the certificate name
+        :param bool relax_version: See step 6 above., defaults to False
+        :param bool relax_title: See step 7 above, defaults to False
+        :return Optional[Set[str]]: Set of matching CPE uris, None if no matches found
+        """
         lemmatized_product_name = self._lemmatize_product_name(product_name)
-        candidate_vendors = self.get_candidate_list_of_vendors(
+        candidate_vendors = self._get_candidate_list_of_vendors(
             CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         )
-        candidates = self.get_candidate_cpe_matches(candidate_vendors, versions)
+        candidates = self._get_candidate_cpe_matches(candidate_vendors, versions)
 
         ratings = [
-            self.compute_best_match(cpe, lemmatized_product_name, candidate_vendors, versions, relax_title=relax_title)
+            self._compute_best_match(cpe, lemmatized_product_name, candidate_vendors, versions, relax_title=relax_title)
             for cpe in candidates
         ]
         threshold = self.match_threshold if not relax_version else 100
@@ -131,7 +136,7 @@ class CPEClassifier(BaseEstimator):
 
         return final_matches if final_matches else None
 
-    def compute_best_match(
+    def _compute_best_match(
         self,
         cpe: CPE,
         product_name: str,
@@ -143,11 +148,13 @@ class CPEClassifier(BaseEstimator):
         Tries several different settings in which string similarity between CPE and certificate name is tested.
         For definition of string similarity, see rapidfuzz package on GitHub. Both token set ratio and partial ratio are tested,
         always both on CPE title and CPE item name.
-        @param cpe: CPE to test
-        @param product_name: name of the certificate
-        @param candidate_vendors: vendors that appear in the certificate
-        @param versions: versions that appear in the certificate
-        @return: Maximal value of the four string similarities discussed above.
+
+        :param CPE cpe: CPE to test
+        :param str product_name: name of the certificate
+        :param Optional[Set[str]] candidate_vendors: vendors that appear in the certificate
+        :param Set[str] versions: versions that appear in the certificate
+        :param bool relax_title: if to relax title or not, defaults to False
+        :return float: Maximal value of the four string similarities discussed above.
         """
         if relax_title:
             sanitized_title = (
@@ -225,16 +232,17 @@ class CPEClassifier(BaseEstimator):
         if "athena" in tokenized and "smartcard" in tokenized:
             result.add("athena-scs")
         if tokenized[0] == "the" and not result:
-            candidate_result = self.get_candidate_list_of_vendors(" ".join(tokenized[1:]))
+            candidate_result = self._get_candidate_list_of_vendors(" ".join(tokenized[1:]))
             return set(candidate_result) if candidate_result else set()
 
         return set(result) if result else set()
 
-    def get_candidate_list_of_vendors(self, manufacturer: Optional[str]) -> Set[str]:
+    def _get_candidate_list_of_vendors(self, manufacturer: Optional[str]) -> Set[str]:
         """
         Given manufacturer name, this method will find list of plausible vendors from CPE dataset that are likely related.
-        @param manufacturer: manufacturer
-        @return: List of related manufacturers, None if nothing relevant is found.
+
+        :param Optional[str] manufacturer: manufacturer
+        :return Set[str]: List of related manufacturers, None if nothing relevant is found.
         """
         result: Set[str] = set()
         if not manufacturer:
@@ -246,7 +254,7 @@ class CPEClassifier(BaseEstimator):
             vendor_tokens = set(
                 itertools.chain.from_iterable([[x.strip() for x in manufacturer.split(s)] for s in splits])
             )
-            result_aux = [self.get_candidate_list_of_vendors(x) for x in vendor_tokens]
+            result_aux = [self._get_candidate_list_of_vendors(x) for x in vendor_tokens]
             result_used = set(set(itertools.chain.from_iterable([x for x in result_aux if x])))
             return result_used if result_used else set()
 
@@ -255,14 +263,16 @@ class CPEClassifier(BaseEstimator):
 
         return self._process_manufacturer(manufacturer, result)
 
-    def get_candidate_vendor_version_pairs(
+    def _get_candidate_vendor_version_pairs(
         self, cert_candidate_cpe_vendors: Set[str], cert_candidate_versions: Set[str]
     ) -> Optional[List[Tuple[str, str]]]:
         """
         Given parameters, will return Pairs (cpe_vendor, cpe_version) that are relevant to a given sample
-        @param cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
-        @param cert_candidate_versions: List of versions heuristically extracted from the sample name
-        @return: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
+
+
+        :param Set[str] cert_candidate_cpe_vendors: list of CPE vendors relevant to a sample
+        :param Set[str] cert_candidate_versions: List of versions heuristically extracted from the sample name
+        :return Optional[List[Tuple[str, str]]]: List of tuples (cpe_vendor, cpe_version) that can be used in the lookup table to search the CPE dataset.
         """
 
         def is_cpe_version_among_cert_versions(cpe_version: Optional[str], cert_versions: Set[str]) -> bool:
@@ -296,14 +306,15 @@ class CPEClassifier(BaseEstimator):
             candidate_vendor_version_pairs.extend([(vendor, x) for x in matched_cpe_versions])
         return candidate_vendor_version_pairs
 
-    def get_candidate_cpe_matches(self, candidate_vendors: Set[str], candidate_versions: Set[str]) -> List[CPE]:
+    def _get_candidate_cpe_matches(self, candidate_vendors: Set[str], candidate_versions: Set[str]) -> List[CPE]:
         """
         Given List of candidate vendors and candidate versions found in certificate, candidate CPE matches are found
-        @param candidate_vendors: List of version strings that were found in the certificate
-        @param candidate_versions: List of vendor strings that were found in the certificate
-        @return:
+
+        :param Set[str] candidate_vendors: List of version strings that were found in the certificate
+        :param Set[str] candidate_versions: List of vendor strings that were found in the certificate
+        :return List[CPE]: List of CPE records that could match, to be refined later
         """
-        candidate_vendor_version_pairs = self.get_candidate_vendor_version_pairs(candidate_vendors, candidate_versions)
+        candidate_vendor_version_pairs = self._get_candidate_vendor_version_pairs(candidate_vendors, candidate_versions)
         return (
             list(
                 itertools.chain.from_iterable([self.vendor_version_to_cpe_[x] for x in candidate_vendor_version_pairs])
