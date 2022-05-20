@@ -12,7 +12,7 @@
                 <ul>
                     {% for snap in snapshots %}
                         <li>
-                            <a href="{{ url_for("fips.mip_snapshot", id=snap["_id"]) }}">{{ snap["timestamp"]|fromisoformat|strftime("%d.%m.%Y") }}</a>,
+                            <a href="{{ url_for("fips.iut_snapshot", id=snap["_id"]) }}">{{ snap["timestamp"]|fromisoformat|strftime("%d.%m.%Y") }}</a>,
                             present {{ snap["entries"]|length }} times:
                             <ul>
                                 {% for entry in snap["entries"]|sort(attribute="vendor_name,standard,iut_date") %}

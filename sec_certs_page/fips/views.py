@@ -373,7 +373,7 @@ def mip_index():
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
 )
 def mip_snapshot(id):
-    snapshot = mongo.db.fips_mip.find_one_or_404(id)
+    snapshot = mongo.db.fips_mip.find_one_or_404({"_id": id})
     return render_template("fips/mip/mip.html.jinja2", snapshot=snapshot)
 
 
@@ -444,7 +444,7 @@ def iut_index():
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
 )
 def iut_snapshot(id):
-    snapshot = mongo.db.fips_iut.find_one_or_404(id)
+    snapshot = mongo.db.fips_iut.find_one_or_404({"_id": id})
     return render_template("fips/iut/iut.html.jinja2", snapshot=snapshot)
 
 
