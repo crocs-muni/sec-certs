@@ -29,7 +29,7 @@ release = ".".join(get_version("sec-certs").split(".")[:3])
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_nb"]
+extensions = ["myst_nb", "sphinx.ext.autodoc"]
 
 # Don't exeute notbooks
 nb_execution_mode = "off"

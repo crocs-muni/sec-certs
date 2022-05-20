@@ -26,6 +26,11 @@ notebooks/examples/common_criteria.ipynb
 notebooks/examples/fips.ipynb
 ```
 
+```{toctree}
+:caption: API
+api/model.md
+```
+
 ```{admonition} Launch notebooks in MyBinder
 Each of the notebooks can be launched interactively in MyBinder by clicking on 🚀 icon (top-right corner).
 ```

@@ -65,3 +65,10 @@ To ivoke the tools manually, you can, in the repository root, use:
 - Black: `black --check .` (without the flag to reformat)
 - isort: `isort --check-only .` (without the flag to actually fix the issue)
 - Flake8: `flake8 .`
+
+## Documentation
+
+Every public method of a module that can be leveraged as an API by user should be documented. The docstrng style should
+be `sphinx-oneline`.
+
+The documentation is built using `sphinx` with `mnyst` extension that allows for markdown files. Folder `notebooks/examples` is symbolically linked to `/docs` and its contents will be automatically parsed. These notebooks are supposed to be runnable from Binder.
