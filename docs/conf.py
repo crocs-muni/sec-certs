@@ -29,13 +29,19 @@ release = ".".join(get_version("sec-certs").split(".")[:3])
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_nb", "sphinx.ext.autodoc"]
+extensions = ["myst_nb", "sphinx.ext.autodoc", "sphinx_design", "sphinx_copybutton"]
 
 # Don't exeute notbooks
 nb_execution_mode = "off"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
+
+# Don't show typehints in autodoc files
+autodoc_typehints = "none"
+
+# This is recommended by sphinx_design extension
+myst_enable_extensions = ["colon_fence"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
