@@ -11,6 +11,7 @@ from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from markupsafe import escape
 from networkx import node_link_data
+from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
@@ -163,20 +164,27 @@ def network():
 def network_graph():
     """Common criteria references data."""
     if "search" in request.args:
-        component_map = get_cc_map()
         if request.args["search"] == "basic":
-            certs, count = BasicSearch.select_certs(**BasicSearch.parse_req(request))
-            components = {}
-            for cert in certs:
-                if cert["_id"] not in component_map:
-                    continue
-                component = component_map[cert["_id"]]
-                if id(component) not in components:
-                    components[id(component)] = component
-            return network_graph_func(list(components.values()))
+            args = BasicSearch.parse_args(request.args)
+            del args["page"]
+            certs, count = BasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
-            # TODO
-            pass
+            args = FulltextSearch.parse_args(request.args)
+            del args["page"]
+            certs, count = FulltextSearch.select_certs(**args)
+        else:
+            raise BadRequest("Invalid search query.")
+        component_map = get_cc_map()
+        components = {}
+        ids = []
+        for cert in certs:
+            if cert["_id"] not in component_map:
+                continue
+            ids.append(cert["_id"])
+            component = component_map[cert["_id"]]
+            if id(component) not in components:
+                components[id(component)] = component
+        return network_graph_func(list(components.values()), highlighted=ids)
     return network_graph_func(get_cc_graphs())
 
 
@@ -321,6 +329,7 @@ def entry_graph_json(hashid):
             network_data = node_link_data(cc_map[hashid])
         else:
             network_data = {}
+        network_data["highlighted"] = [hashid]
         return send_json_attachment(network_data)
     else:
         return abort(404)

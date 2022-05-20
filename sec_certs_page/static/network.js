@@ -1,7 +1,7 @@
 'use strict';
 
 function color(highlighted, statuses, d) {
-    if (highlighted.includes(d.id)) {
+    if (highlighted && highlighted.includes(d.id)) {
         return "#0d6efd"
     } else if (d.status in statuses) {
         return statuses[d.status]["color"];
@@ -36,14 +36,13 @@ function drag(simulation) {
 
 
 class CertificateNetwork {
-    constructor(data, categories, statuses, refTypes, highlighted) {
+    constructor(data, categories, statuses, refTypes) {
         this.originalData = data;
         this.data = data;
         this.categories = categories;
         this.categoryIds = _.map(this.categories, "id");
         this.statuses = statuses;
         this.refTypes = refTypes;
-        this.highlighted = highlighted;
 
         this.nodeGroup = null;
         this.linkGroup = null;
@@ -63,7 +62,7 @@ class CertificateNetwork {
 
     render(element_id, width, height) {
         const element = d3.select("#" + element_id);
-        const colorFunc = _.partial(color, this.highlighted, this.statuses);
+        const colorFunc = _.partial(color, this.data.highlighted, this.statuses);
 
         this.simulation = d3.forceSimulation(this.data.nodes)
             .force("link", d3.forceLink(this.data.links).id(d => d.id).distance(30).strength(1))
@@ -315,7 +314,7 @@ class CertificateNetwork {
     }
 
     update() {
-        const colorFunc = _.partial(color, this.highlighted, this.statuses);
+        const colorFunc = _.partial(color, this.data.highlighted, this.statuses);
 
         let nodes = this.originalData.nodes;
         if (this.filter.status !== "any") {
@@ -392,14 +391,14 @@ class CertificateNetwork {
     }
 }
 
-function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, highlighted, width, height) {
+function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, width, height) {
     return Promise.all([d3.json(data_url), d3.json(types_url), d3.json(status_url), d3.json(refTypes_url)]).then(values => {
         let data = values[0];
         let types = values[1];
         let statuses = values[2];
         let refTypes = values[3];
         if (("nodes" in data) && ("links" in data)) {
-            let network = new CertificateNetwork(data, types, statuses, refTypes, highlighted);
+            let network = new CertificateNetwork(data, types, statuses, refTypes);
             network.render(element_id, width, height);
             return network;
         } else {

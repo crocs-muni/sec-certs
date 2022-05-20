@@ -16,9 +16,11 @@
                     <div id="name" class="mt-1 mb-3">
                         <h4><label for="search">Query</label></h4>
                         <div class="form-inline">
-                            <input id="search" class="form-control" placeholder="Search" type="search"
+                            <input id="search" class="form-control mb-2" placeholder="Search" type="search"
                                    value="{{ q|default('', true) }}"/>
                             <button id="search-btn" class="btn btn-primary">Search</button>
+                            <button id="network-btn" class="btn btn-warning" title="Experimental feature: Display the references network of the resulting certificates." data-bs-toggle="tooltip"><i
+                                        class="fas fa-flask fa-fw fa-spin"></i> Display network</button>
                         </div>
                         <small class="text-muted">Search certificate reports and security targets.
                             Supports the <a href="https://whoosh.readthedocs.io/en/latest/querylang.html"
@@ -76,18 +78,23 @@
                 </div>
             </div>
             <script>
-                function searchParams() {
+                function searchParams(additional) {
                     let status = $("#search-status").val();
                     let document_type = $("#search-type").val();
                     let categories = $.makeArray($("#search-categories input").filter(":checked").map((i, elem) => $(elem).data("id"))).join("");
-                    return $.param({q: $("#search").val(), cat: categories, status: status, type: document_type});
+                    return $.param({q: $("#search").val(), cat: categories, status: status, type: document_type, ...additional});
                 }
 
                 function fullSearch() {
                     location.href = "{{ url_for(".fulltext_search") }}?" + searchParams();
                 }
 
+                function networkSearch() {
+                    location.href = "{{ url_for("cc.network") }}?" + searchParams({search: "fulltext"});
+                }
+
                 $("#search-btn").click(fullSearch);
+                $("#network-btn").click(networkSearch);
                 $("#search").keyup(function (e) {
                     if (e.keyCode === 13) {
                         fullSearch();

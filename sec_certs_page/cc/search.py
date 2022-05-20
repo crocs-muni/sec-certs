@@ -1,15 +1,16 @@
 import operator
 import time
 from functools import reduce
-from typing import Iterable, Mapping, Optional, Tuple, Union
+from typing import Iterable, Mapping, Optional, Sequence, Tuple, Union
 
 import pymongo
 import sentry_sdk
 from flask import Request, current_app
+from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight
 from whoosh.qparser import QueryParser, query
-from whoosh.searching import ResultsPage
+from whoosh.searching import Results, ResultsPage
 
 from .. import mongo
 from ..cc import cc_categories, get_cc_searcher
@@ -20,14 +21,14 @@ from ..common.views import Pagination, entry_file_path
 
 class BasicSearch:
     @classmethod
-    def parse_req(cls, req: Request) -> Mapping[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: MultiDict) -> dict[str, Optional[Union[int, str]]]:
         """Parse the request into validated args."""
         try:
-            page = int(req.args.get("page", 1))
+            page = int(args.get("page", 1))
         except ValueError:
             raise BadRequest(description="Invalid page number.")
-        q = req.args.get("q", None)
-        cat = req.args.get("cat", None)
+        q = args.get("q", None)
+        cat = args.get("cat", None)
         categories = cc_categories.copy()
         if cat is not None:
             for name, category in categories.items():
@@ -38,16 +39,16 @@ class BasicSearch:
         else:
             for category in categories.values():
                 category["selected"] = True
-        status = req.args.get("status", "any")
+        status = args.get("status", "any")
         if status not in ("any", "active", "archived"):
             raise BadRequest(description="Invalid status.")
-        sort = req.args.get("sort", "match")
+        sort = args.get("sort", "match")
         if sort not in ("match", "name", "cert_date", "archive_date"):
             raise BadRequest(description="Invalid sort.")
         return {"q": q, "page": page, "cat": cat, "categories": categories, "sort": sort, "status": status}
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, sort, page) -> Tuple[Iterable[Mapping], int]:
+    def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
         projection = {
@@ -90,11 +91,11 @@ class BasicSearch:
         return cursor, count
 
     @classmethod
-    def process_search(cls, req, callback=None):
-        args = cls.parse_req(req)
-        cursor, count = cls.select_certs(**args)
+    def process_search(cls, req: Request, callback=None):
+        parsed = cls.parse_args(req.args)
+        cursor, count = cls.select_certs(**parsed)
 
-        page = args["page"]
+        page = parsed["page"]
 
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
         pagination = Pagination(
@@ -109,21 +110,21 @@ class BasicSearch:
         )
         return {
             "pagination": pagination,
-            "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
-            **args,
+            "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),  # type: ignore
+            **parsed,
         }
 
 
 class FulltextSearch:
     @classmethod
-    def parse_req(cls, req):
+    def parse_args(cls, args: MultiDict) -> dict[str, Optional[Union[int, str]]]:
         categories = cc_categories.copy()
         try:
-            page = int(req.args.get("page", 1))
+            page = int(args.get("page", 1))
         except ValueError:
             raise BadRequest(description="Invalid page number.")
-        q = req.args.get("q", None)
-        cat = req.args.get("cat", None)
+        q = args.get("q", None)
+        cat = args.get("cat", None)
         if cat is not None:
             for name, category in categories.items():
                 if category["id"] in cat:
@@ -134,11 +135,11 @@ class FulltextSearch:
             for category in categories.values():
                 category["selected"] = True
 
-        document_type = req.args.get("type", "any")
+        document_type = args.get("type", "any")
         if document_type not in ("any", "report", "target"):
             raise BadRequest(description="Invalid type.")
 
-        status = req.args.get("status", "any")
+        status = args.get("status", "any")
         if status not in ("any", "active", "archived"):
             raise BadRequest(description="Invalid status.")
         return {
@@ -151,7 +152,9 @@ class FulltextSearch:
         }
 
     @classmethod
-    def select_items(cls, q, cat, categories, status, document_type, page) -> Tuple[ResultsPage, int]:
+    def select_items(
+        cls, q, cat, categories, status, document_type, page=None
+    ) -> Tuple[Union[Results, ResultsPage], int]:
         q_filter = query.Term("cert_schema", "cc")
         cat_terms = []
         for name, category in categories.items():
@@ -170,23 +173,27 @@ class FulltextSearch:
         with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
             searcher = get_cc_searcher()
         with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
-            res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
+            if page is None:
+                res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
+            else:
+                res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
         return res, len(res)
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, document_type, page) -> Tuple[Iterable[Mapping], int]:
-        res, count = cls.select_items(q, cat, categories, status, document_type, page)
+    def select_certs(cls, q, cat, categories, status, document_type, **kwargs) -> Tuple[Iterable[Mapping], int]:
+        res, count = cls.select_items(q, cat, categories, status, document_type, **kwargs)
         dgsts = set(map(operator.itemgetter("dgst"), res))
-        return list(map(lambda dgst: load(mongo.db.cc.find_one({"_id": dgst})), dgsts)), count
+        certs = list(map(lambda dgst: load(mongo.db.cc.find_one({"_id": dgst})), dgsts))
+        return certs, len(certs)
 
     @classmethod
-    def process_search(cls, req):
-        args = cls.parse_req(req)
-        if args["q"] is None:
-            return {"pagination": None, "results": [], **args}
-        res, count = cls.select_items(**args)
+    def process_search(cls, req: Request):
+        parsed = cls.parse_args(req.args)
+        if parsed["q"] is None:
+            return {"pagination": None, "results": [], **parsed}
+        res, count = cls.select_items(**parsed)
 
-        page = args["page"]
+        page = parsed["page"]
 
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
 
@@ -229,5 +236,5 @@ class FulltextSearch:
             "results": results,
             "runtime": runtime,
             "highlight_runtime": highlite_runtime,
-            **args,
+            **parsed,
         }

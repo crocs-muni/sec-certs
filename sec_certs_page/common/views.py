@@ -96,16 +96,15 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
     return graph, graphs, graph_map
 
 
-def network_graph_func(graphs) -> Response:
-    """Create a randomized JSON out of graph components."""
+def network_graph_func(graphs, highlighted=None) -> Response:
+    """Create a JSON out of graph components."""
     nodes = []
     edges = []
     for graph in graphs:
         link_data = node_link_data(graph)
         nodes.extend(link_data["nodes"])
         edges.extend(link_data["links"])
-    # random.shuffle(nodes)
-    network = {"nodes": nodes, "links": edges}
+    network = {"nodes": nodes, "links": edges, "highlighted": highlighted}
     return send_json_attachment(network)
 
 

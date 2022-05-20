@@ -1,6 +1,6 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
-{% set search = True %}
+{% set search = False %}
 {% block title %}
     <title>Common Criteria reference network | seccerts.org</title>
 {% endblock %}
@@ -29,9 +29,15 @@
                             graph components. This means that all of the search results are displayed and also all
                             certificates transitively referencing or being referenced by the search result
                             certificates.</p>
-                        <a href="{{ url_for(".search") }}?{{ query|safe }}" class="btn btn-warning"
-                           title="Experimental feature" data-bs-toggle="tooltip"><i
-                                class="fas fa-flask fa-fw fa-spin"></i> Go back to search</a>
+                        {% if request.args.get("search") == "basic" %}
+                            <a href="{{ url_for(".search") }}?{{ query|safe }}" class="btn btn-warning"
+                               title="Experimental feature" data-bs-toggle="tooltip"><i
+                                    class="fas fa-flask fa-fw fa-spin"></i> Go back to search</a>
+                        {% elif request.args.get("search") == "fulltext" %}
+                            <a href="{{ url_for(".fulltext_search") }}?{{ query|safe }}" class="btn btn-warning"
+                               title="Experimental feature" data-bs-toggle="tooltip"><i
+                                    class="fas fa-flask fa-fw fa-spin"></i> Go back to search</a>
+                        {% endif %}
                         <a href="{{ url_for(".network") }}" class="btn btn-secondary"> Clear</a>
                     {% endif %}
                 </div>
@@ -47,7 +53,6 @@
                 '{{ url_for(".categories") }}',
                 '{{ url_for(".statuses") }}',
                 '{{ url_for(".reference_types") }}',
-                [],
                 600,
                 300);
         </script>
