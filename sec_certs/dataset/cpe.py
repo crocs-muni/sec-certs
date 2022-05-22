@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CPEDataset(ComplexSerializableType):
+    """
+    Dataset of CPE records. Includes look-up dictionaries for fast search.
+    """
+
     was_enhanced_with_vuln_cpes: bool
     json_path: Path
     cpes: Dict[str, CPE]
@@ -68,7 +72,7 @@ class CPEDataset(ComplexSerializableType):
 
     def build_lookup_dicts(self) -> None:
         """
-        Will build look-up dictionaries that are used for fast matching
+        Will build look-up dictionaries that are used for fast matching.
         """
         logger.info("CPE dataset: building lookup dictionaries.")
         self.vendor_to_versions = {x.vendor: set() for x in self}
@@ -90,6 +94,13 @@ class CPEDataset(ComplexSerializableType):
 
     @classmethod
     def from_web(cls, json_path: Union[str, Path], init_lookup_dicts: bool = True) -> "CPEDataset":
+        """
+        Creates CPEDataset from NIST resources published on-line
+
+        :param Union[str, Path] json_path: Path to store the dataset to
+        :param bool init_lookup_dicts: If dictionaries for fast matching should be computed, defaults to True
+        :return CPEDataset: The resulting dataset
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             xml_path = Path(tmp_dir) / cls.cpe_xml_basename
             zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + ".zip")
@@ -98,10 +109,10 @@ class CPEDataset(ComplexSerializableType):
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_dir)
 
-            return cls.from_xml(xml_path, json_path, init_lookup_dicts)
+            return cls._from_xml(xml_path, json_path, init_lookup_dicts)
 
     @classmethod
-    def from_xml(
+    def _from_xml(
         cls, xml_path: Union[str, Path], json_path: Union[str, Path], init_lookup_dicts: bool = True
     ) -> "CPEDataset":
         logger.info("Loading CPE dataset from XML.")
@@ -128,22 +139,48 @@ class CPEDataset(ComplexSerializableType):
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]) -> "CPEDataset":
+        """
+        Loads dataset from json
+
+        :param Union[str, Path] input_path: Path to the serialized json dataset
+        :return CPEDataset: the resulting dataset.
+        """
         dset = cast("CPEDataset", ComplexSerializableType.from_json(input_path))
         dset.json_path = Path(input_path)
         return dset
 
     @classmethod
     def from_dict(cls, dct: Dict[str, Any], init_lookup_dicts: bool = True) -> "CPEDataset":
+        """
+        Loads dataset from dictionary.
+
+        :param Dict[str, Any] dct: Dictionary that holds the dataset
+        :param bool init_lookup_dicts: Whether look-up dicts should be computed as a part of initialization, defaults to True
+        :return CPEDataset: the resulting dataset.
+        """
         return cls(dct["was_enhanced_with_vuln_cpes"], Path("../"), dct["cpes"], init_lookup_dicts)
 
     def to_pandas(self) -> pd.DataFrame:
+        """
+        Turns the dataset into pandas DataFrame. Each CPE record forms a row.
+
+        :return pd.DataFrame: the resulting DataFrame
+        """
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns)
         df = df.set_index("uri")
         return df
 
     @serialize
     def enhance_with_cpes_from_cve_dataset(self, cve_dset: Union[CVEDataset, str, Path]) -> None:
-        def adding_condition(
+        """
+        Some CPEs are present only in the CVEDataset and are missing from the CPE Dataset.
+        This method goes through the provided CVEDataset and enriches self with CPEs from
+        the CVEDataset.
+
+        :param Union[CVEDataset, str, Path] cve_dset: CVEDataset of a path to it.
+        """
+
+        def _adding_condition(
             considered_cpe: CPE,
             vndr_item_lookup: Set[Tuple[str, str]],
             vndr_item_version_lookup: Set[Tuple[str, str, str]],
@@ -174,7 +211,7 @@ class CPEDataset(ComplexSerializableType):
         vendor_item_lookup = {(cpe.vendor, cpe.item_name) for cpe in self}
         vendor_item_version_lookup = {(cpe.vendor, cpe.item_name, cpe.version) for cpe in self}
         for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc="Enriching CPE dataset with new CPEs"):
-            if adding_condition(cpe, vendor_item_lookup, vendor_item_version_lookup):
+            if _adding_condition(cpe, vendor_item_lookup, vendor_item_version_lookup):
                 new_cpe = copy.deepcopy(cpe)
                 new_cpe.start_version = None
                 new_cpe.end_version = None

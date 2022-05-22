@@ -89,7 +89,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def root_dir(self, new_dir: Union[str, Path]) -> None:
         old_dset = copy.deepcopy(self)
         Dataset.root_dir.fset(self, new_dir)  # type: ignore
-        self.set_local_paths()
+        self._set_local_paths()
 
         if self.state and old_dset.root_dir != Path(".."):
             logger.info(f"Changing root dir of partially processed dataset. All contents will get copied to {new_dir}")
@@ -220,7 +220,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         return all_cert_ids
 
-    def set_local_paths(self):
+    def _set_local_paths(self):
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
 
@@ -299,7 +299,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-        self.set_local_paths()
+        self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, "CommonCriteriaCert"]:
@@ -791,7 +791,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates(
             {x.dgst: x for x in updates}, root_dir=self.mu_dataset_path, name="Maintenance updates"
         )
-        update_dset.set_local_paths()
         update_dset.download_all_pdfs()
         update_dset.convert_all_pdfs()
         update_dset._extract_data()
@@ -822,6 +821,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     ):
         super().__init__(certs, root_dir, name, description, state)  # type: ignore
         self.state.meta_sources_parsed = True
+        self._set_local_paths()
 
     @property
     def certs_dir(self) -> Path:

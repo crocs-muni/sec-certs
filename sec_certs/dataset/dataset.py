@@ -128,10 +128,10 @@ class Dataset(Generic[CertSubType], ABC):
     def from_json(cls: Type[DatasetSubType], input_path: Union[str, Path]) -> DatasetSubType:
         dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
         dset.root_dir = Path(input_path).parent.absolute()
-        dset.set_local_paths()
+        dset._set_local_paths()
         return dset
 
-    def set_local_paths(self) -> None:
+    def _set_local_paths(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
