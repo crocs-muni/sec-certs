@@ -618,7 +618,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
         cert_processing.process_parallel(
-            CommonCriteriaCert.download_pdf_target,
+            CommonCriteriaCert.download_pdf_st,
             certs_to_process,
             config.n_threads,
             progress_bar_desc="Downloading targets",
@@ -664,7 +664,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.st_is_ok_to_convert(fresh)]
         cert_processing.process_parallel(
-            CommonCriteriaCert.convert_target_pdf,
+            CommonCriteriaCert.convert_st_pdf,
             certs_to_process,
             config.n_threads,
             progress_bar_desc="Converting targets to txt",
