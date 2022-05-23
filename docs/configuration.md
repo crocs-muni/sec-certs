@@ -6,7 +6,7 @@ mystnb:
 ---
 # Configuration
 
-The configuration is stored in yaml file `settings.yaml` at `sec_certs.config` package. These are the supported options, descriptions and default values.
+The configuration is stored in yaml file `settings.yaml` at `sec_certs.config` package. Below are the supported options, descriptions and default values.
 
 
 ```{code-cell} python

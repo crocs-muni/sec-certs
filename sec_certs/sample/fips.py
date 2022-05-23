@@ -344,8 +344,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         """
         Parses content of "Caveat" of FIPS CMVP .html file
 
-        :param current_text: text of "Caveat"
-        :return dictionary of all found algorithm IDs
+        :param str current_text: text of "Caveat"
+        :return Dict[str, Dict[str, int]]: dictionary of all found algorithm IDs
         """
         ids_found: Dict[str, Dict[str, int]] = {}
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
@@ -364,9 +364,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         """
         Parses table of FIPS (non) allowed algorithms
 
-        :param current_text: Contents of the table
-        :param in_pdf: Specifies whether the table was found in a PDF security policies file
-        :return List containing one element - dictionary with all parsed algorithm cert ids
+        :param str current_text: Contents of the table
+        :param bool in_pdf: Specifies whether the table was found in a PDF security policies file, defaults to False
+        :return List[Optional[Dict[str, List[str]]]]: List containing one element - dictionary with all parsed algorithm cert ids
         """
         set_items = set()
         if in_pdf:
@@ -383,9 +383,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         """
         Parses content of <table> tags in FIPS .html CMVP page
 
-        :param element: text in <table> tags
-        :return list of all found algorithm IDs
+        :param Union[Tag, NavigableString] element: text in <table> tags
+        :return List[Dict[str, Any]]: list of all found algorithm IDs
         """
+
         found_items = []
         trs = element.find_all("tr")
         for tr in trs:
