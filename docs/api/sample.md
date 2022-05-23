@@ -16,3 +16,11 @@ The examples related to this package can be found at [common criteria notebook](
 .. autoclass:: CommonCriteriaCert
     :members:
 ```
+
+## FIPSCertificate
+
+```{eval-rst}
+.. currentmodule:: sec_certs.sample
+.. autoclass:: FIPSCertificate
+    :members:
+```

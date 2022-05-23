@@ -228,7 +228,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         logger.info("Entering web scan.")
         for cert_id in cert_ids:
             dgst = fips_dgst(cert_id)
-            self.certs[dgst] = FIPSCertificate.html_from_file(
+            self.certs[dgst] = FIPSCertificate.from_html_file(
                 self.web_dir / f"{cert_id}.html",
                 FIPSCertificate.State(
                     (self._policies_dir / str(cert_id)).with_suffix(".pdf"),
