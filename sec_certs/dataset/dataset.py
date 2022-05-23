@@ -289,12 +289,12 @@ class Dataset(Generic[CertSubType], ABC):
             else:
                 cert_name = annotation["text"]
 
-            certs = self.get_certs_from_name(cert_name)
+            certs = self._get_certs_from_name(cert_name)
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = {x.uri for x in cpes if x is not None} if cpes else None
 
-    def get_certs_from_name(self, name: str) -> List[CertSubType]:
+    def _get_certs_from_name(self, name: str) -> List[CertSubType]:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def enrich_automated_cpes_with_manual_labels(self) -> None:

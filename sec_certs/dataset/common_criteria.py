@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import itertools
 import json
@@ -28,6 +30,11 @@ from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDeco
 
 
 class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
+    """
+    Class that holds CommonCriteriaCert. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
+    and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
+    """
+
     @dataclass
     class DatasetInternalState(ComplexSerializableType):
         meta_sources_parsed: bool = False
@@ -56,9 +63,15 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         return copy.deepcopy(self)
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Returns self serialized into dictionary
+        """
         return {**{"state": self.state}, **super().to_dict()}
 
     def to_pandas(self) -> pd.DataFrame:
+        """
+        Return self serialized into pandas DataFrame
+        """
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaCert.pandas_columns)
         df = df.set_index("dgst")
 
@@ -79,7 +92,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         return df
 
     @classmethod
-    def from_dict(cls: Type["CCDataset"], dct: Dict[str, Any]) -> "CCDataset":
+    def from_dict(cls: Type[CCDataset], dct: Dict[str, Any]) -> "CCDataset":
+        """
+        Reconstructs the CCDataset object from a dictionary
+        """
         dset = super().from_dict(dct)
         dset.state = copy.deepcopy(dct["state"])
         return dset
@@ -93,10 +109,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         if self.state and old_dset.root_dir != Path(".."):
             logger.info(f"Changing root dir of partially processed dataset. All contents will get copied to {new_dir}")
-            self.copy_dataset_contents(old_dset)
+            self._copy_dataset_contents(old_dset)
             self.to_json()
 
-    def copy_dataset_contents(self, old_dset: "CCDataset") -> None:
+    def _copy_dataset_contents(self, old_dset: "CCDataset") -> None:
         if old_dset.state.meta_sources_parsed:
             try:
                 shutil.copytree(old_dset.web_dir, self.web_dir)
@@ -115,42 +131,72 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     @property
     def certs_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with certificates
+        """
         return self.root_dir / "certs"
 
     @property
     def reports_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with certification reports
+        """
         return self.certs_dir / "reports"
 
     @property
     def reports_pdf_dir(self) -> Path:
+        """
+        Returns directory that holds PDFs associated with certification reports
+        """
         return self.reports_dir / "pdf"
 
     @property
     def reports_txt_dir(self) -> Path:
+        """
+        Returns directory that holds TXTs associated with certification reports
+        """
         return self.reports_dir / "txt"
 
     @property
     def targets_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with security targets
+        """
         return self.certs_dir / "targets"
 
     @property
     def targets_pdf_dir(self) -> Path:
+        """
+        Returns directory that holds PDFs associated with security targets
+        """
         return self.targets_dir / "pdf"
 
     @property
     def targets_txt_dir(self) -> Path:
+        """
+        Returns directory that holds TXTs associated with security targets
+        """
         return self.targets_dir / "txt"
 
     @property
     def pp_dataset_path(self) -> Path:
+        """
+        Returns directory that holds files associated with Protection profiles
+        """
         return self.auxillary_datasets_dir / "pp_dataset.json"
 
     @property
     def mu_dataset_path(self) -> Path:
+        """
+        Returns directory that holds dataset of maintenance updates
+        """
         return self.certs_dir / "maintenances"
 
     @property
     def mu_dataset(self) -> "CCDatasetMaintenanceUpdates":
+        """
+        Returns object of dataset of maintenance updates if it exists, raises otherwise
+        """
         if not self.mu_dataset_path.exists():
             raise ValueError("The dataset with maintenance updates does not exist")
 
@@ -176,22 +222,42 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     @property
     def active_html_tuples(self) -> List[Tuple[str, Path]]:
+        """
+        Returns List Tuple[str, Path] where first element is name of html file and second element is its Path.
+        The files correspond to html files parsed from CC website that list all *active* certificates.
+        """
         return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if "active" in y]
 
     @property
     def archived_html_tuples(self) -> List[Tuple[str, Path]]:
+        """
+        Returns List Tuple[str, Path] where first element is name of html file and second element is its Path.
+        The files correspond to html files parsed from CC website that list all *archived* certificates.
+        """
         return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if "archived" in y]
 
     @property
     def active_csv_tuples(self) -> List[Tuple[str, Path]]:
+        """
+        Returns List Tuple[str, Path] where first element is name of csv file and second element is its Path.
+        The files correspond to csv files downloaded from CC website that list all *active* certificates.
+        """
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "active" in y]
 
     @property
     def archived_csv_tuples(self) -> List[Tuple[str, Path]]:
+        """
+        Returns List Tuple[str, Path] where first element is name of csv file and second element is its Path.
+        The files correspond to csv files downloaded from CC website that list all *archived* certificates.
+        """
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "archived" in y]
 
     @classmethod
     def from_web_latest(cls) -> "CCDataset":
+        """
+        Fetches the fresh snapshot of CCDataset from seccerts.org
+        :return CCDataset: returns the CCDataset object downloaded from seccerts.org
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "cc_latest_dataset.json"
             helpers.download_file(
@@ -200,7 +266,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             return cls.from_json(dset_path)
 
     @property
-    def all_cert_ids(self):
+    def _all_cert_ids(self):
         all_cert_ids = set()
 
         for cert_obj in self:
@@ -237,7 +303,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         logger.info(f"Added {len(new_certs)} new and merged further {len(certs_to_merge)} certificates to the dataset.")
 
-    def download_csv_html_resources(self, get_active: bool = True, get_archived: bool = True) -> None:
+    def _download_csv_html_resources(self, get_active: bool = True, get_archived: bool = True) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
         html_items = []
@@ -258,6 +324,14 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     @serialize
     def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True) -> None:
+        """
+        Downloads new snapshot of dataset with processed protection profiles (if it doesn't exist) and links PPs
+        with certificates within self. Assigns PPs to all certificates
+
+        :param bool to_download: If dataset should be downloaded or fetched from json, defaults to True
+        :param bool keep_metadata: If json related to the PP dataset should be kept on drive, defaults to True
+        :raises RuntimeError: When building of PPDataset fails
+        """
         logger.info("Processing protection profiles.")
         constructor: Dict[bool, Callable[..., ProtectionProfileDataset]] = {
             True: ProtectionProfileDataset.from_web,
@@ -280,10 +354,16 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True, get_archived: bool = True
     ) -> None:
         """
-        Parses all metadata about certificates
+        Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
+        and constructs CommonCriteriaCert objects, fills the dataset with those.
+
+        :param bool to_download: If CSV and HTML files shall be downloaded (or existing files utilized), defaults to True
+        :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
+        :param bool get_active: If active certificates shall be parsed, defaults to True
+        :param bool get_archived: If archived certificates shall be parsed, defaults to True
         """
         if to_download is True:
-            self.download_csv_html_resources(get_active, get_archived)
+            self._download_csv_html_resources(get_active, get_archived)
 
         logger.info("Adding CSV certificates to CommonCriteria dataset.")
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
@@ -546,6 +626,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     @serialize
     def download_all_pdfs(self, fresh: bool = True) -> None:
+        """
+        Downloads all pdf files associated with certificates of the datset.
+
+        :param bool fresh: whether all (true) or only failed (false) pdfs shall be downloaded, defaults to True
+        """
         if self.state.meta_sources_parsed is False:
             logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
             return
@@ -587,6 +672,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     @serialize
     def convert_all_pdfs(self, fresh: bool = True) -> None:
+        """
+        Converts all pdfs associated to certificates of the dataset into txt files.
+
+        :param bool fresh: whether all (true) or only failed (false) pdfs shall be converted, defaults to True
+        """
         if self.state.pdfs_downloaded is False:
             logger.info("Attempting to convert pdf while not having them downloaded. Returning.")
             return
@@ -607,6 +697,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self.state.pdfs_converted = True
 
     def update_with_certs(self, certs: List[CommonCriteriaCert]) -> None:
+        """
+        Enriches the dataset with `certs`
+
+        :param List[CommonCriteriaCert] certs: new certs to include into the dataset.
+        """
         if any([x not in self for x in certs]):
             logger.warning("Updating dataset with certificates outside of the dataset!")
         self.certs.update({x.dgst: x for x in certs})
@@ -633,7 +728,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    def extract_pdf_metadata(self, fresh: bool = True) -> None:
+    def _extract_pdf_metadata(self, fresh: bool = True) -> None:
         logger.info("Extracting pdf metadata from CC dataset")
         self._extract_report_metadata(fresh)
         self._extract_targets_metadata(fresh)
@@ -660,7 +755,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    def extract_pdf_frontpage(self, fresh: bool = True) -> None:
+    def _extract_pdf_frontpage(self, fresh: bool = True) -> None:
         logger.info("Extracting pdf frontpages from CC dataset.")
         self._extract_report_frontpage(fresh)
         self._extract_targets_frontpage(fresh)
@@ -687,16 +782,16 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    def extract_pdf_keywords(self, fresh: bool = True) -> None:
+    def _extract_pdf_keywords(self, fresh: bool = True) -> None:
         logger.info("Extracting pdf keywords from CC dataset.")
         self._extract_report_keywords(fresh)
         self._extract_targets_keywords(fresh)
 
     def _extract_data(self, fresh: bool = True) -> None:
         logger.info("Extracting various stuff from converted txt filed from CC dataset.")
-        self.extract_pdf_metadata(fresh)
-        self.extract_pdf_frontpage(fresh)
-        self.extract_pdf_keywords(fresh)
+        self._extract_pdf_metadata(fresh)
+        self._extract_pdf_frontpage(fresh)
+        self._extract_pdf_keywords(fresh)
 
         if fresh is True:
             logger.info("Attempting to re-extract failed data from report txts")
@@ -718,7 +813,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def _compute_normalized_cert_ids(self):
         logger.info("Deriving information about sample ids from pdf scan.")
         for cert in self:
-            cert.compute_heuristics_cert_id(self.all_cert_ids)
+            cert.compute_heuristics_cert_id(self._all_cert_ids)
 
     def _compute_dependency_vulnerabilities(self):
         cve_dependency_finder = DependencyVulnerabilityFinder()
@@ -767,6 +862,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
     @serialize
     def analyze_certificates(self, fresh: bool = True) -> None:
+        """
+        Searches for all RE in the txt files of the dataset. These are further processed during heuristics computation.
+
+        :param bool fresh: Whether to run this phase on all certificates (true) or only on those that failed (false), defaults to True
+        """
         if self.state.pdfs_converted is False:
             logger.info(
                 "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
@@ -778,10 +878,16 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         self.state.certs_analyzed = True
 
-    def get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
+    def _get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
         return [crt for crt in self if crt.name == cert_name]
 
-    def process_maintenance_updates(self) -> "CCDatasetMaintenanceUpdates":
+    def process_maintenance_updates(self) -> CCDatasetMaintenanceUpdates:
+        """
+        Creates and fully processes (download, convert, analyze) a dataset of maintenance updates that are related
+        to certificates of self.
+
+        :return CCDatasetMaintenanceUpdates: the resulting dataset of maintenance updates
+        """
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
         updates = list(
             itertools.chain.from_iterable(
@@ -797,16 +903,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         return update_dset
 
-    def generate_cert_name_keywords(self) -> Set[str]:
-        df = self.to_pandas()
-        certificate_names = set(df["name"])
-        keywords = set(itertools.chain.from_iterable([x.lower().split(" ") for x in certificate_names]))
-        keywords.add("1.02.013")
-        return {x for x in keywords if len(x) > config.minimal_token_length}
-
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     """
+    Dataset of maintenance updates related to certificates of CCDataset dataset.
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
 

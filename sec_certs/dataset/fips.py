@@ -48,7 +48,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _algs_dir(self) -> Path:
         return self.web_dir / "algorithms"
 
-    def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
+    def _get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
         """
         Returns list of certificates that match given name.
 
@@ -60,6 +60,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @serialize
     def pdf_scan(self, redo: bool = False) -> None:
         """
+        pdf_scan()
         Extracts data from pdf files
 
         :param bool redo: Whether to try again with failed files, defaults to False
