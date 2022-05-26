@@ -130,7 +130,9 @@ markupsafe==2.1.1
     #   jinja2
     #   nbconvert
 matplotlib==3.5.1
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   seaborn
 matplotlib-inline==0.1.3
     # via
     #   ipykernel
@@ -168,6 +170,7 @@ numpy==1.22.3
     #   pandas
     #   scikit-learn
     #   scipy
+    #   seaborn
     #   spacy
     #   tabula-py
     #   thinc
@@ -182,6 +185,7 @@ packaging==21.3
 pandas==1.4.2
     # via
     #   -r requirements.in
+    #   seaborn
     #   tabula-py
 pandocfilters==1.5.0
     # via nbconvert
@@ -261,7 +265,11 @@ requests==2.27.1
 scikit-learn==1.0.2
     # via -r requirements.in
 scipy==1.8.0
-    # via scikit-learn
+    # via
+    #   scikit-learn
+    #   seaborn
+seaborn==0.11.2
+    # via -r requirements.in
 send2trash==1.8.0
     # via notebook
 setuptools-scm==6.4.2
