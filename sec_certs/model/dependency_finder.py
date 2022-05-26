@@ -14,7 +14,7 @@ class DependencyFinder:
     """
     The class assigns references of other certificate instances for each instance.
     Adheres to sklearn BaseEstimator interface.
-    The fit method is called on a dictionary of certificates, builds a hashmap of references, and assigns references for each certificate in the dictionary.
+    The fit is called on a dictionary of certificates, builds a hashmap of references, and assigns references for each certificate in the dictionary.
     """
 
     def __init__(self):
@@ -168,7 +168,7 @@ class DependencyFinder:
 
     def predict(self, dgst_list: List[str]) -> Dict[str, References]:
         """
-        Function returns references for a list of certificate digests
+        Method returns references for a list of certificate digests
 
         @param dgst_list: List of certificate hashes
         @return: Dict with certificate hash and References object.
