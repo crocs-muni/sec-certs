@@ -130,3 +130,6 @@ cert_processing_log.txt
 
 # Example script may dump classification report into the folder
 examples/classification_report.json
+
+# Experiment results produced by notebooks
+notebooks/cc/results/
