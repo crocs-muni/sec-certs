@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [tool.setuptools_scm]
 write_to = "sec_certs/_version.py"

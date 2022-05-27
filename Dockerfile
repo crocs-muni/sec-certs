@@ -28,12 +28,8 @@ RUN chown -R ${NB_UID} ${HOME}
 USER ${USER}
 WORKDIR ${HOME}
 
-# Download only snapshot of repository
-RUN \
-  curl -L https://api.github.com/repos/crocs-muni/sec-certs/tarball/main > sec-certs.tar.gz && \
-  mkdir sec-certs && \
-  tar zxf sec-certs.tar.gz --strip-components=1 --directory sec-certs && \
-  rm sec-certs.tar.gz
+# Due to setuptools_scm for versioning, we need whole repository with .git
+RUN git clone https://github.com/crocs-muni/sec-certs
 
 WORKDIR ${HOME}/sec-certs
 
