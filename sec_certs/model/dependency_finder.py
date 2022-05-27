@@ -104,10 +104,11 @@ class DependencyFinder:
     def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
         """
         Builds a list of references and assigns references for each certificate instance.
-        @param certificates: dictionary of certificates with hashes as key
-        @param id_func: lookup function for cert id
-        @param ref_lookup_func: lookup for references
-        @return: None
+
+        :param Certificates certificates: dictionary of certificates with hashes as key
+        :param IDLookupFunc id_func: lookup function for cert id
+        :param ReferenceLookupFunc ref_lookup_func: lookup for references
+        :return None: None
         """
         referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(
             certificates, id_func, ref_lookup_func
@@ -156,8 +157,8 @@ class DependencyFinder:
         """
         Method returns references object for specified certificate digest
 
-        @param dgst: certificate digest
-        @return: References object
+        :param str dgst: certificate digest
+        :return References: References object
         """
         return References(
             self._get_directly_referenced_by(dgst),
@@ -170,8 +171,8 @@ class DependencyFinder:
         """
         Method returns references for a list of certificate digests
 
-        @param dgst_list: List of certificate hashes
-        @return: Dict with certificate hash and References object.
+        :param List[str] dgst_list: List of certificate hashes
+        :return Dict[str, References]: Dict with certificate hash and References object.
         """
         cert_references = {}
 
