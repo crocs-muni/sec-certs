@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import operator
 import re
@@ -39,6 +41,13 @@ class CommonCriteriaCert(
     PandasSerializableType,
     ComplexSerializableType,
 ):
+    """
+    Data structure for common criteria certificate. Contains several inner classes that layer the data logic.
+    Can be serialized into/from json (`ComplexSerializableType`) or pandas (`PandasSerializableType)`.
+    Is basic element of `CCDataset`. The functionality is mostly related to holding data and transformations that
+    the certificate can handle itself. `CCDataset` class then instrument this functionality.
+    """
+
     cc_url = "http://www.commoncriteriaportal.org"
     empty_st_url = "http://www.commoncriteriaportal.org/files/epfiles/"
 
@@ -60,7 +69,7 @@ class CommonCriteriaCert(
             super().__setattr__("maintenance_date", helpers.sanitize_date(self.maintenance_date))
 
         @classmethod
-        def from_dict(cls, dct: Dict) -> "CommonCriteriaCert.MaintenanceReport":
+        def from_dict(cls, dct: Dict) -> CommonCriteriaCert.MaintenanceReport:
             new_dct = dct.copy()
             new_dct["maintenance_date"] = (
                 date.fromisoformat(dct["maintenance_date"])
@@ -74,6 +83,11 @@ class CommonCriteriaCert(
 
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
+        """
+        Holds internal state of the dataset, whether downloads and converts of individual components succeeded. Also
+        holds information about errors and paths to the files.
+        """
+
         st_download_ok: bool
         report_download_ok: bool
         st_convert_ok: bool
@@ -143,6 +157,10 @@ class CommonCriteriaCert(
 
     @dataclass
     class PdfData(ComplexSerializableType):
+        """
+        Class that holds data extracted from pdf files.
+        """
+
         report_metadata: Optional[Dict[str, Any]] = field(default=None)
         st_metadata: Optional[Dict[str, Any]] = field(default=None)
         report_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
@@ -155,26 +173,44 @@ class CommonCriteriaCert(
 
         @property
         def bsi_data(self) -> Optional[Dict[str, Any]]:
+            """
+            Returns frontpage data related to BSI-provided information
+            """
             return self.report_frontpage.get("bsi", None) if self.report_frontpage else None
 
         @property
         def niap_data(self) -> Optional[Dict[str, Any]]:
+            """
+            Returns frontpage data related to niap-provided information
+            """
             return self.report_frontpage.get("niap", None) if self.report_frontpage else None
 
         @property
         def nscib_data(self) -> Optional[Dict[str, Any]]:
+            """
+            Returns frontpage data related to nscib-provided information
+            """
             return self.report_frontpage.get("nscib", None) if self.report_frontpage else None
 
         @property
         def canada_data(self) -> Optional[Dict[str, Any]]:
+            """
+            Returns frontpage data related to canada-provided information
+            """
             return self.report_frontpage.get("canada", None) if self.report_frontpage else None
 
         @property
         def anssi_data(self) -> Optional[Dict[str, Any]]:
+            """
+            Returns frontpage data related to ANSSI-provided information
+            """
             return self.report_frontpage.get("anssi", None) if self.report_frontpage else None
 
         @property
         def cert_lab(self) -> Optional[List[str]]:
+            """
+            Returns labs for which certificate data was parsed.
+            """
             labs = [
                 data["cert_lab"].split(" ")[0].upper()
                 for data in [self.bsi_data, self.anssi_data, self.niap_data, self.nscib_data, self.canada_data]
@@ -204,6 +240,9 @@ class CommonCriteriaCert(
 
         @property
         def processed_cert_id(self) -> Optional[str]:
+            """
+            Returns processed cert id extracted from the pdf data.
+            """
             cert_ids = set(
                 filter(
                     lambda x: x,
@@ -225,7 +264,8 @@ class CommonCriteriaCert(
         @property
         def keywords_cert_id(self) -> Optional[str]:
             """
-            :return: the most occurring among cert ids captured in keywords scan
+            Returns the most frequently appearing cert id. If you don't know why to use this, you should probably use
+            `cert_id` property.
             """
             if not self.keywords_rules_cert_id:
                 return None
@@ -236,10 +276,17 @@ class CommonCriteriaCert(
 
         @property
         def cert_id(self) -> Optional[str]:
-            return processed if (processed := self.processed_cert_id) else self.keywords_cert_id
+            """
+            Returns `processed_cert_id` if it exists, else return `keyword_cert_id`
+            """
+            return self.processed_cert_id if self.processed_cert_id else self.keywords_cert_id
 
     @dataclass
     class CCHeuristics(Heuristics, ComplexSerializableType):
+        """
+        Class for various heuristics related to CommonCriteriaCert
+        """
+
         extracted_versions: Optional[Set[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[str]] = field(default=None)
@@ -324,7 +371,7 @@ class CommonCriteriaCert(
         self.maintenance_updates = maintenance_updates
         self.state = self.InternalState() if not state else state
         self.pdf_data = self.PdfData() if not pdf_data else pdf_data
-        self.heuristics: "CommonCriteriaCert.CCHeuristics" = self.CCHeuristics() if not heuristics else heuristics
+        self.heuristics: CommonCriteriaCert.CCHeuristics = self.CCHeuristics() if not heuristics else heuristics
 
     @property
     def dgst(self) -> str:
@@ -337,6 +384,9 @@ class CommonCriteriaCert(
 
     @property
     def eal(self) -> Optional[str]:
+        """
+        Returns EAL of certificate if it was extracted, None otherwise.
+        """
         res = [x for x in self.security_level if re.match(security_level_csv_scan, x)]
         if not res:
             return None
@@ -368,6 +418,9 @@ class CommonCriteriaCert(
 
     @property
     def pandas_tuple(self) -> Tuple:
+        """
+        Returns tuple of attributes meant for pandas serialization
+        """
         return (
             self.dgst,
             self.heuristics.cert_id,
@@ -398,7 +451,7 @@ class CommonCriteriaCert(
         printed_manufacturer = self.manufacturer if self.manufacturer else "Unknown manufacturer"
         return str(printed_manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
 
-    def merge(self, other: "CommonCriteriaCert", other_source: Optional[str] = None) -> None:
+    def merge(self, other: CommonCriteriaCert, other_source: Optional[str] = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
@@ -425,7 +478,10 @@ class CommonCriteriaCert(
                     )
 
     @classmethod
-    def from_dict(cls, dct: Dict) -> "CommonCriteriaCert":
+    def from_dict(cls, dct: Dict) -> CommonCriteriaCert:
+        """
+        Deserializes dictionary into `CommonCriteriaCert`
+        """
         new_dct = dct.copy()
         new_dct["maintenance_updates"] = set(dct["maintenance_updates"])
         new_dct["protection_profiles"] = set(dct["protection_profiles"])
@@ -508,7 +564,7 @@ class CommonCriteriaCert(
         return None
 
     @staticmethod
-    def _html_row_get_maintenance_updates(main_div: Tag) -> Set["CommonCriteriaCert.MaintenanceReport"]:
+    def _html_row_get_maintenance_updates(main_div: Tag) -> Set[CommonCriteriaCert.MaintenanceReport]:
         possible_updates = list(main_div.find_all("li"))
         maintenance_updates = set()
         for u in possible_updates:
@@ -531,9 +587,9 @@ class CommonCriteriaCert(
         return maintenance_updates
 
     @classmethod
-    def from_html_row(cls, row: Tag, status: str, category: str) -> "CommonCriteriaCert":
+    def from_html_row(cls, row: Tag, status: str, category: str) -> CommonCriteriaCert:
         """
-        Creates a CC sample from html row
+        Creates a CC sample from html row of commoncriteria.org webpage.
         """
 
         cells = list(row.find_all("td"))
@@ -582,6 +638,14 @@ class CommonCriteriaCert(
         report_txt_dir: Optional[Union[str, Path]],
         st_txt_dir: Optional[Union[str, Path]],
     ) -> None:
+        """
+        Sets paths to files given the requested directories
+
+        :param Optional[Union[str, Path]] report_pdf_dir: Directory where pdf reports shall be stored
+        :param Optional[Union[str, Path]] st_pdf_dir: Directory where pdf security targets shall be stored
+        :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
+        :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
+        """
         if report_pdf_dir is not None:
             self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
         if st_pdf_dir is not None:
@@ -592,7 +656,13 @@ class CommonCriteriaCert(
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
 
     @staticmethod
-    def download_pdf_report(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def download_pdf_report(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Downloads pdf of certification report given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to download the pdf report for
+        :return CommonCriteriaCert: returns the modified certificate with updated state
+        """
         exit_code: Union[str, int]
         if not cert.report_link:
             exit_code = "No link"
@@ -606,7 +676,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def download_pdf_target(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def download_pdf_st(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Downloads pdf of security target given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to download the pdf security target for
+        :return CommonCriteriaCert: returns the modified certificate with updated state
+        """
         exit_code: Union[str, int]
         if not cert.st_link:
             exit_code = "No link"
@@ -620,7 +696,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def convert_report_pdf(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to download the pdf report for
+        :return CommonCriteriaCert: the modified certificate with updated state
+        """
         exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert report pdf->txt"
@@ -630,7 +712,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def convert_target_pdf(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def convert_st_pdf(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to download the pdf security target for
+        :return CommonCriteriaCert: the modified certificate with updated state
+        """
         exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert security target pdf->txt"
@@ -640,7 +728,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_st_pdf_metadata(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def extract_st_pdf_metadata(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to extract the metadata for.
+        :return CommonCriteriaCert: the modified certificate with updated state
+        """
         response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
@@ -648,7 +742,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_report_pdf_metadata(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def extract_report_pdf_metadata(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Extracts metadata from certification report pdf given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to extract the metadata for.
+        :return CommonCriteriaCert: the modified certificate with updated state
+        """
         response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
@@ -656,7 +756,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_st_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def extract_st_pdf_frontpage(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Extracts data from security target pdf frontpage given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to extract the frontpage data for.
+        :return CommonCriteriaCert: the modified certificate with updated state
+        """
         cert.pdf_data.st_frontpage = {}
 
         for header_type, associated_header_func in HEADERS.items():
@@ -671,7 +777,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_report_pdf_frontpage(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def extract_report_pdf_frontpage(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Extracts data from certification report pdf frontpage given the certificate. Staticmethod to allow for parallelization.
+
+        :param CommonCriteriaCert cert: cert to extract the frontpage data for.
+        :return CommonCriteriaCert: the modified certificate with updated state
+        """
         cert.pdf_data.report_frontpage = {}
 
         for header_type, associated_header_func in HEADERS.items():
@@ -686,14 +798,28 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_report_pdf_keywords(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def extract_report_pdf_keywords(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Matches regular expresions in txt obtained from certification report and extracts the matches into attribute.
+        Static method to allow for parallelization
+
+        :param CommonCriteriaCert cert: certificate to extract the keywords for.
+        :return CommonCriteriaCert: the modified certificate with extracted keywords.
+        """
         response, cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
         return cert
 
     @staticmethod
-    def extract_st_pdf_keywords(cert: "CommonCriteriaCert") -> "CommonCriteriaCert":
+    def extract_st_pdf_keywords(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+        """
+        Matches regular expresions in txt obtained from security target and extracts the matches into attribute.
+        Static method to allow for parallelization
+
+        :param CommonCriteriaCert cert: certificate to extract the keywords for.
+        :return CommonCriteriaCert: the modified certificate with extracted keywords.
+        """
         response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
@@ -701,15 +827,26 @@ class CommonCriteriaCert(
         return cert
 
     def compute_heuristics_version(self) -> None:
+        """
+        Fills in the heuristically obtained version of certified product into attribute in heuristics class.
+        """
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name) if self.name else set()
 
     def compute_heuristics_cert_lab(self) -> None:
+        """
+        Fills in the heuristically obtained evaluation laboratory into attribute in heuristics class.
+        """
         if not self.pdf_data:
             logger.error("Cannot compute sample lab when pdf files were not processed.")
             return
         self.heuristics.cert_lab = self.pdf_data.cert_lab
 
     def compute_heuristics_cert_id(self, all_cert_ids: Set[str]):
+        """
+        Given list of cert ids from the whole dataset, will normalize own cert id into canonical form
+
+        :param Set[str] all_cert_ids: cert ids from the whole dataset.
+        """
         if not self.pdf_data:
             logger.warning("Cannot compute sample id when pdf files were not processed.")
             return
@@ -729,6 +866,7 @@ class CommonCriteriaCert(
 
         # Bug - getting out of index - ANSSI-2009/30
         # TMP solution
+        # TODO: Fix me, @georgefi
         if len(new_cert_id) >= len("ANSSI-CC-0000") + 1:
             if (
                 new_cert_id[len("ANSSI-CC-0000")] == "_"
@@ -821,7 +959,7 @@ class CommonCriteriaCert(
 
         return new_cert_id
 
-    def get_cert_laboratory(self) -> str:
+    def _get_cert_laboratory(self) -> str:
         if not self.heuristics.cert_id:
             raise ValueError("Cert ID was None but cert laboratory was to be computed based on its value.")
         cert_id = self.heuristics.cert_id.strip()
@@ -841,6 +979,12 @@ class CommonCriteriaCert(
         return "unknown"
 
     def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
+        """
+        Attempts to find certification laboratory and transform certificate id into canonical form. This is achieved
+        also by comparisons to all other cert ids in the dataset.
+
+        :param Set[str] all_cert_ids: set of all cert ids in the dataset.
+        """
         fix_methods: Dict[str, Callable] = {
             "anssi": CommonCriteriaCert._fix_anssi_cert_id,
             "bsi": partial(CommonCriteriaCert._fix_bsi_cert_id, all_cert_ids=all_cert_ids),
@@ -849,7 +993,7 @@ class CommonCriteriaCert(
         }
 
         try:
-            cert_lab = self.get_cert_laboratory()
+            cert_lab = self._get_cert_laboratory()
         except ValueError:
             return None
 

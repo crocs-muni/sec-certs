@@ -11,3 +11,8 @@ isort
 flake8
 pre-commit
 pip-tools
+sphinx
+myst-nb>=0.14
+sphinx-book-theme
+sphinx-design
+sphinx-copybutton

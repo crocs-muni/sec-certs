@@ -1,4 +1,6 @@
-# ![](docs/_static/logo.svg)
+# Sec-certs
+
+![](docs/_static/logo.svg)
 
 Tool for analysis of security certificates and their security targets (Common Criteria, NIST FIPS140-2...).
 
@@ -13,27 +15,7 @@ This project is developed by the [Centre for Research On Cryptography and Securi
 
 ## Installation
 
-The tool can be pulled as a docker image with
-
-```bash
-docker pull seccerts/sec-certs
-```
-
-Alternatively, it can be installed from PyPi with
-
-```bash
-pip install -U sec-certs
-```
-
-Note, however, that `Python>=3.8` is required and there are some [additional dependencies](https://github.com/crocs-muni/sec-certs/blob/main/CONTRIBUTING.md#dependencies).
-
-The stable release is also published on [GitHub](https://github.com/crocs-muni/sec-certs/releases) from where it can be setup for development with
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -e .
-```
+Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs`. For more elaborate description, see [docs](https://seccerts.org/docs/installation.html)
 
 ## Usage (CC)
 

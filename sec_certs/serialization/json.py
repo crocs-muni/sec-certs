@@ -1,6 +1,7 @@
 import copy
 import json
 from datetime import date
+from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
@@ -55,6 +56,7 @@ class ComplexSerializableType:
 
 # Decorator for serialization
 def serialize(func: Callable):
+    @wraps(func)
     def inner_func(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
             raise ValueError(

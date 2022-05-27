@@ -128,10 +128,10 @@ class Dataset(Generic[CertSubType], ABC):
     def from_json(cls: Type[DatasetSubType], input_path: Union[str, Path]) -> DatasetSubType:
         dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
         dset.root_dir = Path(input_path).parent.absolute()
-        dset.set_local_paths()
+        dset._set_local_paths()
         return dset
 
-    def set_local_paths(self) -> None:
+    def _set_local_paths(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
@@ -289,12 +289,12 @@ class Dataset(Generic[CertSubType], ABC):
             else:
                 cert_name = annotation["text"]
 
-            certs = self.get_certs_from_name(cert_name)
+            certs = self._get_certs_from_name(cert_name)
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = {x.uri for x in cpes if x is not None} if cpes else None
 
-    def get_certs_from_name(self, name: str) -> List[CertSubType]:
+    def _get_certs_from_name(self, name: str) -> List[CertSubType]:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def enrich_automated_cpes_with_manual_labels(self) -> None:

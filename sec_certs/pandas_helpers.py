@@ -38,38 +38,42 @@ def compute_cve_correlations(
     filter_nans: bool = True,
 ) -> pd.DataFrame:
     """
-    Computes correlations of EAL and different SARs and two columns: (n_cves, worst_cve). Few assumptions about the passed dataframe:
+    Computes correlations of EAL and different SARs and two columns: (n_cves, worst_cve_score, avg_cve_score). Few assumptions about the passed dataframe:
     - EAL column must be categorical data type
     - SAR column must be a set of SARs
-    - `n_cves` and `worst_cve` columns must be present in the dataframe
+    - `n_cves` and `worst_cve_score`, `avg_cve_score` columns must be present in the dataframe
     Possibly, it can filter columns will both values NaN (due to division by zero or super low supports.)
     """
-    df_sar = df.loc[:, ["highest_security_level", "sars", "worst_cve", "n_cves"]]
-    df_sar = df_sar.rename(columns={"highest_security_level": "EAL"})
-    families = discover_sar_families(df_sar.sars)
-    df_sar.EAL = df_sar.EAL.cat.codes
+    df_sar = df.loc[:, ["eal", "extracted_sars", "worst_cve_score", "avg_cve_score", "n_cves"]]
+    families = discover_sar_families(df_sar.extracted_sars)
+    df_sar.eal = df_sar.eal.cat.codes
 
     if exclude_vuln_free_certs:
         df_sar = df_sar.loc[df_sar.n_cves > 0]
 
-    n_cves_corrs = [df_sar["EAL"].corr(df_sar.n_cves)]
-    worst_cve_corrs = [df_sar["EAL"].corr(df_sar.worst_cve)]
-    supports = [df_sar.loc[~df_sar["EAL"].isnull()].shape[0]]
+    n_cves_corrs = [df_sar["eal"].corr(df_sar.n_cves)]
+    worst_cve_corrs = [df_sar["eal"].corr(df_sar.worst_cve_score)]
+    avg_cve_corrs = [df_sar["eal"].corr(df_sar.avg_cve_score)]
+    supports = [df_sar.loc[~df_sar["eal"].isnull()].shape[0]]
 
     for family in tqdm(families):
-        df_sar[family] = df_sar.sars.map(lambda x: get_sar_level_from_set(x, family))
+        df_sar[family] = df_sar.extracted_sars.map(lambda x: get_sar_level_from_set(x, family))
         n_cves_corrs.append(df_sar[family].corr(df_sar.n_cves))
-        worst_cve_corrs.append(df_sar[family].corr(df_sar.worst_cve))
+        worst_cve_corrs.append(df_sar[family].corr(df_sar.worst_cve_score))
+        avg_cve_corrs.append(df_sar[family].corr(df_sar.avg_cve_score))
         supports.append(df_sar.loc[~df_sar[family].isnull()].shape[0])
     df_sar = df_sar.copy()
 
-    tuples = list(zip(n_cves_corrs, worst_cve_corrs, supports))
-    dct = {family: correlations for family, correlations in zip(["EAL"] + families, tuples)}
-    df_corr = pd.DataFrame.from_dict(dct, orient="index", columns=["n_cves_corr", "worst_cve_corr", "support"])
+    tuples = list(zip(n_cves_corrs, worst_cve_corrs, avg_cve_corrs, supports))
+    dct = {family: correlations for family, correlations in zip(["eal"] + families, tuples)}
+    df_corr = pd.DataFrame.from_dict(
+        dct, orient="index", columns=["n_cves_corr", "worst_cve_score_corr", "avg_cve_score_corr", "support"]
+    )
     df_corr.style.set_caption("Correlations between EAL, SARs and CVEs")
+    df_corr = df_corr.sort_values(by="support", ascending=False)
 
     if filter_nans:
-        df_corr = df_corr.dropna(how="all", subset=["n_cves_corr", "worst_cve_corr"])
+        df_corr = df_corr.dropna(how="all", subset=["n_cves_corr", "worst_cve_score_corr", "avg_cve_score_corr"])
 
     if output_path:
         df_corr.to_csv(output_path)
@@ -92,8 +96,18 @@ def expand_cc_df_with_cve_cols(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.
         lambda x: [cve_dset[y].published_date.date() for y in x] if x is not np.nan else np.nan  # type: ignore
     )
     df["earliest_cve"] = df.cve_published_dates.map(lambda x: min(x) if isinstance(x, list) else np.nan)
-    df["worst_cve"] = df.related_cves.map(
+    df["worst_cve_score"] = df.related_cves.map(
         lambda x: max([cve_dset[cve].impact.base_score for cve in x]) if x is not np.nan else np.nan
+    )
+
+    """
+    Note: Technically, CVE can have 0 base score. This happens when the CVE is discarded from the database.
+    This could skew the results. During May 2022 analysis, we encountered a single CVE with such score.
+    Therefore, we do not treat this case.
+    To properly treat this, the average should be taken across CVEs with >0 base_socre.
+    """
+    df["avg_cve_score"] = df.related_cves.map(
+        lambda x: np.mean([cve_dset[cve].impact.base_score for cve in x]) if x is not np.nan else np.nan
     )
     return df
 

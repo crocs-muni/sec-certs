@@ -1,0 +1,48 @@
+name: "Build docs"
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install external dependencies
+        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+      - name: Install sec-certs and deps
+        run: |
+          pip install -r requirements/requirements.txt
+          pip install -r requirements/dev_requirements.txt
+          pip install -e .
+      - name: Build docs
+        run: |
+          cd docs
+          make html
+      - name: Save docs artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: docs/_build/html/
+          retention-days: 7
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.repository == 'crocs-muni/sec-certs'  # Potentially change this into a check on release.
+    steps:
+      - name: Get docs artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docs
+          path: docs
+      - name: Archive docs
+        run: |
+          cd docs
+          zip -r docs.zip *
+      - name: Push docs to website
+        run: |
+          curl -F data=@docs/docs.zip https://seccerts.org/docs/upload?token=${{ secrets.DOCS_AUTH_TOKEN }}

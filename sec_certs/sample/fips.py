@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import re
 from dataclasses import dataclass, field
@@ -22,6 +24,13 @@ from sec_certs.serialization.json import ComplexSerializableType
 
 
 class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuristics"], ComplexSerializableType):
+    """
+    Data structure for common FIPS 140 certificate. Contains several inner classes that layer the data logic.
+    Can be serialized into/from json (`ComplexSerializableType`).
+    Is basic element of `FIPSDataset`. The functionality is mostly related to holding data and transformations that
+    the certificate can handle itself. `FIPSDataset` class then instrument this functionality.
+    """
+
     FIPS_BASE_URL: ClassVar[str] = "https://csrc.nist.gov"
     FIPS_MODULE_URL: ClassVar[
         str
@@ -29,6 +38,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @dataclass(eq=True)
     class State(ComplexSerializableType):
+        """
+        Holds state of the `FIPSCertificate`
+        """
+
         sp_path: Path
         html_path: Path
         fragment_path: Path
@@ -67,6 +80,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
+        """
+        Data structure for algorithm of `FIPSCertificate`
+        """
+
         cert_id: str
         vendor: str
         implementation: str
@@ -87,6 +104,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @dataclass(eq=True)
     class WebScan(ComplexSerializableType):
+        """
+        Data structure for data obtained from scanning certificate webpage at NIST.gov
+        """
+
         module_name: Optional[str]
         standard: Optional[str]
         status: Optional[str]
@@ -147,6 +168,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @dataclass(eq=True)
     class PdfScan(ComplexSerializableType):
+        """
+        Data structure that holds data obtained from scanning pdf files (or their converted txt documents).
+        """
+
         cert_id: int
         keywords: Dict
         algorithms: List
@@ -165,6 +190,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @dataclass(eq=True)
     class FIPSHeuristics(Heuristics, ComplexSerializableType):
+        """
+        Data structure that holds data obtained by processing the certificate and applying various heuristics.
+        """
+
         keywords: Dict[str, Dict]
         algorithms: List[Dict[str, Dict]]
         unmatched_algs: int
@@ -192,6 +221,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @property
     def dgst(self) -> str:
+        """
+        Returns primary key of the certificate, its id.
+        """
         return fips_dgst(self.cert_id)
 
     # TODO: Fix type errors, they exist because FIPS uses this as property to change variable names, while CC and abstract class have variables
@@ -221,6 +253,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @staticmethod
     def download_security_policy(cert: Tuple[str, Path]) -> None:
+        """
+        Downloads security policy file from web. Staticmethod to allow for parametrization.
+        """
         exit_code = helpers.download_file(*cert, delay=1)
         if exit_code != requests.codes.ok:
             logger.error(f"Failed to download security policy from {cert[0]}, code: {exit_code}")
@@ -228,20 +263,26 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def __init__(
         self,
         cert_id: int,
-        web_scan: "FIPSCertificate.WebScan",
-        pdf_scan: "FIPSCertificate.PdfScan",
-        heuristics: "FIPSCertificate.FIPSHeuristics",
+        web_scan: FIPSCertificate.WebScan,
+        pdf_scan: FIPSCertificate.PdfScan,
+        heuristics: FIPSCertificate.FIPSHeuristics,
         state: State,
     ):
         super().__init__()
         self.cert_id = cert_id
         self.web_scan = web_scan
         self.pdf_scan = pdf_scan
-        self.heuristics: "FIPSCertificate.FIPSHeuristics" = heuristics
+        self.heuristics: FIPSCertificate.FIPSHeuristics = heuristics
         self.state = state
 
     @classmethod
-    def from_dict(cls, dct: Dict) -> "FIPSCertificate":
+    def from_dict(cls, dct: Dict) -> FIPSCertificate:
+        """
+        Deserializes dictionary into FIPSCertificate
+
+        :param Dict dct: dictionary that holds the FIPSCertificate data
+        :return FIPSCertificate: object reconstructed from dct
+        """
         new_dct = dct.copy()
 
         if new_dct["web_scan"].date_validation:
@@ -253,6 +294,12 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
+        """
+        Wrapper for downloading a file. `delay=1` introduced to avoid problems with requests at NIST.gov
+
+        :param Tuple[str, Path] cert: tuple url, output_path
+        :return Optional[Tuple[str, Path]]: None on success, `cert` on failure.
+        """
         exit_code = helpers.download_file(*cert, delay=1)
         if exit_code != requests.codes.ok:
             logger.error(f"Failed to download html page from {cert[0]}, code: {exit_code}")
@@ -260,7 +307,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return None
 
     @staticmethod
-    def initialize_dictionary() -> Dict[str, Any]:
+    def _initialize_dictionary() -> Dict[str, Any]:
         return {
             "module_name": None,
             "standard": None,
@@ -296,8 +343,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def parse_caveat(current_text: str) -> Dict[str, Dict[str, int]]:
         """
         Parses content of "Caveat" of FIPS CMVP .html file
-        :param current_text: text of "Caveat"
-        :return: dictionary of all found algorithm IDs
+
+        :param str current_text: text of "Caveat"
+        :return Dict[str, Dict[str, int]]: dictionary of all found algorithm IDs
         """
         ids_found: Dict[str, Dict[str, int]] = {}
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
@@ -315,9 +363,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def extract_algorithm_certificates(current_text: str, in_pdf: bool = False) -> List[Optional[Dict[str, List[str]]]]:
         """
         Parses table of FIPS (non) allowed algorithms
-        :param current_text: Contents of the table
-        :param in_pdf: Specifies whether the table was found in a PDF security policies file
-        :return: List containing one element - dictionary with all parsed algorithm cert ids
+
+        :param str current_text: Contents of the table
+        :param bool in_pdf: Specifies whether the table was found in a PDF security policies file, defaults to False
+        :return List[Optional[Dict[str, List[str]]]]: List containing one element - dictionary with all parsed algorithm cert ids
         """
         set_items = set()
         if in_pdf:
@@ -333,9 +382,11 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def parse_table(element: Union[Tag, NavigableString]) -> List[Dict[str, Any]]:
         """
         Parses content of <table> tags in FIPS .html CMVP page
-        :param element: text in <table> tags
-        :return: list of all found algorithm IDs
+
+        :param Union[Tag, NavigableString] element: text in <table> tags
+        :return List[Dict[str, Any]]: list of all found algorithm IDs
         """
+
         found_items = []
         trs = element.find_all("tr")
         for tr in trs:
@@ -355,7 +406,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return found_items
 
     @staticmethod
-    def parse_html_main(current_div: Tag, html_items_found: Dict, pairs: Dict[str, str]) -> None:
+    def _parse_html_main(current_div: Tag, html_items_found: Dict, pairs: Dict[str, str]) -> None:
         title = current_div.find("div", class_="col-md-3").text.strip()
         content = (
             current_div.find("div", class_="col-md-9")
@@ -391,7 +442,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                 html_items_found[pairs[title]] = content
 
     @staticmethod
-    def parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path) -> None:
+    def _parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path) -> None:
         vendor_string = current_div.find("div", "panel-body").find("a")
 
         if not vendor_string:
@@ -406,7 +457,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             logger.warning(f"NO VENDOR FOUND {current_file}")
 
     @staticmethod
-    def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path) -> None:
+    def _parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path) -> None:
         html_items_found["lab"] = list(current_div.find("div", "panel-body").children)[0].strip()
         html_items_found["nvlap_code"] = (
             list(current_div.find("div", "panel-body").children)[2].strip().split("\n")[1].strip()
@@ -427,20 +478,29 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             html_items_found["certificate_www"] = constants.FIPS_BASE_URL + links[1].get("href")
 
     @staticmethod
-    def normalize(items: Dict) -> None:
+    def _normalize(items: Dict) -> None:
         items["module_type"] = items["module_type"].lower().replace("-", " ").title()
         items["embodiment"] = items["embodiment"].lower().replace("-", " ").replace("stand alone", "standalone").title()
 
     @staticmethod
-    def parse_validation_dates(current_div: Tag, html_items_found: Dict) -> None:
+    def _parse_validation_dates(current_div: Tag, html_items_found: Dict) -> None:
         table = current_div.find("table")
         rows = table.find("tbody").findAll("tr")
         html_items_found["date_validation"] = [parser.parse(td.text).date() for td in [row.find("td") for row in rows]]
 
     @classmethod
-    def html_from_file(
-        cls, file: Path, state: State, initialized: "FIPSCertificate" = None, redo: bool = False
-    ) -> "FIPSCertificate":
+    def from_html_file(
+        cls, file: Path, state: State, initialized: FIPSCertificate = None, redo: bool = False
+    ) -> FIPSCertificate:
+        """
+        Constructs FIPSCertificate object from html file.
+
+        :param Path file: path to the html file to use for initialization
+        :param State state: state of the certificate
+        :param FIPSCertificate initialized: possibly partially initialized FIPSCertificate, defaults to None
+        :param bool redo: if the method should be reattempted in case of failure, defaults to False
+        :return FIPSCertificate: resulting `FIPSCertificate` object.
+        """
         pairs = {
             "Module Name": "module_name",
             "Standard": "standard",
@@ -466,7 +526,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             "Product URL": "product_url",
         }
         if not initialized:
-            items_found = FIPSCertificate.initialize_dictionary()
+            items_found = FIPSCertificate._initialize_dictionary()
             items_found["cert_id"] = int(file.stem)
         else:
             items_found = initialized.web_scan.__dict__
@@ -479,28 +539,28 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             state.txt_state = initialized.state.txt_state
 
         if redo:
-            items_found = FIPSCertificate.initialize_dictionary()
+            items_found = FIPSCertificate._initialize_dictionary()
             items_found["cert_id"] = int(file.stem)
 
         text = helpers.load_cert_html_file(str(file))
         soup = BeautifulSoup(text, "html.parser")
         for div in soup.find_all("div", class_="row padrow"):
-            FIPSCertificate.parse_html_main(div, items_found, pairs)
+            FIPSCertificate._parse_html_main(div, items_found, pairs)
 
         for div in soup.find_all("div", class_="panel panel-default")[1:]:
             if div.find("h4", class_="panel-title").text == "Vendor":
-                FIPSCertificate.parse_vendor(div, items_found, file)
+                FIPSCertificate._parse_vendor(div, items_found, file)
 
             if div.find("h4", class_="panel-title").text == "Lab":
-                FIPSCertificate.parse_lab(div, items_found, file)
+                FIPSCertificate._parse_lab(div, items_found, file)
 
             if div.find("h4", class_="panel-title").text == "Related Files":
                 FIPSCertificate.parse_related_files(div, items_found)
 
             if div.find("h4", class_="panel-title").text == "Validation History":
-                FIPSCertificate.parse_validation_dates(div, items_found)
+                FIPSCertificate._parse_validation_dates(div, items_found)
 
-        FIPSCertificate.normalize(items_found)
+        FIPSCertificate._normalize(items_found)
 
         return FIPSCertificate(
             items_found["cert_id"],
@@ -543,7 +603,13 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         )
 
     @staticmethod
-    def convert_pdf_file(tup: Tuple["FIPSCertificate", Path, Path]) -> "FIPSCertificate":
+    def convert_pdf_file(tup: Tuple[FIPSCertificate, Path, Path]) -> FIPSCertificate:
+        """
+        Converts pdf file of FIPSCertificate. Staticmethod to allow for paralelization.
+
+        :param Tuple[FIPSCertificate, Path, Path] tup: object which file will be converted, path to pdf, path to txt.
+        :return FIPSCertificate: the modified FIPSCertificate.
+        """
         cert, pdf_path, txt_path = tup
         if not cert.state.txt_state:
             exit_code = helpers.convert_pdf_file(pdf_path, txt_path)
@@ -565,7 +631,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return len(text) * 0.5 <= len("".join(filter(str.isalpha, text)))
 
     @staticmethod
-    def find_keywords(cert: "FIPSCertificate") -> Tuple[Optional[Dict], "FIPSCertificate"]:
+    def find_keywords(cert: FIPSCertificate) -> Tuple[Optional[Dict], FIPSCertificate]:
         if not cert.state.txt_state:
             return None, cert
 
@@ -580,11 +646,11 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         if config.ignore_first_page:
             text_to_parse = text_to_parse[text_to_parse.index("") :]
 
-        items_found, fips_text = FIPSCertificate.parse_cert_file(FIPSCertificate.remove_platforms(text_to_parse))
+        items_found, fips_text = FIPSCertificate._parse_cert_file(FIPSCertificate._remove_platforms(text_to_parse))
 
         save_modified_cert_file(cert.state.fragment_path.with_suffix(".fips.txt"), fips_text, unicode_error)
 
-        common_items_found, common_text = FIPSCertificate.parse_cert_file_common(
+        common_items_found, common_text = FIPSCertificate._parse_cert_file_common(
             text_to_parse, text_with_newlines, fips_common_rules
         )
 
@@ -594,7 +660,13 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return items_found, cert
 
     @staticmethod
-    def match_web_algs_to_pdf(cert: "FIPSCertificate") -> int:
+    def match_web_algs_to_pdf(cert: FIPSCertificate) -> int:
+        """
+        Finds algorithms in FIPSCertificate. Staticmethod to allow for parallelization.
+
+        :param FIPSCertificate cert: cert to search for algorithms.
+        :return int: number of identified algorithms.
+        """
         algs_vals = list(cert.pdf_scan.keywords["rules_fips_algorithms"].values())
         table_vals = [x["Certificate"] for x in cert.pdf_scan.algorithms]
         tables = [x.strip() for y in table_vals for x in y]
@@ -619,7 +691,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return len(not_found)
 
     @staticmethod
-    def remove_platforms(text_to_parse: str) -> str:
+    def _remove_platforms(text_to_parse: str) -> str:
         pat = re.compile(r"(?:(?:modification|revision|change) history|version control)\n[\s\S]*?", re.IGNORECASE)
         for match in pat.finditer(text_to_parse):
             text_to_parse = text_to_parse.replace(match.group(), "x" * len(match.group()))
@@ -669,7 +741,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
 
     @staticmethod
-    def parse_cert_file_common(
+    def _parse_cert_file_common(
         text_to_parse: str, whole_text_with_newlines: str, search_rules: Dict
     ) -> Tuple[Dict[Pattern, Dict], str]:
         # apply all rules
@@ -699,7 +771,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return items_found_all, whole_text_with_newlines
 
     @staticmethod
-    def parse_cert_file(text_to_parse: str) -> Tuple[Dict[Pattern, Dict], str]:
+    def _parse_cert_file(text_to_parse: str) -> Tuple[Dict[Pattern, Dict], str]:
         # apply all rules
         items_found_all: Dict = {}
 
@@ -733,7 +805,13 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return items_found_all, text_to_parse
 
     @staticmethod
-    def analyze_tables(tup: Tuple["FIPSCertificate", bool]) -> Tuple[bool, "FIPSCertificate", List]:
+    def analyze_tables(tup: Tuple[FIPSCertificate, bool]) -> Tuple[bool, FIPSCertificate, List]:
+        """
+        Searches for tables in pdf documents of the instance.
+
+        :param Tuple[FIPSCertificate, bool] tup: certificate object, whether to use high precision results or approx. results
+        :return Tuple[bool, FIPSCertificate, List]: True on success / False otherwise, modified cert object, List of processed tables.
+        """
         cert, precision = tup
         if (not precision and cert.state.tables_done) or (
             precision and cert.heuristics.unmatched_algs < config.cert_threshold
@@ -801,6 +879,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                     to_pop.add(cert)
 
     def remove_algorithms(self) -> None:
+        """
+        Removes algorithms from the certificate.
+        """
         self.state.file_status = True
         if not self.pdf_scan.keywords:
             return
@@ -829,12 +910,18 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @staticmethod
     def get_compare(vendor: str) -> str:
+        """
+        Tokenizes vendor name of the certificate.
+        """
         vendor_split = (
             vendor.replace(",", "").replace("-", " ").replace("+", " ").replace("®", "").replace("(R)", "").split()
         )
         return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
 
     def compute_heuristics_version(self) -> None:
+        """
+        Heuristically computes the version of the product.
+        """
         versions_for_extraction = ""
         if self.web_scan.module_name:
             versions_for_extraction += f" {self.web_scan.module_name}"

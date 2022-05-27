@@ -27,8 +27,10 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-o",
     "--output",
-    type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True),
+    type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True, resolve_path=True),
     help="Path to the directory where the output of the 'build' or 'new-run' actions will be stored.",
+    default=Path("./fips_dset/"),
+    show_default=True,
 )
 @click.option(
     "-c",

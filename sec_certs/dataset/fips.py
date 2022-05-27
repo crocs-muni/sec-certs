@@ -1,14 +1,11 @@
 import logging
-import os
 import tempfile
-from itertools import groupby
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
-from sec_certs import constants as constants
 from sec_certs import helpers as helpers
 from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
@@ -23,6 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
+    """
+    Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+    """
+
     def __init__(
         self,
         certs: Dict[str, FIPSCertificate] = dict(),
@@ -36,48 +37,37 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.new_files = 0
 
     @property
-    def results_dir(self) -> Path:
-        return self.root_dir / "results"
-
-    @property
-    def policies_dir(self) -> Path:
+    def _policies_dir(self) -> Path:
         return self.root_dir / "security_policies"
 
     @property
-    def fragments_dir(self) -> Path:
+    def _fragments_dir(self) -> Path:
         return self.root_dir / "fragments"
 
     @property
-    def algs_dir(self) -> Path:
+    def _algs_dir(self) -> Path:
         return self.web_dir / "algorithms"
 
-    # After web scan, there should be a FIPSCertificate object created for every entry
-    @property
-    def successful_web_scan(self) -> bool:
-        return all(self.certs) and all(cert.web_scan for cert in self.certs.values() if cert is not None)
+    def _get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
+        """
+        Returns list of certificates that match given name.
 
-    @property
-    def successful_pdf_scan(self) -> bool:
-        return all(cert.pdf_scan for cert in self.certs.values() if cert is not None)
-
-    def get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
+        :param str module_name: name to search for
+        :return List[FIPSCertificate]: List of certificates with web_scan.module_name == module_name
+        """
         return [crt for crt in self if crt.web_scan.module_name == module_name]
-
-    def find_empty_pdfs(self) -> Tuple[List, List]:
-        missing = []
-        not_available = []
-        for i in self.certs:
-            if not (self.policies_dir / f"{i}.pdf").exists():
-                missing.append(i)
-            elif os.path.getsize(self.policies_dir / f"{i}.pdf") < constants.FIPS_NOT_AVAILABLE_CERT_SIZE:
-                not_available.append(i)
-        return missing, not_available
 
     @serialize
     def pdf_scan(self, redo: bool = False) -> None:
+        """
+        pdf_scan()
+        Extracts data from pdf files
+
+        :param bool redo: Whether to try again with failed files, defaults to False
+        """
         logger.info("Entering PDF scan.")
 
-        self.fragments_dir.mkdir(parents=True, exist_ok=True)
+        self._fragments_dir.mkdir(parents=True, exist_ok=True)
 
         keywords = cert_processing.process_parallel(
             FIPSCertificate.find_keywords,
@@ -89,7 +79,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
 
-    def match_algs(self) -> Dict[str, int]:
+    def _match_algs(self) -> Dict[str, int]:
         output = {}
         for cert in self.certs.values():
             # if the pdf has not been processed, no matching can be done
@@ -103,18 +93,24 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return output
 
     def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
+        """
+        Downloads all pdf files related to the certificates specified with cert_ids.
+
+        :param Optional[Set[str]] cert_ids: cert_ids to download the pdfs foor, defaults to None
+        :raises RuntimeError: If no cert_ids are specified, raises.
+        """
         sp_paths, sp_urls = [], []
-        self.policies_dir.mkdir(exist_ok=True)
+        self._policies_dir.mkdir(exist_ok=True)
         if cert_ids is None:
             raise RuntimeError("You need to provide cert ids to FIPS download PDFs functionality.")
         for cert_id in cert_ids:
-            if not (self.policies_dir / f"{cert_id}.pdf").exists() or (
+            if not (self._policies_dir / f"{cert_id}.pdf").exists() or (
                 fips_dgst(cert_id) in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
             ):
                 sp_urls.append(
                     f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf"
                 )
-                sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
+                sp_paths.append(self._policies_dir / f"{cert_id}.pdf")
         logger.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(
             FIPSCertificate.download_security_policy,
@@ -124,7 +120,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         self.new_files += len(sp_urls)
 
-    def download_all_htmls(self, cert_ids: Set[str]) -> List[str]:
+    def _download_all_htmls(self, cert_ids: Set[str]) -> List[str]:
         html_paths, html_urls = [], []
         new_files = []
         self.web_dir.mkdir(exist_ok=True)
@@ -158,17 +154,20 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @serialize
     def convert_all_pdfs(self) -> None:
+        """
+        Converts all pdfs to text files
+        """
         logger.info("Converting FIPS sample reports to .txt")
         tuples = [
-            (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
+            (cert, self._policies_dir / f"{cert.cert_id}.pdf", self._policies_dir / f"{cert.cert_id}.pdf.txt")
             for cert in self.certs.values()
-            if not cert.state.txt_state and (self.policies_dir / f"{cert.cert_id}.pdf").exists()
+            if not cert.state.txt_state and (self._policies_dir / f"{cert.cert_id}.pdf").exists()
         ]
         cert_processing.process_parallel(
             FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt"
         )
 
-    def prepare_dataset(self, test: Optional[Path] = None, update: bool = False) -> Set[str]:
+    def _prepare_dataset(self, test: Optional[Path] = None, update: bool = False) -> Set[str]:
         if test:
             html_files = [test]
         else:
@@ -197,8 +196,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         return cert_ids
 
-    def download_neccessary_files(self, cert_ids: Set[str]) -> None:
-        self.download_all_htmls(cert_ids)
+    def _download_neccessary_files(self, cert_ids: Set[str]) -> None:
+        self._download_all_htmls(cert_ids)
         self.download_all_pdfs(cert_ids)
 
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
@@ -220,15 +219,21 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @serialize
     def web_scan(self, cert_ids: Set[int], redo: bool = False) -> None:
+        """
+        Creates FIPSCertificate object from the relevant html file that must be downlaoded.
+
+        :param Set[int] cert_ids: Cert ids to create FIPSCertificate objects for.
+        :param bool redo: whether to re-attempt with failed certificates, defaults to False
+        """
         logger.info("Entering web scan.")
         for cert_id in cert_ids:
             dgst = fips_dgst(cert_id)
-            self.certs[dgst] = FIPSCertificate.html_from_file(
+            self.certs[dgst] = FIPSCertificate.from_html_file(
                 self.web_dir / f"{cert_id}.html",
                 FIPSCertificate.State(
-                    (self.policies_dir / str(cert_id)).with_suffix(".pdf"),
+                    (self._policies_dir / str(cert_id)).with_suffix(".pdf"),
                     (self.web_dir / str(cert_id)).with_suffix(".html"),
-                    (self.fragments_dir / str(cert_id)).with_suffix(".txt"),
+                    (self._fragments_dir / str(cert_id)).with_suffix(".txt"),
                     False,
                     None,
                     False,
@@ -239,6 +244,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @classmethod
     def from_web_latest(cls) -> "FIPSDataset":
+        """
+        Fetches the fresh snapshot of FIPSDataset from mirror.
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "fips_latest_dataset.json"
             logger.info("Downloading the latest FIPS dataset.")
@@ -254,14 +262,15 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 len(dset),
                 len(dset.algorithms) if dset.algorithms is not None else 0,
             )
-            logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
-            dset.finalize_results()
+            # TODO: Fixme, this is really costly
+            # logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
+            # dset.finalize_results()
             return dset
 
-    def set_local_paths(self) -> None:
+    def _set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.set_local_paths(self.policies_dir, self.web_dir, self.fragments_dir)
+            cert.set_local_paths(self._policies_dir, self.web_dir, self._fragments_dir)
 
     @serialize
     def get_certs_from_web(
@@ -284,11 +293,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         logger.info("Downloading required html files")
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
-        self.policies_dir.mkdir(exist_ok=True)
-        self.algs_dir.mkdir(exist_ok=True)
+        self._policies_dir.mkdir(exist_ok=True)
+        self._algs_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
-        cert_ids = self.prepare_dataset(test, update)
+        cert_ids = self._prepare_dataset(test, update)
 
         if not no_download_algorithms:
             aset = FIPSAlgorithmDataset({}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs")
@@ -298,21 +307,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             self.algorithms = aset
 
         logger.info("Downloading certificate html and security policies")
-        self.download_neccessary_files(cert_ids)
+        self._download_neccessary_files(cert_ids)
 
         self.web_scan(cert_ids, redo=redo_web_scan)
-
-    @serialize
-    def deprocess(self) -> None:
-        # TODO think of a better way to make resulting json smaller and easier to share
-        logger.info(
-            "Removing 'heuristics' field. This dataset can be used to be uploaded and later downloaded using latest_snapshot() or something"
-        )
-        cert: FIPSCertificate
-        for cert in self.certs.values():
-            cert.heuristics = FIPSCertificate.FIPSHeuristics(dict(), [], 0)
-
-        self.match_algs()
 
     @serialize
     def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
@@ -341,11 +338,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             certificate.pdf_scan.algorithms += algorithms
         return not_decoded
 
-    def remove_algorithms_from_extracted_data(self) -> None:
+    def _remove_algorithms_from_extracted_data(self) -> None:
         for cert in self.certs.values():
             cert.remove_algorithms()
 
-    def unify_algorithms(self) -> None:
+    def _unify_algorithms(self) -> None:
         for certificate in self.certs.values():
             new_algorithms: List[Dict] = []
             united_algorithms = [
@@ -439,7 +436,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 return False
         return True
 
-    def validate_results(self) -> None:
+    def _validate_results(self) -> None:
         """
         Function that validates results and finds the final connection output
         """
@@ -481,10 +478,16 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @serialize
     def finalize_results(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):
+        """
+        Performs processing of extracted data. Computes all heuristics.
+
+        :param bool use_nist_cpe_matching_dict: If NIST CPE matching dictionary shall be used to drive computing related CVEs, defaults to True
+        :param bool perform_cpe_heuristics: If CPE heuristics shall be computed, defaults to True
+        """
         logger.info("Entering 'analysis' and building connections between certificates.")
-        self.unify_algorithms()
-        self.remove_algorithms_from_extracted_data()
-        self.validate_results()
+        self._unify_algorithms()
+        self._remove_algorithms_from_extracted_data()
+        self._validate_results()
         if perform_cpe_heuristics:
             _, _, cve_dset = self.compute_cpe_heuristics()
             self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
@@ -520,7 +523,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         attr = {"pdf": "pdf_scan", "web": "web_scan", "heuristics": "heuristics"}[connection_list]
         return getattr(self.certs[dgst], attr).connections
 
-    def create_dot_graph(
+    def _create_dot_graph(
         self,
         output_file_name: str,
         connection_list: str = "heuristics",
@@ -585,6 +588,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Serializes dataset into a dictionary
+
+        :return Dict[str, Any]: Dictionary that holds the whole dataset.
+        """
         return {
             "timestamp": self.timestamp,
             "sha256_digest": self.sha256_digest,
@@ -597,6 +605,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @classmethod
     def from_dict(cls, dct: Dict[str, Any]) -> "FIPSDataset":
+        """
+        Reconstructs the original dataset from a dictionary
+
+        :param Dict[str, Any] dct: Dictionary that holds the serialized dataset
+        :return FIPSDataset: Deserialized FIPSDataset that corresponds to `dct` contents
+        """
         certs = dct["certs"]
         dset = cls(certs, Path("./"), dct["name"], dct["description"])
         dset.algorithms = dct["algs"]
@@ -606,16 +620,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             )
         return dset
 
-    def group_vendors(self) -> Dict[str, List[str]]:
-        vendors: Dict[str, List[str]] = {}
-        v = {x.web_scan.vendor.lower() for x in self.certs.values() if x is not None and x.web_scan.vendor is not None}
-        v_sorted = sorted(v, key=FIPSCertificate.get_compare)
-        for prefix, a in groupby(v_sorted, key=FIPSCertificate.get_compare):
-            vendors[prefix] = list(a)
-
-        return vendors
-
     def plot_graphs(self, show: bool = False) -> None:
-        self.create_dot_graph("full_graph", show=show)
-        self.create_dot_graph("web_only_graph", "web", show=show)
-        self.create_dot_graph("pdf_only_graph", "pdf", show=show)
+        """
+        Plots FIPS graphs.
+        # TODO: Currently broken, see https://github.com/crocs-muni/sec-certs/issues/211
+        :param bool show: If plots should be showed with .show() method, defaults to False
+        """
+        self._create_dot_graph("full_graph", show=show)
+        self._create_dot_graph("web_only_graph", "web", show=show)
+        self._create_dot_graph("pdf_only_graph", "pdf", show=show)

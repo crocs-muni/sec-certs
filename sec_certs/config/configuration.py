@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 import jsonschema
 import yaml
@@ -29,6 +29,12 @@ class Configuration(object):
         if isinstance(res, dict) and "value" in res:
             return res["value"]
         return object.__getattribute__(self, key)
+
+    def get_desription(self, key: str) -> Optional[str]:
+        res = object.__getattribute__(self, key)
+        if isinstance(res, dict) and "description" in res:
+            return res["description"]
+        return None
 
 
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "settings.yaml"

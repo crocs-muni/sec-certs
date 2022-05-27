@@ -19,6 +19,9 @@ requests
 scikit-learn
 tabula-py
 tqdm
+setuptools-scm
 ipykernel
 ipywidgets
 spacy
+pkgconfig
+seaborn

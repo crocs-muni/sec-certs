@@ -24,8 +24,10 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-o",
     "--output",
-    type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True),
+    type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True, resolve_path=True),
     help="Path where the output of the experiment will be stored. May overwrite existing content.",
+    default=Path("./cc_dset/"),
+    show_default=True,
 )
 @click.option(
     "-c",

@@ -222,7 +222,7 @@ class TestCommonCriteriaOOP(TestCase):
         with TemporaryDirectory() as tmp_dir:
             dataset_path = Path(tmp_dir)
             dset = CCDataset({}, dataset_path, "sample_dataset", "sample dataset description")
-            dset.download_csv_html_resources(get_active=True, get_archived=False)
+            dset._download_csv_html_resources(get_active=True, get_archived=False)
 
             for x in dset.active_html_tuples:
                 self.assertTrue(x[1].exists())
