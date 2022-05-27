@@ -29,7 +29,7 @@ cc_latest_snapshot:
   value: https://seccerts.org/cc/dataset.json
 cc_maintenances_latest_snapshot:
   description: Url from where to fetch the latest snapshot of CC maintenance updates
-  value: https://seccerts.org/static/cc_maintenances_latest_snapshot.json
+  value: https://seccerts.org/cc/maintenance_updates.json
 ignore_first_page:
   description: During keyword search, first page usually contains addresses - ignore it.
   value: true

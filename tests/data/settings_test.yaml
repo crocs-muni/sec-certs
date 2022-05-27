@@ -24,10 +24,10 @@ cpe_n_max_matches:
   value: 20
 cc_latest_snapshot:
   description: Url from where to fetch the latest snapshot of fully processed CC dataset
-  value: https://www.ajanovsky.cz/cc_latest_snapshot.json
+  value: https://seccerts.org/cc/dataset.json
 cc_maintenances_latest_snapshot:
   description: Url from where to fetch the latest snapshot of CC maintenance updates
-  value: https://www.ajanovsky.cz/cc_maintenances_latest_snapshot.json
+  value: https://seccerts.org/cc/maintenance_updates.json
 ignore_first_page:
   description: During keyword search, first page usually contains addresses - ignore it.
   value: true
@@ -36,7 +36,7 @@ cert_threshold:
   value: 5
 fips_latest_snapshot:
   description: Url for the latest snapshot of FIPS dataset
-  value: https://seccerts.org/static/fips_dset_ad8734a39b856ca1a1b7b073713872359bae7545.json
+  value: https://seccerts.org/fips/dataset.json
 enable_progress_bars:
   description: Whether to enable pretty-printed progress bars while processing.
   value: False
