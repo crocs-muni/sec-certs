@@ -98,8 +98,12 @@ class CommonCriteriaCert(
 
         st_pdf_path: Path
         report_pdf_path: Path
+        st_pdf_hash: Optional[str]
+        report_pdf_hash: Optional[str]
         st_txt_path: Path
         report_txt_path: Path
+        st_txt_hash: Optional[str]
+        report_txt_hash: Optional[str]
 
         def __init__(
             self,
@@ -124,8 +128,12 @@ class CommonCriteriaCert(
             return [
                 "st_download_ok",
                 "report_download_ok",
+                "st_pdf_hash",
+                "report_pdf_hash",
                 "st_convert_ok",
                 "report_convert_ok",
+                "st_txt_hash",
+                "report_txt_hash",
                 "st_extract_ok",
                 "report_extract_ok",
                 "errors",
@@ -673,6 +681,8 @@ class CommonCriteriaCert(
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.report_download_ok = False
             cert.state.errors.append(error_msg)
+        else:
+            cert.state.report_pdf_hash = helpers.get_sha256_filepath(cert.state.report_pdf_path)
         return cert
 
     @staticmethod
@@ -693,6 +703,8 @@ class CommonCriteriaCert(
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
+        else:
+            cert.state.st_pdf_hash = helpers.get_sha256_filepath(cert.state.st_pdf_path)
         return cert
 
     @staticmethod
@@ -709,6 +721,8 @@ class CommonCriteriaCert(
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.report_convert_ok = False
             cert.state.errors.append(error_msg)
+        else:
+            cert.state.report_txt_hash = helpers.get_sha256_filepath(cert.state.report_txt_path)
         return cert
 
     @staticmethod
@@ -725,6 +739,8 @@ class CommonCriteriaCert(
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_convert_ok = False
             cert.state.errors.append(error_msg)
+        else:
+            cert.state.st_txt_hash = helpers.get_sha256_filepath(cert.state.st_txt_path)
         return cert
 
     @staticmethod
