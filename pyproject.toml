@@ -3,6 +3,7 @@ requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [tool.setuptools_scm]
 write_to = "sec_certs/_version.py"
+version_scheme = "no-guess-dev"
 
 [tool.black]
 line-length = 120
