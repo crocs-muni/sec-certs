@@ -1,6 +1,6 @@
 import copy
 import re
-from typing import Dict, Set, Tuple, List, Pattern
+from typing import Dict, List, Pattern, Set, Tuple
 
 REGEXEC_SEP = r"[ ,;\]”)(]"
 
