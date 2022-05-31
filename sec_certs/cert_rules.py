@@ -672,7 +672,7 @@ rules_crypto_libs = [
 
 rules_IC_data_groups = [r"EF\.DG[1-9][0-6]?", r"EF\.COM", r"EF\.CardAccess", r"EF\.SOD", r"EF\.ChipSecurity"]
 
-rules_defenses = [
+rules_side_channels = [
     "[Mm]alfunction",
     "Leak-Inherent",
     "[Pp]hysical [Pp]robing",
@@ -873,7 +873,7 @@ common_rules["rules_cplc"] = rules_cplc
 common_rules["rules_crypto_engines"] = rules_crypto_engines
 common_rules["rules_crypto_libs"] = rules_crypto_libs
 common_rules["rules_IC_data_groups"] = rules_IC_data_groups
-common_rules["rules_defenses"] = rules_defenses
+common_rules["rules_side_channels"] = rules_side_channels
 common_rules["rules_certification_process"] = rules_certification_process
 common_rules["rules_vulnerabilities"] = rules_vulnerabilities
 common_rules["rules_other"] = rules_other
