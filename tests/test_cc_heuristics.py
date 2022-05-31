@@ -1,12 +1,14 @@
 import shutil
 import tempfile
 from pathlib import Path
-from typing import ClassVar, Dict, List
+from pprint import pprint
+from typing import ClassVar, Dict, List, Final
 from unittest import TestCase
 
 import tests.data.test_cc_heuristics
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
+from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset, CPEDataset, CVEDataset
 from sec_certs.sample import CPE, CVE, SAR, CommonCriteriaCert, ProtectionProfile
 
@@ -23,6 +25,7 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        config.load(cls.data_dir_path.parent / "settings_test.yaml")
         cls.tmp_dir = tempfile.TemporaryDirectory()
         shutil.copytree(cls.data_dir_path, cls.tmp_dir.name, dirs_exist_ok=True)
 
@@ -239,8 +242,8 @@ class TestCommonCriteriaHeuristics(TestCase):
         self.assertEqual(extracted_keywords["rules_security_assurance_components"]["ADV_FSP.3"], 1)
         self.assertEqual(extracted_keywords["rules_security_assurance_components"]["ADV_TDS.2"], 1)
 
-        self.assertTrue("rules_crypto_algs" in extracted_keywords)
-        self.assertEqual(extracted_keywords["rules_crypto_algs"]["AES"], 2)
+        self.assertTrue("rules_symmetric_crypto" in extracted_keywords)
+        self.assertEqual(extracted_keywords["rules_symmetric_crypto"]["AES"], 2)
 
         self.assertTrue("rules_block_cipher_modes" in extracted_keywords)
         self.assertEqual(extracted_keywords["rules_block_cipher_modes"]["CBC"], 2)
