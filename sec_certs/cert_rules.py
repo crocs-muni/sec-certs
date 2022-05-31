@@ -414,7 +414,6 @@ rules_cc_claims = [
     r"OSP\.[\._\-A-Z]+?",  # Organisational Security Policy
 ]
 
-
 rules_javacard = [
     # '(?:Java Card|JavaCard)',
     # '(?:Global Platform|GlobalPlatform)',
@@ -475,36 +474,138 @@ rules_javacard_packages = [
     r"de\.bsi\.[a-z\.]+",
 ]
 
-rules_crypto_algs = [
-    "RSA[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)",
-    "RSASSAPKCS1-[Vv]1_5",
-    "SHA[-]*(?:160|224|256|384|512)",
-    "AES[-]*(?:128|192|256|)",
-    "SHA-1",
-    "MD5",
+rules_symmetric_crypto = [
+    # AES competition
+    "AES-?(?:128|192|256|)",
+    "Rijndael",
+    "Twofish",
+    "Serpent",
+    "MARS",
+    "HPC",
+    "FROG",
+    "CAST-?(?:128|160|192|224|256|5)",
+    "RC[2456]",
+    "CRYPTON",
+    "DEAL",
+    "E2",
+    "LOKI97",
+    "MAGENTA",
+    "SAFER\\+",
+    # DES related
+    "[3T]?DE[SA]",
+    "Lucifer",
+    # djb
+    "ChaCha20",
+    "Poly1305",
+    "Salsa20",
+    # LWC
+    "(ASCON|Ascon)",
+    "Elephant",
+    "GIFT(-COFB)?",
+    "Grain128(-AEAD)?",
+    "ISAP",
+    "Photon-Beetle",
+    "Romulus",
+    "Sparkle",
+    "TinyJambu",
+    "Xoodyak",
+    "Gimli",
+    # Constructions
     "HMAC",
     "HMAC-SHA-(?:160|224|256|384|512)",
-    "(Diffie-Hellman|DH)",
-    "ECDH",
-    "ECDSA",
-    "EdDSA",
-    "[3T]?DES",
-    "ECC",
-    "DTRNG",
-    "TRNG",
-    "RN[GD]",
-    "RBG",
-    "PACE",
+    "KMAC",
+    # eSTREAM
+    "HC-[0-9]{3}",
+    "Rabbit",
+    "SOSEMANUK",
+    "MICKEY(-128)?",
+    "Trivium",
+    # CAESAR
+    "ACORN",
+    "AEGIS(-128)?",
+    "Deoxys(-2)?",
+    "COLM",
+    # Misc
+    "IDEA",
+    "Blowfish",
+    "Camellia",
+    "CAST",
+    "ARIA",
+    "SM4",
+    "GOST 28147-89",
+    "Skipjack",
+    "(Skinny|SKINNY)",
+    "Kuznyechik",
 ]
 
-rules_block_cipher_modes = [
-    "ECB",
-    "CBC",
-    "CTR",
-    "CFB",
-    "OFB",
-    "GCM",
+rules_asymmetric_crypto = [
+    "RSA[- ]*(?:512|768|1024|1280|1536|2048|3072|4096|8192)",
+    "RSASSAPKCS1-[Vv]1_5",
+    "ECDHE?",
+    "ECDSA",
+    "EdDSA",
+    "ECC",
+    "(Diffie-Hellman|DH|DHE)",
+    "DSA",
+    "BLS",
+    "ECIES",
 ]
+
+rules_pq_crypto = [
+    "Classic[ -]McEliece",
+    "(CRYSTALS-)?(Kyber|KYBER)",
+    "NTRU",
+    "SABER",
+    "(CRYSTALS-)?(Dilithium|DILITHIUM)",
+    "FALCON",
+    "Rainbow",
+    "BIKE",
+    "Frodo(KEM)?",
+    "HQC",
+    "NTRU[ -]Prime",
+    "SIKE",
+    "GeMSS",
+    "Picnic",
+    "SPHINCS\\+",
+]
+
+rules_hashes = [
+    # SHA-1
+    "SHA-?1",
+    # SHA-2
+    "SHA-?(?:160|224|256|384|512)",
+    # SHA-3
+    "SHA-?3(-[0-9]{3})?",
+    "Keccak",
+    "SHAKE[0-9]{3}" "(Groestl|Grøstl)",
+    "(Blake|BLAKE)[23][sbX]?",
+    "JH",
+    "Skein",
+    # PHC
+    "Argon",
+    "battcrypt",
+    "Catena",
+    "Lyra2",
+    "Makwa",
+    "POMELO",
+    "Pufferfish",
+    "yescrypt",
+    # Misc
+    "MD[3-6]",
+    "RIPEMD(-?[0-9]{3})?",
+    "Streebog",
+    "Whirpool",
+    # Password hashing (non PHC)
+    "bcrypt",
+    "scrypt",
+    "PBKDF[12]?",
+]
+
+rules_crypto_schemes = ["PACE", "MAC", "KEM", "(KEX|Key [eE]xchange)", "PKE", "(TLS|SSL)"]
+
+rules_randomness = ["DUAL_EC_DRBG", "DTRNG", "[PT]RNG", "DRBG", "RN[GD]", "RBG"]
+
+rules_block_cipher_modes = ["ECB", "CBC", "CTR", "CFB", "OFB", "GCM", "SIV", "XTR", "CCM", "LRW", "XEX", "XTS"]
 
 rules_ecc_curves = [
     "(?:Curve |curve |)P-(192|224|256|384|521)",
@@ -512,6 +613,8 @@ rules_ecc_curves = [
     "(?:secp|sect|SECP|SECT)[0-9]+?[rk][12]",
     "(?:ansit|ansip|ANSIP|ANSIT)[0-9]+?[rk][12]",
     "(?:anssi|ANSSI)[ ]*FRP[0-9]+?v1",
+    "(NIST)? ?[PBK]-[0-9]{3}",
+    "numsp[0-9]{3}[td]1",
     "prime[0-9]{3}v[123]",
     "c2[pto]nb[0-9]{3}[vw][123]",
     "FRP256v1",
@@ -519,8 +622,10 @@ rules_ecc_curves = [
     "Ed(25519|448)",
     "ssc-(160|192|224|256|288|320|384|512)",
     "Tweedle(dee|dum)",
+    "(Pallas|Vesta)",
     "JubJub",
     "BLS(12|24)-[0-9]{3}",
+    "bn[0-9]{3}",
 ]
 
 rules_cplc = [
@@ -576,10 +681,23 @@ rules_defenses = [
     "SPA",
     "DPA",
     "DFA",
+    "SIFA",
     "[Ff]+ault [iI]nduction",
     "[Ff]+ault [iI]njection",
     "ROCA",
     "[tT]iming [aA]ttacks?",
+    "[Tt]emplate [aA]ttacks?",
+    "[Pp]rofiled [aA]ttacks?",
+    "[Cc]lustering [aA]ttacks?",
+    "[Dd]eep[ -][lL]earning",
+    "[Cc]old [bB]oot",
+    "[Rr]owhammer",
+    "[Rr]everse [eE]ngineering",
+    "[Ll]attice [aA]ttacks?",
+    "[Oo]racle [aA]ttacks?",
+    "[Bb]leichenbacher [aA]ttacks?",
+    "[Bb]ellcore [aA]ttacks?",
+    "(t-test|TVLA)",
 ]
 
 rules_certification_process = [
@@ -599,6 +717,7 @@ rules_other = [
     "library",
     # 'http[s]*://.+?/'
 ]
+
 rules_fips_remove_algorithm_ids = [
     # --- HMAC(-SHA)(-1) - (bits) (method) ((hardware/firmware cert) #id) ---
     # + added (and #id) everywhere
@@ -729,7 +848,6 @@ rules_fips_htmls = [
     r"Vendor<\/h4>[\s\S]*?href=\".*?\">(?P<fips_vendor>.*?)<\/a>",
 ]
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Common rules
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -743,7 +861,12 @@ common_rules["rules_cc_claims"] = rules_cc_claims
 common_rules["rules_javacard"] = rules_javacard
 common_rules["rules_javacard_api_consts"] = rules_javacard_api_consts
 common_rules["rules_javacard_packages"] = rules_javacard_packages
-common_rules["rules_crypto_algs"] = rules_crypto_algs
+common_rules["rules_symmetric_crypto"] = rules_symmetric_crypto
+common_rules["rules_asymmetric_crypto"] = rules_asymmetric_crypto
+common_rules["rules_pq_crypto"] = rules_pq_crypto
+common_rules["rules_hashes"] = rules_hashes
+common_rules["rules_crypto_schemes"] = rules_crypto_schemes
+common_rules["rules_randomness"] = rules_randomness
 common_rules["rules_block_cipher_modes"] = rules_block_cipher_modes
 common_rules["rules_ecc_curves"] = rules_ecc_curves
 common_rules["rules_cplc"] = rules_cplc
@@ -754,7 +877,6 @@ common_rules["rules_defenses"] = rules_defenses
 common_rules["rules_certification_process"] = rules_certification_process
 common_rules["rules_vulnerabilities"] = rules_vulnerabilities
 common_rules["rules_other"] = rules_other
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                               For CC
