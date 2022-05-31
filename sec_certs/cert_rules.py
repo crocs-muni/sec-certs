@@ -1,6 +1,6 @@
 import copy
 import re
-from typing import Dict, Set, Tuple
+from typing import Dict, Set, Tuple, List, Pattern
 
 REGEXEC_SEP = r"[ ,;\]”)(]"
 
@@ -879,7 +879,7 @@ def add_rules(rule_dict, group_name, rules, add_sep=True):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Common rules
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-common_rules = {}
+common_rules: Dict[str, List[Tuple[str, Pattern]]] = {}
 add_rules(common_rules, "rules_os", rules_os)
 add_rules(common_rules, "rules_standard_id", rules_standard_id)
 add_rules(common_rules, "rules_security_level", rules_security_level)
@@ -910,7 +910,7 @@ add_rules(common_rules, "rules_other", rules_other)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                               For CC
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cc_rules = {}
+cc_rules: Dict[str, List[Tuple[str, Pattern]]] = {}
 add_rules(common_rules, "rules_vendor", rules_vendor)
 add_rules(common_rules, "rules_cert_id", rules_cert_id)
 add_rules(common_rules, "rules_protection_profiles", rules_protection_profiles)
@@ -921,7 +921,7 @@ cc_rules.update(common_rules)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            For FIPS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fips_rules = {}
+fips_rules: Dict[str, List[Tuple[str, Pattern]]] = {}
 add_rules(fips_rules, "rules_fips_algorithms", rules_fips_remove_algorithm_ids, add_sep=False)
 add_rules(fips_rules, "rules_to_remove", rules_fips_to_remove, add_sep=False)
 add_rules(fips_rules, "rules_security_level", rules_fips_security_level, add_sep=False)
