@@ -1,8 +1,7 @@
 import shutil
 import tempfile
 from pathlib import Path
-from pprint import pprint
-from typing import ClassVar, Dict, Final, List
+from typing import ClassVar, Dict, List
 from unittest import TestCase
 
 import tests.data.test_cc_heuristics
