@@ -125,9 +125,9 @@ class TestCommonCriteriaHeuristics(TestCase):
 
     def test_cpe_parsing(self):
         potentially_problematic_cpes = {
-            'cpe:2.3:a:bayashi:dopvstar\::0091:*:*:*:*:*:*:*"': ("bayashi", "dopvstar:", "0091"),  # noqa: W605
-            "cpe:2.3:a:moundlabs:\:\:mound\:\::2.1.6:*:*:*:*:*:*:*": ("moundlabs", "::mound::", "2.1.6"),  # noqa: W605
-            "cpe:2.3:a:lemonldap-ng:lemonldap\:\::*:*:*:*:*:*:*:*": (  # noqa: W605
+            'cpe:2.3:a:bayashi:dopvstar\\::0091:*:*:*:*:*:*:*"': ("bayashi", "dopvstar:", "0091"),
+            "cpe:2.3:a:moundlabs:\\:\\:mound\\:\\::2.1.6:*:*:*:*:*:*:*": ("moundlabs", "::mound::", "2.1.6"),
+            "cpe:2.3:a:lemonldap-ng:lemonldap\\:\\::*:*:*:*:*:*:*:*": (
                 "lemonldap-ng",
                 "lemonldap::",
                 constants.CPE_VERSION_NA,
