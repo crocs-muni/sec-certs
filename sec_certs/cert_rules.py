@@ -1,6 +1,6 @@
 import copy
 import re
-from typing import Dict, List, Pattern, Set, Tuple
+from typing import Dict, Set, Tuple
 
 REGEXEC_SEP = r"[ ,;\]”)(]"
 
@@ -360,7 +360,7 @@ rules_tee = [
     "(AMD )?(PSP|Platform Security Processor)",
     "(AMD )?(SEV|Secure Encrypted Virtualization)",
     "(IBM )?(SSC|Secure Service Container)",
-    "(IBM )?(SE|Secure Execution)"
+    "(IBM )?(SE|Secure Execution)",
 ]
 
 rules_os = ["STARCOS(?: [0-9\\.]+?|)", "JCOP[ ]*[0-9]"]
@@ -870,62 +870,60 @@ rules_fips_htmls = [
     r"Vendor<\/h4>[\s\S]*?href=\".*?\">(?P<fips_vendor>.*?)<\/a>",
 ]
 
+
+def add_rules(rule_dict, group_name, rules, add_sep=True):
+    rule_list = [(rule, re.compile(rule + REGEXEC_SEP if add_sep else rule)) for rule in rules]
+    rule_dict[group_name] = rule_list
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Common rules
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 common_rules = {}
-common_rules["rules_os"] = rules_os
-common_rules["rules_standard_id"] = rules_standard_id
-common_rules["rules_security_level"] = rules_security_level
-common_rules["rules_security_assurance_components"] = rules_security_assurance_components
-common_rules["rules_security_functional_components"] = rules_security_functional_components
-common_rules["rules_cc_claims"] = rules_cc_claims
-common_rules["rules_javacard"] = rules_javacard
-common_rules["rules_javacard_api_consts"] = rules_javacard_api_consts
-common_rules["rules_javacard_packages"] = rules_javacard_packages
-common_rules["rules_symmetric_crypto"] = rules_symmetric_crypto
-common_rules["rules_asymmetric_crypto"] = rules_asymmetric_crypto
-common_rules["rules_pq_crypto"] = rules_pq_crypto
-common_rules["rules_hashes"] = rules_hashes
-common_rules["rules_crypto_schemes"] = rules_crypto_schemes
-common_rules["rules_randomness"] = rules_randomness
-common_rules["rules_block_cipher_modes"] = rules_block_cipher_modes
-common_rules["rules_ecc_curves"] = rules_ecc_curves
-common_rules["rules_cplc"] = rules_cplc
-common_rules["rules_tee"] = rules_tee
-common_rules["rules_crypto_engines"] = rules_crypto_engines
-common_rules["rules_crypto_libs"] = rules_crypto_libs
-common_rules["rules_IC_data_groups"] = rules_IC_data_groups
-common_rules["rules_side_channels"] = rules_side_channels
-common_rules["rules_certification_process"] = rules_certification_process
-common_rules["rules_vulnerabilities"] = rules_vulnerabilities
-common_rules["rules_other"] = rules_other
+add_rules(common_rules, "rules_os", rules_os)
+add_rules(common_rules, "rules_standard_id", rules_standard_id)
+add_rules(common_rules, "rules_security_level", rules_security_level)
+add_rules(common_rules, "rules_security_assurance_components", rules_security_assurance_components)
+add_rules(common_rules, "rules_security_functional_components", rules_security_functional_components)
+add_rules(common_rules, "rules_cc_claims", rules_cc_claims)
+add_rules(common_rules, "rules_javacard", rules_javacard)
+add_rules(common_rules, "rules_javacard_api_consts", rules_javacard_api_consts)
+add_rules(common_rules, "rules_javacard_packages", rules_javacard_packages)
+add_rules(common_rules, "rules_symmetric_crypto", rules_symmetric_crypto)
+add_rules(common_rules, "rules_asymmetric_crypto", rules_asymmetric_crypto)
+add_rules(common_rules, "rules_pq_crypto", rules_pq_crypto)
+add_rules(common_rules, "rules_hashes", rules_hashes)
+add_rules(common_rules, "rules_crypto_schemes", rules_crypto_schemes)
+add_rules(common_rules, "rules_randomness", rules_randomness)
+add_rules(common_rules, "rules_block_cipher_modes", rules_block_cipher_modes)
+add_rules(common_rules, "rules_ecc_curves", rules_ecc_curves)
+add_rules(common_rules, "rules_cplc", rules_cplc)
+add_rules(common_rules, "rules_tee", rules_tee)
+add_rules(common_rules, "rules_crypto_engines", rules_crypto_engines)
+add_rules(common_rules, "rules_crypto_libs", rules_crypto_libs)
+add_rules(common_rules, "rules_IC_data_groups", rules_IC_data_groups)
+add_rules(common_rules, "rules_side_channels", rules_side_channels)
+add_rules(common_rules, "rules_certification_process", rules_certification_process)
+add_rules(common_rules, "rules_vulnerabilities", rules_vulnerabilities)
+add_rules(common_rules, "rules_other", rules_other)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                               For CC
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# rules_security_target_class
-rules = {}
-rules["rules_vendor"] = rules_vendor
-rules["rules_cert_id"] = rules_cert_id
-rules["rules_protection_profiles"] = rules_protection_profiles
-rules["rules_technical_reports"] = rules_technical_reports
-rules["rules_device_id"] = rules_device_id
-rules.update(common_rules)
+cc_rules = {}
+add_rules(common_rules, "rules_vendor", rules_vendor)
+add_rules(common_rules, "rules_cert_id", rules_cert_id)
+add_rules(common_rules, "rules_protection_profiles", rules_protection_profiles)
+add_rules(common_rules, "rules_technical_reports", rules_technical_reports)
+add_rules(common_rules, "rules_device_id", rules_device_id)
+cc_rules.update(common_rules)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            For FIPS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fips_rules_base: Dict[str, List[str]] = {}
-fips_rules_base["rules_fips_algorithms"] = rules_fips_remove_algorithm_ids
-fips_rules_base["rules_to_remove"] = rules_fips_to_remove
-fips_rules_base["rules_security_level"] = rules_fips_security_level
-fips_rules_base["rules_cert_id"] = rules_fips_cert
-fips_common_rules = copy.deepcopy(common_rules)  # make separate copy not to process cc rules by fips's re.compile
-
-fips_rules: Dict[str, List[Pattern[str]]] = {}
-
-for rule in fips_rules_base:
-    fips_rules[rule] = []
-    for current_rule in range(len(fips_rules_base[rule])):
-        fips_rules[rule].append(re.compile(fips_rules_base[rule][current_rule]))
+fips_rules = {}
+add_rules(fips_rules, "rules_fips_algorithms", rules_fips_remove_algorithm_ids, add_sep=False)
+add_rules(fips_rules, "rules_to_remove", rules_fips_to_remove, add_sep=False)
+add_rules(fips_rules, "rules_security_level", rules_fips_security_level, add_sep=False)
+add_rules(fips_rules, "rules_cert_id", rules_fips_cert, add_sep=False)
+fips_common_rules = copy.deepcopy(common_rules)

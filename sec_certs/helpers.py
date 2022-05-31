@@ -25,12 +25,13 @@ from tqdm import tqdm as tqdm_original
 
 import sec_certs.constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
-from sec_certs.cert_rules import rules as cc_search_rules
+from sec_certs.cert_rules import cc_rules as cc_search_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import (
     APPEND_DETAILED_MATCH_MATCHES,
     FILE_ERRORS_STRATEGY,
     LINE_SEPARATOR,
+    MAX_ALLOWED_MATCH_LENGTH,
     TAG_MATCH_COUNTER,
     TAG_MATCH_MATCHES,
 )
@@ -855,7 +856,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
 
 def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
     try:
-        result = parse_cert_file(filepath, cc_search_rules, -1, constants.LINE_SEPARATOR)[0]
+        result = parse_cert_file(filepath, cc_search_rules, -1, constants.LINE_SEPARATOR)
 
         processed_result = {}
         top_level_keys = list(result.keys())
@@ -921,76 +922,43 @@ def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_te
         write_file.close()
 
 
-# TODO: Please, refactor me.
 def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):  # noqa: C901
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
         file_name, limit_max_lines, line_separator
     )
 
-    # apply all rules
     items_found_all = {}
-    for rule_group in search_rules.keys():
+    for rule_group, rules in search_rules.items():
         if rule_group not in items_found_all:
             items_found_all[rule_group] = {}
 
         items_found = items_found_all[rule_group]
 
-        for rule in search_rules[rule_group]:
-            if type(rule) != str:
-                rule_str = rule.pattern
-                rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
-            else:
-                rule_str = rule
-                rule_and_sep = rule + REGEXEC_SEP
+        for rule in rules:
+            rule_str, rule_and_sep = rule
 
-            # matches_with_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text_with_newlines))
-            # matches_without_newlines_count = sum(1 for _ in re.finditer(rule_and_sep, whole_text))
-            # for m in re.finditer(rule_and_sep, whole_text_with_newlines):
             for m in re.finditer(rule_and_sep, whole_text):
-                # insert rule if at least one match for it was found
-                if rule not in items_found:
+                if rule_str not in items_found:
                     items_found[rule_str] = {}
 
                 match = m.group()
                 match = normalize_match_string(match)
 
-                MAX_ALLOWED_MATCH_LENGTH = 300
                 match_len = len(match)
                 if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                    print("WARNING: Excessive match with length of {} detected for rule {}".format(match_len, rule))
+                    logger.warning(f"Excessive match with length of {match_len} detected for rule {rule_str}")
 
                 if match not in items_found[rule_str]:
                     items_found[rule_str][match] = {}
                     items_found[rule_str][match][TAG_MATCH_COUNTER] = 0
                     if APPEND_DETAILED_MATCH_MATCHES:
                         items_found[rule_str][match][TAG_MATCH_MATCHES] = []
-                    # else:
-                    #     items_found[rule_str][match][TAG_MATCH_MATCHES] = ['List of matches positions disabled. Set APPEND_DETAILED_MATCH_MATCHES to True']
-
                 items_found[rule_str][match][TAG_MATCH_COUNTER] += 1
                 match_span = m.span()
-                # estimate line in original text file
-                # line_number = get_line_number(lines, line_length_compensation, match_span[0])
-                # start index, end index, line number
-                # items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1], line_number])
                 if APPEND_DETAILED_MATCH_MATCHES:
                     items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
 
-    # highlight all found strings (by xxxxx) from the input text and store the rest
-    all_matches = []
-    for rule_group in items_found_all.keys():
-        items_found = items_found_all[rule_group]
-        for rule in items_found.keys():
-            for match in items_found[rule]:
-                all_matches.append(match)
-
-        # if AES string is removed before AES-128, -128 would be left in text => sort by length first
-        # sort before replacement based on the length of match
-        all_matches.sort(key=len, reverse=True)
-        for match in all_matches:
-            whole_text_with_newlines = whole_text_with_newlines.replace(match, "x" * len(match))
-
-    return items_found_all, (whole_text_with_newlines, was_unicode_decode_error)
+    return items_found_all
 
 
 def normalize_match_string(match: str) -> str:

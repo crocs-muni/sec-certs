@@ -14,7 +14,7 @@ from tabula import read_pdf
 
 import sec_certs.constants as constants
 from sec_certs import helpers
-from sec_certs.cert_rules import REGEXEC_SEP, fips_common_rules, fips_rules
+from sec_certs.cert_rules import fips_common_rules, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
@@ -723,9 +723,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         match = m.group()
         match = normalize_match_string(match)
 
-        MAX_ALLOWED_MATCH_LENGTH = 300
         match_len = len(match)
-        if match_len > MAX_ALLOWED_MATCH_LENGTH:
+        if match_len > constants.MAX_ALLOWED_MATCH_LENGTH:
             logger.warning("Excessive match with length of {} detected for rule {}".format(match_len, rule))
 
         if match not in items_found[rule_str]:
@@ -746,22 +745,14 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     ) -> Tuple[Dict[Pattern, Dict], str]:
         # apply all rules
         items_found_all: Dict[Pattern, Dict] = {}
-        for rule_group in search_rules.keys():
+        for rule_group, rules in search_rules.items():
             if rule_group not in items_found_all:
                 items_found_all[rule_group] = {}
 
             items_found = items_found_all[rule_group]
 
-            for rule in search_rules[rule_group]:
-                rule_and_sep: Union[Pattern, str]
-                if type(rule) != str:
-                    rule_str = rule.pattern
-                    rule_and_sep = re.compile(rule.pattern + REGEXEC_SEP)
-                else:
-                    rule_str = rule
-                    rule_and_sep = rule + REGEXEC_SEP
-
-                for m in re.finditer(rule_and_sep, text_to_parse):
+            for rule_str, rule in rules:
+                for m in re.finditer(rule, text_to_parse):
                     FIPSCertificate._process_match(rule, items_found, rule_str, m)
 
         # highlight all found strings (by xxxxx) from the input text and store the rest
@@ -775,18 +766,17 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         # apply all rules
         items_found_all: Dict = {}
 
-        for rule_group in fips_rules.keys():
+        for rule_group, rules in fips_rules.items():
             if rule_group not in items_found_all:
                 items_found_all[rule_group] = {}
 
             items_found: Dict[str, Dict] = items_found_all[rule_group]
 
-            for rule in fips_rules[rule_group]:
+            for rule_str, rule in rules:
                 for m in rule.finditer(text_to_parse):
-                    # for m in re.finditer(rule, whole_text_with_newlines):
                     # insert rule if at least one match for it was found
-                    if rule.pattern not in items_found:
-                        items_found[rule.pattern] = {}
+                    if rule_str not in items_found:
+                        items_found[rule_str] = {}
 
                     match = m.group()
                     match = normalize_match_string(match)
@@ -794,11 +784,11 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                     if match == "":
                         continue
 
-                    if match not in items_found[rule.pattern]:
-                        items_found[rule.pattern][match] = {}
-                        items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] = 0
+                    if match not in items_found[rule_str]:
+                        items_found[rule_str][match] = {}
+                        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
 
-                    items_found[rule.pattern][match][constants.TAG_MATCH_COUNTER] += 1
+                    items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
 
                     text_to_parse = text_to_parse.replace(match, "x" * len(match))
 
