@@ -8,9 +8,9 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import ClassVar
 from unittest import TestCase
 
-import tests.data.test_cc_oop
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
+import tests.data.test_cc_oop
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CommonCriteriaCert, ProtectionProfile
