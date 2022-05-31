@@ -341,6 +341,28 @@ rules_device_id = [
     "SLE[0-9]{2}[A-Z]{3}[0-9]{1-4}[A-Z]{1-3}",
 ]
 
+rules_tee = [
+    "TEE",
+    "(ARM )?TrustZone",
+    "(ARM )?(Realm Management Extension|Confidential Compute Architecture)",
+    "(Intel )?SGX",
+    "Cloud Link TEE",
+    "iOS Secure Enclave",
+    "iTrustee",
+    "Trusty",
+    "OPTEE",
+    "QTEE",
+    "TEEgris",
+    "T6",
+    "Kinibi",
+    "SW TEE",
+    "WatchTrust",
+    "(AMD )?(PSP|Platform Security Processor)",
+    "(AMD )?(SEV|Secure Encrypted Virtualization)",
+    "(IBM )?(SSC|Secure Service Container)",
+    "(IBM )?(SE|Secure Execution)"
+]
+
 rules_os = ["STARCOS(?: [0-9\\.]+?|)", "JCOP[ ]*[0-9]"]
 
 rules_standard_id = [
@@ -870,6 +892,7 @@ common_rules["rules_randomness"] = rules_randomness
 common_rules["rules_block_cipher_modes"] = rules_block_cipher_modes
 common_rules["rules_ecc_curves"] = rules_ecc_curves
 common_rules["rules_cplc"] = rules_cplc
+common_rules["rules_tee"] = rules_tee
 common_rules["rules_crypto_engines"] = rules_crypto_engines
 common_rules["rules_crypto_libs"] = rules_crypto_libs
 common_rules["rules_IC_data_groups"] = rules_IC_data_groups
