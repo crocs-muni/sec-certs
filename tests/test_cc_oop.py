@@ -5,15 +5,24 @@ import tempfile
 from datetime import date, datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import ClassVar
 from unittest import TestCase
 
 import sec_certs.constants as constants
 import sec_certs.helpers as helpers
+import tests.data.test_cc_oop
+from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CommonCriteriaCert, ProtectionProfile
 
 
 class TestCommonCriteriaOOP(TestCase):
+    data_dir_path: ClassVar[Path] = Path(tests.data.test_cc_oop.__path__[0])
+
+    @classmethod
+    def setUpClass(cls):
+        config.load(cls.data_dir_path.parent / "settings_test.yaml")
+
     def setUp(self):
         self.test_data_dir = Path(__file__).parent / "data" / "test_cc_oop"
         self.crt_one = CommonCriteriaCert(
