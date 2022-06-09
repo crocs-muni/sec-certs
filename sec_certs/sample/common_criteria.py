@@ -10,6 +10,7 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
 
+import numpy as np
 import requests
 from bs4 import Tag
 
@@ -335,6 +336,7 @@ class CommonCriteriaCert(
         "directly_referencing",
         "indirectly_referencing",
         "extracted_sars",
+        "protection_profiles",
     ]
 
     def __init__(
@@ -453,6 +455,7 @@ class CommonCriteriaCert(
             self.heuristics.report_references.directly_referencing,
             self.heuristics.report_references.indirectly_referencing,
             self.heuristics.extracted_sars,
+            [x.pp_name for x in self.protection_profiles] if self.protection_profiles else np.nan,
         )
 
     def __str__(self) -> str:
