@@ -32,6 +32,7 @@ class TestCVE:
                 "impact_score": 2.9,
             },
             "published_date": "1999-12-30T05:00:00+00:00",
+            "cwe_ids": {"CWE-20"},
         }
         cve = CVE.from_dict(data)
         ret = cve.to_dict()
