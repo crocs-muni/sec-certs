@@ -299,6 +299,7 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFr
 
     cwe_df = pd.DataFrame(dct).set_index("cwe_id")
     cwe_df["url"] = cwe_df.index.map(lambda x: "https://cwe.mitre.org/data/definitions/" + x.split("-")[1] + ".html")
+    cwe_df = cwe_df.replace(r"\n", " ", regex=True)
 
     return df_cwe_relevant, cwe_df
 
