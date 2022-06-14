@@ -1,7 +1,7 @@
 import datetime
 import itertools
 from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple
 
 from dateutil.parser import isoparse
 
@@ -48,8 +48,9 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     vulnerable_cpes: List[CPE]
     impact: Impact
     published_date: Optional[datetime.datetime]
+    cwe_ids: Optional[Set[str]]
 
-    __slots__ = ["cve_id", "vulnerable_cpes", "impact", "published_date"]
+    __slots__ = ["cve_id", "vulnerable_cpes", "impact", "published_date", "cwe_ids"]
 
     pandas_columns: ClassVar[List[str]] = [
         "cve_id",
@@ -59,14 +60,18 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         "explotability_score",
         "impact_score",
         "published_date",
+        "cwe_ids",
     ]
 
-    def __init__(self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str):
+    def __init__(
+        self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str, cwe_ids: Optional[Set[str]]
+    ):
         super().__init__()
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
         self.impact = impact
         self.published_date = isoparse(published_date)
+        self.cwe_ids = cwe_ids
 
     def __hash__(self) -> int:
         return hash(self.cve_id)
@@ -96,6 +101,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             self.impact.exploitability_score,
             self.impact.impact_score,
             self.published_date,
+            self.cwe_ids,
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -104,6 +110,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             "vulnerable_cpes": self.vulnerable_cpes,
             "impact": self.impact,
             "published_date": self.published_date.isoformat() if self.published_date else None,
+            "cwe_ids": self.cwe_ids,
         }
 
     @staticmethod
@@ -160,5 +167,11 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         impact = cls.Impact.from_nist_dict(dct)
         vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
         published_date = dct["publishedDate"]
+        cwe_ids = cls.parse_cwe_data(dct)
 
-        return cls(cve_id, vulnerable_cpes, impact, published_date)
+        return cls(cve_id, vulnerable_cpes, impact, published_date, cwe_ids)
+
+    @staticmethod
+    def parse_cwe_data(dct: Dict) -> Optional[Set[str]]:
+        descriptions = dct["cve"]["problemtype"]["problemtype_data"][0]["description"]
+        return {x["value"] for x in descriptions} if descriptions else None

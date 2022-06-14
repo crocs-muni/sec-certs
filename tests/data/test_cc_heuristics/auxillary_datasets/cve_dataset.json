@@ -20,7 +20,13 @@
                 "exploitability_score": 3.9,
                 "impact_score": 1.4
             },
-            "published_date": "2021-05-26T04:15Z"
+            "published_date": "2021-05-26T04:15Z",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-200"
+                ]
+            }
         },
         "CVE-2019-4513": {
             "_type": "CVE",
@@ -41,7 +47,13 @@
                 "exploitability_score": 3.9,
                 "impact_score": 4.2
             },
-            "published_date": "2000-05-26T04:15Z"
+            "published_date": "2000-05-26T04:15Z",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-611"
+                ]
+            }
         }
     }
 }
