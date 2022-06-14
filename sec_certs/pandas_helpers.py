@@ -279,22 +279,20 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFr
     for weakness in weaknesses:
         assert weakness
         description = weakness.find("{http://cwe.mitre.org/cwe-6}Description")
-        assert description
 
         dct["cwe_id"].append("CWE-" + weakness.attrib["ID"])
         dct["cwe_name"].append(weakness.attrib["Name"])
-        dct["cwe_description"].append(description.text)
+        dct["cwe_description"].append(description.text if description is not None else None)
         dct["type"].append("weakness")
 
     assert categories
     for category in categories:
         assert category
         summary = category.find("{http://cwe.mitre.org/cwe-6}Summary")
-        assert summary
 
         dct["cwe_id"].append("CWE-" + category.attrib["ID"])
         dct["cwe_name"].append(category.attrib["Name"])
-        dct["cwe_description"].append(summary.text)
+        dct["cwe_description"].append(summary.text if summary is not None else None)
         dct["type"].append("category")
 
     cwe_df = pd.DataFrame(dct).set_index("cwe_id")
@@ -302,6 +300,32 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFr
     cwe_df = cwe_df.replace(r"\n", " ", regex=True)
 
     return df_cwe_relevant, cwe_df
+
+
+def get_top_n_cwes(
+    df: pd.DataFrame, cwe_df: pd.DataFrame, category: Optional[str] = None, eal: Optional[str] = None, n_cwes: int = 10
+) -> pd.DataFrame:
+    """Fetches top-n CWEs, overall, per category, or per EAL"""
+    top_n = df.copy()
+
+    if category:
+        top_n = top_n.loc[top_n.category == category].copy()
+    if eal:
+        top_n = top_n.loc[top_n.eal == eal].copy()
+
+    top_n = (
+        top_n.cwe_id.value_counts()
+        .head(n_cwes)
+        .to_frame()
+        .rename(columns={"cwe_id": "frequency"})
+        .rename_axis("cwe_id")
+    )
+    top_n["cwe_name"] = top_n.index.map(lambda x: cwe_df.loc[x].cwe_name)
+    top_n["cwe_description"] = top_n.index.map(lambda x: cwe_df.loc[x].cwe_description)
+    top_n["url"] = top_n.index.map(lambda x: cwe_df.loc[x].url)
+    top_n["type"] = top_n.index.map(lambda x: cwe_df.loc[x].type)
+
+    return top_n
 
 
 def compute_maintenances_that_should_fix_vulns(df: pd.DataFrame) -> pd.DataFrame:
