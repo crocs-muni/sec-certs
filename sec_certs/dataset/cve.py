@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Final, List, Optional, Set, Union
 
+import numpy as np
 import pandas as pd
 
 import sec_certs.constants as constants
@@ -173,6 +174,7 @@ class CVEDataset(ComplexSerializableType):
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)
+        df.cwe_ids = df.cwe_ids.map(lambda x: x if x else np.nan)
         return df.set_index("cve_id")
 
     def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]) -> Dict[CPE, List[CPE]]:
