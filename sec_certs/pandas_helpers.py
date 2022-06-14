@@ -10,7 +10,6 @@ from typing import Final, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from bs4 import BeautifulSoup
 from tqdm.notebook import tqdm
 
 from sec_certs import helpers
@@ -223,18 +222,20 @@ def expand_cc_df_with_cve_cols(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.
     return df
 
 
-def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
+def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     This function does the following:
     1. Filter CC DF to columns relevant for CWE examination (eal, related_cves, category)
-    2. Parses NIST NVD webpage of CWE categories, fetches CWE descriptions and names from there
+    2. Parses CWE webpage of CWE categories and weaknesses, fetches CWE descriptions and names from there
     3. Explodes the CC DF so that each row corresponds to single CVE
     4. Joins CC DF with CWE DF obtained from CVEDataset
     5. Explodes resulting DF again so that each row corresponds to single CWE
 
     :param pd.DataFrame cc_df: DataFrame obtained from CCDataset, should be limited to rows with >0 vulnerabilities
     :param CVEDataset cve_dset: CVEDataset instance to retrieve CWE data from
-    :return pd.DataFrame: returns resulting dataframe, see the steps above.
+    :return Tuple[pd.DataFrame, pd.DataFrame]: returns two dataframes:
+        - DF obtained from CC Dataset, fully exploded to CWEs
+        - DF obtained from CWE webpage, contains IDs, names, types, urls of all CWEs
     """
     # Explode CVE_IDs and CWE_IDs so that we have right counts on duplicated CVEs. Measure how much data for analysis we have left.
     vulns = cve_dset.to_pandas()
@@ -259,40 +260,47 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
     )
     df_cwe_relevant = df_cwe_relevant.dropna()
 
-    # Load CWE IDs recognized by NIST, see the parsed html for more info
+    # Load CWE IDs and descriptions from CWE website
     with tempfile.TemporaryDirectory() as tmp_dir:
-        html_path = Path(tmp_dir) / "cwe_categories.html"
-        helpers.download_file("https://nvd.nist.gov/vuln/categories", html_path)
+        xml_zip_path = Path(tmp_dir) / "cwec_latest.xml.zip"
+        helpers.download_file("https://cwe.mitre.org/data/xml/cwec_latest.xml.zip", xml_zip_path)
 
-        with html_path.open("r") as handle:
-            soup = BeautifulSoup(handle, "html5lib")
+        with zipfile.ZipFile(xml_zip_path, "r") as zip_handle:
+            zip_handle.extractall(tmp_dir)
+            xml_filename = zip_handle.namelist()[0]
 
-    rows = soup.find_all("table")[0].tbody.find_all("tr")
-    dct: dict[str, List[str]] = {"cwe_id": [], "cwe_name": [], "cwe_description": []}
+        root = ET.parse(Path(tmp_dir) / xml_filename).getroot()
 
-    for r in rows:
-        cells = r.find_all("td")
-        try:
-            dct["cwe_name"].append(cells[1].a.contents[0])
-        except AttributeError:
-            # This happens on NVD-CWE-Other and NVD-CWE-noinfo
-            continue
-        dct["cwe_id"].append(cells[0].span.contents[0])
-        dct["cwe_description"].append(cells[2].contents[0])
+    weaknesses = root.find("{http://cwe.mitre.org/cwe-6}Weaknesses")
+    categories = root.find("{http://cwe.mitre.org/cwe-6}Categories")
+    dct: dict[str, List[Optional[str]]] = {"cwe_id": [], "cwe_name": [], "cwe_description": [], "type": []}
 
-    df_nvd_cwes = pd.DataFrame(dct).set_index("cwe_id")
+    assert weaknesses
+    for weakness in weaknesses:
+        assert weakness
+        description = weakness.find("{http://cwe.mitre.org/cwe-6}Description")
+        assert description
 
-    df_cwe_relevant["cwe_name"] = df_cwe_relevant.cwe_id.map(
-        lambda x: df_nvd_cwes.loc[x].cwe_name if x in df_nvd_cwes.index else np.nan
-    )
-    df_cwe_relevant["cwe_description"] = df_cwe_relevant.cwe_id.map(
-        lambda x: df_nvd_cwes.loc[x].cwe_description if x in df_nvd_cwes.index else np.nan
-    )
-    df_cwe_relevant["url"] = df_cwe_relevant.index.map(
-        lambda x: "https://cwe.mitre.org/data/definitions/" + x.split("-")[1] + ".html"
-    )
+        dct["cwe_id"].append("CWE-" + weakness.attrib["ID"])
+        dct["cwe_name"].append(weakness.attrib["Name"])
+        dct["cwe_description"].append(description.text)
+        dct["type"].append("weakness")
 
-    return df_cwe_relevant, df_nvd_cwes
+    assert categories
+    for category in categories:
+        assert category
+        summary = category.find("{http://cwe.mitre.org/cwe-6}Summary")
+        assert summary
+
+        dct["cwe_id"].append("CWE-" + category.attrib["ID"])
+        dct["cwe_name"].append(category.attrib["Name"])
+        dct["cwe_description"].append(summary.text)
+        dct["type"].append("category")
+
+    cwe_df = pd.DataFrame(dct).set_index("cwe_id")
+    cwe_df["url"] = cwe_df.index.map(lambda x: "https://cwe.mitre.org/data/definitions/" + x.split("-")[1] + ".html")
+
+    return df_cwe_relevant, cwe_df
 
 
 def compute_maintenances_that_should_fix_vulns(df: pd.DataFrame) -> pd.DataFrame:
