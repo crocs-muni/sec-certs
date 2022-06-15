@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import copy
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copyfile
-from typing import Final, List, Optional, Set, Tuple, Union
+from typing import Any, Final, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -222,7 +223,9 @@ def expand_cc_df_with_cve_cols(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.
     return df
 
 
-def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def prepare_cwe_df(
+    cc_df: pd.DataFrame, cve_dset: CVEDataset, fine_grained: bool = False
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     This function does the following:
     1. Filter CC DF to columns relevant for CWE examination (eal, related_cves, category)
@@ -233,6 +236,7 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFr
 
     :param pd.DataFrame cc_df: DataFrame obtained from CCDataset, should be limited to rows with >0 vulnerabilities
     :param CVEDataset cve_dset: CVEDataset instance to retrieve CWE data from
+    :param bool fine_grained: If se to True, CWEs won't be merged into weaknesses of higher abstraction
     :return Tuple[pd.DataFrame, pd.DataFrame]: returns two dataframes:
         - DF obtained from CC Dataset, fully exploded to CWEs
         - DF obtained from CWE webpage, contains IDs, names, types, urls of all CWEs
@@ -273,17 +277,35 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFr
 
     weaknesses = root.find("{http://cwe.mitre.org/cwe-6}Weaknesses")
     categories = root.find("{http://cwe.mitre.org/cwe-6}Categories")
-    dct: dict[str, List[Optional[str]]] = {"cwe_id": [], "cwe_name": [], "cwe_description": [], "type": []}
+    dct: dict[str, Any] = {
+        "cwe_id": [],
+        "cwe_name": [],
+        "cwe_description": [],
+        "type": [],
+        "child_of": [],
+    }
 
     assert weaknesses
     for weakness in weaknesses:
         assert weakness
         description = weakness.find("{http://cwe.mitre.org/cwe-6}Description")
+        related_weaknesses = weakness.find("{http://cwe.mitre.org/cwe-6}Related_Weaknesses")
 
         dct["cwe_id"].append("CWE-" + weakness.attrib["ID"])
         dct["cwe_name"].append(weakness.attrib["Name"])
         dct["cwe_description"].append(description.text if description is not None else None)
         dct["type"].append("weakness")
+
+        if related_weaknesses:
+            dct["child_of"].append(
+                {
+                    "CWE-" + x.attrib["CWE_ID"]
+                    for x in related_weaknesses
+                    if x.tag == "{http://cwe.mitre.org/cwe-6}Related_Weakness" and x.attrib["Nature"] == "ChildOf"
+                }
+            )
+        else:
+            dct["child_of"].append(np.nan)
 
     assert categories
     for category in categories:
@@ -294,12 +316,57 @@ def prepare_cwe_df(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> Tuple[pd.DataFr
         dct["cwe_name"].append(category.attrib["Name"])
         dct["cwe_description"].append(summary.text if summary is not None else None)
         dct["type"].append("category")
+        dct["child_of"].append(np.nan)
 
     cwe_df = pd.DataFrame(dct).set_index("cwe_id")
     cwe_df["url"] = cwe_df.index.map(lambda x: "https://cwe.mitre.org/data/definitions/" + x.split("-")[1] + ".html")
     cwe_df = cwe_df.replace(r"\n", " ", regex=True)
 
-    return df_cwe_relevant, cwe_df
+    if fine_grained:
+        return df_cwe_relevant, cwe_df
+    else:
+        return get_coarse_grained_cwes(df_cwe_relevant, cwe_df), cwe_df
+
+
+def get_coarse_grained_cwes(fine_grained_df: pd.DataFrame, cwe_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Oddly enough, NVD contains CWEs at different levels of abstraction, which makes it difficult to compare between them.
+    Among others, some three different CWEs appear in the CVEDataset: CWE-20, CWE-119, CWE-787. Problem is that CWE-787
+    is child of CWE-119, which in turn is child of CWE-20. It makes no sense to compute stats of most prevalent CWEs
+    unless categories are aligned to the top-most level.
+
+    This function aligns the categories to the top-most level. It works in loop. When an iteration is performed without
+    replacing any CWEs with their parents, the algorithm terminates.
+    The algorithm inspects every CWE and replaces it with all its parents on condition that they appear in the CVE Dataset.
+
+    :param pd.DataFrame fine_grained_df: First element of the output of `prepare_cwe_df` function
+    :param pd.DataFrame cwe_df: Second element of the output of `prepare_cwe_df` function
+    :return pd.DataFrame: DF obtained from CC Dataset, fully exploded to coarse-grained CWEs
+    """
+    all_cwes_in_original_df = set(fine_grained_df.cwe_id.unique())
+    parent_dict = cwe_df.child_of.to_dict()
+    new_set = set(fine_grained_df.cwe_id.unique())
+    mapping = {x: {x} for x in new_set}
+
+    while True:
+        old_set = copy.deepcopy(new_set)
+        for cwe in old_set:
+            parents = parent_dict[cwe]
+            if parents and parents is not np.nan and any(x in all_cwes_in_original_df for x in parents):
+                new_set.remove(cwe)
+                new_set.update({x for x in parents if x in all_cwes_in_original_df})
+                for val in mapping.values():
+                    if cwe in val:
+                        val.remove(cwe)
+                        val.update({x for x in parents if x in all_cwes_in_original_df})
+        if new_set == old_set:
+            break
+
+    # Now we should have complete mapping of fine_grained -> coarse_grained CWEs
+    new_df = fine_grained_df.copy()
+    new_df.cwe_id = new_df.cwe_id.map(mapping)
+
+    return new_df.explode(column="cwe_id")
 
 
 def get_top_n_cwes(
