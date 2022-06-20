@@ -2,7 +2,7 @@ import shutil
 import zipfile
 from pathlib import Path
 
-from flask import abort, current_app, request, send_file, send_from_directory
+from flask import abort, current_app, request, send_file
 from werkzeug.utils import safe_join
 
 from .. import csrf, redis

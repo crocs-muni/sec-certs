@@ -37,7 +37,12 @@
 {% endmacro %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Algorithms": "rules_crypto_algs",
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "rules_symmetric_crypto",
+                                                                          "Asymmetric Algorithms": "rules_asymmetric_crypto",
+                                                                          "Post-quantum Algorithms": "rules_pq_crypto",
+                                                                          "Hash functions": "rules_hashes",
+                                                                          "Schemes": "rules_crypto_schemes",
+                                                                          "Randomness": "rules_randomness",
 																		  "Engines": "rules_crypto_engines",
 																		  "Libraries": "rules_crypto_libs",
 																		  "Elliptic Curves": "rules_ecc_curves",
@@ -48,9 +53,10 @@
     {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
 																	"JavaCard": "rules_javacard",
 																	"JavaCard API constants": "rules_javacard_api_consts",
-																	"JavaCard packages": "rules_vacard_packages",
+																	"JavaCard packages": "rules_javacard_packages",
 																	"OS": "rules_os",
 																	"CPLC": "rules_cplc",
+																	"Trusted Execution Environments": "rules_tee",
 																	"IC data groups": "rules_IC_data_groups",
 																	"Vendor": "rules_vendor"}, hidden, map_funcs) }}
 {%- endmacro %}
