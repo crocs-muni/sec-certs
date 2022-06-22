@@ -260,37 +260,35 @@
 
                     {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
 
-                    {% if cert["heuristics"]["report_references"]["directly_referencing"] or cert["heuristics"]["report_references"]["directly_referenced"] %}
-                        <h3 class="mt-3">References</h3>
-                        {% if network and hashid in network.nodes %}
-                            {% set out_edges = network.out_edges(hashid) %}
-                            {% if out_edges %}
-                                <b>Outgoing</b>
-                                <ul class="outgoing-list">
-                                    {% for edge in out_edges %}
-                                        {% set child_node = network.nodes[edge[1]] %}
-                                        {% if "report" in network.edges[edge]["type"] %}
-                                            <li>
-                                                <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a> - {{ child_node["name"] }}
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% set in_edges = network.in_edges(hashid) %}
-                            {% if in_edges %}
-                                <b>Incoming</b>
-                                <ul class="incoming-list">
-                                    {% for edge in in_edges %}
-                                        {% set parent_node = network.nodes[edge[0]] %}
-                                        {% if "report" in network.edges[edge]["type"] %}
-                                            <li>
-                                                <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a> - {{ parent_node["name"] }}
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                    <h3 class="mt-3">References</h3>
+                    {% if network and hashid in network.nodes %}
+                        {% set out_edges = network.out_edges(hashid) %}
+                        {% if out_edges %}
+                            <b>Outgoing</b>
+                            <ul class="outgoing-list">
+                                {% for edge in out_edges %}
+                                    {% set child_node = network.nodes[edge[1]] %}
+                                    {% if "report" in network.edges[edge]["type"] %}
+                                        <li>
+                                            <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a> - {{ child_node["name"] }}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% set in_edges = network.in_edges(hashid) %}
+                        {% if in_edges %}
+                            <b>Incoming</b>
+                            <ul class="incoming-list">
+                                {% for edge in in_edges %}
+                                    {% set parent_node = network.nodes[edge[0]] %}
+                                    {% if "report" in network.edges[edge]["type"] %}
+                                        <li>
+                                            <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a> - {{ parent_node["name"] }}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -346,37 +344,37 @@
 
                     {{ render_frontpage(cert, "st_frontpage", "Security target - Frontpage") }}
 
-                    {% if cert["heuristics"]["st_references"]["directly_referencing"] or cert["heuristics"]["st_references"]["directly_referenced"] %}
-                        <h3 class="mt-3">References</h3>
-                        {% if network and hashid in network.nodes %}
-                            {% set out_edges = network.out_edges(hashid) %}
-                            {% if out_edges %}
-                                <b>Outgoing</b>
-                                <ul class="outgoing-list">
-                                    {% for edge in out_edges %}
-                                        {% set child_node = network.nodes[edge[1]] %}
-                                        {% if "st" in network.edges[edge]["type"] %}
-                                            <li>
-                                                <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a> - {{ child_node["name"] }}
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% set in_edges = network.in_edges(hashid) %}
-                            {% if in_edges %}
-                                <b>Incoming</b>
-                                <ul class="incoming-list">
-                                    {% for edge in in_edges %}
-                                        {% set parent_node = network.nodes[edge[0]] %}
-                                        {% if "st" in network.edges[edge]["type"] %}
-                                            <li>
-                                                <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a> - {{ parent_node["name"] }}
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                    <h3 class="mt-3">References</h3>
+                    {% if network and hashid in network.nodes %}
+                        {% set out_edges = network.out_edges(hashid) %}
+                        {% if out_edges %}
+                            <b>Outgoing</b>
+                            <ul class="outgoing-list">
+                                {% for edge in out_edges %}
+                                    {% set child_node = network.nodes[edge[1]] %}
+                                    {% if "st" in network.edges[edge]["type"] %}
+                                        <li>
+                                            <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a>
+                                            - {{ child_node["name"] }}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% set in_edges = network.in_edges(hashid) %}
+                        {% if in_edges %}
+                            <b>Incoming</b>
+                            <ul class="incoming-list">
+                                {% for edge in in_edges %}
+                                    {% set parent_node = network.nodes[edge[0]] %}
+                                    {% if "st" in network.edges[edge]["type"] %}
+                                        <li>
+                                            <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a>
+                                            - {{ parent_node["name"] }}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
                         {% endif %}
                     {% endif %}
                 </div>
