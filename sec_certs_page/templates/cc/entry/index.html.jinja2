@@ -1,7 +1,7 @@
 {% extends "crowdsourced.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_pdf_meta, render_frontpage %}
+{% from "cc/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_pdf_meta, render_frontpage, render_sars %}
 {% from "common/entry.html.jinja2" import render_local_files, render_cves %}
 {% block title %}
     <title>
@@ -336,9 +336,19 @@
                     <p>No heuristics are available for this certificate.</p>
                 {% endif %}
                 {% if cert["heuristics"]["cert_id"] %}
-                    <div data-cs-name="Certificate ID">
+                    <div data-cs-name="Certificate ID" class="my-2">
                         Certificate ID: <span
                             class="fw-bold fs-5">{{ cert["heuristics"]["cert_id"] }}</span><br/>
+                    </div>
+                {% endif %}
+                {% if cert["heuristics"]["extracted_sars"] %}
+                    <div data-cs-name="Extracted SARs" class="my-2">
+                        <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
+                        {% for sar in cert["heuristics"]["extracted_sars"] %}
+                            {% set sar_name = sar["family"] + "." + sar["level"]|string %}
+                            {{ render_sars(sar_name) }}
+                            {%- if not loop.last -%}, {%- endif -%}
+                        {% endfor %}
                     </div>
                 {% endif %}
                 {% if cpes %}
