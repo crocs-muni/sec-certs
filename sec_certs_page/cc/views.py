@@ -282,6 +282,9 @@ def entry(hashid):
                 cpes = []
         with sentry_sdk.start_span(op="files", description="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
+        with sentry_sdk.start_span(op="network", description="Find network"):
+            cc_map = get_cc_map()
+            cert_network = cc_map.get(hashid, {})
         return render_template(
             "cc/entry/index.html.jinja2",
             cert=doc,
@@ -294,6 +297,7 @@ def entry(hashid):
             cpes=cpes,
             local_files=local_files,
             json=StorageFormat(raw_doc).to_json_mapping(),
+            network=cert_network,
         )
     else:
         return abort(404)

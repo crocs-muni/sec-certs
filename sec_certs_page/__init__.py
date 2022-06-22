@@ -12,6 +12,7 @@ from flask_breadcrumbs import Breadcrumbs
 from flask_cachecontrol import FlaskCacheControl
 from flask_caching import Cache
 from flask_cors import CORS
+from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_principal import Permission, Principal, RoleNeed
@@ -93,7 +94,7 @@ public(redis=redis)
 assets: Assets = Assets(app)
 public(assets=assets)
 
-# debug = DebugToolbarExtension(app)
+debug = DebugToolbarExtension(app)
 
 cache: Cache = Cache(app)
 public(cache=cache)

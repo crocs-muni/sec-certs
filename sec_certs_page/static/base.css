@@ -133,6 +133,28 @@
     color: black;
 }
 
+.outgoing-list {
+    list-style: none;
+}
+
+.outgoing-list li:before {
+    font-family: 'Font Awesome 5 Free Solid';
+    content: '\f061';
+    margin: 0 10px 0 -25px;
+    color: white;
+}
+
+.incoming-list {
+    list-style: none;
+}
+
+.incoming-list li:before {
+    font-family: 'Font Awesome 5 Free Solid';
+    content: '\f060';
+    margin: 0 10px 0 -25px;
+    color: white;
+}
+
 #content .listing {
     padding: 1em;
     border-radius: 0.5em;
