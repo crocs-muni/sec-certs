@@ -61,7 +61,9 @@ It may be handy to create a shared folder between your host machine and the dock
 
 ```bash
 mkdir seccerts-data && \
-docker run -it --mount type=bind,source="$(pwd)"/seccerts-data/,target=/home/user/data seccerts/sec-certs
+docker run -it \
+--mount type=bind,source="$(pwd)"/seccerts-data/,target=/home/user/data \
+seccerts/sec-certs
 ```
 
 The folder should be accessible on your machine on `./seccerts-data` path; from docker on `/home/user/data` path.
@@ -71,7 +73,9 @@ The folder should be accessible on your machine on `./seccerts-data` path; from 
 You can also use our docker image to serve `jupyter notebook` instance that you can access from your device. Run
 
 ```bash
-docker run --rm -it -p 8888:8888 seccerts/sec-certs jupyter notebook --no-browser --ip 0.0.0.0 --NotebookApp.token='' --notebook-dir="/home/user/"
+docker run --rm -it -p 8888:8888 \
+seccerts/sec-certs jupyter notebook \
+--no-browser --ip 0.0.0.0 --NotebookApp.token='' --notebook-dir="/home/user/"
 ```
 
 Now, you should be able to access the notebook at `localhost:8888` from your machine. Navigate to `/home/user/sec-certs/notebooks/examples` to see some example notebooks.
