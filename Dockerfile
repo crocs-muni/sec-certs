@@ -2,6 +2,7 @@ FROM ubuntu:jammy-20220428
 
 ENV USER="user"
 ENV NB_UID=1000
+ENV NB_GID=1000
 ENV HOME /home/${USER}
 
 #installing dependencies
@@ -19,12 +20,15 @@ RUN apt-get install libqpdf-dev -y
 RUN apt-get install default-jdk -y
 RUN apt-get install graphviz -y
 
+
+RUN groupadd -g ${NB_GID} -o ${USER}
 RUN adduser --disabled-password \
   --gecos "Default user" \
   --uid ${NB_UID} \
+  --gid ${NB_GID} \
   ${USER}
 
-RUN chown -R ${NB_UID} ${HOME}
+RUN chown -R ${NB_UID}:${NB_GID} ${HOME}
 USER ${USER}
 WORKDIR ${HOME}
 

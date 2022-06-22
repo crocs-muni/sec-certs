@@ -7,6 +7,7 @@ The tool can be installed from PyPi with
 
 ```bash
 pip install -U sec-certs
+python3 -m spacy download en_core_web_sm
 ```
 
 Note, that `Python>=3.8` is required.
@@ -27,9 +28,11 @@ docker pull seccerts/sec-certs
 The stable release is also published on [GitHub](https://github.com/crocs-muni/sec-certs/releases) from where it can be setup for development with
 
 ```bash
+git clone https://github.com/crocs-muni/sec-certs.git
 python3 -m venv venv
 source venv/bin/activate
 pip install -e .
+python3 -m spacy download en_core_web_sm
 ```
 
 Alternatively, our Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/Dockerfile) represents a reproducible way of setting up the environment.
