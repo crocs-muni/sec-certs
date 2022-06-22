@@ -9,7 +9,6 @@ from typing import ClassVar
 from unittest import TestCase
 
 import sec_certs.constants as constants
-import sec_certs.helpers as helpers
 import tests.data.test_cc_oop
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset
@@ -129,23 +128,18 @@ class TestCommonCriteriaOOP(TestCase):
             dset.download_all_pdfs()
             dset.convert_all_pdfs()
 
-            actual_report_pdf_hashes = {
-                key: helpers.get_sha256_filepath(val.state.report_pdf_path) for key, val in dset.certs.items()
-            }
-            actual_target_pdf_hashes = {
-                key: helpers.get_sha256_filepath(val.state.st_pdf_path) for key, val in dset.certs.items()
-            }
+            for cert in dset:
+                self.assertEqual(
+                    cert.state.report_pdf_hash,
+                    self.template_report_pdf_hashes[cert.dgst],
+                    f"Hash of PDF certification report for CommonCriteriaCert with digest {cert.dgst} deviates from template.",
+                )
 
-            self.assertEqual(
-                actual_report_pdf_hashes,
-                self.template_report_pdf_hashes,
-                "Hashes of downloaded pdfs (sample report) do not the template",
-            )
-            self.assertEqual(
-                actual_target_pdf_hashes,
-                self.template_target_pdf_hashes,
-                "Hashes of downloaded pdfs (security target) do not match the template",
-            )
+                self.assertEqual(
+                    cert.state.st_pdf_hash,
+                    self.template_target_pdf_hashes[cert.dgst],
+                    f"Hash of PDF security target for CommonCriteriaCert with digest {cert.dgst} deviates from template.",
+                )
 
             self.assertTrue(dset["309ac2fd7f2dcf17"].state.report_txt_path.exists())
             self.assertTrue(dset["309ac2fd7f2dcf17"].state.st_txt_path.exists())

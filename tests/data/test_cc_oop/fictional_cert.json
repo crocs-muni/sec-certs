@@ -42,7 +42,11 @@
         "report_convert_ok": true,
         "st_extract_ok": true,
         "report_extract_ok": true,
-        "errors": []
+        "errors": [],
+        "st_pdf_hash": null,
+        "report_pdf_hash": null,
+        "st_txt_hash": null,
+        "report_txt_hash": null
     },
     "pdf_data": {
         "_type": "PdfData",

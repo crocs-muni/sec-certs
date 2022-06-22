@@ -95,30 +95,32 @@ class CommonCriteriaCert(
         report_convert_ok: bool
         st_extract_ok: bool
         report_extract_ok: bool
+
         errors: List[str]
+
+        st_pdf_hash: Optional[str]
+        report_pdf_hash: Optional[str]
+        st_txt_hash: Optional[str]
+        report_txt_hash: Optional[str]
 
         st_pdf_path: Path
         report_pdf_path: Path
-        st_pdf_hash: Optional[str]
-        report_pdf_hash: Optional[str]
         st_txt_path: Path
         report_txt_path: Path
-        st_txt_hash: Optional[str]
-        report_txt_hash: Optional[str]
 
         def __init__(
             self,
             st_download_ok: bool = True,
             report_download_ok: bool = True,
-            st_pdf_hash: Optional[str] = None,
-            report_pdf_hash: Optional[str] = None,
             st_convert_ok: bool = True,
             report_convert_ok: bool = True,
-            st_txt_hash: Optional[str] = None,
-            report_txt_hash: Optional[str] = None,
             st_extract_ok: bool = True,
             report_extract_ok: bool = True,
             errors: Optional[List[str]] = None,
+            st_pdf_hash: Optional[str] = None,
+            report_pdf_hash: Optional[str] = None,
+            st_txt_hash: Optional[str] = None,
+            report_txt_hash: Optional[str] = None,
         ):
             self.st_download_ok = st_download_ok
             self.report_download_ok = report_download_ok
@@ -127,21 +129,25 @@ class CommonCriteriaCert(
             self.st_extract_ok = st_extract_ok
             self.report_extract_ok = report_extract_ok
             self.errors = errors if errors else []
+            self.st_pdf_hash = st_pdf_hash
+            self.report_pdf_hash = report_pdf_hash
+            self.st_txt_hash = st_txt_hash
+            self.report_txt_hash = report_txt_hash
 
         @property
         def serialized_attributes(self) -> List[str]:
             return [
                 "st_download_ok",
                 "report_download_ok",
-                "st_pdf_hash",
-                "report_pdf_hash",
                 "st_convert_ok",
                 "report_convert_ok",
-                "st_txt_hash",
-                "report_txt_hash",
                 "st_extract_ok",
                 "report_extract_ok",
                 "errors",
+                "st_pdf_hash",
+                "report_pdf_hash",
+                "st_txt_hash",
+                "report_txt_hash",
             ]
 
         def report_is_ok_to_download(self, fresh: bool = True) -> bool:
