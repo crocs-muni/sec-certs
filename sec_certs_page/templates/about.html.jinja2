@@ -18,27 +18,49 @@
 {% block content %}
     <div class="col-10 mx-auto p-3 py-md-5">
         <main>
-            <div class="row">
+            <div class="row mb-5">
                 <div class="col-12 col-md-6">
                     <h1 class="anchor" id="about">About</h1>
-                    <p class="lead">
-                        This research is being carried out by a team at the <a href="https://crocs.fi.muni.cz">Centre
-                        for Research on Cryptography and Security</a> at Masaryk University. The work was supported by
-                        the <a href="https://cybersec4europe.eu/" target="_blank" rel="noopener">CyberSec4Europe</a>
-                        project and
-                        <a href="https://research.redhat.com/" target="_blank" rel="noopener">Red Hat Research</a>.</p>
-                    <ul class="name-list">
-                        <li>Petr Svenda</li>
-                        <li>Stanislav Bobon</li>
-                        <li>Adam Janovsky</li>
-                        <li>Jiri Michalik</li>
-                        <li>Jan Jancar</li>
-                    </ul>
-                    <p>If you would like to contact us, you can do so at <a
-                            href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.</p>
+                    <div id="about-info" {% if config["ANONYMOUS"] %}style="display: none"{% endif %}>
+                        <p class="lead">
+                            This research is being carried out by a team at the <a href="https://crocs.fi.muni.cz">Centre
+                            for Research on Cryptography and Security</a> at Masaryk University. The work was supported
+                            by
+                            the <a href="https://cybersec4europe.eu/" target="_blank" rel="noopener">CyberSec4Europe</a>
+                            project and
+                            <a href="https://research.redhat.com/" target="_blank" rel="noopener">Red Hat Research</a>.
+                        </p>
+                        <ul class="name-list">
+                            <li>Petr Svenda</li>
+                            <li>Stanislav Bobon</li>
+                            <li>Adam Janovsky</li>
+                            <li>Jiri Michalik</li>
+                            <li>Jan Jancar</li>
+                        </ul>
+                        <p>If you would like to contact us, you can do so at <a
+                                href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.</p>
+                    </div>
+                    {% if config["ANONYMOUS"] %}
+                        <div id="about-toggle">
+                            <p>The site is in anonymized mode for review. Clicking the button below will show the
+                                contact
+                                information for the authors of this research and site.</p>
+                            <button type="button" id="display-about" class="btn btn-primary">Display about information
+                            </button>
+
+                            <script>
+                                $(function () {
+                                    $("#display-about").click(function () {
+                                        $("#about-info").show();
+                                        $("#about-toggle").hide();
+                                    });
+                                });
+                            </script>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-            <div class="row my-4">
+            <div class="row my-5">
                 <div class="col-12 col-md-6">
                     <h1 class="anchor" id="privacy-policy">Privacy policy</h1>
                     <p class="lead">This site collects personal data in order to provide notifications about
