@@ -213,16 +213,18 @@ rules_cert_id = [
     "CRP-C[0-9]+?-[0-9]+?",  # Japan
     "(?:CRP|ACR)-C[0-9]+-[0-9]+",  # Japan (CRP-C0595-01 ACR-C0417-03)
     "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+",  # Japan (JISEC-CC-CRP-C0689-01-2020)
-    "Certification No. C[0-9]+" "ISCB-[0-9]+?-RPT-[0-9]+?",  # Japan (Certification No. C0090)  # Malaysia
+    "Certification No. C[0-9]+",   # Japan (Certification No. C0090)
+    "ISCB-[0-9]+?-RPT-[0-9]+?",  # Malaysia
     # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
-    "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9]|)-[vV][0-9][a-z]?" "OCSI/CERT/.+?",  # Italia
-    r"OCSI/CERT/.+?/20[0-9]+(?:\w|/RC)",  # Italia  (OCSI/CERT/ATS/01/2018/RC)
-    "[0-9\\.]+?/TSE-CCCS-[0-9]+",  # Turkis CCCS (21.0.0sc/TSE-CCCS-75)
+    "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9]|)-[vV][0-9][a-z]?",
+    "OCSI/CERT/.+?",  # Italy
+    r"OCSI/CERT/.+?/20[0-9]+(?:\w|/RC)",  # Italy  (OCSI/CERT/ATS/01/2018/RC)
+    "[0-9\\.]+?/TSE-CCCS-[0-9]+",  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
     "CSEC[0-9]+",  # Sweden (CSEC2019015)
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
     # will miss STQC/CC/14-15/12/ETR/0017
     "(?:IC3S|STQC/CC)/[^ ]+?/CR ",  # must end with CR, no space inside
-    "CSA_CC_[0-9]+",  # Singapure (CSA_CC_19001)
+    "CSA_CC_[0-9]+",  # Singapore (CSA_CC_19001)
     "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*",  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
     "[0-9][0-9][0-9](?: |-)(?:EWA|LSS)(?: |-)20[0-9][0-9]",  # Canada (522-EWA-2020, 524 LSS 2020)
     # Canada filename with space (518-LSS%20CR%20v1.0)
@@ -599,7 +601,8 @@ rules_hashes = [
     # SHA-3
     "SHA-?3(-[0-9]{3})?",
     "Keccak",
-    "SHAKE[0-9]{3}" "(Groestl|Grøstl)",
+    "SHAKE[0-9]{3}",
+    "(Groestl|Grøstl)",
     "(Blake|BLAKE)[23][sbX]?",
     "JH",
     "Skein",
@@ -651,9 +654,9 @@ rules_ecc_curves = [
 ]
 
 rules_cplc = [
-    "IC[ ]*Fabricator",
-    "IC[ ]*Type",
-    "IC[ ]*Version",
+    "IC[ \\.]*Fabricator",
+    "IC[ \\.]*Type",
+    "IC[ \\.]*Version",
 ]
 
 rules_crypto_engines = [
@@ -664,11 +667,11 @@ rules_crypto_engines = [
 ]
 
 rules_crypto_libs = [
-    "(?:NesLib|NESLIB) [v]*[0-9.]+",
-    "AT1 Secure .{1,30}? Library [v]*[0-9.]+",
+    "(?:NesLib|NESLIB) [v]*[0-9\\.]+",
+    "AT1 Secure .{1,30}? Library [v]*[0-9\\.]+",
     "AT1 Secure RSA/ECC/SHA library",
-    "Crypto Library [v]*[0-9.]+",
-    "ATMEL Toolbox [0-9.]+",
+    "Crypto Library [v]*[0-9\\.]+",
+    "ATMEL Toolbox [0-9\\.]+",
     "v1\\.02\\.013",  # Infineon's ROCA-vulnerable library
     "OpenSSL",
     "LibreSSL",
@@ -904,6 +907,7 @@ add_rules(common_rules, "rules_crypto_libs", rules_crypto_libs)
 add_rules(common_rules, "rules_IC_data_groups", rules_IC_data_groups)
 add_rules(common_rules, "rules_side_channels", rules_side_channels)
 add_rules(common_rules, "rules_certification_process", rules_certification_process)
+add_rules(common_rules, "rules_eval_facilities", rules_eval_facilities)
 add_rules(common_rules, "rules_vulnerabilities", rules_vulnerabilities)
 add_rules(common_rules, "rules_other", rules_other)
 
