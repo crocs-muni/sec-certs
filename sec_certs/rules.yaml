@@ -1,0 +1,1019 @@
+---
+cc_cert_id:
+  DE:
+    - "BSI-DSZ-CC-[0-9]+?-[0-9]+"
+    - "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+"
+    - "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+"
+    - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9][0-9][0-9][0-9])*"  # German BSI (number + version + year or without year)
+    - "BSI-DSZ-CC-[0-9]+-[0-9][0-9][0-9][0-9]"  # German BSI (number + year, no version)
+    - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
+  FR:
+    - "ANSSI(?:-|-CC-|-CC )[0-9]+?/[0-9]+(v[1-9])?"  # French
+    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9][0-9]+(?!-M|-S)"  # French (/two or more digits then NOT -M or -S)
+    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+[_/-]M[0-9]+"  # French, maintenance report (ANSSI-CC-2014_46_M01)
+    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+[_/-]S[0-9]+"  # French, surveillance report (ANSSI-CC-2012/70-S01)
+    # 'ANSSI-CC-CER-F-.+?', # French
+    - "DCSSI-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
+    - "Certification Report [0-9]+/[0-9]+" # French or Australia!! TODO: Resolve this.
+    - "Rapport de certification [0-9]+/[0-9]+"  # French
+  NL:
+    - "NSCIB-CC-[0-9][0-9][0-9][0-9].+?"  # Netherlands
+    - "NSCIB-CC-[0-9][0-9][0-9][0-9][0-9]*-CR"  # Netherlands
+    - "NSCIB-CC-[0-9][0-9]-[0-9]+?-CR[0-9]+?"  # Netherlands
+    - "NSCIB-CC-[0-9][0-9]-[0-9]+(-CR[0-9]+)*"  # Netherlands (old number NSCIB-CC-05-6609 or NSCIB-CC-05-6609-CR)
+    - "NSCIB-CC-[0-9]+-CR[0-9]*"  # Netherlands (new number NSCIB-CC-111441-CR NSCIB-CC-111441-CR1)
+    - "NSCIB-CC-[0-9]+-MA[0-9]*"  # Netherlands (new number NSCIB-CC-222073-MA NSCIB-CC-200716-MA2)
+    - "NSCIB-CC-[0-9][0-9]-[0-9]+"  # Netherlands   (old number NSCIB-CC-05-6609)
+    - "NSCIB-CC-[0-9][0-9]-[0-9]+-CR[0-9]+"  # Netherlands (NSCIB-CC-year2digits-number-CR)
+  NO:
+    - "SERTIT-[0-9]+"  # Norway
+  US:
+    - "CCEVS-VR-(?:|VID)[0-9]+-[0-9]+[a-z]?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
+  CA:
+    # '[0-9][0-9\-]+?-CR', # Canada
+    - "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*"  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
+    - "[0-9][0-9][0-9](?: |-)(?:EWA|LSS)(?: |-)20[0-9][0-9]"  # Canada (522-EWA-2020, 524 LSS 2020)
+    - "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
+  UK:
+    - "CRP[0-9]+"  # UK CESG
+    - "CRP[0-9][0-9][0-9][0-9]*?"  # UK CESG
+    - "CERTIFICATION REPORT No. P[0-9]+"  # UK CESG
+  ES:
+    - "20[0-9][0-9]-[0-9]+-INF-[0-9]+"  # Spain
+    - "20[0-9][0-9]-[0-9]+-INF-[0-9]+(.(?:V|v)[0-9]+)*"  # Spain (2006-4-INF-98 v2 or (2006-4-INF-98-v2))
+  KR:
+    - "KECS-CR-[0-9]+-[0-9]+"  # Korea KECS-CR-20-61
+    - "KECS-ISIS-[0-9]+?-[0-9][0-9][0-9][0-9]"  # Korea
+    - "KECS-(?:ISIS|NISS|CISS)-[0-9]+-[0-9][0-9][0-9][0-9]"  # Korea
+  JP:
+    - "CRP-C[0-9]+?-[0-9]+?"  # Japan
+    - "(?:CRP|ACR)-C[0-9]+-[0-9]+"  # Japan (CRP-C0595-01 ACR-C0417-03)
+    - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
+    - "Certification No. C[0-9]+" # Japan (Certification No. C0090)
+  MY:
+    - "ISCB-[0-9]+?-RPT-[0-9]+?" # Malaysia
+    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9]|)-[vV][0-9][a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
+  IT:
+    - "OCSI/CERT/.+?"  # Italy
+    - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
+  TR:
+    - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
+  SE:
+    - "CSEC[0-9]+"  # Sweden (CSEC2019015)
+  IN:
+    # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
+    # will miss STQC/CC/14-15/12/ETR/0017
+    - "(?:IC3S|STQC/CC)/[^ ]+?/CR " # must end with CR, no space inside
+  SG:
+    - "CSA_CC_[0-9]+"  # Singapore (CSA_CC_19001)
+  AU:
+    # Australia (EFS-T048 ETR 1.0, EFS-T056-ETR 1.0, DXC-EFC-T092-ETR 1.0)
+    - "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+"
+    - "Certificate Number: [0-9]{1,4}/[0-9]{1,4}"
+
+cc_protection_profile_id:
+  BSI:
+    - "BSI-(?:CC[-_]|)PP[-_]*.+?"
+    - "BSI-CCPP-.+?"
+  ANSSI:
+    - "ANSSI-CC-PP.+?"
+  KECS:
+    - "KECS-PP-[0-9]+-[0-9]+"
+  other:
+    - "PP-SSCD.+?"
+    - "PP_DBMS_.+?"
+    - "WBIS_V[0-9]\\.[0-9]"
+    - "EHCT_V.+?"
+
+cc_security_level:
+  EAL:
+    - "EAL[ ]*[0-9+]+?"
+    - "EAL[ ]*[0-9] augmented"
+  ITSEC:
+    - "ITSEC[ ]*E[1-9]*.+?"
+
+cc_sar:
+  ACE:
+    - "ACE(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ACM:
+    - "ACM(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ACO:
+    - "ACO(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ADO:
+    - "ADO(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ADV:
+    - "ADV(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  AGD:
+    - "AGD(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ALC:
+    - "ALC(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ATE:
+    - "ATE(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  AVA:
+    - "AVA(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  AMA:
+    - "AMA(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  APE:
+    - "APE(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  ASE:
+    - "ASE(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+
+cc_sfr:
+  FAU:
+    - "FAU(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FCO:
+    - "FCO(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FCS:
+    - "FCS(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FDP:
+    - "FDP(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FIA:
+    - "FIA(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FMT:
+    - "FMT(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FPR:
+    - "FPR(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FPT:
+    - "FPT(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FRU:
+    - "FRU(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FTA:
+    - "FTA(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+  FTP:
+    - "FTP(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
+
+cc_claims:
+  D:
+    - "D\\.[\\._\\-A-Z]+?"
+  O:
+    - "O\\.[\\._\\-A-Z]+?"
+  T:
+    - "T\\.[\\._\\-A-Z]+?"
+  A:
+    - "A\\.[\\._\\-A-Z]+?"
+  R:
+    - "R\\.[\\._\\-A-Z]+?"
+  OT:
+    - "OT\\.[\\._\\-A-Z]+?"
+  OP:
+    - "OP\\.[\\._\\-A-Z]+?"
+  OE:
+    - "OE\\.[\\._\\-A-Z]+?"
+  SA:
+    - "SA\\.[\\._\\-A-Z]+?"
+  OSP:
+    - "OSP\\.[\\._\\-A-Z]+?"
+
+vendor:
+  NXP:
+    - "NXP( Semiconductors)?( N\\.V\\.)?"
+  Infineon:
+    - "Infineon( Technologies)?( AG)?"
+  Samsung:
+    - "Samsung"
+  STMicroelectronics:
+    - "STMicroelectronics|STM|STMicro( N\\.V\\.)?"
+  Feitian:
+    - "Feitian( Technologies)?( Co.)?"
+  Gemalto:
+    - "Gemalto( N\\.V\\.)?"
+  Gemplus:
+    - "Gemplus( International)?( SA)?"
+  Axalto:
+    - "Axalto"
+  Thales:
+    - "Thales( Group)?( SA)?"
+  Oberthur:
+    - "(Oberthur|OBERTHUR)( Technologies| Card Systems)?"
+  Idemia:
+    - "Idemia|IDEMIA"
+  Sagem:
+    - "Sagem|SAGEM"
+  Morpho:
+    - "Morpho( Systèmes)?"
+  GD:
+    - "G&D|G\\+D|Giesecke\\+Devrient|Giesecke & Devrient"
+  Philips:
+    - "(Koninklijke )?Philips( N\\.V\\.)?"
+  Qualcomm:
+    - "Qualcomm"
+  Broadcom:
+    - "Broadcom( Inc.)?"
+  Huawei:
+    - "Huawei( Technologies)?( Co.)?"
+  Microsoft:
+    - "Microsoft( Corporation)?"
+
+eval_facility:
+  Serma:
+    - "Serma Technologies|SERMA|Serma Safety & Security"
+  Thales:
+    - "THALES - CEACI|THALES/CNES"
+  Riscure:
+    - "Riscure"
+  SGS:
+    - "SGS"
+    - "SGS Bright[sS]ight" # SGS acquired BrightSight
+  BrightSight:
+    - "Bright[sS]ight"
+  Applus:
+    - "Applus Laboratories"
+  TUV:
+    - "(tuvit|TÜViT|TUViT|TÜV Informationstechnik|TUV Informationstechnik)"
+  CESTI:
+    - "CESTI"
+  DXC:
+    - "DXC Technology"
+  Teron:
+    - "Teron Labs"
+  EWA:
+    - "(EWA|EWA-Canada)"
+  Lightship:
+    - "Lightship Security"
+  AMOSSYS:
+    - "AMOSSYS"
+  CEA-LETI:
+    - "(CEA - LETI|CEA/LETI|CEA-LETI)"
+  OPPIDA:
+    - "OPPIDA"
+  TrustedLabs:
+    - "Trusted Labs"
+  atsec:
+    - "atsec"
+  DeutscheTelekom:
+    - "Deutsche Telekom Security"
+  DFKI:
+    - "(Deutsches Forschungszentrum für künstliche Intelligenz|dfki|DFKI)"
+  MTG:
+    - "MTG AG"
+  secuvera:
+    - "secuvera"
+  SRC:
+    - "SRC Security Research & Consulting"
+  Acucert:
+    - "Acucert Labs"
+  ERTL:
+    - "Common Criteria Test Laboratory,? ERTL"
+  ETDC:
+    - "Common Criteria Test Laboratory,? ETDC"
+  CCLab:
+    - "CCLab Software Laboratory"
+  Deeplab:
+    - "Deeplab"
+  IMQLPS:
+    - "IMQ/LPS"
+  LVSLeonardo:
+    - "LVS Leonardo"
+  LVSTechnisBlu:
+    - "LVS Technis Blu"
+  ECSEC:
+    - "ECSEC Laboratory"
+  ITSC:
+    - "Information Technology Security Center"
+  Acumen:
+    - "Acumen Security"
+  BoozAllenHamilton:
+    - "Booz Allen Hamilton"
+  Gossamer:
+    - "Gossamer Security"
+  Leidos:
+    - "Leidos"
+  UL:
+    - "UL Verification Services"
+  BEAM:
+    - "BEAM Teknoloji"
+  Certby:
+    - "Certby Lab"
+  DEKRA:
+    - "DEKRA Testing and Certification"
+  STMITSEF:
+    - "STM ITSEF"
+  TUBITAK-BILGEM:
+    - "TÜBİTAK BİLGEM"
+  Combitech:
+    - "Combitech AB"
+  Intertek:
+    - "Intertek"
+  Clover:
+    - "Clover Technologies"
+  LAYAKK:
+    - "LAYAKK SEGURIDAD INFORMATICA"
+  An:
+    - "An Security"
+  TSystems:
+    - "T-Systems International"
+  KISA:
+    - "KISA"
+  KOIST:
+    - "KOIST"
+  KSEL:
+    - "KSEL"
+  KOSYAS:
+    - "KOSYAS"
+  KTR:
+    - "KTR"
+  KTC:
+    - "KTC"
+  TTA:
+    - "TTA"
+  ADS:
+    - "Advanced Data Security"
+  Nemko:
+    - "Nemko System Sikkerhet"
+  Norconsult:
+    - "Norconsult( AS)?"
+  Secura:
+    - "Secura"
+  BAE:
+    - "BAE Applied Intelligence"
+
+
+symmetric_crypto:
+  AES_competition:
+    AES:
+      - "AES-?(?P<bitsize>128|192|256)?"
+    Rijndael:
+      - "Rijndael"
+    Twofish:
+      - "Twofish"
+    Serpent:
+      - "Serpent"
+    MARS:
+      - "MARS"
+    HPC:
+      - "HPC"
+    FROG:
+      - "FROG"
+    CAST:
+      - "CAST-?(?P<bitsize>128|160|192|224|256|5)?"
+    RC:
+      - "RC(?P<version>[2456])"
+    CRYPTON:
+      - "CRYPTON"
+    DEAL:
+      - "DEAL"
+    E2:
+      - "E2"
+    LOKI97:
+      - "LOKI97"
+    MAGENTA:
+      - "MAGENTA"
+    SAFER:
+      - "SAFER\\+"
+  DES:
+    DES:
+      - "DE[SA]"
+    3DES:
+      - "([3T]|Triple)-?DE[SA]"
+    Lucifer:
+      - "Lucifer"
+  djb:
+    ChaCha:
+      - "[XH]?ChaCha(?P<rounds>20|8)?"
+    Salsa:
+      - "[XH]?Salsa(?P<rounds>20(/8|/12)?)?"
+    Poly:
+      - "Poly1305"
+  LWC_competition:
+    ASCON:
+      - "(ASCON|Ascon)"
+    Elephant:
+      - "Elephant"
+    GIFT:
+      - "GIFT(-COFB)?"
+    Grain:
+      - "Grain128(-AEAD)?"
+    ISAP:
+      - "ISAP"
+    PhotonBeetle:
+      - "Photon-?Beetle"
+    Romulus:
+      - "Romulus"
+    Sparkle:
+      - "Sparkle"
+    TinyJambu:
+      - "TinyJambu"
+    Xoodyak:
+      - "Xoodyak"
+    Gimli:
+      - "Gimli"
+  eSTREAM:
+    HC:
+      - "HC-[0-9]{3}"
+    Rabbit:
+      - "Rabbit"
+    SOSEMANUK:
+      - "SOSEMANUK"
+    MICKEY:
+      - "MICKEY(-128)?"
+    Trivium:
+      - "Trivium"
+  CAESAR:
+    ACORN:
+      - "ACORN"
+    AEGIS:
+      - "AEGIS(-128)?"
+    Deoxys:
+      - "Deoxys(-2)?"
+    COLM:
+      - "COLM"
+  miscellaneous:
+    IDEA:
+      - "IDEA"
+    Blowfish:
+      - "Blowfish"
+    Camellia:
+      - "Camellia"
+    ARIA:
+      - "ARIA"
+    SM4:
+      - "SM4"
+    GOST:
+      - "GOST 28147-89"
+      - "Magma"
+      - "Kuznyechik"
+    Skipjack:
+      - "Skipjack"
+    Skinny:
+      - "Skinny|SKINNY"
+  constructions:
+    MAC:
+      - "HMAC"
+      - "HMAC-.+-(?:160|224|256|384|512)"
+      - "KMAC"
+      - "CMAC|CBC-MAC"
+
+asymmetric_crypto:
+  RSA:
+    - "RSA[- ]?(?P<bitsize>512|768|1024|1280|1536|2048|3072|4096|8192)"
+    - "RSASSAPKCS1-[Vv]1_5"
+    - "RSA-?(OAEP|PSS|CRT)"
+  ECC:
+    ECDH:
+      - "ECDHE?"
+    ECDSA:
+      - "ECDSA"
+    EdDSA:
+      - "EdDSA"
+    ECIES:
+      - "ECIES"
+    ECC:
+      - "ECC"
+  FF:
+    DH:
+      - "Diffie-Hellman|DHE?"
+    DSA:
+      - "DSA"
+
+pq_crypto:
+  ClassicMcEliece:
+    - "Classic[ -]McEliece"
+  Kyber:
+    - "(CRYSTALS-)?(Kyber|KYBER)"
+  NTRU:
+    - "NTRU"
+  NTRUPrime:
+    - "NTRU[ -]?Prime"
+  Saber:
+    - "Saber|SABER"
+  Dilithium:
+    - "(CRYSTALS-)?(Dilithium|DILITHIUM)"
+  Falcon:
+    - "Falcon|FALCON"
+  Rainbow:
+    - "Rainbow"
+  UOV:
+    - "UOV"
+  BIKE:
+    - "BIKE"
+  Frodo:
+    - "Frodo(KEM)?"
+  HQC:
+    - "HQC"
+  SIKE:
+    - "SIKE"
+  SIDH:
+    - "SIDH"
+  GeMSS:
+    - "GeMSS"
+  Picnic:
+    - "Picnic"
+  SPHINCS:
+    - "SPHINCS\\+"
+
+hash_function:
+  SHA:
+    SHA1:
+      - "SHA-?1"
+    SHA2:
+      - "SHA-?(?P<bitsize>160|224|256|384|512)"
+      - "SHA-?2"
+    SHA3:
+      - "SHA-?3(-[0-9]{3})?"
+  Keccak:
+    - "Keccak"
+  SHAKE:
+    - "SHAKE[0-9]{3}"
+  Groestl:
+    - "(Groestl|Grøstl)"
+  BLAKE:
+    - "(Blake|BLAKE)[23][sbX]?"
+  JH:
+    - "JH"
+  Skein:
+    - "Skein"
+  MD:
+    MD4:
+      - "MD4"
+    MD5:
+      - "MD5"
+    MD6:
+      - "MD6"
+  RIPEMD:
+    - "RIPEMD(-?[0-9]{3})?"
+  Streebog:
+    - "Streebog"
+  Whirpool:
+    - "Whirpool"
+  PHC_competition:
+    Argon:
+      - "Argon2?[id]?"
+    battcrypt:
+      - "battcrypt"
+    Catena:
+      - "Catena"
+    Lyra2:
+      - "Lyra2"
+    Makwa:
+      - "Makwa"
+    POMELO:
+      - "POMELO"
+    Pufferfish:
+      - "Pufferfish"
+    yescrypt:
+      - "yescrypt"
+  bcrypt:
+    - "bcrypt"
+  scrypt:
+    - "scrypt"
+  PBKDF:
+    - "PBKDF[12]?"
+
+crypto_scheme:
+  MAC:
+    - "MAC"
+  KEM:
+    - "KEM"
+  PKE:
+    - "PKE"
+  KEX:
+    - "KEX|Key [eE]xchange"
+  KA:
+    - "KA|Key [aA]greement"
+  PAKE:
+    - "PAKE"
+  AEAD:
+    - "AEAD"
+
+crypto_protocol:
+  SSH:
+    - "SSH"
+  TLS:
+    SSL:
+      - "SSL( ?v?[123]\\.0)?"
+    TLS:
+      - "TLS( ?v?1\\.[0123])?"
+  PACE:
+    - "PACE"
+  IKE:
+    - "IKE(v[12])?"
+  IPsec:
+    - "IPsec"
+
+randomness:
+  DUAL_EC:
+    - "DUAL_EC_DRBG"
+  TRNG:
+    - "D?TRNG"
+  PRNG:
+    - "PRNG"
+    - "DRBG"
+  RNG:
+    - "RN[GD]"
+    - "RBG"
+
+cipher_mode:
+  ECB:
+    - "ECB"
+  CBC:
+    - "CBC"
+  CTR:
+    - "CTR"
+  CFB:
+    - "CFB"
+  OFB:
+    - "OFB"
+  GCM:
+    - "GCM"
+  SIV:
+    - "SIV"
+  XTR:
+    - "XTR"
+  CCM:
+    - "CCM"
+  LRW:
+    - "LRW"
+  XEX:
+    - "XEX"
+  XTS:
+    - "XTS"
+
+ecc_curve:
+  NIST:
+    - "(?:Curve |curve |)P-(192|224|256|384|521)"
+    - "(?:ansit|ansip|ANSIP|ANSIT)[0-9]+?[rk][12]"
+    - "(NIST)? ?[PBK]-[0-9]{3}"
+    - "(?:secp|sect|SECP|SECT)[0-9]+?[rk][12]"
+    - "prime[0-9]{3}v[123]"
+    - "c2[pto]nb[0-9]{3}[vw][123]"
+  Brainpool:
+    - "(?:brainpool|BRAINPOOL)P[0-9]{3}[rkt][12]"
+  ANSSI:
+    - "(?:anssi|ANSSI)?[ ]*FRP[0-9]+?v1"
+  NUMS:
+    - "numsp[0-9]{3}[td]1"
+  Curve:
+    - "Curve(25519|1174|4417|22103|67254|383187|41417)"
+  Edwards:
+    - "Ed(25519|448)"
+  ssc:
+    - "ssc-(160|192|224|256|288|320|384|512)"
+  Tweedle:
+    - "Tweedle(dee|dum)"
+  Pasta:
+    - "(Pallas|Vesta)"
+  JubJub:
+    - "JubJub"
+  BLS:
+    - "BLS(12|24)-[0-9]{3}"
+  BN:
+    - "bn[0-9]{3}"
+
+crypto_engine:
+  TORNADO:
+    - "TORNADO"
+  SmartMX:
+    - "SmartMX2?"
+  NexCrypt:
+    - "NexCrypt"
+
+tls_cipher_suite:
+  - "TLS(_[A-Z0-9]+){1,3}_WITH(_[A-Z0-9]+){2,4}"
+
+crypto_library:
+  Neslib:
+    - "(?:NesLib|NESLIB) [v]*[0-9\\.]+"
+  AT1:
+    - "AT1 Secure .{1,30}? Library [v]*[0-9\\.]+"
+    - "AT1 Secure RSA/ECC/SHA library"
+  Generic:
+    - "Crypto Library [v]*[0-9\\.]+"
+  AtmelToolbox:
+    - "(ATMEL|Atmel) Toolbox [0-9\\.]+"
+  Infineon:
+    - "v1\\.02\\.013"  # Infineon's ROCA-vulnerable library
+  OpenSSL:
+    - "OpenSSL"
+  LibreSSL:
+    - "LibreSSL"
+  BoringSSL:
+    - "BoringSSL"
+  MatrixSSL:
+    - "MatrixSSL"
+  Nettle:
+    - "Nettle"
+  GnuTLS:
+    - "GnuTLS"
+  libtomcrypt:
+    - "libtomcrypt"
+  BearSSL:
+    - "BearSSL"
+  Botan:
+    - "Botan"
+  Crypto++:
+    - "Crypto\\+\\+"
+  wolfSSL:
+    - "wolfSSL"
+  mbedTLS:
+    - "[mM]bedTLS"
+  s2n:
+    - "(Amazon )?s2n"
+  NSS:
+    - "NSS"
+  libgcrypt:
+    - "libgcrypt"
+  BouncyCastle:
+    - "BouncyCastle"
+  cryptlib:
+    - "cryptlib"
+  NaCl:
+    - "NaCl"
+  libsodium:
+    - "libsodium"
+  libsecp256k1:
+    - "libsecp256k1"
+
+vulnerability:
+  CVE:
+    - "CVE-[0-9]+?-[0-9]+?"
+  CWE:
+    - "CWE-[0-9]+?"
+  ROCA:
+    - "ROCA"
+  Minerva:
+    - "Minerva"
+  TPM-Fail:
+    - "TPM[\\.-]Fail"
+
+side_channel_analysis:
+  SCA:
+    - "Leak-Inherent"
+    - "[Pp]hysical [Pp]robing"
+    - "[Ss]ide.channels?"
+    - "SPA|DPA"
+    - "[tT]iming [aA]ttacks?"
+    - "[Tt]emplate [aA]ttacks?"
+    - "[Pp]rofiled [aA]ttacks?"
+    - "[Cc]lustering [aA]ttacks?"
+    - "t-test|TVLA"
+  FI:
+    - "[pP]hysical [tT]ampering"
+    - "[Mm]alfunction"
+    - "DFA|SIFA"
+    - "[Ff]+ault [iI]nduction"
+    - "[Ff]+ault [iI]njection"
+  other:
+    - "[Dd]eep[ -][lL]earning"
+    - "[Cc]old [bB]oot"
+    - "[Rr]ow-?hammer"
+    - "[Rr]everse [eE]ngineering"
+    - "[Ll]attice [aA]ttacks?"
+    - "[Oo]racle [aA]ttacks?"
+    - "[Bb]leichenbacher [aA]ttacks?"
+    - "[Bb]ellcore [aA]ttacks?"
+    - "JIL(-(AAPS|COMP|AM|AAPHD|AMHD))?"
+    - "JHAS"
+
+certification_process:
+  OutOfScope:
+    - "[oO]ut of [sS]cope"
+    - "[\\.\\(].{0,100}?.[oO]ut of [sS]cope..{0,100}?[\\.\\)]"
+    - ".{0,100}[oO]ut of [sS]cope.{0,100}"
+  ConfidentialDocument:
+    - ".{0,100}confidential document.{0,100}"
+  SecurityFunction:
+    - "[sS]ecurity [fF]unction SF\\.[a-zA-Z0-9_]"
+
+technical_report_id:
+  BSI:
+    - "BSI[ ]*TR-[0-9]+?(?:-[0-9]+?|)"
+    - "BSI [0-9]+?" # German BSI document containing list of issued certificates in some period
+
+device_model:
+  G87:
+    - "G87-.+?"
+  ATMEL:
+    - "ATMEL AT.+?"
+  STM:
+    STM32:
+      - "STM32[FGLHW][0-7][0-9]{1,2}[FGKTSCRVZI][468BCDEFGHI][PHUTY][67]"
+  Infineon:
+    SLE:
+      - "SLE[0-9]{2}[A-Z]{3}[0-9]{1-4}[A-Z]{1-3}"
+
+tee_name:
+  Intel:
+    - "(Intel )?SGX"
+  ARM:
+    - "(ARM )?TrustZone"
+    - "(ARM )?(Realm Management Extension|Confidential Compute Architecture)"
+  AMD:
+    - "(AMD )?(PSP|Platform Security Processor)"
+    - "(AMD )?(SEV|Secure Encrypted Virtualization)"
+  IBM:
+    - "(IBM )?(SSC|Secure Service Container)"
+    - "(IBM )?(SE|Secure Execution)"
+  other:
+    - "Cloud Link TEE"
+    - "iOS Secure Enclave"
+    - "iTrustee"
+    - "Trusty"
+    - "OPTEE"
+    - "QTEE"
+    - "TEEgris"
+    - "T6"
+    - "Kinibi"
+    - "SW TEE"
+    - "WatchTrust"
+    - "TEE"
+
+os_name:
+  STARCOS:
+    - "STARCOS(?: [0-9\\.]+?|)"
+  JCOP:
+    - "JCOP[ ]*[0-9]"
+
+cplc_data:
+  ICFab:
+    - "IC[ \\.]*Fabricator"
+  ICType:
+    - "IC[ \\.]*Type"
+  ICVersion:
+    - "IC[ \\.]*Version"
+
+ic_data_group:
+  EF:
+    - "EF\\.DG[1-9][0-6]?"
+    - "EF\\.COM"
+    - "EF\\.CardAccess"
+    - "EF\\.SOD"
+    - "EF\\.ChipSecurity"
+
+standard_id:
+  FIPS:
+    - "FIPS ?(?:PUB )?[0-9]+(-[0-9]+)?"
+  NIST:
+    - "NIST SP [0-9]+-[0-9]+?[a-zA-Z]?"
+  PKCS:
+    - "PKCS[ #]*[1-9]+"
+  BSI:
+    - "BSI-AIS[ ]*[0-9]+?"
+    - "AIS[ ]*[0-9]+?"
+  RFC:
+    - "RFC[ -]?[0-9]+?"
+  ISO:
+    - "ISO/IEC[ ]*[0-9]+[-]*[0-9]*"
+    - "ISO/IEC[ ]*[0-9]+:[ 0-9]+"
+    - "ISO/IEC[ ]*[0-9]+"
+  ICAO:
+    - "ICAO(?:-SAC|)"
+  X509:
+    - "[Xx]\\.509"
+  SCP:
+    - "(?:SCP|scp)[ ']*[0-9][0-9]"
+  CC:
+    - "CC[I]*MB-20[0-9]+?-[0-9]+?-[0-9]+?"  # Common Criteria methodology
+    - "CCIMB-9[0-9]-[0-9]+?"  # Common Criteria methodology old
+
+
+javacard_version:
+  JavaCard:
+    - "(?:Java Card|JavaCard) [2-3]\\.[0-9](?:\\.[0-9]|)"
+    - "JC[2-3]\\.[0-9](?:\\.[0-9]|)"
+    - "(?:Java Card|JavaCard) \\(version [2-3]\\.[0-9](?:\\.[0-9]|)\\)"
+  GlobalPlatform:
+    - "(?:Global Platform|GlobalPlatform) [2-3]\\.[0-9]\\.[0-9]"
+    - "(?:Global Platform|GlobalPlatform) \\(version [2-3]\\.[0-9]\\.[0-9]\\)"
+
+javacard_api_const:
+  ALG:
+    RNG:
+      - "ALG_(?:PSEUDO_RANDOM|SECURE_RANDOM|TRNG|PRESEEDED_DRBG|FAST|KEYGENERATION)"
+    DES:
+      - "ALG_DES_[A-Z_0-9]+"
+    RSA:
+      - "ALG_RSA_[A-Z_0-9]+"
+    DSA:
+      - "ALG_DSA_[A-Z_0-9]+"
+    ECDSA:
+      - "ALG_ECDSA_[A-Z_0-9]+"
+    AES:
+      - "ALG_AES_[A-Z_0-9]+"
+    HMAC:
+      - "ALG_HMAC_[A-Z_0-9]+"
+    KOREAN:
+      - "ALG_KOREAN_[A-Z_0-9]+"
+    EC:
+      - "ALG_EC_[A-Z_0-9]+?"
+    SHA:
+      - "ALG_SHA_[A-Z_0-9]+"
+    SHA3:
+      - "ALG_SHA3_[A-Z_0-9]+"
+    MD:
+      - "ALG_MD[A-Z_0-9]+"
+    RIPEMD:
+      - "ALG_RIPEMD[A-Z_0-9]+"
+    ISO3309:
+      - "ALG_ISO3309_[A-Z_0-9]+"
+    XDH:
+      - "ALG_XDH"
+    SM2:
+      - "ALG_SM2"
+    SM3:
+      - "ALG_SM3"
+    NULL:
+      - "ALG_NULL"
+  misc:
+    - "SIG_CIPHER_[A-Z_0-9]+"
+    - "CIPHER_[A-Z_0-9]+"
+    - "PAD_[A-Z_0-9]+"
+    - "TYPE_[A-Z_0-9]+"
+    - "LENGTH_[A-Z_0-9]+"
+    - "OWNER_PIN[A-Z_0-9]*"
+  curves:
+    - "BRAINPOOLP[A-Z_0-9]+(?:R|T)1"
+    - "ED25519"
+    - "ED448"
+    - "FRP256V1"
+    - "SECP[0-9]*R1"
+    - "SM2"
+    - "X25519"
+    - "X448"
+
+javacard_packages:
+  java:
+    - "java\\.[a-z\\.]+"
+  javacard:
+    - "javacard\\.[a-z\\.]+"
+  javacardx:
+    - "javacardx\\.[a-z\\.]+"
+  org:
+    - "org\\.[0-9a-z\\.]+"
+  uicc:
+    - "uicc\\.[a-z\\.]+"
+  com:
+    - "com\\.[0-9a-z\\.]+"
+  de:
+    - "de\\.bsi\\.[a-z\\.]+"
+
+fips_cert_id:
+  Cert:
+    - "(?:#[^\\S\\r\\n]?|Cert\\.?(?!.\\s)[^\\S\\r\\n]?|Certificate[^\\S\\r\\n]?)(?P<id>\\d{1,4})(?!\\d)"
+
+fips_security_level:
+  Level:
+    - "[lL]evel (\\d)"
+
+
+cc_rules:
+  - "cc_cert_id"
+  - "cc_protection_profile_id"
+  - "cc_security_level"
+  - "cc_sar"
+  - "cc_sfr"
+  - "cc_claims"
+  - "vendor"
+  - "eval_facility"
+  - "symmetric_crypto"
+  - "asymmetric_crypto"
+  - "pq_crypto"
+  - "hash_function"
+  - "crypto_scheme"
+  - "crypto_protocol"
+  - "randomness"
+  - "cipher_mode"
+  - "ecc_curve"
+  - "crypto_engine"
+  - "tls_cipher_suite"
+  - "crypto_library"
+  - "vulnerability"
+  - "side_channel_analysis"
+  - "technical_report_id"
+  - "device_model"
+  - "tee_name"
+  - "os_name"
+  - "cplc_data"
+  - "ic_data_group"
+  - "standard_id"
+  - "javacard_version"
+  - "javacard_api_const"
+  - "javacard_packages"
+
+fips_rules:
+  - "fips_cert_id"
+  - "fips_security_level"
+  - "vendor"
+  - "eval_facility"
+  - "symmetric_crypto"
+  - "asymmetric_crypto"
+  - "pq_crypto"
+  - "hash_function"
+  - "crypto_scheme"
+  - "crypto_protocol"
+  - "randomness"
+  - "cipher_mode"
+  - "ecc_curve"
+  - "crypto_engine"
+  - "tls_cipher_suite"
+  - "crypto_library"
+  - "vulnerability"
+  - "side_channel_analysis"
+  - "device_model"
+  - "tee_name"
+  - "os_name"
+  - "cplc_data"
+  - "ic_data_group"
+  - "standard_id"
+  - "javacard_version"
+  - "javacard_api_const"
+  - "javacard_packages"
