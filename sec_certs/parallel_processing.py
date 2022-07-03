@@ -4,7 +4,7 @@ from typing import Any, Callable, Iterable, List, Optional, Union
 
 from billiard.pool import Pool
 
-from sec_certs.helpers import tqdm
+from sec_certs.utils.helpers import tqdm
 
 
 def process_parallel(
