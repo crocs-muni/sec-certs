@@ -4,18 +4,22 @@ import copy
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Final, List, Optional, Set, Tuple, Union
+from typing import Any, Final, List, Optional, Set, Tuple, Union, Dict
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from tqdm.notebook import tqdm
 
 from sec_certs.utils import helpers
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.sar import SAR
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(eq=True, frozen=True)
@@ -435,3 +439,25 @@ def move_fixing_mu_to_directory(
         copyfile(inpath / i, Path(outdir) / i)
 
     return mu_filenames
+
+
+def plot_dataframe_graph(
+    data: Dict,
+    label: str,
+    file_name: str,
+    density: bool = False,
+    cumulative: bool = False,
+    bins: int = 50,
+    log: bool = True,
+    show: bool = True,
+) -> None:
+    pd_data = pd.Series(data)
+    pd_data.hist(bins=bins, label=label, density=density, cumulative=cumulative)
+    plt.savefig(file_name)
+    if show:
+        plt.show()
+
+    if log:
+        sorted_data = pd_data.value_counts(ascending=True)
+
+    logger.info(sorted_data.where(sorted_data > 1).dropna())

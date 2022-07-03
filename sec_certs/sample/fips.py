@@ -13,11 +13,15 @@ from dateutil import parser
 from tabula import read_pdf
 
 import sec_certs.constants as constants
+import sec_certs.utils.extract
 import sec_certs.utils.helpers as helpers
+import sec_certs.utils.pdf
+import sec_certs.utils.tables
 from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
-from sec_certs.utils.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
+from sec_certs.utils.helpers import fips_dgst
+from sec_certs.utils.extract import save_modified_cert_file, normalize_match_string, load_cert_file
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
@@ -542,7 +546,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             items_found = FIPSCertificate._initialize_dictionary()
             items_found["cert_id"] = int(file.stem)
 
-        text = helpers.load_cert_html_file(str(file))
+        text = sec_certs.utils.extract.load_cert_html_file(str(file))
         soup = BeautifulSoup(text, "html.parser")
         for div in soup.find_all("div", class_="row padrow"):
             FIPSCertificate._parse_html_main(div, items_found, pairs)
@@ -612,7 +616,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         """
         cert, pdf_path, txt_path = tup
         if not cert.state.txt_state:
-            exit_code = helpers.convert_pdf_file(pdf_path, txt_path)
+            exit_code = sec_certs.utils.pdf.convert_pdf_file(pdf_path, txt_path)
             if exit_code != constants.RETURNCODE_OK:
                 logger.error(f"Cert dgst: {cert.cert_id} failed to convert security policy pdf->txt")
                 cert.state.txt_state = False
@@ -811,7 +815,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         cert_file = cert.state.sp_path
         txt_file = cert_file.with_suffix(".pdf.txt")
         with open(txt_file, "r", encoding="utf-8") as f:
-            tables = helpers.find_tables(f.read(), txt_file)
+            tables = sec_certs.utils.tables.find_tables(f.read(), txt_file)
         all_pages = precision and cert.heuristics.unmatched_algs > config.cert_threshold  # bool value
 
         lst: List = []
@@ -821,7 +825,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             except Exception as e:
                 try:
                     logger.error(e)
-                    helpers.repair_pdf(cert_file)
+                    sec_certs.utils.pdf.repair_pdf(cert_file)
                     data = read_pdf(cert_file, pages="all" if all_pages else tables, silent=True)
 
                 except Exception as ex:
