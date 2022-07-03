@@ -1,7 +1,7 @@
 import html
 import logging
 from datetime import date
-from typing import Optional, Union, Set
+from typing import Optional, Set, Union
 
 import numpy as np
 import pandas as pd

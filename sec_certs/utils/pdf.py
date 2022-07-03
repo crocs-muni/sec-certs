@@ -1,13 +1,13 @@
 import logging
-from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
 from datetime import datetime, timedelta, timezone
 from functools import reduce
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
 
 import pdftotext
 import pikepdf
 from PyPDF2 import PdfFileReader
-from PyPDF2.generic import BooleanObject, FloatObject, NumberObject, IndirectObject
+from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObject
 
 from sec_certs import constants as constants
 

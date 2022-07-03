@@ -1,23 +1,23 @@
 from __future__ import annotations
 
 import copy
+import logging
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Final, List, Optional, Set, Tuple, Union, Dict
+from typing import Any, Dict, Final, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm.notebook import tqdm
 
-from sec_certs.utils import helpers
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.sar import SAR
+from sec_certs.utils import helpers
 
 logger = logging.getLogger(__name__)
 

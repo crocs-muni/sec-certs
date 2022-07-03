@@ -1,7 +1,7 @@
-import re
 import logging
+import re
 from pathlib import Path
-from typing import Set, List, Optional, Union
+from typing import List, Optional, Set, Union
 
 logger = logging.getLogger(__name__)
 

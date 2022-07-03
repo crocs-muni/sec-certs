@@ -1,14 +1,21 @@
+import logging
 import os
 import re
-import logging
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Tuple, Optional, Iterator, Union, Hashable, Generator, Any
+from typing import Any, Dict, Generator, Hashable, Iterator, Optional, Tuple, Union
 
 from sec_certs import constants as constants
-from sec_certs.cert_rules import REGEXEC_SEP, cc_rules as cc_search_rules
-from sec_certs.constants import LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH, TAG_MATCH_COUNTER, \
-    APPEND_DETAILED_MATCH_MATCHES, TAG_MATCH_MATCHES, FILE_ERRORS_STRATEGY
+from sec_certs.cert_rules import REGEXEC_SEP
+from sec_certs.cert_rules import cc_rules as cc_search_rules
+from sec_certs.constants import (
+    APPEND_DETAILED_MATCH_MATCHES,
+    FILE_ERRORS_STRATEGY,
+    LINE_SEPARATOR,
+    MAX_ALLOWED_MATCH_LENGTH,
+    TAG_MATCH_COUNTER,
+    TAG_MATCH_MATCHES,
+)
 
 logger = logging.getLogger(__name__)
 
