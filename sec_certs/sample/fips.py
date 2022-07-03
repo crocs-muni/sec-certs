@@ -13,11 +13,11 @@ from dateutil import parser
 from tabula import read_pdf
 
 import sec_certs.constants as constants
-from sec_certs import helpers
-from sec_certs.cert_rules import fips_common_rules, fips_rules
+import sec_certs.utils.helpers as helpers
+from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
-from sec_certs.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
+from sec_certs.utils.helpers import fips_dgst, load_cert_file, normalize_match_string, save_modified_cert_file
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType

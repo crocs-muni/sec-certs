@@ -7,7 +7,7 @@ from unittest import TestCase
 import tests.data.test_fips_oop
 from sec_certs.config.configuration import config
 from sec_certs.dataset import FIPSAlgorithmDataset, FIPSDataset
-from sec_certs.helpers import fips_dgst
+from sec_certs.utils.helpers import fips_dgst
 from tests.fips_test_utils import generate_html
 
 

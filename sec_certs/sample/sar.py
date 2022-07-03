@@ -4,7 +4,6 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from sec_certs.cert_rules import rules_security_assurance_components
 from sec_certs.serialization.json import ComplexSerializableType
 
 SAR_CLASS_MAPPING = {
@@ -50,7 +49,7 @@ class SAR(ComplexSerializableType):
 
     @staticmethod
     def matches_re(string: str) -> bool:
-        return any([re.match(x, string) for x in rules_security_assurance_components])
+        return any([re.match(sar_class + "(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}", string) for sar_class in SAR_CLASS_MAPPING])
 
     def __lt__(self, other: Any) -> bool:
         if not isinstance(other, SAR):

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Dict, Optional, Tuple, Union
 
-import sec_certs.helpers as helpers
+import sec_certs.utils.helpers as helpers
 from sec_certs.sample.protection_profile import ProtectionProfile
 
 logger = logging.getLogger(__name__)

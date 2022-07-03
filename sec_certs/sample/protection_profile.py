@@ -3,7 +3,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, FrozenSet, Optional
 
-import sec_certs.helpers as helpers
+import sec_certs.utils.helpers as helpers
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)

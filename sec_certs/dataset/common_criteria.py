@@ -15,8 +15,8 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
 
-from sec_certs import helpers as helpers
-from sec_certs import parallel_processing as cert_processing
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset

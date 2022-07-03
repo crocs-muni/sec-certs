@@ -15,7 +15,7 @@ import requests
 from bs4 import Tag
 
 from sec_certs import constants as constants
-from sec_certs import helpers
+from sec_certs.utils import helpers
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile

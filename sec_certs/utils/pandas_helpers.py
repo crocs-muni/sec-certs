@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from tqdm.notebook import tqdm
 
-from sec_certs import helpers
+from sec_certs.utils import helpers
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.sar import SAR
 

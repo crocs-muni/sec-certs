@@ -6,8 +6,8 @@ from typing import Dict, List, Union
 from bs4 import BeautifulSoup
 
 from sec_certs import constants as constants
-from sec_certs import helpers as helpers
-from sec_certs import parallel_processing as cert_processing
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.fips import FIPSCertificate

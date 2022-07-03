@@ -177,6 +177,8 @@ SARS_IMPLIED_FROM_EAL: Dict[str, Set[Tuple[str, int]]] = {
     },
 }
 
+security_level_csv_scan = r"EAL[1-7]\+?"
+
 rules_fips_remove_algorithm_ids = [
     # --- HMAC(-SHA)(-1) - (bits) (method) ((hardware/firmware cert) #id) ---
     # + added (and #id) everywhere

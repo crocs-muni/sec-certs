@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, Iterator, List, Mapping, Union
 
 from sec_certs.dataset.dataset import logger
-from sec_certs.helpers import tqdm
+from sec_certs.utils.helpers import tqdm
 from sec_certs.sample.fips_mip import MIPSnapshot
 from sec_certs.serialization.json import ComplexSerializableType
 

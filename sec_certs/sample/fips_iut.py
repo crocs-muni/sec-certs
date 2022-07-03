@@ -6,7 +6,7 @@ from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from sec_certs.helpers import to_utc
+from sec_certs.utils.helpers import to_utc
 from sec_certs.serialization.json import ComplexSerializableType
 
 

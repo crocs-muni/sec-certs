@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from sec_certs.constants import FIPS_MIP_STATUS_RE
-from sec_certs.helpers import to_utc
+from sec_certs.utils.helpers import to_utc
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
