@@ -278,12 +278,12 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
             all_cert_ids.add(cert_id)
 
-            # ['keywords_scan', 'rules_cert_id']
+            # ['report.keywords_scan', 'cc_cert_id']
             all_cert_ids.update(cert_obj.pdf_data.keywords_rules_cert_id)
 
-            # ['st_keywords_scan']['rules_cert_id']
+            # ['st.keywords_scan']['cc_cert_id']
             if cert_obj.pdf_data.st_keywords is not None:
-                all_cert_ids.update(cert_obj.pdf_data.st_keywords["rules_cert_id"])
+                all_cert_ids.update(cert_obj.pdf_data.st_keywords["cc_cert_id"])
 
         return all_cert_ids
 
@@ -847,7 +847,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
                 kws = getattr(cert.pdf_data, kw_attr)
                 if not kws:
                     return set()
-                return set(kws["rules_cert_id"].keys())
+                res = set()
+                for scheme, matches in kws["cc_cert_id"].items():
+                    res.update(matches.keys())
+                return res
 
             return func
 

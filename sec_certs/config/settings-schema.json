@@ -88,9 +88,6 @@
                 }
             ]
         },
-        "use_text_with_newlines_during_parsing": {
-            "$ref": "#/definitions/settings_boolean_entry"
-        },
         "n_threads": {
             "allOf": [
                 {
@@ -168,7 +165,6 @@
         "log_filepath",
         "smallest_certificate_id_to_connect",
         "year_difference_between_validations",
-        "use_text_with_newlines_during_parsing",
         "n_threads",
         "cpe_matching_threshold",
         "cpe_n_max_matches",

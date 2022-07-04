@@ -25,7 +25,7 @@ cc_cert_id:
     - "NSCIB-CC-[0-9]+-MA[0-9]*"  # Netherlands (new number NSCIB-CC-222073-MA NSCIB-CC-200716-MA2)
     - "NSCIB-CC-[0-9][0-9]-[0-9]+"  # Netherlands   (old number NSCIB-CC-05-6609)
     - "NSCIB-CC-[0-9][0-9]-[0-9]+-CR[0-9]+"  # Netherlands (NSCIB-CC-year2digits-number-CR)
-  NO:
+  "NO":
     - "SERTIT-[0-9]+"  # Norway
   US:
     - "CCEVS-VR-(?:|VID)[0-9]+-[0-9]+[a-z]?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)

@@ -19,7 +19,7 @@ import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
 from sec_certs.utils import helpers
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan, cc_rules
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
@@ -281,7 +281,7 @@ class CommonCriteriaCert(
 
         @property
         def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            return self.report_keywords.get("rules_cert_id", None) if self.report_keywords else None
+            return self.report_keywords.get("cc_cert_id", None) if self.report_keywords else None
 
         @property
         def keywords_cert_id(self) -> Optional[str]:
@@ -838,9 +838,11 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: certificate to extract the keywords for.
         :return CommonCriteriaCert: the modified certificate with extracted keywords.
         """
-        response, cert.pdf_data.report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report_txt_path)
-        if response != constants.RETURNCODE_OK:
+        report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report_txt_path, cc_rules)
+        if report_keywords is None:
             cert.state.report_extract_ok = False
+        else:
+            cert.pdf_data.report_keywords = report_keywords
         return cert
 
     @staticmethod
@@ -852,10 +854,11 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: certificate to extract the keywords for.
         :return CommonCriteriaCert: the modified certificate with extracted keywords.
         """
-        response, cert.pdf_data.st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st_txt_path)
-        if response != constants.RETURNCODE_OK:
+        st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st_txt_path, cc_rules)
+        if st_keywords is None:
             cert.state.st_extract_ok = False
-            cert.state.errors.append(response)
+        else:
+            cert.pdf_data.st_keywords = st_keywords
         return cert
 
     def compute_heuristics_version(self) -> None:

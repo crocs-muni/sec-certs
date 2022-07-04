@@ -12,9 +12,6 @@ year_difference_between_validations:
     During validation we don't connect certificates with validation dates
     difference higher than _this_
   value: 7
-use_text_with_newlines_during_parsing:
-  description: During keyword search, search in text with newlines
-  value: true
 n_threads:
   description: How many threads to use for parallel computations
   value: 8

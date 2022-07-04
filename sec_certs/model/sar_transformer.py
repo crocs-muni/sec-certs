@@ -115,7 +115,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         return set(final_candidates.values()) if final_candidates else None
 
     @staticmethod
-    def _parse_sar_dict(dct: Dict[str, int], dgst: str) -> Set[SAR]:
+    def _parse_sar_dict(dct: Dict[str, Dict[str, int]], dgst: str) -> Set[SAR]:
         """
         Accepts st_keywords or report_keywords dictionary. Will reconstruct SAR objects from it. Each SAR family can
         appear multiple times in the dictionary (due to conflicts) with different levels. Iterated item will replace
@@ -124,26 +124,28 @@ class SARTransformer(BaseEstimator, TransformerMixin):
 
         Only SARs with recovered level are considered, e.g. ASE_REQ.2 is valid string while ASE_REQ is not.
 
-        :param Dict[str, int] dct: _description_
-        :return Optional[Set[SAR]]: _description_
+        :param dct: _description_
+        :param dgst: DIgest of the processed certificate.
+        :return: _description_
         """
         sars: Dict[str, Tuple[SAR, int]] = dict()
-        for sar_string, n_occurences in dct.items():
-            try:
-                candidate = SAR.from_string(sar_string)
-            except ValueError as e:
-                logger.debug(f"Badly formatted SAR string {sar_string}, skipping: {e}")
-                continue
+        for sar_class, class_matches in dct.items():
+            for sar_string, n_occurences in class_matches.items():
+                try:
+                    candidate = SAR.from_string(sar_string)
+                except ValueError as e:
+                    logger.debug(f"Badly formatted SAR string {sar_string}, skipping: {e}")
+                    continue
 
-            if candidate.family in sars:
-                logger.debug(
-                    f"Cert {dgst} Attempting to add {candidate} while {sars[candidate.family]}  already in SARS"
-                )
+                if candidate.family in sars:
+                    logger.debug(
+                        f"Cert {dgst} Attempting to add {candidate} while {sars[candidate.family]}  already in SARS"
+                    )
 
-            if (candidate.family not in sars) or (
-                candidate.family in sars and candidate.level > sars[candidate.family][0].level
-            ):
-                sars[candidate.family] = (candidate, n_occurences)
+                if (candidate.family not in sars) or (
+                    candidate.family in sars and candidate.level > sars[candidate.family][0].level
+                ):
+                    sars[candidate.family] = (candidate, n_occurences)
         return {x[0] for x in sars.values()} if sars else set()
 
     @staticmethod

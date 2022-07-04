@@ -3,18 +3,15 @@ import os
 import re
 from enum import Enum
 from pathlib import Path
+from collections import Counter
 from typing import Any, Dict, Generator, Hashable, Iterator, Optional, Tuple, Union
 
 from sec_certs import constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
-from sec_certs.cert_rules import cc_rules as cc_search_rules
 from sec_certs.constants import (
-    APPEND_DETAILED_MATCH_MATCHES,
     FILE_ERRORS_STRATEGY,
     LINE_SEPARATOR,
-    MAX_ALLOWED_MATCH_LENGTH,
-    TAG_MATCH_COUNTER,
-    TAG_MATCH_MATCHES,
+    MAX_ALLOWED_MATCH_LENGTH
 )
 
 logger = logging.getLogger(__name__)
@@ -202,7 +199,7 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
     items_found = {}  # type: ignore # noqa
 
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath)
 
         # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
         pos = whole_text.find("")
@@ -299,7 +296,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -328,7 +325,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
                             f"string {from_keyword} detected in certified item - shall not be here, fixing..."
                         )
                         certified_item_first = certified_item[: certified_item.find(from_keyword)]
-                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len :]
+                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
                         certified_item = certified_item_first
                         continue
 
@@ -349,7 +346,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
         # PP Conformance, Functionality, Assurance
         rules_certificate_third = ["PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified"]
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath)
 
         for rule in rules_certificate_third:
             rule_and_sep = rule + REGEXEC_SEP
@@ -392,7 +389,7 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -424,7 +421,7 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
                 certified_item = ""
                 for name_index in range(item_offset, line_index):
                     certified_item += lines[name_index] + " "
-                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR) :]
+                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR):]
 
             SPONSOR_STR = "Sponsor:"
 
@@ -440,15 +437,15 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
 
             DEVELOPER_STR = "Developer:"
             if DEVELOPER_STR in line:
-                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR) :]
+                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR):]
 
             CERTLAB_STR = "Evaluation facility:"
             if CERTLAB_STR in line:
-                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR) :]
+                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR):]
 
             REPORTNUM_STR = "Report number:"
             if REPORTNUM_STR in line:
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
 
         if not no_match_yet:
             items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
@@ -472,7 +469,7 @@ def search_only_headers_niap(filepath: Path):
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -499,7 +496,7 @@ def search_only_headers_niap(filepath: Path):
                 certified_item = ""
                 for name_index in range(item_offset, line_index):
                     certified_item += lines[name_index] + " "
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
                 break
 
         if not no_match_yet:
@@ -521,7 +518,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     NUM_LINES_TO_INVESTIGATE = 20
     items_found: Dict[str, str] = {}
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -545,12 +542,12 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                         items_found = {}
                         no_match_yet = False
 
-                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str) :]
+                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str):]
                     break
 
             if (
-                "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
-                in line
+                    "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
+                    in line
             ):
                 REPORTNUM_STR = "Evaluation number:"
                 for offset in range(1, 20):
@@ -560,14 +557,14 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                             items_found = {}
                             no_match_yet = False
                         line_certid = lines[line_index + offset - 4]
-                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
                         break
                 if not no_match_yet:
                     break
 
             if (
-                "UNCLASSIFIED / NON CLASSIFIÉ" in line
-                and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
+                    "UNCLASSIFIED / NON CLASSIFIÉ" in line
+                    and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
             ):
                 line_certid = lines[line_index + 1]
                 if no_match_yet:
@@ -586,23 +583,6 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
         return error_msg, None
 
     return constants.RETURNCODE_OK, items_found
-
-
-def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
-    try:
-        result = parse_cert_file(filepath, cc_search_rules, -1, constants.LINE_SEPARATOR)
-
-        processed_result = {}
-        top_level_keys = list(result.keys())
-        for key in top_level_keys:
-            processed_result[key] = {key: val for key, val in gen_dict_extract(result[key])}
-
-    except Exception as e:
-        relative_filepath = "/".join(str(filepath).split("/")[-4:])
-        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
-        logger.error(error_msg)
-        return error_msg, None
-    return constants.RETURNCODE_OK, processed_result
 
 
 def search_files(folder: str) -> Iterator[str]:
@@ -624,43 +604,50 @@ def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_te
         write_file.close()
 
 
+def extract_keywords(filepath: Path, search_rules) -> Optional[Dict[str, Dict[str, int]]]:
+    """
+
+    """
+    try:
+        return parse_cert_file(filepath, search_rules, -1, constants.LINE_SEPARATOR)
+    except Exception as e:
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
+        logger.error(error_msg)
+        return None
+
+
 def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):  # noqa: C901
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+    """
+
+    """
+    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
         file_name, limit_max_lines, line_separator
     )
 
-    items_found_all = {}
-    for rule_group, rules in search_rules.items():
-        if rule_group not in items_found_all:
-            items_found_all[rule_group] = {}
-
-        items_found = items_found_all[rule_group]
-
-        for rule in rules:
-            rule_str, rule_and_sep = rule
-
-            for m in re.finditer(rule_and_sep, whole_text):
-                if rule_str not in items_found:
-                    items_found[rule_str] = {}
-
-                match = m.group()
+    def extract(rules):
+        if isinstance(rules, dict):
+            return {k: extract(v) for k, v in rules.items()}
+        elif isinstance(rules, list):
+            matches = [extract(rule) for rule in rules]
+            c = Counter()
+            for match_list in matches:
+                c += Counter(match_list)
+            return dict(c)
+        elif isinstance(rules, re.Pattern):
+            rule = rules
+            matches = []
+            for match in rule.finditer(whole_text):
+                match = match.group()
                 match = normalize_match_string(match)
 
                 match_len = len(match)
                 if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                    logger.warning(f"Excessive match with length of {match_len} detected for rule {rule_str}")
+                    logger.warning(f"Excessive match with length of {match_len} detected for rule {rule.pattern}")
+                matches.append(match)
+            return matches
 
-                if match not in items_found[rule_str]:
-                    items_found[rule_str][match] = {}
-                    items_found[rule_str][match][TAG_MATCH_COUNTER] = 0
-                    if APPEND_DETAILED_MATCH_MATCHES:
-                        items_found[rule_str][match][TAG_MATCH_MATCHES] = []
-                items_found[rule_str][match][TAG_MATCH_COUNTER] += 1
-                match_span = m.span()
-                if APPEND_DETAILED_MATCH_MATCHES:
-                    items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
-
-    return items_found_all
+    return extract(search_rules)
 
 
 def normalize_match_string(match: str) -> str:
@@ -668,36 +655,42 @@ def normalize_match_string(match: str) -> str:
     return "".join(filter(str.isprintable, match))
 
 
-def load_cert_file(
-    file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
+def load_text_file(
+        file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
 ) -> Tuple[str, str, bool]:
+    """
+    Load the text contents of a file at `file_name`, upto `limit_max_lines` of lines, replace
+    newlines in the text with `line_separator`.
+
+    :param file_name: The file_name to load.
+    :param limit_max_lines: The limit on number of lines to return.
+    :param line_separator: The string to replace newlines with.
+    :return: A tuple of three elements (the text with replaced newlines, the text and a boolean whether a unicode
+             decoding error happened).
+    """
     lines = []
     was_unicode_decode_error = False
     with Path(file_name).open("r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
             lines = f.readlines()
         except UnicodeDecodeError:
-            f.close()
             was_unicode_decode_error = True
-            print("  WARNING: UnicodeDecodeError, opening as utf8")
+            logger.warning("UnicodeDecodeError, opening as utf8")
 
-            with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
-                # coding failure, try line by line
-                line = " "
-                while line:
-                    try:
-                        line = f2.readline()
-                        lines.append(line)
-                    except UnicodeDecodeError:
-                        # ignore error
-                        continue
+    if was_unicode_decode_error:
+        with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+            # coding failure, try line by line
+            line = " "
+            while line:
+                try:
+                    line = f2.readline()
+                    lines.append(line)
+                except UnicodeDecodeError:
+                    # ignore error
+                    continue
 
     whole_text = ""
     whole_text_with_newlines = ""
-    # we will estimate the line for searched matches
-    # => we need to known how much lines were modified (removal of eoln..)
-    # for removed newline and for any added separator
-    # line_length_compensation = 1 - len(LINE_SEPARATOR)
     lines_included = 0
     for line in lines:
         if limit_max_lines != -1 and lines_included >= limit_max_lines:
@@ -715,15 +708,16 @@ def load_cert_file(
 def load_cert_html_file(file_name: str) -> str:
     with open(file_name, "r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
-            whole_text = f.read()
+            return f.read()
         except UnicodeDecodeError:
-            f.close()
-            with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
-                try:
-                    whole_text = f2.read()
-                except UnicodeDecodeError:
-                    print("### ERROR: failed to read file {}".format(file_name))
-    return whole_text
+            logger.warning("UnicodeDecodeError, opening as utf8")
+
+    with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+        try:
+            return f2.read()
+        except UnicodeDecodeError:
+            logger.error("Failed to read file {}".format(file_name))
+    return ""
 
 
 def gen_dict_extract(dct: Dict, searched_key: Hashable = "count") -> Generator[Any, None, None]:

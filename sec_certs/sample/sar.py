@@ -19,7 +19,7 @@ SAR_CLASS_MAPPING = {
 }
 
 SAR_CLASSES = {x for x in SAR_CLASS_MAPPING}
-SAR_DICT_KEY = "rules_security_assurance_components"
+SAR_DICT_KEY = "cc_sar"
 
 
 @dataclass(frozen=True, eq=True)

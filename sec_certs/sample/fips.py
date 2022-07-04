@@ -21,7 +21,7 @@ from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.extract import save_modified_cert_file, normalize_match_string, load_cert_file
+from sec_certs.utils.extract import save_modified_cert_file, normalize_match_string, load_text_file
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
@@ -625,43 +625,13 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return cert
 
     @staticmethod
-    def _declare_state(text: str) -> bool:
-        """
-        If less then half of the text is formed of alphabet characters,
-        we declare the security policy as "non-parsable"
-        :param text: security policy content
-        :return: True if parsable, otherwise False
-        """
-        return len(text) * 0.5 <= len("".join(filter(str.isalpha, text)))
-
-    @staticmethod
     def find_keywords(cert: FIPSCertificate) -> Tuple[Optional[Dict], FIPSCertificate]:
         if not cert.state.txt_state:
             return None, cert
 
-        text, text_with_newlines, unicode_error = load_cert_file(
-            cert.state.sp_path.with_suffix(".pdf.txt"), -1, LINE_SEPARATOR
-        )
+        keywords = sec_certs.utils.extract.extract_keywords(cert.state.sp_path.with_suffix(".pdf.txt"), fips_rules)
 
-        text_to_parse = text_with_newlines if config.use_text_with_newlines_during_parsing else text
-
-        cert.state.txt_state = FIPSCertificate._declare_state(text)
-
-        if config.ignore_first_page:
-            text_to_parse = text_to_parse[text_to_parse.index("") :]
-
-        items_found, fips_text = FIPSCertificate._parse_cert_file(FIPSCertificate._remove_platforms(text_to_parse))
-
-        save_modified_cert_file(cert.state.fragment_path.with_suffix(".fips.txt"), fips_text, unicode_error)
-
-        common_items_found, common_text = FIPSCertificate._parse_cert_file_common(
-            text_to_parse, text_with_newlines, fips_common_rules
-        )
-
-        save_modified_cert_file(cert.state.fragment_path.with_suffix(".common.txt"), common_text, unicode_error)
-        items_found.update(common_items_found)
-
-        return items_found, cert
+        return keywords, cert
 
     @staticmethod
     def match_web_algs_to_pdf(cert: FIPSCertificate) -> int:
@@ -700,103 +670,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         for match in pat.finditer(text_to_parse):
             text_to_parse = text_to_parse.replace(match.group(), "x" * len(match.group()))
         return text_to_parse
-
-    @staticmethod
-    def _highlight_matches(items_found_all: Dict, whole_text_with_newlines: str) -> str:
-        all_matches = []
-        for rule_group in items_found_all.keys():
-            items_found = items_found_all[rule_group]
-            for rule in items_found.keys():
-                for match in items_found[rule]:
-                    all_matches.append(match)
-
-            # if AES string is removed before AES-128, -128 would be left in text => sort by length first
-            # sort before replacement based on the length of match
-            all_matches.sort(key=len, reverse=True)
-            for match in all_matches:
-                whole_text_with_newlines = whole_text_with_newlines.replace(match, "x" * len(match))
-
-        return whole_text_with_newlines
-
-    @staticmethod
-    def _process_match(rule: Pattern, items_found: Dict, rule_str: str, m: Match[str]) -> None:
-        # insert rule if at least one match for it was found
-        if rule not in items_found:
-            items_found[rule_str] = {}
-
-        match = m.group()
-        match = normalize_match_string(match)
-
-        match_len = len(match)
-        if match_len > constants.MAX_ALLOWED_MATCH_LENGTH:
-            logger.warning("Excessive match with length of {} detected for rule {}".format(match_len, rule))
-
-        if match not in items_found[rule_str]:
-            items_found[rule_str][match] = {}
-            items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
-            if constants.APPEND_DETAILED_MATCH_MATCHES:
-                items_found[rule_str][match][constants.TAG_MATCH_MATCHES] = []
-
-        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
-        match_span = m.span()
-
-        if constants.APPEND_DETAILED_MATCH_MATCHES:
-            items_found[rule_str][match][constants.TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
-
-    @staticmethod
-    def _parse_cert_file_common(
-        text_to_parse: str, whole_text_with_newlines: str, search_rules: Dict
-    ) -> Tuple[Dict[Pattern, Dict], str]:
-        # apply all rules
-        items_found_all: Dict[Pattern, Dict] = {}
-        for rule_group, rules in search_rules.items():
-            if rule_group not in items_found_all:
-                items_found_all[rule_group] = {}
-
-            items_found = items_found_all[rule_group]
-
-            for rule_str, rule in rules:
-                for m in re.finditer(rule, text_to_parse):
-                    FIPSCertificate._process_match(rule, items_found, rule_str, m)
-
-        # highlight all found strings (by xxxxx) from the input text and store the rest
-
-        whole_text_with_newlines = FIPSCertificate._highlight_matches(items_found_all, whole_text_with_newlines)
-
-        return items_found_all, whole_text_with_newlines
-
-    @staticmethod
-    def _parse_cert_file(text_to_parse: str) -> Tuple[Dict[Pattern, Dict], str]:
-        # apply all rules
-        items_found_all: Dict = {}
-
-        for rule_group, rules in fips_rules.items():
-            if rule_group not in items_found_all:
-                items_found_all[rule_group] = {}
-
-            items_found: Dict[str, Dict] = items_found_all[rule_group]
-
-            for rule_str, rule in rules:
-                for m in rule.finditer(text_to_parse):
-                    # insert rule if at least one match for it was found
-                    if rule_str not in items_found:
-                        items_found[rule_str] = {}
-
-                    match = m.group()
-                    match = normalize_match_string(match)
-
-                    if match == "":
-                        continue
-
-                    if match not in items_found[rule_str]:
-                        items_found[rule_str][match] = {}
-                        items_found[rule_str][match][constants.TAG_MATCH_COUNTER] = 0
-
-                    items_found[rule_str][match][constants.TAG_MATCH_COUNTER] += 1
-
-                    text_to_parse = text_to_parse.replace(match, "x" * len(match))
-
-        return items_found_all, text_to_parse
 
     @staticmethod
     def analyze_tables(tup: Tuple[FIPSCertificate, bool]) -> Tuple[bool, FIPSCertificate, List]:
@@ -880,27 +753,29 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         if not self.pdf_scan.keywords:
             return
 
-        self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
-        # TODO figure out why can't I delete this
-        if self.web_scan.mentioned_certs:
-            for item, value in self.web_scan.mentioned_certs.items():
-                self.heuristics.keywords["rules_cert_id"].update({"caveat_item": {item: value}})
-
-        alg_set = self._create_alg_set()
-
-        for rule in self.heuristics.keywords["rules_cert_id"]:
-            to_pop = set()
-            rr = re.compile(rule)
-            for cert in self.heuristics.keywords["rules_cert_id"][rule]:
-                if cert in alg_set:
-                    to_pop.add(cert)
-                    continue
-                self._process_to_pop(rr, cert, to_pop)
-
-            for r in to_pop:
-                self.heuristics.keywords["rules_cert_id"][rule].pop(r, None)
-
-            self.heuristics.keywords["rules_cert_id"][rule].pop(self.cert_id, None)
+        # XXX: What is this mess?
+        #
+        # self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
+        # # TODO figure out why can't I delete this
+        # if self.web_scan.mentioned_certs:
+        #     for item, value in self.web_scan.mentioned_certs.items():
+        #         self.heuristics.keywords["rules_cert_id"].update({"caveat_item": {item: value}})
+        #
+        # alg_set = self._create_alg_set()
+        #
+        # for rule in self.heuristics.keywords["rules_cert_id"]:
+        #     to_pop = set()
+        #     rr = re.compile(rule)
+        #     for cert in self.heuristics.keywords["rules_cert_id"][rule]:
+        #         if cert in alg_set:
+        #             to_pop.add(cert)
+        #             continue
+        #         self._process_to_pop(rr, cert, to_pop)
+        #
+        #     for r in to_pop:
+        #         self.heuristics.keywords["rules_cert_id"][rule].pop(r, None)
+        #
+        #     self.heuristics.keywords["rules_cert_id"][rule].pop(self.cert_id, None)
 
     @staticmethod
     def get_compare(vendor: str) -> str:
