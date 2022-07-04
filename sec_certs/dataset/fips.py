@@ -387,9 +387,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate) -> None:
         if current_cert.heuristics.keywords is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
-        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
-            matches = current_cert.heuristics.keywords["rules_cert_id"][rule]
-            current_cert.heuristics.keywords["rules_cert_id"][rule] = [
+        for rule in current_cert.heuristics.keywords["fips_cert_id"]:
+            matches = current_cert.heuristics.keywords["fips_cert_id"][rule]
+            current_cert.heuristics.keywords["fips_cert_id"][rule] = [
                 cert_id
                 for cert_id in matches
                 if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
@@ -447,7 +447,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                     lambda x: x,
                     map(
                         lambda cid: "".join(filter(str.isdigit, cid)),
-                        cert.heuristics.keywords["rules_cert_id"].values(),
+                        cert.heuristics.keywords["fips_cert_id"].values(),
                     ),
                 )
             )

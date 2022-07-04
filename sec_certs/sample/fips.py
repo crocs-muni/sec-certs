@@ -19,9 +19,7 @@ import sec_certs.utils.pdf
 import sec_certs.utils.tables
 from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
-from sec_certs.constants import LINE_SEPARATOR
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.extract import save_modified_cert_file, normalize_match_string, load_text_file
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
@@ -630,7 +628,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             return None, cert
 
         keywords = sec_certs.utils.extract.extract_keywords(cert.state.sp_path.with_suffix(".pdf.txt"), fips_rules)
-
         return keywords, cert
 
     @staticmethod
@@ -753,27 +750,28 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         if not self.pdf_scan.keywords:
             return
 
+        self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
+
         # XXX: What is this mess?
         #
-        # self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
         # # TODO figure out why can't I delete this
         # if self.web_scan.mentioned_certs:
         #     for item, value in self.web_scan.mentioned_certs.items():
-        #         self.heuristics.keywords["rules_cert_id"].update({"caveat_item": {item: value}})
+        #         self.heuristics.keywords["fips_cert_id"].update({"caveat_item": {item: value}})
         #
         # alg_set = self._create_alg_set()
         #
-        # for rule in self.heuristics.keywords["rules_cert_id"]:
+        # for rule in self.heuristics.keywords["fips_cert_id"]:
         #     to_pop = set()
         #     rr = re.compile(rule)
-        #     for cert in self.heuristics.keywords["rules_cert_id"][rule]:
+        #     for cert in self.heuristics.keywords["fips_cert_id"][rule]:
         #         if cert in alg_set:
         #             to_pop.add(cert)
         #             continue
         #         self._process_to_pop(rr, cert, to_pop)
         #
         #     for r in to_pop:
-        #         self.heuristics.keywords["rules_cert_id"][rule].pop(r, None)
+        #         self.heuristics.keywords["fips_cert_id"][rule].pop(r, None)
         #
         #     self.heuristics.keywords["rules_cert_id"][rule].pop(self.cert_id, None)
 
