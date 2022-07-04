@@ -447,7 +447,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                     lambda x: x,
                     map(
                         lambda cid: "".join(filter(str.isdigit, cid)),
-                        cert.heuristics.keywords["fips_cert_id"].values(),
+                        cert.heuristics.keywords["fips_cert_id"]["Cert"],
                     ),
                 )
             )

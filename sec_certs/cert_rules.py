@@ -284,7 +284,6 @@ def _process(obj, add_sep=True):
     if isinstance(obj, dict):
         return {k: _process(v, add_sep=add_sep) for k, v in obj.items()}
     elif isinstance(obj, list):
-        print(obj)
         return [re.compile(rule + REGEXEC_SEP if add_sep else rule) for rule in obj]
 
 
