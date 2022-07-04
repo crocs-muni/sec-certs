@@ -1,8 +1,8 @@
-import copy
 import re
-import yaml
 from pathlib import Path
-from typing import Dict, List, Pattern, Set, Tuple
+from typing import Dict, Set, Tuple
+
+import yaml
 
 REGEXEC_SEP = r"[ ,;\]”)(]"
 

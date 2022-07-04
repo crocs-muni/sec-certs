@@ -18,13 +18,13 @@ import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
-from sec_certs.utils import helpers
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan, cc_rules
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+from sec_certs.utils import helpers
 
 HEADERS = {
     "anssi": sec_certs.utils.extract.search_only_headers_anssi,
@@ -67,9 +67,15 @@ class CommonCriteriaCert(
         maintenance_st_link: Optional[str]
 
         def __post_init__(self):
-            super().__setattr__("maintenance_report_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_report_link))
-            super().__setattr__("maintenance_st_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_st_link))
-            super().__setattr__("maintenance_title", sec_certs.utils.sanitization.sanitize_string(self.maintenance_title))
+            super().__setattr__(
+                "maintenance_report_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_report_link)
+            )
+            super().__setattr__(
+                "maintenance_st_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_st_link)
+            )
+            super().__setattr__(
+                "maintenance_title", sec_certs.utils.sanitization.sanitize_string(self.maintenance_title)
+            )
             super().__setattr__("maintenance_date", sec_certs.utils.sanitization.sanitize_date(self.maintenance_date))
 
         @classmethod

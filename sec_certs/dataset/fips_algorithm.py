@@ -7,12 +7,12 @@ from bs4 import BeautifulSoup
 
 import sec_certs.utils.extract
 from sec_certs import constants as constants
-from sec_certs.utils import helpers as helpers
-from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
 
 logger = logging.getLogger(__name__)
 

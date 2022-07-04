@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Match, Optional, Pattern, Set, Tuple, Union
+from typing import Any, ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
 
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -19,10 +19,10 @@ import sec_certs.utils.pdf
 import sec_certs.utils.tables
 from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
-from sec_certs.utils.helpers import fips_dgst
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils.helpers import fips_dgst
 
 
 class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuristics"], ComplexSerializableType):

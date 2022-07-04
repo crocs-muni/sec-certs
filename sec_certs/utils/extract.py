@@ -1,18 +1,14 @@
 import logging
 import os
 import re
+from collections import Counter
 from enum import Enum
 from pathlib import Path
-from collections import Counter
 from typing import Any, Dict, Generator, Hashable, Iterator, Optional, Tuple, Union
 
 from sec_certs import constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
-from sec_certs.constants import (
-    FILE_ERRORS_STRATEGY,
-    LINE_SEPARATOR,
-    MAX_ALLOWED_MATCH_LENGTH
-)
+from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
 
 logger = logging.getLogger(__name__)
 
@@ -325,7 +321,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
                             f"string {from_keyword} detected in certified item - shall not be here, fixing..."
                         )
                         certified_item_first = certified_item[: certified_item.find(from_keyword)]
-                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
+                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len :]
                         certified_item = certified_item_first
                         continue
 
@@ -421,7 +417,7 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
                 certified_item = ""
                 for name_index in range(item_offset, line_index):
                     certified_item += lines[name_index] + " "
-                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR):]
+                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR) :]
 
             SPONSOR_STR = "Sponsor:"
 
@@ -437,15 +433,15 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
 
             DEVELOPER_STR = "Developer:"
             if DEVELOPER_STR in line:
-                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR):]
+                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR) :]
 
             CERTLAB_STR = "Evaluation facility:"
             if CERTLAB_STR in line:
-                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR):]
+                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR) :]
 
             REPORTNUM_STR = "Report number:"
             if REPORTNUM_STR in line:
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
 
         if not no_match_yet:
             items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
@@ -496,7 +492,7 @@ def search_only_headers_niap(filepath: Path):
                 certified_item = ""
                 for name_index in range(item_offset, line_index):
                     certified_item += lines[name_index] + " "
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
                 break
 
         if not no_match_yet:
@@ -542,12 +538,12 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                         items_found = {}
                         no_match_yet = False
 
-                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str):]
+                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str) :]
                     break
 
             if (
-                    "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
-                    in line
+                "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
+                in line
             ):
                 REPORTNUM_STR = "Evaluation number:"
                 for offset in range(1, 20):
@@ -557,14 +553,14 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                             items_found = {}
                             no_match_yet = False
                         line_certid = lines[line_index + offset - 4]
-                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
+                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
                         break
                 if not no_match_yet:
                     break
 
             if (
-                    "UNCLASSIFIED / NON CLASSIFIÉ" in line
-                    and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
+                "UNCLASSIFIED / NON CLASSIFIÉ" in line
+                and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
             ):
                 line_certid = lines[line_index + 1]
                 if no_match_yet:
@@ -605,9 +601,7 @@ def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_te
 
 
 def extract_keywords(filepath: Path, search_rules) -> Optional[Dict[str, Dict[str, int]]]:
-    """
-
-    """
+    """ """
     try:
         return parse_cert_file(filepath, search_rules, -1, constants.LINE_SEPARATOR)
     except Exception as e:
@@ -618,9 +612,7 @@ def extract_keywords(filepath: Path, search_rules) -> Optional[Dict[str, Dict[st
 
 
 def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):  # noqa: C901
-    """
-
-    """
+    """ """
     whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
         file_name, limit_max_lines, line_separator
     )
@@ -656,7 +648,7 @@ def normalize_match_string(match: str) -> str:
 
 
 def load_text_file(
-        file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
+    file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
 ) -> Tuple[str, str, bool]:
     """
     Load the text contents of a file at `file_name`, upto `limit_max_lines` of lines, replace

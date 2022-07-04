@@ -16,10 +16,10 @@ import pandas as pd
 import sec_certs.constants as constants
 import sec_certs.utils.helpers as helpers
 from sec_certs.config.configuration import config
-from sec_certs.utils.parallel_processing import process_parallel
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.utils.parallel_processing import process_parallel
 
 logger = logging.getLogger(__name__)
 

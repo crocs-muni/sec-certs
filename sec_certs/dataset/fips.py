@@ -6,15 +6,15 @@ from typing import Any, Dict, List, Optional, Set
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
-from sec_certs.utils import helpers as helpers
-from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.utils.helpers import fips_dgst
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.helpers import fips_dgst
 
 logger = logging.getLogger(__name__)
 
