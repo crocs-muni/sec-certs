@@ -5,9 +5,9 @@ import os
 import re
 import time
 from contextlib import nullcontext
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
-from functools import partial
+from functools import partial, reduce
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, Dict, Generator, Hashable, Iterator, List, Optional, Sequence, Set, Tuple, Union
@@ -233,7 +233,45 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
     return constants.RETURNCODE_OK
 
 
-def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
+def parse_pdf_date(dateval) -> Optional[datetime]:
+    """
+    Parse PDF metadata date format:
+
+    ```
+        parse_pdf_date(b"D:20110617082321-04'00'")
+    ```
+    into
+    ```
+        datetime.datetime(2011, 6, 17, 8, 23, 21, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)))
+    ```
+    """
+    if dateval is None:
+        return None
+    clean = dateval.decode("utf-8").replace("D:", "")
+    tz = None
+    tzoff = None
+    if "+" in clean:
+        clean, tz = clean.split("+")
+        tzoff = 1
+    if "-" in clean:
+        clean, tz = clean.split("-")
+        tzoff = -1
+    elif "Z" in clean:
+        clean, tz = clean.split("Z")
+        tzoff = 1
+    try:
+        res_datetime = datetime.strptime(clean, "%Y%m%d%H%M%S")
+        if tz and tzoff:
+            tz_datetime = datetime.strptime(tz, "%H'%M'")
+            delta = tzoff * timedelta(hours=tz_datetime.hour, minutes=tz_datetime.minute)
+            res_tz = timezone(delta)
+            res_datetime = res_datetime.replace(tzinfo=res_tz)
+        return res_datetime
+    except ValueError:
+        return None
+
+
+def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:  # noqa: C901
     def map_metadata_value(val, nope_out=False):
         if isinstance(val, BooleanObject):
             val = val.value
@@ -248,7 +286,7 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             val = str(val)
         return val
 
-    metadata = dict()
+    metadata: Dict[str, Any] = dict()
 
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size
@@ -265,8 +303,24 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             metadata["pdf_number_of_pages"] = pdf.getNumPages()
             pdf_document_info = pdf.getDocumentInfo()
 
-        for key, val in pdf_document_info.items():
-            metadata[str(key)] = map_metadata_value(val)
+            if pdf_document_info is None:
+                raise ValueError("PDF metadata unavailable")
+
+            for key, val in pdf_document_info.items():
+                metadata[str(key)] = map_metadata_value(val)
+
+            annots = [page.get("/Annots", []) for page in pdf.pages]
+            annots = reduce(lambda x, y: x + y, annots)
+            links = set()
+            for a in annots:
+                if isinstance(a, IndirectObject):
+                    note = a.getObject()
+                else:
+                    note = a
+                link = note.get("/A", {}).get("/URI")
+                if link:
+                    links.add(link)
+            metadata["pdf_hyperlinks"] = links
 
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
