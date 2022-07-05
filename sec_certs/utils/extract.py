@@ -4,7 +4,7 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Iterator, Optional, Tuple, Union, Any
+from typing import Any, Dict, Iterator, Optional, Tuple, Union
 
 from sec_certs import constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
@@ -321,7 +321,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
                             f"string {from_keyword} detected in certified item - shall not be here, fixing..."
                         )
                         certified_item_first = certified_item[: certified_item.find(from_keyword)]
-                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len :]
+                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len:]
                         certified_item = certified_item_first
                         continue
 
@@ -417,7 +417,7 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
                 certified_item = ""
                 for name_index in range(item_offset, line_index):
                     certified_item += lines[name_index] + " "
-                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR) :]
+                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR):]
 
             SPONSOR_STR = "Sponsor:"
 
@@ -433,15 +433,15 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
 
             DEVELOPER_STR = "Developer:"
             if DEVELOPER_STR in line:
-                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR) :]
+                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR):]
 
             CERTLAB_STR = "Evaluation facility:"
             if CERTLAB_STR in line:
-                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR) :]
+                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR):]
 
             REPORTNUM_STR = "Report number:"
             if REPORTNUM_STR in line:
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
 
         if not no_match_yet:
             items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
@@ -492,7 +492,7 @@ def search_only_headers_niap(filepath: Path):
                 certified_item = ""
                 for name_index in range(item_offset, line_index):
                     certified_item += lines[name_index] + " "
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
                 break
 
         if not no_match_yet:
@@ -538,12 +538,12 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                         items_found = {}
                         no_match_yet = False
 
-                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str) :]
+                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str):]
                     break
 
             if (
-                "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
-                in line
+                    "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
+                    in line
             ):
                 REPORTNUM_STR = "Evaluation number:"
                 for offset in range(1, 20):
@@ -553,14 +553,14 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                             items_found = {}
                             no_match_yet = False
                         line_certid = lines[line_index + offset - 4]
-                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
+                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR):]
                         break
                 if not no_match_yet:
                     break
 
             if (
-                "UNCLASSIFIED / NON CLASSIFIÉ" in line
-                and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
+                    "UNCLASSIFIED / NON CLASSIFIÉ" in line
+                    and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
             ):
                 line_certid = lines[line_index + 1]
                 if no_match_yet:
@@ -595,51 +595,110 @@ def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_te
     try:
         write_file.write(modified_cert_file_text)
     except UnicodeEncodeError:
-        print("UnicodeDecodeError while writing file fragments back")
+        logger.error("UnicodeDecodeError while writing file fragments back")
     finally:
         write_file.close()
 
 
+def flatten_matches(dct: Dict) -> Dict:
+    """
+    Function to flatten dictionary of matches.
+
+    Turns
+    ```
+        {"a": {"cc": 3}, "b": {}, "d": {"dd": 4, "cc": 2}}
+    ```
+    into
+    ```
+        {"cc": 5, "dd": 4}
+    ```
+
+    :param dct: Dictionary to flatten
+    :return: Flattened dictionary
+    """
+    result: Counter[Any] = Counter()
+    for key, value in dct.items():
+        if isinstance(value, dict):
+            result.update(flatten_matches(value))
+        else:
+            result[key] = value
+    return dict(result)
+
+
+def prune_matches(dct: Dict) -> Dict:
+    """
+    Prune a dictionary of matches.
+
+    Turns
+    ```
+        {"a": {"cc": 3}, "b": {"aa": {}, "bb": {}}, "d": {"dd": 4, "cc": 2}}
+    ```
+    into
+    ```
+        {"a": {"cc": 3}, "b": {}, "d": {"dd": 4, "cc": 2}}
+    ```
+
+    :param dct: The dictionary of matches.
+    :return: The pruned dictionary.
+    """
+    def walk(obj, depth):
+        if isinstance(obj, dict):
+            if not obj:
+                return None
+            res = {}
+            for k, v in obj.items():
+                r = walk(v, depth+1)
+                if r is not None:
+                    res[k] = r
+            return res if res or depth == 1 else None
+        else:
+            return obj
+    return walk(dct, 0)
+
+
 def extract_keywords(filepath: Path, search_rules) -> Optional[Dict[str, Dict[str, int]]]:
-    """ """
+    """
+    Extract keywords from filepath using the search rules.
+
+    :param filepath:
+    :param search_rules:
+    :return:
+    """
+
     try:
-        return parse_cert_file(filepath, search_rules, -1, constants.LINE_SEPARATOR)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
+            filepath, -1, LINE_SEPARATOR
+        )
+
+        def extract(rules):
+            if isinstance(rules, dict):
+                return {k: extract(v) for k, v in rules.items()}
+            elif isinstance(rules, list):
+                matches = [extract(rule) for rule in rules]
+                c = Counter()
+                for match_list in matches:
+                    c += Counter(match_list)
+                return dict(c)
+            elif isinstance(rules, re.Pattern):
+                rule = rules
+                matches = []
+                for match in rule.finditer(whole_text):
+                    match = match.group()
+                    match = normalize_match_string(match)
+
+                    match_len = len(match)
+                    if match_len > MAX_ALLOWED_MATCH_LENGTH:
+                        logger.warning(f"Excessive match with length of {match_len} detected for rule {rule.pattern}")
+                    matches.append(match)
+                return matches
+
+        result = extract(search_rules)
+        return prune_matches(result)
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
         error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
         logger.error(error_msg)
         return None
-
-
-def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):  # noqa: C901
-    """ """
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
-        file_name, limit_max_lines, line_separator
-    )
-
-    def extract(rules):
-        if isinstance(rules, dict):
-            return {k: extract(v) for k, v in rules.items()}
-        elif isinstance(rules, list):
-            matches = [extract(rule) for rule in rules]
-            c = Counter()
-            for match_list in matches:
-                c += Counter(match_list)
-            return dict(c)
-        elif isinstance(rules, re.Pattern):
-            rule = rules
-            matches = []
-            for match in rule.finditer(whole_text):
-                match = match.group()
-                match = normalize_match_string(match)
-
-                match_len = len(match)
-                if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                    logger.warning(f"Excessive match with length of {match_len} detected for rule {rule.pattern}")
-                matches.append(match)
-            return matches
-
-    return extract(search_rules)
 
 
 def normalize_match_string(match: str) -> str:
@@ -648,7 +707,7 @@ def normalize_match_string(match: str) -> str:
 
 
 def load_text_file(
-    file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
+        file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
 ) -> Tuple[str, str, bool]:
     """
     Load the text contents of a file at `file_name`, upto `limit_max_lines` of lines, replace
@@ -710,28 +769,3 @@ def load_cert_html_file(file_name: str) -> str:
         except UnicodeDecodeError:
             logger.error("Failed to read file {}".format(file_name))
     return ""
-
-
-def flatten_matches(dct: Dict) -> Dict:
-    """
-    Function to flatten dictionary of matches.
-
-    Turns
-    ```
-        {"a": {"cc": 3}, "b": {}, "d": {"dd": 4, "cc": 2}}
-    ```
-    into
-    ```
-        {"cc": 5, "dd": 4}
-    ```
-
-    :param dct: Dictionary to search
-    :return: Flattened dictionary
-    """
-    result: Counter[Any] = Counter()
-    for key, value in dct.items():
-        if isinstance(value, dict):
-            result.update(flatten_matches(value))
-        else:
-            result[key] = value
-    return dict(result)

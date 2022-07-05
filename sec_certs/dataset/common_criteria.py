@@ -28,6 +28,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
 from sec_certs.utils import helpers as helpers
 from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.extract import flatten_matches
 
 
 class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
@@ -278,12 +279,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
             all_cert_ids.add(cert_id)
 
-            # ['report.keywords_scan', 'cc_cert_id']
-            all_cert_ids.update(cert_obj.pdf_data.keywords_rules_cert_id)
+            if cert_obj.pdf_data.report_keywords is not None:
+                all_cert_ids.update(flatten_matches(cert_obj.pdf_data.report_keywords["cc_cert_id"]))
 
-            # ['st.keywords_scan']['cc_cert_id']
             if cert_obj.pdf_data.st_keywords is not None:
-                all_cert_ids.update(cert_obj.pdf_data.st_keywords["cc_cert_id"])
+                all_cert_ids.update(flatten_matches(cert_obj.pdf_data.st_keywords["cc_cert_id"]))
 
         return all_cert_ids
 
