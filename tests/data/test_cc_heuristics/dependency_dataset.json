@@ -530,7 +530,9 @@
             "SmartMX": {},
             "NexCrypt": {}
           },
-          "tls_cipher_suite": {},
+          "tls_cipher_suite": {
+            "TLS": {}
+          },
           "crypto_library": {
             "Neslib": {},
             "AT1": {},
@@ -1129,7 +1131,9 @@
             "SmartMX": {},
             "NexCrypt": {}
           },
-          "tls_cipher_suite": {},
+          "tls_cipher_suite": {
+            "TLS": {}
+          },
           "crypto_library": {
             "Neslib": {},
             "AT1": {},
@@ -1915,7 +1919,9 @@
             "SmartMX": {},
             "NexCrypt": {}
           },
-          "tls_cipher_suite": {},
+          "tls_cipher_suite": {
+            "TLS": {}
+          },
           "crypto_library": {
             "Neslib": {},
             "AT1": {},
@@ -2512,7 +2518,9 @@
             "SmartMX": {},
             "NexCrypt": {}
           },
-          "tls_cipher_suite": {},
+          "tls_cipher_suite": {
+            "TLS": {}
+          },
           "crypto_library": {
             "Neslib": {},
             "AT1": {},
@@ -3343,7 +3351,9 @@
             "SmartMX": {},
             "NexCrypt": {}
           },
-          "tls_cipher_suite": {},
+          "tls_cipher_suite": {
+            "TLS": {}
+          },
           "crypto_library": {
             "Neslib": {},
             "AT1": {},
@@ -3939,7 +3949,9 @@
             "SmartMX": {},
             "NexCrypt": {}
           },
-          "tls_cipher_suite": {},
+          "tls_cipher_suite": {
+            "TLS": {}
+          },
           "crypto_library": {
             "Neslib": {},
             "AT1": {},
