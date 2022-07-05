@@ -757,9 +757,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         #         self.heuristics.keywords["fips_cert_id"].update({"caveat_item": {item: value}})
         #
         alg_set = self._create_alg_set()
-        print(f"-----------Cert #{self.cert_id}")
-        print(f"Alg set: {alg_set}")
-        print(f"Before: {self.pdf_scan.keywords['fips_cert_id']['Cert']}")
         for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
             to_pop = set()
             for cert in self.heuristics.keywords["fips_cert_id"]["Cert"]:
@@ -769,11 +766,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                 self._process_to_pop(cert_rule, cert, to_pop)
 
             for r in to_pop:
-                print(f"Removing {r} from {self.cert_id}")
                 self.heuristics.keywords["fips_cert_id"]["Cert"].pop(r, None)
 
         self.heuristics.keywords["fips_cert_id"]["Cert"].pop("#" + str(self.cert_id), None)
-        print(f"After: {self.heuristics.keywords['fips_cert_id']['Cert']}")
 
     @staticmethod
     def get_compare(vendor: str) -> str:

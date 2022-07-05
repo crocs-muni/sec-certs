@@ -275,7 +275,7 @@ class Dataset(Generic[CertSubType], ABC):
             cpes: Set[CPE] = set()
             for x in predicted_annotations:
                 if x not in cpe_dset.title_to_cpes:
-                    print(f"Error: {x} not in dataset")
+                    logger.error(f"{x} not in dataset")
                 else:
                     to_update = cpe_dset.title_to_cpes[x]
                     if to_update and not cpes:
