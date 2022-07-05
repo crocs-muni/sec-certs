@@ -712,21 +712,26 @@ def load_cert_html_file(file_name: str) -> str:
     return ""
 
 
-def gen_dict_extract(dct: Dict, searched_key: Hashable = "count") -> Generator[Any, None, None]:
+def flatten_matches(dct: Dict) -> Dict:
     """
-    Function to flatten dictionary with some serious limitations. We only expect to use it temporarily on dictionary
-    produced by extract_keywords that contains many layers. On the deepest level in that dictionary, 'some_match': {'count': frequency}.
-    The output of the function will be list of tuples ('some_match': frequency)
-    :param searched_key: key to search, 'count'
+    Function to flatten dictionary of matches.
+
+    Turns
+    ```
+        {"a": {"cc": 3}, "b": {}, "d": {"dd": 4, "cc": 2}}
+    ```
+    into
+    ```
+        {"cc": 5, "dd": 4}
+    ```
+
     :param dct: Dictionary to search
-    :return: List of tuples
+    :return: Flattened dictionary
     """
+    result = Counter()
     for key, value in dct.items():
-        if key == searched_key:
-            yield value
         if isinstance(value, dict):
-            for result in gen_dict_extract(value, searched_key):
-                if isinstance(result, tuple):
-                    yield result
-                else:
-                    yield key, result
+            result.update(flatten_matches(value))
+        else:
+            result[key] = value
+    return dict(result)

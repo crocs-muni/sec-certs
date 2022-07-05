@@ -439,7 +439,7 @@ symmetric_crypto:
   constructions:
     MAC:
       - "HMAC"
-      - "HMAC-.+-(?:160|224|256|384|512)"
+      - "HMAC-[A-Z]+?-(?:160|224|256|384|512)"
       - "KMAC"
       - "CMAC|CBC-MAC"
 

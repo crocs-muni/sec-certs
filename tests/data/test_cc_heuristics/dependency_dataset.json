@@ -1,1046 +1,4224 @@
 {
-    "_type": "CCDataset",
-    "state": {
-        "_type": "DatasetInternalState",
-        "meta_sources_parsed": false,
-        "pdfs_downloaded": false,
-        "pdfs_converted": false,
-        "certs_analyzed": false
-    },
-    "timestamp": "2021-11-14 13:18:53.333058",
-    "sha256_digest": "not implemented",
-    "name": "test dataset",
-    "description": "test dataset for testing dependencies",
-    "n_certs": 3,
-    "certs": [{
-            "_type": "CommonCriteriaCert",
-            "dgst": "c30de3192d2e8ec2",
-            "status": "archived",
-            "category": "Other Devices and Systems",
-            "name": "Océ Digital Access Controller (DAC) R10.1.5 for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
-            "manufacturer": "Océ N.V.",
-            "scheme": "DE",
-            "security_level": {
-                "_type": "Set",
-                "elements": [
-                    "ALC_FLR.1",
-                    "EAL2+"
-                ]
-            },
-            "not_valid_before": "2009-02-20",
-            "not_valid_after": "2019-09-01",
-            "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0517a.pdf",
-            "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0517b.pdf",
-            "cert_link": null,
-            "manufacturer_web": "https://global.oce.com/",
-            "protection_profiles": [],
-            "maintenance_updates": [],
-            "state": {
-                "_type": "InternalState",
-                "st_download_ok": true,
-                "report_download_ok": true,
-                "st_convert_ok": true,
-                "report_convert_ok": true,
-                "st_extract_ok": true,
-                "report_extract_ok": true,
-                "errors": []
-            },
-            "pdf_data": {
-                "_type": "PdfData",
-                "report_metadata": {
-                    "pdf_file_size_bytes": 393439,
-                    "pdf_is_encrypted": false,
-                    "pdf_number_of_pages": 32,
-                    "/CreationDate": "D:20090319113422+01'00'",
-                    "/Subject": "Common Criteria, Certification",
-                    "/Author": "Bundesamt für Sicherheit in der Informationstechnik",
-                    "/Creator": "Writer",
-                    "/Keywords": "\"Océ Digital Access Controller (DAC) R10.1.5for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products, Océ Technologies B.V., BSI-DSZ-CC-0517-2009, Common Criteria, Certification\"",
-                    "/Producer": "StarOffice 9",
-                    "/ModDate": "D:20090319183830+01'00'",
-                    "/Title": "Certification Report BSI-DSZ-CC-0517-2009"
-                },
-                "st_metadata": {
-                    "pdf_file_size_bytes": 1483390,
-                    "pdf_is_encrypted": false,
-                    "pdf_number_of_pages": 95,
-                    "/CreationDate": "D:20090119132159+01'00'",
-                    "/Subject": "Security Target",
-                    "/Author": "Océ Technologies B.V.",
-                    "/Creator": "Acrobat PDFMaker 5.0 for Word",
-                    "/Keywords": "Common Criteria, Certification, Océ, Digital Access Controller, DAC, MFD",
-                    "/Producer": "Acrobat Distiller 5.0.5 (Windows)",
-                    "/ModDate": "D:20090319184150+01'00'",
-                    "/Title": "Security Target The Océ Digital Access Controller (DAC) R10.1.5, as used in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products"
-                },
-                "report_frontpage": {
-                    "bsi": {
-                        "match_rules": [
-                            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
-                        ],
-                        "cert_id": "BSI-DSZ-CC-0517-2009",
-                        "cert_item": "Oc Digital Access Controller (DAC) R10.1.5 for use in the Oc VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
-                        "developer": "Oc Technologies B.V",
-                        "cert_lab": "BSI"
-                    },
-                    "anssi": {}
-                },
-                "st_frontpage": {
-                    "anssi": {},
-                    "bsi": {}
-                },
-                "report_keywords": {
-                    "rules_vendor": {},
-                    "rules_cert_id": {
-                        "BSI-DSZ-CC-0517-2009": 31,
-                        "BSI-DSZ-CC-0370-2006": 1
-                    },
-                    "rules_protection_profiles": {},
-                    "rules_technical_reports": {
-                        "BSI 7125": 2,
-                        "BSI 7148": 1,
-                        "BSI 7149": 1
-                    },
-                    "rules_device_id": {},
-                    "rules_os": {},
-                    "rules_standard_id": {
-                        "AIS 32": 1,
-                        "AIS 38": 1,
-                        "ISO/IEC 15408:2005": 2
-                    },
-                    "rules_security_level": {
-                        "EAL 2": 4,
-                        "EAL 1": 1,
-                        "EAL 7": 1,
-                        "EAL 4": 1,
-                        "EAL1": 5,
-                        "EAL2": 4,
-                        "EAL3": 4,
-                        "EAL4": 5,
-                        "EAL5": 6,
-                        "EAL6": 4,
-                        "EAL7": 4,
-                        "EAL 2 augmented": 3
-                    },
-                    "rules_security_assurance_components": {
-                        "ACM_AUT": 2,
-                        "ACM_CAP": 2,
-                        "ACM_SCP": 2,
-                        "ADO_DEL": 2,
-                        "ADO_IGS": 2,
-                        "ADV_FSP": 2,
-                        "ADV_HLD": 2,
-                        "ADV_IMP": 2,
-                        "ADV_INT": 2,
-                        "ADV_LLD": 2,
-                        "ADV_RCR": 2,
-                        "ADV_SPM": 2,
-                        "AGD_ADM": 2,
-                        "AGD_USR": 2,
-                        "ALC_FLR.1": 3,
-                        "ALC_DVS": 2,
-                        "ALC_FLR": 2,
-                        "ALC_LCD": 2,
-                        "ALC_TAT": 2,
-                        "ATE_COV": 2,
-                        "ATE_DPT": 2,
-                        "ATE_FUN": 2,
-                        "ATE_IND": 2,
-                        "AVA_CCA": 2,
-                        "AVA_MSU": 2,
-                        "AVA_SOF": 3,
-                        "AVA_VLA": 3,
-                        "AVA_VLA.2": 1,
-                        "AVA_VLA.3": 1,
-                        "AVA_VLA.4": 1,
-                        "APE_DES": 1,
-                        "APE_ENV": 1,
-                        "APE_INT": 1,
-                        "APE_OBJ": 1,
-                        "APE_REQ": 1,
-                        "APE_SRE": 1,
-                        "ASE_DES": 1,
-                        "ASE_ENV": 1,
-                        "ASE_INT": 1,
-                        "ASE_OBJ": 1,
-                        "ASE_PPC": 1,
-                        "ASE_REQ": 1,
-                        "ASE_SRE": 1,
-                        "ASE_TSS": 1
-                    },
-                    "rules_security_functional_components": {},
-                    "rules_cc_claims": {
-                        "D.PRINT_JOB": 2,
-                        "D.SECURE_PRINT_JOB": 1,
-                        "D.SCAN_JOB": 1
-                    },
-                    "rules_javacard": {},
-                    "rules_javacard_api_consts": {},
-                    "rules_javacard_packages": {},
-                    "rules_crypto_algs": {
-                        "DES": 2
-                    },
-                    "rules_block_cipher_modes": {},
-                    "rules_ecc_curves": {},
-                    "rules_cplc": {},
-                    "rules_crypto_engines": {},
-                    "rules_crypto_libs": {},
-                    "rules_IC_data_groups": {},
-                    "rules_defenses": {},
-                    "rules_certification_process": {
-                        "h January 2009, \"Evaluation Technical Report Digital Access Controller (DAC) R10.1.5\", Brightsight (confidential document) [8] Configuration list for the TOE, Version 3.3, 19th January 2009, \"Configuration Management List": 1,
-                        ", 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products\", Oc Technologies B.V. (confidential document) [9] Oc VarioPrint 1055-75 Job manual, Code Number 1060061982, Edition 2007, 2.1, Oc Technologies": 1
-                    },
-                    "rules_vulnerabilities": {},
-                    "rules_other": {}
-                },
-                "st_keywords": {
-                    "rules_vendor": {},
-                    "rules_cert_id": {},
-                    "rules_protection_profiles": {},
-                    "rules_technical_reports": {},
-                    "rules_device_id": {},
-                    "rules_os": {},
-                    "rules_standard_id": {},
-                    "rules_security_level": {
-                        "EAL2": 7,
-                        "EAL2+": 1,
-                        "EAL 2": 3
-                    },
-                    "rules_security_assurance_components": {
-                        "ACM_CAP.2": 2,
-                        "ADO_DEL.1": 2,
-                        "ADO_IGS.1": 2,
-                        "ADV_FSP.1": 2,
-                        "ADV_HLD.1": 2,
-                        "ADV_RCR.1": 2,
-                        "AGD_ADM.1": 2,
-                        "AGD_USR.1": 2,
-                        "ALC_FLR.1": 6,
-                        "ALC_FLR": 1,
-                        "ATE_COV.1": 2,
-                        "ATE_FUN.1": 2,
-                        "ATE_IND.2": 2,
-                        "AVA_SOF.1": 2,
-                        "AVA_VLA.1": 3,
-                        "ASE_JOB": 6
-                    },
-                    "rules_security_functional_components": {
-                        "FDP_ACC.1": 7,
-                        "FDP_ACF.1": 6,
-                        "FDP_ACF.1.2": 1,
-                        "FDP_ACF.1.3": 1,
-                        "FDP_ACF.1.4": 1,
-                        "FDP_RIP.1": 3,
-                        "FIA_UID.1": 10,
-                        "FIA_UID.1.1": 1,
-                        "FIA_UID.1.2": 1,
-                        "FIA_UAU.1": 5,
-                        "FIA_UAU.1.1": 1,
-                        "FIA_UAU.1.2": 1,
-                        "FIA_UID.2": 6,
-                        "FIA_UID.2.1": 1,
-                        "FIA_UAU.2": 5,
-                        "FIA_UAU.2.1": 1,
-                        "FMT_MSA.3": 6,
-                        "FMT_MOF.1": 4,
-                        "FMT_MOF.1.1": 2,
-                        "FMT_SMF.1": 7,
-                        "FMT_SMR.1": 8,
-                        "FMT_MSA.1": 6,
-                        "FMT_MSA.1.1": 1,
-                        "FMT_MSA.3.1": 1,
-                        "FMT_MSA.3.2": 1,
-                        "FMT_SMF.1.1": 1,
-                        "FMT_SMR.1.1": 1,
-                        "FPT_SEP.1": 8,
-                        "FPT_SEP.1.2": 1,
-                        "FPT_RVM.1": 8,
-                        "FPT_RVM.1.1": 1,
-                        "FPT_TST.1": 3,
-                        "FPT_TST.1.1": 1,
-                        "FPT_TST.1.2": 1,
-                        "FPT_TST.1.3": 1,
-                        "FPT_AMT.1": 3
-                    },
-                    "rules_cc_claims": {
-                        "D.SECURE_PRINT_JOB": 30,
-                        "D.PRINT_JOB": 24,
-                        "D.SCAN_JOB": 23,
-                        "D.INBOUND_TRAFFIC": 9,
-                        "D.OUTBOUND_TRAFFIC": 7,
-                        "D.PRINTJOB": 2,
-                        "D.SCANJOB": 2,
-                        "D.SECURE_PRINTJOB": 1,
-                        "O.F.INBOUND_FILTER": 5,
-                        "O.F.OUTBOUND_FILTER": 4,
-                        "O.F.JOB_RELEASE": 5,
-                        "O.F.JOB_SHRED": 4,
-                        "O.F.AUTHENTICATE": 5,
-                        "O.F.SELFTEST": 4,
-                        "O.A.SLA": 4,
-                        "O.E.ENVIRONMENT": 3,
-                        "O.E.DEPLOYMENT": 3,
-                        "O.E.DIGITAL_COPIER": 4,
-                        "O.E.SHREDDING": 4,
-                        "O.F.OUTBOUND_FLITER": 1,
-                        "O.F.JOB_SHREAD": 2,
-                        "O.E.NETWORK_POLICY": 2,
-                        "O.F.SELFTTEST": 1,
-                        "T.RESIDUAL_DATA": 3,
-                        "T.NOSY_USER": 3,
-                        "T.MALWARE": 4,
-                        "A.DIGITAL_COPIER": 3,
-                        "A.ENVIRONMENT": 3,
-                        "A.SECURITY_POLICY": 3,
-                        "A.SHREDDING": 3,
-                        "A.SLA": 7,
-                        "R.RELEASE_JOB": 6,
-                        "R.PRINT_JOB": 4,
-                        "R.FORWARD_JOB": 4,
-                        "R.SCAN_JOB": 4,
-                        "R.SHRED_JOB": 2,
-                        "R.ENTER_TOE": 4,
-                        "R.EXIT_TOE": 4,
-                        "R.REMOTE_USER": 1,
-                        "R": 1
-                    },
-                    "rules_javacard": {},
-                    "rules_javacard_api_consts": {},
-                    "rules_javacard_packages": {},
-                    "rules_crypto_algs": {},
-                    "rules_block_cipher_modes": {},
-                    "rules_ecc_curves": {},
-                    "rules_cplc": {},
-                    "rules_crypto_engines": {},
-                    "rules_crypto_libs": {},
-                    "rules_IC_data_groups": {},
-                    "rules_defenses": {},
-                    "rules_certification_process": {},
-                    "rules_vulnerabilities": {},
-                    "rules_other": {}
-                }
-            },
-            "heuristics": {
-                "_type": "CCHeuristics",
-                "extracted_versions": [
-                    "10.1.5"
-                ],
-                "cpe_matches": null,
-                "verified_cpe_matches": null,
-                "related_cves": null,
-                "cert_lab": [
-                    "BSI"
-                ],
-                "cert_id": "BSI-DSZ-CC-0517-2009"
-            }
+  "_type": "CCDataset",
+  "state": {
+    "_type": "DatasetInternalState",
+    "meta_sources_parsed": false,
+    "pdfs_downloaded": false,
+    "pdfs_converted": false,
+    "certs_analyzed": false
+  },
+  "timestamp": "2021-11-14 13:18:53.333058",
+  "sha256_digest": "not implemented",
+  "name": "test dataset",
+  "description": "test dataset for testing dependencies",
+  "n_certs": 3,
+  "certs": [
+    {
+      "_type": "CommonCriteriaCert",
+      "dgst": "c30de3192d2e8ec2",
+      "status": "archived",
+      "category": "Other Devices and Systems",
+      "name": "Océ Digital Access Controller (DAC) R10.1.5 for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
+      "manufacturer": "Océ N.V.",
+      "scheme": "DE",
+      "security_level": {
+        "_type": "Set",
+        "elements": [
+          "ALC_FLR.1",
+          "EAL2+"
+        ]
+      },
+      "not_valid_before": "2009-02-20",
+      "not_valid_after": "2019-09-01",
+      "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0517a.pdf",
+      "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0517b.pdf",
+      "cert_link": null,
+      "manufacturer_web": "https://global.oce.com/",
+      "protection_profiles": {
+        "_type": "Set",
+        "elements": []
+      },
+      "maintenance_updates": {
+        "_type": "Set",
+        "elements": []
+      },
+      "state": {
+        "_type": "InternalState",
+        "st_download_ok": true,
+        "report_download_ok": true,
+        "st_convert_ok": true,
+        "report_convert_ok": true,
+        "st_extract_ok": true,
+        "report_extract_ok": true,
+        "errors": [],
+        "st_pdf_hash": "16f1c7e32517d22f6062edf439f8c67eb0d202fadaaf1c54c1f96af7f74ad7ac",
+        "report_pdf_hash": "2dc5ff15361621bb2bd7db79491b88a70049abe4ffbe8370de87f9c51f42fb50",
+        "st_txt_hash": "81c53d1e5b1c2fcb129ce1053d13cd1308f7a556921f0b9024cedf75c6b2efb7",
+        "report_txt_hash": "460e8010dbc8f5de5b87bf96fd45c71cfd9f3869f34ca6ac1ab02cbd70d2523f"
+      },
+      "pdf_data": {
+        "_type": "PdfData",
+        "report_metadata": {
+          "pdf_file_size_bytes": 393439,
+          "pdf_is_encrypted": false,
+          "pdf_number_of_pages": 32,
+          "/CreationDate": "D:20090319113422+01'00'",
+          "/Subject": "Common Criteria, Certification",
+          "/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+          "/Creator": "Writer",
+          "/Keywords": "\"Océ Digital Access Controller (DAC) R10.1.5for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products, Océ Technologies B.V., BSI-DSZ-CC-0517-2009, Common Criteria, Certification\"",
+          "/Producer": "StarOffice 9",
+          "/ModDate": "D:20090319183830+01'00'",
+          "/Title": "Certification Report BSI-DSZ-CC-0517-2009"
         },
-        {
-            "_type": "CommonCriteriaCert",
-            "dgst": "53fe111411edfa45",
-            "status": "archived",
-            "category": "Other Devices and Systems",
-            "name": "Océ Digital Access Controller (DAC) R9.1.6",
-            "manufacturer": "Océ N.V.",
-            "scheme": "DE",
-            "security_level": {
-                "_type": "Set",
-                "elements": [
-                    "ALC_FLR.1",
-                    "EAL2+"
-                ]
-            },
-            "not_valid_before": "2006-10-26",
-            "not_valid_after": "2019-09-01",
-            "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0370a.pdf",
-            "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0370b.pdf",
-            "cert_link": null,
-            "manufacturer_web": "https://global.oce.com/",
-            "protection_profiles": [],
-            "maintenance_updates": [],
-            "state": {
-                "_type": "InternalState",
-                "st_download_ok": true,
-                "report_download_ok": true,
-                "st_convert_ok": true,
-                "report_convert_ok": true,
-                "st_extract_ok": true,
-                "report_extract_ok": true,
-                "errors": []
-            },
-            "pdf_data": {
-                "_type": "PdfData",
-                "report_metadata": {
-                    "pdf_file_size_bytes": 296713,
-                    "pdf_is_encrypted": false,
-                    "pdf_number_of_pages": 42,
-                    "/CreationDate": "D:20061120121645+01'00'",
-                    "/Subject": "Certification Report BSI-DSZ-CC-0370-2006",
-                    "/Author": "Bundesamt für Sicherheit in der Informationstechnik",
-                    "/Creator": "Acrobat PDFMaker 7.0.7 für Word",
-                    "/Keywords": "Common Criteria, Certification, Zertifizierung",
-                    "/Producer": "Acrobat Distiller 7.0.5 (Windows)",
-                    "/ModDate": "D:20061123132355+01'00'",
-                    "/Company": "BSI, Postfach 200363, 53133 Bonn",
-                    "/SourceModified": "D:20061120111624",
-                    "/Title": "Certification Report BSI-DSZ-CC-0370-2006"
-                },
-                "st_metadata": {
-                    "pdf_file_size_bytes": 565604,
-                    "pdf_is_encrypted": false,
-                    "pdf_number_of_pages": 63,
-                    "/CreationDate": "D:20060829071953Z",
-                    "/Author": "hunter",
-                    "/Creator": "PScript5.dll Version 5.2.2",
-                    "/Producer": "Acrobat Distiller 5.0.5 (Windows)",
-                    "/ModDate": "D:20061123132807+01'00'",
-                    "/Title": "Microsoft Word - Oce Venlo DAC Security Target 2.4.doc"
-                },
-                "report_frontpage": {
-                    "bsi": {
-                        "match_rules": [
-                            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
-                        ],
-                        "cert_id": "BSI-DSZ-CC-0370-2006",
-                        "cert_item": "Oc Digital Access Controller (DAC) R9.1.6",
-                        "developer": "Oc Technologies B.V",
-                        "cert_lab": "BSI"
-                    },
-                    "anssi": {}
-                },
-                "st_frontpage": {
-                    "anssi": {},
-                    "bsi": {}
-                },
-                "report_keywords": {
-                    "rules_vendor": {},
-                    "rules_cert_id": {
-                        "BSI-DSZ-CC-0370-2006": 40,
-                        "BSI-DSZ-CC-0325-2006": 1
-                    },
-                    "rules_protection_profiles": {},
-                    "rules_technical_reports": {
-                        "BSI 7125": 2,
-                        "BSI 7148": 1,
-                        "BSI 7149": 1
-                    },
-                    "rules_device_id": {},
-                    "rules_os": {},
-                    "rules_standard_id": {
-                        "AIS 34": 1,
-                        "AIS33": 1,
-                        "ISO/IEC 15408:2005": 2
-                    },
-                    "rules_security_level": {
-                        "EAL2": 7,
-                        "EAL4": 6,
-                        "EAL 1": 1,
-                        "EAL 7": 1,
-                        "EAL 4": 1,
-                        "EAL2+": 2,
-                        "EAL1": 5,
-                        "EAL3": 4,
-                        "EAL5": 6,
-                        "EAL6": 4,
-                        "EAL7": 4,
-                        "EAL2 augmented": 3
-                    },
-                    "rules_security_assurance_components": {
-                        "ACM_CAP.2": 1,
-                        "ACM_AUT": 2,
-                        "ACM_CAP": 2,
-                        "ACM_SCP": 2,
-                        "ADO_DEL.1": 1,
-                        "ADO_IGS.1": 1,
-                        "ADO_DEL": 2,
-                        "ADO_IGS": 2,
-                        "ADV_FSP.1": 1,
-                        "ADV_HLD.1": 1,
-                        "ADV_RCR.1": 1,
-                        "ADV_FSP": 2,
-                        "ADV_HLD": 2,
-                        "ADV_IMP": 2,
-                        "ADV_INT": 2,
-                        "ADV_LLD": 2,
-                        "ADV_RCR": 2,
-                        "ADV_SPM": 2,
-                        "AGD_ADM.1": 1,
-                        "AGD_USR.1": 1,
-                        "AGD_ADM": 2,
-                        "AGD_USR": 2,
-                        "ALC_FLR.1": 4,
-                        "ALC_DVS": 2,
-                        "ALC_FLR": 2,
-                        "ALC_LCD": 2,
-                        "ALC_TAT": 2,
-                        "ATE_COV.1": 1,
-                        "ATE_FUN.1": 1,
-                        "ATE_IND.2": 1,
-                        "ATE_COV": 2,
-                        "ATE_DPT": 2,
-                        "ATE_FUN": 2,
-                        "ATE_IND": 2,
-                        "AVA_SOF.1": 1,
-                        "AVA_VLA.1": 1,
-                        "AVA_CCA": 2,
-                        "AVA_MSU": 2,
-                        "AVA_SOF": 3,
-                        "AVA_VLA": 3,
-                        "AVA_VLA.2": 1,
-                        "AVA_VLA.3": 1,
-                        "AVA_VLA.4": 1,
-                        "ASE_DES.1": 1,
-                        "ASE_ENV.1": 1,
-                        "ASE_INT.1": 1,
-                        "ASE_OBJ.1": 1,
-                        "ASE_PPC.1": 1,
-                        "ASE_REQ.1": 1,
-                        "ASE_SRE.1": 1,
-                        "ASE_TSS.1": 1
-                    },
-                    "rules_security_functional_components": {
-                        "FDP_ACC.1": 1,
-                        "FDP_ACF.1": 1,
-                        "FDP_RIP.1": 1,
-                        "FIA_UAU.1": 3,
-                        "FIA_UAU.2": 2,
-                        "FIA_UID.1": 3,
-                        "FIA_UID.2": 3,
-                        "FMT_MOF.1": 1,
-                        "FMT_MSA.1": 1,
-                        "FMT_MSA.3": 1,
-                        "FMT_SMF.1": 1,
-                        "FMT_SMR.1": 1,
-                        "FPT_RVM.1": 1,
-                        "FPT_SEP.1": 1,
-                        "FPT_TST.1": 1
-                    },
-                    "rules_cc_claims": {
-                        "D.SECURE_PRINT_JOB": 4,
-                        "D.PRINTJOB": 1,
-                        "D.SCANJOB": 1,
-                        "D.PRINT_JOB": 2,
-                        "D.SCAN_JOB": 1,
-                        "T.RESIDUAL_DATA": 1,
-                        "T.NOSY_USER": 1,
-                        "T.MALWARE": 1,
-                        "A.DIGITAL_COPIER": 1,
-                        "A.ENVIRONMENT": 1,
-                        "A.SECURITY_POLICY": 1,
-                        "A.SHREDDING": 1,
-                        "A.SLA": 1
-                    },
-                    "rules_javacard": {},
-                    "rules_javacard_api_consts": {},
-                    "rules_javacard_packages": {},
-                    "rules_crypto_algs": {},
-                    "rules_block_cipher_modes": {},
-                    "rules_ecc_curves": {},
-                    "rules_cplc": {},
-                    "rules_crypto_engines": {},
-                    "rules_crypto_libs": {},
-                    "rules_IC_data_groups": {},
-                    "rules_defenses": {},
-                    "rules_certification_process": {
-                        "as used in the Oc VarioPrint 1055, 1065, 1075, 2062,2075 printer/copier/scanner products  EAL2+ (confidential document) Guidance Documentation [9] Oc VarioPrint 1055, 1065,1075, 2062, 2075, Common Criteria Certified": 1
-                    },
-                    "rules_vulnerabilities": {},
-                    "rules_other": {}
-                },
-                "st_keywords": {
-                    "rules_vendor": {},
-                    "rules_cert_id": {},
-                    "rules_protection_profiles": {},
-                    "rules_technical_reports": {},
-                    "rules_device_id": {},
-                    "rules_os": {},
-                    "rules_standard_id": {},
-                    "rules_security_level": {
-                        "EAL2": 7,
-                        "EAL 2": 3,
-                        "EAL2+": 1
-                    },
-                    "rules_security_assurance_components": {
-                        "ACM_CAP.2": 2,
-                        "ADO_DEL.1": 2,
-                        "ADO_IGS.1": 2,
-                        "ADV_FSP.1": 2,
-                        "ADV_HLD.1": 2,
-                        "ADV_RCR.1": 2,
-                        "AGD_ADM.1": 2,
-                        "AGD_USR.1": 2,
-                        "ALC_FLR.1": 7,
-                        "ALC_FLR": 1,
-                        "ATE_COV.1": 2,
-                        "ATE_FUN.1": 2,
-                        "ATE_IND.2": 2,
-                        "AVA_SOF.1": 2,
-                        "AVA_VLA.1": 3,
-                        "ASE_JOB": 6
-                    },
-                    "rules_security_functional_components": {
-                        "FDP_ACC.1": 7,
-                        "FDP_ACF.1": 6,
-                        "FDP_ACF.1.2": 1,
-                        "FDP_ACF.1.3": 1,
-                        "FDP_ACF.1.4": 1,
-                        "FDP_RIP.1": 3,
-                        "FIA_UID.1": 10,
-                        "FIA_UID.1.1": 1,
-                        "FIA_UID.1.2": 1,
-                        "FIA_UAU.1": 5,
-                        "FIA_UAU.1.1": 1,
-                        "FIA_UAU.1.2": 1,
-                        "FIA_UID.2": 6,
-                        "FIA_UID.2.1": 1,
-                        "FIA_UAU.2": 5,
-                        "FIA_UAU.2.1": 1,
-                        "FMT_MSA.3": 6,
-                        "FMT_MOF.1": 4,
-                        "FMT_MOF.1.1": 2,
-                        "FMT_SMF.1": 7,
-                        "FMT_SMR.1": 8,
-                        "FMT_MSA.1": 6,
-                        "FMT_MSA.1.1": 1,
-                        "FMT_MSA.3.1": 1,
-                        "FMT_MSA.3.2": 1,
-                        "FMT_SMF.1.1": 1,
-                        "FMT_SMR.1.1": 1,
-                        "FPT_SEP.1": 8,
-                        "FPT_SEP.1.2": 1,
-                        "FPT_RVM.1": 8,
-                        "FPT_RVM.1.1": 1,
-                        "FPT_TST.1": 3,
-                        "FPT_TST.1.1": 1,
-                        "FPT_TST.1.2": 1,
-                        "FPT_TST.1.3": 1,
-                        "FPT_AMT.1": 3
-                    },
-                    "rules_cc_claims": {
-                        "D.SECURE_PRINT_JOB": 30,
-                        "D.PRINT_JOB": 24,
-                        "D.SCAN_JOB": 23,
-                        "D.INBOUND_TRAFFIC": 8,
-                        "D.OUTBOUND_TRAFFIC": 8,
-                        "D.PRINTJOB": 2,
-                        "D.SCANJOB": 2,
-                        "D.SECURE_PRINTJOB": 1,
-                        "O.F.INBOUND_FILTER": 5,
-                        "O.F.OUTBOUND_FILTER": 4,
-                        "O.F.JOB_RELEASE": 5,
-                        "O.F.JOB_SHRED": 4,
-                        "O.F.AUTHENTICATE": 5,
-                        "O.F.SELFTEST": 4,
-                        "O.A.SLA": 4,
-                        "O.E.ENVIRONMENT": 3,
-                        "O.E.DEPLOYMENT": 3,
-                        "O.E.DIGITAL_COPIER": 4,
-                        "O.E.SHREDDING": 4,
-                        "O.F.OUTBOUND_FLITER": 1,
-                        "O.F.JOB_SHREAD": 2,
-                        "O.E.NETWORK_POLICY": 2,
-                        "O.F.SELFTTEST": 1,
-                        "T.RESIDUAL_DATA": 3,
-                        "T.NOSY_USER": 3,
-                        "T.MALWARE": 4,
-                        "A.DIGITAL_COPIER": 3,
-                        "A.ENVIRONMENT": 3,
-                        "A.SECURITY_POLICY": 3,
-                        "A.SHREDDING": 3,
-                        "A.SLA": 7,
-                        "R.RELEASE_JOB": 6,
-                        "R.PRINT_JOB": 4,
-                        "R.FORWARD_JOB": 4,
-                        "R.SCAN_JOB": 4,
-                        "R.SHRED_JOB": 2,
-                        "R.ENTER_TOE": 4,
-                        "R.EXIT_TOE": 4,
-                        "R.REMOTE_USER": 1,
-                        "R": 1
-                    },
-                    "rules_javacard": {},
-                    "rules_javacard_api_consts": {},
-                    "rules_javacard_packages": {},
-                    "rules_crypto_algs": {},
-                    "rules_block_cipher_modes": {},
-                    "rules_ecc_curves": {},
-                    "rules_cplc": {},
-                    "rules_crypto_engines": {},
-                    "rules_crypto_libs": {},
-                    "rules_IC_data_groups": {},
-                    "rules_defenses": {},
-                    "rules_certification_process": {},
-                    "rules_vulnerabilities": {},
-                    "rules_other": {}
-                }
-            },
-            "heuristics": {
-                "_type": "CCHeuristics",
-                "extracted_versions": [
-                    "9.1.6"
-                ],
-                "cpe_matches": null,
-                "verified_cpe_matches": null,
-                "related_cves": null,
-                "cert_lab": [
-                    "BSI"
-                ],
-                "cert_id": "BSI-DSZ-CC-0370-2006"
-            }
+        "st_metadata": {
+          "pdf_file_size_bytes": 1483390,
+          "pdf_is_encrypted": false,
+          "pdf_number_of_pages": 95,
+          "/CreationDate": "D:20090119132159+01'00'",
+          "/Subject": "Security Target",
+          "/Author": "Océ Technologies B.V.",
+          "/Creator": "Acrobat PDFMaker 5.0 for Word",
+          "/Keywords": "Common Criteria, Certification, Océ, Digital Access Controller, DAC, MFD",
+          "/Producer": "Acrobat Distiller 5.0.5 (Windows)",
+          "/ModDate": "D:20090319184150+01'00'",
+          "/Title": "Security Target The Océ Digital Access Controller (DAC) R10.1.5, as used in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products"
         },
-        {
-            "_type": "CommonCriteriaCert",
-            "dgst": "692e91451741ef49",
-            "status": "archived",
-            "category": "Other Devices and Systems",
-            "name": "Océ Digital Access Controller R8.1.10",
-            "manufacturer": "Océ N.V.",
-            "scheme": "DE",
-            "security_level": {
-                "_type": "Set",
-                "elements": [
-                    "ALC_FLR.1",
-                    "EAL2+"
-                ]
+        "report_frontpage": {
+          "anssi": {},
+          "bsi": {
+            "match_rules": [
+              "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+            ],
+            "cert_id": "BSI-DSZ-CC-0517-2009",
+            "cert_item": "Océ Digital Access Controller (DAC) R10.1.5 for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
+            "developer": "Océ Technologies B.V",
+            "cert_lab": "BSI"
+          },
+          "nscib": {},
+          "niap": {},
+          "canada": {}
+        },
+        "st_frontpage": {
+          "anssi": {},
+          "bsi": {},
+          "nscib": {},
+          "niap": {},
+          "canada": {}
+        },
+        "report_keywords": {
+          "cc_cert_id": {
+            "DE": {
+              "BSI-DSZ-CC-0517-2009": 62,
+              "BSI-DSZ-CC-0370-2006": 2
             },
-            "not_valid_before": "2006-01-27",
-            "not_valid_after": "2019-09-01",
-            "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0325a.pdf",
-            "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0325b.pdf",
-            "cert_link": null,
-            "manufacturer_web": "https://global.oce.com/",
-            "protection_profiles": [],
-            "maintenance_updates": [],
-            "state": {
-                "_type": "InternalState",
-                "st_download_ok": true,
-                "report_download_ok": true,
-                "st_convert_ok": true,
-                "report_convert_ok": true,
-                "st_extract_ok": true,
-                "report_extract_ok": true,
-                "errors": []
+            "FR": {},
+            "NL": {},
+            "NO": {},
+            "US": {},
+            "CA": {},
+            "UK": {},
+            "ES": {},
+            "KR": {},
+            "JP": {},
+            "MY": {},
+            "IT": {},
+            "TR": {},
+            "SE": {},
+            "IN": {},
+            "SG": {},
+            "AU": {}
+          },
+          "cc_protection_profile_id": {
+            "BSI": {},
+            "ANSSI": {},
+            "KECS": {},
+            "other": {}
+          },
+          "cc_security_level": {
+            "EAL": {
+              "EAL 2": 4,
+              "EAL 1": 1,
+              "EAL 7": 1,
+              "EAL 4": 1,
+              "EAL1": 5,
+              "EAL2": 4,
+              "EAL3": 4,
+              "EAL4": 5,
+              "EAL5": 6,
+              "EAL6": 4,
+              "EAL7": 4,
+              "EAL 2 augmented": 3
             },
-            "pdf_data": {
-                "_type": "PdfData",
-                "report_metadata": {
-                    "pdf_file_size_bytes": 628533,
-                    "pdf_is_encrypted": false,
-                    "pdf_number_of_pages": 44,
-                    "/CreationDate": "D:20060214093547+01'00'",
-                    "/Subject": "Océ Digital Access Controller (DAC)",
-                    "/Author": "Bundesamt für Sicherheit in der Informationstechnik",
-                    "/Creator": "Acrobat PDFMaker 7.0.5 für Word",
-                    "/Keywords": "b'Oc\\xe9 Digital Access Controller (DAC)R 8.1.10, Certification Report BSI-DSZ-CC-0325-2006\\r\\n'",
-                    "/Producer": "Acrobat Distiller 7.0.5 (Windows)",
-                    "/ModDate": "D:20060302140843+01'00'",
-                    "/Company": "BSI, Postfach 200363, 53133 Bonn",
-                    "/SourceModified": "D:20060214083526",
-                    "/Title": "Certification Report BSI-DSZ-CC-0325-2006"
-                },
-                "st_metadata": {
-                    "pdf_file_size_bytes": 545641,
-                    "pdf_is_encrypted": false,
-                    "pdf_number_of_pages": 64,
-                    "/CreationDate": "D:20050908171003+02'00'",
-                    "/ModDate": "D:20050908171003+02'00'",
-                    "/Producer": "Acrobat Distiller 5.0.5 (Windows)",
-                    "/Author": "hunter",
-                    "/Creator": "PScript5.dll Version 5.2.2",
-                    "/Title": "Microsoft Word - Oce Venlo DAC Security Target 1.9.doc"
-                },
-                "report_frontpage": {
-                    "bsi": {
-                        "match_rules": [
-                            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
-                        ],
-                        "cert_id": "BSI-DSZ-CC-0325-2006",
-                        "cert_item": "Oc Digital Access Controller (DAC) R 8.1.10",
-                        "developer": "Oc Technologies B.V",
-                        "cert_lab": "BSI"
-                    },
-                    "anssi": {}
-                },
-                "st_frontpage": {
-                    "anssi": {},
-                    "bsi": {}
-                },
-                "report_keywords": {
-                    "rules_vendor": {},
-                    "rules_cert_id": {
-                        "BSI-DSZ-CC-0325-2006": 42,
-                        "BSI-DSZ-CC-0268-2005": 1
-                    },
-                    "rules_protection_profiles": {},
-                    "rules_technical_reports": {
-                        "BSI 7125": 2,
-                        "BSI 7148": 1,
-                        "BSI 7149": 1
-                    },
-                    "rules_device_id": {},
-                    "rules_os": {},
-                    "rules_standard_id": {
-                        "AIS 34": 1,
-                        "AIS 32": 1,
-                        "AIS33": 1,
-                        "ISO/IEC 15408:1999": 1
-                    },
-                    "rules_security_level": {
-                        "EAL2": 7,
-                        "EAL4": 6,
-                        "EAL 1": 1,
-                        "EAL 7": 1,
-                        "EAL 4": 1,
-                        "EAL2+": 2,
-                        "EAL1": 5,
-                        "EAL3": 4,
-                        "EAL5": 6,
-                        "EAL6": 4,
-                        "EAL7": 4,
-                        "EAL2 augmented": 3
-                    },
-                    "rules_security_assurance_components": {
-                        "ACM_CAP.2": 1,
-                        "ACM_AUT": 2,
-                        "ACM_CAP": 2,
-                        "ACM_SCP": 2,
-                        "ADO_DEL.1": 1,
-                        "ADO_IGS.1": 1,
-                        "ADO_DEL": 2,
-                        "ADO_IGS": 2,
-                        "ADV_FSP.1": 1,
-                        "ADV_HLD.1": 1,
-                        "ADV_RCR.1": 1,
-                        "ADV_FSP": 2,
-                        "ADV_HLD": 2,
-                        "ADV_IMP": 2,
-                        "ADV_INT": 2,
-                        "ADV_LLD": 2,
-                        "ADV_RCR": 2,
-                        "ADV_SPM": 2,
-                        "AGD_ADM.1": 1,
-                        "AGD_USR.1": 1,
-                        "AGD_ADM": 2,
-                        "AGD_USR": 2,
-                        "ALC_FLR.1": 4,
-                        "ALC_DVS": 2,
-                        "ALC_FLR": 2,
-                        "ALC_LCD": 2,
-                        "ALC_TAT": 2,
-                        "ATE_COV.1": 1,
-                        "ATE_FUN.1": 1,
-                        "ATE_IND.2": 1,
-                        "ATE_COV": 2,
-                        "ATE_DPT": 2,
-                        "ATE_FUN": 2,
-                        "ATE_IND": 2,
-                        "AVA_SOF.1": 1,
-                        "AVA_VLA.1": 1,
-                        "AVA_CCA": 2,
-                        "AVA_MSU": 2,
-                        "AVA_SOF": 4,
-                        "AVA_VLA": 4,
-                        "AVA_VLA.2": 1,
-                        "AVA_VLA.3": 1,
-                        "AVA_VLA.4": 1,
-                        "ASE_DES.1": 1,
-                        "ASE_ENV.1": 1,
-                        "ASE_INT.1": 1,
-                        "ASE_OBJ.1": 1,
-                        "ASE_PPC.1": 1,
-                        "ASE_REQ.1": 1,
-                        "ASE_SRE.1": 1,
-                        "ASE_TSS.1": 1
-                    },
-                    "rules_security_functional_components": {
-                        "FDP_ACC.1": 1,
-                        "FDP_ACF.1": 1,
-                        "FDP_RIP.1": 1,
-                        "FIA_UAU.1": 3,
-                        "FIA_UAU.2": 2,
-                        "FIA_UID.1": 3,
-                        "FIA_UID.2": 3,
-                        "FMT_MOF.1": 1,
-                        "FMT_MSA.1": 1,
-                        "FMT_MSA.3": 1,
-                        "FMT_SMF.1": 1,
-                        "FMT_SMR.1": 1,
-                        "FPT_RVM.1": 1,
-                        "FPT_SEP.1": 1,
-                        "FPT_TST.1": 1
-                    },
-                    "rules_cc_claims": {
-                        "D.SECURE_PRINT_JOB": 4,
-                        "D.PRINTJOB": 1,
-                        "D.SCANJOB": 1,
-                        "D.PRINT_JOB": 2,
-                        "D.SCAN_JOB": 1,
-                        "T.RESIDUAL_DATA": 1,
-                        "T.NOSY_USER": 1,
-                        "T.MALWARE": 1,
-                        "A.DIGITAL_COPIER": 1,
-                        "A.ENVIRONMENT": 1,
-                        "A.SECURITY_POLICY": 1,
-                        "A.SHREDDING": 1,
-                        "A.SLA": 1
-                    },
-                    "rules_javacard": {},
-                    "rules_javacard_api_consts": {},
-                    "rules_javacard_packages": {},
-                    "rules_crypto_algs": {},
-                    "rules_block_cipher_modes": {},
-                    "rules_ecc_curves": {},
-                    "rules_cplc": {},
-                    "rules_crypto_engines": {},
-                    "rules_crypto_libs": {},
-                    "rules_IC_data_groups": {},
-                    "rules_defenses": {},
-                    "rules_certification_process": {
-                        "65, the Oc VarioPrint 2050-70, the Oc 31x5 ranges of Oc printer/copier/scanner products  EAL2+ (confidential document) Guidance Documentation [9] Oc VarioPrint 2045-65, Oc VarioPrint 2050-70, Oc 31x5: Common": 1
-                    },
-                    "rules_vulnerabilities": {},
-                    "rules_other": {}
-                },
-                "st_keywords": {
-                    "rules_vendor": {},
-                    "rules_cert_id": {},
-                    "rules_protection_profiles": {},
-                    "rules_technical_reports": {},
-                    "rules_device_id": {},
-                    "rules_os": {},
-                    "rules_standard_id": {},
-                    "rules_security_level": {
-                        "EAL2": 7,
-                        "EAL 2": 3,
-                        "EAL2+": 1
-                    },
-                    "rules_security_assurance_components": {
-                        "ACM_CAP.2": 2,
-                        "ADO_DEL.1": 2,
-                        "ADO_IGS.1": 2,
-                        "ADV_FSP.1": 2,
-                        "ADV_HLD.1": 2,
-                        "ADV_RCR.1": 2,
-                        "AGD_ADM.1": 2,
-                        "AGD_USR.1": 2,
-                        "ALC_FLR.1": 7,
-                        "ALC_FLR": 1,
-                        "ATE_COV.1": 2,
-                        "ATE_FUN.1": 2,
-                        "ATE_IND.2": 2,
-                        "AVA_SOF.1": 2,
-                        "AVA_VLA.1": 3,
-                        "ASE_JOB": 6
-                    },
-                    "rules_security_functional_components": {
-                        "FDP_ACC.1": 7,
-                        "FDP_ACF.1": 6,
-                        "FDP_ACF.1.2": 1,
-                        "FDP_ACF.1.3": 1,
-                        "FDP_ACF.1.4": 1,
-                        "FDP_RIP.1": 3,
-                        "FIA_UID.1": 10,
-                        "FIA_UID.1.1": 1,
-                        "FIA_UID.1.2": 1,
-                        "FIA_UAU.1": 5,
-                        "FIA_UAU.1.1": 1,
-                        "FIA_UAU.1.2": 1,
-                        "FIA_UID.2": 6,
-                        "FIA_UID.2.1": 1,
-                        "FIA_UAU.2": 5,
-                        "FIA_UAU.2.1": 1,
-                        "FMT_MSA.3": 6,
-                        "FMT_MOF.1": 4,
-                        "FMT_MOF.1.1": 2,
-                        "FMT_SMF.1": 7,
-                        "FMT_SMR.1": 8,
-                        "FMT_MSA.1": 6,
-                        "FMT_MSA.1.1": 1,
-                        "FMT_MSA.3.1": 1,
-                        "FMT_MSA.3.2": 1,
-                        "FMT_SMF.1.1": 1,
-                        "FMT_SMR.1.1": 1,
-                        "FPT_SEP.1": 8,
-                        "FPT_SEP.1.2": 1,
-                        "FPT_RVM.1": 8,
-                        "FPT_RVM.1.1": 1,
-                        "FPT_TST.1": 3,
-                        "FPT_TST.1.1": 1,
-                        "FPT_TST.1.2": 1,
-                        "FPT_TST.1.3": 1,
-                        "FPT_AMT.1": 3
-                    },
-                    "rules_cc_claims": {
-                        "D.SECURE_PRINT_JOB": 30,
-                        "D.PRINT_JOB": 24,
-                        "D.SCAN_JOB": 23,
-                        "D.INBOUND_TRAFFIC": 8,
-                        "D.OUTBOUND_TRAFFIC": 8,
-                        "D.PRINTJOB": 2,
-                        "D.SCANJOB": 2,
-                        "D.SECURE_PRINTJOB": 1,
-                        "O.F.INBOUND_FILTER": 5,
-                        "O.F.OUTBOUND_FILTER": 4,
-                        "O.F.JOB_RELEASE": 5,
-                        "O.F.JOB_SHRED": 4,
-                        "O.F.AUTHENTICATE": 5,
-                        "O.F.SELFTEST": 4,
-                        "O.A.SLA": 4,
-                        "O.E.ENVIRONMENT": 3,
-                        "O.E.DEPLOYMENT": 3,
-                        "O.E.DIGITAL_COPIER": 4,
-                        "O.E.SHREDDING": 4,
-                        "O.F.OUTBOUND_FLITER": 1,
-                        "O.F.JOB_SHREAD": 2,
-                        "O.E.NETWORK_POLICY": 2,
-                        "O.F.SELFTTEST": 1,
-                        "T.RESIDUAL_DATA": 3,
-                        "T.NOSY_USER": 3,
-                        "T.MALWARE": 4,
-                        "A.DIGITAL_COPIER": 3,
-                        "A.ENVIRONMENT": 3,
-                        "A.SECURITY_POLICY": 3,
-                        "A.SHREDDING": 3,
-                        "A.SLA": 7,
-                        "R.RELEASE_JOB": 6,
-                        "R.PRINT_JOB": 4,
-                        "R.FORWARD_JOB": 4,
-                        "R.SCAN_JOB": 4,
-                        "R.SHRED_JOB": 2,
-                        "R.ENTER_TOE": 4,
-                        "R.EXIT_TOE": 4,
-                        "R.REMOTE_USER": 1,
-                        "R": 1
-                    },
-                    "rules_javacard": {},
-                    "rules_javacard_api_consts": {},
-                    "rules_javacard_packages": {},
-                    "rules_crypto_algs": {},
-                    "rules_block_cipher_modes": {},
-                    "rules_ecc_curves": {},
-                    "rules_cplc": {},
-                    "rules_crypto_engines": {},
-                    "rules_crypto_libs": {},
-                    "rules_IC_data_groups": {},
-                    "rules_defenses": {},
-                    "rules_certification_process": {},
-                    "rules_vulnerabilities": {},
-                    "rules_other": {}
-                }
+            "ITSEC": {}
+          },
+          "cc_sar": {
+            "ACE": {},
+            "ACM": {
+              "ACM_AUT": 2,
+              "ACM_CAP": 2,
+              "ACM_SCP": 2
             },
-            "heuristics": {
-                "_type": "CCHeuristics",
-                "extracted_versions": [
-                    "8.1.10"
-                ],
-                "cpe_matches": null,
-                "verified_cpe_matches": null,
-                "related_cves": null,
-                "cert_lab": [
-                    "BSI"
-                ],
-                "cert_id": "BSI-DSZ-CC-0325-2006"
+            "ACO": {},
+            "ADO": {
+              "ADO_DEL": 2,
+              "ADO_IGS": 2
+            },
+            "ADV": {
+              "ADV_FSP": 2,
+              "ADV_HLD": 2,
+              "ADV_IMP": 2,
+              "ADV_INT": 2,
+              "ADV_LLD": 2,
+              "ADV_RCR": 2,
+              "ADV_SPM": 2
+            },
+            "AGD": {
+              "AGD_ADM": 2,
+              "AGD_USR": 2
+            },
+            "ALC": {
+              "ALC_FLR.1": 3,
+              "ALC_DVS": 2,
+              "ALC_FLR": 2,
+              "ALC_LCD": 2,
+              "ALC_TAT": 2
+            },
+            "ATE": {
+              "ATE_COV": 2,
+              "ATE_DPT": 2,
+              "ATE_FUN": 2,
+              "ATE_IND": 2
+            },
+            "AVA": {
+              "AVA_CCA": 2,
+              "AVA_MSU": 2,
+              "AVA_SOF": 3,
+              "AVA_VLA": 3,
+              "AVA_VLA.2": 1,
+              "AVA_VLA.3": 1,
+              "AVA_VLA.4": 1
+            },
+            "AMA": {},
+            "APE": {
+              "APE_DES": 1,
+              "APE_ENV": 1,
+              "APE_INT": 1,
+              "APE_OBJ": 1,
+              "APE_REQ": 1,
+              "APE_SRE": 1
+            },
+            "ASE": {
+              "ASE_DES": 1,
+              "ASE_ENV": 1,
+              "ASE_INT": 1,
+              "ASE_OBJ": 1,
+              "ASE_PPC": 1,
+              "ASE_REQ": 1,
+              "ASE_SRE": 1,
+              "ASE_TSS": 1
             }
+          },
+          "cc_sfr": {
+            "FAU": {},
+            "FCO": {},
+            "FCS": {},
+            "FDP": {},
+            "FIA": {},
+            "FMT": {},
+            "FPR": {},
+            "FPT": {},
+            "FRU": {},
+            "FTA": {},
+            "FTP": {}
+          },
+          "cc_claims": {
+            "D": {
+              "D.PRINT_JOB": 2,
+              "D.SECURE_PRINT_JOB": 1,
+              "D.SCAN_JOB": 1
+            },
+            "O": {},
+            "T": {},
+            "A": {},
+            "R": {},
+            "OT": {},
+            "OP": {},
+            "OE": {},
+            "SA": {},
+            "OSP": {}
+          },
+          "vendor": {
+            "NXP": {},
+            "Infineon": {},
+            "Samsung": {},
+            "STMicroelectronics": {},
+            "Feitian": {},
+            "Gemalto": {},
+            "Gemplus": {},
+            "Axalto": {},
+            "Thales": {},
+            "Oberthur": {},
+            "Idemia": {},
+            "Sagem": {},
+            "Morpho": {},
+            "GD": {},
+            "Philips": {},
+            "Qualcomm": {},
+            "Broadcom": {},
+            "Huawei": {},
+            "Microsoft": {}
+          },
+          "eval_facility": {
+            "Serma": {},
+            "Thales": {},
+            "Riscure": {},
+            "SGS": {},
+            "BrightSight": {
+              "Brightsight": 2
+            },
+            "Applus": {},
+            "TUV": {},
+            "CESTI": {},
+            "DXC": {},
+            "Teron": {},
+            "EWA": {},
+            "Lightship": {},
+            "AMOSSYS": {},
+            "CEA-LETI": {},
+            "OPPIDA": {},
+            "TrustedLabs": {},
+            "atsec": {},
+            "DeutscheTelekom": {},
+            "DFKI": {},
+            "MTG": {},
+            "secuvera": {},
+            "SRC": {},
+            "Acucert": {},
+            "ERTL": {},
+            "ETDC": {},
+            "CCLab": {},
+            "Deeplab": {},
+            "IMQLPS": {},
+            "LVSLeonardo": {},
+            "LVSTechnisBlu": {},
+            "ECSEC": {},
+            "ITSC": {},
+            "Acumen": {},
+            "BoozAllenHamilton": {},
+            "Gossamer": {},
+            "Leidos": {},
+            "UL": {},
+            "BEAM": {},
+            "Certby": {},
+            "DEKRA": {},
+            "STMITSEF": {},
+            "TUBITAK-BILGEM": {},
+            "Combitech": {},
+            "Intertek": {},
+            "Clover": {},
+            "LAYAKK": {},
+            "An": {},
+            "TSystems": {},
+            "KISA": {},
+            "KOIST": {},
+            "KSEL": {},
+            "KOSYAS": {},
+            "KTR": {},
+            "KTC": {},
+            "TTA": {},
+            "ADS": {},
+            "Nemko": {},
+            "Norconsult": {},
+            "Secura": {},
+            "BAE": {}
+          },
+          "symmetric_crypto": {
+            "AES_competition": {
+              "AES": {},
+              "Rijndael": {},
+              "Twofish": {},
+              "Serpent": {},
+              "MARS": {},
+              "HPC": {},
+              "FROG": {},
+              "CAST": {},
+              "RC": {},
+              "CRYPTON": {},
+              "DEAL": {},
+              "E2": {},
+              "LOKI97": {},
+              "MAGENTA": {},
+              "SAFER": {}
+            },
+            "DES": {
+              "DES": {
+                "DES": 2
+              },
+              "3DES": {},
+              "Lucifer": {}
+            },
+            "djb": {
+              "ChaCha": {},
+              "Salsa": {},
+              "Poly": {}
+            },
+            "LWC_competition": {
+              "ASCON": {},
+              "Elephant": {},
+              "GIFT": {},
+              "Grain": {},
+              "ISAP": {},
+              "PhotonBeetle": {},
+              "Romulus": {},
+              "Sparkle": {},
+              "TinyJambu": {},
+              "Xoodyak": {},
+              "Gimli": {}
+            },
+            "eSTREAM": {
+              "HC": {},
+              "Rabbit": {},
+              "SOSEMANUK": {},
+              "MICKEY": {},
+              "Trivium": {}
+            },
+            "CAESAR": {
+              "ACORN": {},
+              "AEGIS": {},
+              "Deoxys": {},
+              "COLM": {}
+            },
+            "miscellaneous": {
+              "IDEA": {},
+              "Blowfish": {},
+              "Camellia": {},
+              "ARIA": {},
+              "SM4": {},
+              "GOST": {},
+              "Skipjack": {},
+              "Skinny": {}
+            },
+            "constructions": {
+              "MAC": {}
+            }
+          },
+          "asymmetric_crypto": {
+            "RSA": {},
+            "ECC": {
+              "ECDH": {},
+              "ECDSA": {},
+              "EdDSA": {},
+              "ECIES": {},
+              "ECC": {}
+            },
+            "FF": {
+              "DH": {},
+              "DSA": {}
+            }
+          },
+          "pq_crypto": {
+            "ClassicMcEliece": {},
+            "Kyber": {},
+            "NTRU": {},
+            "NTRUPrime": {},
+            "Saber": {},
+            "Dilithium": {},
+            "Falcon": {},
+            "Rainbow": {},
+            "UOV": {},
+            "BIKE": {},
+            "Frodo": {},
+            "HQC": {},
+            "SIKE": {},
+            "SIDH": {},
+            "GeMSS": {},
+            "Picnic": {},
+            "SPHINCS": {}
+          },
+          "hash_function": {
+            "SHA": {
+              "SHA1": {},
+              "SHA2": {},
+              "SHA3": {}
+            },
+            "Keccak": {},
+            "SHAKE": {},
+            "Groestl": {},
+            "BLAKE": {},
+            "JH": {},
+            "Skein": {},
+            "MD": {
+              "MD4": {},
+              "MD5": {},
+              "MD6": {}
+            },
+            "RIPEMD": {},
+            "Streebog": {},
+            "Whirpool": {},
+            "PHC_competition": {
+              "Argon": {},
+              "battcrypt": {},
+              "Catena": {},
+              "Lyra2": {},
+              "Makwa": {},
+              "POMELO": {},
+              "Pufferfish": {},
+              "yescrypt": {}
+            },
+            "bcrypt": {},
+            "scrypt": {},
+            "PBKDF": {}
+          },
+          "crypto_scheme": {
+            "MAC": {},
+            "KEM": {},
+            "PKE": {},
+            "KEX": {},
+            "KA": {},
+            "PAKE": {},
+            "AEAD": {}
+          },
+          "crypto_protocol": {
+            "SSH": {},
+            "TLS": {
+              "SSL": {
+                "SSL": 3
+              },
+              "TLS": {}
+            },
+            "PACE": {},
+            "IKE": {},
+            "IPsec": {}
+          },
+          "randomness": {
+            "DUAL_EC": {},
+            "TRNG": {},
+            "PRNG": {},
+            "RNG": {}
+          },
+          "cipher_mode": {
+            "ECB": {},
+            "CBC": {},
+            "CTR": {},
+            "CFB": {},
+            "OFB": {},
+            "GCM": {},
+            "SIV": {},
+            "XTR": {},
+            "CCM": {},
+            "LRW": {},
+            "XEX": {},
+            "XTS": {}
+          },
+          "ecc_curve": {
+            "NIST": {},
+            "Brainpool": {},
+            "ANSSI": {},
+            "NUMS": {},
+            "Curve": {},
+            "Edwards": {},
+            "ssc": {},
+            "Tweedle": {},
+            "Pasta": {},
+            "JubJub": {},
+            "BLS": {},
+            "BN": {}
+          },
+          "crypto_engine": {
+            "TORNADO": {},
+            "SmartMX": {},
+            "NexCrypt": {}
+          },
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "Neslib": {},
+            "AT1": {},
+            "Generic": {},
+            "AtmelToolbox": {},
+            "Infineon": {},
+            "OpenSSL": {
+              "OpenSSL": 2
+            },
+            "LibreSSL": {},
+            "BoringSSL": {},
+            "MatrixSSL": {},
+            "Nettle": {},
+            "GnuTLS": {},
+            "libtomcrypt": {},
+            "BearSSL": {},
+            "Botan": {},
+            "Crypto++": {},
+            "wolfSSL": {},
+            "mbedTLS": {},
+            "s2n": {},
+            "NSS": {},
+            "libgcrypt": {},
+            "BouncyCastle": {},
+            "cryptlib": {},
+            "NaCl": {},
+            "libsodium": {},
+            "libsecp256k1": {}
+          },
+          "vulnerability": {
+            "CVE": {},
+            "CWE": {},
+            "ROCA": {},
+            "Minerva": {},
+            "TPM-Fail": {}
+          },
+          "side_channel_analysis": {
+            "SCA": {},
+            "FI": {},
+            "other": {}
+          },
+          "technical_report_id": {
+            "BSI": {
+              "BSI 7125": 2,
+              "BSI 7148": 1,
+              "BSI 7149": 1
+            }
+          },
+          "device_model": {
+            "G87": {},
+            "ATMEL": {},
+            "STM": {
+              "STM32": {}
+            },
+            "Infineon": {
+              "SLE": {}
+            }
+          },
+          "tee_name": {
+            "Intel": {},
+            "ARM": {},
+            "AMD": {},
+            "IBM": {
+              "SE": 3
+            },
+            "other": {}
+          },
+          "os_name": {
+            "STARCOS": {},
+            "JCOP": {}
+          },
+          "cplc_data": {
+            "ICFab": {},
+            "ICType": {},
+            "ICVersion": {}
+          },
+          "ic_data_group": {
+            "EF": {}
+          },
+          "standard_id": {
+            "FIPS": {},
+            "NIST": {},
+            "PKCS": {},
+            "BSI": {
+              "AIS 32": 1,
+              "AIS 38": 1
+            },
+            "RFC": {},
+            "ISO": {
+              "ISO/IEC 15408:2005": 2
+            },
+            "ICAO": {},
+            "X509": {},
+            "SCP": {},
+            "CC": {}
+          },
+          "javacard_version": {
+            "JavaCard": {},
+            "GlobalPlatform": {}
+          },
+          "javacard_api_const": {
+            "ALG": {
+              "RNG": {},
+              "DES": {},
+              "RSA": {},
+              "DSA": {},
+              "ECDSA": {},
+              "AES": {},
+              "HMAC": {},
+              "KOREAN": {},
+              "EC": {},
+              "SHA": {},
+              "SHA3": {},
+              "MD": {},
+              "RIPEMD": {},
+              "ISO3309": {},
+              "XDH": {},
+              "SM2": {},
+              "SM3": {},
+              "null": {}
+            },
+            "misc": {},
+            "curves": {}
+          },
+          "javacard_packages": {
+            "java": {},
+            "javacard": {},
+            "javacardx": {},
+            "org": {},
+            "uicc": {},
+            "com": {},
+            "de": {}
+          }
+        },
+        "st_keywords": {
+          "cc_cert_id": {
+            "DE": {},
+            "FR": {},
+            "NL": {},
+            "NO": {},
+            "US": {},
+            "CA": {},
+            "UK": {},
+            "ES": {},
+            "KR": {},
+            "JP": {},
+            "MY": {},
+            "IT": {},
+            "TR": {},
+            "SE": {},
+            "IN": {},
+            "SG": {},
+            "AU": {}
+          },
+          "cc_protection_profile_id": {
+            "BSI": {},
+            "ANSSI": {},
+            "KECS": {},
+            "other": {}
+          },
+          "cc_security_level": {
+            "EAL": {
+              "EAL2": 7,
+              "EAL2+": 1,
+              "EAL 2": 3
+            },
+            "ITSEC": {}
+          },
+          "cc_sar": {
+            "ACE": {},
+            "ACM": {
+              "ACM_CAP.2": 2
+            },
+            "ACO": {},
+            "ADO": {
+              "ADO_DEL.1": 2,
+              "ADO_IGS.1": 2
+            },
+            "ADV": {
+              "ADV_FSP.1": 2,
+              "ADV_HLD.1": 2,
+              "ADV_RCR.1": 2
+            },
+            "AGD": {
+              "AGD_ADM.1": 2,
+              "AGD_USR.1": 2
+            },
+            "ALC": {
+              "ALC_FLR.1": 6,
+              "ALC_FLR": 1
+            },
+            "ATE": {
+              "ATE_COV.1": 2,
+              "ATE_FUN.1": 2,
+              "ATE_IND.2": 2
+            },
+            "AVA": {
+              "AVA_SOF.1": 2,
+              "AVA_VLA.1": 3
+            },
+            "AMA": {},
+            "APE": {},
+            "ASE": {
+              "ASE_JOB": 6
+            }
+          },
+          "cc_sfr": {
+            "FAU": {},
+            "FCO": {},
+            "FCS": {},
+            "FDP": {
+              "FDP_ACC.1": 7,
+              "FDP_ACF.1": 6,
+              "FDP_ACF.1.2": 1,
+              "FDP_ACF.1.3": 1,
+              "FDP_ACF.1.4": 1,
+              "FDP_RIP.1": 3
+            },
+            "FIA": {
+              "FIA_UID.1": 10,
+              "FIA_UID.1.1": 1,
+              "FIA_UID.1.2": 1,
+              "FIA_UAU.1": 5,
+              "FIA_UAU.1.1": 1,
+              "FIA_UAU.1.2": 1,
+              "FIA_UID.2": 6,
+              "FIA_UID.2.1": 1,
+              "FIA_UAU.2": 5,
+              "FIA_UAU.2.1": 1
+            },
+            "FMT": {
+              "FMT_MSA.3": 6,
+              "FMT_MOF.1": 4,
+              "FMT_MOF.1.1": 2,
+              "FMT_SMF.1": 7,
+              "FMT_SMR.1": 8,
+              "FMT_MSA.1": 6,
+              "FMT_MSA.1.1": 1,
+              "FMT_MSA.3.1": 1,
+              "FMT_MSA.3.2": 1,
+              "FMT_SMF.1.1": 1,
+              "FMT_SMR.1.1": 1
+            },
+            "FPR": {},
+            "FPT": {
+              "FPT_SEP.1": 8,
+              "FPT_SEP.1.2": 1,
+              "FPT_RVM.1": 8,
+              "FPT_RVM.1.1": 1,
+              "FPT_TST.1": 3,
+              "FPT_TST.1.1": 1,
+              "FPT_TST.1.2": 1,
+              "FPT_TST.1.3": 1,
+              "FPT_AMT.1": 3
+            },
+            "FRU": {},
+            "FTA": {},
+            "FTP": {}
+          },
+          "cc_claims": {
+            "D": {
+              "D.SECURE_PRINT_JOB": 30,
+              "D.PRINT_JOB": 24,
+              "D.SCAN_JOB": 23,
+              "D.INBOUND_TRAFFIC": 9,
+              "D.OUTBOUND_TRAFFIC": 7,
+              "D.PRINTJOB": 2,
+              "D.SCANJOB": 2,
+              "D.SECURE_PRINTJOB": 1
+            },
+            "O": {
+              "O.F.INBOUND_FILTER": 5,
+              "O.F.OUTBOUND_FILTER": 4,
+              "O.F.JOB_RELEASE": 5,
+              "O.F.JOB_SHRED": 4,
+              "O.F.AUTHENTICATE": 5,
+              "O.F.SELFTEST": 4,
+              "O.A.SLA": 4,
+              "O.E.ENVIRONMENT": 3,
+              "O.E.DEPLOYMENT": 3,
+              "O.E.DIGITAL_COPIER": 4,
+              "O.E.SHREDDING": 4,
+              "O.F.OUTBOUND_FLITER": 1,
+              "O.F.JOB_SHREAD": 2,
+              "O.E.NETWORK_POLICY": 2,
+              "O.F.SELFTTEST": 1
+            },
+            "T": {
+              "T.RESIDUAL_DATA": 3,
+              "T.NOSY_USER": 3,
+              "T.MALWARE": 4
+            },
+            "A": {
+              "A.DIGITAL_COPIER": 3,
+              "A.ENVIRONMENT": 3,
+              "A.SECURITY_POLICY": 3,
+              "A.SHREDDING": 3,
+              "A.SLA": 7
+            },
+            "R": {
+              "R.RELEASE_JOB": 6,
+              "R.PRINT_JOB": 4,
+              "R.FORWARD_JOB": 4,
+              "R.SCAN_JOB": 4,
+              "R.SHRED_JOB": 2,
+              "R.ENTER_TOE": 4,
+              "R.EXIT_TOE": 4,
+              "R.REMOTE_USER": 1,
+              "R": 1
+            },
+            "OT": {},
+            "OP": {},
+            "OE": {},
+            "SA": {},
+            "OSP": {}
+          },
+          "vendor": {
+            "NXP": {},
+            "Infineon": {},
+            "Samsung": {},
+            "STMicroelectronics": {},
+            "Feitian": {},
+            "Gemalto": {},
+            "Gemplus": {},
+            "Axalto": {},
+            "Thales": {},
+            "Oberthur": {},
+            "Idemia": {},
+            "Sagem": {},
+            "Morpho": {},
+            "GD": {},
+            "Philips": {},
+            "Qualcomm": {},
+            "Broadcom": {},
+            "Huawei": {},
+            "Microsoft": {}
+          },
+          "eval_facility": {
+            "Serma": {},
+            "Thales": {},
+            "Riscure": {},
+            "SGS": {},
+            "BrightSight": {
+              "Brightsight": 4
+            },
+            "Applus": {},
+            "TUV": {},
+            "CESTI": {},
+            "DXC": {},
+            "Teron": {},
+            "EWA": {},
+            "Lightship": {},
+            "AMOSSYS": {},
+            "CEA-LETI": {},
+            "OPPIDA": {},
+            "TrustedLabs": {},
+            "atsec": {},
+            "DeutscheTelekom": {},
+            "DFKI": {},
+            "MTG": {},
+            "secuvera": {},
+            "SRC": {},
+            "Acucert": {},
+            "ERTL": {},
+            "ETDC": {},
+            "CCLab": {},
+            "Deeplab": {},
+            "IMQLPS": {},
+            "LVSLeonardo": {},
+            "LVSTechnisBlu": {},
+            "ECSEC": {},
+            "ITSC": {},
+            "Acumen": {},
+            "BoozAllenHamilton": {},
+            "Gossamer": {},
+            "Leidos": {},
+            "UL": {},
+            "BEAM": {},
+            "Certby": {},
+            "DEKRA": {},
+            "STMITSEF": {},
+            "TUBITAK-BILGEM": {},
+            "Combitech": {},
+            "Intertek": {},
+            "Clover": {},
+            "LAYAKK": {},
+            "An": {},
+            "TSystems": {},
+            "KISA": {},
+            "KOIST": {},
+            "KSEL": {},
+            "KOSYAS": {},
+            "KTR": {},
+            "KTC": {},
+            "TTA": {},
+            "ADS": {},
+            "Nemko": {},
+            "Norconsult": {},
+            "Secura": {},
+            "BAE": {}
+          },
+          "symmetric_crypto": {
+            "AES_competition": {
+              "AES": {},
+              "Rijndael": {},
+              "Twofish": {},
+              "Serpent": {},
+              "MARS": {},
+              "HPC": {},
+              "FROG": {},
+              "CAST": {},
+              "RC": {},
+              "CRYPTON": {},
+              "DEAL": {},
+              "E2": {},
+              "LOKI97": {},
+              "MAGENTA": {},
+              "SAFER": {}
+            },
+            "DES": {
+              "DES": {},
+              "3DES": {},
+              "Lucifer": {}
+            },
+            "djb": {
+              "ChaCha": {},
+              "Salsa": {},
+              "Poly": {}
+            },
+            "LWC_competition": {
+              "ASCON": {},
+              "Elephant": {},
+              "GIFT": {},
+              "Grain": {},
+              "ISAP": {},
+              "PhotonBeetle": {},
+              "Romulus": {},
+              "Sparkle": {},
+              "TinyJambu": {},
+              "Xoodyak": {},
+              "Gimli": {}
+            },
+            "eSTREAM": {
+              "HC": {},
+              "Rabbit": {},
+              "SOSEMANUK": {},
+              "MICKEY": {},
+              "Trivium": {}
+            },
+            "CAESAR": {
+              "ACORN": {},
+              "AEGIS": {},
+              "Deoxys": {},
+              "COLM": {}
+            },
+            "miscellaneous": {
+              "IDEA": {},
+              "Blowfish": {},
+              "Camellia": {},
+              "ARIA": {},
+              "SM4": {},
+              "GOST": {},
+              "Skipjack": {},
+              "Skinny": {}
+            },
+            "constructions": {
+              "MAC": {}
+            }
+          },
+          "asymmetric_crypto": {
+            "RSA": {},
+            "ECC": {
+              "ECDH": {},
+              "ECDSA": {},
+              "EdDSA": {},
+              "ECIES": {},
+              "ECC": {}
+            },
+            "FF": {
+              "DH": {},
+              "DSA": {}
+            }
+          },
+          "pq_crypto": {
+            "ClassicMcEliece": {},
+            "Kyber": {},
+            "NTRU": {},
+            "NTRUPrime": {},
+            "Saber": {},
+            "Dilithium": {},
+            "Falcon": {},
+            "Rainbow": {},
+            "UOV": {},
+            "BIKE": {},
+            "Frodo": {},
+            "HQC": {},
+            "SIKE": {},
+            "SIDH": {},
+            "GeMSS": {},
+            "Picnic": {},
+            "SPHINCS": {}
+          },
+          "hash_function": {
+            "SHA": {
+              "SHA1": {},
+              "SHA2": {},
+              "SHA3": {}
+            },
+            "Keccak": {},
+            "SHAKE": {},
+            "Groestl": {},
+            "BLAKE": {},
+            "JH": {},
+            "Skein": {},
+            "MD": {
+              "MD4": {},
+              "MD5": {},
+              "MD6": {}
+            },
+            "RIPEMD": {},
+            "Streebog": {},
+            "Whirpool": {},
+            "PHC_competition": {
+              "Argon": {},
+              "battcrypt": {},
+              "Catena": {},
+              "Lyra2": {},
+              "Makwa": {},
+              "POMELO": {},
+              "Pufferfish": {},
+              "yescrypt": {}
+            },
+            "bcrypt": {},
+            "scrypt": {},
+            "PBKDF": {}
+          },
+          "crypto_scheme": {
+            "MAC": {},
+            "KEM": {},
+            "PKE": {},
+            "KEX": {},
+            "KA": {},
+            "PAKE": {},
+            "AEAD": {}
+          },
+          "crypto_protocol": {
+            "SSH": {
+              "SSH": 2
+            },
+            "TLS": {
+              "SSL": {
+                "SSL": 4
+              },
+              "TLS": {}
+            },
+            "PACE": {},
+            "IKE": {},
+            "IPsec": {}
+          },
+          "randomness": {
+            "DUAL_EC": {},
+            "TRNG": {},
+            "PRNG": {},
+            "RNG": {}
+          },
+          "cipher_mode": {
+            "ECB": {},
+            "CBC": {},
+            "CTR": {},
+            "CFB": {},
+            "OFB": {},
+            "GCM": {},
+            "SIV": {},
+            "XTR": {},
+            "CCM": {},
+            "LRW": {},
+            "XEX": {},
+            "XTS": {}
+          },
+          "ecc_curve": {
+            "NIST": {},
+            "Brainpool": {},
+            "ANSSI": {},
+            "NUMS": {},
+            "Curve": {},
+            "Edwards": {},
+            "ssc": {},
+            "Tweedle": {},
+            "Pasta": {},
+            "JubJub": {},
+            "BLS": {},
+            "BN": {}
+          },
+          "crypto_engine": {
+            "TORNADO": {},
+            "SmartMX": {},
+            "NexCrypt": {}
+          },
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "Neslib": {},
+            "AT1": {},
+            "Generic": {},
+            "AtmelToolbox": {},
+            "Infineon": {},
+            "OpenSSL": {
+              "OpenSSL": 1
+            },
+            "LibreSSL": {},
+            "BoringSSL": {},
+            "MatrixSSL": {},
+            "Nettle": {},
+            "GnuTLS": {},
+            "libtomcrypt": {},
+            "BearSSL": {},
+            "Botan": {},
+            "Crypto++": {},
+            "wolfSSL": {},
+            "mbedTLS": {},
+            "s2n": {},
+            "NSS": {},
+            "libgcrypt": {},
+            "BouncyCastle": {},
+            "cryptlib": {},
+            "NaCl": {},
+            "libsodium": {},
+            "libsecp256k1": {}
+          },
+          "vulnerability": {
+            "CVE": {},
+            "CWE": {},
+            "ROCA": {},
+            "Minerva": {},
+            "TPM-Fail": {}
+          },
+          "side_channel_analysis": {
+            "SCA": {},
+            "FI": {},
+            "other": {}
+          },
+          "technical_report_id": {
+            "BSI": {}
+          },
+          "device_model": {
+            "G87": {},
+            "ATMEL": {},
+            "STM": {
+              "STM32": {}
+            },
+            "Infineon": {
+              "SLE": {}
+            }
+          },
+          "tee_name": {
+            "Intel": {},
+            "ARM": {},
+            "AMD": {},
+            "IBM": {
+              "SE": 13
+            },
+            "other": {
+              "T6": 1
+            }
+          },
+          "os_name": {
+            "STARCOS": {},
+            "JCOP": {}
+          },
+          "cplc_data": {
+            "ICFab": {},
+            "ICType": {},
+            "ICVersion": {}
+          },
+          "ic_data_group": {
+            "EF": {}
+          },
+          "standard_id": {
+            "FIPS": {},
+            "NIST": {},
+            "PKCS": {},
+            "BSI": {},
+            "RFC": {},
+            "ISO": {},
+            "ICAO": {},
+            "X509": {},
+            "SCP": {},
+            "CC": {}
+          },
+          "javacard_version": {
+            "JavaCard": {},
+            "GlobalPlatform": {}
+          },
+          "javacard_api_const": {
+            "ALG": {
+              "RNG": {},
+              "DES": {},
+              "RSA": {},
+              "DSA": {},
+              "ECDSA": {},
+              "AES": {},
+              "HMAC": {},
+              "KOREAN": {},
+              "EC": {},
+              "SHA": {},
+              "SHA3": {},
+              "MD": {},
+              "RIPEMD": {},
+              "ISO3309": {},
+              "XDH": {},
+              "SM2": {},
+              "SM3": {},
+              "null": {}
+            },
+            "misc": {},
+            "curves": {}
+          },
+          "javacard_packages": {
+            "java": {},
+            "javacard": {},
+            "javacardx": {},
+            "org": {},
+            "uicc": {},
+            "com": {},
+            "de": {}
+          }
         }
-    ]
+      },
+      "heuristics": {
+        "_type": "CCHeuristics",
+        "extracted_versions": {
+          "_type": "Set",
+          "elements": [
+            "10.1.5"
+          ]
+        },
+        "cpe_matches": null,
+        "verified_cpe_matches": null,
+        "related_cves": null,
+        "cert_lab": [
+          "BSI"
+        ],
+        "cert_id": "BSI-DSZ-CC-0517-2009",
+        "st_references": {
+          "_type": "References",
+          "directly_referenced_by": null,
+          "indirectly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referencing": null
+        },
+        "report_references": {
+          "_type": "References",
+          "directly_referenced_by": null,
+          "indirectly_referenced_by": null,
+          "directly_referencing": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0370-2006"
+            ]
+          },
+          "indirectly_referencing": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0268-2005",
+              "BSI-DSZ-CC-0325-2006",
+              "BSI-DSZ-CC-0370-2006"
+            ]
+          }
+        },
+        "extracted_sars": {
+          "_type": "Set",
+          "elements": [
+            {
+              "_type": "SAR",
+              "family": "ADV_FSP",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ADV_HLD",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ADV_RCR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AGD_ADM",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AGD_USR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ALC_FLR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_COV",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_FUN",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_IND",
+              "level": 2
+            },
+            {
+              "_type": "SAR",
+              "family": "AVA_SOF",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AVA_VLA",
+              "level": 1
+            }
+          ]
+        },
+        "direct_dependency_cves": null,
+        "indirect_dependency_cves": null
+      }
+    },
+    {
+      "_type": "CommonCriteriaCert",
+      "dgst": "53fe111411edfa45",
+      "status": "archived",
+      "category": "Other Devices and Systems",
+      "name": "Océ Digital Access Controller (DAC) R9.1.6",
+      "manufacturer": "Océ N.V.",
+      "scheme": "DE",
+      "security_level": {
+        "_type": "Set",
+        "elements": [
+          "ALC_FLR.1",
+          "EAL2+"
+        ]
+      },
+      "not_valid_before": "2006-10-26",
+      "not_valid_after": "2019-09-01",
+      "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0370a.pdf",
+      "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0370b.pdf",
+      "cert_link": null,
+      "manufacturer_web": "https://global.oce.com/",
+      "protection_profiles": {
+        "_type": "Set",
+        "elements": []
+      },
+      "maintenance_updates": {
+        "_type": "Set",
+        "elements": []
+      },
+      "state": {
+        "_type": "InternalState",
+        "st_download_ok": true,
+        "report_download_ok": true,
+        "st_convert_ok": true,
+        "report_convert_ok": true,
+        "st_extract_ok": true,
+        "report_extract_ok": true,
+        "errors": [],
+        "st_pdf_hash": "8f288bc6133855bba6b78ccaeff86b46b4ce1db86aa1b5141c1073a74e6d13fd",
+        "report_pdf_hash": "d77dffc3f2e4d95d6103de31b7ebbec54551c3b93f01415971ec3b9f5cb33e4f",
+        "st_txt_hash": "926668bea7c427a4fcf82857bfc63420f3597b6bff39699927a58f335620eaac",
+        "report_txt_hash": "0535df1c56fb4f87153cbffee51ba4d77fac47a6f17f024aa7d9df461028bc65"
+      },
+      "pdf_data": {
+        "_type": "PdfData",
+        "report_metadata": {
+          "pdf_file_size_bytes": 296713,
+          "pdf_is_encrypted": false,
+          "pdf_number_of_pages": 42,
+          "/CreationDate": "D:20061120121645+01'00'",
+          "/Subject": "Certification Report BSI-DSZ-CC-0370-2006",
+          "/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+          "/Creator": "Acrobat PDFMaker 7.0.7 für Word",
+          "/Keywords": "Common Criteria, Certification, Zertifizierung",
+          "/Producer": "Acrobat Distiller 7.0.5 (Windows)",
+          "/ModDate": "D:20061123132355+01'00'",
+          "/Company": "BSI, Postfach 200363, 53133 Bonn",
+          "/SourceModified": "D:20061120111624",
+          "/Title": "Certification Report BSI-DSZ-CC-0370-2006"
+        },
+        "st_metadata": {
+          "pdf_file_size_bytes": 565604,
+          "pdf_is_encrypted": false,
+          "pdf_number_of_pages": 63,
+          "/CreationDate": "D:20060829071953Z",
+          "/Author": "hunter",
+          "/Creator": "PScript5.dll Version 5.2.2",
+          "/Producer": "Acrobat Distiller 5.0.5 (Windows)",
+          "/ModDate": "D:20061123132807+01'00'",
+          "/Title": "Microsoft Word - Oce Venlo DAC Security Target 2.4.doc"
+        },
+        "report_frontpage": {
+          "anssi": {},
+          "bsi": {
+            "match_rules": [
+              "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+            ],
+            "cert_id": "BSI-DSZ-CC-0370-2006",
+            "cert_item": "Océ Digital Access Controller (DAC) R9.1.6",
+            "developer": "Océ Technologies B.V",
+            "cert_lab": "BSI"
+          },
+          "nscib": {},
+          "niap": {},
+          "canada": {}
+        },
+        "st_frontpage": {
+          "anssi": {},
+          "bsi": {},
+          "nscib": {},
+          "niap": {},
+          "canada": {}
+        },
+        "report_keywords": {
+          "cc_cert_id": {
+            "DE": {
+              "BSI-DSZ-CC-0370-2006": 80,
+              "BSI-DSZ-CC-0325-2006": 2
+            },
+            "FR": {},
+            "NL": {},
+            "NO": {},
+            "US": {},
+            "CA": {},
+            "UK": {},
+            "ES": {},
+            "KR": {},
+            "JP": {},
+            "MY": {},
+            "IT": {},
+            "TR": {},
+            "SE": {},
+            "IN": {},
+            "SG": {},
+            "AU": {}
+          },
+          "cc_protection_profile_id": {
+            "BSI": {},
+            "ANSSI": {},
+            "KECS": {},
+            "other": {}
+          },
+          "cc_security_level": {
+            "EAL": {
+              "EAL2": 7,
+              "EAL4": 6,
+              "EAL 1": 1,
+              "EAL 7": 1,
+              "EAL 4": 1,
+              "EAL2+": 2,
+              "EAL1": 5,
+              "EAL3": 4,
+              "EAL5": 6,
+              "EAL6": 4,
+              "EAL7": 4,
+              "EAL2 augmented": 3
+            },
+            "ITSEC": {}
+          },
+          "cc_sar": {
+            "ACE": {},
+            "ACM": {
+              "ACM_CAP.2": 1,
+              "ACM_AUT": 2,
+              "ACM_CAP": 2,
+              "ACM_SCP": 2
+            },
+            "ACO": {},
+            "ADO": {
+              "ADO_DEL.1": 1,
+              "ADO_IGS.1": 1,
+              "ADO_DEL": 2,
+              "ADO_IGS": 2
+            },
+            "ADV": {
+              "ADV_FSP.1": 1,
+              "ADV_HLD.1": 1,
+              "ADV_RCR.1": 1,
+              "ADV_FSP": 2,
+              "ADV_HLD": 2,
+              "ADV_IMP": 2,
+              "ADV_INT": 2,
+              "ADV_LLD": 2,
+              "ADV_RCR": 2,
+              "ADV_SPM": 2
+            },
+            "AGD": {
+              "AGD_ADM.1": 1,
+              "AGD_USR.1": 1,
+              "AGD_ADM": 2,
+              "AGD_USR": 2
+            },
+            "ALC": {
+              "ALC_FLR.1": 4,
+              "ALC_DVS": 2,
+              "ALC_FLR": 2,
+              "ALC_LCD": 2,
+              "ALC_TAT": 2
+            },
+            "ATE": {
+              "ATE_COV.1": 1,
+              "ATE_FUN.1": 1,
+              "ATE_IND.2": 1,
+              "ATE_COV": 2,
+              "ATE_DPT": 2,
+              "ATE_FUN": 2,
+              "ATE_IND": 2
+            },
+            "AVA": {
+              "AVA_SOF.1": 1,
+              "AVA_VLA.1": 1,
+              "AVA_CCA": 2,
+              "AVA_MSU": 2,
+              "AVA_SOF": 3,
+              "AVA_VLA": 3,
+              "AVA_VLA.2": 1,
+              "AVA_VLA.3": 1,
+              "AVA_VLA.4": 1
+            },
+            "AMA": {},
+            "APE": {},
+            "ASE": {
+              "ASE_DES.1": 1,
+              "ASE_ENV.1": 1,
+              "ASE_INT.1": 1,
+              "ASE_OBJ.1": 1,
+              "ASE_PPC.1": 1,
+              "ASE_REQ.1": 1,
+              "ASE_SRE.1": 1,
+              "ASE_TSS.1": 1
+            }
+          },
+          "cc_sfr": {
+            "FAU": {},
+            "FCO": {},
+            "FCS": {},
+            "FDP": {
+              "FDP_ACC.1": 1,
+              "FDP_ACF.1": 1,
+              "FDP_RIP.1": 1
+            },
+            "FIA": {
+              "FIA_UAU.1": 3,
+              "FIA_UAU.2": 2,
+              "FIA_UID.1": 3,
+              "FIA_UID.2": 3
+            },
+            "FMT": {
+              "FMT_MOF.1": 1,
+              "FMT_MSA.1": 1,
+              "FMT_MSA.3": 1,
+              "FMT_SMF.1": 1,
+              "FMT_SMR.1": 1
+            },
+            "FPR": {},
+            "FPT": {
+              "FPT_RVM.1": 1,
+              "FPT_SEP.1": 1,
+              "FPT_TST.1": 1
+            },
+            "FRU": {},
+            "FTA": {},
+            "FTP": {}
+          },
+          "cc_claims": {
+            "D": {
+              "D.SECURE_PRINT_JOB": 4,
+              "D.PRINTJOB": 1,
+              "D.SCANJOB": 1,
+              "D.PRINT_JOB": 2,
+              "D.SCAN_JOB": 1
+            },
+            "O": {},
+            "T": {
+              "T.RESIDUAL_DATA": 1,
+              "T.NOSY_USER": 1,
+              "T.MALWARE": 1
+            },
+            "A": {
+              "A.DIGITAL_COPIER": 1,
+              "A.ENVIRONMENT": 1,
+              "A.SECURITY_POLICY": 1,
+              "A.SHREDDING": 1,
+              "A.SLA": 1
+            },
+            "R": {},
+            "OT": {},
+            "OP": {},
+            "OE": {},
+            "SA": {},
+            "OSP": {}
+          },
+          "vendor": {
+            "NXP": {},
+            "Infineon": {},
+            "Samsung": {},
+            "STMicroelectronics": {},
+            "Feitian": {},
+            "Gemalto": {},
+            "Gemplus": {},
+            "Axalto": {},
+            "Thales": {},
+            "Oberthur": {},
+            "Idemia": {},
+            "Sagem": {},
+            "Morpho": {},
+            "GD": {},
+            "Philips": {},
+            "Qualcomm": {},
+            "Broadcom": {},
+            "Huawei": {},
+            "Microsoft": {}
+          },
+          "eval_facility": {
+            "Serma": {},
+            "Thales": {},
+            "Riscure": {},
+            "SGS": {},
+            "BrightSight": {
+              "Brightsight": 4
+            },
+            "Applus": {},
+            "TUV": {},
+            "CESTI": {},
+            "DXC": {},
+            "Teron": {},
+            "EWA": {},
+            "Lightship": {},
+            "AMOSSYS": {},
+            "CEA-LETI": {},
+            "OPPIDA": {},
+            "TrustedLabs": {},
+            "atsec": {},
+            "DeutscheTelekom": {},
+            "DFKI": {},
+            "MTG": {},
+            "secuvera": {},
+            "SRC": {},
+            "Acucert": {},
+            "ERTL": {},
+            "ETDC": {},
+            "CCLab": {},
+            "Deeplab": {},
+            "IMQLPS": {},
+            "LVSLeonardo": {},
+            "LVSTechnisBlu": {},
+            "ECSEC": {},
+            "ITSC": {},
+            "Acumen": {},
+            "BoozAllenHamilton": {},
+            "Gossamer": {},
+            "Leidos": {},
+            "UL": {},
+            "BEAM": {},
+            "Certby": {},
+            "DEKRA": {},
+            "STMITSEF": {},
+            "TUBITAK-BILGEM": {},
+            "Combitech": {},
+            "Intertek": {},
+            "Clover": {},
+            "LAYAKK": {},
+            "An": {},
+            "TSystems": {},
+            "KISA": {},
+            "KOIST": {},
+            "KSEL": {},
+            "KOSYAS": {},
+            "KTR": {},
+            "KTC": {},
+            "TTA": {},
+            "ADS": {},
+            "Nemko": {},
+            "Norconsult": {},
+            "Secura": {},
+            "BAE": {}
+          },
+          "symmetric_crypto": {
+            "AES_competition": {
+              "AES": {},
+              "Rijndael": {},
+              "Twofish": {},
+              "Serpent": {},
+              "MARS": {},
+              "HPC": {},
+              "FROG": {},
+              "CAST": {},
+              "RC": {},
+              "CRYPTON": {},
+              "DEAL": {},
+              "E2": {},
+              "LOKI97": {},
+              "MAGENTA": {},
+              "SAFER": {}
+            },
+            "DES": {
+              "DES": {},
+              "3DES": {},
+              "Lucifer": {}
+            },
+            "djb": {
+              "ChaCha": {},
+              "Salsa": {},
+              "Poly": {}
+            },
+            "LWC_competition": {
+              "ASCON": {},
+              "Elephant": {},
+              "GIFT": {},
+              "Grain": {},
+              "ISAP": {},
+              "PhotonBeetle": {},
+              "Romulus": {},
+              "Sparkle": {},
+              "TinyJambu": {},
+              "Xoodyak": {},
+              "Gimli": {}
+            },
+            "eSTREAM": {
+              "HC": {},
+              "Rabbit": {},
+              "SOSEMANUK": {},
+              "MICKEY": {},
+              "Trivium": {}
+            },
+            "CAESAR": {
+              "ACORN": {},
+              "AEGIS": {},
+              "Deoxys": {},
+              "COLM": {}
+            },
+            "miscellaneous": {
+              "IDEA": {},
+              "Blowfish": {},
+              "Camellia": {},
+              "ARIA": {},
+              "SM4": {},
+              "GOST": {},
+              "Skipjack": {},
+              "Skinny": {}
+            },
+            "constructions": {
+              "MAC": {}
+            }
+          },
+          "asymmetric_crypto": {
+            "RSA": {},
+            "ECC": {
+              "ECDH": {},
+              "ECDSA": {},
+              "EdDSA": {},
+              "ECIES": {},
+              "ECC": {}
+            },
+            "FF": {
+              "DH": {},
+              "DSA": {}
+            }
+          },
+          "pq_crypto": {
+            "ClassicMcEliece": {},
+            "Kyber": {},
+            "NTRU": {},
+            "NTRUPrime": {},
+            "Saber": {},
+            "Dilithium": {},
+            "Falcon": {},
+            "Rainbow": {},
+            "UOV": {},
+            "BIKE": {},
+            "Frodo": {},
+            "HQC": {},
+            "SIKE": {},
+            "SIDH": {},
+            "GeMSS": {},
+            "Picnic": {},
+            "SPHINCS": {}
+          },
+          "hash_function": {
+            "SHA": {
+              "SHA1": {},
+              "SHA2": {},
+              "SHA3": {}
+            },
+            "Keccak": {},
+            "SHAKE": {},
+            "Groestl": {},
+            "BLAKE": {},
+            "JH": {},
+            "Skein": {},
+            "MD": {
+              "MD4": {},
+              "MD5": {},
+              "MD6": {}
+            },
+            "RIPEMD": {},
+            "Streebog": {},
+            "Whirpool": {},
+            "PHC_competition": {
+              "Argon": {},
+              "battcrypt": {},
+              "Catena": {},
+              "Lyra2": {},
+              "Makwa": {},
+              "POMELO": {},
+              "Pufferfish": {},
+              "yescrypt": {}
+            },
+            "bcrypt": {},
+            "scrypt": {},
+            "PBKDF": {}
+          },
+          "crypto_scheme": {
+            "MAC": {},
+            "KEM": {},
+            "PKE": {},
+            "KEX": {},
+            "KA": {},
+            "PAKE": {},
+            "AEAD": {}
+          },
+          "crypto_protocol": {
+            "SSH": {},
+            "TLS": {
+              "SSL": {
+                "SSL": 12
+              },
+              "TLS": {}
+            },
+            "PACE": {},
+            "IKE": {},
+            "IPsec": {}
+          },
+          "randomness": {
+            "DUAL_EC": {},
+            "TRNG": {},
+            "PRNG": {},
+            "RNG": {}
+          },
+          "cipher_mode": {
+            "ECB": {},
+            "CBC": {},
+            "CTR": {},
+            "CFB": {},
+            "OFB": {},
+            "GCM": {},
+            "SIV": {},
+            "XTR": {},
+            "CCM": {},
+            "LRW": {},
+            "XEX": {},
+            "XTS": {}
+          },
+          "ecc_curve": {
+            "NIST": {},
+            "Brainpool": {},
+            "ANSSI": {},
+            "NUMS": {},
+            "Curve": {},
+            "Edwards": {},
+            "ssc": {},
+            "Tweedle": {},
+            "Pasta": {},
+            "JubJub": {},
+            "BLS": {},
+            "BN": {}
+          },
+          "crypto_engine": {
+            "TORNADO": {},
+            "SmartMX": {},
+            "NexCrypt": {}
+          },
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "Neslib": {},
+            "AT1": {},
+            "Generic": {},
+            "AtmelToolbox": {},
+            "Infineon": {},
+            "OpenSSL": {
+              "OpenSSL": 8
+            },
+            "LibreSSL": {},
+            "BoringSSL": {},
+            "MatrixSSL": {},
+            "Nettle": {},
+            "GnuTLS": {},
+            "libtomcrypt": {},
+            "BearSSL": {},
+            "Botan": {},
+            "Crypto++": {},
+            "wolfSSL": {},
+            "mbedTLS": {},
+            "s2n": {},
+            "NSS": {},
+            "libgcrypt": {},
+            "BouncyCastle": {},
+            "cryptlib": {},
+            "NaCl": {},
+            "libsodium": {},
+            "libsecp256k1": {}
+          },
+          "vulnerability": {
+            "CVE": {},
+            "CWE": {},
+            "ROCA": {},
+            "Minerva": {},
+            "TPM-Fail": {}
+          },
+          "side_channel_analysis": {
+            "SCA": {},
+            "FI": {},
+            "other": {}
+          },
+          "technical_report_id": {
+            "BSI": {
+              "BSI 7125": 2,
+              "BSI 7148": 1,
+              "BSI 7149": 1
+            }
+          },
+          "device_model": {
+            "G87": {},
+            "ATMEL": {},
+            "STM": {
+              "STM32": {}
+            },
+            "Infineon": {
+              "SLE": {}
+            }
+          },
+          "tee_name": {
+            "Intel": {},
+            "ARM": {},
+            "AMD": {},
+            "IBM": {
+              "SE": 6
+            },
+            "other": {}
+          },
+          "os_name": {
+            "STARCOS": {},
+            "JCOP": {}
+          },
+          "cplc_data": {
+            "ICFab": {},
+            "ICType": {},
+            "ICVersion": {}
+          },
+          "ic_data_group": {
+            "EF": {}
+          },
+          "standard_id": {
+            "FIPS": {},
+            "NIST": {},
+            "PKCS": {},
+            "BSI": {
+              "AIS 34": 1,
+              "AIS33": 1
+            },
+            "RFC": {},
+            "ISO": {
+              "ISO/IEC 15408:2005": 2
+            },
+            "ICAO": {},
+            "X509": {},
+            "SCP": {},
+            "CC": {}
+          },
+          "javacard_version": {
+            "JavaCard": {},
+            "GlobalPlatform": {}
+          },
+          "javacard_api_const": {
+            "ALG": {
+              "RNG": {},
+              "DES": {},
+              "RSA": {},
+              "DSA": {},
+              "ECDSA": {},
+              "AES": {},
+              "HMAC": {},
+              "KOREAN": {},
+              "EC": {},
+              "SHA": {},
+              "SHA3": {},
+              "MD": {},
+              "RIPEMD": {},
+              "ISO3309": {},
+              "XDH": {},
+              "SM2": {},
+              "SM3": {},
+              "null": {}
+            },
+            "misc": {},
+            "curves": {}
+          },
+          "javacard_packages": {
+            "java": {},
+            "javacard": {},
+            "javacardx": {},
+            "org": {},
+            "uicc": {},
+            "com": {},
+            "de": {}
+          }
+        },
+        "st_keywords": {
+          "cc_cert_id": {
+            "DE": {},
+            "FR": {},
+            "NL": {},
+            "NO": {},
+            "US": {},
+            "CA": {},
+            "UK": {},
+            "ES": {},
+            "KR": {},
+            "JP": {},
+            "MY": {},
+            "IT": {},
+            "TR": {},
+            "SE": {},
+            "IN": {},
+            "SG": {},
+            "AU": {}
+          },
+          "cc_protection_profile_id": {
+            "BSI": {},
+            "ANSSI": {},
+            "KECS": {},
+            "other": {}
+          },
+          "cc_security_level": {
+            "EAL": {
+              "EAL2": 7,
+              "EAL 2": 3,
+              "EAL2+": 1
+            },
+            "ITSEC": {}
+          },
+          "cc_sar": {
+            "ACE": {},
+            "ACM": {
+              "ACM_CAP.2": 2
+            },
+            "ACO": {},
+            "ADO": {
+              "ADO_DEL.1": 2,
+              "ADO_IGS.1": 2
+            },
+            "ADV": {
+              "ADV_FSP.1": 2,
+              "ADV_HLD.1": 2,
+              "ADV_RCR.1": 2
+            },
+            "AGD": {
+              "AGD_ADM.1": 2,
+              "AGD_USR.1": 2
+            },
+            "ALC": {
+              "ALC_FLR.1": 7,
+              "ALC_FLR": 1
+            },
+            "ATE": {
+              "ATE_COV.1": 2,
+              "ATE_FUN.1": 2,
+              "ATE_IND.2": 2
+            },
+            "AVA": {
+              "AVA_SOF.1": 2,
+              "AVA_VLA.1": 3
+            },
+            "AMA": {},
+            "APE": {},
+            "ASE": {
+              "ASE_JOB": 6
+            }
+          },
+          "cc_sfr": {
+            "FAU": {},
+            "FCO": {},
+            "FCS": {},
+            "FDP": {
+              "FDP_ACC.1": 7,
+              "FDP_ACF.1": 6,
+              "FDP_ACF.1.2": 1,
+              "FDP_ACF.1.3": 1,
+              "FDP_ACF.1.4": 1,
+              "FDP_RIP.1": 3
+            },
+            "FIA": {
+              "FIA_UID.1": 10,
+              "FIA_UID.1.1": 1,
+              "FIA_UID.1.2": 1,
+              "FIA_UAU.1": 5,
+              "FIA_UAU.1.1": 1,
+              "FIA_UAU.1.2": 1,
+              "FIA_UID.2": 6,
+              "FIA_UID.2.1": 1,
+              "FIA_UAU.2": 5,
+              "FIA_UAU.2.1": 1
+            },
+            "FMT": {
+              "FMT_MSA.3": 6,
+              "FMT_MOF.1": 4,
+              "FMT_MOF.1.1": 2,
+              "FMT_SMF.1": 7,
+              "FMT_SMR.1": 8,
+              "FMT_MSA.1": 6,
+              "FMT_MSA.1.1": 1,
+              "FMT_MSA.3.1": 1,
+              "FMT_MSA.3.2": 1,
+              "FMT_SMF.1.1": 1,
+              "FMT_SMR.1.1": 1
+            },
+            "FPR": {},
+            "FPT": {
+              "FPT_SEP.1": 8,
+              "FPT_SEP.1.2": 1,
+              "FPT_RVM.1": 8,
+              "FPT_RVM.1.1": 1,
+              "FPT_TST.1": 3,
+              "FPT_TST.1.1": 1,
+              "FPT_TST.1.2": 1,
+              "FPT_TST.1.3": 1,
+              "FPT_AMT.1": 3
+            },
+            "FRU": {},
+            "FTA": {},
+            "FTP": {}
+          },
+          "cc_claims": {
+            "D": {
+              "D.SECURE_PRINT_JOB": 30,
+              "D.PRINT_JOB": 24,
+              "D.SCAN_JOB": 23,
+              "D.INBOUND_TRAFFIC": 8,
+              "D.OUTBOUND_TRAFFIC": 8,
+              "D.PRINTJOB": 2,
+              "D.SCANJOB": 2,
+              "D.SECURE_PRINTJOB": 1
+            },
+            "O": {
+              "O.F.INBOUND_FILTER": 5,
+              "O.F.OUTBOUND_FILTER": 4,
+              "O.F.JOB_RELEASE": 5,
+              "O.F.JOB_SHRED": 4,
+              "O.F.AUTHENTICATE": 5,
+              "O.F.SELFTEST": 4,
+              "O.A.SLA": 4,
+              "O.E.ENVIRONMENT": 3,
+              "O.E.DEPLOYMENT": 3,
+              "O.E.DIGITAL_COPIER": 4,
+              "O.E.SHREDDING": 4,
+              "O.F.OUTBOUND_FLITER": 1,
+              "O.F.JOB_SHREAD": 2,
+              "O.E.NETWORK_POLICY": 2,
+              "O.F.SELFTTEST": 1
+            },
+            "T": {
+              "T.RESIDUAL_DATA": 3,
+              "T.NOSY_USER": 3,
+              "T.MALWARE": 4
+            },
+            "A": {
+              "A.DIGITAL_COPIER": 3,
+              "A.ENVIRONMENT": 3,
+              "A.SECURITY_POLICY": 3,
+              "A.SHREDDING": 3,
+              "A.SLA": 7
+            },
+            "R": {
+              "R.RELEASE_JOB": 6,
+              "R.PRINT_JOB": 4,
+              "R.FORWARD_JOB": 4,
+              "R.SCAN_JOB": 4,
+              "R.SHRED_JOB": 2,
+              "R.ENTER_TOE": 4,
+              "R.EXIT_TOE": 4,
+              "R.REMOTE_USER": 1,
+              "R": 1
+            },
+            "OT": {},
+            "OP": {},
+            "OE": {},
+            "SA": {},
+            "OSP": {}
+          },
+          "vendor": {
+            "NXP": {},
+            "Infineon": {},
+            "Samsung": {},
+            "STMicroelectronics": {},
+            "Feitian": {},
+            "Gemalto": {},
+            "Gemplus": {},
+            "Axalto": {},
+            "Thales": {},
+            "Oberthur": {},
+            "Idemia": {},
+            "Sagem": {},
+            "Morpho": {},
+            "GD": {},
+            "Philips": {},
+            "Qualcomm": {},
+            "Broadcom": {},
+            "Huawei": {},
+            "Microsoft": {}
+          },
+          "eval_facility": {
+            "Serma": {},
+            "Thales": {},
+            "Riscure": {},
+            "SGS": {},
+            "BrightSight": {},
+            "Applus": {},
+            "TUV": {},
+            "CESTI": {},
+            "DXC": {},
+            "Teron": {},
+            "EWA": {},
+            "Lightship": {},
+            "AMOSSYS": {},
+            "CEA-LETI": {},
+            "OPPIDA": {},
+            "TrustedLabs": {},
+            "atsec": {},
+            "DeutscheTelekom": {},
+            "DFKI": {},
+            "MTG": {},
+            "secuvera": {},
+            "SRC": {},
+            "Acucert": {},
+            "ERTL": {},
+            "ETDC": {},
+            "CCLab": {},
+            "Deeplab": {},
+            "IMQLPS": {},
+            "LVSLeonardo": {},
+            "LVSTechnisBlu": {},
+            "ECSEC": {},
+            "ITSC": {},
+            "Acumen": {},
+            "BoozAllenHamilton": {},
+            "Gossamer": {},
+            "Leidos": {},
+            "UL": {},
+            "BEAM": {},
+            "Certby": {},
+            "DEKRA": {},
+            "STMITSEF": {},
+            "TUBITAK-BILGEM": {},
+            "Combitech": {},
+            "Intertek": {},
+            "Clover": {},
+            "LAYAKK": {},
+            "An": {},
+            "TSystems": {},
+            "KISA": {},
+            "KOIST": {},
+            "KSEL": {},
+            "KOSYAS": {},
+            "KTR": {},
+            "KTC": {},
+            "TTA": {},
+            "ADS": {},
+            "Nemko": {},
+            "Norconsult": {},
+            "Secura": {},
+            "BAE": {}
+          },
+          "symmetric_crypto": {
+            "AES_competition": {
+              "AES": {},
+              "Rijndael": {},
+              "Twofish": {},
+              "Serpent": {},
+              "MARS": {},
+              "HPC": {},
+              "FROG": {},
+              "CAST": {},
+              "RC": {},
+              "CRYPTON": {},
+              "DEAL": {},
+              "E2": {},
+              "LOKI97": {},
+              "MAGENTA": {},
+              "SAFER": {}
+            },
+            "DES": {
+              "DES": {},
+              "3DES": {},
+              "Lucifer": {}
+            },
+            "djb": {
+              "ChaCha": {},
+              "Salsa": {},
+              "Poly": {}
+            },
+            "LWC_competition": {
+              "ASCON": {},
+              "Elephant": {},
+              "GIFT": {},
+              "Grain": {},
+              "ISAP": {},
+              "PhotonBeetle": {},
+              "Romulus": {},
+              "Sparkle": {},
+              "TinyJambu": {},
+              "Xoodyak": {},
+              "Gimli": {}
+            },
+            "eSTREAM": {
+              "HC": {},
+              "Rabbit": {},
+              "SOSEMANUK": {},
+              "MICKEY": {},
+              "Trivium": {}
+            },
+            "CAESAR": {
+              "ACORN": {},
+              "AEGIS": {},
+              "Deoxys": {},
+              "COLM": {}
+            },
+            "miscellaneous": {
+              "IDEA": {},
+              "Blowfish": {},
+              "Camellia": {},
+              "ARIA": {},
+              "SM4": {},
+              "GOST": {},
+              "Skipjack": {},
+              "Skinny": {}
+            },
+            "constructions": {
+              "MAC": {}
+            }
+          },
+          "asymmetric_crypto": {
+            "RSA": {},
+            "ECC": {
+              "ECDH": {},
+              "ECDSA": {},
+              "EdDSA": {},
+              "ECIES": {},
+              "ECC": {}
+            },
+            "FF": {
+              "DH": {},
+              "DSA": {}
+            }
+          },
+          "pq_crypto": {
+            "ClassicMcEliece": {},
+            "Kyber": {},
+            "NTRU": {},
+            "NTRUPrime": {},
+            "Saber": {},
+            "Dilithium": {},
+            "Falcon": {},
+            "Rainbow": {},
+            "UOV": {},
+            "BIKE": {},
+            "Frodo": {},
+            "HQC": {},
+            "SIKE": {},
+            "SIDH": {},
+            "GeMSS": {},
+            "Picnic": {},
+            "SPHINCS": {}
+          },
+          "hash_function": {
+            "SHA": {
+              "SHA1": {},
+              "SHA2": {},
+              "SHA3": {}
+            },
+            "Keccak": {},
+            "SHAKE": {},
+            "Groestl": {},
+            "BLAKE": {},
+            "JH": {},
+            "Skein": {},
+            "MD": {
+              "MD4": {},
+              "MD5": {},
+              "MD6": {}
+            },
+            "RIPEMD": {},
+            "Streebog": {},
+            "Whirpool": {},
+            "PHC_competition": {
+              "Argon": {},
+              "battcrypt": {},
+              "Catena": {},
+              "Lyra2": {},
+              "Makwa": {},
+              "POMELO": {},
+              "Pufferfish": {},
+              "yescrypt": {}
+            },
+            "bcrypt": {},
+            "scrypt": {},
+            "PBKDF": {}
+          },
+          "crypto_scheme": {
+            "MAC": {},
+            "KEM": {},
+            "PKE": {},
+            "KEX": {},
+            "KA": {},
+            "PAKE": {},
+            "AEAD": {}
+          },
+          "crypto_protocol": {
+            "SSH": {
+              "SSH": 2
+            },
+            "TLS": {
+              "SSL": {
+                "SSL": 4
+              },
+              "TLS": {}
+            },
+            "PACE": {},
+            "IKE": {},
+            "IPsec": {}
+          },
+          "randomness": {
+            "DUAL_EC": {},
+            "TRNG": {},
+            "PRNG": {},
+            "RNG": {}
+          },
+          "cipher_mode": {
+            "ECB": {},
+            "CBC": {},
+            "CTR": {},
+            "CFB": {},
+            "OFB": {},
+            "GCM": {},
+            "SIV": {},
+            "XTR": {},
+            "CCM": {},
+            "LRW": {},
+            "XEX": {},
+            "XTS": {}
+          },
+          "ecc_curve": {
+            "NIST": {},
+            "Brainpool": {},
+            "ANSSI": {},
+            "NUMS": {},
+            "Curve": {},
+            "Edwards": {},
+            "ssc": {},
+            "Tweedle": {},
+            "Pasta": {},
+            "JubJub": {},
+            "BLS": {},
+            "BN": {}
+          },
+          "crypto_engine": {
+            "TORNADO": {},
+            "SmartMX": {},
+            "NexCrypt": {}
+          },
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "Neslib": {},
+            "AT1": {},
+            "Generic": {},
+            "AtmelToolbox": {},
+            "Infineon": {},
+            "OpenSSL": {
+              "OpenSSL": 2
+            },
+            "LibreSSL": {},
+            "BoringSSL": {},
+            "MatrixSSL": {},
+            "Nettle": {},
+            "GnuTLS": {},
+            "libtomcrypt": {},
+            "BearSSL": {},
+            "Botan": {},
+            "Crypto++": {},
+            "wolfSSL": {},
+            "mbedTLS": {},
+            "s2n": {},
+            "NSS": {},
+            "libgcrypt": {},
+            "BouncyCastle": {},
+            "cryptlib": {},
+            "NaCl": {},
+            "libsodium": {},
+            "libsecp256k1": {}
+          },
+          "vulnerability": {
+            "CVE": {},
+            "CWE": {},
+            "ROCA": {},
+            "Minerva": {},
+            "TPM-Fail": {}
+          },
+          "side_channel_analysis": {
+            "SCA": {},
+            "FI": {},
+            "other": {}
+          },
+          "technical_report_id": {
+            "BSI": {}
+          },
+          "device_model": {
+            "G87": {},
+            "ATMEL": {},
+            "STM": {
+              "STM32": {}
+            },
+            "Infineon": {
+              "SLE": {}
+            }
+          },
+          "tee_name": {
+            "Intel": {},
+            "ARM": {},
+            "AMD": {},
+            "IBM": {
+              "SE": 13
+            },
+            "other": {}
+          },
+          "os_name": {
+            "STARCOS": {},
+            "JCOP": {}
+          },
+          "cplc_data": {
+            "ICFab": {},
+            "ICType": {},
+            "ICVersion": {}
+          },
+          "ic_data_group": {
+            "EF": {}
+          },
+          "standard_id": {
+            "FIPS": {},
+            "NIST": {},
+            "PKCS": {},
+            "BSI": {},
+            "RFC": {},
+            "ISO": {},
+            "ICAO": {},
+            "X509": {},
+            "SCP": {},
+            "CC": {}
+          },
+          "javacard_version": {
+            "JavaCard": {},
+            "GlobalPlatform": {}
+          },
+          "javacard_api_const": {
+            "ALG": {
+              "RNG": {},
+              "DES": {},
+              "RSA": {},
+              "DSA": {},
+              "ECDSA": {},
+              "AES": {},
+              "HMAC": {},
+              "KOREAN": {},
+              "EC": {},
+              "SHA": {},
+              "SHA3": {},
+              "MD": {},
+              "RIPEMD": {},
+              "ISO3309": {},
+              "XDH": {},
+              "SM2": {},
+              "SM3": {},
+              "null": {}
+            },
+            "misc": {},
+            "curves": {}
+          },
+          "javacard_packages": {
+            "java": {},
+            "javacard": {},
+            "javacardx": {},
+            "org": {},
+            "uicc": {},
+            "com": {},
+            "de": {}
+          }
+        }
+      },
+      "heuristics": {
+        "_type": "CCHeuristics",
+        "extracted_versions": {
+          "_type": "Set",
+          "elements": [
+            "9.1.6"
+          ]
+        },
+        "cpe_matches": null,
+        "verified_cpe_matches": null,
+        "related_cves": null,
+        "cert_lab": [
+          "BSI"
+        ],
+        "cert_id": "BSI-DSZ-CC-0370-2006",
+        "st_references": {
+          "_type": "References",
+          "directly_referenced_by": null,
+          "indirectly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referencing": null
+        },
+        "report_references": {
+          "_type": "References",
+          "directly_referenced_by": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0517-2009"
+            ]
+          },
+          "indirectly_referenced_by": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0517-2009"
+            ]
+          },
+          "directly_referencing": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0325-2006"
+            ]
+          },
+          "indirectly_referencing": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0268-2005",
+              "BSI-DSZ-CC-0325-2006"
+            ]
+          }
+        },
+        "extracted_sars": {
+          "_type": "Set",
+          "elements": [
+            {
+              "_type": "SAR",
+              "family": "ADV_FSP",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ADV_HLD",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ADV_RCR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AGD_ADM",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AGD_USR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ALC_FLR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_DES",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_ENV",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_INT",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_OBJ",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_PPC",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_REQ",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_SRE",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_TSS",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_COV",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_FUN",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_IND",
+              "level": 2
+            },
+            {
+              "_type": "SAR",
+              "family": "AVA_SOF",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AVA_VLA",
+              "level": 1
+            }
+          ]
+        },
+        "direct_dependency_cves": null,
+        "indirect_dependency_cves": null
+      }
+    },
+    {
+      "_type": "CommonCriteriaCert",
+      "dgst": "692e91451741ef49",
+      "status": "archived",
+      "category": "Other Devices and Systems",
+      "name": "Océ Digital Access Controller R8.1.10",
+      "manufacturer": "Océ N.V.",
+      "scheme": "DE",
+      "security_level": {
+        "_type": "Set",
+        "elements": [
+          "ALC_FLR.1",
+          "EAL2+"
+        ]
+      },
+      "not_valid_before": "2006-01-27",
+      "not_valid_after": "2019-09-01",
+      "report_link": "https://www.commoncriteriaportal.org/files/epfiles/0325a.pdf",
+      "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0325b.pdf",
+      "cert_link": null,
+      "manufacturer_web": "https://global.oce.com/",
+      "protection_profiles": {
+        "_type": "Set",
+        "elements": []
+      },
+      "maintenance_updates": {
+        "_type": "Set",
+        "elements": []
+      },
+      "state": {
+        "_type": "InternalState",
+        "st_download_ok": true,
+        "report_download_ok": true,
+        "st_convert_ok": true,
+        "report_convert_ok": true,
+        "st_extract_ok": true,
+        "report_extract_ok": true,
+        "errors": [],
+        "st_pdf_hash": "c72b032f6119e6dd64270296713d5626b1473bf4925018ce4dd106d76953213f",
+        "report_pdf_hash": "eca6c3a665d8bd20394cf002bff0a8a1b451337f60c8184d458ffd5b31491085",
+        "st_txt_hash": "179b07b4fc7402066a884edea494b28e324315108a5e0820184031f2e2062ad5",
+        "report_txt_hash": "11e1262fd8f5df1b140f5e8813883b71447503781399427b35adbbecd00b4d63"
+      },
+      "pdf_data": {
+        "_type": "PdfData",
+        "report_metadata": {
+          "pdf_file_size_bytes": 628533,
+          "pdf_is_encrypted": false,
+          "pdf_number_of_pages": 44,
+          "/CreationDate": "D:20060214093547+01'00'",
+          "/Subject": "Océ Digital Access Controller (DAC)",
+          "/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+          "/Creator": "Acrobat PDFMaker 7.0.5 für Word",
+          "/Keywords": "b'Oc\\xe9 Digital Access Controller (DAC)R 8.1.10, Certification Report BSI-DSZ-CC-0325-2006\\r\\n'",
+          "/Producer": "Acrobat Distiller 7.0.5 (Windows)",
+          "/ModDate": "D:20060302140843+01'00'",
+          "/Company": "BSI, Postfach 200363, 53133 Bonn",
+          "/SourceModified": "D:20060214083526",
+          "/Title": "Certification Report BSI-DSZ-CC-0325-2006"
+        },
+        "st_metadata": {
+          "pdf_file_size_bytes": 545641,
+          "pdf_is_encrypted": false,
+          "pdf_number_of_pages": 64,
+          "/CreationDate": "D:20050908171003+02'00'",
+          "/ModDate": "D:20050908171003+02'00'",
+          "/Producer": "Acrobat Distiller 5.0.5 (Windows)",
+          "/Author": "hunter",
+          "/Creator": "PScript5.dll Version 5.2.2",
+          "/Title": "Microsoft Word - Oce Venlo DAC Security Target 1.9.doc"
+        },
+        "report_frontpage": {
+          "anssi": {},
+          "bsi": {
+            "match_rules": [
+              "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+            ],
+            "cert_id": "BSI-DSZ-CC-0325-2006",
+            "cert_item": "Océ Digital Access Controller (DAC) R 8.1.10",
+            "developer": "Océ Technologies B.V",
+            "cert_lab": "BSI"
+          },
+          "nscib": {},
+          "niap": {},
+          "canada": {}
+        },
+        "st_frontpage": {
+          "anssi": {},
+          "bsi": {},
+          "nscib": {},
+          "niap": {},
+          "canada": {}
+        },
+        "report_keywords": {
+          "cc_cert_id": {
+            "DE": {
+              "BSI-DSZ-CC-0325-2006": 84,
+              "BSI-DSZ-CC-0268-2005": 2
+            },
+            "FR": {},
+            "NL": {},
+            "NO": {},
+            "US": {},
+            "CA": {},
+            "UK": {},
+            "ES": {},
+            "KR": {},
+            "JP": {},
+            "MY": {},
+            "IT": {},
+            "TR": {},
+            "SE": {},
+            "IN": {},
+            "SG": {},
+            "AU": {}
+          },
+          "cc_protection_profile_id": {
+            "BSI": {},
+            "ANSSI": {},
+            "KECS": {},
+            "other": {}
+          },
+          "cc_security_level": {
+            "EAL": {
+              "EAL2": 7,
+              "EAL4": 6,
+              "EAL 1": 1,
+              "EAL 7": 1,
+              "EAL 4": 1,
+              "EAL2+": 2,
+              "EAL1": 5,
+              "EAL3": 4,
+              "EAL5": 6,
+              "EAL6": 4,
+              "EAL7": 4,
+              "EAL2 augmented": 3
+            },
+            "ITSEC": {}
+          },
+          "cc_sar": {
+            "ACE": {},
+            "ACM": {
+              "ACM_CAP.2": 1,
+              "ACM_AUT": 2,
+              "ACM_CAP": 2,
+              "ACM_SCP": 2
+            },
+            "ACO": {},
+            "ADO": {
+              "ADO_DEL.1": 1,
+              "ADO_IGS.1": 1,
+              "ADO_DEL": 2,
+              "ADO_IGS": 2
+            },
+            "ADV": {
+              "ADV_FSP.1": 1,
+              "ADV_HLD.1": 1,
+              "ADV_RCR.1": 1,
+              "ADV_FSP": 2,
+              "ADV_HLD": 2,
+              "ADV_IMP": 2,
+              "ADV_INT": 2,
+              "ADV_LLD": 2,
+              "ADV_RCR": 2,
+              "ADV_SPM": 2
+            },
+            "AGD": {
+              "AGD_ADM.1": 1,
+              "AGD_USR.1": 1,
+              "AGD_ADM": 2,
+              "AGD_USR": 2
+            },
+            "ALC": {
+              "ALC_FLR.1": 4,
+              "ALC_DVS": 2,
+              "ALC_FLR": 2,
+              "ALC_LCD": 2,
+              "ALC_TAT": 2
+            },
+            "ATE": {
+              "ATE_COV.1": 1,
+              "ATE_FUN.1": 1,
+              "ATE_IND.2": 1,
+              "ATE_COV": 2,
+              "ATE_DPT": 2,
+              "ATE_FUN": 2,
+              "ATE_IND": 2
+            },
+            "AVA": {
+              "AVA_SOF.1": 1,
+              "AVA_VLA.1": 1,
+              "AVA_CCA": 2,
+              "AVA_MSU": 2,
+              "AVA_SOF": 4,
+              "AVA_VLA": 4,
+              "AVA_VLA.2": 1,
+              "AVA_VLA.3": 1,
+              "AVA_VLA.4": 1
+            },
+            "AMA": {},
+            "APE": {},
+            "ASE": {
+              "ASE_DES.1": 1,
+              "ASE_ENV.1": 1,
+              "ASE_INT.1": 1,
+              "ASE_OBJ.1": 1,
+              "ASE_PPC.1": 1,
+              "ASE_REQ.1": 1,
+              "ASE_SRE.1": 1,
+              "ASE_TSS.1": 1
+            }
+          },
+          "cc_sfr": {
+            "FAU": {},
+            "FCO": {},
+            "FCS": {},
+            "FDP": {
+              "FDP_ACC.1": 1,
+              "FDP_ACF.1": 1,
+              "FDP_RIP.1": 1
+            },
+            "FIA": {
+              "FIA_UAU.1": 3,
+              "FIA_UAU.2": 2,
+              "FIA_UID.1": 3,
+              "FIA_UID.2": 3
+            },
+            "FMT": {
+              "FMT_MOF.1": 1,
+              "FMT_MSA.1": 1,
+              "FMT_MSA.3": 1,
+              "FMT_SMF.1": 1,
+              "FMT_SMR.1": 1
+            },
+            "FPR": {},
+            "FPT": {
+              "FPT_RVM.1": 1,
+              "FPT_SEP.1": 1,
+              "FPT_TST.1": 1
+            },
+            "FRU": {},
+            "FTA": {},
+            "FTP": {}
+          },
+          "cc_claims": {
+            "D": {
+              "D.SECURE_PRINT_JOB": 4,
+              "D.PRINTJOB": 1,
+              "D.SCANJOB": 1,
+              "D.PRINT_JOB": 2,
+              "D.SCAN_JOB": 1
+            },
+            "O": {},
+            "T": {
+              "T.RESIDUAL_DATA": 1,
+              "T.NOSY_USER": 1,
+              "T.MALWARE": 1
+            },
+            "A": {
+              "A.DIGITAL_COPIER": 1,
+              "A.ENVIRONMENT": 1,
+              "A.SECURITY_POLICY": 1,
+              "A.SHREDDING": 1,
+              "A.SLA": 1
+            },
+            "R": {},
+            "OT": {},
+            "OP": {},
+            "OE": {},
+            "SA": {},
+            "OSP": {}
+          },
+          "vendor": {
+            "NXP": {},
+            "Infineon": {},
+            "Samsung": {},
+            "STMicroelectronics": {},
+            "Feitian": {},
+            "Gemalto": {},
+            "Gemplus": {},
+            "Axalto": {},
+            "Thales": {},
+            "Oberthur": {},
+            "Idemia": {},
+            "Sagem": {},
+            "Morpho": {},
+            "GD": {},
+            "Philips": {},
+            "Qualcomm": {},
+            "Broadcom": {},
+            "Huawei": {},
+            "Microsoft": {}
+          },
+          "eval_facility": {
+            "Serma": {},
+            "Thales": {},
+            "Riscure": {},
+            "SGS": {},
+            "BrightSight": {},
+            "Applus": {},
+            "TUV": {},
+            "CESTI": {},
+            "DXC": {},
+            "Teron": {},
+            "EWA": {},
+            "Lightship": {},
+            "AMOSSYS": {},
+            "CEA-LETI": {},
+            "OPPIDA": {},
+            "TrustedLabs": {},
+            "atsec": {},
+            "DeutscheTelekom": {},
+            "DFKI": {},
+            "MTG": {},
+            "secuvera": {},
+            "SRC": {},
+            "Acucert": {},
+            "ERTL": {},
+            "ETDC": {},
+            "CCLab": {},
+            "Deeplab": {},
+            "IMQLPS": {},
+            "LVSLeonardo": {},
+            "LVSTechnisBlu": {},
+            "ECSEC": {},
+            "ITSC": {},
+            "Acumen": {},
+            "BoozAllenHamilton": {},
+            "Gossamer": {},
+            "Leidos": {},
+            "UL": {},
+            "BEAM": {},
+            "Certby": {},
+            "DEKRA": {},
+            "STMITSEF": {},
+            "TUBITAK-BILGEM": {},
+            "Combitech": {},
+            "Intertek": {},
+            "Clover": {},
+            "LAYAKK": {},
+            "An": {},
+            "TSystems": {},
+            "KISA": {},
+            "KOIST": {},
+            "KSEL": {},
+            "KOSYAS": {},
+            "KTR": {},
+            "KTC": {},
+            "TTA": {},
+            "ADS": {},
+            "Nemko": {},
+            "Norconsult": {},
+            "Secura": {},
+            "BAE": {}
+          },
+          "symmetric_crypto": {
+            "AES_competition": {
+              "AES": {},
+              "Rijndael": {},
+              "Twofish": {},
+              "Serpent": {},
+              "MARS": {},
+              "HPC": {},
+              "FROG": {},
+              "CAST": {},
+              "RC": {},
+              "CRYPTON": {},
+              "DEAL": {},
+              "E2": {},
+              "LOKI97": {},
+              "MAGENTA": {},
+              "SAFER": {}
+            },
+            "DES": {
+              "DES": {},
+              "3DES": {},
+              "Lucifer": {}
+            },
+            "djb": {
+              "ChaCha": {},
+              "Salsa": {},
+              "Poly": {}
+            },
+            "LWC_competition": {
+              "ASCON": {},
+              "Elephant": {},
+              "GIFT": {},
+              "Grain": {},
+              "ISAP": {},
+              "PhotonBeetle": {},
+              "Romulus": {},
+              "Sparkle": {},
+              "TinyJambu": {},
+              "Xoodyak": {},
+              "Gimli": {}
+            },
+            "eSTREAM": {
+              "HC": {},
+              "Rabbit": {},
+              "SOSEMANUK": {},
+              "MICKEY": {},
+              "Trivium": {}
+            },
+            "CAESAR": {
+              "ACORN": {},
+              "AEGIS": {},
+              "Deoxys": {},
+              "COLM": {}
+            },
+            "miscellaneous": {
+              "IDEA": {},
+              "Blowfish": {},
+              "Camellia": {},
+              "ARIA": {},
+              "SM4": {},
+              "GOST": {},
+              "Skipjack": {},
+              "Skinny": {}
+            },
+            "constructions": {
+              "MAC": {}
+            }
+          },
+          "asymmetric_crypto": {
+            "RSA": {},
+            "ECC": {
+              "ECDH": {},
+              "ECDSA": {},
+              "EdDSA": {},
+              "ECIES": {},
+              "ECC": {}
+            },
+            "FF": {
+              "DH": {},
+              "DSA": {}
+            }
+          },
+          "pq_crypto": {
+            "ClassicMcEliece": {},
+            "Kyber": {},
+            "NTRU": {},
+            "NTRUPrime": {},
+            "Saber": {},
+            "Dilithium": {},
+            "Falcon": {},
+            "Rainbow": {},
+            "UOV": {},
+            "BIKE": {},
+            "Frodo": {},
+            "HQC": {},
+            "SIKE": {},
+            "SIDH": {},
+            "GeMSS": {},
+            "Picnic": {},
+            "SPHINCS": {}
+          },
+          "hash_function": {
+            "SHA": {
+              "SHA1": {},
+              "SHA2": {},
+              "SHA3": {}
+            },
+            "Keccak": {},
+            "SHAKE": {},
+            "Groestl": {},
+            "BLAKE": {},
+            "JH": {},
+            "Skein": {},
+            "MD": {
+              "MD4": {},
+              "MD5": {},
+              "MD6": {}
+            },
+            "RIPEMD": {},
+            "Streebog": {},
+            "Whirpool": {},
+            "PHC_competition": {
+              "Argon": {},
+              "battcrypt": {},
+              "Catena": {},
+              "Lyra2": {},
+              "Makwa": {},
+              "POMELO": {},
+              "Pufferfish": {},
+              "yescrypt": {}
+            },
+            "bcrypt": {},
+            "scrypt": {},
+            "PBKDF": {}
+          },
+          "crypto_scheme": {
+            "MAC": {},
+            "KEM": {},
+            "PKE": {},
+            "KEX": {},
+            "KA": {},
+            "PAKE": {},
+            "AEAD": {}
+          },
+          "crypto_protocol": {
+            "SSH": {},
+            "TLS": {
+              "SSL": {
+                "SSL": 12
+              },
+              "TLS": {}
+            },
+            "PACE": {},
+            "IKE": {},
+            "IPsec": {}
+          },
+          "randomness": {
+            "DUAL_EC": {},
+            "TRNG": {},
+            "PRNG": {},
+            "RNG": {}
+          },
+          "cipher_mode": {
+            "ECB": {},
+            "CBC": {},
+            "CTR": {},
+            "CFB": {},
+            "OFB": {},
+            "GCM": {},
+            "SIV": {},
+            "XTR": {},
+            "CCM": {},
+            "LRW": {},
+            "XEX": {},
+            "XTS": {}
+          },
+          "ecc_curve": {
+            "NIST": {},
+            "Brainpool": {},
+            "ANSSI": {},
+            "NUMS": {},
+            "Curve": {},
+            "Edwards": {},
+            "ssc": {},
+            "Tweedle": {},
+            "Pasta": {},
+            "JubJub": {},
+            "BLS": {},
+            "BN": {}
+          },
+          "crypto_engine": {
+            "TORNADO": {},
+            "SmartMX": {},
+            "NexCrypt": {}
+          },
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "Neslib": {},
+            "AT1": {},
+            "Generic": {},
+            "AtmelToolbox": {},
+            "Infineon": {},
+            "OpenSSL": {
+              "OpenSSL": 8
+            },
+            "LibreSSL": {},
+            "BoringSSL": {},
+            "MatrixSSL": {},
+            "Nettle": {},
+            "GnuTLS": {},
+            "libtomcrypt": {},
+            "BearSSL": {},
+            "Botan": {},
+            "Crypto++": {},
+            "wolfSSL": {},
+            "mbedTLS": {},
+            "s2n": {},
+            "NSS": {},
+            "libgcrypt": {},
+            "BouncyCastle": {},
+            "cryptlib": {},
+            "NaCl": {},
+            "libsodium": {},
+            "libsecp256k1": {}
+          },
+          "vulnerability": {
+            "CVE": {},
+            "CWE": {},
+            "ROCA": {},
+            "Minerva": {},
+            "TPM-Fail": {}
+          },
+          "side_channel_analysis": {
+            "SCA": {},
+            "FI": {},
+            "other": {}
+          },
+          "technical_report_id": {
+            "BSI": {
+              "BSI 7125": 2,
+              "BSI 7148": 1,
+              "BSI 7149": 1
+            }
+          },
+          "device_model": {
+            "G87": {},
+            "ATMEL": {},
+            "STM": {
+              "STM32": {}
+            },
+            "Infineon": {
+              "SLE": {}
+            }
+          },
+          "tee_name": {
+            "Intel": {},
+            "ARM": {},
+            "AMD": {},
+            "IBM": {
+              "SE": 6
+            },
+            "other": {}
+          },
+          "os_name": {
+            "STARCOS": {},
+            "JCOP": {}
+          },
+          "cplc_data": {
+            "ICFab": {},
+            "ICType": {},
+            "ICVersion": {}
+          },
+          "ic_data_group": {
+            "EF": {}
+          },
+          "standard_id": {
+            "FIPS": {},
+            "NIST": {},
+            "PKCS": {},
+            "BSI": {
+              "AIS 34": 1,
+              "AIS 32": 1,
+              "AIS33": 1
+            },
+            "RFC": {},
+            "ISO": {
+              "ISO/IEC 15408:1999": 1
+            },
+            "ICAO": {},
+            "X509": {},
+            "SCP": {},
+            "CC": {}
+          },
+          "javacard_version": {
+            "JavaCard": {},
+            "GlobalPlatform": {}
+          },
+          "javacard_api_const": {
+            "ALG": {
+              "RNG": {},
+              "DES": {},
+              "RSA": {},
+              "DSA": {},
+              "ECDSA": {},
+              "AES": {},
+              "HMAC": {},
+              "KOREAN": {},
+              "EC": {},
+              "SHA": {},
+              "SHA3": {},
+              "MD": {},
+              "RIPEMD": {},
+              "ISO3309": {},
+              "XDH": {},
+              "SM2": {},
+              "SM3": {},
+              "null": {}
+            },
+            "misc": {},
+            "curves": {}
+          },
+          "javacard_packages": {
+            "java": {},
+            "javacard": {},
+            "javacardx": {},
+            "org": {},
+            "uicc": {},
+            "com": {},
+            "de": {}
+          }
+        },
+        "st_keywords": {
+          "cc_cert_id": {
+            "DE": {},
+            "FR": {},
+            "NL": {},
+            "NO": {},
+            "US": {},
+            "CA": {},
+            "UK": {},
+            "ES": {},
+            "KR": {},
+            "JP": {},
+            "MY": {},
+            "IT": {},
+            "TR": {},
+            "SE": {},
+            "IN": {},
+            "SG": {},
+            "AU": {}
+          },
+          "cc_protection_profile_id": {
+            "BSI": {},
+            "ANSSI": {},
+            "KECS": {},
+            "other": {}
+          },
+          "cc_security_level": {
+            "EAL": {
+              "EAL2": 7,
+              "EAL 2": 3,
+              "EAL2+": 1
+            },
+            "ITSEC": {}
+          },
+          "cc_sar": {
+            "ACE": {},
+            "ACM": {
+              "ACM_CAP.2": 2
+            },
+            "ACO": {},
+            "ADO": {
+              "ADO_DEL.1": 2,
+              "ADO_IGS.1": 2
+            },
+            "ADV": {
+              "ADV_FSP.1": 2,
+              "ADV_HLD.1": 2,
+              "ADV_RCR.1": 2
+            },
+            "AGD": {
+              "AGD_ADM.1": 2,
+              "AGD_USR.1": 2
+            },
+            "ALC": {
+              "ALC_FLR.1": 7,
+              "ALC_FLR": 1
+            },
+            "ATE": {
+              "ATE_COV.1": 2,
+              "ATE_FUN.1": 2,
+              "ATE_IND.2": 2
+            },
+            "AVA": {
+              "AVA_SOF.1": 2,
+              "AVA_VLA.1": 3
+            },
+            "AMA": {},
+            "APE": {},
+            "ASE": {
+              "ASE_JOB": 6
+            }
+          },
+          "cc_sfr": {
+            "FAU": {},
+            "FCO": {},
+            "FCS": {},
+            "FDP": {
+              "FDP_ACC.1": 7,
+              "FDP_ACF.1": 6,
+              "FDP_ACF.1.2": 1,
+              "FDP_ACF.1.3": 1,
+              "FDP_ACF.1.4": 1,
+              "FDP_RIP.1": 3
+            },
+            "FIA": {
+              "FIA_UID.1": 10,
+              "FIA_UID.1.1": 1,
+              "FIA_UID.1.2": 1,
+              "FIA_UAU.1": 5,
+              "FIA_UAU.1.1": 1,
+              "FIA_UAU.1.2": 1,
+              "FIA_UID.2": 6,
+              "FIA_UID.2.1": 1,
+              "FIA_UAU.2": 5,
+              "FIA_UAU.2.1": 1
+            },
+            "FMT": {
+              "FMT_MSA.3": 6,
+              "FMT_MOF.1": 4,
+              "FMT_MOF.1.1": 2,
+              "FMT_SMF.1": 7,
+              "FMT_SMR.1": 8,
+              "FMT_MSA.1": 6,
+              "FMT_MSA.1.1": 1,
+              "FMT_MSA.3.1": 1,
+              "FMT_MSA.3.2": 1,
+              "FMT_SMF.1.1": 1,
+              "FMT_SMR.1.1": 1
+            },
+            "FPR": {},
+            "FPT": {
+              "FPT_SEP.1": 8,
+              "FPT_SEP.1.2": 1,
+              "FPT_RVM.1": 8,
+              "FPT_RVM.1.1": 1,
+              "FPT_TST.1": 3,
+              "FPT_TST.1.1": 1,
+              "FPT_TST.1.2": 1,
+              "FPT_TST.1.3": 1,
+              "FPT_AMT.1": 3
+            },
+            "FRU": {},
+            "FTA": {},
+            "FTP": {}
+          },
+          "cc_claims": {
+            "D": {
+              "D.SECURE_PRINT_JOB": 30,
+              "D.PRINT_JOB": 24,
+              "D.SCAN_JOB": 23,
+              "D.INBOUND_TRAFFIC": 8,
+              "D.OUTBOUND_TRAFFIC": 8,
+              "D.PRINTJOB": 2,
+              "D.SCANJOB": 2,
+              "D.SECURE_PRINTJOB": 1
+            },
+            "O": {
+              "O.F.INBOUND_FILTER": 5,
+              "O.F.OUTBOUND_FILTER": 4,
+              "O.F.JOB_RELEASE": 5,
+              "O.F.JOB_SHRED": 4,
+              "O.F.AUTHENTICATE": 5,
+              "O.F.SELFTEST": 4,
+              "O.A.SLA": 4,
+              "O.E.ENVIRONMENT": 3,
+              "O.E.DEPLOYMENT": 3,
+              "O.E.DIGITAL_COPIER": 4,
+              "O.E.SHREDDING": 4,
+              "O.F.OUTBOUND_FLITER": 1,
+              "O.F.JOB_SHREAD": 2,
+              "O.E.NETWORK_POLICY": 2,
+              "O.F.SELFTTEST": 1
+            },
+            "T": {
+              "T.RESIDUAL_DATA": 3,
+              "T.NOSY_USER": 3,
+              "T.MALWARE": 4
+            },
+            "A": {
+              "A.DIGITAL_COPIER": 3,
+              "A.ENVIRONMENT": 3,
+              "A.SECURITY_POLICY": 3,
+              "A.SHREDDING": 3,
+              "A.SLA": 7
+            },
+            "R": {
+              "R.RELEASE_JOB": 6,
+              "R.PRINT_JOB": 4,
+              "R.FORWARD_JOB": 4,
+              "R.SCAN_JOB": 4,
+              "R.SHRED_JOB": 2,
+              "R.ENTER_TOE": 4,
+              "R.EXIT_TOE": 4,
+              "R.REMOTE_USER": 1,
+              "R": 1
+            },
+            "OT": {},
+            "OP": {},
+            "OE": {},
+            "SA": {},
+            "OSP": {}
+          },
+          "vendor": {
+            "NXP": {},
+            "Infineon": {},
+            "Samsung": {},
+            "STMicroelectronics": {},
+            "Feitian": {},
+            "Gemalto": {},
+            "Gemplus": {},
+            "Axalto": {},
+            "Thales": {},
+            "Oberthur": {},
+            "Idemia": {},
+            "Sagem": {},
+            "Morpho": {},
+            "GD": {},
+            "Philips": {},
+            "Qualcomm": {},
+            "Broadcom": {},
+            "Huawei": {},
+            "Microsoft": {}
+          },
+          "eval_facility": {
+            "Serma": {},
+            "Thales": {},
+            "Riscure": {},
+            "SGS": {},
+            "BrightSight": {},
+            "Applus": {},
+            "TUV": {},
+            "CESTI": {},
+            "DXC": {},
+            "Teron": {},
+            "EWA": {},
+            "Lightship": {},
+            "AMOSSYS": {},
+            "CEA-LETI": {},
+            "OPPIDA": {},
+            "TrustedLabs": {},
+            "atsec": {},
+            "DeutscheTelekom": {},
+            "DFKI": {},
+            "MTG": {},
+            "secuvera": {},
+            "SRC": {},
+            "Acucert": {},
+            "ERTL": {},
+            "ETDC": {},
+            "CCLab": {},
+            "Deeplab": {},
+            "IMQLPS": {},
+            "LVSLeonardo": {},
+            "LVSTechnisBlu": {},
+            "ECSEC": {},
+            "ITSC": {},
+            "Acumen": {},
+            "BoozAllenHamilton": {},
+            "Gossamer": {},
+            "Leidos": {},
+            "UL": {},
+            "BEAM": {},
+            "Certby": {},
+            "DEKRA": {},
+            "STMITSEF": {},
+            "TUBITAK-BILGEM": {},
+            "Combitech": {},
+            "Intertek": {},
+            "Clover": {},
+            "LAYAKK": {},
+            "An": {},
+            "TSystems": {},
+            "KISA": {},
+            "KOIST": {},
+            "KSEL": {},
+            "KOSYAS": {},
+            "KTR": {},
+            "KTC": {},
+            "TTA": {},
+            "ADS": {},
+            "Nemko": {},
+            "Norconsult": {},
+            "Secura": {},
+            "BAE": {}
+          },
+          "symmetric_crypto": {
+            "AES_competition": {
+              "AES": {},
+              "Rijndael": {},
+              "Twofish": {},
+              "Serpent": {},
+              "MARS": {},
+              "HPC": {},
+              "FROG": {},
+              "CAST": {},
+              "RC": {},
+              "CRYPTON": {},
+              "DEAL": {},
+              "E2": {},
+              "LOKI97": {},
+              "MAGENTA": {},
+              "SAFER": {}
+            },
+            "DES": {
+              "DES": {},
+              "3DES": {},
+              "Lucifer": {}
+            },
+            "djb": {
+              "ChaCha": {},
+              "Salsa": {},
+              "Poly": {}
+            },
+            "LWC_competition": {
+              "ASCON": {},
+              "Elephant": {},
+              "GIFT": {},
+              "Grain": {},
+              "ISAP": {},
+              "PhotonBeetle": {},
+              "Romulus": {},
+              "Sparkle": {},
+              "TinyJambu": {},
+              "Xoodyak": {},
+              "Gimli": {}
+            },
+            "eSTREAM": {
+              "HC": {},
+              "Rabbit": {},
+              "SOSEMANUK": {},
+              "MICKEY": {},
+              "Trivium": {}
+            },
+            "CAESAR": {
+              "ACORN": {},
+              "AEGIS": {},
+              "Deoxys": {},
+              "COLM": {}
+            },
+            "miscellaneous": {
+              "IDEA": {},
+              "Blowfish": {},
+              "Camellia": {},
+              "ARIA": {},
+              "SM4": {},
+              "GOST": {},
+              "Skipjack": {},
+              "Skinny": {}
+            },
+            "constructions": {
+              "MAC": {}
+            }
+          },
+          "asymmetric_crypto": {
+            "RSA": {},
+            "ECC": {
+              "ECDH": {},
+              "ECDSA": {},
+              "EdDSA": {},
+              "ECIES": {},
+              "ECC": {}
+            },
+            "FF": {
+              "DH": {},
+              "DSA": {}
+            }
+          },
+          "pq_crypto": {
+            "ClassicMcEliece": {},
+            "Kyber": {},
+            "NTRU": {},
+            "NTRUPrime": {},
+            "Saber": {},
+            "Dilithium": {},
+            "Falcon": {},
+            "Rainbow": {},
+            "UOV": {},
+            "BIKE": {},
+            "Frodo": {},
+            "HQC": {},
+            "SIKE": {},
+            "SIDH": {},
+            "GeMSS": {},
+            "Picnic": {},
+            "SPHINCS": {}
+          },
+          "hash_function": {
+            "SHA": {
+              "SHA1": {},
+              "SHA2": {},
+              "SHA3": {}
+            },
+            "Keccak": {},
+            "SHAKE": {},
+            "Groestl": {},
+            "BLAKE": {},
+            "JH": {},
+            "Skein": {},
+            "MD": {
+              "MD4": {},
+              "MD5": {},
+              "MD6": {}
+            },
+            "RIPEMD": {},
+            "Streebog": {},
+            "Whirpool": {},
+            "PHC_competition": {
+              "Argon": {},
+              "battcrypt": {},
+              "Catena": {},
+              "Lyra2": {},
+              "Makwa": {},
+              "POMELO": {},
+              "Pufferfish": {},
+              "yescrypt": {}
+            },
+            "bcrypt": {},
+            "scrypt": {},
+            "PBKDF": {}
+          },
+          "crypto_scheme": {
+            "MAC": {},
+            "KEM": {},
+            "PKE": {},
+            "KEX": {},
+            "KA": {},
+            "PAKE": {},
+            "AEAD": {}
+          },
+          "crypto_protocol": {
+            "SSH": {},
+            "TLS": {
+              "SSL": {
+                "SSL": 4
+              },
+              "TLS": {}
+            },
+            "PACE": {},
+            "IKE": {},
+            "IPsec": {}
+          },
+          "randomness": {
+            "DUAL_EC": {},
+            "TRNG": {},
+            "PRNG": {},
+            "RNG": {}
+          },
+          "cipher_mode": {
+            "ECB": {},
+            "CBC": {},
+            "CTR": {},
+            "CFB": {},
+            "OFB": {},
+            "GCM": {},
+            "SIV": {},
+            "XTR": {},
+            "CCM": {},
+            "LRW": {},
+            "XEX": {},
+            "XTS": {}
+          },
+          "ecc_curve": {
+            "NIST": {},
+            "Brainpool": {},
+            "ANSSI": {},
+            "NUMS": {},
+            "Curve": {},
+            "Edwards": {},
+            "ssc": {},
+            "Tweedle": {},
+            "Pasta": {},
+            "JubJub": {},
+            "BLS": {},
+            "BN": {}
+          },
+          "crypto_engine": {
+            "TORNADO": {},
+            "SmartMX": {},
+            "NexCrypt": {}
+          },
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "Neslib": {},
+            "AT1": {},
+            "Generic": {},
+            "AtmelToolbox": {},
+            "Infineon": {},
+            "OpenSSL": {
+              "OpenSSL": 2
+            },
+            "LibreSSL": {},
+            "BoringSSL": {},
+            "MatrixSSL": {},
+            "Nettle": {},
+            "GnuTLS": {},
+            "libtomcrypt": {},
+            "BearSSL": {},
+            "Botan": {},
+            "Crypto++": {},
+            "wolfSSL": {},
+            "mbedTLS": {},
+            "s2n": {},
+            "NSS": {},
+            "libgcrypt": {},
+            "BouncyCastle": {},
+            "cryptlib": {},
+            "NaCl": {},
+            "libsodium": {},
+            "libsecp256k1": {}
+          },
+          "vulnerability": {
+            "CVE": {},
+            "CWE": {},
+            "ROCA": {},
+            "Minerva": {},
+            "TPM-Fail": {}
+          },
+          "side_channel_analysis": {
+            "SCA": {},
+            "FI": {},
+            "other": {}
+          },
+          "technical_report_id": {
+            "BSI": {}
+          },
+          "device_model": {
+            "G87": {},
+            "ATMEL": {},
+            "STM": {
+              "STM32": {}
+            },
+            "Infineon": {
+              "SLE": {}
+            }
+          },
+          "tee_name": {
+            "Intel": {},
+            "ARM": {},
+            "AMD": {},
+            "IBM": {
+              "SE": 13
+            },
+            "other": {}
+          },
+          "os_name": {
+            "STARCOS": {},
+            "JCOP": {}
+          },
+          "cplc_data": {
+            "ICFab": {},
+            "ICType": {},
+            "ICVersion": {}
+          },
+          "ic_data_group": {
+            "EF": {}
+          },
+          "standard_id": {
+            "FIPS": {},
+            "NIST": {},
+            "PKCS": {},
+            "BSI": {},
+            "RFC": {},
+            "ISO": {},
+            "ICAO": {},
+            "X509": {},
+            "SCP": {},
+            "CC": {}
+          },
+          "javacard_version": {
+            "JavaCard": {},
+            "GlobalPlatform": {}
+          },
+          "javacard_api_const": {
+            "ALG": {
+              "RNG": {},
+              "DES": {},
+              "RSA": {},
+              "DSA": {},
+              "ECDSA": {},
+              "AES": {},
+              "HMAC": {},
+              "KOREAN": {},
+              "EC": {},
+              "SHA": {},
+              "SHA3": {},
+              "MD": {},
+              "RIPEMD": {},
+              "ISO3309": {},
+              "XDH": {},
+              "SM2": {},
+              "SM3": {},
+              "null": {}
+            },
+            "misc": {},
+            "curves": {}
+          },
+          "javacard_packages": {
+            "java": {},
+            "javacard": {},
+            "javacardx": {},
+            "org": {},
+            "uicc": {},
+            "com": {},
+            "de": {}
+          }
+        }
+      },
+      "heuristics": {
+        "_type": "CCHeuristics",
+        "extracted_versions": {
+          "_type": "Set",
+          "elements": [
+            "8.1.10"
+          ]
+        },
+        "cpe_matches": null,
+        "verified_cpe_matches": null,
+        "related_cves": null,
+        "cert_lab": [
+          "BSI"
+        ],
+        "cert_id": "BSI-DSZ-CC-0325-2006",
+        "st_references": {
+          "_type": "References",
+          "directly_referenced_by": null,
+          "indirectly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referencing": null
+        },
+        "report_references": {
+          "_type": "References",
+          "directly_referenced_by": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0370-2006"
+            ]
+          },
+          "indirectly_referenced_by": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0370-2006",
+              "BSI-DSZ-CC-0517-2009"
+            ]
+          },
+          "directly_referencing": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0268-2005"
+            ]
+          },
+          "indirectly_referencing": {
+            "_type": "Set",
+            "elements": [
+              "BSI-DSZ-CC-0268-2005"
+            ]
+          }
+        },
+        "extracted_sars": {
+          "_type": "Set",
+          "elements": [
+            {
+              "_type": "SAR",
+              "family": "ADV_FSP",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ADV_HLD",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ADV_RCR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AGD_ADM",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AGD_USR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ALC_FLR",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_DES",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_ENV",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_INT",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_OBJ",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_PPC",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_REQ",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_SRE",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ASE_TSS",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_COV",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_FUN",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "ATE_IND",
+              "level": 2
+            },
+            {
+              "_type": "SAR",
+              "family": "AVA_SOF",
+              "level": 1
+            },
+            {
+              "_type": "SAR",
+              "family": "AVA_VLA",
+              "level": 1
+            }
+          ]
+        },
+        "direct_dependency_cves": null,
+        "indirect_dependency_cves": null
+      }
+    }
+  ]
 }

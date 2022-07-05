@@ -286,8 +286,13 @@ class CommonCriteriaCert(
                 return None
 
         @property
-        def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            return self.report_keywords.get("cc_cert_id", None) if self.report_keywords else None
+        def keywords_rules_cert_id(self) -> Optional[Dict[str, int]]:
+            if not self.report_keywords:
+                return None
+            cert_id_matches = self.report_keywords.get("cc_cert_id", None)
+            if not cert_id_matches:
+                return None
+            return sec_certs.utils.extract.flatten_matches(cert_id_matches)
 
         @property
         def keywords_cert_id(self) -> Optional[str]:
