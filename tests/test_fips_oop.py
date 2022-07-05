@@ -120,91 +120,97 @@ class TestFipsOOP(TestCase):
             dataset = _set_up_dataset_for_full(tmp_dir, certs, self.cpe_dset_path, self.cve_dset_path)
 
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3095")].heuristics.st_references.directly_referencing), {"3096"}
+                {"3093", "3094", "3096"},
+                set(dataset.certs[fips_dgst("3095")].heuristics.st_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3095")].heuristics.web_references.directly_referencing),
                 {"3093", "3096", "3094"},
+                set(dataset.certs[fips_dgst("3095")].heuristics.web_references.directly_referencing),
+            )
+
+            self.assertEqual(
+                {"3615"}, set(dataset.certs[fips_dgst("3651")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3651")].heuristics.st_references.directly_referencing), {"3615"}
+                {"3090", "3091"}, set(dataset.certs[fips_dgst("3093")].heuristics.st_references.directly_referencing)
             )
+
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3093")].heuristics.st_references.directly_referencing), {"3091"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3093")].heuristics.web_references.directly_referencing), {"3090", "3091"}
+                {"3090", "3091"}, set(dataset.certs[fips_dgst("3093")].heuristics.web_references.directly_referencing)
             )
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3090")].heuristics.st_references.directly_referencing), {"3089"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3197")].heuristics.web_references.directly_referencing),
                 {"3195", "3096", "3196", "3644", "3651"},
+                set(dataset.certs[fips_dgst("3197")].heuristics.web_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3196")].heuristics.st_references.directly_referencing), {"3091"}
+                {"3091", "3194"}, set(dataset.certs[fips_dgst("3196")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3196")].heuristics.web_references.directly_referencing),
                 {"3194", "3091", "3480", "3615"},
+                set(dataset.certs[fips_dgst("3196")].heuristics.web_references.directly_referencing),
             )
             self.assertIsNone(dataset.certs[fips_dgst("3089")].heuristics.st_references.directly_referencing)
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3195")].heuristics.st_references.directly_referencing), {"3091"}
+                {"3091", "3194"}, set(dataset.certs[fips_dgst("3195")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3195")].heuristics.web_references.directly_referencing),
                 {"3194", "3091", "3480"},
+                set(dataset.certs[fips_dgst("3195")].heuristics.web_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3480")].heuristics.st_references.directly_referencing), {"3089"}
+                {"3089"}, set(dataset.certs[fips_dgst("3480")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3615")].heuristics.st_references.directly_referencing), {"3089"}
+                {"3089"}, set(dataset.certs[fips_dgst("3615")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3194")].heuristics.st_references.directly_referencing), {"3089"}
+                {"3089"}, set(dataset.certs[fips_dgst("3194")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3091")].heuristics.st_references.directly_referencing), {"3089"}
+                {"3089"}, set(dataset.certs[fips_dgst("3091")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3690")].heuristics.st_references.directly_referencing), {"3651"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3690")].heuristics.web_references.directly_referencing),
                 {"3644", "3196", "3651"},
+                set(dataset.certs[fips_dgst("3690")].heuristics.st_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3644")].heuristics.st_references.directly_referencing), {"3615"}
+                {"3644", "3196", "3651"},
+                set(dataset.certs[fips_dgst("3690")].heuristics.web_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3527")].heuristics.st_references.directly_referencing), {"3091"}
+                {"3615"}, set(dataset.certs[fips_dgst("3644")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3527")].heuristics.web_references.directly_referencing), {"3090", "3091"}
+                {"3090", "3091"}, set(dataset.certs[fips_dgst("3527")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3094")].heuristics.st_references.directly_referencing), {"3091"}
+                {"3090", "3091"}, set(dataset.certs[fips_dgst("3527")].heuristics.web_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3544")].heuristics.st_references.directly_referencing), {"3096"}
+                {"3090", "3091"}, set(dataset.certs[fips_dgst("3094")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3544")].heuristics.web_references.directly_referencing),
                 {"3093", "3096", "3527"},
+                set(dataset.certs[fips_dgst("3544")].heuristics.st_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3096")].heuristics.st_references.directly_referencing), {"3091"}
+                {"3093", "3096", "3527"},
+                set(dataset.certs[fips_dgst("3544")].heuristics.web_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3096")].heuristics.web_references.directly_referencing),
+                {"3194", "3091", "3090"},
+                set(dataset.certs[fips_dgst("3096")].heuristics.st_references.directly_referencing),
+            )
+            self.assertEqual(
                 {"3090", "3194", "3091", "3480"},
+                set(dataset.certs[fips_dgst("3096")].heuristics.web_references.directly_referencing),
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3092")].heuristics.web_references.directly_referencing),
                 {"3093", "3195", "3096", "3644", "3651"},
+                set(dataset.certs[fips_dgst("3092")].heuristics.web_references.directly_referencing),
             )
 
     def test_connections_redhat(self):
@@ -218,9 +224,7 @@ class TestFipsOOP(TestCase):
                 set(dataset.certs[fips_dgst("2633")].heuristics.st_references.directly_referencing), {"2441"}
             )
             self.assertIsNone(dataset.certs[fips_dgst("2441")].heuristics.st_references.directly_referencing)
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("2997")].heuristics.st_references.directly_referencing), {"2711"}
-            )
+            self.assertIsNone(dataset.certs[fips_dgst("2997")].heuristics.st_references.directly_referencing)
             self.assertEqual(
                 set(dataset.certs[fips_dgst("2446")].heuristics.st_references.directly_referencing), {"2441"}
             )
@@ -232,36 +236,30 @@ class TestFipsOOP(TestCase):
             )
             self.assertIsNone(dataset.certs[fips_dgst("2441")].heuristics.st_references.directly_referencing)
             self.assertIsNone(dataset.certs[fips_dgst("2711")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("2908")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("3613")].heuristics.st_references.directly_referencing)
             self.assertEqual(
-                set(dataset.certs[fips_dgst("2908")].heuristics.st_references.directly_referencing), {"2711"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3613")].heuristics.st_references.directly_referencing), {"2997"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("2721")].heuristics.st_references.directly_referencing), {"2441"}
+                set(dataset.certs[fips_dgst("2721")].heuristics.st_references.directly_referencing), {"2441", "2711"}
             )
             self.assertEqual(
                 set(dataset.certs[fips_dgst("2721")].heuristics.web_references.directly_referencing), {"2441", "2711"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("2798")].heuristics.st_references.directly_referencing), {"2721"}
+                set(dataset.certs[fips_dgst("2798")].heuristics.st_references.directly_referencing), {"2711", "2721"}
             )
             self.assertEqual(
                 set(dataset.certs[fips_dgst("2798")].heuristics.web_references.directly_referencing), {"2711", "2721"}
             )
             self.assertIsNone(dataset.certs[fips_dgst("2711")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("2997")].heuristics.st_references.directly_referencing)
             self.assertEqual(
-                set(dataset.certs[fips_dgst("2997")].heuristics.st_references.directly_referencing), {"2711"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("2742")].heuristics.st_references.directly_referencing), {"2721"}
+                set(dataset.certs[fips_dgst("2742")].heuristics.st_references.directly_referencing), {"2711", "2721"}
             )
             self.assertEqual(
                 set(dataset.certs[fips_dgst("2742")].heuristics.web_references.directly_referencing), {"2721", "2711"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("2721")].heuristics.st_references.directly_referencing), {"2441"}
+                set(dataset.certs[fips_dgst("2721")].heuristics.st_references.directly_referencing), {"2441", "2711"}
             )
             self.assertEqual(
                 set(dataset.certs[fips_dgst("2721")].heuristics.web_references.directly_referencing), {"2441", "2711"}
@@ -272,7 +270,7 @@ class TestFipsOOP(TestCase):
         with TemporaryDirectory() as tmp_dir:
             dataset = _set_up_dataset_for_full(tmp_dir, certs, self.cpe_dset_path, self.cve_dset_path)
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3850")].heuristics.st_references.directly_referencing), {"1883"}
+                set(dataset.certs[fips_dgst("3850")].heuristics.st_references.directly_referencing), {"1883", "3518"}
             )
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3850")].heuristics.web_references.directly_referencing), {"1883"}
@@ -304,49 +302,36 @@ class TestFipsOOP(TestCase):
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3493")].heuristics.st_references.directly_referencing), {"2398"}
             )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3495")].heuristics.st_references.directly_referencing), {"2398"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3711")].heuristics.st_references.directly_referencing), {"3220"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3176")].heuristics.st_references.directly_referencing), {"2398"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3488")].heuristics.st_references.directly_referencing), {"2398"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3126")].heuristics.st_references.directly_referencing), {"2398"}
-            )
-            self.assertEqual(
-                set(dataset.certs[fips_dgst("3126")].heuristics.st_references.directly_referencing), {"2398"}
-            )
+            self.assertIsNone(dataset.certs[fips_dgst("3495")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("3711")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("3176")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("3488")].heuristics.st_references.directly_referencing)
+            self.assertIsNone(dataset.certs[fips_dgst("3126")].heuristics.st_references.directly_referencing)
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3126")].heuristics.web_references.directly_referencing), {"2398"}
             )
+            self.assertIsNone(dataset.certs[fips_dgst("3269")].heuristics.st_references.directly_referencing)
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3269")].heuristics.st_references.directly_referencing), {"3220"}
+                set(dataset.certs[fips_dgst("3524")].heuristics.web_references.directly_referencing), {"3220"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3524")].heuristics.st_references.directly_referencing), {"3220"}
+                set(dataset.certs[fips_dgst("3220")].heuristics.st_references.directly_referencing), {"2398"}
             )
-            self.assertIsNone(dataset.certs[fips_dgst("3220")].heuristics.st_references.directly_referencing)
             self.assertIsNone(dataset.certs[fips_dgst("3220")].heuristics.web_references.directly_referencing)
             self.assertIsNone(dataset.certs[fips_dgst("2398")].heuristics.st_references.directly_referencing)
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3543")].heuristics.st_references.directly_referencing), {"2398"}
+                set(dataset.certs[fips_dgst("3543")].heuristics.web_references.directly_referencing), {"2398"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("2676")].heuristics.st_references.directly_referencing), {"2398"}
+                set(dataset.certs[fips_dgst("2676")].heuristics.web_references.directly_referencing), {"2398"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3313")].heuristics.st_references.directly_referencing), {"3220"}
+                set(dataset.certs[fips_dgst("3313")].heuristics.web_references.directly_referencing), {"3220"}
             )
             self.assertIsNone(dataset.certs[fips_dgst("3363")].heuristics.st_references.directly_referencing)
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3608")].heuristics.st_references.directly_referencing), {"2398"}
             )
             self.assertEqual(
-                set(dataset.certs[fips_dgst("3158")].heuristics.st_references.directly_referencing), {"2398"}
+                set(dataset.certs[fips_dgst("3158")].heuristics.web_references.directly_referencing), {"2398"}
             )

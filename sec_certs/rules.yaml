@@ -1,4 +1,8 @@
 ---
+
+#####
+# Common Criteria certificate IDs, grouped by scheme (Alpha-2 ISO country code).
+#####
 cc_cert_id:
   DE:
     - "BSI-DSZ-CC-[0-9]+?-[0-9]+"
@@ -71,6 +75,9 @@ cc_cert_id:
     - "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+"
     - "Certificate Number: [0-9]{1,4}/[0-9]{1,4}"
 
+#####
+# Common Criteria protection profile IDs, grouped by certification body (e.g. BSI)
+#####
 cc_protection_profile_id:
   BSI:
     - "BSI-(?:CC[-_]|)PP[-_]*.+?"
@@ -85,6 +92,9 @@ cc_protection_profile_id:
     - "WBIS_V[0-9]\\.[0-9]"
     - "EHCT_V.+?"
 
+#####
+# Common Criteria security level (EAL or ITSEC).
+#####
 cc_security_level:
   EAL:
     - "EAL[ ]*[0-9+]+?"
@@ -92,6 +102,9 @@ cc_security_level:
   ITSEC:
     - "ITSEC[ ]*E[1-9]*.+?"
 
+#####
+# Common Criteria security assurance requirement (SAR) code, grouped by class (e.g. ACE, ACM, ...).
+#####
 cc_sar:
   ACE:
     - "ACE(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
@@ -118,6 +131,9 @@ cc_sar:
   ASE:
     - "ASE(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
 
+#####
+# Common Criteria security functional requirement (SFR) code, grouped by class (e.g. FAU, FCO, ...).
+#####
 cc_sfr:
   FAU:
     - "FAU(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
@@ -142,6 +158,9 @@ cc_sfr:
   FTP:
     - "FTP(?:_[A-Z]{3,4}){1,2}(?:\\.[0-9]){0,2}"
 
+#####
+# Common Criteria claim code, grouped by class (e.g. D, T, ...).
+#####
 cc_claims:
   D:
     - "D\\.[\\._\\-A-Z]+?"
@@ -164,6 +183,9 @@ cc_claims:
   OSP:
     - "OSP\\.[\\._\\-A-Z]+?"
 
+#####
+# A generic vendor of a product, mostly has smartcard/secure hardware vendors or other large vendors of certified products.
+#####
 vendor:
   NXP:
     - "NXP( Semiconductors)?( N\\.V\\.)?"
@@ -204,6 +226,9 @@ vendor:
   Microsoft:
     - "Microsoft( Corporation)?"
 
+#####
+# Common Criteria evaluation facility, mostly from https://www.commoncriteriaportal.org/labs/, grouped roughly by facility.
+#####
 eval_facility:
   Serma:
     - "Serma Technologies|SERMA|Serma Safety & Security"
@@ -327,7 +352,9 @@ eval_facility:
   BAE:
     - "BAE Applied Intelligence"
 
-
+#####
+# Symmetric crypto primitive (e.g. a block or stream cipher), grouped by competition/standardization effort.
+#####
 symmetric_crypto:
   AES_competition:
     AES:
@@ -432,6 +459,8 @@ symmetric_crypto:
       - "GOST 28147-89"
       - "Magma"
       - "Kuznyechik"
+    SEED:
+      - "SEED"
     Skipjack:
       - "Skipjack"
     Skinny:
@@ -443,6 +472,9 @@ symmetric_crypto:
       - "KMAC"
       - "CMAC|CBC-MAC"
 
+#####
+# Asymmetric crypto primitive, grouped by type (RSA, ECC, FF).
+#####
 asymmetric_crypto:
   RSA:
     - "RSA[- ]?(?P<bitsize>512|768|1024|1280|1536|2048|3072|4096|8192)"
@@ -465,6 +497,9 @@ asymmetric_crypto:
     DSA:
       - "DSA"
 
+#####
+# Post-quantum crypto primitive, grouped by primitive, from NIST-PQC.
+#####
 pq_crypto:
   ClassicMcEliece:
     - "Classic[ -]McEliece"
@@ -501,6 +536,9 @@ pq_crypto:
   SPHINCS:
     - "SPHINCS\\+"
 
+#####
+# Hash-function, grouped by hash-function class (SHA, MD) or competition (PHC).
+#####
 hash_function:
   SHA:
     SHA1:
@@ -559,6 +597,9 @@ hash_function:
   PBKDF:
     - "PBKDF[12]?"
 
+#####
+# General cryptographic scheme.
+#####
 crypto_scheme:
   MAC:
     - "MAC"
@@ -575,6 +616,9 @@ crypto_scheme:
   AEAD:
     - "AEAD"
 
+#####
+# General cryptographic protocol.
+#####
 crypto_protocol:
   SSH:
     - "SSH"
@@ -590,6 +634,9 @@ crypto_protocol:
   IPsec:
     - "IPsec"
 
+#####
+# Random number generator.
+#####
 randomness:
   DUAL_EC:
     - "DUAL_EC_DRBG"
@@ -602,6 +649,9 @@ randomness:
     - "RN[GD]"
     - "RBG"
 
+#####
+# Block cipher mode.
+#####
 cipher_mode:
   ECB:
     - "ECB"
@@ -628,6 +678,10 @@ cipher_mode:
   XTS:
     - "XTS"
 
+#####
+# An elliptic curve, grouped by standardization body (e.g. NIST, Brainpool).
+# Note that multiple curve names may correspond to the same curve.
+#####
 ecc_curve:
   NIST:
     - "(?:Curve |curve |)P-(192|224|256|384|521)"
@@ -659,6 +713,9 @@ ecc_curve:
   BN:
     - "bn[0-9]{3}"
 
+#####
+# A cryptographic engine.
+#####
 crypto_engine:
   TORNADO:
     - "TORNADO"
@@ -667,10 +724,16 @@ crypto_engine:
   NexCrypt:
     - "NexCrypt"
 
+#####
+# TLS cipher suite name.
+#####
 tls_cipher_suite:
   TLS:
     - "TLS(_[A-Z0-9]+){1,3}_WITH(_[A-Z0-9]+){2,4}"
 
+#####
+# A cryptographic library, grouped by rough library category.
+#####
 crypto_library:
   Neslib:
     - "(?:NesLib|NESLIB) [v]*[0-9\\.]+"
@@ -724,6 +787,9 @@ crypto_library:
   libsecp256k1:
     - "libsecp256k1"
 
+#####
+# A vulnerability idenfitier or name (e.g. CVE-... but also Minerva, ROCA).
+#####
 vulnerability:
   CVE:
     - "CVE-[0-9]+?-[0-9]+?"
@@ -736,6 +802,9 @@ vulnerability:
   TPM-Fail:
     - "TPM[\\.-]Fail"
 
+#####
+# A side-channel analysis related term, grouped into SCA, FI and other.
+#####
 side_channel_analysis:
   SCA:
     - "Leak-Inherent"
@@ -765,6 +834,9 @@ side_channel_analysis:
     - "JIL(-(AAPS|COMP|AM|AAPHD|AMHD))?"
     - "JHAS"
 
+#####
+# A term used in the certification process.
+#####
 certification_process:
   OutOfScope:
     - "[oO]ut of [sS]cope"
@@ -775,11 +847,17 @@ certification_process:
   SecurityFunction:
     - "[sS]ecurity [fF]unction SF\\.[a-zA-Z0-9_]"
 
+#####
+# A technical report id, grouped by standardization body (e.g. BSI).
+#####
 technical_report_id:
   BSI:
     - "BSI[ ]*TR-[0-9]+?(?:-[0-9]+?|)"
     - "BSI [0-9]+?" # German BSI document containing list of issued certificates in some period
 
+#####
+# A device model, grouped by manufacturer and subgroups into particular model families.
+#####
 device_model:
   G87:
     - "G87-.+?"
@@ -792,6 +870,9 @@ device_model:
     SLE:
       - "SLE[0-9]{2}[A-Z]{3}[0-9]{1-4}[A-Z]{1-3}"
 
+#####
+# A Trusted Execution Environment, grouped by manufacturer (e.g. Intel, ARM, ...).
+#####
 tee_name:
   Intel:
     - "(Intel )?SGX"
@@ -818,12 +899,18 @@ tee_name:
     - "WatchTrust"
     - "TEE"
 
+#####
+# An OS name, grouped by OS.
+#####
 os_name:
   STARCOS:
     - "STARCOS(?: [0-9\\.]+?|)"
   JCOP:
     - "JCOP[ ]*[0-9]"
 
+#####
+# CPLC data name..
+#####
 cplc_data:
   ICFab:
     - "IC[ \\.]*Fabricator"
@@ -832,6 +919,9 @@ cplc_data:
   ICVersion:
     - "IC[ \\.]*Version"
 
+#####
+# An elementary data group.
+#####
 ic_data_group:
   EF:
     - "EF\\.DG[1-9][0-6]?"
@@ -840,11 +930,14 @@ ic_data_group:
     - "EF\\.SOD"
     - "EF\\.ChipSecurity"
 
+#####
+# Standard ID, grouped by standardization body (e.g. FIPS, NIST, ISO).
+#####
 standard_id:
   FIPS:
     - "FIPS ?(?:PUB )?[0-9]+(-[0-9]+)?"
   NIST:
-    - "NIST SP [0-9]+-[0-9]+?[a-zA-Z]?"
+    - "(NIST )?SP [0-9]+-[0-9]+?[a-zA-Z]?"
   PKCS:
     - "PKCS[ #]*[1-9]+"
   BSI:
@@ -866,7 +959,9 @@ standard_id:
     - "CC[I]*MB-20[0-9]+?-[0-9]+?-[0-9]+?"  # Common Criteria methodology
     - "CCIMB-9[0-9]-[0-9]+?"  # Common Criteria methodology old
 
-
+#####
+# JavaCard version identifier.
+#####
 javacard_version:
   JavaCard:
     - "(?:Java Card|JavaCard) [2-3]\\.[0-9](?:\\.[0-9]|)"
@@ -876,6 +971,9 @@ javacard_version:
     - "(?:Global Platform|GlobalPlatform) [2-3]\\.[0-9]\\.[0-9]"
     - "(?:Global Platform|GlobalPlatform) \\(version [2-3]\\.[0-9]\\.[0-9]\\)"
 
+#####
+# JavaCard API constant, grouped into "ALG", "misc" and "curves".
+#####
 javacard_api_const:
   ALG:
     RNG:
@@ -931,6 +1029,9 @@ javacard_api_const:
     - "X25519"
     - "X448"
 
+#####
+# JavaCard common package identifiers.
+#####
 javacard_packages:
   java:
     - "java\\.[a-z\\.]+"
@@ -947,15 +1048,65 @@ javacard_packages:
   de:
     - "de\\.bsi\\.[a-z\\.]+"
 
+#####
+# FIPS 140 certificate id.
+#####
 fips_cert_id:
   Cert:
     - "(?:#[^\\S\\r\\n]?|Cert\\.?(?!.\\s)[^\\S\\r\\n]?|Certificate[^\\S\\r\\n]?)(?P<id>\\d{1,4})(?!\\d)"
 
+#####
+# FIPS 140 security level.
+#####
 fips_security_level:
   Level:
     - "[lL]evel (\\d)"
 
+#####
+# FIPS 140 "certlike" string, that needs to get removed from certificate id matches.
+#####
+fips_certlike:
+  Certlike:
+      # --- HMAC(-SHA)(-1) - (bits) (method) ((hardware/firmware cert) #id) ---
+      # + added (and #id) everywhere
+    - "HMAC(?:[- –]*SHA)?(?:[- –]*1)?[– -]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\\(?(?: |hardware|firmware)*?[\\s(\\[]*?(?:#|cert\\.?|Cert\\.?|Certificate|sample)?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:[\\s#]*and[\\s#]*\\d+)?"
+      # --- same as above, without hw or fw ---
+    - "HMAC(?:-SHA)?(?:-1)?[ -]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
+      # --- SHS/A - (bits) (method) ((cert #) numbers) ---
+    - "SH[SA][-– 123]*(?:;|\\/|160|224|256|384|512)?(?:[\\s(\\[]*?(?:KAT|[Bb]yte [Oo]riented)*?[\\s,]*?[\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:\\)?\\[#?\\d+\\])?(?:[\\s#]*?and[\\s#]*?\\d+)?"
+      # --- RSA (bits) (method) ((cert #)) ---
+    - "RSA(?:[-– ]*(?:;|\\/|512|768|1024|1280|1536|2048|3072|4096|8192)\\s\\(\\[]*?(?:(?:;|\\/|KAT|Verify|PSS|\\s)*?)?[\\s,]*?[\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
+      # --- RSA (SSA) (PKCS) (version) (#) ---
+    - "(?:RSA)?[-– ]?(?:SSA)?[- ]?PKCS\\s?#?\\d(?:-[Vv]1_5| [Vv]1[-_]5)?[\\s#]*?(\\d{1,4})?"
+      # --- AES (bits) (method) ((cert #)) ---
+    - "AES[-– ]*((?: |;|\\/|bit|key|128|192|256|CBC)*(?: |\\/|;|[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV|CBC)*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:\\)?[\\s#]*?\\[#?\\d+\\])?(?:[\\s#]*?and[\\s#]*?(\\d+))?"
+      # --- Diffie Helman (CVL) ((cert #)) ---
+    - "Diffie[-– ]*Hellman[,\\s(\\[]*?(?:CVL|\\s)*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?[\\s#]*?(\\d{1,4})"
+      # --- DRBG (bits) (method) (cert #) ---
+    - "DRBG[ –-]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
+      # --- DES (bits) (method) (cert #)
+    - "DES[ –-]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT|CBC|(?:\\d(?: and \\d)? keying options?))*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)*?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:[\\s#]*?and[\\s#]*?(\\d+))?"
+      # --- DSA (bits) (method) (cert #)
+    - "DSA[ –-]*((?:;|\\/|160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
+      # --- platforms (#)+ - this is used in modification history ---
+    - "[Pp]latforms? #\\d+(?:#\\d+|,| |-|and)*[^\\n]*"
+      # --- CVL (#) ---
+    - "CVL[\\s#]*?(\\d{1,4})"
+      # --- PAA (#) ---
+    - "PAA[: #]*?\\d{1,4}"
+      # --- (#) Type ---
+    - "(?:#|cert\\.?|sample|Cert\\.?|Certificate)[\\s#]*?(\\d+)?\\s*?(?:AES|SHS|SHA|RSA|HMAC|Diffie-Hellman|DRBG|DES|CVL)"
+      # --- PKCS (#) ---
+    - "PKCS[\\s]?#?\\d+"
+    - "PKSC[\\s]?#?\\d+"  # typo, #625
+      # --- # C and # A (just in case) ---
+    - "#\\s+?[Cc]\\d+"
+    - "#\\s+?[Aa]\\d+"
 
+
+#####
+# Common Criteria rules.
+#####
 cc_rules:
   - "cc_cert_id"
   - "cc_protection_profile_id"
@@ -989,10 +1140,16 @@ cc_rules:
   - "javacard_version"
   - "javacard_api_const"
   - "javacard_packages"
+  - "certification_process"
 
+
+#####
+# FIPS rules.
+#####
 fips_rules:
   - "fips_cert_id"
   - "fips_security_level"
+  - "fips_certlike"
   - "vendor"
   - "eval_facility"
   - "symmetric_crypto"
@@ -1018,3 +1175,4 @@ fips_rules:
   - "javacard_version"
   - "javacard_api_const"
   - "javacard_packages"
+  - "certification_process"

@@ -726,16 +726,15 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return result
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
-        for alg in self.heuristics.keywords["rules_fips_algorithms"]:
-            for found in self.heuristics.keywords["rules_fips_algorithms"][alg]:
-                match_in_found = reg_to_match.search(found)
-                match_in_cert = reg_to_match.search(cert)
-                if (
-                    match_in_found is not None
-                    and match_in_cert is not None
-                    and match_in_found.group("id") == match_in_cert.group("id")
-                ):
-                    to_pop.add(cert)
+        for found in self.heuristics.keywords["fips_certlike"]["Certlike"]:
+            match_in_found = reg_to_match.search(found)
+            match_in_cert = reg_to_match.search(cert)
+            if (
+                match_in_found is not None
+                and match_in_cert is not None
+                and match_in_found.group("id") == match_in_cert.group("id")
+            ):
+                to_pop.add(cert)
 
         for alg_cert in self.heuristics.algorithms:
             for cert_no in alg_cert["Certificate"]:
@@ -752,28 +751,29 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
 
-        # XXX: What is this mess?
-        #
         # # TODO figure out why can't I delete this
         # if self.web_scan.mentioned_certs:
         #     for item, value in self.web_scan.mentioned_certs.items():
         #         self.heuristics.keywords["fips_cert_id"].update({"caveat_item": {item: value}})
         #
-        # alg_set = self._create_alg_set()
-        #
-        # for rule in self.heuristics.keywords["fips_cert_id"]:
-        #     to_pop = set()
-        #     rr = re.compile(rule)
-        #     for cert in self.heuristics.keywords["fips_cert_id"][rule]:
-        #         if cert in alg_set:
-        #             to_pop.add(cert)
-        #             continue
-        #         self._process_to_pop(rr, cert, to_pop)
-        #
-        #     for r in to_pop:
-        #         self.heuristics.keywords["fips_cert_id"][rule].pop(r, None)
-        #
-        #     self.heuristics.keywords["rules_cert_id"][rule].pop(self.cert_id, None)
+        alg_set = self._create_alg_set()
+        print(f"-----------Cert #{self.cert_id}")
+        print(f"Alg set: {alg_set}")
+        print(f"Before: {self.pdf_scan.keywords['fips_cert_id']['Cert']}")
+        for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
+            to_pop = set()
+            for cert in self.heuristics.keywords["fips_cert_id"]["Cert"]:
+                if cert in alg_set:
+                    to_pop.add(cert)
+                    continue
+                self._process_to_pop(cert_rule, cert, to_pop)
+
+            for r in to_pop:
+                print(f"Removing {r} from {self.cert_id}")
+                self.heuristics.keywords["fips_cert_id"]["Cert"].pop(r, None)
+
+        self.heuristics.keywords["fips_cert_id"]["Cert"].pop("#" + str(self.cert_id), None)
+        print(f"After: {self.heuristics.keywords['fips_cert_id']['Cert']}")
 
     @staticmethod
     def get_compare(vendor: str) -> str:
