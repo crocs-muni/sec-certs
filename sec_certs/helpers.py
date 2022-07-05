@@ -265,8 +265,11 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             metadata["pdf_number_of_pages"] = pdf.getNumPages()
             pdf_document_info = pdf.getDocumentInfo()
 
-        for key, val in pdf_document_info.items():
-            metadata[str(key)] = map_metadata_value(val)
+            if pdf_document_info is None:
+                raise ValueError("PDF metadata unavailable")
+
+            for key, val in pdf_document_info.items():
+                metadata[str(key)] = map_metadata_value(val)
 
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
