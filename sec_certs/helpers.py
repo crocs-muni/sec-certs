@@ -5,7 +5,7 @@ import os
 import re
 import time
 from contextlib import nullcontext
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 from enum import Enum
 from functools import partial
 from multiprocessing.pool import ThreadPool
@@ -231,6 +231,44 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
         txt_handle.write(txt)
 
     return constants.RETURNCODE_OK
+
+
+def parse_pdf_date(dateval) -> Optional[datetime]:
+    """
+    Parse PDF metadata date format:
+
+    ```
+        parse_pdf_date(b"D:20110617082321-04'00'")
+    ```
+    into
+    ```
+        datetime.datetime(2011, 6, 17, 8, 23, 21, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)))
+    ```
+    """
+    if dateval is None:
+        return None
+    clean = dateval.decode("utf-8").replace("D:", "")
+    tz = None
+    tzoff = None
+    if "+" in clean:
+        clean, tz = clean.split("+")
+        tzoff = 1
+    if "-" in clean:
+        clean, tz = clean.split("-")
+        tzoff = -1
+    elif "Z" in clean:
+        clean, tz = clean.split("Z")
+        tzoff = 1
+    try:
+        res_datetime = datetime.strptime(clean, "%Y%m%d%H%M%S")
+        if tz:
+            tz_datetime = datetime.strptime(tz, "%H'%M'")
+            delta = tzoff * timedelta(hours=tz_datetime.hour, minutes=tz_datetime.minute)
+            res_tz = timezone(delta)
+            res_datetime = res_datetime.replace(tzinfo=res_tz)
+        return res_datetime
+    except ValueError:
+        return None
 
 
 def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
