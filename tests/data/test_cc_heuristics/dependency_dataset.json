@@ -111,30 +111,9 @@
             "DE": {
               "BSI-DSZ-CC-0517-2009": 62,
               "BSI-DSZ-CC-0370-2006": 2
-            },
-            "FR": {},
-            "NL": {},
-            "NO": {},
-            "US": {},
-            "CA": {},
-            "UK": {},
-            "ES": {},
-            "KR": {},
-            "JP": {},
-            "MY": {},
-            "IT": {},
-            "TR": {},
-            "SE": {},
-            "IN": {},
-            "SG": {},
-            "AU": {}
+            }
           },
-          "cc_protection_profile_id": {
-            "BSI": {},
-            "ANSSI": {},
-            "KECS": {},
-            "other": {}
-          },
+          "cc_protection_profile_id": {},
           "cc_security_level": {
             "EAL": {
               "EAL 2": 4,
@@ -149,17 +128,14 @@
               "EAL6": 4,
               "EAL7": 4,
               "EAL 2 augmented": 3
-            },
-            "ITSEC": {}
+            }
           },
           "cc_sar": {
-            "ACE": {},
             "ACM": {
               "ACM_AUT": 2,
               "ACM_CAP": 2,
               "ACM_SCP": 2
             },
-            "ACO": {},
             "ADO": {
               "ADO_DEL": 2,
               "ADO_IGS": 2
@@ -199,7 +175,6 @@
               "AVA_VLA.3": 1,
               "AVA_VLA.4": 1
             },
-            "AMA": {},
             "APE": {
               "APE_DES": 1,
               "APE_ENV": 1,
@@ -219,361 +194,50 @@
               "ASE_TSS": 1
             }
           },
-          "cc_sfr": {
-            "FAU": {},
-            "FCO": {},
-            "FCS": {},
-            "FDP": {},
-            "FIA": {},
-            "FMT": {},
-            "FPR": {},
-            "FPT": {},
-            "FRU": {},
-            "FTA": {},
-            "FTP": {}
-          },
+          "cc_sfr": {},
           "cc_claims": {
             "D": {
               "D.PRINT_JOB": 2,
               "D.SECURE_PRINT_JOB": 1,
               "D.SCAN_JOB": 1
-            },
-            "O": {},
-            "T": {},
-            "A": {},
-            "R": {},
-            "OT": {},
-            "OP": {},
-            "OE": {},
-            "SA": {},
-            "OSP": {}
+            }
           },
-          "vendor": {
-            "NXP": {},
-            "Infineon": {},
-            "Samsung": {},
-            "STMicroelectronics": {},
-            "Feitian": {},
-            "Gemalto": {},
-            "Gemplus": {},
-            "Axalto": {},
-            "Thales": {},
-            "Oberthur": {},
-            "Idemia": {},
-            "Sagem": {},
-            "Morpho": {},
-            "GD": {},
-            "Philips": {},
-            "Qualcomm": {},
-            "Broadcom": {},
-            "Huawei": {},
-            "Microsoft": {}
-          },
+          "vendor": {},
           "eval_facility": {
-            "Serma": {},
-            "Thales": {},
-            "Riscure": {},
-            "SGS": {},
             "BrightSight": {
               "Brightsight": 2
-            },
-            "Applus": {},
-            "TUV": {},
-            "CESTI": {},
-            "DXC": {},
-            "Teron": {},
-            "EWA": {},
-            "Lightship": {},
-            "AMOSSYS": {},
-            "CEA-LETI": {},
-            "OPPIDA": {},
-            "TrustedLabs": {},
-            "atsec": {},
-            "DeutscheTelekom": {},
-            "DFKI": {},
-            "MTG": {},
-            "secuvera": {},
-            "SRC": {},
-            "Acucert": {},
-            "ERTL": {},
-            "ETDC": {},
-            "CCLab": {},
-            "Deeplab": {},
-            "IMQLPS": {},
-            "LVSLeonardo": {},
-            "LVSTechnisBlu": {},
-            "ECSEC": {},
-            "ITSC": {},
-            "Acumen": {},
-            "BoozAllenHamilton": {},
-            "Gossamer": {},
-            "Leidos": {},
-            "UL": {},
-            "BEAM": {},
-            "Certby": {},
-            "DEKRA": {},
-            "STMITSEF": {},
-            "TUBITAK-BILGEM": {},
-            "Combitech": {},
-            "Intertek": {},
-            "Clover": {},
-            "LAYAKK": {},
-            "An": {},
-            "TSystems": {},
-            "KISA": {},
-            "KOIST": {},
-            "KSEL": {},
-            "KOSYAS": {},
-            "KTR": {},
-            "KTC": {},
-            "TTA": {},
-            "ADS": {},
-            "Nemko": {},
-            "Norconsult": {},
-            "Secura": {},
-            "BAE": {}
+            }
           },
           "symmetric_crypto": {
-            "AES_competition": {
-              "AES": {},
-              "Rijndael": {},
-              "Twofish": {},
-              "Serpent": {},
-              "MARS": {},
-              "HPC": {},
-              "FROG": {},
-              "CAST": {},
-              "RC": {},
-              "CRYPTON": {},
-              "DEAL": {},
-              "E2": {},
-              "LOKI97": {},
-              "MAGENTA": {},
-              "SAFER": {}
-            },
             "DES": {
               "DES": {
                 "DES": 2
-              },
-              "3DES": {},
-              "Lucifer": {}
-            },
-            "djb": {
-              "ChaCha": {},
-              "Salsa": {},
-              "Poly": {}
-            },
-            "LWC_competition": {
-              "ASCON": {},
-              "Elephant": {},
-              "GIFT": {},
-              "Grain": {},
-              "ISAP": {},
-              "PhotonBeetle": {},
-              "Romulus": {},
-              "Sparkle": {},
-              "TinyJambu": {},
-              "Xoodyak": {},
-              "Gimli": {}
-            },
-            "eSTREAM": {
-              "HC": {},
-              "Rabbit": {},
-              "SOSEMANUK": {},
-              "MICKEY": {},
-              "Trivium": {}
-            },
-            "CAESAR": {
-              "ACORN": {},
-              "AEGIS": {},
-              "Deoxys": {},
-              "COLM": {}
-            },
-            "miscellaneous": {
-              "IDEA": {},
-              "Blowfish": {},
-              "Camellia": {},
-              "ARIA": {},
-              "SM4": {},
-              "GOST": {},
-              "Skipjack": {},
-              "Skinny": {}
-            },
-            "constructions": {
-              "MAC": {}
+              }
             }
           },
-          "asymmetric_crypto": {
-            "RSA": {},
-            "ECC": {
-              "ECDH": {},
-              "ECDSA": {},
-              "EdDSA": {},
-              "ECIES": {},
-              "ECC": {}
-            },
-            "FF": {
-              "DH": {},
-              "DSA": {}
-            }
-          },
-          "pq_crypto": {
-            "ClassicMcEliece": {},
-            "Kyber": {},
-            "NTRU": {},
-            "NTRUPrime": {},
-            "Saber": {},
-            "Dilithium": {},
-            "Falcon": {},
-            "Rainbow": {},
-            "UOV": {},
-            "BIKE": {},
-            "Frodo": {},
-            "HQC": {},
-            "SIKE": {},
-            "SIDH": {},
-            "GeMSS": {},
-            "Picnic": {},
-            "SPHINCS": {}
-          },
-          "hash_function": {
-            "SHA": {
-              "SHA1": {},
-              "SHA2": {},
-              "SHA3": {}
-            },
-            "Keccak": {},
-            "SHAKE": {},
-            "Groestl": {},
-            "BLAKE": {},
-            "JH": {},
-            "Skein": {},
-            "MD": {
-              "MD4": {},
-              "MD5": {},
-              "MD6": {}
-            },
-            "RIPEMD": {},
-            "Streebog": {},
-            "Whirpool": {},
-            "PHC_competition": {
-              "Argon": {},
-              "battcrypt": {},
-              "Catena": {},
-              "Lyra2": {},
-              "Makwa": {},
-              "POMELO": {},
-              "Pufferfish": {},
-              "yescrypt": {}
-            },
-            "bcrypt": {},
-            "scrypt": {},
-            "PBKDF": {}
-          },
-          "crypto_scheme": {
-            "MAC": {},
-            "KEM": {},
-            "PKE": {},
-            "KEX": {},
-            "KA": {},
-            "PAKE": {},
-            "AEAD": {}
-          },
+          "asymmetric_crypto": {},
+          "pq_crypto": {},
+          "hash_function": {},
+          "crypto_scheme": {},
           "crypto_protocol": {
-            "SSH": {},
             "TLS": {
               "SSL": {
                 "SSL": 3
-              },
-              "TLS": {}
-            },
-            "PACE": {},
-            "IKE": {},
-            "IPsec": {}
+              }
+            }
           },
-          "randomness": {
-            "DUAL_EC": {},
-            "TRNG": {},
-            "PRNG": {},
-            "RNG": {}
-          },
-          "cipher_mode": {
-            "ECB": {},
-            "CBC": {},
-            "CTR": {},
-            "CFB": {},
-            "OFB": {},
-            "GCM": {},
-            "SIV": {},
-            "XTR": {},
-            "CCM": {},
-            "LRW": {},
-            "XEX": {},
-            "XTS": {}
-          },
-          "ecc_curve": {
-            "NIST": {},
-            "Brainpool": {},
-            "ANSSI": {},
-            "NUMS": {},
-            "Curve": {},
-            "Edwards": {},
-            "ssc": {},
-            "Tweedle": {},
-            "Pasta": {},
-            "JubJub": {},
-            "BLS": {},
-            "BN": {}
-          },
-          "crypto_engine": {
-            "TORNADO": {},
-            "SmartMX": {},
-            "NexCrypt": {}
-          },
-          "tls_cipher_suite": {
-            "TLS": {}
-          },
+          "randomness": {},
+          "cipher_mode": {},
+          "ecc_curve": {},
+          "crypto_engine": {},
+          "tls_cipher_suite": {},
           "crypto_library": {
-            "Neslib": {},
-            "AT1": {},
-            "Generic": {},
-            "AtmelToolbox": {},
-            "Infineon": {},
             "OpenSSL": {
               "OpenSSL": 2
-            },
-            "LibreSSL": {},
-            "BoringSSL": {},
-            "MatrixSSL": {},
-            "Nettle": {},
-            "GnuTLS": {},
-            "libtomcrypt": {},
-            "BearSSL": {},
-            "Botan": {},
-            "Crypto++": {},
-            "wolfSSL": {},
-            "mbedTLS": {},
-            "s2n": {},
-            "NSS": {},
-            "libgcrypt": {},
-            "BouncyCastle": {},
-            "cryptlib": {},
-            "NaCl": {},
-            "libsodium": {},
-            "libsecp256k1": {}
+            }
           },
-          "vulnerability": {
-            "CVE": {},
-            "CWE": {},
-            "ROCA": {},
-            "Minerva": {},
-            "TPM-Fail": {}
-          },
-          "side_channel_analysis": {
-            "SCA": {},
-            "FI": {},
-            "other": {}
-          },
+          "vulnerability": {},
+          "side_channel_analysis": {},
           "technical_report_id": {
             "BSI": {
               "BSI 7125": 2,
@@ -581,132 +245,48 @@
               "BSI 7149": 1
             }
           },
-          "device_model": {
-            "G87": {},
-            "ATMEL": {},
-            "STM": {
-              "STM32": {}
-            },
-            "Infineon": {
-              "SLE": {}
-            }
-          },
+          "device_model": {},
           "tee_name": {
-            "Intel": {},
-            "ARM": {},
-            "AMD": {},
             "IBM": {
               "SE": 3
-            },
-            "other": {}
+            }
           },
-          "os_name": {
-            "STARCOS": {},
-            "JCOP": {}
-          },
-          "cplc_data": {
-            "ICFab": {},
-            "ICType": {},
-            "ICVersion": {}
-          },
-          "ic_data_group": {
-            "EF": {}
-          },
+          "os_name": {},
+          "cplc_data": {},
+          "ic_data_group": {},
           "standard_id": {
-            "FIPS": {},
-            "NIST": {},
-            "PKCS": {},
             "BSI": {
               "AIS 32": 1,
               "AIS 38": 1
             },
-            "RFC": {},
             "ISO": {
               "ISO/IEC 15408:2005": 2
-            },
-            "ICAO": {},
-            "X509": {},
-            "SCP": {},
-            "CC": {}
+            }
           },
-          "javacard_version": {
-            "JavaCard": {},
-            "GlobalPlatform": {}
-          },
-          "javacard_api_const": {
-            "ALG": {
-              "RNG": {},
-              "DES": {},
-              "RSA": {},
-              "DSA": {},
-              "ECDSA": {},
-              "AES": {},
-              "HMAC": {},
-              "KOREAN": {},
-              "EC": {},
-              "SHA": {},
-              "SHA3": {},
-              "MD": {},
-              "RIPEMD": {},
-              "ISO3309": {},
-              "XDH": {},
-              "SM2": {},
-              "SM3": {},
-              "null": {}
-            },
-            "misc": {},
-            "curves": {}
-          },
-          "javacard_packages": {
-            "java": {},
-            "javacard": {},
-            "javacardx": {},
-            "org": {},
-            "uicc": {},
-            "com": {},
-            "de": {}
+          "javacard_version": {},
+          "javacard_api_const": {},
+          "javacard_packages": {},
+          "certification_process": {
+            "ConfidentialDocument": {
+              "h January 2009, “Evaluation Technical Report Digital Access Controller (DAC) R10.1.5“, Brightsight (confidential document) [8] Configuration list for the TOE, Version 3.3, 19th January 2009, “Configuration Management List": 1,
+              ", 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products“, Océ Technologies B.V. (confidential document) [9] Océ VarioPrint 1055-75 Job manual, Code Number 1060061982, Edition 2007, 2.1, Océ Technologies": 1
+            }
           }
         },
         "st_keywords": {
-          "cc_cert_id": {
-            "DE": {},
-            "FR": {},
-            "NL": {},
-            "NO": {},
-            "US": {},
-            "CA": {},
-            "UK": {},
-            "ES": {},
-            "KR": {},
-            "JP": {},
-            "MY": {},
-            "IT": {},
-            "TR": {},
-            "SE": {},
-            "IN": {},
-            "SG": {},
-            "AU": {}
-          },
-          "cc_protection_profile_id": {
-            "BSI": {},
-            "ANSSI": {},
-            "KECS": {},
-            "other": {}
-          },
+          "cc_cert_id": {},
+          "cc_protection_profile_id": {},
           "cc_security_level": {
             "EAL": {
               "EAL2": 7,
               "EAL2+": 1,
               "EAL 2": 3
-            },
-            "ITSEC": {}
+            }
           },
           "cc_sar": {
-            "ACE": {},
             "ACM": {
               "ACM_CAP.2": 2
             },
-            "ACO": {},
             "ADO": {
               "ADO_DEL.1": 2,
               "ADO_IGS.1": 2
@@ -733,16 +313,11 @@
               "AVA_SOF.1": 2,
               "AVA_VLA.1": 3
             },
-            "AMA": {},
-            "APE": {},
             "ASE": {
               "ASE_JOB": 6
             }
           },
           "cc_sfr": {
-            "FAU": {},
-            "FCO": {},
-            "FCS": {},
             "FDP": {
               "FDP_ACC.1": 7,
               "FDP_ACF.1": 6,
@@ -776,7 +351,6 @@
               "FMT_SMF.1.1": 1,
               "FMT_SMR.1.1": 1
             },
-            "FPR": {},
             "FPT": {
               "FPT_SEP.1": 8,
               "FPT_SEP.1.2": 1,
@@ -787,10 +361,7 @@
               "FPT_TST.1.2": 1,
               "FPT_TST.1.3": 1,
               "FPT_AMT.1": 3
-            },
-            "FRU": {},
-            "FTA": {},
-            "FTP": {}
+            }
           },
           "cc_claims": {
             "D": {
@@ -842,242 +413,19 @@
               "R.EXIT_TOE": 4,
               "R.REMOTE_USER": 1,
               "R": 1
-            },
-            "OT": {},
-            "OP": {},
-            "OE": {},
-            "SA": {},
-            "OSP": {}
+            }
           },
-          "vendor": {
-            "NXP": {},
-            "Infineon": {},
-            "Samsung": {},
-            "STMicroelectronics": {},
-            "Feitian": {},
-            "Gemalto": {},
-            "Gemplus": {},
-            "Axalto": {},
-            "Thales": {},
-            "Oberthur": {},
-            "Idemia": {},
-            "Sagem": {},
-            "Morpho": {},
-            "GD": {},
-            "Philips": {},
-            "Qualcomm": {},
-            "Broadcom": {},
-            "Huawei": {},
-            "Microsoft": {}
-          },
+          "vendor": {},
           "eval_facility": {
-            "Serma": {},
-            "Thales": {},
-            "Riscure": {},
-            "SGS": {},
             "BrightSight": {
               "Brightsight": 4
-            },
-            "Applus": {},
-            "TUV": {},
-            "CESTI": {},
-            "DXC": {},
-            "Teron": {},
-            "EWA": {},
-            "Lightship": {},
-            "AMOSSYS": {},
-            "CEA-LETI": {},
-            "OPPIDA": {},
-            "TrustedLabs": {},
-            "atsec": {},
-            "DeutscheTelekom": {},
-            "DFKI": {},
-            "MTG": {},
-            "secuvera": {},
-            "SRC": {},
-            "Acucert": {},
-            "ERTL": {},
-            "ETDC": {},
-            "CCLab": {},
-            "Deeplab": {},
-            "IMQLPS": {},
-            "LVSLeonardo": {},
-            "LVSTechnisBlu": {},
-            "ECSEC": {},
-            "ITSC": {},
-            "Acumen": {},
-            "BoozAllenHamilton": {},
-            "Gossamer": {},
-            "Leidos": {},
-            "UL": {},
-            "BEAM": {},
-            "Certby": {},
-            "DEKRA": {},
-            "STMITSEF": {},
-            "TUBITAK-BILGEM": {},
-            "Combitech": {},
-            "Intertek": {},
-            "Clover": {},
-            "LAYAKK": {},
-            "An": {},
-            "TSystems": {},
-            "KISA": {},
-            "KOIST": {},
-            "KSEL": {},
-            "KOSYAS": {},
-            "KTR": {},
-            "KTC": {},
-            "TTA": {},
-            "ADS": {},
-            "Nemko": {},
-            "Norconsult": {},
-            "Secura": {},
-            "BAE": {}
-          },
-          "symmetric_crypto": {
-            "AES_competition": {
-              "AES": {},
-              "Rijndael": {},
-              "Twofish": {},
-              "Serpent": {},
-              "MARS": {},
-              "HPC": {},
-              "FROG": {},
-              "CAST": {},
-              "RC": {},
-              "CRYPTON": {},
-              "DEAL": {},
-              "E2": {},
-              "LOKI97": {},
-              "MAGENTA": {},
-              "SAFER": {}
-            },
-            "DES": {
-              "DES": {},
-              "3DES": {},
-              "Lucifer": {}
-            },
-            "djb": {
-              "ChaCha": {},
-              "Salsa": {},
-              "Poly": {}
-            },
-            "LWC_competition": {
-              "ASCON": {},
-              "Elephant": {},
-              "GIFT": {},
-              "Grain": {},
-              "ISAP": {},
-              "PhotonBeetle": {},
-              "Romulus": {},
-              "Sparkle": {},
-              "TinyJambu": {},
-              "Xoodyak": {},
-              "Gimli": {}
-            },
-            "eSTREAM": {
-              "HC": {},
-              "Rabbit": {},
-              "SOSEMANUK": {},
-              "MICKEY": {},
-              "Trivium": {}
-            },
-            "CAESAR": {
-              "ACORN": {},
-              "AEGIS": {},
-              "Deoxys": {},
-              "COLM": {}
-            },
-            "miscellaneous": {
-              "IDEA": {},
-              "Blowfish": {},
-              "Camellia": {},
-              "ARIA": {},
-              "SM4": {},
-              "GOST": {},
-              "Skipjack": {},
-              "Skinny": {}
-            },
-            "constructions": {
-              "MAC": {}
             }
           },
-          "asymmetric_crypto": {
-            "RSA": {},
-            "ECC": {
-              "ECDH": {},
-              "ECDSA": {},
-              "EdDSA": {},
-              "ECIES": {},
-              "ECC": {}
-            },
-            "FF": {
-              "DH": {},
-              "DSA": {}
-            }
-          },
-          "pq_crypto": {
-            "ClassicMcEliece": {},
-            "Kyber": {},
-            "NTRU": {},
-            "NTRUPrime": {},
-            "Saber": {},
-            "Dilithium": {},
-            "Falcon": {},
-            "Rainbow": {},
-            "UOV": {},
-            "BIKE": {},
-            "Frodo": {},
-            "HQC": {},
-            "SIKE": {},
-            "SIDH": {},
-            "GeMSS": {},
-            "Picnic": {},
-            "SPHINCS": {}
-          },
-          "hash_function": {
-            "SHA": {
-              "SHA1": {},
-              "SHA2": {},
-              "SHA3": {}
-            },
-            "Keccak": {},
-            "SHAKE": {},
-            "Groestl": {},
-            "BLAKE": {},
-            "JH": {},
-            "Skein": {},
-            "MD": {
-              "MD4": {},
-              "MD5": {},
-              "MD6": {}
-            },
-            "RIPEMD": {},
-            "Streebog": {},
-            "Whirpool": {},
-            "PHC_competition": {
-              "Argon": {},
-              "battcrypt": {},
-              "Catena": {},
-              "Lyra2": {},
-              "Makwa": {},
-              "POMELO": {},
-              "Pufferfish": {},
-              "yescrypt": {}
-            },
-            "bcrypt": {},
-            "scrypt": {},
-            "PBKDF": {}
-          },
-          "crypto_scheme": {
-            "MAC": {},
-            "KEM": {},
-            "PKE": {},
-            "KEX": {},
-            "KA": {},
-            "PAKE": {},
-            "AEAD": {}
-          },
+          "symmetric_crypto": {},
+          "asymmetric_crypto": {},
+          "pq_crypto": {},
+          "hash_function": {},
+          "crypto_scheme": {},
           "crypto_protocol": {
             "SSH": {
               "SSH": 2
@@ -1085,113 +433,24 @@
             "TLS": {
               "SSL": {
                 "SSL": 4
-              },
-              "TLS": {}
-            },
-            "PACE": {},
-            "IKE": {},
-            "IPsec": {}
-          },
-          "randomness": {
-            "DUAL_EC": {},
-            "TRNG": {},
-            "PRNG": {},
-            "RNG": {}
-          },
-          "cipher_mode": {
-            "ECB": {},
-            "CBC": {},
-            "CTR": {},
-            "CFB": {},
-            "OFB": {},
-            "GCM": {},
-            "SIV": {},
-            "XTR": {},
-            "CCM": {},
-            "LRW": {},
-            "XEX": {},
-            "XTS": {}
-          },
-          "ecc_curve": {
-            "NIST": {},
-            "Brainpool": {},
-            "ANSSI": {},
-            "NUMS": {},
-            "Curve": {},
-            "Edwards": {},
-            "ssc": {},
-            "Tweedle": {},
-            "Pasta": {},
-            "JubJub": {},
-            "BLS": {},
-            "BN": {}
-          },
-          "crypto_engine": {
-            "TORNADO": {},
-            "SmartMX": {},
-            "NexCrypt": {}
-          },
-          "tls_cipher_suite": {
-            "TLS": {}
-          },
-          "crypto_library": {
-            "Neslib": {},
-            "AT1": {},
-            "Generic": {},
-            "AtmelToolbox": {},
-            "Infineon": {},
-            "OpenSSL": {
-              "OpenSSL": 1
-            },
-            "LibreSSL": {},
-            "BoringSSL": {},
-            "MatrixSSL": {},
-            "Nettle": {},
-            "GnuTLS": {},
-            "libtomcrypt": {},
-            "BearSSL": {},
-            "Botan": {},
-            "Crypto++": {},
-            "wolfSSL": {},
-            "mbedTLS": {},
-            "s2n": {},
-            "NSS": {},
-            "libgcrypt": {},
-            "BouncyCastle": {},
-            "cryptlib": {},
-            "NaCl": {},
-            "libsodium": {},
-            "libsecp256k1": {}
-          },
-          "vulnerability": {
-            "CVE": {},
-            "CWE": {},
-            "ROCA": {},
-            "Minerva": {},
-            "TPM-Fail": {}
-          },
-          "side_channel_analysis": {
-            "SCA": {},
-            "FI": {},
-            "other": {}
-          },
-          "technical_report_id": {
-            "BSI": {}
-          },
-          "device_model": {
-            "G87": {},
-            "ATMEL": {},
-            "STM": {
-              "STM32": {}
-            },
-            "Infineon": {
-              "SLE": {}
+              }
             }
           },
+          "randomness": {},
+          "cipher_mode": {},
+          "ecc_curve": {},
+          "crypto_engine": {},
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "OpenSSL": {
+              "OpenSSL": 1
+            }
+          },
+          "vulnerability": {},
+          "side_channel_analysis": {},
+          "technical_report_id": {},
+          "device_model": {},
           "tee_name": {
-            "Intel": {},
-            "ARM": {},
-            "AMD": {},
             "IBM": {
               "SE": 13
             },
@@ -1199,67 +458,14 @@
               "T6": 1
             }
           },
-          "os_name": {
-            "STARCOS": {},
-            "JCOP": {}
-          },
-          "cplc_data": {
-            "ICFab": {},
-            "ICType": {},
-            "ICVersion": {}
-          },
-          "ic_data_group": {
-            "EF": {}
-          },
-          "standard_id": {
-            "FIPS": {},
-            "NIST": {},
-            "PKCS": {},
-            "BSI": {},
-            "RFC": {},
-            "ISO": {},
-            "ICAO": {},
-            "X509": {},
-            "SCP": {},
-            "CC": {}
-          },
-          "javacard_version": {
-            "JavaCard": {},
-            "GlobalPlatform": {}
-          },
-          "javacard_api_const": {
-            "ALG": {
-              "RNG": {},
-              "DES": {},
-              "RSA": {},
-              "DSA": {},
-              "ECDSA": {},
-              "AES": {},
-              "HMAC": {},
-              "KOREAN": {},
-              "EC": {},
-              "SHA": {},
-              "SHA3": {},
-              "MD": {},
-              "RIPEMD": {},
-              "ISO3309": {},
-              "XDH": {},
-              "SM2": {},
-              "SM3": {},
-              "null": {}
-            },
-            "misc": {},
-            "curves": {}
-          },
-          "javacard_packages": {
-            "java": {},
-            "javacard": {},
-            "javacardx": {},
-            "org": {},
-            "uicc": {},
-            "com": {},
-            "de": {}
-          }
+          "os_name": {},
+          "cplc_data": {},
+          "ic_data_group": {},
+          "standard_id": {},
+          "javacard_version": {},
+          "javacard_api_const": {},
+          "javacard_packages": {},
+          "certification_process": {}
         }
       },
       "heuristics": {
@@ -1465,30 +671,9 @@
             "DE": {
               "BSI-DSZ-CC-0370-2006": 80,
               "BSI-DSZ-CC-0325-2006": 2
-            },
-            "FR": {},
-            "NL": {},
-            "NO": {},
-            "US": {},
-            "CA": {},
-            "UK": {},
-            "ES": {},
-            "KR": {},
-            "JP": {},
-            "MY": {},
-            "IT": {},
-            "TR": {},
-            "SE": {},
-            "IN": {},
-            "SG": {},
-            "AU": {}
+            }
           },
-          "cc_protection_profile_id": {
-            "BSI": {},
-            "ANSSI": {},
-            "KECS": {},
-            "other": {}
-          },
+          "cc_protection_profile_id": {},
           "cc_security_level": {
             "EAL": {
               "EAL2": 7,
@@ -1503,18 +688,15 @@
               "EAL6": 4,
               "EAL7": 4,
               "EAL2 augmented": 3
-            },
-            "ITSEC": {}
+            }
           },
           "cc_sar": {
-            "ACE": {},
             "ACM": {
               "ACM_CAP.2": 1,
               "ACM_AUT": 2,
               "ACM_CAP": 2,
               "ACM_SCP": 2
             },
-            "ACO": {},
             "ADO": {
               "ADO_DEL.1": 1,
               "ADO_IGS.1": 1,
@@ -1566,8 +748,6 @@
               "AVA_VLA.3": 1,
               "AVA_VLA.4": 1
             },
-            "AMA": {},
-            "APE": {},
             "ASE": {
               "ASE_DES.1": 1,
               "ASE_ENV.1": 1,
@@ -1580,9 +760,6 @@
             }
           },
           "cc_sfr": {
-            "FAU": {},
-            "FCO": {},
-            "FCS": {},
             "FDP": {
               "FDP_ACC.1": 1,
               "FDP_ACF.1": 1,
@@ -1601,15 +778,11 @@
               "FMT_SMF.1": 1,
               "FMT_SMR.1": 1
             },
-            "FPR": {},
             "FPT": {
               "FPT_RVM.1": 1,
               "FPT_SEP.1": 1,
               "FPT_TST.1": 1
-            },
-            "FRU": {},
-            "FTA": {},
-            "FTP": {}
+            }
           },
           "cc_claims": {
             "D": {
@@ -1619,7 +792,6 @@
               "D.PRINT_JOB": 2,
               "D.SCAN_JOB": 1
             },
-            "O": {},
             "T": {
               "T.RESIDUAL_DATA": 1,
               "T.NOSY_USER": 1,
@@ -1631,338 +803,38 @@
               "A.SECURITY_POLICY": 1,
               "A.SHREDDING": 1,
               "A.SLA": 1
-            },
-            "R": {},
-            "OT": {},
-            "OP": {},
-            "OE": {},
-            "SA": {},
-            "OSP": {}
+            }
           },
-          "vendor": {
-            "NXP": {},
-            "Infineon": {},
-            "Samsung": {},
-            "STMicroelectronics": {},
-            "Feitian": {},
-            "Gemalto": {},
-            "Gemplus": {},
-            "Axalto": {},
-            "Thales": {},
-            "Oberthur": {},
-            "Idemia": {},
-            "Sagem": {},
-            "Morpho": {},
-            "GD": {},
-            "Philips": {},
-            "Qualcomm": {},
-            "Broadcom": {},
-            "Huawei": {},
-            "Microsoft": {}
-          },
+          "vendor": {},
           "eval_facility": {
-            "Serma": {},
-            "Thales": {},
-            "Riscure": {},
-            "SGS": {},
             "BrightSight": {
               "Brightsight": 4
-            },
-            "Applus": {},
-            "TUV": {},
-            "CESTI": {},
-            "DXC": {},
-            "Teron": {},
-            "EWA": {},
-            "Lightship": {},
-            "AMOSSYS": {},
-            "CEA-LETI": {},
-            "OPPIDA": {},
-            "TrustedLabs": {},
-            "atsec": {},
-            "DeutscheTelekom": {},
-            "DFKI": {},
-            "MTG": {},
-            "secuvera": {},
-            "SRC": {},
-            "Acucert": {},
-            "ERTL": {},
-            "ETDC": {},
-            "CCLab": {},
-            "Deeplab": {},
-            "IMQLPS": {},
-            "LVSLeonardo": {},
-            "LVSTechnisBlu": {},
-            "ECSEC": {},
-            "ITSC": {},
-            "Acumen": {},
-            "BoozAllenHamilton": {},
-            "Gossamer": {},
-            "Leidos": {},
-            "UL": {},
-            "BEAM": {},
-            "Certby": {},
-            "DEKRA": {},
-            "STMITSEF": {},
-            "TUBITAK-BILGEM": {},
-            "Combitech": {},
-            "Intertek": {},
-            "Clover": {},
-            "LAYAKK": {},
-            "An": {},
-            "TSystems": {},
-            "KISA": {},
-            "KOIST": {},
-            "KSEL": {},
-            "KOSYAS": {},
-            "KTR": {},
-            "KTC": {},
-            "TTA": {},
-            "ADS": {},
-            "Nemko": {},
-            "Norconsult": {},
-            "Secura": {},
-            "BAE": {}
-          },
-          "symmetric_crypto": {
-            "AES_competition": {
-              "AES": {},
-              "Rijndael": {},
-              "Twofish": {},
-              "Serpent": {},
-              "MARS": {},
-              "HPC": {},
-              "FROG": {},
-              "CAST": {},
-              "RC": {},
-              "CRYPTON": {},
-              "DEAL": {},
-              "E2": {},
-              "LOKI97": {},
-              "MAGENTA": {},
-              "SAFER": {}
-            },
-            "DES": {
-              "DES": {},
-              "3DES": {},
-              "Lucifer": {}
-            },
-            "djb": {
-              "ChaCha": {},
-              "Salsa": {},
-              "Poly": {}
-            },
-            "LWC_competition": {
-              "ASCON": {},
-              "Elephant": {},
-              "GIFT": {},
-              "Grain": {},
-              "ISAP": {},
-              "PhotonBeetle": {},
-              "Romulus": {},
-              "Sparkle": {},
-              "TinyJambu": {},
-              "Xoodyak": {},
-              "Gimli": {}
-            },
-            "eSTREAM": {
-              "HC": {},
-              "Rabbit": {},
-              "SOSEMANUK": {},
-              "MICKEY": {},
-              "Trivium": {}
-            },
-            "CAESAR": {
-              "ACORN": {},
-              "AEGIS": {},
-              "Deoxys": {},
-              "COLM": {}
-            },
-            "miscellaneous": {
-              "IDEA": {},
-              "Blowfish": {},
-              "Camellia": {},
-              "ARIA": {},
-              "SM4": {},
-              "GOST": {},
-              "Skipjack": {},
-              "Skinny": {}
-            },
-            "constructions": {
-              "MAC": {}
             }
           },
-          "asymmetric_crypto": {
-            "RSA": {},
-            "ECC": {
-              "ECDH": {},
-              "ECDSA": {},
-              "EdDSA": {},
-              "ECIES": {},
-              "ECC": {}
-            },
-            "FF": {
-              "DH": {},
-              "DSA": {}
-            }
-          },
-          "pq_crypto": {
-            "ClassicMcEliece": {},
-            "Kyber": {},
-            "NTRU": {},
-            "NTRUPrime": {},
-            "Saber": {},
-            "Dilithium": {},
-            "Falcon": {},
-            "Rainbow": {},
-            "UOV": {},
-            "BIKE": {},
-            "Frodo": {},
-            "HQC": {},
-            "SIKE": {},
-            "SIDH": {},
-            "GeMSS": {},
-            "Picnic": {},
-            "SPHINCS": {}
-          },
-          "hash_function": {
-            "SHA": {
-              "SHA1": {},
-              "SHA2": {},
-              "SHA3": {}
-            },
-            "Keccak": {},
-            "SHAKE": {},
-            "Groestl": {},
-            "BLAKE": {},
-            "JH": {},
-            "Skein": {},
-            "MD": {
-              "MD4": {},
-              "MD5": {},
-              "MD6": {}
-            },
-            "RIPEMD": {},
-            "Streebog": {},
-            "Whirpool": {},
-            "PHC_competition": {
-              "Argon": {},
-              "battcrypt": {},
-              "Catena": {},
-              "Lyra2": {},
-              "Makwa": {},
-              "POMELO": {},
-              "Pufferfish": {},
-              "yescrypt": {}
-            },
-            "bcrypt": {},
-            "scrypt": {},
-            "PBKDF": {}
-          },
-          "crypto_scheme": {
-            "MAC": {},
-            "KEM": {},
-            "PKE": {},
-            "KEX": {},
-            "KA": {},
-            "PAKE": {},
-            "AEAD": {}
-          },
+          "symmetric_crypto": {},
+          "asymmetric_crypto": {},
+          "pq_crypto": {},
+          "hash_function": {},
+          "crypto_scheme": {},
           "crypto_protocol": {
-            "SSH": {},
             "TLS": {
               "SSL": {
                 "SSL": 12
-              },
-              "TLS": {}
-            },
-            "PACE": {},
-            "IKE": {},
-            "IPsec": {}
+              }
+            }
           },
-          "randomness": {
-            "DUAL_EC": {},
-            "TRNG": {},
-            "PRNG": {},
-            "RNG": {}
-          },
-          "cipher_mode": {
-            "ECB": {},
-            "CBC": {},
-            "CTR": {},
-            "CFB": {},
-            "OFB": {},
-            "GCM": {},
-            "SIV": {},
-            "XTR": {},
-            "CCM": {},
-            "LRW": {},
-            "XEX": {},
-            "XTS": {}
-          },
-          "ecc_curve": {
-            "NIST": {},
-            "Brainpool": {},
-            "ANSSI": {},
-            "NUMS": {},
-            "Curve": {},
-            "Edwards": {},
-            "ssc": {},
-            "Tweedle": {},
-            "Pasta": {},
-            "JubJub": {},
-            "BLS": {},
-            "BN": {}
-          },
-          "crypto_engine": {
-            "TORNADO": {},
-            "SmartMX": {},
-            "NexCrypt": {}
-          },
-          "tls_cipher_suite": {
-            "TLS": {}
-          },
+          "randomness": {},
+          "cipher_mode": {},
+          "ecc_curve": {},
+          "crypto_engine": {},
+          "tls_cipher_suite": {},
           "crypto_library": {
-            "Neslib": {},
-            "AT1": {},
-            "Generic": {},
-            "AtmelToolbox": {},
-            "Infineon": {},
             "OpenSSL": {
               "OpenSSL": 8
-            },
-            "LibreSSL": {},
-            "BoringSSL": {},
-            "MatrixSSL": {},
-            "Nettle": {},
-            "GnuTLS": {},
-            "libtomcrypt": {},
-            "BearSSL": {},
-            "Botan": {},
-            "Crypto++": {},
-            "wolfSSL": {},
-            "mbedTLS": {},
-            "s2n": {},
-            "NSS": {},
-            "libgcrypt": {},
-            "BouncyCastle": {},
-            "cryptlib": {},
-            "NaCl": {},
-            "libsodium": {},
-            "libsecp256k1": {}
+            }
           },
-          "vulnerability": {
-            "CVE": {},
-            "CWE": {},
-            "ROCA": {},
-            "Minerva": {},
-            "TPM-Fail": {}
-          },
-          "side_channel_analysis": {
-            "SCA": {},
-            "FI": {},
-            "other": {}
-          },
+          "vulnerability": {},
+          "side_channel_analysis": {},
           "technical_report_id": {
             "BSI": {
               "BSI 7125": 2,
@@ -1970,132 +842,47 @@
               "BSI 7149": 1
             }
           },
-          "device_model": {
-            "G87": {},
-            "ATMEL": {},
-            "STM": {
-              "STM32": {}
-            },
-            "Infineon": {
-              "SLE": {}
-            }
-          },
+          "device_model": {},
           "tee_name": {
-            "Intel": {},
-            "ARM": {},
-            "AMD": {},
             "IBM": {
               "SE": 6
-            },
-            "other": {}
+            }
           },
-          "os_name": {
-            "STARCOS": {},
-            "JCOP": {}
-          },
-          "cplc_data": {
-            "ICFab": {},
-            "ICType": {},
-            "ICVersion": {}
-          },
-          "ic_data_group": {
-            "EF": {}
-          },
+          "os_name": {},
+          "cplc_data": {},
+          "ic_data_group": {},
           "standard_id": {
-            "FIPS": {},
-            "NIST": {},
-            "PKCS": {},
             "BSI": {
               "AIS 34": 1,
               "AIS33": 1
             },
-            "RFC": {},
             "ISO": {
               "ISO/IEC 15408:2005": 2
-            },
-            "ICAO": {},
-            "X509": {},
-            "SCP": {},
-            "CC": {}
+            }
           },
-          "javacard_version": {
-            "JavaCard": {},
-            "GlobalPlatform": {}
-          },
-          "javacard_api_const": {
-            "ALG": {
-              "RNG": {},
-              "DES": {},
-              "RSA": {},
-              "DSA": {},
-              "ECDSA": {},
-              "AES": {},
-              "HMAC": {},
-              "KOREAN": {},
-              "EC": {},
-              "SHA": {},
-              "SHA3": {},
-              "MD": {},
-              "RIPEMD": {},
-              "ISO3309": {},
-              "XDH": {},
-              "SM2": {},
-              "SM3": {},
-              "null": {}
-            },
-            "misc": {},
-            "curves": {}
-          },
-          "javacard_packages": {
-            "java": {},
-            "javacard": {},
-            "javacardx": {},
-            "org": {},
-            "uicc": {},
-            "com": {},
-            "de": {}
+          "javacard_version": {},
+          "javacard_api_const": {},
+          "javacard_packages": {},
+          "certification_process": {
+            "ConfidentialDocument": {
+              "as used in the Océ VarioPrint 1055, 1065, 1075, 2062,2075 printer/copier/scanner products – EAL2+ (confidential document) Guidance Documentation [9] Océ VarioPrint 1055, 1065,1075, 2062, 2075, Common Criteria Certified": 1
+            }
           }
         },
         "st_keywords": {
-          "cc_cert_id": {
-            "DE": {},
-            "FR": {},
-            "NL": {},
-            "NO": {},
-            "US": {},
-            "CA": {},
-            "UK": {},
-            "ES": {},
-            "KR": {},
-            "JP": {},
-            "MY": {},
-            "IT": {},
-            "TR": {},
-            "SE": {},
-            "IN": {},
-            "SG": {},
-            "AU": {}
-          },
-          "cc_protection_profile_id": {
-            "BSI": {},
-            "ANSSI": {},
-            "KECS": {},
-            "other": {}
-          },
+          "cc_cert_id": {},
+          "cc_protection_profile_id": {},
           "cc_security_level": {
             "EAL": {
               "EAL2": 7,
               "EAL 2": 3,
               "EAL2+": 1
-            },
-            "ITSEC": {}
+            }
           },
           "cc_sar": {
-            "ACE": {},
             "ACM": {
               "ACM_CAP.2": 2
             },
-            "ACO": {},
             "ADO": {
               "ADO_DEL.1": 2,
               "ADO_IGS.1": 2
@@ -2122,16 +909,11 @@
               "AVA_SOF.1": 2,
               "AVA_VLA.1": 3
             },
-            "AMA": {},
-            "APE": {},
             "ASE": {
               "ASE_JOB": 6
             }
           },
           "cc_sfr": {
-            "FAU": {},
-            "FCO": {},
-            "FCS": {},
             "FDP": {
               "FDP_ACC.1": 7,
               "FDP_ACF.1": 6,
@@ -2165,7 +947,6 @@
               "FMT_SMF.1.1": 1,
               "FMT_SMR.1.1": 1
             },
-            "FPR": {},
             "FPT": {
               "FPT_SEP.1": 8,
               "FPT_SEP.1.2": 1,
@@ -2176,10 +957,7 @@
               "FPT_TST.1.2": 1,
               "FPT_TST.1.3": 1,
               "FPT_AMT.1": 3
-            },
-            "FRU": {},
-            "FTA": {},
-            "FTP": {}
+            }
           },
           "cc_claims": {
             "D": {
@@ -2231,240 +1009,15 @@
               "R.EXIT_TOE": 4,
               "R.REMOTE_USER": 1,
               "R": 1
-            },
-            "OT": {},
-            "OP": {},
-            "OE": {},
-            "SA": {},
-            "OSP": {}
-          },
-          "vendor": {
-            "NXP": {},
-            "Infineon": {},
-            "Samsung": {},
-            "STMicroelectronics": {},
-            "Feitian": {},
-            "Gemalto": {},
-            "Gemplus": {},
-            "Axalto": {},
-            "Thales": {},
-            "Oberthur": {},
-            "Idemia": {},
-            "Sagem": {},
-            "Morpho": {},
-            "GD": {},
-            "Philips": {},
-            "Qualcomm": {},
-            "Broadcom": {},
-            "Huawei": {},
-            "Microsoft": {}
-          },
-          "eval_facility": {
-            "Serma": {},
-            "Thales": {},
-            "Riscure": {},
-            "SGS": {},
-            "BrightSight": {},
-            "Applus": {},
-            "TUV": {},
-            "CESTI": {},
-            "DXC": {},
-            "Teron": {},
-            "EWA": {},
-            "Lightship": {},
-            "AMOSSYS": {},
-            "CEA-LETI": {},
-            "OPPIDA": {},
-            "TrustedLabs": {},
-            "atsec": {},
-            "DeutscheTelekom": {},
-            "DFKI": {},
-            "MTG": {},
-            "secuvera": {},
-            "SRC": {},
-            "Acucert": {},
-            "ERTL": {},
-            "ETDC": {},
-            "CCLab": {},
-            "Deeplab": {},
-            "IMQLPS": {},
-            "LVSLeonardo": {},
-            "LVSTechnisBlu": {},
-            "ECSEC": {},
-            "ITSC": {},
-            "Acumen": {},
-            "BoozAllenHamilton": {},
-            "Gossamer": {},
-            "Leidos": {},
-            "UL": {},
-            "BEAM": {},
-            "Certby": {},
-            "DEKRA": {},
-            "STMITSEF": {},
-            "TUBITAK-BILGEM": {},
-            "Combitech": {},
-            "Intertek": {},
-            "Clover": {},
-            "LAYAKK": {},
-            "An": {},
-            "TSystems": {},
-            "KISA": {},
-            "KOIST": {},
-            "KSEL": {},
-            "KOSYAS": {},
-            "KTR": {},
-            "KTC": {},
-            "TTA": {},
-            "ADS": {},
-            "Nemko": {},
-            "Norconsult": {},
-            "Secura": {},
-            "BAE": {}
-          },
-          "symmetric_crypto": {
-            "AES_competition": {
-              "AES": {},
-              "Rijndael": {},
-              "Twofish": {},
-              "Serpent": {},
-              "MARS": {},
-              "HPC": {},
-              "FROG": {},
-              "CAST": {},
-              "RC": {},
-              "CRYPTON": {},
-              "DEAL": {},
-              "E2": {},
-              "LOKI97": {},
-              "MAGENTA": {},
-              "SAFER": {}
-            },
-            "DES": {
-              "DES": {},
-              "3DES": {},
-              "Lucifer": {}
-            },
-            "djb": {
-              "ChaCha": {},
-              "Salsa": {},
-              "Poly": {}
-            },
-            "LWC_competition": {
-              "ASCON": {},
-              "Elephant": {},
-              "GIFT": {},
-              "Grain": {},
-              "ISAP": {},
-              "PhotonBeetle": {},
-              "Romulus": {},
-              "Sparkle": {},
-              "TinyJambu": {},
-              "Xoodyak": {},
-              "Gimli": {}
-            },
-            "eSTREAM": {
-              "HC": {},
-              "Rabbit": {},
-              "SOSEMANUK": {},
-              "MICKEY": {},
-              "Trivium": {}
-            },
-            "CAESAR": {
-              "ACORN": {},
-              "AEGIS": {},
-              "Deoxys": {},
-              "COLM": {}
-            },
-            "miscellaneous": {
-              "IDEA": {},
-              "Blowfish": {},
-              "Camellia": {},
-              "ARIA": {},
-              "SM4": {},
-              "GOST": {},
-              "Skipjack": {},
-              "Skinny": {}
-            },
-            "constructions": {
-              "MAC": {}
             }
           },
-          "asymmetric_crypto": {
-            "RSA": {},
-            "ECC": {
-              "ECDH": {},
-              "ECDSA": {},
-              "EdDSA": {},
-              "ECIES": {},
-              "ECC": {}
-            },
-            "FF": {
-              "DH": {},
-              "DSA": {}
-            }
-          },
-          "pq_crypto": {
-            "ClassicMcEliece": {},
-            "Kyber": {},
-            "NTRU": {},
-            "NTRUPrime": {},
-            "Saber": {},
-            "Dilithium": {},
-            "Falcon": {},
-            "Rainbow": {},
-            "UOV": {},
-            "BIKE": {},
-            "Frodo": {},
-            "HQC": {},
-            "SIKE": {},
-            "SIDH": {},
-            "GeMSS": {},
-            "Picnic": {},
-            "SPHINCS": {}
-          },
-          "hash_function": {
-            "SHA": {
-              "SHA1": {},
-              "SHA2": {},
-              "SHA3": {}
-            },
-            "Keccak": {},
-            "SHAKE": {},
-            "Groestl": {},
-            "BLAKE": {},
-            "JH": {},
-            "Skein": {},
-            "MD": {
-              "MD4": {},
-              "MD5": {},
-              "MD6": {}
-            },
-            "RIPEMD": {},
-            "Streebog": {},
-            "Whirpool": {},
-            "PHC_competition": {
-              "Argon": {},
-              "battcrypt": {},
-              "Catena": {},
-              "Lyra2": {},
-              "Makwa": {},
-              "POMELO": {},
-              "Pufferfish": {},
-              "yescrypt": {}
-            },
-            "bcrypt": {},
-            "scrypt": {},
-            "PBKDF": {}
-          },
-          "crypto_scheme": {
-            "MAC": {},
-            "KEM": {},
-            "PKE": {},
-            "KEX": {},
-            "KA": {},
-            "PAKE": {},
-            "AEAD": {}
-          },
+          "vendor": {},
+          "eval_facility": {},
+          "symmetric_crypto": {},
+          "asymmetric_crypto": {},
+          "pq_crypto": {},
+          "hash_function": {},
+          "crypto_scheme": {},
           "crypto_protocol": {
             "SSH": {
               "SSH": 2
@@ -2472,179 +1025,36 @@
             "TLS": {
               "SSL": {
                 "SSL": 4
-              },
-              "TLS": {}
-            },
-            "PACE": {},
-            "IKE": {},
-            "IPsec": {}
-          },
-          "randomness": {
-            "DUAL_EC": {},
-            "TRNG": {},
-            "PRNG": {},
-            "RNG": {}
-          },
-          "cipher_mode": {
-            "ECB": {},
-            "CBC": {},
-            "CTR": {},
-            "CFB": {},
-            "OFB": {},
-            "GCM": {},
-            "SIV": {},
-            "XTR": {},
-            "CCM": {},
-            "LRW": {},
-            "XEX": {},
-            "XTS": {}
-          },
-          "ecc_curve": {
-            "NIST": {},
-            "Brainpool": {},
-            "ANSSI": {},
-            "NUMS": {},
-            "Curve": {},
-            "Edwards": {},
-            "ssc": {},
-            "Tweedle": {},
-            "Pasta": {},
-            "JubJub": {},
-            "BLS": {},
-            "BN": {}
-          },
-          "crypto_engine": {
-            "TORNADO": {},
-            "SmartMX": {},
-            "NexCrypt": {}
-          },
-          "tls_cipher_suite": {
-            "TLS": {}
-          },
-          "crypto_library": {
-            "Neslib": {},
-            "AT1": {},
-            "Generic": {},
-            "AtmelToolbox": {},
-            "Infineon": {},
-            "OpenSSL": {
-              "OpenSSL": 2
-            },
-            "LibreSSL": {},
-            "BoringSSL": {},
-            "MatrixSSL": {},
-            "Nettle": {},
-            "GnuTLS": {},
-            "libtomcrypt": {},
-            "BearSSL": {},
-            "Botan": {},
-            "Crypto++": {},
-            "wolfSSL": {},
-            "mbedTLS": {},
-            "s2n": {},
-            "NSS": {},
-            "libgcrypt": {},
-            "BouncyCastle": {},
-            "cryptlib": {},
-            "NaCl": {},
-            "libsodium": {},
-            "libsecp256k1": {}
-          },
-          "vulnerability": {
-            "CVE": {},
-            "CWE": {},
-            "ROCA": {},
-            "Minerva": {},
-            "TPM-Fail": {}
-          },
-          "side_channel_analysis": {
-            "SCA": {},
-            "FI": {},
-            "other": {}
-          },
-          "technical_report_id": {
-            "BSI": {}
-          },
-          "device_model": {
-            "G87": {},
-            "ATMEL": {},
-            "STM": {
-              "STM32": {}
-            },
-            "Infineon": {
-              "SLE": {}
+              }
             }
           },
+          "randomness": {},
+          "cipher_mode": {},
+          "ecc_curve": {},
+          "crypto_engine": {},
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "OpenSSL": {
+              "OpenSSL": 2
+            }
+          },
+          "vulnerability": {},
+          "side_channel_analysis": {},
+          "technical_report_id": {},
+          "device_model": {},
           "tee_name": {
-            "Intel": {},
-            "ARM": {},
-            "AMD": {},
             "IBM": {
               "SE": 13
-            },
-            "other": {}
+            }
           },
-          "os_name": {
-            "STARCOS": {},
-            "JCOP": {}
-          },
-          "cplc_data": {
-            "ICFab": {},
-            "ICType": {},
-            "ICVersion": {}
-          },
-          "ic_data_group": {
-            "EF": {}
-          },
-          "standard_id": {
-            "FIPS": {},
-            "NIST": {},
-            "PKCS": {},
-            "BSI": {},
-            "RFC": {},
-            "ISO": {},
-            "ICAO": {},
-            "X509": {},
-            "SCP": {},
-            "CC": {}
-          },
-          "javacard_version": {
-            "JavaCard": {},
-            "GlobalPlatform": {}
-          },
-          "javacard_api_const": {
-            "ALG": {
-              "RNG": {},
-              "DES": {},
-              "RSA": {},
-              "DSA": {},
-              "ECDSA": {},
-              "AES": {},
-              "HMAC": {},
-              "KOREAN": {},
-              "EC": {},
-              "SHA": {},
-              "SHA3": {},
-              "MD": {},
-              "RIPEMD": {},
-              "ISO3309": {},
-              "XDH": {},
-              "SM2": {},
-              "SM3": {},
-              "null": {}
-            },
-            "misc": {},
-            "curves": {}
-          },
-          "javacard_packages": {
-            "java": {},
-            "javacard": {},
-            "javacardx": {},
-            "org": {},
-            "uicc": {},
-            "com": {},
-            "de": {}
-          }
+          "os_name": {},
+          "cplc_data": {},
+          "ic_data_group": {},
+          "standard_id": {},
+          "javacard_version": {},
+          "javacard_api_const": {},
+          "javacard_packages": {},
+          "certification_process": {}
         }
       },
       "heuristics": {
@@ -2899,30 +1309,9 @@
             "DE": {
               "BSI-DSZ-CC-0325-2006": 84,
               "BSI-DSZ-CC-0268-2005": 2
-            },
-            "FR": {},
-            "NL": {},
-            "NO": {},
-            "US": {},
-            "CA": {},
-            "UK": {},
-            "ES": {},
-            "KR": {},
-            "JP": {},
-            "MY": {},
-            "IT": {},
-            "TR": {},
-            "SE": {},
-            "IN": {},
-            "SG": {},
-            "AU": {}
+            }
           },
-          "cc_protection_profile_id": {
-            "BSI": {},
-            "ANSSI": {},
-            "KECS": {},
-            "other": {}
-          },
+          "cc_protection_profile_id": {},
           "cc_security_level": {
             "EAL": {
               "EAL2": 7,
@@ -2937,18 +1326,15 @@
               "EAL6": 4,
               "EAL7": 4,
               "EAL2 augmented": 3
-            },
-            "ITSEC": {}
+            }
           },
           "cc_sar": {
-            "ACE": {},
             "ACM": {
               "ACM_CAP.2": 1,
               "ACM_AUT": 2,
               "ACM_CAP": 2,
               "ACM_SCP": 2
             },
-            "ACO": {},
             "ADO": {
               "ADO_DEL.1": 1,
               "ADO_IGS.1": 1,
@@ -3000,8 +1386,6 @@
               "AVA_VLA.3": 1,
               "AVA_VLA.4": 1
             },
-            "AMA": {},
-            "APE": {},
             "ASE": {
               "ASE_DES.1": 1,
               "ASE_ENV.1": 1,
@@ -3014,9 +1398,6 @@
             }
           },
           "cc_sfr": {
-            "FAU": {},
-            "FCO": {},
-            "FCS": {},
             "FDP": {
               "FDP_ACC.1": 1,
               "FDP_ACF.1": 1,
@@ -3035,15 +1416,11 @@
               "FMT_SMF.1": 1,
               "FMT_SMR.1": 1
             },
-            "FPR": {},
             "FPT": {
               "FPT_RVM.1": 1,
               "FPT_SEP.1": 1,
               "FPT_TST.1": 1
-            },
-            "FRU": {},
-            "FTA": {},
-            "FTP": {}
+            }
           },
           "cc_claims": {
             "D": {
@@ -3053,7 +1430,6 @@
               "D.PRINT_JOB": 2,
               "D.SCAN_JOB": 1
             },
-            "O": {},
             "T": {
               "T.RESIDUAL_DATA": 1,
               "T.NOSY_USER": 1,
@@ -3065,336 +1441,34 @@
               "A.SECURITY_POLICY": 1,
               "A.SHREDDING": 1,
               "A.SLA": 1
-            },
-            "R": {},
-            "OT": {},
-            "OP": {},
-            "OE": {},
-            "SA": {},
-            "OSP": {}
-          },
-          "vendor": {
-            "NXP": {},
-            "Infineon": {},
-            "Samsung": {},
-            "STMicroelectronics": {},
-            "Feitian": {},
-            "Gemalto": {},
-            "Gemplus": {},
-            "Axalto": {},
-            "Thales": {},
-            "Oberthur": {},
-            "Idemia": {},
-            "Sagem": {},
-            "Morpho": {},
-            "GD": {},
-            "Philips": {},
-            "Qualcomm": {},
-            "Broadcom": {},
-            "Huawei": {},
-            "Microsoft": {}
-          },
-          "eval_facility": {
-            "Serma": {},
-            "Thales": {},
-            "Riscure": {},
-            "SGS": {},
-            "BrightSight": {},
-            "Applus": {},
-            "TUV": {},
-            "CESTI": {},
-            "DXC": {},
-            "Teron": {},
-            "EWA": {},
-            "Lightship": {},
-            "AMOSSYS": {},
-            "CEA-LETI": {},
-            "OPPIDA": {},
-            "TrustedLabs": {},
-            "atsec": {},
-            "DeutscheTelekom": {},
-            "DFKI": {},
-            "MTG": {},
-            "secuvera": {},
-            "SRC": {},
-            "Acucert": {},
-            "ERTL": {},
-            "ETDC": {},
-            "CCLab": {},
-            "Deeplab": {},
-            "IMQLPS": {},
-            "LVSLeonardo": {},
-            "LVSTechnisBlu": {},
-            "ECSEC": {},
-            "ITSC": {},
-            "Acumen": {},
-            "BoozAllenHamilton": {},
-            "Gossamer": {},
-            "Leidos": {},
-            "UL": {},
-            "BEAM": {},
-            "Certby": {},
-            "DEKRA": {},
-            "STMITSEF": {},
-            "TUBITAK-BILGEM": {},
-            "Combitech": {},
-            "Intertek": {},
-            "Clover": {},
-            "LAYAKK": {},
-            "An": {},
-            "TSystems": {},
-            "KISA": {},
-            "KOIST": {},
-            "KSEL": {},
-            "KOSYAS": {},
-            "KTR": {},
-            "KTC": {},
-            "TTA": {},
-            "ADS": {},
-            "Nemko": {},
-            "Norconsult": {},
-            "Secura": {},
-            "BAE": {}
-          },
-          "symmetric_crypto": {
-            "AES_competition": {
-              "AES": {},
-              "Rijndael": {},
-              "Twofish": {},
-              "Serpent": {},
-              "MARS": {},
-              "HPC": {},
-              "FROG": {},
-              "CAST": {},
-              "RC": {},
-              "CRYPTON": {},
-              "DEAL": {},
-              "E2": {},
-              "LOKI97": {},
-              "MAGENTA": {},
-              "SAFER": {}
-            },
-            "DES": {
-              "DES": {},
-              "3DES": {},
-              "Lucifer": {}
-            },
-            "djb": {
-              "ChaCha": {},
-              "Salsa": {},
-              "Poly": {}
-            },
-            "LWC_competition": {
-              "ASCON": {},
-              "Elephant": {},
-              "GIFT": {},
-              "Grain": {},
-              "ISAP": {},
-              "PhotonBeetle": {},
-              "Romulus": {},
-              "Sparkle": {},
-              "TinyJambu": {},
-              "Xoodyak": {},
-              "Gimli": {}
-            },
-            "eSTREAM": {
-              "HC": {},
-              "Rabbit": {},
-              "SOSEMANUK": {},
-              "MICKEY": {},
-              "Trivium": {}
-            },
-            "CAESAR": {
-              "ACORN": {},
-              "AEGIS": {},
-              "Deoxys": {},
-              "COLM": {}
-            },
-            "miscellaneous": {
-              "IDEA": {},
-              "Blowfish": {},
-              "Camellia": {},
-              "ARIA": {},
-              "SM4": {},
-              "GOST": {},
-              "Skipjack": {},
-              "Skinny": {}
-            },
-            "constructions": {
-              "MAC": {}
             }
           },
-          "asymmetric_crypto": {
-            "RSA": {},
-            "ECC": {
-              "ECDH": {},
-              "ECDSA": {},
-              "EdDSA": {},
-              "ECIES": {},
-              "ECC": {}
-            },
-            "FF": {
-              "DH": {},
-              "DSA": {}
-            }
-          },
-          "pq_crypto": {
-            "ClassicMcEliece": {},
-            "Kyber": {},
-            "NTRU": {},
-            "NTRUPrime": {},
-            "Saber": {},
-            "Dilithium": {},
-            "Falcon": {},
-            "Rainbow": {},
-            "UOV": {},
-            "BIKE": {},
-            "Frodo": {},
-            "HQC": {},
-            "SIKE": {},
-            "SIDH": {},
-            "GeMSS": {},
-            "Picnic": {},
-            "SPHINCS": {}
-          },
-          "hash_function": {
-            "SHA": {
-              "SHA1": {},
-              "SHA2": {},
-              "SHA3": {}
-            },
-            "Keccak": {},
-            "SHAKE": {},
-            "Groestl": {},
-            "BLAKE": {},
-            "JH": {},
-            "Skein": {},
-            "MD": {
-              "MD4": {},
-              "MD5": {},
-              "MD6": {}
-            },
-            "RIPEMD": {},
-            "Streebog": {},
-            "Whirpool": {},
-            "PHC_competition": {
-              "Argon": {},
-              "battcrypt": {},
-              "Catena": {},
-              "Lyra2": {},
-              "Makwa": {},
-              "POMELO": {},
-              "Pufferfish": {},
-              "yescrypt": {}
-            },
-            "bcrypt": {},
-            "scrypt": {},
-            "PBKDF": {}
-          },
-          "crypto_scheme": {
-            "MAC": {},
-            "KEM": {},
-            "PKE": {},
-            "KEX": {},
-            "KA": {},
-            "PAKE": {},
-            "AEAD": {}
-          },
+          "vendor": {},
+          "eval_facility": {},
+          "symmetric_crypto": {},
+          "asymmetric_crypto": {},
+          "pq_crypto": {},
+          "hash_function": {},
+          "crypto_scheme": {},
           "crypto_protocol": {
-            "SSH": {},
             "TLS": {
               "SSL": {
                 "SSL": 12
-              },
-              "TLS": {}
-            },
-            "PACE": {},
-            "IKE": {},
-            "IPsec": {}
+              }
+            }
           },
-          "randomness": {
-            "DUAL_EC": {},
-            "TRNG": {},
-            "PRNG": {},
-            "RNG": {}
-          },
-          "cipher_mode": {
-            "ECB": {},
-            "CBC": {},
-            "CTR": {},
-            "CFB": {},
-            "OFB": {},
-            "GCM": {},
-            "SIV": {},
-            "XTR": {},
-            "CCM": {},
-            "LRW": {},
-            "XEX": {},
-            "XTS": {}
-          },
-          "ecc_curve": {
-            "NIST": {},
-            "Brainpool": {},
-            "ANSSI": {},
-            "NUMS": {},
-            "Curve": {},
-            "Edwards": {},
-            "ssc": {},
-            "Tweedle": {},
-            "Pasta": {},
-            "JubJub": {},
-            "BLS": {},
-            "BN": {}
-          },
-          "crypto_engine": {
-            "TORNADO": {},
-            "SmartMX": {},
-            "NexCrypt": {}
-          },
-          "tls_cipher_suite": {
-            "TLS": {}
-          },
+          "randomness": {},
+          "cipher_mode": {},
+          "ecc_curve": {},
+          "crypto_engine": {},
+          "tls_cipher_suite": {},
           "crypto_library": {
-            "Neslib": {},
-            "AT1": {},
-            "Generic": {},
-            "AtmelToolbox": {},
-            "Infineon": {},
             "OpenSSL": {
               "OpenSSL": 8
-            },
-            "LibreSSL": {},
-            "BoringSSL": {},
-            "MatrixSSL": {},
-            "Nettle": {},
-            "GnuTLS": {},
-            "libtomcrypt": {},
-            "BearSSL": {},
-            "Botan": {},
-            "Crypto++": {},
-            "wolfSSL": {},
-            "mbedTLS": {},
-            "s2n": {},
-            "NSS": {},
-            "libgcrypt": {},
-            "BouncyCastle": {},
-            "cryptlib": {},
-            "NaCl": {},
-            "libsodium": {},
-            "libsecp256k1": {}
+            }
           },
-          "vulnerability": {
-            "CVE": {},
-            "CWE": {},
-            "ROCA": {},
-            "Minerva": {},
-            "TPM-Fail": {}
-          },
-          "side_channel_analysis": {
-            "SCA": {},
-            "FI": {},
-            "other": {}
-          },
+          "vulnerability": {},
+          "side_channel_analysis": {},
           "technical_report_id": {
             "BSI": {
               "BSI 7125": 2,
@@ -3402,133 +1476,48 @@
               "BSI 7149": 1
             }
           },
-          "device_model": {
-            "G87": {},
-            "ATMEL": {},
-            "STM": {
-              "STM32": {}
-            },
-            "Infineon": {
-              "SLE": {}
-            }
-          },
+          "device_model": {},
           "tee_name": {
-            "Intel": {},
-            "ARM": {},
-            "AMD": {},
             "IBM": {
               "SE": 6
-            },
-            "other": {}
+            }
           },
-          "os_name": {
-            "STARCOS": {},
-            "JCOP": {}
-          },
-          "cplc_data": {
-            "ICFab": {},
-            "ICType": {},
-            "ICVersion": {}
-          },
-          "ic_data_group": {
-            "EF": {}
-          },
+          "os_name": {},
+          "cplc_data": {},
+          "ic_data_group": {},
           "standard_id": {
-            "FIPS": {},
-            "NIST": {},
-            "PKCS": {},
             "BSI": {
               "AIS 34": 1,
               "AIS 32": 1,
               "AIS33": 1
             },
-            "RFC": {},
             "ISO": {
               "ISO/IEC 15408:1999": 1
-            },
-            "ICAO": {},
-            "X509": {},
-            "SCP": {},
-            "CC": {}
+            }
           },
-          "javacard_version": {
-            "JavaCard": {},
-            "GlobalPlatform": {}
-          },
-          "javacard_api_const": {
-            "ALG": {
-              "RNG": {},
-              "DES": {},
-              "RSA": {},
-              "DSA": {},
-              "ECDSA": {},
-              "AES": {},
-              "HMAC": {},
-              "KOREAN": {},
-              "EC": {},
-              "SHA": {},
-              "SHA3": {},
-              "MD": {},
-              "RIPEMD": {},
-              "ISO3309": {},
-              "XDH": {},
-              "SM2": {},
-              "SM3": {},
-              "null": {}
-            },
-            "misc": {},
-            "curves": {}
-          },
-          "javacard_packages": {
-            "java": {},
-            "javacard": {},
-            "javacardx": {},
-            "org": {},
-            "uicc": {},
-            "com": {},
-            "de": {}
+          "javacard_version": {},
+          "javacard_api_const": {},
+          "javacard_packages": {},
+          "certification_process": {
+            "ConfidentialDocument": {
+              "65, the Océ VarioPrint 2050-70, the Océ 31x5 ranges of Océ printer/copier/scanner products – EAL2+ (confidential document) Guidance Documentation [9] Océ VarioPrint 2045-65, Océ VarioPrint 2050-70, Océ 31x5: Common": 1
+            }
           }
         },
         "st_keywords": {
-          "cc_cert_id": {
-            "DE": {},
-            "FR": {},
-            "NL": {},
-            "NO": {},
-            "US": {},
-            "CA": {},
-            "UK": {},
-            "ES": {},
-            "KR": {},
-            "JP": {},
-            "MY": {},
-            "IT": {},
-            "TR": {},
-            "SE": {},
-            "IN": {},
-            "SG": {},
-            "AU": {}
-          },
-          "cc_protection_profile_id": {
-            "BSI": {},
-            "ANSSI": {},
-            "KECS": {},
-            "other": {}
-          },
+          "cc_cert_id": {},
+          "cc_protection_profile_id": {},
           "cc_security_level": {
             "EAL": {
               "EAL2": 7,
               "EAL 2": 3,
               "EAL2+": 1
-            },
-            "ITSEC": {}
+            }
           },
           "cc_sar": {
-            "ACE": {},
             "ACM": {
               "ACM_CAP.2": 2
             },
-            "ACO": {},
             "ADO": {
               "ADO_DEL.1": 2,
               "ADO_IGS.1": 2
@@ -3555,16 +1544,11 @@
               "AVA_SOF.1": 2,
               "AVA_VLA.1": 3
             },
-            "AMA": {},
-            "APE": {},
             "ASE": {
               "ASE_JOB": 6
             }
           },
           "cc_sfr": {
-            "FAU": {},
-            "FCO": {},
-            "FCS": {},
             "FDP": {
               "FDP_ACC.1": 7,
               "FDP_ACF.1": 6,
@@ -3598,7 +1582,6 @@
               "FMT_SMF.1.1": 1,
               "FMT_SMR.1.1": 1
             },
-            "FPR": {},
             "FPT": {
               "FPT_SEP.1": 8,
               "FPT_SEP.1.2": 1,
@@ -3609,10 +1592,7 @@
               "FPT_TST.1.2": 1,
               "FPT_TST.1.3": 1,
               "FPT_AMT.1": 3
-            },
-            "FRU": {},
-            "FTA": {},
-            "FTP": {}
+            }
           },
           "cc_claims": {
             "D": {
@@ -3664,418 +1644,49 @@
               "R.EXIT_TOE": 4,
               "R.REMOTE_USER": 1,
               "R": 1
-            },
-            "OT": {},
-            "OP": {},
-            "OE": {},
-            "SA": {},
-            "OSP": {}
-          },
-          "vendor": {
-            "NXP": {},
-            "Infineon": {},
-            "Samsung": {},
-            "STMicroelectronics": {},
-            "Feitian": {},
-            "Gemalto": {},
-            "Gemplus": {},
-            "Axalto": {},
-            "Thales": {},
-            "Oberthur": {},
-            "Idemia": {},
-            "Sagem": {},
-            "Morpho": {},
-            "GD": {},
-            "Philips": {},
-            "Qualcomm": {},
-            "Broadcom": {},
-            "Huawei": {},
-            "Microsoft": {}
-          },
-          "eval_facility": {
-            "Serma": {},
-            "Thales": {},
-            "Riscure": {},
-            "SGS": {},
-            "BrightSight": {},
-            "Applus": {},
-            "TUV": {},
-            "CESTI": {},
-            "DXC": {},
-            "Teron": {},
-            "EWA": {},
-            "Lightship": {},
-            "AMOSSYS": {},
-            "CEA-LETI": {},
-            "OPPIDA": {},
-            "TrustedLabs": {},
-            "atsec": {},
-            "DeutscheTelekom": {},
-            "DFKI": {},
-            "MTG": {},
-            "secuvera": {},
-            "SRC": {},
-            "Acucert": {},
-            "ERTL": {},
-            "ETDC": {},
-            "CCLab": {},
-            "Deeplab": {},
-            "IMQLPS": {},
-            "LVSLeonardo": {},
-            "LVSTechnisBlu": {},
-            "ECSEC": {},
-            "ITSC": {},
-            "Acumen": {},
-            "BoozAllenHamilton": {},
-            "Gossamer": {},
-            "Leidos": {},
-            "UL": {},
-            "BEAM": {},
-            "Certby": {},
-            "DEKRA": {},
-            "STMITSEF": {},
-            "TUBITAK-BILGEM": {},
-            "Combitech": {},
-            "Intertek": {},
-            "Clover": {},
-            "LAYAKK": {},
-            "An": {},
-            "TSystems": {},
-            "KISA": {},
-            "KOIST": {},
-            "KSEL": {},
-            "KOSYAS": {},
-            "KTR": {},
-            "KTC": {},
-            "TTA": {},
-            "ADS": {},
-            "Nemko": {},
-            "Norconsult": {},
-            "Secura": {},
-            "BAE": {}
-          },
-          "symmetric_crypto": {
-            "AES_competition": {
-              "AES": {},
-              "Rijndael": {},
-              "Twofish": {},
-              "Serpent": {},
-              "MARS": {},
-              "HPC": {},
-              "FROG": {},
-              "CAST": {},
-              "RC": {},
-              "CRYPTON": {},
-              "DEAL": {},
-              "E2": {},
-              "LOKI97": {},
-              "MAGENTA": {},
-              "SAFER": {}
-            },
-            "DES": {
-              "DES": {},
-              "3DES": {},
-              "Lucifer": {}
-            },
-            "djb": {
-              "ChaCha": {},
-              "Salsa": {},
-              "Poly": {}
-            },
-            "LWC_competition": {
-              "ASCON": {},
-              "Elephant": {},
-              "GIFT": {},
-              "Grain": {},
-              "ISAP": {},
-              "PhotonBeetle": {},
-              "Romulus": {},
-              "Sparkle": {},
-              "TinyJambu": {},
-              "Xoodyak": {},
-              "Gimli": {}
-            },
-            "eSTREAM": {
-              "HC": {},
-              "Rabbit": {},
-              "SOSEMANUK": {},
-              "MICKEY": {},
-              "Trivium": {}
-            },
-            "CAESAR": {
-              "ACORN": {},
-              "AEGIS": {},
-              "Deoxys": {},
-              "COLM": {}
-            },
-            "miscellaneous": {
-              "IDEA": {},
-              "Blowfish": {},
-              "Camellia": {},
-              "ARIA": {},
-              "SM4": {},
-              "GOST": {},
-              "Skipjack": {},
-              "Skinny": {}
-            },
-            "constructions": {
-              "MAC": {}
             }
           },
-          "asymmetric_crypto": {
-            "RSA": {},
-            "ECC": {
-              "ECDH": {},
-              "ECDSA": {},
-              "EdDSA": {},
-              "ECIES": {},
-              "ECC": {}
-            },
-            "FF": {
-              "DH": {},
-              "DSA": {}
-            }
-          },
-          "pq_crypto": {
-            "ClassicMcEliece": {},
-            "Kyber": {},
-            "NTRU": {},
-            "NTRUPrime": {},
-            "Saber": {},
-            "Dilithium": {},
-            "Falcon": {},
-            "Rainbow": {},
-            "UOV": {},
-            "BIKE": {},
-            "Frodo": {},
-            "HQC": {},
-            "SIKE": {},
-            "SIDH": {},
-            "GeMSS": {},
-            "Picnic": {},
-            "SPHINCS": {}
-          },
-          "hash_function": {
-            "SHA": {
-              "SHA1": {},
-              "SHA2": {},
-              "SHA3": {}
-            },
-            "Keccak": {},
-            "SHAKE": {},
-            "Groestl": {},
-            "BLAKE": {},
-            "JH": {},
-            "Skein": {},
-            "MD": {
-              "MD4": {},
-              "MD5": {},
-              "MD6": {}
-            },
-            "RIPEMD": {},
-            "Streebog": {},
-            "Whirpool": {},
-            "PHC_competition": {
-              "Argon": {},
-              "battcrypt": {},
-              "Catena": {},
-              "Lyra2": {},
-              "Makwa": {},
-              "POMELO": {},
-              "Pufferfish": {},
-              "yescrypt": {}
-            },
-            "bcrypt": {},
-            "scrypt": {},
-            "PBKDF": {}
-          },
-          "crypto_scheme": {
-            "MAC": {},
-            "KEM": {},
-            "PKE": {},
-            "KEX": {},
-            "KA": {},
-            "PAKE": {},
-            "AEAD": {}
-          },
+          "vendor": {},
+          "eval_facility": {},
+          "symmetric_crypto": {},
+          "asymmetric_crypto": {},
+          "pq_crypto": {},
+          "hash_function": {},
+          "crypto_scheme": {},
           "crypto_protocol": {
-            "SSH": {},
             "TLS": {
               "SSL": {
                 "SSL": 4
-              },
-              "TLS": {}
-            },
-            "PACE": {},
-            "IKE": {},
-            "IPsec": {}
-          },
-          "randomness": {
-            "DUAL_EC": {},
-            "TRNG": {},
-            "PRNG": {},
-            "RNG": {}
-          },
-          "cipher_mode": {
-            "ECB": {},
-            "CBC": {},
-            "CTR": {},
-            "CFB": {},
-            "OFB": {},
-            "GCM": {},
-            "SIV": {},
-            "XTR": {},
-            "CCM": {},
-            "LRW": {},
-            "XEX": {},
-            "XTS": {}
-          },
-          "ecc_curve": {
-            "NIST": {},
-            "Brainpool": {},
-            "ANSSI": {},
-            "NUMS": {},
-            "Curve": {},
-            "Edwards": {},
-            "ssc": {},
-            "Tweedle": {},
-            "Pasta": {},
-            "JubJub": {},
-            "BLS": {},
-            "BN": {}
-          },
-          "crypto_engine": {
-            "TORNADO": {},
-            "SmartMX": {},
-            "NexCrypt": {}
-          },
-          "tls_cipher_suite": {
-            "TLS": {}
-          },
-          "crypto_library": {
-            "Neslib": {},
-            "AT1": {},
-            "Generic": {},
-            "AtmelToolbox": {},
-            "Infineon": {},
-            "OpenSSL": {
-              "OpenSSL": 2
-            },
-            "LibreSSL": {},
-            "BoringSSL": {},
-            "MatrixSSL": {},
-            "Nettle": {},
-            "GnuTLS": {},
-            "libtomcrypt": {},
-            "BearSSL": {},
-            "Botan": {},
-            "Crypto++": {},
-            "wolfSSL": {},
-            "mbedTLS": {},
-            "s2n": {},
-            "NSS": {},
-            "libgcrypt": {},
-            "BouncyCastle": {},
-            "cryptlib": {},
-            "NaCl": {},
-            "libsodium": {},
-            "libsecp256k1": {}
-          },
-          "vulnerability": {
-            "CVE": {},
-            "CWE": {},
-            "ROCA": {},
-            "Minerva": {},
-            "TPM-Fail": {}
-          },
-          "side_channel_analysis": {
-            "SCA": {},
-            "FI": {},
-            "other": {}
-          },
-          "technical_report_id": {
-            "BSI": {}
-          },
-          "device_model": {
-            "G87": {},
-            "ATMEL": {},
-            "STM": {
-              "STM32": {}
-            },
-            "Infineon": {
-              "SLE": {}
+              }
             }
           },
+          "randomness": {},
+          "cipher_mode": {},
+          "ecc_curve": {},
+          "crypto_engine": {},
+          "tls_cipher_suite": {},
+          "crypto_library": {
+            "OpenSSL": {
+              "OpenSSL": 2
+            }
+          },
+          "vulnerability": {},
+          "side_channel_analysis": {},
+          "technical_report_id": {},
+          "device_model": {},
           "tee_name": {
-            "Intel": {},
-            "ARM": {},
-            "AMD": {},
             "IBM": {
               "SE": 13
-            },
-            "other": {}
+            }
           },
-          "os_name": {
-            "STARCOS": {},
-            "JCOP": {}
-          },
-          "cplc_data": {
-            "ICFab": {},
-            "ICType": {},
-            "ICVersion": {}
-          },
-          "ic_data_group": {
-            "EF": {}
-          },
-          "standard_id": {
-            "FIPS": {},
-            "NIST": {},
-            "PKCS": {},
-            "BSI": {},
-            "RFC": {},
-            "ISO": {},
-            "ICAO": {},
-            "X509": {},
-            "SCP": {},
-            "CC": {}
-          },
-          "javacard_version": {
-            "JavaCard": {},
-            "GlobalPlatform": {}
-          },
-          "javacard_api_const": {
-            "ALG": {
-              "RNG": {},
-              "DES": {},
-              "RSA": {},
-              "DSA": {},
-              "ECDSA": {},
-              "AES": {},
-              "HMAC": {},
-              "KOREAN": {},
-              "EC": {},
-              "SHA": {},
-              "SHA3": {},
-              "MD": {},
-              "RIPEMD": {},
-              "ISO3309": {},
-              "XDH": {},
-              "SM2": {},
-              "SM3": {},
-              "null": {}
-            },
-            "misc": {},
-            "curves": {}
-          },
-          "javacard_packages": {
-            "java": {},
-            "javacard": {},
-            "javacardx": {},
-            "org": {},
-            "uicc": {},
-            "com": {},
-            "de": {}
-          }
+          "os_name": {},
+          "cplc_data": {},
+          "ic_data_group": {},
+          "standard_id": {},
+          "javacard_version": {},
+          "javacard_api_const": {},
+          "javacard_packages": {},
+          "certification_process": {}
         }
       },
       "heuristics": {
