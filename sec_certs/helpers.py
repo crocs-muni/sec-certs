@@ -5,9 +5,9 @@ import os
 import re
 import time
 from contextlib import nullcontext
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
-from functools import partial
+from functools import partial, reduce
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, Dict, Generator, Hashable, Iterator, List, Optional, Sequence, Set, Tuple, Union
@@ -261,7 +261,7 @@ def parse_pdf_date(dateval) -> Optional[datetime]:
         tzoff = 1
     try:
         res_datetime = datetime.strptime(clean, "%Y%m%d%H%M%S")
-        if tz:
+        if tz and tzoff:
             tz_datetime = datetime.strptime(tz, "%H'%M'")
             delta = tzoff * timedelta(hours=tz_datetime.hour, minutes=tz_datetime.minute)
             res_tz = timezone(delta)
@@ -271,7 +271,7 @@ def parse_pdf_date(dateval) -> Optional[datetime]:
         return None
 
 
-def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
+def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:  # noqa: C901
     def map_metadata_value(val, nope_out=False):
         if isinstance(val, BooleanObject):
             val = val.value
@@ -286,7 +286,7 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             val = str(val)
         return val
 
-    metadata = dict()
+    metadata: Dict[str, Any] = dict()
 
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size
@@ -308,6 +308,19 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
 
             for key, val in pdf_document_info.items():
                 metadata[str(key)] = map_metadata_value(val)
+
+            annots = [page.get("/Annots", []) for page in pdf.pages]
+            annots = reduce(lambda x, y: x + y, annots)
+            links = set()
+            for a in annots:
+                if isinstance(a, IndirectObject):
+                    note = a.getObject()
+                else:
+                    note = a
+                link = note.get("/A", {}).get("/URI")
+                if link:
+                    links.add(link)
+            metadata["pdf_hyperlinks"] = links
 
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
