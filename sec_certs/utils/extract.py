@@ -4,7 +4,7 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Generator, Hashable, Iterator, Optional, Tuple, Union
+from typing import Dict, Iterator, Optional, Tuple, Union, Any
 
 from sec_certs import constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
@@ -728,7 +728,7 @@ def flatten_matches(dct: Dict) -> Dict:
     :param dct: Dictionary to search
     :return: Flattened dictionary
     """
-    result = Counter()
+    result: Counter[Any] = Counter()
     for key, value in dct.items():
         if isinstance(value, dict):
             result.update(flatten_matches(value))
