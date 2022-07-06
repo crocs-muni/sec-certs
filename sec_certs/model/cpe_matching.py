@@ -8,7 +8,7 @@ import spacy
 from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
-import sec_certs.helpers as helpers
+import sec_certs.utils.helpers as helpers
 from sec_certs import constants
 from sec_certs.sample.cpe import CPE
 

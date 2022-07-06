@@ -240,19 +240,19 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_keywords_heuristics(self):
         extracted_keywords: Dict = self.cc_dset["ebd276cca70fd723"].pdf_data.st_keywords
 
-        self.assertTrue("rules_security_level" in extracted_keywords)
-        self.assertEqual(extracted_keywords["rules_security_level"]["EAL3"], 1)
+        self.assertTrue("cc_security_level" in extracted_keywords)
+        self.assertEqual(extracted_keywords["cc_security_level"]["EAL"]["EAL3"], 1)
 
-        self.assertTrue("rules_security_assurance_components" in extracted_keywords)
-        self.assertEqual(extracted_keywords["rules_security_assurance_components"]["ADV_ARC.1"], 1)
-        self.assertEqual(extracted_keywords["rules_security_assurance_components"]["ADV_FSP.3"], 1)
-        self.assertEqual(extracted_keywords["rules_security_assurance_components"]["ADV_TDS.2"], 1)
+        self.assertTrue("cc_sar" in extracted_keywords)
+        self.assertEqual(extracted_keywords["cc_sar"]["ADV"]["ADV_ARC.1"], 1)
+        self.assertEqual(extracted_keywords["cc_sar"]["ADV"]["ADV_FSP.3"], 1)
+        self.assertEqual(extracted_keywords["cc_sar"]["ADV"]["ADV_TDS.2"], 1)
 
-        self.assertTrue("rules_symmetric_crypto" in extracted_keywords)
-        self.assertEqual(extracted_keywords["rules_symmetric_crypto"]["AES"], 2)
+        self.assertTrue("symmetric_crypto" in extracted_keywords)
+        self.assertEqual(extracted_keywords["symmetric_crypto"]["AES_competition"]["AES"]["AES"], 2)
 
-        self.assertTrue("rules_block_cipher_modes" in extracted_keywords)
-        self.assertEqual(extracted_keywords["rules_block_cipher_modes"]["CBC"], 2)
+        self.assertTrue("cipher_mode" in extracted_keywords)
+        self.assertEqual(extracted_keywords["cipher_mode"]["CBC"]["CBC"], 2)
 
     def test_protection_profiles_matching(self):
         artificial_pp: ProtectionProfile = ProtectionProfile(

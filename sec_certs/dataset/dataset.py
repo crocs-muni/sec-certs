@@ -9,8 +9,8 @@ from typing import Any, Collection, Dict, Generic, Iterator, List, Optional, Set
 import requests
 
 import sec_certs.constants as constants
-import sec_certs.helpers as helpers
-import sec_certs.parallel_processing as cert_processing
+import sec_certs.utils.helpers as helpers
+import sec_certs.utils.parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
@@ -275,7 +275,7 @@ class Dataset(Generic[CertSubType], ABC):
             cpes: Set[CPE] = set()
             for x in predicted_annotations:
                 if x not in cpe_dset.title_to_cpes:
-                    print(f"Error: {x} not in dataset")
+                    logger.error(f"{x} not in dataset")
                 else:
                     to_update = cpe_dset.title_to_cpes[x]
                     if to_update and not cpes:

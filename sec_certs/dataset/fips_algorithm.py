@@ -5,13 +5,14 @@ from typing import Dict, List, Union
 
 from bs4 import BeautifulSoup
 
+import sec_certs.utils.extract
 from sec_certs import constants as constants
-from sec_certs import helpers as helpers
-from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +71,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             cert_id = alg_string[len(cert_type) :]
             return cert_type.strip(), cert_id.strip()
 
-        for f in helpers.search_files(self.root_dir):
+        for f in sec_certs.utils.extract.search_files(self.root_dir):
             if not f.endswith("html"):
                 continue
 

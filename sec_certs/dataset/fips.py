@@ -6,15 +6,15 @@ from typing import Any, Dict, List, Optional, Set
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
-from sec_certs import helpers as helpers
-from sec_certs import parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.helpers import fips_dgst
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.helpers import fips_dgst
 
 logger = logging.getLogger(__name__)
 
@@ -387,9 +387,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate) -> None:
         if current_cert.heuristics.keywords is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
-        for rule in current_cert.heuristics.keywords["rules_cert_id"]:
-            matches = current_cert.heuristics.keywords["rules_cert_id"][rule]
-            current_cert.heuristics.keywords["rules_cert_id"][rule] = [
+        for rule in current_cert.heuristics.keywords["fips_cert_id"]:
+            matches = current_cert.heuristics.keywords["fips_cert_id"][rule]
+            current_cert.heuristics.keywords["fips_cert_id"][rule] = [
                 cert_id
                 for cert_id in matches
                 if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
@@ -447,7 +447,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                     lambda x: x,
                     map(
                         lambda cid: "".join(filter(str.isdigit, cid)),
-                        cert.heuristics.keywords["rules_cert_id"].values(),
+                        cert.heuristics.keywords["fips_cert_id"]["Cert"],
                     ),
                 )
             )

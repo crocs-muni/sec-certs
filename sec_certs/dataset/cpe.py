@@ -10,10 +10,11 @@ from typing import Any, ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
 
 import pandas as pd
 
-from sec_certs import constants, helpers
+from sec_certs import constants
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.utils import helpers
 
 logger = logging.getLogger(__name__)
 

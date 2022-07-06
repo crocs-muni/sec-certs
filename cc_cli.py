@@ -9,7 +9,7 @@ import click
 
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset
-from sec_certs.helpers import warn_if_missing_poppler
+from sec_certs.utils.helpers import warn_if_missing_poppler
 
 logger = logging.getLogger(__name__)
 

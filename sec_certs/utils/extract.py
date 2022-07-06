@@ -1,347 +1,20 @@
-import hashlib
-import html
 import logging
 import os
 import re
-import time
-from contextlib import nullcontext
-from datetime import date, datetime, timedelta, timezone
+from collections import Counter
 from enum import Enum
-from functools import partial, reduce
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Any, Dict, Generator, Hashable, Iterator, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Dict, Iterator, Optional, Tuple, Union
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import pdftotext
-import pikepdf
-import pkgconfig
-import requests
-from PyPDF2 import PdfFileReader
-from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObject
-from tqdm import tqdm as tqdm_original
-
-import sec_certs.constants as constants
+from sec_certs import constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
-from sec_certs.cert_rules import cc_rules as cc_search_rules
-from sec_certs.config.configuration import config
-from sec_certs.constants import (
-    APPEND_DETAILED_MATCH_MATCHES,
-    FILE_ERRORS_STRATEGY,
-    LINE_SEPARATOR,
-    MAX_ALLOWED_MATCH_LENGTH,
-    TAG_MATCH_COUNTER,
-    TAG_MATCH_MATCHES,
-)
+from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: Once typehints in tqdm are implemented, we should use them: https://github.com/tqdm/tqdm/issues/260
-def tqdm(*args, **kwargs):
-    if "disable" in kwargs:
-        return tqdm_original(*args, **kwargs)
-    return tqdm_original(*args, **kwargs, disable=not config.enable_progress_bars)
-
-
-def download_file(
-    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: Optional[str] = None
-) -> Union[str, int]:
-    try:
-        time.sleep(delay)
-        # See https://github.com/psf/requests/issues/3953 for header justification
-        r = requests.get(
-            url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT, stream=True, headers={"Accept-Encoding": None}
-        )
-        ctx: Any
-        if show_progress_bar:
-            ctx = partial(
-                tqdm,
-                total=int(r.headers.get("content-length", 0)),
-                unit="B",
-                unit_scale=True,
-                unit_divisor=1024,
-                desc=progress_bar_desc,
-            )
-        else:
-            ctx = nullcontext
-        if r.status_code == requests.codes.ok:
-            with ctx() as pbar:
-                with output.open("wb") as f:
-                    for data in r.iter_content(1024):
-                        f.write(data)
-                        if show_progress_bar:
-                            pbar.update(len(data))
-
-            return r.status_code
-    except requests.exceptions.Timeout:
-        return requests.codes.timeout
-    except Exception as e:
-        logger.error(f"Failed to download from {url}; {e}")
-        return constants.RETURNCODE_NOK
-    return constants.RETURNCODE_NOK
-
-
-def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
-    def download(url_output):
-        url, output = url_output
-        return url, download_file(url, output)
-
-    pool = ThreadPool(num_threads)
-    responses = []
-    with tqdm(total=len(items)) as progress:
-        for response in pool.imap(download, items):
-            progress.update(1)
-            responses.append(response)
-    pool.close()
-    pool.join()
-    return responses
-
-
-def fips_dgst(cert_id: Union[int, str]) -> str:
-    return get_first_16_bytes_sha256(str(cert_id))
-
-
-def get_first_16_bytes_sha256(string: str) -> str:
-    return hashlib.sha256(string.encode("utf-8")).hexdigest()[:16]
-
-
-def get_sha256_filepath(filepath: Union[str, Path]) -> str:
-    hash_sha256 = hashlib.sha256()
-    with Path(filepath).open("rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_sha256.update(chunk)
-    return hash_sha256.hexdigest()
-
-
-def sanitize_link(record: Optional[str]) -> Optional[str]:
-    if not record:
-        return None
-    return record.replace(":443", "").replace(" ", "%20").replace("http://", "https://")
-
-
-def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:
-    if pd.isnull(record):
-        return None
-    elif isinstance(record, pd.Timestamp):
-        return record.date()
-    elif isinstance(record, (date, type(None))):
-        return record
-    raise ValueError("Unsupported type given as input")
-
-
-def sanitize_string(record: str) -> str:
-    # There is a sample with name 'ATMEL Secure Microcontroller AT90SC12872RCFT &#x2f; AT90SC12836RCFT rev. I &amp;&#x23;38&#x3b; J' that has to be unescaped twice
-    string = html.unescape(html.unescape(record)).replace("\n", "")
-    return " ".join(string.split())
-
-
-def sanitize_security_levels(record: Union[str, Set[str]]) -> Set[str]:
-    if isinstance(record, str):
-        record = set(record.split(","))
-    return record - {"Basic", "ND-PP", "PP\xa0Compliant", "None"}
-
-
-def sanitize_protection_profiles(record: str) -> list:
-    if not record:
-        return []
-    return record.split(",")
-
-
-def parse_list_of_tables(txt: str) -> Set[str]:
-    """
-    Parses list of tables from function find_tables(), finds ones that mention algorithms
-    :param txt: chunk of text
-    :return: set of all pages mentioning algorithm table
-    """
-    rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm|[Ss]ecurity [Ff]unctions?).+?(?P<page_num>\d+)$", re.MULTILINE)
-    pages = set()
-    for m in rr.finditer(txt):
-        pages.add(m.group("page_num"))
-    return pages
-
-
-def find_tables_iterative(file_text: str) -> List[int]:
-    current_page = 1
-    pages = set()
-    for line in file_text.split("\n"):
-        if "\f" in line:
-            current_page += 1
-        if line.startswith("Table ") or line.startswith("Exhibit"):
-            pages.add(current_page)
-            pages.add(current_page + 1)
-            if current_page > 2:
-                pages.add(current_page - 1)
-    if not pages:
-        logger.warning("No pages found")
-    for page in pages:
-        if page > current_page - 1:
-            return list(pages - {page})
-
-    return list(pages)
-
-
-def find_tables(txt: str, file_name: Path) -> Optional[Union[List[str], List[int]]]:
-    """
-    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
-    algorithms
-    :param txt: file in .txt format (output of pdftotext)
-    :param file_name: name of the file
-    :return:    list of pages possibly containing a table
-                None if these cannot be found
-    """
-    # Look for "List of Tables", where we can find exactly tables with page num
-    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
-    table = tables_regex.search(txt)
-    if table:
-        rb = parse_list_of_tables(table.group())
-        if rb:
-            return list(rb)
-        return None
-
-    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    logger.info(f"parsing tables in {file_name}")
-    table_page_indices = find_tables_iterative(txt)
-    return table_page_indices if table_page_indices else None
-
-
-def repair_pdf(file: Path) -> None:
-    """
-    Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
-    By opening this file in a pdf reader, we can already extract number of pages
-    :param file: file name
-    :return: number of pages in pdf file
-    """
-    pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
-    pdf.save(file)
-
-
-def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
-    try:
-        with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
-            txt = "".join(pdf)
-    except Exception as e:
-        logger.error(f"Error when converting pdf->txt: {e}")
-        return constants.RETURNCODE_NOK
-
-    with txt_path.open("w", encoding="utf-8") as txt_handle:
-        txt_handle.write(txt)
-
-    return constants.RETURNCODE_OK
-
-
-def parse_pdf_date(dateval) -> Optional[datetime]:
-    """
-    Parse PDF metadata date format:
-
-    ```
-        parse_pdf_date(b"D:20110617082321-04'00'")
-    ```
-    into
-    ```
-        datetime.datetime(2011, 6, 17, 8, 23, 21, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)))
-    ```
-    """
-    if dateval is None:
-        return None
-    clean = dateval.decode("utf-8").replace("D:", "")
-    tz = None
-    tzoff = None
-    if "+" in clean:
-        clean, tz = clean.split("+")
-        tzoff = 1
-    if "-" in clean:
-        clean, tz = clean.split("-")
-        tzoff = -1
-    elif "Z" in clean:
-        clean, tz = clean.split("Z")
-        tzoff = 1
-    try:
-        res_datetime = datetime.strptime(clean, "%Y%m%d%H%M%S")
-        if tz and tzoff:
-            tz_datetime = datetime.strptime(tz, "%H'%M'")
-            delta = tzoff * timedelta(hours=tz_datetime.hour, minutes=tz_datetime.minute)
-            res_tz = timezone(delta)
-            res_datetime = res_datetime.replace(tzinfo=res_tz)
-        return res_datetime
-    except ValueError:
-        return None
-
-
-def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:  # noqa: C901
-    def map_metadata_value(val, nope_out=False):
-        if isinstance(val, BooleanObject):
-            val = val.value
-        elif isinstance(val, FloatObject):
-            val = float(val)
-        elif isinstance(val, NumberObject):
-            val = int(val)
-        elif isinstance(val, IndirectObject) and not nope_out:
-            # Let's make sure to nope out in case of cycles
-            val = map_metadata_value(val.getObject(), nope_out=True)
-        else:
-            val = str(val)
-        return val
-
-    metadata: Dict[str, Any] = dict()
-
-    try:
-        metadata["pdf_file_size_bytes"] = filepath.stat().st_size
-        with filepath.open("rb") as handle:
-            pdf = PdfFileReader(handle, strict=False)
-            metadata["pdf_is_encrypted"] = pdf.getIsEncrypted()
-
-        # see https://stackoverflow.com/questions/26242952/pypdf-2-decrypt-not-working
-        if metadata["pdf_is_encrypted"]:
-            pikepdf.open(filepath, allow_overwriting_input=True).save()
-
-        with filepath.open("rb") as handle:
-            pdf = PdfFileReader(handle, strict=False)
-            metadata["pdf_number_of_pages"] = pdf.getNumPages()
-            pdf_document_info = pdf.getDocumentInfo()
-
-            if pdf_document_info is None:
-                raise ValueError("PDF metadata unavailable")
-
-            for key, val in pdf_document_info.items():
-                metadata[str(key)] = map_metadata_value(val)
-
-            annots = [page.get("/Annots", []) for page in pdf.pages]
-            annots = reduce(lambda x, y: x + y, annots)
-            links = set()
-            for a in annots:
-                if isinstance(a, IndirectObject):
-                    note = a.getObject()
-                else:
-                    note = a
-                link = note.get("/A", {}).get("/URI")
-                if link:
-                    links.add(link)
-            metadata["pdf_hyperlinks"] = links
-
-    except Exception as e:
-        relative_filepath = "/".join(str(filepath).split("/")[-4:])
-        error_msg = f"Failed to read metadata of {relative_filepath}, error: {e}"
-        logger.error(error_msg)
-        return error_msg, None
-
-    return constants.RETURNCODE_OK, metadata
-
-
-def to_utc(timestamp: datetime) -> datetime:
-    offset = timestamp.utcoffset()
-    if offset is None:
-        return timestamp
-    timestamp -= offset
-    timestamp = timestamp.replace(tzinfo=None)
-    return timestamp
-
-
-# TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
 def search_only_headers_anssi(filepath: Path):  # noqa: C901
+    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     class HEADER_TYPE(Enum):
         HEADER_FULL = 1
         HEADER_MISSING_CERT_ITEM_VERSION = 2
@@ -522,7 +195,7 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
     items_found = {}  # type: ignore # noqa
 
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath)
 
         # for ANSII and DCSSI certificates, front page starts only on third page after 2 newpage signs
         pos = whole_text.find("")
@@ -605,8 +278,8 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-# TODO: Please refactor me. I need it so badlyyyyyy!!!
 def search_only_headers_bsi(filepath: Path):  # noqa: C901
+    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 15
     rules_certificate_preface = [
@@ -619,7 +292,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -669,7 +342,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
         # PP Conformance, Functionality, Assurance
         rules_certificate_third = ["PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified"]
 
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(filepath)
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath)
 
         for rule in rules_certificate_third:
             rule_and_sep = rule + REGEXEC_SEP
@@ -704,15 +377,15 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-# Port from old-api branch
 def search_only_headers_nscib(filepath: Path):  # noqa: C901
+    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 60
     items_found: Dict[str, str] = {}
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -784,15 +457,15 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-# Port from old-api branch
 def search_only_headers_niap(filepath: Path):
+    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 15
     items_found: Dict[str, str] = {}
 
     try:
         # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -835,13 +508,13 @@ def search_only_headers_niap(filepath: Path):
     return constants.RETURNCODE_OK, items_found
 
 
-# Port from old-api branch
 def search_only_headers_canada(filepath: Path):  # noqa: C901
+    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 20
     items_found: Dict[str, str] = {}
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
         )
 
@@ -908,55 +581,6 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-def extract_keywords(filepath: Path) -> Tuple[str, Optional[Dict[str, Dict[str, int]]]]:
-    try:
-        result = parse_cert_file(filepath, cc_search_rules, -1, constants.LINE_SEPARATOR)
-
-        processed_result = {}
-        top_level_keys = list(result.keys())
-        for key in top_level_keys:
-            processed_result[key] = {key: val for key, val in gen_dict_extract(result[key])}
-
-    except Exception as e:
-        relative_filepath = "/".join(str(filepath).split("/")[-4:])
-        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
-        logger.error(error_msg)
-        return error_msg, None
-    return constants.RETURNCODE_OK, processed_result
-
-
-def plot_dataframe_graph(
-    data: Dict,
-    label: str,
-    file_name: str,
-    density: bool = False,
-    cumulative: bool = False,
-    bins: int = 50,
-    log: bool = True,
-    show: bool = True,
-) -> None:
-    pd_data = pd.Series(data)
-    pd_data.hist(bins=bins, label=label, density=density, cumulative=cumulative)
-    plt.savefig(file_name)
-    if show:
-        plt.show()
-
-    if log:
-        sorted_data = pd_data.value_counts(ascending=True)
-
-    logger.info(sorted_data.where(sorted_data > 1).dropna())
-
-
-def is_in_dict(target_dict: Dict, path: str) -> bool:
-    current_level = target_dict
-    for item in path:
-        if item not in current_level:
-            return False
-        else:
-            current_level = current_level[item]
-    return True
-
-
 def search_files(folder: str) -> Iterator[str]:
     for root, _, files in os.walk(folder):
         yield from [os.path.join(root, x) for x in files]
@@ -971,48 +595,110 @@ def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_te
     try:
         write_file.write(modified_cert_file_text)
     except UnicodeEncodeError:
-        print("UnicodeDecodeError while writing file fragments back")
+        logger.error("UnicodeDecodeError while writing file fragments back")
     finally:
         write_file.close()
 
 
-def parse_cert_file(file_name, search_rules, limit_max_lines=-1, line_separator=LINE_SEPARATOR):  # noqa: C901
-    whole_text, whole_text_with_newlines, was_unicode_decode_error = load_cert_file(
-        file_name, limit_max_lines, line_separator
-    )
+def flatten_matches(dct: Dict) -> Dict:
+    """
+    Function to flatten dictionary of matches.
 
-    items_found_all = {}
-    for rule_group, rules in search_rules.items():
-        if rule_group not in items_found_all:
-            items_found_all[rule_group] = {}
+    Turns
+    ```
+        {"a": {"cc": 3}, "b": {}, "d": {"dd": 4, "cc": 2}}
+    ```
+    into
+    ```
+        {"cc": 5, "dd": 4}
+    ```
 
-        items_found = items_found_all[rule_group]
+    :param dct: Dictionary to flatten
+    :return: Flattened dictionary
+    """
+    result: Counter[Any] = Counter()
+    for key, value in dct.items():
+        if isinstance(value, dict):
+            result.update(flatten_matches(value))
+        else:
+            result[key] = value
+    return dict(result)
 
-        for rule in rules:
-            rule_str, rule_and_sep = rule
 
-            for m in re.finditer(rule_and_sep, whole_text):
-                if rule_str not in items_found:
-                    items_found[rule_str] = {}
+def prune_matches(dct: Dict) -> Dict:
+    """
+    Prune a dictionary of matches.
 
-                match = m.group()
-                match = normalize_match_string(match)
+    Turns
+    ```
+        {"a": {"cc": 3}, "b": {"aa": {}, "bb": {}}, "d": {"dd": 4, "cc": 2}}
+    ```
+    into
+    ```
+        {"a": {"cc": 3}, "b": {}, "d": {"dd": 4, "cc": 2}}
+    ```
 
-                match_len = len(match)
-                if match_len > MAX_ALLOWED_MATCH_LENGTH:
-                    logger.warning(f"Excessive match with length of {match_len} detected for rule {rule_str}")
+    :param dct: The dictionary of matches.
+    :return: The pruned dictionary.
+    """
 
-                if match not in items_found[rule_str]:
-                    items_found[rule_str][match] = {}
-                    items_found[rule_str][match][TAG_MATCH_COUNTER] = 0
-                    if APPEND_DETAILED_MATCH_MATCHES:
-                        items_found[rule_str][match][TAG_MATCH_MATCHES] = []
-                items_found[rule_str][match][TAG_MATCH_COUNTER] += 1
-                match_span = m.span()
-                if APPEND_DETAILED_MATCH_MATCHES:
-                    items_found[rule_str][match][TAG_MATCH_MATCHES].append([match_span[0], match_span[1]])
+    def walk(obj, depth):
+        if isinstance(obj, dict):
+            if not obj:
+                return None
+            res = {}
+            for k, v in obj.items():
+                r = walk(v, depth + 1)
+                if r is not None:
+                    res[k] = r
+            return res if res or depth == 1 else None
+        else:
+            return obj
 
-    return items_found_all
+    return walk(dct, 0)
+
+
+def extract_keywords(filepath: Path, search_rules) -> Optional[Dict[str, Dict[str, int]]]:
+    """
+    Extract keywords from filepath using the search rules.
+
+    :param filepath:
+    :param search_rules:
+    :return:
+    """
+
+    try:
+        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath, -1, LINE_SEPARATOR)
+
+        def extract(rules):
+            if isinstance(rules, dict):
+                return {k: extract(v) for k, v in rules.items()}
+            elif isinstance(rules, list):
+                matches = [extract(rule) for rule in rules]
+                c = Counter()
+                for match_list in matches:
+                    c += Counter(match_list)
+                return dict(c)
+            elif isinstance(rules, re.Pattern):
+                rule = rules
+                matches = []
+                for match in rule.finditer(whole_text):
+                    match = match.group()
+                    match = normalize_match_string(match)
+
+                    match_len = len(match)
+                    if match_len > MAX_ALLOWED_MATCH_LENGTH:
+                        logger.warning(f"Excessive match with length of {match_len} detected for rule {rule.pattern}")
+                    matches.append(match)
+                return matches
+
+        result = extract(search_rules)
+        return prune_matches(result)
+    except Exception as e:
+        relative_filepath = "/".join(str(filepath).split("/")[-4:])
+        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
+        logger.error(error_msg)
+        return None
 
 
 def normalize_match_string(match: str) -> str:
@@ -1020,36 +706,42 @@ def normalize_match_string(match: str) -> str:
     return "".join(filter(str.isprintable, match))
 
 
-def load_cert_file(
+def load_text_file(
     file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
 ) -> Tuple[str, str, bool]:
+    """
+    Load the text contents of a file at `file_name`, upto `limit_max_lines` of lines, replace
+    newlines in the text with `line_separator`.
+
+    :param file_name: The file_name to load.
+    :param limit_max_lines: The limit on number of lines to return.
+    :param line_separator: The string to replace newlines with.
+    :return: A tuple of three elements (the text with replaced newlines, the text and a boolean whether a unicode
+             decoding error happened).
+    """
     lines = []
     was_unicode_decode_error = False
     with Path(file_name).open("r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
             lines = f.readlines()
         except UnicodeDecodeError:
-            f.close()
             was_unicode_decode_error = True
-            print("  WARNING: UnicodeDecodeError, opening as utf8")
+            logger.warning("UnicodeDecodeError, opening as utf8")
 
-            with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
-                # coding failure, try line by line
-                line = " "
-                while line:
-                    try:
-                        line = f2.readline()
-                        lines.append(line)
-                    except UnicodeDecodeError:
-                        # ignore error
-                        continue
+    if was_unicode_decode_error:
+        with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+            # coding failure, try line by line
+            line = " "
+            while line:
+                try:
+                    line = f2.readline()
+                    lines.append(line)
+                except UnicodeDecodeError:
+                    # ignore error
+                    continue
 
     whole_text = ""
     whole_text_with_newlines = ""
-    # we will estimate the line for searched matches
-    # => we need to known how much lines were modified (removal of eoln..)
-    # for removed newline and for any added separator
-    # line_length_compensation = 1 - len(LINE_SEPARATOR)
     lines_included = 0
     for line in lines:
         if limit_max_lines != -1 and lines_included >= limit_max_lines:
@@ -1067,132 +759,13 @@ def load_cert_file(
 def load_cert_html_file(file_name: str) -> str:
     with open(file_name, "r", errors=FILE_ERRORS_STRATEGY) as f:
         try:
-            whole_text = f.read()
+            return f.read()
         except UnicodeDecodeError:
-            f.close()
-            with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
-                try:
-                    whole_text = f2.read()
-                except UnicodeDecodeError:
-                    print("### ERROR: failed to read file {}".format(file_name))
-    return whole_text
+            logger.warning("UnicodeDecodeError, opening as utf8")
 
-
-def gen_dict_extract(dct: Dict, searched_key: Hashable = "count") -> Generator[Any, None, None]:
-    """
-    Function to flatten dictionary with some serious limitations. We only expect to use it temporarily on dictionary
-    produced by extract_keywords that contains many layers. On the deepest level in that dictionary, 'some_match': {'count': frequency}.
-    The output of the function will be list of tuples ('some_match': frequency)
-    :param searched_key: key to search, 'count'
-    :param dct: Dictionary to search
-    :return: List of tuples
-    """
-    for key, value in dct.items():
-        if key == searched_key:
-            yield value
-        if isinstance(value, dict):
-            for result in gen_dict_extract(value, searched_key):
-                if isinstance(result, tuple):
-                    yield result
-                else:
-                    yield key, result
-
-
-def compute_heuristics_version(cert_name: str) -> Set[str]:
-    """
-    Will extract possible versions from the name of sample
-    """
-    at_least_something = r"(\b(\d)+\b)"
-    just_numbers = r"(\d{1,5})(\.\d{1,5})"
-
-    without_version = r"(" + just_numbers + r"+)"
-    long_version = r"(" + r"(\bversion)\s*" + just_numbers + r"+)"
-    short_version = r"(" + r"\bv\s*" + just_numbers + r"+)"
-    full_regex_string = r"|".join([without_version, short_version, long_version])
-    normalizer = r"(\d+\.*)+"
-
-    matched_strings = [max(x, key=len) for x in re.findall(full_regex_string, cert_name, re.IGNORECASE)]
-    if not matched_strings:
-        matched_strings = [max(x, key=len) for x in re.findall(at_least_something, cert_name, re.IGNORECASE)]
-    # Only keep the first occurrence but keep order.
-    matches = []
-    for match in matched_strings:
-        if match not in matches:
-            matches.append(match)
-    # identified_versions = list(set([max(x, key=len) for x in re.findall(VERSION_PATTERN, cert_name, re.IGNORECASE | re.VERBOSE)]))
-    # return identified_versions if identified_versions else ['-']
-
-    if not matches:
-        return {constants.CPE_VERSION_NA}
-
-    matched = [re.search(normalizer, x) for x in matches]
-    return {x.group() for x in matched if x is not None}
-
-
-def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:
-    return np.array([tokenize(x, keywords) for x in dset])
-
-
-def tokenize(string: str, keywords: Set[str]) -> str:
-    return " ".join([x for x in string.split() if x.lower() in keywords])
-
-
-# Credit: https://stackoverflow.com/questions/18092354/
-def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> List[str]:
-    """
-    >>> split_unescape('foo,bar', ',')
-    ['foo', 'bar']
-    >>> split_unescape('foo$,bar', ',', '$')
-    ['foo,bar']
-    >>> split_unescape('foo$$,bar', ',', '$', unescape=True)
-    ['foo$', 'bar']
-    >>> split_unescape('foo$$,bar', ',', '$', unescape=False)
-    ['foo$$', 'bar']
-    >>> split_unescape('foo$', ',', '$', unescape=True)
-    ['foo$']
-    """
-    ret = []
-    current = []
-    itr = iter(s)
-    for ch in itr:
-        if ch == escape:
-            try:
-                # skip the next character; it has been escaped!
-                if not unescape:
-                    current.append(escape)
-                current.append(next(itr))
-            except StopIteration:
-                if unescape:
-                    current.append(escape)
-        elif ch == delim:
-            # split! (add current to the list and reset it)
-            ret.append("".join(current))
-            current = []
-        else:
-            current.append(ch)
-    ret.append("".join(current))
-    return ret
-
-
-def warn_if_missing_poppler() -> None:
-    """
-    Warns user if he misses a poppler dependency
-    """
-    try:
-        if not pkgconfig.installed("poppler-cpp", ">=0.30"):
-            logger.warning(
-                "Attempting to run pipeline with pdf->txt conversion, but poppler-cpp dependency was not found."
-            )
-    except EnvironmentError:
-        logger.warning("Attempting to find poppler-cpp, but pkg-config was not found.")
-
-
-def warn_if_missing_graphviz() -> None:
-    """
-    Warns user if he misses a graphviz dependency
-    """
-    try:
-        if not pkgconfig.installed("libcgraph", ">=2.0.0"):
-            logger.warning("Attempting to run pipeline that requires graphviz, but graphviz was not found.")
-    except EnvironmentError:
-        logger.warning("Attempting to find graphviz, but pkg-config was not found.")
+    with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+        try:
+            return f2.read()
+        except UnicodeDecodeError:
+            logger.error("Failed to read file {}".format(file_name))
+    return ""

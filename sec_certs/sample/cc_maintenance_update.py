@@ -2,7 +2,7 @@ import logging
 from datetime import date
 from typing import ClassVar, Dict, List, Optional, Tuple
 
-import sec_certs.helpers as helpers
+import sec_certs.utils.helpers as helpers
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.serialization.json import ComplexSerializableType
 

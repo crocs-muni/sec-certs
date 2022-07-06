@@ -15,8 +15,7 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
 
-from sec_certs import helpers as helpers
-from sec_certs import parallel_processing as cert_processing
+import sec_certs.utils.sanitization
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
@@ -27,6 +26,9 @@ from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpda
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
+from sec_certs.utils import helpers as helpers
+from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.extract import flatten_matches
 
 
 class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
@@ -277,12 +279,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
             all_cert_ids.add(cert_id)
 
-            # ['keywords_scan', 'rules_cert_id']
-            all_cert_ids.update(cert_obj.pdf_data.keywords_rules_cert_id)
+            if cert_obj.pdf_data.report_keywords is not None:
+                all_cert_ids.update(flatten_matches(cert_obj.pdf_data.report_keywords["cc_cert_id"]))
 
-            # ['st_keywords_scan']['rules_cert_id']
             if cert_obj.pdf_data.st_keywords is not None:
-                all_cert_ids.update(cert_obj.pdf_data.st_keywords["rules_cert_id"])
+                all_cert_ids.update(flatten_matches(cert_obj.pdf_data.st_keywords["cc_cert_id"]))
 
         return all_cert_ids
 
@@ -468,7 +469,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         profiles = {
             x.dgst: set(
-                [ProtectionProfile(pp_name=y) for y in helpers.sanitize_protection_profiles(x.protection_profiles)]
+                [
+                    ProtectionProfile(pp_name=y)
+                    for y in sec_certs.utils.sanitization.sanitize_protection_profiles(x.protection_profiles)
+                ]
             )
             for x in df_base.itertuples()
         }
@@ -846,7 +850,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
                 kws = getattr(cert.pdf_data, kw_attr)
                 if not kws:
                     return set()
-                return set(kws["rules_cert_id"].keys())
+                res = set()
+                for scheme, matches in kws["cc_cert_id"].items():
+                    res.update(matches.keys())
+                return res
 
             return func
 

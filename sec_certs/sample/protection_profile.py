@@ -3,7 +3,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, FrozenSet, Optional
 
-import sec_certs.helpers as helpers
+import sec_certs.utils.sanitization as sanitization
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,8 @@ class ProtectionProfile(ComplexSerializableType):
     pp_ids: Optional[FrozenSet[str]] = None
 
     def __post_init__(self):
-        super().__setattr__("pp_name", helpers.sanitize_string(self.pp_name))
-        super().__setattr__("pp_link", helpers.sanitize_link(self.pp_link))
+        super().__setattr__("pp_name", sanitization.sanitize_string(self.pp_name))
+        super().__setattr__("pp_link", sanitization.sanitize_link(self.pp_link))
 
     @classmethod
     def from_dict(cls, dct: Dict[str, Any]) -> "ProtectionProfile":
@@ -31,8 +31,8 @@ class ProtectionProfile(ComplexSerializableType):
 
     @classmethod
     def from_old_api_dict(cls, dct: Dict[str, Any]) -> "ProtectionProfile":
-        pp_name = helpers.sanitize_string(dct["csv_scan"]["cc_pp_name"])
-        pp_link = helpers.sanitize_link(dct["csv_scan"]["link_pp_document"])
+        pp_name = sanitization.sanitize_string(dct["csv_scan"]["cc_pp_name"])
+        pp_link = sanitization.sanitize_link(dct["csv_scan"]["link_pp_document"])
         pp_ids = frozenset(dct["processed"]["cc_pp_csvid"]) if dct["processed"]["cc_pp_csvid"] else None
         return cls(pp_name, pp_link, pp_ids)
 

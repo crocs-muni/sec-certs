@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
-from sec_certs import constants, helpers
+from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+from sec_certs.utils import helpers
 
 
 @dataclass(init=False)

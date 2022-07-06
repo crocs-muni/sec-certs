@@ -14,21 +14,24 @@ import numpy as np
 import requests
 from bs4 import Tag
 
+import sec_certs.utils.extract
+import sec_certs.utils.pdf
+import sec_certs.utils.sanitization
 from sec_certs import constants as constants
-from sec_certs import helpers
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, security_level_csv_scan
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
 from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+from sec_certs.utils import helpers
 
 HEADERS = {
-    "anssi": helpers.search_only_headers_anssi,
-    "bsi": helpers.search_only_headers_bsi,
-    "nscib": helpers.search_only_headers_nscib,
-    "niap": helpers.search_only_headers_niap,
-    "canada": helpers.search_only_headers_canada,
+    "anssi": sec_certs.utils.extract.search_only_headers_anssi,
+    "bsi": sec_certs.utils.extract.search_only_headers_bsi,
+    "nscib": sec_certs.utils.extract.search_only_headers_nscib,
+    "niap": sec_certs.utils.extract.search_only_headers_niap,
+    "canada": sec_certs.utils.extract.search_only_headers_canada,
 }
 
 
@@ -64,10 +67,16 @@ class CommonCriteriaCert(
         maintenance_st_link: Optional[str]
 
         def __post_init__(self):
-            super().__setattr__("maintenance_report_link", helpers.sanitize_link(self.maintenance_report_link))
-            super().__setattr__("maintenance_st_link", helpers.sanitize_link(self.maintenance_st_link))
-            super().__setattr__("maintenance_title", helpers.sanitize_string(self.maintenance_title))
-            super().__setattr__("maintenance_date", helpers.sanitize_date(self.maintenance_date))
+            super().__setattr__(
+                "maintenance_report_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_report_link)
+            )
+            super().__setattr__(
+                "maintenance_st_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_st_link)
+            )
+            super().__setattr__(
+                "maintenance_title", sec_certs.utils.sanitization.sanitize_string(self.maintenance_title)
+            )
+            super().__setattr__("maintenance_date", sec_certs.utils.sanitization.sanitize_date(self.maintenance_date))
 
         @classmethod
         def from_dict(cls, dct: Dict) -> CommonCriteriaCert.MaintenanceReport:
@@ -277,8 +286,13 @@ class CommonCriteriaCert(
                 return None
 
         @property
-        def keywords_rules_cert_id(self) -> Optional[Dict[str, Optional[Dict[str, Dict[str, int]]]]]:
-            return self.report_keywords.get("rules_cert_id", None) if self.report_keywords else None
+        def keywords_rules_cert_id(self) -> Optional[Dict[str, int]]:
+            if not self.report_keywords:
+                return None
+            cert_id_matches = self.report_keywords.get("cc_cert_id", None)
+            if not cert_id_matches:
+                return None
+            return sec_certs.utils.extract.flatten_matches(cert_id_matches)
 
         @property
         def keywords_cert_id(self) -> Optional[str]:
@@ -373,20 +387,20 @@ class CommonCriteriaCert(
 
         self.status = status
         self.category = category
-        self.name = helpers.sanitize_string(name)
+        self.name = sec_certs.utils.sanitization.sanitize_string(name)
 
         self.manufacturer = None
         if manufacturer:
-            self.manufacturer = helpers.sanitize_string(manufacturer)
+            self.manufacturer = sec_certs.utils.sanitization.sanitize_string(manufacturer)
 
         self.scheme = scheme
-        self.security_level = helpers.sanitize_security_levels(security_level)
-        self.not_valid_before = helpers.sanitize_date(not_valid_before)
-        self.not_valid_after = helpers.sanitize_date(not_valid_after)
-        self.report_link = helpers.sanitize_link(report_link)
-        self.st_link = helpers.sanitize_link(st_link)
-        self.cert_link = helpers.sanitize_link(cert_link)
-        self.manufacturer_web = helpers.sanitize_link(manufacturer_web)
+        self.security_level = sec_certs.utils.sanitization.sanitize_security_levels(security_level)
+        self.not_valid_before = sec_certs.utils.sanitization.sanitize_date(not_valid_before)
+        self.not_valid_after = sec_certs.utils.sanitization.sanitize_date(not_valid_after)
+        self.report_link = sec_certs.utils.sanitization.sanitize_link(report_link)
+        self.st_link = sec_certs.utils.sanitization.sanitize_link(st_link)
+        self.cert_link = sec_certs.utils.sanitization.sanitize_link(cert_link)
+        self.manufacturer_web = sec_certs.utils.sanitization.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintenance_updates = maintenance_updates
         self.state = self.InternalState() if not state else state
@@ -728,7 +742,7 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: cert to download the pdf report for
         :return CommonCriteriaCert: the modified certificate with updated state
         """
-        exit_code = helpers.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path)
+        exit_code = sec_certs.utils.pdf.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert report pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
@@ -746,7 +760,7 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: cert to download the pdf security target for
         :return CommonCriteriaCert: the modified certificate with updated state
         """
-        exit_code = helpers.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
+        exit_code = sec_certs.utils.pdf.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert security target pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
@@ -764,7 +778,7 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: cert to extract the metadata for.
         :return CommonCriteriaCert: the modified certificate with updated state
         """
-        response, cert.pdf_data.st_metadata = helpers.extract_pdf_metadata(cert.state.st_pdf_path)
+        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
             cert.state.errors.append(response)
@@ -778,7 +792,7 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: cert to extract the metadata for.
         :return CommonCriteriaCert: the modified certificate with updated state
         """
-        response, cert.pdf_data.report_metadata = helpers.extract_pdf_metadata(cert.state.report_pdf_path)
+        response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
             cert.state.errors.append(response)
@@ -835,9 +849,11 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: certificate to extract the keywords for.
         :return CommonCriteriaCert: the modified certificate with extracted keywords.
         """
-        response, cert.pdf_data.report_keywords = helpers.extract_keywords(cert.state.report_txt_path)
-        if response != constants.RETURNCODE_OK:
+        report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report_txt_path, cc_rules)
+        if report_keywords is None:
             cert.state.report_extract_ok = False
+        else:
+            cert.pdf_data.report_keywords = report_keywords
         return cert
 
     @staticmethod
@@ -849,10 +865,11 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: certificate to extract the keywords for.
         :return CommonCriteriaCert: the modified certificate with extracted keywords.
         """
-        response, cert.pdf_data.st_keywords = helpers.extract_keywords(cert.state.st_txt_path)
-        if response != constants.RETURNCODE_OK:
+        st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st_txt_path, cc_rules)
+        if st_keywords is None:
             cert.state.st_extract_ok = False
-            cert.state.errors.append(response)
+        else:
+            cert.pdf_data.st_keywords = st_keywords
         return cert
 
     def compute_heuristics_version(self) -> None:
