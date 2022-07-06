@@ -115,7 +115,7 @@ kiwisolver==1.4.2
     # via matplotlib
 langcodes==3.3.0
     # via spacy
-lxml==4.8.0
+lxml==4.9.1
     # via
     #   -r requirements.in
     #   pikepdf
