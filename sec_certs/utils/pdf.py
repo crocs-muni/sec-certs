@@ -1,7 +1,10 @@
+import glob
 import logging
+import subprocess
 from datetime import datetime, timedelta, timezone
 from functools import reduce
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, Dict, Optional, Tuple
 
 import pdftotext
@@ -10,6 +13,13 @@ from PyPDF2 import PdfFileReader
 from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObject
 
 from sec_certs import constants as constants
+from sec_certs.constants import (
+    ALPHA_CHARS_THRESHOLD,
+    AVG_LLEN_THRESHOLD,
+    EVERY_SECOND_CHAR_THRESHOLD,
+    LINES_THRESHOLD,
+    SIZE_THRESHOLD,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +27,8 @@ logger = logging.getLogger(__name__)
 def repair_pdf(file: Path) -> None:
     """
     Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
-    By opening this file in a pdf reader, we can already extract number of pages
+    By opening this file in a pdf reader, we can already extract number of pages.
+
     :param file: file name
     :return: number of pages in pdf file
     """
@@ -25,13 +36,59 @@ def repair_pdf(file: Path) -> None:
     pdf.save(file)
 
 
+def ocr_pdf_file(pdf_path: Path) -> str:
+    """
+    OCR a PDF file and return its text contents, uses `pdftoppm` and `tesseract`.
+
+    :param pdf_path: The PDF file to OCR.
+    :return: The text contents.
+    """
+    with TemporaryDirectory() as tmpdir:
+        tmppath = Path(tmpdir)
+        ppm = subprocess.run(
+            ["pdftoppm", pdf_path, tmppath / "image"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        if ppm.returncode != 0:
+            raise ValueError(f"pdftoppm failed: {ppm.returncode}")
+        for ppm_path in map(Path, glob.glob(str(tmppath / "image*.ppm"))):
+            base = ppm_path.with_suffix("")
+            tes = subprocess.run(
+                ["tesseract", "-l", "eng+deu+fra", ppm_path, base], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+            if tes.returncode != 0:
+                raise ValueError(f"tesseract failed: {tes.returncode}")
+        contents = ""
+        for txt_path in map(Path, glob.glob(str(tmppath / "image*.txt"))):
+            with txt_path.open("r", encoding="utf-8") as f:
+                contents += f.read()
+    return contents
+
+
 def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
+    """
+    Convert a PDF tile to text and save it on the `txt_path`.
+
+    :param pdf_path: Path to the to-be-converted PDF file.
+    :param txt_path: Path to the resulting text file.
+    :return: Whether the conversion was successful (see constants).
+    """
+    txt = None
     try:
         with pdf_path.open("rb") as pdf_handle:
             pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
             txt = "".join(pdf)
     except Exception as e:
         logger.error(f"Error when converting pdf->txt: {e}")
+
+    if txt is None or text_is_garbage(txt):
+        logger.warning(f"Detected garbage during conversion of {pdf_path}")
+        try:
+            txt = ocr_pdf_file(pdf_path)
+            logger.info(f"OCR OK for {pdf_path}")
+        except Exception as e:
+            logger.error(f"Error during OCR of {pdf_path}, using garbage: {e}")
+
+    if txt is None:
         return constants.RETURNCODE_NOK
 
     with txt_path.open("w", encoding="utf-8") as txt_handle:
@@ -40,7 +97,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
     return constants.RETURNCODE_OK
 
 
-def parse_pdf_date(dateval) -> Optional[datetime]:
+def parse_pdf_date(dateval: Optional[bytes]) -> Optional[datetime]:
     """
     Parse PDF metadata date format:
 
@@ -51,6 +108,9 @@ def parse_pdf_date(dateval) -> Optional[datetime]:
     ```
         datetime.datetime(2011, 6, 17, 8, 23, 21, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)))
     ```
+
+    :param dateval: The date as in the PDF metadata.
+    :return: The parsed datetime, if successful, else `None`.
     """
     if dateval is None:
         return None
@@ -79,6 +139,13 @@ def parse_pdf_date(dateval) -> Optional[datetime]:
 
 
 def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:  # noqa: C901
+    """
+    Extract PDF metadata, such as the number of pages, author, title, etc.
+
+    :param filepath: THe path to the PDF.
+    :return: A tuple of the result code (see constants) and the metadata dictionary.
+    """
+
     def map_metadata_value(val, nope_out=False):
         if isinstance(val, BooleanObject):
             val = val.value
@@ -136,3 +203,51 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
         return error_msg, None
 
     return constants.RETURNCODE_OK, metadata
+
+
+def text_is_garbage(text: str) -> bool:
+    """
+    Detect whether the given text is "garbage". A series of tests is applied,
+    using the number of lines, average line length, total size, every second character on a line
+    and the ratio of alphanumeric characters.
+
+    :param text: The tested text.
+    :return: Whether the text is a "garbage" result of pdftotext conversion.
+    """
+    size = len(text)
+    content_len = 0
+    lines = 0
+    every_second = 0
+    alpha_len = len("".join(filter(str.isalpha, text)))
+    for line in text.splitlines():
+        content_len += len(line)
+        lines += 1
+        if len(set(line[1::2])) > 1:
+            every_second += 1
+
+    if lines:
+        avg_line_len = content_len / lines
+    else:
+        avg_line_len = 0
+    if size:
+        alpha = alpha_len / size
+    else:
+        alpha = 0
+
+    # If number of lines is small, this is garbage.
+    if lines < LINES_THRESHOLD:
+        return True
+    # If the file size is small, this is garbage.
+    if size < SIZE_THRESHOLD:
+        return True
+    # If the average length of a line is small, this is garbage.
+    if avg_line_len < AVG_LLEN_THRESHOLD:
+        return True
+    # If there a small amount of lines that have more than one character at every second character, this is garbage.
+    # This detects the ANSSI spacing issues.
+    if every_second < EVERY_SECOND_CHAR_THRESHOLD:
+        return True
+    # If there is a small ratio of alphanumeric chars to all chars, this is garbage.
+    if alpha < ALPHA_CHARS_THRESHOLD:
+        return True
+    return False

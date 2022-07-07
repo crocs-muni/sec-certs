@@ -214,3 +214,14 @@ def warn_if_missing_graphviz() -> None:
             logger.warning("Attempting to run pipeline that requires graphviz, but graphviz was not found.")
     except EnvironmentError:
         logger.warning("Attempting to find graphviz, but pkg-config was not found.")
+
+
+def warn_if_missing_tesseract() -> None:
+    """
+    Warns user if he misses a tesseract dependency
+    """
+    try:
+        if not pkgconfig.installed("tesseract", ">=5.0.0"):
+            logger.warning("Attempting to run pipeline with pdf->txt conversion, that requires tesseract, but tesseract was not found.")
+    except EnvironmentError:
+        logger.warning("Attempting to find tesseract, but pkg-config was not found.")

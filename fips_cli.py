@@ -9,7 +9,7 @@ import click
 
 from sec_certs.config.configuration import DEFAULT_CONFIG_PATH, config
 from sec_certs.dataset import FIPSDataset
-from sec_certs.utils.helpers import warn_if_missing_graphviz, warn_if_missing_poppler
+from sec_certs.utils.helpers import warn_if_missing_graphviz, warn_if_missing_poppler, warn_if_missing_tesseract
 
 logger = logging.getLogger(__name__)
 
@@ -205,6 +205,7 @@ def main(
 
     if "convert" in actions or "update" in actions:
         warn_if_missing_poppler()
+        warn_if_missing_tesseract()
         dset.convert_all_pdfs()
 
     if "pdf-scan" in actions or "update" in actions:

@@ -9,7 +9,7 @@ import click
 
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset
-from sec_certs.utils.helpers import warn_if_missing_poppler
+from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tesseract
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ def main(
 
     if inputpath and "build" not in actions_set:
         dset: CCDataset = CCDataset.from_json(Path(inputpath))
-        if output:
+        if output and dset.root_dir != output:
             print(
                 "Warning: you provided both input and output paths. The dataset from input path will get copied to output path."
             )
@@ -128,6 +128,7 @@ def main(
             )
             sys.exit(1)
         warn_if_missing_poppler()
+        warn_if_missing_tesseract()
         dset.convert_all_pdfs()
 
     if "analyze" in actions_set:
