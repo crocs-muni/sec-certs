@@ -222,6 +222,8 @@ def warn_if_missing_tesseract() -> None:
     """
     try:
         if not pkgconfig.installed("tesseract", ">=5.0.0"):
-            logger.warning("Attempting to run pipeline with pdf->txt conversion, that requires tesseract, but tesseract was not found.")
+            logger.warning(
+                "Attempting to run pipeline with pdf->txt conversion, that requires tesseract, but tesseract was not found."
+            )
     except EnvironmentError:
         logger.warning("Attempting to find tesseract, but pkg-config was not found.")
