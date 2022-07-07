@@ -48,3 +48,4 @@ If you're not using Docker, you must install the dependencies as described below
 - Some imported libraries have non-trivial dependencies to resolve:
     - [pdftotext](https://github.com/jalan/pdftotext) requires [Poppler](https://poppler.freedesktop.org/) to be installed. We've experienced issues with older versions of Poppler (`0.x`), make sure to install `20.x` version of these libraries.
     - [graphviz](https://pypi.org/project/graphviz/) requires `graphviz` to be on the path
+    - [tesseract](https://github.com/tesseract-ocr/tesseract) is required for OCR of malformed PDF documents, together with data files for English, French and German.
