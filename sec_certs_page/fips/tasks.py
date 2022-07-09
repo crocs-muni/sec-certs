@@ -4,6 +4,7 @@ from flask import current_app
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
+from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import celery, mongo
 from ..common.diffs import DiffRenderer
@@ -110,12 +111,12 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                         pdf_path = cert.state.sp_path
                         if pdf_path.exists():
                             pdf_dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                            if not pdf_dst.exists() or pdf_dst.stat().st_size < pdf_path.stat().st_size:
+                            if not pdf_dst.exists() or get_sha256_filepath(pdf_dst) != get_sha256_filepath(pdf_path):
                                 pdf_path.replace(pdf_dst)
                         txt_path = pdf_path.with_suffix(".pdf.txt")
                         if txt_path.exists():
                             txt_dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                            if not txt_dst.exists() or txt_dst.stat().st_size < txt_path.stat().st_size:
+                            if not txt_dst.exists() or get_sha256_filepath(txt_dst) != get_sha256_filepath(txt_path):
                                 txt_path.replace(txt_dst)
                                 to_reindex.add((cert.dgst, "target"))
         return to_reindex

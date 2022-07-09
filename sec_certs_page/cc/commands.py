@@ -4,7 +4,8 @@ import json
 from hashlib import blake2b
 
 import click
-from sec_certs.helpers import get_first_16_bytes_sha256, sanitize_link, sanitize_string
+from sec_certs.utils.helpers import get_first_16_bytes_sha256
+from sec_certs.utils.sanitization import sanitize_link, sanitize_string
 from tqdm import tqdm
 
 from .. import mongo
