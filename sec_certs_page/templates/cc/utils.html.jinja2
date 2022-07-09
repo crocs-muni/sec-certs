@@ -1,80 +1,14 @@
-{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
-    {% set ns = namespace(render=False) %}
-    {% for heading, keyword in keyword_sources.items() %}
-        {% if keyword not in hidden and keyword_scan[keyword] %}
-            {% set ns.render = True %}
-        {% endif %}
-    {% endfor %}
-    {% if ns.render %}
-        <div class="card mt-1">
-            <div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
-                <h4 class="mb-0">
-                    <button class="btn btn-link" data-bs-toggle="collapse"
-                            data-bs-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false"
-                            aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
-                        {{ card_name }}
-                        <i class="fas fa-chevron-down"></i>
-                        <i class="fas fa-chevron-up"></i>
-                    </button>
-                </h4>
-            </div>
+{% from "common/entry.html.jinja2" import keywords_card, cryptography_keywords, device_keywords, security_keywords, other_keywords %}
 
-            <div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse"
-                 aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
-                <div class="card-body text-dark">
-                    {% for heading, keyword in keyword_sources.items() %}
-                        {% if keyword not in hidden and keyword_scan[keyword] %}
-                            <div data-cs-name="{{ doc_prefix }} - {{ card_name }} - {{ heading }}">
-                                <h5 class="mt-2">{{ heading }}</h5>
-                                {{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endmacro %}
-
-{% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "rules_symmetric_crypto",
-                                                                          "Asymmetric Algorithms": "rules_asymmetric_crypto",
-                                                                          "Post-quantum Algorithms": "rules_pq_crypto",
-                                                                          "Hash functions": "rules_hashes",
-                                                                          "Schemes": "rules_crypto_schemes",
-                                                                          "Randomness": "rules_randomness",
-																		  "Engines": "rules_crypto_engines",
-																		  "Libraries": "rules_crypto_libs",
-																		  "Elliptic Curves": "rules_ecc_curves",
-																		  "Block cipher modes": "rules_block_cipher_modes"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
-																	"JavaCard": "rules_javacard",
-																	"JavaCard API constants": "rules_javacard_api_consts",
-																	"JavaCard packages": "rules_javacard_packages",
-																	"OS": "rules_os",
-																	"CPLC": "rules_cplc",
-																	"Trusted Execution Environments": "rules_tee",
-																	"IC data groups": "rules_IC_data_groups",
-																	"Vendor": "rules_vendor"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Protection profiles": "rules_protection_profiles",
-                                                                        "Claims": "rules_cc_claims",
-																		"Security Assurance Requirements (SAR)": "rules_security_assurance_components",
-																		"Security Functional Requirements (SFR)": "rules_security_functional_components",
-																		"Security level": "rules_security_level",
-																		"Defenses": "rules_defenses",
-																		"Vulnerabilities": "rules_vulnerabilities"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
-																  "Technical reports": "rules_technical_reports",
-																  "Certificate IDs": "rules_cert_id"}, hidden, map_funcs) }}
+{% macro cc_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "cc_security_level",
+                                                                        "Claims": "cc_claims",
+																		"Security Assurance Requirements (SAR)": "cc_sar",
+																		"Security Functional Requirements (SFR)": "cc_sfr",
+																		"Protection profiles": "cc_protection_profile_id",
+																		"Certificates": "cc_cert_id",
+																		"Evaluation facilities": "eval_facility",
+																		"Certification process": "certification_process"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro opt_line(name, key, obj, title) %}
@@ -96,6 +30,8 @@
         {{ opt_line("Creation date", "/CreationDate", pdf_meta, title) }}
         {{ opt_line("Modification date", "/ModDate", pdf_meta, title) }}
         {{ opt_line("Pages", "pdf_number_of_pages", pdf_meta, title) }}
+        {{ opt_line("Creator", "/Creator", pdf_meta, title) }}
+        {{ opt_line("Producer", "/Producer", pdf_meta, title) }}
         </tbody>
     </table>
 {%- endmacro %}
@@ -126,13 +62,6 @@
         {% endif %}
     {% endif %}
 {% endmacro %}
-
-{% macro double_join(rule_dict, separator=", ", map_func=None) %}
-    {% for key in rule_dict.keys() %}
-        {%- if map_func -%}{{ map_func(key) }}{%- else -%}{{ key }}{%- endif -%}
-        {%- if not loop.last -%}{{ separator }}{%- endif -%}
-    {% endfor %}
-{%- endmacro %}
 
 {% macro render_status(status) %}
     {% if status == "active" %}

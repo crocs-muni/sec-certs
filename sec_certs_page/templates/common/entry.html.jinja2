@@ -105,3 +105,87 @@
         </tbody>
     </table>
 {%- endmacro %}
+
+{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
+    {% set ns = namespace(render=False) %}
+    {% for heading, keyword in keyword_sources.items() %}
+        {% if keyword not in hidden and keyword_scan[keyword] %}
+            {% set ns.render = True %}
+        {% endif %}
+    {% endfor %}
+    {% if ns.render %}
+        <div class="card mt-1">
+            <div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
+                <h4 class="mb-0">
+                    <button class="btn btn-link" data-bs-toggle="collapse"
+                            data-bs-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false"
+                            aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
+                        {{ card_name }}
+                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </h4>
+            </div>
+
+            <div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse"
+                 aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
+                <div class="card-body text-dark">
+                    {% for heading, keyword in keyword_sources.items() %}
+                        {% if keyword not in hidden and keyword_scan[keyword] %}
+                            <div data-cs-name="{{ doc_prefix }} - {{ card_name }} - {{ heading }}">
+                                <h5 class="mt-2">{{ heading }}</h5>
+                                {{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro double_join(rule_dict, separator=", ", map_func=None) %}
+    {% for key in flatten(rule_dict).keys() %}
+        {%- if map_func -%}{{ map_func(key) }}{%- else -%}{{ key }}{%- endif -%}
+        {%- if not loop.last -%}{{ separator }}{%- endif -%}
+    {% endfor %}
+{%- endmacro %}
+
+
+{% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "symmetric_crypto",
+                                                                          "Asymmetric Algorithms": "asymmetric_crypto",
+                                                                          "Post-quantum Algorithms": "pq_crypto",
+                                                                          "Hash functions": "hash_function",
+                                                                          "Schemes": "crypto_scheme",
+                                                                          "Protocols": "crypto_protocol",
+                                                                          "Randomness": "randomness",
+																		  "Engines": "crypto_engine",
+																		  "Libraries": "crypto_library",
+																		  "Elliptic Curves": "ecc_curve",
+																		  "Block cipher modes": "cipher_mode",
+																		  "TLS cipher suites": "tls_cipher_suite"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device models": "device_model",
+																	"JavaCard versions": "javacard_version",
+																	"JavaCard API constants": "javacard_api_const",
+																	"JavaCard packages": "javacard_package",
+																	"Operating System name": "os_name",
+																	"CPLC": "cplc_data",
+																	"IC data groups": "ic_data_group",
+																	"Trusted Execution Environments": "tee_name",
+																	"Vendor": "vendor"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Side-channel analysis": "side_channel_analysis",
+																		"Vulnerabilities": "vulnerability",
+																		"Certification process": "certification_process"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "standard_id",
+																  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
+{%- endmacro %}

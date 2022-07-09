@@ -21,6 +21,7 @@ from flask_sitemap import Sitemap
 from flask_wtf import CSRFProtect
 from public import public
 from sec_certs.config.configuration import config as tool_config
+from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
@@ -168,6 +169,11 @@ def filter_fromisoformat(dt):
         return datetime.fromisoformat(dt)
     except ValueError:
         return date.fromisoformat(dt)
+
+
+@app.template_global("flatten")
+def flatten(d):
+    return dict_flatten(d)
 
 
 @app.template_global("is_admin")

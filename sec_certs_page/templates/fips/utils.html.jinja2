@@ -1,47 +1,22 @@
-{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
-	{% set ns = namespace(render=False) %}
-	{% for heading, keyword in keyword_sources.items() %}
-		{% if keyword not in hidden and keyword_scan[keyword] %}
-			{% set ns.render = True %}
-		{% endif %}
-	{% endfor %}
-	{% if ns.render %}
-		<div class="card mt-1">
-			<div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
-			<h4 class="mb-0">
-				<button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false" aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
-				{{ card_name }}
-                    <i class="fas fa-chevron-down"></i>
-                            <i class="fas fa-chevron-up"></i>
-				</button>
-			</h4>
-			</div>
-
-			<div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse" aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
-			<div class="card-body text-dark">
-				{% for heading, keyword in keyword_sources.items() %}
-					{% if keyword not in hidden and keyword_scan[keyword] %}
-						<h5 class="mt-2">{{ heading }}</h5>
-						{{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
-					{% endif %}
-				{% endfor %}
-			</div>
-			</div>
-		</div>
-	{% endif %}
-{% endmacro %}
+{% from "common/entry.html.jinja2" import keywords_card %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"FIPS algorithms": "rules_fips_algorithms",
-	                                                                      "Algorithms": "rules_crypto_algs",
-																		  "Engines": "rules_crypto_engines",
-																		  "Libraries": "rules_crypto_libs",
-																		  "Elliptic Curves": "rules_ecc_curves",
-																		  "Block cipher modes": "rules_block_cipher_modes"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "symmetric_crypto",
+                                                                          "Asymmetric Algorithms": "asymmetric_crypto",
+                                                                          "Post-quantum Algorithms": "pq_crypto",
+                                                                          "Hash functions": "hash_function",
+                                                                          "Schemes": "crypto_scheme",
+                                                                          "Protocols": "crypto_protocol",
+                                                                          "Randomness": "randomness",
+																		  "Engines": "crypto_engine",
+																		  "Libraries": "crypto_library",
+																		  "Elliptic Curves": "ecc_curve",
+																		  "Block cipher modes": "cipher_mode",
+																		  "TLS cipher suites": "tls_cipher_suite"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
 																	"JavaCard": "rules_javacard",
 																	"OS": "rules_os",
 																	"CPLC": "rules_cplc",
@@ -50,41 +25,26 @@
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "rules_security_level",
+    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "rules_security_level",
 	                                                                    "Defenses": "rules_defenses",
 																		"Vulnerabilities": "rules_vulnerabilities"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
 	                                                              "Certificate IDs": "rules_cert_id"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro double_join(rule_dict, separator=", ", map_func=None) %}
-	{% for value in rule_dict.values() %}
-        {% if value is mapping %}
-            {%- for inside in value.keys() -%}
-                {%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
-            {%- endfor -%}
-        {% elif value is iterable %}
-            {%- for inside in value -%}
-                {%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
-            {%- endfor -%}
-        {% endif %}
-		{%- if not loop.last -%}{{ separator }}{%- endif -%}
-	{% endfor %}
-{%- endmacro %}
-
 {% macro render_status(status) %}
-	{% if status == "Active" %}
-	<span class="text-success"><i class="fas fa-check-square"></i> active</span>
-	{% elif status == "Historical" %}
-	<span class="text-warning"><i class="fas fa-times-circle"></i> historical</span>
-	{% elif status == "Revoked" %}
-	<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> revoked</span>
-	{% else %}
-	<span>{{ status }}</span>
-	{% endif %}
+    {% if status == "Active" %}
+        <span class="text-success"><i class="fas fa-check-square"></i> active</span>
+    {% elif status == "Historical" %}
+        <span class="text-warning"><i class="fas fa-times-circle"></i> historical</span>
+    {% elif status == "Revoked" %}
+        <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> revoked</span>
+    {% else %}
+        <span>{{ status }}</span>
+    {% endif %}
 {%- endmacro %}
 
 {% macro render_document_type(document_type) %}
@@ -106,55 +66,56 @@
 
 {% macro render_pagination(pagination, certs, search=False) %}
     <div id="pagination">
-    {% if search %}
-        <span style="text-align: center">{{ pagination.info }}</span>
-    {% endif %}
-    <div class="mt-4 mb-4">
-		{{ pagination.links }}
-	</div>
-	<table class="table table-striped table-bordered mb-4">
-		<col style="width: 3%">
-		<col style="width:45%">
-		<col style="width:10%">
-		<col style="width:5%">
-		<col style="width:15%">
-        <col style="width:12%">
-        <col style="width:10%">
-		<thead>
-			<tr class="border-bottom">
-				<th class="pl-1">ID</th>
-				<th>Name</th>
-				<th>Status</th>
-				<th>Level</th>
-				<th>Vendor</th>
+        {% if search %}
+            <span style="text-align: center">{{ pagination.info }}</span>
+        {% endif %}
+        <div class="mt-4 mb-4">
+            {{ pagination.links }}
+        </div>
+        <table class="table table-striped table-bordered mb-4">
+            <col style="width: 3%">
+            <col style="width:45%">
+            <col style="width:10%">
+            <col style="width:5%">
+            <col style="width:15%">
+            <col style="width:12%">
+            <col style="width:10%">
+            <thead>
+            <tr class="border-bottom">
+                <th class="pl-1">ID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Level</th>
+                <th>Vendor</th>
                 <th>Validation dates</th>
                 <th>Sunset date</th>
-			</tr>
-		</thead>
-	{% for cert in certs %}
-        {% set id = cert["cert_id"] %}
-        {% set name = cert["web_scan"]["module_name"] %}
-        {% set status = cert["web_scan"]["status"] %}
-        {% set level = cert["web_scan"]["level"] %}
-        {% set vendor = cert["web_scan"]["vendor"] %}
-        {% set status = cert["web_scan"]["status"] %}
-        {% set hashid = cert["_id"] %}
-        {% set cert_dates = cert["web_scan"]["date_validation"] %}
-        {% set sunset_date = cert["web_scan"]["date_sunset"] %}
-        {% set type = cert["web_scan"]["module_type"] %}
-		<tr>
-		<td class="pl-1">#{{ id }}</td>
-		<td>{{ render_type(type) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
-		<td>{{ render_status(status) }}</td>
-		<td>{{ level }}</td>
-		<td>{{ vendor }}</td>
-        <td>{% for date in cert_dates %}{{ date|strftime("%d.%m.%Y") }}<br/>{% endfor %}</td>
-        <td>{% if sunset_date %}{{ sunset_date|strftime("%d.%m.%Y") }}{% endif %}</td>
-		</tr>
-	{% endfor %}
-	</table>
-	<div class="mb-4">
-		{{ pagination.links }}
-	</div>
+            </tr>
+            </thead>
+            {% for cert in certs %}
+                {% set id = cert["cert_id"] %}
+                {% set name = cert["web_scan"]["module_name"] %}
+                {% set status = cert["web_scan"]["status"] %}
+                {% set level = cert["web_scan"]["level"] %}
+                {% set vendor = cert["web_scan"]["vendor"] %}
+                {% set status = cert["web_scan"]["status"] %}
+                {% set hashid = cert["_id"] %}
+                {% set cert_dates = cert["web_scan"]["date_validation"] %}
+                {% set sunset_date = cert["web_scan"]["date_sunset"] %}
+                {% set type = cert["web_scan"]["module_type"] %}
+                <tr>
+                    <td class="pl-1">#{{ id }}</td>
+                    <td>{{ render_type(type) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a>
+                    </td>
+                    <td>{{ render_status(status) }}</td>
+                    <td>{{ level }}</td>
+                    <td>{{ vendor }}</td>
+                    <td>{% for date in cert_dates %}{{ date|strftime("%d.%m.%Y") }}<br/>{% endfor %}</td>
+                    <td>{% if sunset_date %}{{ sunset_date|strftime("%d.%m.%Y") }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="mb-4">
+            {{ pagination.links }}
+        </div>
     </div>
 {%- endmacro %}
