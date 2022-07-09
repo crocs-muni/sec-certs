@@ -745,7 +745,7 @@ class CommonCriteriaCert(
         exit_code = sec_certs.utils.pdf.convert_pdf_file(cert.state.report_pdf_path, cert.state.report_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert report pdf->txt"
-            logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.report_convert_ok = False
             cert.state.errors.append(error_msg)
         else:
@@ -763,7 +763,7 @@ class CommonCriteriaCert(
         exit_code = sec_certs.utils.pdf.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
         if exit_code != constants.RETURNCODE_OK:
             error_msg = "failed to convert security target pdf->txt"
-            logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.st_convert_ok = False
             cert.state.errors.append(error_msg)
         else:
