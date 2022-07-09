@@ -14,11 +14,11 @@ from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObj
 
 from sec_certs import constants as constants
 from sec_certs.constants import (
-    ALPHA_CHARS_THRESHOLD,
-    AVG_LLEN_THRESHOLD,
-    EVERY_SECOND_CHAR_THRESHOLD,
-    LINES_THRESHOLD,
-    SIZE_THRESHOLD,
+    GARBAGE_ALPHA_CHARS_THRESHOLD,
+    GARBAGE_AVG_LLEN_THRESHOLD,
+    GARBAGE_EVERY_SECOND_CHAR_THRESHOLD,
+    GARBAGE_LINES_THRESHOLD,
+    GARBAGE_SIZE_THRESHOLD,
 )
 
 logger = logging.getLogger(__name__)
@@ -235,19 +235,19 @@ def text_is_garbage(text: str) -> bool:
         alpha = 0
 
     # If number of lines is small, this is garbage.
-    if lines < LINES_THRESHOLD:
+    if lines < GARBAGE_LINES_THRESHOLD:
         return True
     # If the file size is small, this is garbage.
-    if size < SIZE_THRESHOLD:
+    if size < GARBAGE_SIZE_THRESHOLD:
         return True
     # If the average length of a line is small, this is garbage.
-    if avg_line_len < AVG_LLEN_THRESHOLD:
+    if avg_line_len < GARBAGE_AVG_LLEN_THRESHOLD:
         return True
     # If there a small amount of lines that have more than one character at every second character, this is garbage.
     # This detects the ANSSI spacing issues.
-    if every_second < EVERY_SECOND_CHAR_THRESHOLD:
+    if every_second < GARBAGE_EVERY_SECOND_CHAR_THRESHOLD:
         return True
     # If there is a small ratio of alphanumeric chars to all chars, this is garbage.
-    if alpha < ALPHA_CHARS_THRESHOLD:
+    if alpha < GARBAGE_ALPHA_CHARS_THRESHOLD:
         return True
     return False
