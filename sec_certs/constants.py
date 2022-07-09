@@ -25,6 +25,8 @@ FIPS_MODULE_URL = "https://csrc.nist.gov/projects/cryptographic-module-validatio
 FIPS_NOT_AVAILABLE_CERT_SIZE = 10000
 FIPS_ALG_URL = "https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&page="
 
+FIPS_DOWNLOAD_DELAY = 1
+
 FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
 
 TAG_MATCH_COUNTER = "count"

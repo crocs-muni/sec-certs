@@ -73,19 +73,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_scan.keywords = keyword
 
-    def _match_algs(self) -> Dict[str, int]:
-        output = {}
-        for cert in self.certs.values():
-            # if the pdf has not been processed, no matching can be done
-            if not cert.pdf_scan.keywords or not cert.state.txt_state:
-                continue
-
-            output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
-            cert.heuristics.unmatched_algs = output[cert.dgst]
-
-        output = {k: v for k, v in output.items() if v != 0}
-        return output
-
     def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
         """
         Downloads all pdf files related to the certificates specified with cert_ids.

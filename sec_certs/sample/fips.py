@@ -34,6 +34,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     """
 
     @dataclass(eq=True)
+    # TODO: Include sp_pdf_hash and sp_txt_hash.
     class State(ComplexSerializableType):
         """
         Holds state of the `FIPSCertificate`
@@ -85,6 +86,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         def dgst(self) -> str:
             # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
             # for each id
+            # TODO: This is probably not a good digest.
             return self.algorithm_type
 
         def __repr__(self) -> str:
@@ -94,6 +96,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             return str(self.algorithm_type + " algorithm #" + self.cert_id + " created by " + self.vendor)
 
     @dataclass(eq=True)
+    # TODO: Rename to WebData, following CC naming.
     class WebScan(ComplexSerializableType):
         """
         Data structure for data obtained from scanning certificate webpage at NIST.gov
@@ -147,15 +150,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             )
 
         def __str__(self) -> str:
-            return (
-                self.module_name
-                if self.module_name is not None
-                else "" + " created by " + self.vendor
-                if self.vendor is not None
-                else ""
-            )  # type: ignore
+            return repr(self)
 
     @dataclass(eq=True)
+    # TODO: Rename to PdfData, following CC naming.
     class PdfScan(ComplexSerializableType):
         """
         Data structure that holds data obtained from scanning pdf files (or their converted txt documents).
@@ -164,6 +162,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         cert_id: int
         keywords: Dict
         algorithms: List
+        # TODO: Add metadata processing.
 
         @property
         def dgst(self) -> str:
@@ -176,6 +175,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             return str(self.cert_id)
 
     @dataclass(eq=True)
+    # TODO: Rename to Heuristics.
     class FIPSHeuristics(Heuristics, ComplexSerializableType):
         """
         Data structure that holds data obtained by processing the certificate and applying various heuristics.
@@ -255,8 +255,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     ):
         super().__init__()
         self.cert_id = cert_id
-        self.web_scan = web_scan
-        self.pdf_scan = pdf_scan
+        self.web_scan = web_scan  # TODO: Rename to web_scan
+        self.pdf_scan = pdf_scan  # TODO: Rename to pdf_scan
         self.heuristics: FIPSCertificate.FIPSHeuristics = heuristics
         self.state = state
 
@@ -270,6 +270,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         """
         new_dct = dct.copy()
 
+        # TODO: These are likely not the only fields that need proper deserialization.
         if new_dct["web_scan"].date_validation:
             new_dct["web_scan"].date_validation = [parser.parse(x).date() for x in new_dct["web_scan"].date_validation]
 
@@ -285,7 +286,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         :param Tuple[str, Path] cert: tuple url, output_path
         :return Optional[Tuple[str, Path]]: None on success, `cert` on failure.
         """
-        exit_code = helpers.download_file(*cert, delay=1)
+        exit_code = helpers.download_file(*cert, delay=constants.FIPS_DOWNLOAD_DELAY)
         if exit_code != requests.codes.ok:
             logger.error(f"Failed to download html page from {cert[0]}, code: {exit_code}")
             return cert
@@ -613,37 +614,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         keywords = sec_certs.utils.extract.extract_keywords(cert.state.sp_path.with_suffix(".pdf.txt"), fips_rules)
         return keywords, cert
-
-    @staticmethod
-    def match_web_algs_to_pdf(cert: FIPSCertificate) -> int:
-        """
-        Finds algorithms in FIPSCertificate. Staticmethod to allow for parallelization.
-
-        :param FIPSCertificate cert: cert to search for algorithms.
-        :return int: number of identified algorithms.
-        """
-        algs_vals = list(cert.pdf_scan.keywords["rules_fips_algorithms"].values())
-        table_vals = [x["Certificate"] for x in cert.pdf_scan.algorithms]
-        tables = [x.strip() for y in table_vals for x in y]
-        iterable = [alg for x in algs_vals for alg in list(x.keys())]
-        iterable += tables
-        all_algorithms = set()
-        for x in iterable:
-            if "#" in x:
-                # erase everything until "#" included and take digits
-                all_algorithms.add("".join(filter(str.isdigit, x[x.index("#") + 1 :])))
-            else:
-                all_algorithms.add("".join(filter(str.isdigit, x)))
-        not_found = []
-
-        if cert.web_scan.algorithms is None:
-            raise RuntimeError(f"Algorithms were not found for cert {cert.cert_id} - this should not be happening.")
-
-        for alg_list in [a["Certificate"] for a in cert.web_scan.algorithms]:
-            for web_alg in alg_list:
-                if "".join(filter(str.isdigit, web_alg)) not in all_algorithms:
-                    not_found.append(web_alg)
-        return len(not_found)
 
     @staticmethod
     def _remove_platforms(text_to_parse: str) -> str:
