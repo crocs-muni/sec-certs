@@ -35,7 +35,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @dataclass(eq=True)
     # TODO: Include sp_pdf_hash and sp_txt_hash.
-    class State(ComplexSerializableType):
+    class InternalState(ComplexSerializableType):
         """
         Holds state of the `FIPSCertificate`
         """
@@ -96,8 +96,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             return str(self.algorithm_type + " algorithm #" + self.cert_id + " created by " + self.vendor)
 
     @dataclass(eq=True)
-    # TODO: Rename to WebData, following CC naming.
-    class WebScan(ComplexSerializableType):
+    class WebData(ComplexSerializableType):
         """
         Data structure for data obtained from scanning certificate webpage at NIST.gov
         """
@@ -153,8 +152,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             return repr(self)
 
     @dataclass(eq=True)
-    # TODO: Rename to PdfData, following CC naming.
-    class PdfScan(ComplexSerializableType):
+    class PdfData(ComplexSerializableType):
         """
         Data structure that holds data obtained from scanning pdf files (or their converted txt documents).
         """
@@ -214,26 +212,26 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     # TODO: Fix type errors, they exist because FIPS uses this as property to change variable names, while CC and abstract class have variables
     @property
     def manufacturer(self) -> Optional[str]:  # type: ignore
-        return self.web_scan.vendor
+        return self.web_data.vendor
 
     @property
     def name(self) -> Optional[str]:  # type: ignore
-        return self.web_scan.module_name
+        return self.web_data.module_name
 
     @property
     def label_studio_title(self) -> str:
         return (
             "Vendor: "
-            + str(self.web_scan.vendor)
+            + str(self.web_data.vendor)
             + "\n"
             + "Module name: "
-            + str(self.web_scan.module_name)
+            + str(self.web_data.module_name)
             + "\n"
             + "HW version: "
-            + str(self.web_scan.hw_version)
+            + str(self.web_data.hw_version)
             + "\n"
             + "FW version: "
-            + str(self.web_scan.fw_version)
+            + str(self.web_data.fw_version)
         )
 
     @staticmethod
@@ -248,16 +246,16 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def __init__(
         self,
         cert_id: int,
-        web_scan: FIPSCertificate.WebScan,
-        pdf_scan: FIPSCertificate.PdfScan,
+        web_data: FIPSCertificate.WebData,
+        pdf_data: FIPSCertificate.PdfData,
         heuristics: FIPSCertificate.FIPSHeuristics,
-        state: State,
+        state: InternalState,
     ):
         super().__init__()
         self.cert_id = cert_id
-        self.web_scan = web_scan  # TODO: Rename to web_scan
-        self.pdf_scan = pdf_scan  # TODO: Rename to pdf_scan
-        self.heuristics: FIPSCertificate.FIPSHeuristics = heuristics
+        self.web_data = web_data
+        self.pdf_data = pdf_data
+        self.heuristics = heuristics
         self.state = state
 
     @classmethod
@@ -271,11 +269,11 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         new_dct = dct.copy()
 
         # TODO: These are likely not the only fields that need proper deserialization.
-        if new_dct["web_scan"].date_validation:
-            new_dct["web_scan"].date_validation = [parser.parse(x).date() for x in new_dct["web_scan"].date_validation]
+        if new_dct["web_data"].date_validation:
+            new_dct["web_data"].date_validation = [parser.parse(x).date() for x in new_dct["web_data"].date_validation]
 
-        if new_dct["web_scan"].date_sunset:
-            new_dct["web_scan"].date_sunset = parser.parse(new_dct["web_scan"].date_sunset).date()
+        if new_dct["web_data"].date_sunset:
+            new_dct["web_data"].date_sunset = parser.parse(new_dct["web_data"].date_sunset).date()
         return super(cls, FIPSCertificate).from_dict(new_dct)
 
     @staticmethod
@@ -500,13 +498,13 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
     @classmethod
     def from_html_file(
-        cls, file: Path, state: State, initialized: FIPSCertificate = None, redo: bool = False
+        cls, file: Path, state: InternalState, initialized: FIPSCertificate = None, redo: bool = False
     ) -> FIPSCertificate:
         """
         Constructs FIPSCertificate object from html file.
 
         :param Path file: path to the html file to use for initialization
-        :param State state: state of the certificate
+        :param InternalState state: state of the certificate
         :param FIPSCertificate initialized: possibly partially initialized FIPSCertificate, defaults to None
         :param bool redo: if the method should be reattempted in case of failure, defaults to False
         :return FIPSCertificate: resulting `FIPSCertificate` object.
@@ -516,7 +514,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             items_found = FIPSCertificate._initialize_dictionary()
             items_found["cert_id"] = int(file.stem)
         else:
-            items_found = initialized.web_scan.__dict__
+            items_found = initialized.web_data.__dict__
             items_found["cert_id"] = initialized.cert_id
             items_found["revoked_reason"] = None
             items_found["revoked_link"] = None
@@ -551,7 +549,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         return FIPSCertificate(
             items_found["cert_id"],
-            FIPSCertificate.WebScan(
+            FIPSCertificate.WebData(
                 items_found["module_name"] if "module_name" in items_found else None,
                 items_found["standard"] if "standard" in items_found else None,
                 items_found["status"] if "status" in items_found else None,
@@ -580,10 +578,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                 items_found["sw_versions"] if "sw_versions" in items_found else None,
                 items_found["product_url"] if "product_url" in items_found else None,
             ),
-            FIPSCertificate.PdfScan(
+            FIPSCertificate.PdfData(
                 items_found["cert_id"],
-                {} if not initialized else initialized.pdf_scan.keywords,
-                [] if not initialized else initialized.pdf_scan.algorithms,
+                {} if not initialized else initialized.pdf_data.keywords,
+                [] if not initialized else initialized.pdf_data.algorithms,
             ),
             FIPSCertificate.FIPSHeuristics(dict(), [], 0),
             state,
@@ -672,10 +670,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     def _create_alg_set(self) -> Set[str]:
         result: Set[str] = set()
 
-        if self.web_scan.algorithms is None:
+        if self.web_data.algorithms is None:
             raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
 
-        for alg in self.web_scan.algorithms:
+        for alg in self.web_data.algorithms:
             result.update(cert for cert in alg["Certificate"])
         return result
 
@@ -700,14 +698,14 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         Removes algorithms from the certificate.
         """
         self.state.file_status = True
-        if not self.pdf_scan.keywords:
+        if not self.pdf_data.keywords:
             return
 
-        self.heuristics.keywords = copy.deepcopy(self.pdf_scan.keywords)
+        self.heuristics.keywords = copy.deepcopy(self.pdf_data.keywords)
 
         # # TODO figure out why can't I delete this
-        # if self.web_scan.mentioned_certs:
-        #     for item, value in self.web_scan.mentioned_certs.items():
+        # if self.web_data.mentioned_certs:
+        #     for item, value in self.web_data.mentioned_certs.items():
         #         self.heuristics.keywords["fips_cert_id"].update({"caveat_item": {item: value}})
         #
         alg_set = self._create_alg_set()
@@ -739,10 +737,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         Heuristically computes the version of the product.
         """
         versions_for_extraction = ""
-        if self.web_scan.module_name:
-            versions_for_extraction += f" {self.web_scan.module_name}"
-        if self.web_scan.hw_version:
-            versions_for_extraction += f" {self.web_scan.hw_version}"
-        if self.web_scan.fw_version:
-            versions_for_extraction += f" {self.web_scan.fw_version}"
+        if self.web_data.module_name:
+            versions_for_extraction += f" {self.web_data.module_name}"
+        if self.web_data.hw_version:
+            versions_for_extraction += f" {self.web_data.hw_version}"
+        if self.web_data.fw_version:
+            versions_for_extraction += f" {self.web_data.fw_version}"
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)

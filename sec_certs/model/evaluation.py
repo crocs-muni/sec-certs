@@ -30,7 +30,7 @@ def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
             prec.append(1.0)
         else:
             prec.append(len(set_true.intersection(set_pred)) / len(set_true))
-    return np.mean(prec)
+    return np.mean(prec)  # type: ignore
 
 
 def evaluate(
@@ -56,8 +56,8 @@ def evaluate(
             predicted_cpes = set()
         predicted_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes}
 
-        cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_scan.module_name
-        vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_scan.vendor
+        cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_data.module_name
+        vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_data.vendor
         record = {
             "certificate_name": cert_name,
             "vendor": vendor,
