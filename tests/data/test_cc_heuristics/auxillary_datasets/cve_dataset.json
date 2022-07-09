@@ -1,12 +1,12 @@
 {
-    "_type": "CVEDataset",
+    "_type": "sec_certs.dataset.cve.CVEDataset",
     "cves": {
         "CVE-2017-1732": {
-            "_type": "CVE",
+            "_type": "sec_certs.sample.cve.CVE",
             "cve_id": "CVE-2017-1732",
             "vulnerable_cpes": [
                 {
-                    "_type": "CPE",
+                    "_type": "sec_certs.sample.cpe.CPE",
                     "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
                     "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
                     "start_version": null,
@@ -14,7 +14,7 @@
                 }
             ],
             "impact": {
-                "_type": "Impact",
+                "_type": "sec_certs.sample.cve.CVE.Impact",
                 "base_score": 5.3,
                 "severity": "MEDIUM",
                 "exploitability_score": 3.9,
@@ -29,11 +29,11 @@
             }
         },
         "CVE-2019-4513": {
-            "_type": "CVE",
+            "_type": "sec_certs.sample.cve.CVE",
             "cve_id": "CVE-2019-4513",
             "vulnerable_cpes": [
                 {
-                    "_type": "CPE",
+                    "_type": "sec_certs.sample.cpe.CPE",
                     "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
                     "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
                     "start_version": null,
@@ -41,7 +41,7 @@
                 }
             ],
             "impact": {
-                "_type": "Impact",
+                "_type": "sec_certs.sample.cve.CVE.Impact",
                 "base_score": 8.2,
                 "severity": "HIGH",
                 "exploitability_score": 3.9,

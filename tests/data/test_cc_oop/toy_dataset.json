@@ -1,7 +1,7 @@
 {
-    "_type": "CCDataset",
+    "_type": "sec_certs.dataset.common_criteria.CCDataset",
     "state": {
-        "_type": "DatasetInternalState",
+        "_type": "sec_certs.dataset.common_criteria.CCDataset.DatasetInternalState",
         "meta_sources_parsed": true,
         "pdfs_downloaded": false,
         "pdfs_converted": false,
@@ -13,7 +13,7 @@
     "description": "toy dataset description",
     "n_certs": 2,
     "certs": [{
-            "_type": "CommonCriteriaCert",
+            "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
             "dgst": "309ac2fd7f2dcf17",
             "status": "active",
             "category": "Access Control Devices and Systems",
@@ -42,7 +42,7 @@
                 "elements": []
             },
             "state": {
-                "_type": "InternalState",
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
                 "st_download_ok": true,
                 "report_download_ok": true,
                 "st_convert_ok": true,
@@ -56,7 +56,7 @@
                 "report_txt_hash": null
             },
             "pdf_data": {
-                "_type": "PdfData",
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
                 "report_metadata": null,
                 "st_metadata": null,
                 "report_frontpage": null,
@@ -65,7 +65,7 @@
                 "st_keywords": null
             },
             "heuristics": {
-                "_type": "CCHeuristics",
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
                 "extracted_versions": null,
                 "cpe_matches": null,
                 "verified_cpe_matches": null,
@@ -76,14 +76,14 @@
                 "direct_dependency_cves": null,
                 "indirect_dependency_cves": null,
                 "report_references": {
-                    "_type": "References",
+                    "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
                     "indirectly_referencing": null
                 },
                 "st_references": {
-                    "_type": "References",
+                    "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
@@ -92,7 +92,7 @@
             }
         },
         {
-            "_type": "CommonCriteriaCert",
+            "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
             "dgst": "8cf86948f02f047d",
             "status": "active",
             "category": "Access Control Devices and Systems",
@@ -112,7 +112,7 @@
             "protection_profiles": {
                 "_type": "Set",
                 "elements": [{
-                    "_type": "ProtectionProfile",
+                    "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
                     "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
                     "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
                     "pp_ids": null
@@ -123,7 +123,7 @@
                 "elements": []
             },
             "state": {
-                "_type": "InternalState",
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
                 "st_download_ok": true,
                 "report_download_ok": true,
                 "st_convert_ok": true,
@@ -137,7 +137,7 @@
                 "report_txt_hash": null
             },
             "pdf_data": {
-                "_type": "PdfData",
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
                 "report_metadata": null,
                 "st_metadata": null,
                 "report_frontpage": null,
@@ -146,7 +146,7 @@
                 "st_keywords": null
             },
             "heuristics": {
-                "_type": "CCHeuristics",
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
                 "extracted_versions": null,
                 "cpe_matches": null,
                 "verified_cpe_matches": null,
@@ -157,14 +157,14 @@
                 "direct_dependency_cves": null,
                 "indirect_dependency_cves": null,
                 "report_references": {
-                    "_type": "References",
+                    "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
                     "indirectly_referencing": null
                 },
                 "st_references": {
-                    "_type": "References",
+                    "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
