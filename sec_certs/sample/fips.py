@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Pattern, Set, Tuple, Union
 
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -32,11 +32,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
     Is basic element of `FIPSDataset`. The functionality is mostly related to holding data and transformations that
     the certificate can handle itself. `FIPSDataset` class then instrument this functionality.
     """
-
-    FIPS_BASE_URL: ClassVar[str] = "https://csrc.nist.gov"
-    FIPS_MODULE_URL: ClassVar[
-        str
-    ] = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/"
 
     @dataclass(eq=True)
     class State(ComplexSerializableType):
@@ -140,8 +135,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         @property
         def dgst(self) -> str:
-            # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
-            # for each id
             return helpers.get_first_16_bytes_sha256(
                 self.product_url
                 if self.product_url is not None
@@ -180,8 +173,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         @property
         def dgst(self) -> str:
-            # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
-            # for each id
             return helpers.get_first_16_bytes_sha256(str(self.keywords))
 
         def __repr__(self) -> str:
@@ -214,8 +205,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         @property
         def dgst(self) -> str:
-            # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
-            # for each id
             return helpers.get_first_16_bytes_sha256(str(self.keywords))
 
     def __str__(self) -> str:
@@ -408,7 +397,31 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         return found_items
 
     @staticmethod
-    def _parse_html_main(current_div: Tag, html_items_found: Dict, pairs: Dict[str, str]) -> None:
+    def _parse_html_main(current_div: Tag, html_items_found: Dict) -> None:
+        pairs = {
+            "Module Name": "module_name",
+            "Standard": "standard",
+            "Status": "status",
+            "Sunset Date": "date_sunset",
+            "Validation Dates": "date_validation",
+            "Overall Level": "level",
+            "Caveat": "caveat",
+            "Security Level Exceptions": "exceptions",
+            "Module Type": "module_type",
+            "Embodiment": "embodiment",
+            "FIPS Algorithms": "algorithms",
+            "Allowed Algorithms": "algorithms",
+            "Other Algorithms": "algorithms",
+            "Tested Configuration(s)": "tested_conf",
+            "Description": "description",
+            "Historical Reason": "historical_reason",
+            "Hardware Versions": "hw_versions",
+            "Firmware Versions": "fw_versions",
+            "Revoked Reason": "revoked_reason",
+            "Revoked Link": "revoked_link",
+            "Software Versions": "sw_versions",
+            "Product URL": "product_url",
+        }
         title = current_div.find("div", class_="col-md-3").text.strip()
         content = (
             current_div.find("div", class_="col-md-9")
@@ -503,30 +516,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         :param bool redo: if the method should be reattempted in case of failure, defaults to False
         :return FIPSCertificate: resulting `FIPSCertificate` object.
         """
-        pairs = {
-            "Module Name": "module_name",
-            "Standard": "standard",
-            "Status": "status",
-            "Sunset Date": "date_sunset",
-            "Validation Dates": "date_validation",
-            "Overall Level": "level",
-            "Caveat": "caveat",
-            "Security Level Exceptions": "exceptions",
-            "Module Type": "module_type",
-            "Embodiment": "embodiment",
-            "FIPS Algorithms": "algorithms",
-            "Allowed Algorithms": "algorithms",
-            "Other Algorithms": "algorithms",
-            "Tested Configuration(s)": "tested_conf",
-            "Description": "description",
-            "Historical Reason": "historical_reason",
-            "Hardware Versions": "hw_versions",
-            "Firmware Versions": "fw_versions",
-            "Revoked Reason": "revoked_reason",
-            "Revoked Link": "revoked_link",
-            "Software Versions": "sw_versions",
-            "Product URL": "product_url",
-        }
+
         if not initialized:
             items_found = FIPSCertificate._initialize_dictionary()
             items_found["cert_id"] = int(file.stem)
@@ -547,7 +537,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         text = sec_certs.utils.extract.load_cert_html_file(str(file))
         soup = BeautifulSoup(text, "html.parser")
         for div in soup.find_all("div", class_="row padrow"):
-            FIPSCertificate._parse_html_main(div, items_found, pairs)
+            FIPSCertificate._parse_html_main(div, items_found)
 
         for div in soup.find_all("div", class_="panel panel-default")[1:]:
             if div.find("h4", class_="panel-title").text == "Vendor":
