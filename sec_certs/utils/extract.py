@@ -586,20 +586,6 @@ def search_files(folder: str) -> Iterator[str]:
         yield from [os.path.join(root, x) for x in files]
 
 
-def save_modified_cert_file(target_file: Union[str, Path], modified_cert_file_text: str, is_unicode_text: bool) -> None:
-    if is_unicode_text:
-        write_file = Path(target_file).open("w", encoding="utf8", errors="replace")
-    else:
-        write_file = Path(target_file).open("w", errors="replace")
-
-    try:
-        write_file.write(modified_cert_file_text)
-    except UnicodeEncodeError:
-        logger.error("UnicodeDecodeError while writing file fragments back")
-    finally:
-        write_file.close()
-
-
 def flatten_matches(dct: Dict) -> Dict:
     """
     Function to flatten dictionary of matches.

@@ -41,10 +41,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return self.root_dir / "security_policies"
 
     @property
-    def _fragments_dir(self) -> Path:
-        return self.root_dir / "fragments"
-
-    @property
     def _algs_dir(self) -> Path:
         return self.web_dir / "algorithms"
 
@@ -66,8 +62,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param bool redo: Whether to try again with failed files, defaults to False
         """
         logger.info("Entering PDF scan.")
-
-        self._fragments_dir.mkdir(parents=True, exist_ok=True)
 
         keywords = cert_processing.process_parallel(
             FIPSCertificate.find_keywords,
@@ -233,7 +227,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 FIPSCertificate.State(
                     (self._policies_dir / str(cert_id)).with_suffix(".pdf"),
                     (self.web_dir / str(cert_id)).with_suffix(".html"),
-                    (self._fragments_dir / str(cert_id)).with_suffix(".txt"),
                     False,
                     None,
                     False,
@@ -270,7 +263,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.set_local_paths(self._policies_dir, self.web_dir, self._fragments_dir)
+            cert.set_local_paths(self._policies_dir, self.web_dir)
 
     @serialize
     def get_certs_from_web(

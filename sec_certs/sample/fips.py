@@ -41,7 +41,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         sp_path: Path
         html_path: Path
-        fragment_path: Path
         tables_done: bool
         file_status: Optional[bool]
         txt_state: bool
@@ -50,14 +49,12 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             self,
             sp_path: Union[str, Path],
             html_path: Union[str, Path],
-            fragment_path: Union[str, Path],
             tables_done: bool,
             file_status: Optional[bool],
             txt_state: bool,
         ):
             self.sp_path = Path(sp_path)
             self.html_path = Path(html_path)
-            self.fragment_path = Path(fragment_path)
             self.tables_done = tables_done
             self.file_status = file_status
             self.txt_state = txt_state
@@ -66,14 +63,11 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         self,
         sp_dir: Optional[Union[str, Path]],
         html_dir: Optional[Union[str, Path]],
-        fragment_dir: Optional[Union[str, Path]],
     ) -> None:
         if sp_dir is not None:
             self.state.sp_path = (Path(sp_dir) / (str(self.cert_id))).with_suffix(".pdf")
         if html_dir is not None:
             self.state.html_path = (Path(html_dir) / (str(self.cert_id))).with_suffix(".html")
-        if fragment_dir is not None:
-            self.state.fragment_path = (Path(fragment_dir) / (str(self.cert_id))).with_suffix(".txt")
 
     @dataclass(eq=True)
     class Algorithm(ComplexSerializableType):
