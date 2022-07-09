@@ -34,7 +34,7 @@ def download_file(
         time.sleep(delay)
         # See https://github.com/psf/requests/issues/3953 for header justification
         r = requests.get(
-            url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT, stream=True, headers={"Accept-Encoding": None}
+            url, allow_redirects=True, timeout=constants.REQUEST_TIMEOUT, stream=True, headers={"Accept-Encoding": None}  # type: ignore
         )
         ctx: Any
         if show_progress_bar:

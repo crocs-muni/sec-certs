@@ -3,12 +3,14 @@ import json
 from datetime import date
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Tuple
 
 T = TypeVar("T")
 
 
 class ComplexSerializableType:
+    __slots__: Tuple[str]
+
     def __init__(self, *args, **kwargs):
         pass
 
