@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Set
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
+from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
@@ -34,7 +35,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         super().__init__(certs, root_dir, name, description)
         self.keywords: Dict[str, Dict] = {}
         self.algorithms: Optional[FIPSAlgorithmDataset] = None
-        self.new_files = 0
 
     @property
     def _policies_dir(self) -> Path:
@@ -56,7 +56,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @serialize
     def pdf_scan(self, redo: bool = False) -> None:
         """
-        pdf_data()
+        pdf_scan()
         Extracts data from pdf files
 
         :param bool redo: Whether to try again with failed files, defaults to False
@@ -88,9 +88,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             if not (self._policies_dir / f"{cert_id}.pdf").exists() or (
                 fips_dgst(cert_id) in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
             ):
-                sp_urls.append(
-                    f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf"
-                )
+                sp_urls.append(constants.FIPS_SP_URL.format(cert_id))
                 sp_paths.append(self._policies_dir / f"{cert_id}.pdf")
         logger.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(
@@ -99,19 +97,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             config.n_threads,
             progress_bar_desc="Downloading PDF files",
         )
-        self.new_files += len(sp_urls)
 
-    def _download_all_htmls(self, cert_ids: Set[str]) -> List[str]:
+    def _download_all_htmls(self, cert_ids: Set[str]) -> None:
         html_paths, html_urls = [], []
-        new_files = []
         self.web_dir.mkdir(exist_ok=True)
         for cert_id in cert_ids:
             if not (self.web_dir / f"{cert_id}.html").exists():
-                html_urls.append(
-                    f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}"
-                )
+                html_urls.append(constants.FIPS_MODULE_URL.format(cert_id))
                 html_paths.append(self.web_dir / f"{cert_id}.html")
-                new_files.append(cert_id)
 
         logger.info(f"downloading {len(html_urls)} module html files")
         failed = cert_processing.process_parallel(
@@ -122,7 +115,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         failed = [c for c in failed if c]
 
-        self.new_files += len(html_urls)
         if len(failed) != 0:
             logger.info(f"Download failed for {len(failed)} files. Retrying...")
             cert_processing.process_parallel(
@@ -131,7 +123,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 config.n_threads,
                 progress_bar_desc="Downloading HTML files again",
             )
-        return new_files
 
     @serialize
     def convert_all_pdfs(self) -> None:
@@ -157,18 +148,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 Path("fips_modules_historical.html"),
                 Path("fips_modules_revoked.html"),
             ]
+            helpers.download_file(constants.FIPS_ACTIVE_MODULES_URL, Path(self.web_dir / "fips_modules_active.html"))
             helpers.download_file(
-                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
-                Path(self.web_dir / "fips_modules_active.html"),
+                constants.FIPS_HISTORICAL_MODULES_URL, Path(self.web_dir / "fips_modules_historical.html")
             )
-            helpers.download_file(
-                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
-                Path(self.web_dir / "fips_modules_historical.html"),
-            )
-            helpers.download_file(
-                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
-                Path(self.web_dir / "fips_modules_revoked.html"),
-            )
+            helpers.download_file(constants.FIPS_REVOKED_MODULES_URL, Path(self.web_dir / "fips_modules_revoked.html"))
 
         # Parse those files and get list of currently processable files (always)
         cert_ids: Set[str] = set()
@@ -184,7 +168,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
         logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
-            html = BeautifulSoup(handle.read(), "html5lib")
+            html = BeautifulSoup(handle.read(), "html.parser")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
         entries: Set[str] = set()

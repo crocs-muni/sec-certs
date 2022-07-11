@@ -581,8 +581,8 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-def search_files(folder: str) -> Iterator[str]:
-    for root, _, files in os.walk(folder):
+def search_files(folder: Union[str, Path]) -> Iterator[str]:
+    for root, _, files in os.walk(str(folder)):
         yield from [os.path.join(root, x) for x in files]
 
 

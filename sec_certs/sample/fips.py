@@ -234,15 +234,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             + str(self.web_data.fw_version)
         )
 
-    @staticmethod
-    def download_security_policy(cert: Tuple[str, Path]) -> None:
-        """
-        Downloads security policy file from web. Staticmethod to allow for parametrization.
-        """
-        exit_code = helpers.download_file(*cert, delay=1)
-        if exit_code != requests.codes.ok:
-            logger.error(f"Failed to download security policy from {cert[0]}, code: {exit_code}")
-
     def __init__(
         self,
         cert_id: int,
@@ -276,6 +267,97 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             new_dct["web_data"].date_sunset = parser.parse(new_dct["web_data"].date_sunset).date()
         return super(cls, FIPSCertificate).from_dict(new_dct)
 
+    @classmethod
+    def from_html_file(
+        cls, file: Path, state: InternalState, initialized: FIPSCertificate = None, redo: bool = False
+    ) -> FIPSCertificate:
+        """
+        Constructs FIPSCertificate object from html file.
+
+        :param Path file: path to the html file to use for initialization
+        :param InternalState state: state of the certificate
+        :param FIPSCertificate initialized: possibly partially initialized FIPSCertificate, defaults to None
+        :param bool redo: if the method should be reattempted in case of failure, defaults to False
+        :return FIPSCertificate: resulting `FIPSCertificate` object.
+        """
+
+        if not initialized:
+            items_found = FIPSCertificate._initialize_dictionary()
+            items_found["cert_id"] = int(file.stem)
+        else:
+            items_found = initialized.web_data.__dict__
+            items_found["cert_id"] = initialized.cert_id
+            items_found["revoked_reason"] = None
+            items_found["revoked_link"] = None
+            items_found["mentioned_certs"] = {}
+            state.tables_done = initialized.state.tables_done
+            state.file_status = initialized.state.file_status
+            state.txt_state = initialized.state.txt_state
+
+        if redo:
+            items_found = FIPSCertificate._initialize_dictionary()
+            items_found["cert_id"] = int(file.stem)
+
+        text = sec_certs.utils.extract.load_cert_html_file(str(file))
+        soup = BeautifulSoup(text, "html.parser")
+        for div in soup.find_all("div", class_="row padrow"):
+            FIPSCertificate._parse_html_main(div, items_found)
+
+        for div in soup.find_all("div", class_="panel panel-default")[1:]:
+            if div.find("h4", class_="panel-title").text == "Vendor":
+                FIPSCertificate._parse_vendor(div, items_found, file)
+
+            if div.find("h4", class_="panel-title").text == "Lab":
+                FIPSCertificate._parse_lab(div, items_found, file)
+
+            if div.find("h4", class_="panel-title").text == "Related Files":
+                FIPSCertificate.parse_related_files(div, items_found)
+
+            if div.find("h4", class_="panel-title").text == "Validation History":
+                FIPSCertificate._parse_validation_dates(div, items_found)
+
+        FIPSCertificate._normalize(items_found)
+
+        return FIPSCertificate(
+            items_found["cert_id"],
+            FIPSCertificate.WebData(
+                items_found["module_name"] if "module_name" in items_found else None,
+                items_found["standard"] if "standard" in items_found else None,
+                items_found["status"] if "status" in items_found else None,
+                items_found["date_sunset"] if "date_sunset" in items_found else None,
+                items_found["date_validation"] if "date_validation" in items_found else None,
+                items_found["level"] if "level" in items_found else None,
+                items_found["caveat"] if "caveat" in items_found else None,
+                items_found["exceptions"] if "exceptions" in items_found else None,
+                items_found["module_type"] if "module_type" in items_found else None,
+                items_found["embodiment"] if "embodiment" in items_found else None,
+                items_found["algorithms"] if "algorithms" in items_found else None,
+                items_found["tested_conf"] if "tested_conf" in items_found else None,
+                items_found["description"] if "description" in items_found else None,
+                items_found["mentioned_certs"] if "mentioned_certs" in items_found else None,
+                items_found["vendor"] if "vendor" in items_found else None,
+                items_found["vendor_www"] if "vendor_www" in items_found else None,
+                items_found["lab"] if "lab" in items_found else None,
+                items_found["nvlap_code"] if "nvlap_code" in items_found else None,
+                items_found["historical_reason"] if "historical_reason" in items_found else None,
+                items_found["security_policy_www"] if "security_policy_www" in items_found else None,
+                items_found["certificate_www"] if "certificate_www" in items_found else None,
+                items_found["hw_versions"] if "hw_versions" in items_found else None,
+                items_found["fw_versions"] if "fw_versions" in items_found else None,
+                items_found["revoked_reason"] if "revoked_reason" in items_found else None,
+                items_found["revoked_link"] if "revoked_link" in items_found else None,
+                items_found["sw_versions"] if "sw_versions" in items_found else None,
+                items_found["product_url"] if "product_url" in items_found else None,
+            ),
+            FIPSCertificate.PdfData(
+                items_found["cert_id"],
+                {} if not initialized else initialized.pdf_data.keywords,
+                [] if not initialized else initialized.pdf_data.algorithms,
+            ),
+            FIPSCertificate.FIPSHeuristics(dict(), [], 0),
+            state,
+        )
+
     @staticmethod
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
         """
@@ -289,6 +371,15 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             logger.error(f"Failed to download html page from {cert[0]}, code: {exit_code}")
             return cert
         return None
+
+    @staticmethod
+    def download_security_policy(cert: Tuple[str, Path]) -> None:
+        """
+        Downloads security policy file from web. Staticmethod to allow for parametrization.
+        """
+        exit_code = helpers.download_file(*cert, delay=1)
+        if exit_code != requests.codes.ok:
+            logger.error(f"Failed to download security policy from {cert[0]}, code: {exit_code}")
 
     @staticmethod
     def _initialize_dictionary() -> Dict[str, Any]:
@@ -383,7 +474,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                     "Name": tds[0].text,
                     "Certificate": cert[0]["Certificate"] if cert != [] and cert[0] is not None else [],
                     "Links": [str(x) for x in tds[1].find_all("a")],
-                    "Raw": str(tr),
                 }
             )
 
@@ -496,97 +586,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         rows = table.find("tbody").findAll("tr")
         html_items_found["date_validation"] = [parser.parse(td.text).date() for td in [row.find("td") for row in rows]]
 
-    @classmethod
-    def from_html_file(
-        cls, file: Path, state: InternalState, initialized: FIPSCertificate = None, redo: bool = False
-    ) -> FIPSCertificate:
-        """
-        Constructs FIPSCertificate object from html file.
-
-        :param Path file: path to the html file to use for initialization
-        :param InternalState state: state of the certificate
-        :param FIPSCertificate initialized: possibly partially initialized FIPSCertificate, defaults to None
-        :param bool redo: if the method should be reattempted in case of failure, defaults to False
-        :return FIPSCertificate: resulting `FIPSCertificate` object.
-        """
-
-        if not initialized:
-            items_found = FIPSCertificate._initialize_dictionary()
-            items_found["cert_id"] = int(file.stem)
-        else:
-            items_found = initialized.web_data.__dict__
-            items_found["cert_id"] = initialized.cert_id
-            items_found["revoked_reason"] = None
-            items_found["revoked_link"] = None
-            items_found["mentioned_certs"] = {}
-            state.tables_done = initialized.state.tables_done
-            state.file_status = initialized.state.file_status
-            state.txt_state = initialized.state.txt_state
-
-        if redo:
-            items_found = FIPSCertificate._initialize_dictionary()
-            items_found["cert_id"] = int(file.stem)
-
-        text = sec_certs.utils.extract.load_cert_html_file(str(file))
-        soup = BeautifulSoup(text, "html.parser")
-        for div in soup.find_all("div", class_="row padrow"):
-            FIPSCertificate._parse_html_main(div, items_found)
-
-        for div in soup.find_all("div", class_="panel panel-default")[1:]:
-            if div.find("h4", class_="panel-title").text == "Vendor":
-                FIPSCertificate._parse_vendor(div, items_found, file)
-
-            if div.find("h4", class_="panel-title").text == "Lab":
-                FIPSCertificate._parse_lab(div, items_found, file)
-
-            if div.find("h4", class_="panel-title").text == "Related Files":
-                FIPSCertificate.parse_related_files(div, items_found)
-
-            if div.find("h4", class_="panel-title").text == "Validation History":
-                FIPSCertificate._parse_validation_dates(div, items_found)
-
-        FIPSCertificate._normalize(items_found)
-
-        return FIPSCertificate(
-            items_found["cert_id"],
-            FIPSCertificate.WebData(
-                items_found["module_name"] if "module_name" in items_found else None,
-                items_found["standard"] if "standard" in items_found else None,
-                items_found["status"] if "status" in items_found else None,
-                items_found["date_sunset"] if "date_sunset" in items_found else None,
-                items_found["date_validation"] if "date_validation" in items_found else None,
-                items_found["level"] if "level" in items_found else None,
-                items_found["caveat"] if "caveat" in items_found else None,
-                items_found["exceptions"] if "exceptions" in items_found else None,
-                items_found["module_type"] if "module_type" in items_found else None,
-                items_found["embodiment"] if "embodiment" in items_found else None,
-                items_found["algorithms"] if "algorithms" in items_found else None,
-                items_found["tested_conf"] if "tested_conf" in items_found else None,
-                items_found["description"] if "description" in items_found else None,
-                items_found["mentioned_certs"] if "mentioned_certs" in items_found else None,
-                items_found["vendor"] if "vendor" in items_found else None,
-                items_found["vendor_www"] if "vendor_www" in items_found else None,
-                items_found["lab"] if "lab" in items_found else None,
-                items_found["nvlap_code"] if "nvlap_code" in items_found else None,
-                items_found["historical_reason"] if "historical_reason" in items_found else None,
-                items_found["security_policy_www"] if "security_policy_www" in items_found else None,
-                items_found["certificate_www"] if "certificate_www" in items_found else None,
-                items_found["hw_versions"] if "hw_versions" in items_found else None,
-                items_found["fw_versions"] if "fw_versions" in items_found else None,
-                items_found["revoked_reason"] if "revoked_reason" in items_found else None,
-                items_found["revoked_link"] if "revoked_link" in items_found else None,
-                items_found["sw_versions"] if "sw_versions" in items_found else None,
-                items_found["product_url"] if "product_url" in items_found else None,
-            ),
-            FIPSCertificate.PdfData(
-                items_found["cert_id"],
-                {} if not initialized else initialized.pdf_data.keywords,
-                [] if not initialized else initialized.pdf_data.algorithms,
-            ),
-            FIPSCertificate.FIPSHeuristics(dict(), [], 0),
-            state,
-        )
-
     @staticmethod
     def convert_pdf_file(tup: Tuple[FIPSCertificate, Path, Path]) -> FIPSCertificate:
         """
@@ -612,13 +611,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         keywords = sec_certs.utils.extract.extract_keywords(cert.state.sp_path.with_suffix(".pdf.txt"), fips_rules)
         return keywords, cert
-
-    @staticmethod
-    def _remove_platforms(text_to_parse: str) -> str:
-        pat = re.compile(r"(?:(?:modification|revision|change) history|version control)\n[\s\S]*?", re.IGNORECASE)
-        for match in pat.finditer(text_to_parse):
-            text_to_parse = text_to_parse.replace(match.group(), "x" * len(match.group()))
-        return text_to_parse
 
     @staticmethod
     def analyze_tables(tup: Tuple[FIPSCertificate, bool]) -> Tuple[bool, FIPSCertificate, List]:
