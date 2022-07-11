@@ -71,31 +71,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             self.state.html_path = (Path(html_dir) / (str(self.cert_id))).with_suffix(".html")
 
     @dataclass(eq=True)
-    class Algorithm(ComplexSerializableType):
-        """
-        Data structure for algorithm of `FIPSCertificate`
-        """
-
-        cert_id: str
-        vendor: str
-        implementation: str
-        algorithm_type: str
-        date: str
-
-        @property
-        def dgst(self) -> str:
-            # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
-            # for each id
-            # TODO: This is probably not a good digest.
-            return self.algorithm_type
-
-        def __repr__(self) -> str:
-            return self.algorithm_type + " algorithm #" + self.cert_id + " created by " + self.vendor
-
-        def __str__(self) -> str:
-            return str(self.algorithm_type + " algorithm #" + self.cert_id + " created by " + self.vendor)
-
-    @dataclass(eq=True)
     class WebData(ComplexSerializableType):
         """
         Data structure for data obtained from scanning certificate webpage at NIST.gov

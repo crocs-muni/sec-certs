@@ -10,6 +10,7 @@ from sec_certs import constants as constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
 from sec_certs.utils import helpers as helpers
 from sec_certs.utils import parallel_processing as cert_processing
@@ -88,7 +89,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                 )
 
                 alg_type, alg_id = split_alg(validation)
-                fips_alg = FIPSCertificate.Algorithm(alg_id, vendor, product, alg_type, date)
+                fips_alg = FIPSAlgorithm(alg_id, vendor, product, alg_type, date)
                 if alg_id not in self.certs:
                     self.certs[alg_id] = []
                 self.certs[alg_id].append(fips_alg)
