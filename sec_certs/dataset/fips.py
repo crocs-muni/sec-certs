@@ -183,11 +183,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return entries
 
     @serialize
-    def web_scan(self, cert_ids: Set[int], redo: bool = False) -> None:
+    def web_scan(self, cert_ids: Set[str], redo: bool = False) -> None:
         """
         Creates FIPSCertificate object from the relevant html file that must be downlaoded.
 
-        :param Set[int] cert_ids: Cert ids to create FIPSCertificate objects for.
+        :param Set[str] cert_ids: Cert ids to create FIPSCertificate objects for.
         :param bool redo: whether to re-attempt with failed certificates, defaults to False
         """
         logger.info("Entering web scan.")

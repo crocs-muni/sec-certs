@@ -19,13 +19,15 @@ import sec_certs.utils.pdf
 import sec_certs.utils.tables
 from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
-from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
+from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import fips_dgst
 
 
-class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuristics"], ComplexSerializableType):
+class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics"], ComplexSerializableType):
     """
     Data structure for common FIPS 140 certificate. Contains several inner classes that layer the data logic.
     Can be serialized into/from json (`ComplexSerializableType`).
@@ -148,8 +150,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
             return str(self.cert_id)
 
     @dataclass(eq=True)
-    # TODO: Rename to Heuristics.
-    class FIPSHeuristics(Heuristics, ComplexSerializableType):
+    class Heuristics(BaseHeuristics, ComplexSerializableType):
         """
         Data structure that holds data obtained by processing the certificate and applying various heuristics.
         """
@@ -214,7 +215,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         cert_id: int,
         web_data: FIPSCertificate.WebData,
         pdf_data: FIPSCertificate.PdfData,
-        heuristics: FIPSCertificate.FIPSHeuristics,
+        heuristics: FIPSCertificate.Heuristics,
         state: InternalState,
     ):
         super().__init__()
@@ -234,7 +235,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
         """
         new_dct = dct.copy()
 
-        # TODO: These are likely not the only fields that need proper deserialization.
         if new_dct["web_data"].date_validation:
             new_dct["web_data"].date_validation = [parser.parse(x).date() for x in new_dct["web_data"].date_validation]
 
@@ -329,7 +329,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
                 {} if not initialized else initialized.pdf_data.keywords,
                 [] if not initialized else initialized.pdf_data.algorithms,
             ),
-            FIPSCertificate.FIPSHeuristics(dict(), [], 0),
+            FIPSCertificate.Heuristics(dict(), [], 0),
             state,
         )
 
@@ -670,11 +670,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.FIPSHeuris
 
         self.heuristics.keywords = copy.deepcopy(self.pdf_data.keywords)
 
-        # # TODO figure out why can't I delete this
-        # if self.web_data.mentioned_certs:
-        #     for item, value in self.web_data.mentioned_certs.items():
-        #         self.heuristics.keywords["fips_cert_id"].update({"caveat_item": {item: value}})
-        #
         alg_set = self._create_alg_set()
         for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
             to_pop = set()

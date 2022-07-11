@@ -492,7 +492,7 @@ class CommonCriteriaCert(
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
-        On other values (apart from maintenances, see TODO below) the sanity checks are made.
+        On other values the sanity checks are made.
         """
         if self != other:
             logger.warning(
