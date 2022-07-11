@@ -296,9 +296,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             certificate.pdf_data.algorithms += algorithms
         return not_decoded
 
-    def _remove_algorithms_from_extracted_data(self) -> None:
+    def _compute_heuristics_keywords(self) -> None:
         for cert in self.certs.values():
-            cert.remove_algorithms()
+            cert.compute_heuristics_keywords()
 
     def _unify_algorithms(self) -> None:
         for certificate in self.certs.values():
@@ -444,7 +444,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         """
         logger.info("Entering 'analysis' and building connections between certificates.")
         self._unify_algorithms()
-        self._remove_algorithms_from_extracted_data()
+        self._compute_heuristics_keywords()
         self._validate_results()
         if perform_cpe_heuristics:
             _, _, cve_dset = self.compute_cpe_heuristics()
@@ -478,13 +478,13 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
 
     def _get_processed_list(self, connection_list: str, dgst: str) -> List[str]:
-        attr = {"pdf": "pdf_data", "web": "web_data", "heuristics": "heuristics"}[connection_list]
-        return getattr(self.certs[dgst], attr).connections
+        attr = {"st": "st_references", "web": "web_references"}[connection_list]
+        return getattr(self.certs[dgst].heuristics, attr).directly_referencing
 
     def _create_dot_graph(
         self,
         output_file_name: str,
-        connection_list: str = "heuristics",
+        connection_list: str = "st",
         highlighted_vendor: str = "Red Hat®, Inc.",
         show: bool = True,
     ) -> None:
@@ -495,8 +495,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param show: display graph right on screen
         :param highlighted_vendor: vendor whose certificates should be highlighted in red color
         :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
-        :param connection_list: 'heuristics', 'web', or 'pdf' - plots a graph from this source
-                                default - heuristics
+        :param connection_list: 'st' or 'web' - plots a graph from this source
         """
         dot = Digraph(comment="Certificate ecosystem")
         single_dot = Digraph(comment="Modules with no dependencies")

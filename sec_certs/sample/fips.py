@@ -660,15 +660,25 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
                 if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
                     to_pop.add(cert)
 
-    def remove_algorithms(self) -> None:
+    def compute_heuristics_keywords(self) -> None:
         """
-        Removes algorithms from the certificate.
+        Compute the heuristics keywords.
+
+         - Removes algorithm mentions from the cert_id rule matches.
         """
         self.state.file_status = True
         if not self.pdf_data.keywords:
             return
 
         self.heuristics.keywords = copy.deepcopy(self.pdf_data.keywords)
+
+        # XXX: Do not do this, the heuristics keywords need to be from the Security target only,
+        #      because the "st_references" are computed based on these, and the "web_references"
+        #      are computed based on "web_data.mentioned_certs".
+        # Add the mentioned certs
+        # if self.web_data.mentioned_certs:
+        #     for cert_id, value in self.web_data.mentioned_certs.items():
+        #         self.heuristics.keywords["fips_cert_id"]["Cert"]["#" + str(cert_id)] = value["count"]
 
         alg_set = self._create_alg_set()
         for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
