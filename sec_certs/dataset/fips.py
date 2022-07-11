@@ -294,7 +294,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for state, cert, algorithms in result:
             certificate = self.certs[cert.dgst]
             certificate.state.tables_done = state
-            certificate.pdf_data.algorithms += algorithms
+            certificate.pdf_data.algorithms = algorithms
         return not_decoded
 
     def _compute_heuristics_clean_ids(self) -> None:
@@ -315,23 +315,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def _unify_algorithms(self) -> None:
         for certificate in self.certs.values():
-            new_algorithms: List[Dict] = []
-            united_algorithms = [
-                x
-                for x in (
-                    (certificate.web_data.algorithms if certificate.web_data.algorithms is not None else [])
-                    + certificate.pdf_data.algorithms
-                )
-                if x != {"Certificate": []}
-            ]
-            for algorithm in united_algorithms:
-                if isinstance(algorithm, dict):
-                    new_algorithms.append(algorithm)
-                else:
-                    new_algorithms.append({"Certificate": [algorithm]})
-            certificate.heuristics.algorithms = new_algorithms
-
-            # returns True if candidates should _not_ be matched
+            certificate.heuristics.algorithms = set()
+            if certificate.web_data.algorithms:
+                certificate.heuristics.algorithms.update(certificate.web_data.algorithms)
+            if certificate.pdf_data.algorithms:
+                certificate.heuristics.algorithms.update(certificate.pdf_data.algorithms)
 
     def _compare_certs(self, current_certificate: FIPSCertificate, other_id: str) -> bool:
         other_dgst = fips_dgst(other_id)
@@ -368,11 +356,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @staticmethod
     def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
-        for cert_alg in processed_cert.heuristics.algorithms:
-            for certificate in cert_alg["Certificate"]:
-                curr_id = "".join(filter(str.isdigit, certificate))
-                if curr_id == cert_candidate_id:
-                    return False
+        for alg_type, cert_id in processed_cert.heuristics.algorithms:
+            curr_id = "".join(filter(str.isdigit, cert_id))
+            if curr_id == cert_candidate_id:
+                return False
         return True
 
     def _validate_id(self, processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
