@@ -161,10 +161,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         return cert_ids
 
-    def _download_neccessary_files(self, cert_ids: Set[str]) -> None:
-        self._download_all_htmls(cert_ids)
-        self.download_all_pdfs(cert_ids)
-
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
         logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
@@ -237,7 +233,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def get_certs_from_web(
         self,
         test: Optional[Path] = None,
-        no_download_algorithms: bool = False,
         update: bool = False,
         redo_web_scan=False,
     ) -> None:
@@ -247,7 +242,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         Args:
             test (Optional[Path], optional): Path to dataset used in testing. Defaults to None.
-            no_download_algorithms (bool, optional): Whether to reuse CAVP algorithm dataset. Defaults to False.
             update (bool, optional): Whether to update dataset with new entries. Defaults to False.
             redo_web_scan (bool, optional): Whether to redo the `web-scan` functionality. Defaults to False.
         """
@@ -260,17 +254,20 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         # Download files containing all available module certs (always)
         cert_ids = self._prepare_dataset(test, update)
 
-        if not no_download_algorithms:
-            aset = FIPSAlgorithmDataset({}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs")
-            aset.get_certs_from_web()
-            logger.info(f"Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.")
-
-            self.algorithms = aset
-
         logger.info("Downloading certificate html and security policies")
-        self._download_neccessary_files(cert_ids)
+        self._download_all_htmls(cert_ids)
+        self.download_all_pdfs(cert_ids)
 
         self.web_scan(cert_ids, redo=redo_web_scan)
+
+    @serialize
+    def process_algorithms(self):
+        logger.info("Processing FIPS algorithms.")
+        self.algorithms = FIPSAlgorithmDataset(
+            {}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs"
+        )
+        self.algorithms.get_certs_from_web()
+        logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 
     @serialize
     def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
