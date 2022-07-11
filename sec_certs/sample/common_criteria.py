@@ -19,7 +19,9 @@ import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
-from sec_certs.sample.certificate import Certificate, Heuristics, References, logger
+from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
@@ -41,7 +43,7 @@ class DependencyType(Enum):
 
 
 class CommonCriteriaCert(
-    Certificate["CommonCriteriaCert", "CommonCriteriaCert.CCHeuristics"],
+    Certificate["CommonCriteriaCert", "CommonCriteriaCert.Heuristics"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -315,7 +317,7 @@ class CommonCriteriaCert(
             return self.processed_cert_id if self.processed_cert_id else self.keywords_cert_id
 
     @dataclass
-    class CCHeuristics(Heuristics, ComplexSerializableType):
+    class Heuristics(BaseHeuristics, ComplexSerializableType):
         """
         Class for various heuristics related to CommonCriteriaCert
         """
@@ -381,7 +383,7 @@ class CommonCriteriaCert(
         maintenance_updates: Optional[Set[MaintenanceReport]],
         state: Optional[InternalState],
         pdf_data: Optional[PdfData],
-        heuristics: Optional[CCHeuristics],
+        heuristics: Optional[Heuristics],
     ):
         super().__init__()
 
@@ -405,7 +407,7 @@ class CommonCriteriaCert(
         self.maintenance_updates = maintenance_updates
         self.state = self.InternalState() if not state else state
         self.pdf_data = self.PdfData() if not pdf_data else pdf_data
-        self.heuristics: CommonCriteriaCert.CCHeuristics = self.CCHeuristics() if not heuristics else heuristics
+        self.heuristics: CommonCriteriaCert.Heuristics = self.Heuristics() if not heuristics else heuristics
 
     @property
     def dgst(self) -> str:
@@ -490,7 +492,7 @@ class CommonCriteriaCert(
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
-        On other values (apart from maintenances, see TODO below) the sanity checks are made.
+        On other values the sanity checks are made.
         """
         if self != other:
             logger.warning(

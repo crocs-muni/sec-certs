@@ -20,7 +20,18 @@ logger = logging.getLogger(__name__)
     required=True,
     nargs=-1,
     type=click.Choice(
-        ["new-run", "all", "build", "convert", "update", "pdf-scan", "table-search", "analysis", "graphs"],
+        [
+            "new-run",
+            "all",
+            "build",
+            "convert",
+            "algorithms",
+            "update",
+            "pdf-scan",
+            "table-search",
+            "analysis",
+            "graphs",
+        ],
         case_sensitive=False,
     ),
 )
@@ -55,7 +66,6 @@ logger = logging.getLogger(__name__)
     type=str,
     help="Name of the json object to be created in the <<output>> directory. Defaults to <<timestamp>>.json.",
 )
-@click.option("--no-download-algs", "no_download_algs", help="Don't fetch new algorithm implementations", is_flag=True)
 @click.option("--redo-web-scan", "redo_web_scan", help="Redo HTML webpage scan from scratch", is_flag=True)
 @click.option("--redo-keyword-scan", "redo_keyword_scan", help="Redo PDF keyword scan from scratch", is_flag=True)
 @click.option(
@@ -92,7 +102,9 @@ def main(
 
         'update'        Load a previously used dataset (created by 'build') and update it with nonprocessed entries from NIST pages.
 
-        Both options download the files needed for analysis.
+        'algorithms'    Download the FIPS algorithms from NIST pages.
+
+        These options download the files needed for analysis.
 
     Analysis preparation:
 
@@ -151,7 +163,7 @@ def main(
         sys.exit(1)
 
     r_actions = (
-        {"convert", "pdf-scan", "table-search", "analysis", "graphs"}
+        {"algorithms", "convert", "pdf-scan", "table-search", "analysis", "graphs"}
         if "all" in actions or "new-run" in actions
         else set(actions)
     )
@@ -177,7 +189,7 @@ def main(
             name=json_name,
             description=f"Full FIPS dataset snapshot {datetime.now().date()}",
         )
-        dset.get_certs_from_web(no_download_algorithms=no_download_algs)
+        dset.get_certs_from_web()
         inputpath = dset.json_path
         output = None
 
@@ -190,9 +202,7 @@ def main(
     assert inputpath
     dset = FIPSDataset.from_json(inputpath)
 
-    assert dset.algorithms
-
-    logger.info(f"Have dataset with {len(dset)} certs and {len(dset.algorithms)} algorithms.")
+    logger.info(f"Have dataset with {len(dset)} certs.")
     if output:
         logger.warning(
             "You provided both inputpath and outputpath, dataset will be copied to outputpath (without data)"
@@ -201,7 +211,10 @@ def main(
         dset.to_json(output)
 
     if "update" in actions:
-        dset.get_certs_from_web(no_download_algorithms=no_download_algs, update=True, redo_web_scan=redo_web_scan)
+        dset.get_certs_from_web(update=True, redo_web_scan=redo_web_scan)
+
+    if "algorithms" in actions:
+        dset.process_algorithms()
 
     if "convert" in actions or "update" in actions:
         warn_if_missing_poppler()

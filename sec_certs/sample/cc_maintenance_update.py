@@ -26,7 +26,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         st_link: str,
         state: Optional[CommonCriteriaCert.InternalState],
         pdf_data: Optional[CommonCriteriaCert.PdfData],
-        heuristics: Optional[CommonCriteriaCert.CCHeuristics],
+        heuristics: Optional[CommonCriteriaCert.Heuristics],
         related_cert_digest: str,
         maintenance_date: date,
     ):

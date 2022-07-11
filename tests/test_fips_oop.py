@@ -4,6 +4,8 @@ from tempfile import TemporaryDirectory
 from typing import Dict, Final, List
 from unittest import TestCase
 
+import pytest
+
 import tests.data.test_fips_oop
 from sec_certs.config.configuration import config
 from sec_certs.dataset import FIPSAlgorithmDataset, FIPSDataset
@@ -14,7 +16,7 @@ from tests.fips_test_utils import generate_html
 def _set_up_dataset(td, certs):
     dataset = FIPSDataset({}, Path(td), "test_dataset", "fips_test_dataset")
     generate_html(certs, td + "/test_search.html")
-    dataset.get_certs_from_web(test=td + "/test_search.html", no_download_algorithms=True)
+    dataset.get_certs_from_web(test=td + "/test_search.html")
     return dataset
 
 
@@ -113,6 +115,11 @@ class TestFipsOOP(TestCase):
             with TemporaryDirectory() as tmp_dir:
                 dataset = _set_up_dataset(tmp_dir, certs)
                 self.assertEqual(len(dataset.certs), len(certs), "Wrong number of parsed certs")
+
+    def test_metadata_extraction(self):
+        with TemporaryDirectory() as tmp_dir:
+            dst = _set_up_dataset_for_full(tmp_dir, ["3493"], self.cpe_dset_path, self.cve_dset_path)
+            self.assertIsNotNone(dst.certs[fips_dgst("3493")].pdf_data.st_metadata)
 
     def test_connections_microsoft(self):
         certs = self.certs_to_parse["microsoft"]
@@ -335,3 +342,13 @@ class TestFipsOOP(TestCase):
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3158")].heuristics.web_references.directly_referencing), {"2398"}
             )
+
+
+class TestFIPSAlgo(TestCase):
+    @pytest.mark.slow
+    def test_get_certs_from_web(self):
+        with TemporaryDirectory() as tmp_dir:
+            web_path = Path(tmp_dir) / "web"
+            web_path.mkdir()
+            aset = FIPSAlgorithmDataset({}, web_path / "algorithms", "algorithms", "sample algs")
+            aset.get_certs_from_web()

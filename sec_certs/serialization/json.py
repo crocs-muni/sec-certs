@@ -3,12 +3,14 @@ import json
 from datetime import date
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 T = TypeVar("T")
 
 
 class ComplexSerializableType:
+    __slots__: Tuple[str]
+
     def __init__(self, *args, **kwargs):
         pass
 
@@ -72,10 +74,21 @@ def serialize(func: Callable):
     return inner_func
 
 
+def _class_fullname(obj: Any) -> str:
+    if isinstance(obj, type):
+        klass = obj
+    else:
+        klass = obj.__class__
+    module = klass.__module__
+    if module == "builtins":
+        return klass.__qualname__
+    return module + "." + klass.__qualname__
+
+
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ComplexSerializableType):
-            return {**{"_type": type(obj).__name__}, **obj.to_dict()}
+            return {**{"_type": _class_fullname(obj)}, **obj.to_dict()}
         if isinstance(obj, dict):
             return obj
         if isinstance(obj, set):
@@ -98,7 +111,7 @@ class CustomJSONDecoder(json.JSONDecoder):
 
     def __init__(self, *args, **kwargs):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
-        self.serializable_complex_types = {x.__name__: x for x in ComplexSerializableType.__subclasses__()}
+        self.serializable_complex_types = {_class_fullname(x): x for x in ComplexSerializableType.__subclasses__()}
 
     def object_hook(self, obj):
         if "_type" in obj and obj["_type"] == "Set":
@@ -106,5 +119,7 @@ class CustomJSONDecoder(json.JSONDecoder):
         if "_type" in obj and obj["_type"] in self.serializable_complex_types.keys():
             complex_type = obj.pop("_type")
             return self.serializable_complex_types[complex_type].from_dict(obj)
+        elif "_type" in obj:
+            print(obj)
 
         return obj

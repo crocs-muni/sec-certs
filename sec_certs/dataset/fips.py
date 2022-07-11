@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Set
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
+from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
@@ -34,15 +35,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         super().__init__(certs, root_dir, name, description)
         self.keywords: Dict[str, Dict] = {}
         self.algorithms: Optional[FIPSAlgorithmDataset] = None
-        self.new_files = 0
 
     @property
     def _policies_dir(self) -> Path:
         return self.root_dir / "security_policies"
-
-    @property
-    def _fragments_dir(self) -> Path:
-        return self.root_dir / "fragments"
 
     @property
     def _algs_dir(self) -> Path:
@@ -53,9 +49,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         Returns list of certificates that match given name.
 
         :param str module_name: name to search for
-        :return List[FIPSCertificate]: List of certificates with web_scan.module_name == module_name
+        :return List[FIPSCertificate]: List of certificates with web_data.module_name == module_name
         """
-        return [crt for crt in self if crt.web_scan.module_name == module_name]
+        return [crt for crt in self if crt.web_data.module_name == module_name]
 
     @serialize
     def pdf_scan(self, redo: bool = False) -> None:
@@ -67,30 +63,15 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         """
         logger.info("Entering PDF scan.")
 
-        self._fragments_dir.mkdir(parents=True, exist_ok=True)
-
         keywords = cert_processing.process_parallel(
             FIPSCertificate.find_keywords,
-            [cert for cert in self.certs.values() if not cert.pdf_scan.keywords or redo],
+            [cert for cert in self.certs.values() if not cert.pdf_data.keywords or redo],
             config.n_threads,
             use_threading=False,
             progress_bar_desc="Scanning PDF files",
         )
         for keyword, cert in keywords:
-            self.certs[cert.dgst].pdf_scan.keywords = keyword
-
-    def _match_algs(self) -> Dict[str, int]:
-        output = {}
-        for cert in self.certs.values():
-            # if the pdf has not been processed, no matching can be done
-            if not cert.pdf_scan.keywords or not cert.state.txt_state:
-                continue
-
-            output[cert.dgst] = FIPSCertificate.match_web_algs_to_pdf(cert)
-            cert.heuristics.unmatched_algs = output[cert.dgst]
-
-        output = {k: v for k, v in output.items() if v != 0}
-        return output
+            self.certs[cert.dgst].pdf_data.keywords = keyword
 
     def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
         """
@@ -107,9 +88,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             if not (self._policies_dir / f"{cert_id}.pdf").exists() or (
                 fips_dgst(cert_id) in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
             ):
-                sp_urls.append(
-                    f"https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{cert_id}.pdf"
-                )
+                sp_urls.append(constants.FIPS_SP_URL.format(cert_id))
                 sp_paths.append(self._policies_dir / f"{cert_id}.pdf")
         logger.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(
@@ -118,19 +97,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             config.n_threads,
             progress_bar_desc="Downloading PDF files",
         )
-        self.new_files += len(sp_urls)
 
-    def _download_all_htmls(self, cert_ids: Set[str]) -> List[str]:
+    def _download_all_htmls(self, cert_ids: Set[str]) -> None:
         html_paths, html_urls = [], []
-        new_files = []
         self.web_dir.mkdir(exist_ok=True)
         for cert_id in cert_ids:
             if not (self.web_dir / f"{cert_id}.html").exists():
-                html_urls.append(
-                    f"https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{cert_id}"
-                )
+                html_urls.append(constants.FIPS_MODULE_URL.format(cert_id))
                 html_paths.append(self.web_dir / f"{cert_id}.html")
-                new_files.append(cert_id)
 
         logger.info(f"downloading {len(html_urls)} module html files")
         failed = cert_processing.process_parallel(
@@ -141,7 +115,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         failed = [c for c in failed if c]
 
-        self.new_files += len(html_urls)
         if len(failed) != 0:
             logger.info(f"Download failed for {len(failed)} files. Retrying...")
             cert_processing.process_parallel(
@@ -150,7 +123,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 config.n_threads,
                 progress_bar_desc="Downloading HTML files again",
             )
-        return new_files
 
     @serialize
     def convert_all_pdfs(self) -> None:
@@ -176,18 +148,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 Path("fips_modules_historical.html"),
                 Path("fips_modules_revoked.html"),
             ]
+            helpers.download_file(constants.FIPS_ACTIVE_MODULES_URL, Path(self.web_dir / "fips_modules_active.html"))
             helpers.download_file(
-                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
-                Path(self.web_dir / "fips_modules_active.html"),
+                constants.FIPS_HISTORICAL_MODULES_URL, Path(self.web_dir / "fips_modules_historical.html")
             )
-            helpers.download_file(
-                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
-                Path(self.web_dir / "fips_modules_historical.html"),
-            )
-            helpers.download_file(
-                "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
-                Path(self.web_dir / "fips_modules_revoked.html"),
-            )
+            helpers.download_file(constants.FIPS_REVOKED_MODULES_URL, Path(self.web_dir / "fips_modules_revoked.html"))
 
         # Parse those files and get list of currently processable files (always)
         cert_ids: Set[str] = set()
@@ -196,14 +161,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         return cert_ids
 
-    def _download_neccessary_files(self, cert_ids: Set[str]) -> None:
-        self._download_all_htmls(cert_ids)
-        self.download_all_pdfs(cert_ids)
-
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
         logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
-            html = BeautifulSoup(handle.read(), "html5lib")
+            html = BeautifulSoup(handle.read(), "html.parser")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
         entries: Set[str] = set()
@@ -218,11 +179,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return entries
 
     @serialize
-    def web_scan(self, cert_ids: Set[int], redo: bool = False) -> None:
+    def web_scan(self, cert_ids: Set[str], redo: bool = False) -> None:
         """
         Creates FIPSCertificate object from the relevant html file that must be downlaoded.
 
-        :param Set[int] cert_ids: Cert ids to create FIPSCertificate objects for.
+        :param Set[str] cert_ids: Cert ids to create FIPSCertificate objects for.
         :param bool redo: whether to re-attempt with failed certificates, defaults to False
         """
         logger.info("Entering web scan.")
@@ -230,10 +191,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             dgst = fips_dgst(cert_id)
             self.certs[dgst] = FIPSCertificate.from_html_file(
                 self.web_dir / f"{cert_id}.html",
-                FIPSCertificate.State(
+                FIPSCertificate.InternalState(
                     (self._policies_dir / str(cert_id)).with_suffix(".pdf"),
                     (self.web_dir / str(cert_id)).with_suffix(".html"),
-                    (self._fragments_dir / str(cert_id)).with_suffix(".txt"),
                     False,
                     None,
                     False,
@@ -262,21 +222,18 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 len(dset),
                 len(dset.algorithms) if dset.algorithms is not None else 0,
             )
-            # TODO: Fixme, this is really costly
-            # logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
-            # dset.finalize_results()
             return dset
 
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.set_local_paths(self._policies_dir, self.web_dir, self._fragments_dir)
+            cert.set_local_paths(self._policies_dir, self.web_dir)
 
     @serialize
     def get_certs_from_web(
         self,
+        # TODO: REMOVE THIS TEST ARGUMENT, OMG!
         test: Optional[Path] = None,
-        no_download_algorithms: bool = False,
         update: bool = False,
         redo_web_scan=False,
     ) -> None:
@@ -286,7 +243,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         Args:
             test (Optional[Path], optional): Path to dataset used in testing. Defaults to None.
-            no_download_algorithms (bool, optional): Whether to reuse CAVP algorithm dataset. Defaults to False.
             update (bool, optional): Whether to update dataset with new entries. Defaults to False.
             redo_web_scan (bool, optional): Whether to redo the `web-scan` functionality. Defaults to False.
         """
@@ -299,17 +255,20 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         # Download files containing all available module certs (always)
         cert_ids = self._prepare_dataset(test, update)
 
-        if not no_download_algorithms:
-            aset = FIPSAlgorithmDataset({}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs")
-            aset.get_certs_from_web()
-            logger.info(f"Finished parsing. Have algorithm dataset with {len(aset)} algorithm numbers.")
-
-            self.algorithms = aset
-
         logger.info("Downloading certificate html and security policies")
-        self._download_neccessary_files(cert_ids)
+        self._download_all_htmls(cert_ids)
+        self.download_all_pdfs(cert_ids)
 
         self.web_scan(cert_ids, redo=redo_web_scan)
+
+    @serialize
+    def process_algorithms(self):
+        logger.info("Processing FIPS algorithms.")
+        self.algorithms = FIPSAlgorithmDataset(
+            {}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs"
+        )
+        self.algorithms.get_certs_from_web()
+        logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 
     @serialize
     def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
@@ -335,48 +294,48 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for state, cert, algorithms in result:
             certificate = self.certs[cert.dgst]
             certificate.state.tables_done = state
-            certificate.pdf_scan.algorithms += algorithms
+            certificate.pdf_data.algorithms = algorithms
         return not_decoded
 
-    def _remove_algorithms_from_extracted_data(self) -> None:
+    def _compute_heuristics_clean_ids(self) -> None:
         for cert in self.certs.values():
-            cert.remove_algorithms()
+            self._clean_cert_ids(cert)
+
+    def _extract_metadata(self):
+        certs_to_process = [x for x in self]
+        res = cert_processing.process_parallel(
+            FIPSCertificate.extract_sp_metadata,
+            certs_to_process,
+            config.n_threads,
+            use_threading=False,
+            progress_bar_desc="Extracting security policy metadata",
+        )
+        for r in res:
+            self.certs[r.dgst] = r
 
     def _unify_algorithms(self) -> None:
         for certificate in self.certs.values():
-            new_algorithms: List[Dict] = []
-            united_algorithms = [
-                x
-                for x in (
-                    (certificate.web_scan.algorithms if certificate.web_scan.algorithms is not None else [])
-                    + certificate.pdf_scan.algorithms
-                )
-                if x != {"Certificate": []}
-            ]
-            for algorithm in united_algorithms:
-                if isinstance(algorithm, dict):
-                    new_algorithms.append(algorithm)
-                else:
-                    new_algorithms.append({"Certificate": [algorithm]})
-            certificate.heuristics.algorithms = new_algorithms
-
-            # returns True if candidates should _not_ be matched
+            certificate.heuristics.algorithms = set()
+            if certificate.web_data.algorithms:
+                certificate.heuristics.algorithms.update(certificate.web_data.algorithms)
+            if certificate.pdf_data.algorithms:
+                certificate.heuristics.algorithms.update(certificate.pdf_data.algorithms)
 
     def _compare_certs(self, current_certificate: FIPSCertificate, other_id: str) -> bool:
         other_dgst = fips_dgst(other_id)
         other_cert = self.certs[other_dgst]
 
         if (
-            current_certificate.web_scan.date_validation is None
+            current_certificate.web_data.date_validation is None
             or other_cert is None
-            or other_cert.web_scan.date_validation is None
+            or other_cert.web_data.date_validation is None
         ):
             raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
 
-        cert_first = current_certificate.web_scan.date_validation[0]
-        cert_last = current_certificate.web_scan.date_validation[-1]
-        conn_first = other_cert.web_scan.date_validation[0]
-        conn_last = other_cert.web_scan.date_validation[-1]
+        cert_first = current_certificate.web_data.date_validation[0]
+        cert_last = current_certificate.web_data.date_validation[-1]
+        conn_first = other_cert.web_data.date_validation[0]
+        conn_last = other_cert.web_data.date_validation[-1]
 
         return (
             cert_first.year - conn_first.year > config.year_difference_between_validations
@@ -384,25 +343,23 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             or cert_first.year < conn_first.year
         )
 
-    def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate) -> None:
-        if current_cert.heuristics.keywords is None:
-            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
-        for rule in current_cert.heuristics.keywords["fips_cert_id"]:
-            matches = current_cert.heuristics.keywords["fips_cert_id"][rule]
-            current_cert.heuristics.keywords["fips_cert_id"][rule] = [
-                cert_id
-                for cert_id in matches
-                if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
-                and cert_id != current_cert.cert_id
-            ]
+    def _clean_cert_ids(self, current_cert: FIPSCertificate) -> None:
+        current_cert.clean_cert_ids()
+        if not current_cert.state.txt_state:
+            return
+        current_cert.heuristics.clean_cert_ids = {
+            cert_id: count
+            for cert_id, count in current_cert.pdf_data.clean_cert_ids.items()
+            if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
+            and cert_id != current_cert.cert_id
+        }
 
     @staticmethod
     def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
-        for cert_alg in processed_cert.heuristics.algorithms:
-            for certificate in cert_alg["Certificate"]:
-                curr_id = "".join(filter(str.isdigit, certificate))
-                if curr_id == cert_candidate_id:
-                    return False
+        for alg_type, cert_id in processed_cert.heuristics.algorithms:
+            curr_id = "".join(filter(str.isdigit, cert_id))
+            if curr_id == cert_candidate_id:
+                return False
         return True
 
     def _validate_id(self, processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
@@ -425,44 +382,33 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
             return False
 
-        algs = self.algorithms.certs[cert_candidate_id]
+        algs = self.algorithms.certs_for_id(int(cert_candidate_id))
         for current_alg in algs:
-            if current_alg.vendor is None or processed_cert.web_scan.vendor is None:
+            if current_alg.vendor is None or processed_cert.web_data.vendor is None:
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
-            if FIPSCertificate.get_compare(processed_cert.web_scan.vendor) == FIPSCertificate.get_compare(
+            if FIPSCertificate.get_compare(processed_cert.web_data.vendor) == FIPSCertificate.get_compare(
                 current_alg.vendor
             ):
                 return False
         return True
 
-    def _validate_results(self) -> None:
-        """
-        Function that validates results and finds the final connection output
-        """
-
+    def _compute_dependencies(self) -> None:
         def pdf_lookup(cert):
             return set(
                 filter(
                     lambda x: x,
                     map(
                         lambda cid: "".join(filter(str.isdigit, cid)),
-                        cert.heuristics.keywords["fips_cert_id"]["Cert"],
+                        cert.heuristics.clean_cert_ids,
                     ),
                 )
             )
 
         def web_lookup(cert):
             return set(
-                filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_scan.mentioned_certs))
+                filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_data.mentioned_certs))
             )
-
-        current_cert: FIPSCertificate
-
-        for current_cert in self.certs.values():
-            if not current_cert.state.txt_state:
-                continue
-            self._remove_false_positives_for_cert(current_cert)
 
         finder = DependencyFinder()
         finder.fit(self.certs, lambda cert: cert.cert_id, pdf_lookup)  # type: ignore
@@ -485,9 +431,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param bool perform_cpe_heuristics: If CPE heuristics shall be computed, defaults to True
         """
         logger.info("Entering 'analysis' and building connections between certificates.")
+        self._extract_metadata()
         self._unify_algorithms()
-        self._remove_algorithms_from_extracted_data()
-        self._validate_results()
+        self._compute_heuristics_clean_ids()
+        self._compute_dependencies()
         if perform_cpe_heuristics:
             _, _, cve_dset = self.compute_cpe_heuristics()
             self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
@@ -495,38 +442,38 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]
 
-        if current_cert.web_scan.vendor != highlighted_vendor:
+        if current_cert.web_data.vendor != highlighted_vendor:
             return
 
         dot.attr("node", color="red")
-        if current_cert.web_scan.status == "Revoked":
+        if current_cert.web_data.status == "Revoked":
             dot.attr("node", color="grey32")
-        if current_cert.web_scan.status == "Historical":
+        if current_cert.web_data.status == "Historical":
             dot.attr("node", color="gold3")
 
     def _add_colored_node(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]
         dot.attr("node", color="lightgreen")
-        if current_cert.web_scan.status == "Revoked":
+        if current_cert.web_data.status == "Revoked":
             dot.attr("node", color="lightgrey")
-        if current_cert.web_scan.status == "Historical":
+        if current_cert.web_data.status == "Historical":
             dot.attr("node", color="gold")
         self._highlight_vendor_in_dot(dot, current_dgst, highlighted_vendor)
         dot.node(
             str(current_cert.cert_id),
-            label=str(current_cert.cert_id) + "&#10;" + current_cert.web_scan.vendor
-            if current_cert.web_scan.vendor is not None
-            else "" + "&#10;" + (current_cert.web_scan.module_name if current_cert.web_scan.module_name else ""),
+            label=str(current_cert.cert_id) + "&#10;" + current_cert.web_data.vendor
+            if current_cert.web_data.vendor is not None
+            else "" + "&#10;" + (current_cert.web_data.module_name if current_cert.web_data.module_name else ""),
         )
 
     def _get_processed_list(self, connection_list: str, dgst: str) -> List[str]:
-        attr = {"pdf": "pdf_scan", "web": "web_scan", "heuristics": "heuristics"}[connection_list]
-        return getattr(self.certs[dgst], attr).connections
+        attr = {"st": "st_references", "web": "web_references"}[connection_list]
+        return getattr(self.certs[dgst].heuristics, attr).directly_referencing
 
     def _create_dot_graph(
         self,
         output_file_name: str,
-        connection_list: str = "heuristics",
+        connection_list: str = "st",
         highlighted_vendor: str = "Red Hat®, Inc.",
         show: bool = True,
     ) -> None:
@@ -537,8 +484,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param show: display graph right on screen
         :param highlighted_vendor: vendor whose certificates should be highlighted in red color
         :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
-        :param connection_list: 'heuristics', 'web', or 'pdf' - plots a graph from this source
-                                default - heuristics
+        :param connection_list: 'st' or 'web' - plots a graph from this source
         """
         dot = Digraph(comment="Certificate ecosystem")
         single_dot = Digraph(comment="Modules with no dependencies")
@@ -566,9 +512,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 self._highlight_vendor_in_dot(dot, key, highlighted_vendor)
                 single_dot.node(
                     key,
-                    label=str(cert.cert_id) + "\r\n" + cert.web_scan.vendor
-                    if cert.web_scan.vendor is not None
-                    else "" + ("\r\n" + cert.web_scan.module_name if cert.web_scan.module_name else ""),
+                    label=str(cert.cert_id) + "\r\n" + cert.web_data.vendor
+                    if cert.web_data.vendor is not None
+                    else "" + ("\r\n" + cert.web_data.module_name if cert.web_data.module_name else ""),
                 )
 
         for key in self.certs:
@@ -623,9 +569,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def plot_graphs(self, show: bool = False) -> None:
         """
         Plots FIPS graphs.
-        # TODO: Currently broken, see https://github.com/crocs-muni/sec-certs/issues/211
-        :param bool show: If plots should be showed with .show() method, defaults to False
+
+        :param bool show: If plots should be shown with .show() method, defaults to False
         """
         self._create_dot_graph("full_graph", show=show)
         self._create_dot_graph("web_only_graph", "web", show=show)
-        self._create_dot_graph("pdf_only_graph", "pdf", show=show)
+        self._create_dot_graph("st_only_graph", "st", show=show)

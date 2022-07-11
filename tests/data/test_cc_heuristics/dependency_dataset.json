@@ -1,7 +1,7 @@
 {
-  "_type": "CCDataset",
+  "_type": "sec_certs.dataset.common_criteria.CCDataset",
   "state": {
-    "_type": "DatasetInternalState",
+    "_type": "sec_certs.dataset.common_criteria.CCDataset.DatasetInternalState",
     "meta_sources_parsed": false,
     "pdfs_downloaded": false,
     "pdfs_converted": false,
@@ -14,7 +14,7 @@
   "n_certs": 3,
   "certs": [
     {
-      "_type": "CommonCriteriaCert",
+      "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
       "dgst": "c30de3192d2e8ec2",
       "status": "archived",
       "category": "Other Devices and Systems",
@@ -43,7 +43,7 @@
         "elements": []
       },
       "state": {
-        "_type": "InternalState",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -57,7 +57,7 @@
         "report_txt_hash": "460e8010dbc8f5de5b87bf96fd45c71cfd9f3869f34ca6ac1ab02cbd70d2523f"
       },
       "pdf_data": {
-        "_type": "PdfData",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
         "report_metadata": {
           "pdf_file_size_bytes": 393439,
           "pdf_is_encrypted": false,
@@ -469,7 +469,7 @@
         }
       },
       "heuristics": {
-        "_type": "CCHeuristics",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
         "extracted_versions": {
           "_type": "Set",
           "elements": [
@@ -484,14 +484,14 @@
         ],
         "cert_id": "BSI-DSZ-CC-0517-2009",
         "st_references": {
-          "_type": "References",
+          "_type": "sec_certs.sample.certificate.References",
           "directly_referenced_by": null,
           "indirectly_referenced_by": null,
           "directly_referencing": null,
           "indirectly_referencing": null
         },
         "report_references": {
-          "_type": "References",
+          "_type": "sec_certs.sample.certificate.References",
           "directly_referenced_by": null,
           "indirectly_referenced_by": null,
           "directly_referencing": {
@@ -513,57 +513,57 @@
           "_type": "Set",
           "elements": [
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_FSP",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_HLD",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_RCR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AGD_ADM",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AGD_USR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ALC_FLR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_COV",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_FUN",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_IND",
               "level": 2
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AVA_SOF",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AVA_VLA",
               "level": 1
             }
@@ -574,7 +574,7 @@
       }
     },
     {
-      "_type": "CommonCriteriaCert",
+      "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
       "dgst": "53fe111411edfa45",
       "status": "archived",
       "category": "Other Devices and Systems",
@@ -603,7 +603,7 @@
         "elements": []
       },
       "state": {
-        "_type": "InternalState",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -617,7 +617,7 @@
         "report_txt_hash": "0535df1c56fb4f87153cbffee51ba4d77fac47a6f17f024aa7d9df461028bc65"
       },
       "pdf_data": {
-        "_type": "PdfData",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
         "report_metadata": {
           "pdf_file_size_bytes": 296713,
           "pdf_is_encrypted": false,
@@ -1058,7 +1058,7 @@
         }
       },
       "heuristics": {
-        "_type": "CCHeuristics",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
         "extracted_versions": {
           "_type": "Set",
           "elements": [
@@ -1073,14 +1073,14 @@
         ],
         "cert_id": "BSI-DSZ-CC-0370-2006",
         "st_references": {
-          "_type": "References",
+          "_type": "sec_certs.sample.certificate.References",
           "directly_referenced_by": null,
           "indirectly_referenced_by": null,
           "directly_referencing": null,
           "indirectly_referencing": null
         },
         "report_references": {
-          "_type": "References",
+          "_type": "sec_certs.sample.certificate.References",
           "directly_referenced_by": {
             "_type": "Set",
             "elements": [
@@ -1111,97 +1111,97 @@
           "_type": "Set",
           "elements": [
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_FSP",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_HLD",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_RCR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AGD_ADM",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AGD_USR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ALC_FLR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_DES",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_ENV",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_INT",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_OBJ",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_PPC",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_REQ",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_SRE",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_TSS",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_COV",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_FUN",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_IND",
               "level": 2
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AVA_SOF",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AVA_VLA",
               "level": 1
             }
@@ -1212,7 +1212,7 @@
       }
     },
     {
-      "_type": "CommonCriteriaCert",
+      "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
       "dgst": "692e91451741ef49",
       "status": "archived",
       "category": "Other Devices and Systems",
@@ -1241,7 +1241,7 @@
         "elements": []
       },
       "state": {
-        "_type": "InternalState",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -1255,7 +1255,7 @@
         "report_txt_hash": "11e1262fd8f5df1b140f5e8813883b71447503781399427b35adbbecd00b4d63"
       },
       "pdf_data": {
-        "_type": "PdfData",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
         "report_metadata": {
           "pdf_file_size_bytes": 628533,
           "pdf_is_encrypted": false,
@@ -1690,7 +1690,7 @@
         }
       },
       "heuristics": {
-        "_type": "CCHeuristics",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
         "extracted_versions": {
           "_type": "Set",
           "elements": [
@@ -1705,14 +1705,14 @@
         ],
         "cert_id": "BSI-DSZ-CC-0325-2006",
         "st_references": {
-          "_type": "References",
+          "_type": "sec_certs.sample.certificate.References",
           "directly_referenced_by": null,
           "indirectly_referenced_by": null,
           "directly_referencing": null,
           "indirectly_referencing": null
         },
         "report_references": {
-          "_type": "References",
+          "_type": "sec_certs.sample.certificate.References",
           "directly_referenced_by": {
             "_type": "Set",
             "elements": [
@@ -1743,97 +1743,97 @@
           "_type": "Set",
           "elements": [
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_FSP",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_HLD",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ADV_RCR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AGD_ADM",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AGD_USR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ALC_FLR",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_DES",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_ENV",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_INT",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_OBJ",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_PPC",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_REQ",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_SRE",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ASE_TSS",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_COV",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_FUN",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "ATE_IND",
               "level": 2
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AVA_SOF",
               "level": 1
             },
             {
-              "_type": "SAR",
+              "_type": "sec_certs.sample.sar.SAR",
               "family": "AVA_VLA",
               "level": 1
             }

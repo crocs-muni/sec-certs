@@ -8,6 +8,7 @@ from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from sec_certs import constants
 from sec_certs.constants import FIPS_MIP_STATUS_RE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import to_utc
@@ -208,10 +209,9 @@ class MIPSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_web(cls) -> "MIPSnapshot":
-        mip_url = "https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/Modules-In-Process-List"
-        mip_resp = requests.get(mip_url)
+        mip_resp = requests.get(constants.FIPS_MIP_URL)
         if mip_resp.status_code != 200:
-            raise ValueError("Getting MIP snapshot failed")
+            raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
 
         snapshot_date = to_utc(datetime.now())
         return cls.from_page(mip_resp.content, snapshot_date)

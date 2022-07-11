@@ -7,6 +7,7 @@ from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.sample.fips_iut import IUTEntry, IUTSnapshot
 from sec_certs.sample.fips_mip import MIPEntry, MIPSnapshot, MIPStatus
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -19,6 +20,7 @@ __all__ = [
     "cached_cpe",
     "CVE",
     "FIPSCertificate",
+    "FIPSAlgorithm",
     "IUTEntry",
     "IUTSnapshot",
     "MIPEntry",

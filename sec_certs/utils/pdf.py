@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Tuple
 import pdftotext
 import pikepdf
 from PyPDF2 import PdfFileReader
-from PyPDF2.generic import BooleanObject, FloatObject, IndirectObject, NumberObject
+from PyPDF2.generic import BooleanObject, ByteStringObject, FloatObject, IndirectObject, NumberObject, TextStringObject
 
 from sec_certs import constants as constants
 from sec_certs.constants import (
@@ -156,6 +156,13 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
         elif isinstance(val, IndirectObject) and not nope_out:
             # Let's make sure to nope out in case of cycles
             val = map_metadata_value(val.getObject(), nope_out=True)
+        elif isinstance(val, TextStringObject):
+            val = str(val)
+        elif isinstance(val, ByteStringObject):
+            try:
+                val = val.decode("utf-8")
+            except UnicodeDecodeError:
+                val = str(val)
         else:
             val = str(val)
         return val
@@ -183,6 +190,7 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             for key, val in pdf_document_info.items():
                 metadata[str(key)] = map_metadata_value(val)
 
+            # Get the hyperlinks in the PDF
             annots = [page.get("/Annots", []) for page in pdf.pages]
             annots = reduce(lambda x, y: x + y, annots)
             links = set()
@@ -193,7 +201,7 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
                     note = a
                 link = note.get("/A", {}).get("/URI")
                 if link:
-                    links.add(link)
+                    links.add(map_metadata_value(link))
             metadata["pdf_hyperlinks"] = links
 
     except Exception as e:

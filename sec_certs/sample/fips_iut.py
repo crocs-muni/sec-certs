@@ -6,6 +6,7 @@ from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import to_utc
 
@@ -132,10 +133,9 @@ class IUTSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_web(cls) -> "IUTSnapshot":
-        iut_url = "https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/IUT-List"
-        iut_resp = requests.get(iut_url)
+        iut_resp = requests.get(constants.FIPS_IUT_URL)
         if iut_resp.status_code != 200:
-            raise ValueError("Getting MIP snapshot failed")
+            raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
 
         snapshot_date = to_utc(datetime.now())
         return cls.from_page(iut_resp.content, snapshot_date)

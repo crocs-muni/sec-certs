@@ -600,7 +600,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         cat_dict = {x: y for (x, y) in zip(cc_table_ids, cc_categories)}
 
         with file.open("r") as handle:
-            soup = BeautifulSoup(handle, "html5lib")
+            soup = BeautifulSoup(handle, "html.parser")
 
         certs = {}
         for key, val in cat_dict.items():

@@ -1,7 +1,6 @@
-import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Optional, Set
 
 from bs4 import BeautifulSoup
 
@@ -10,7 +9,8 @@ from sec_certs import constants as constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.fips import FIPSCertificate
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.sample.fips_algorithm import FIPSAlgorithm
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers as helpers
 from sec_certs.utils import parallel_processing as cert_processing
 
@@ -18,35 +18,48 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
+    certs: Dict[str, FIPSAlgorithm]
 
-    certs: Dict[str, List]  # type: ignore # noqa
+    def __init__(
+        self,
+        certs: Dict[str, FIPSAlgorithm] = dict(),
+        root_dir: Optional[Path] = None,
+        name: str = "dataset name",
+        description: str = "dataset_description",
+    ):
+        super().__init__(certs, root_dir, name, description)
+        self._id_map: Dict[int, List[str]] = {}
 
     def get_certs_from_web(self):
         self.root_dir.mkdir(exist_ok=True)
         algs_paths, algs_urls = [], []
 
         # get first page to find out how many pages there are
-        helpers.download_file(constants.FIPS_ALG_URL + "1", self.root_dir / "page1.html")
+        res = helpers.download_file(constants.FIPS_ALG_SEARCH_URL + "1", self.root_dir / "page1.html")
+        if res != 200:
+            logger.error("Couldn't download first page of algo dataset")
 
         with open(self.root_dir / "page1.html", "r") as alg_file:
             soup = BeautifulSoup(alg_file.read(), "html.parser")
-            num_pages = soup.select("span[data-total-pages]")[0].attrs
+            num_pages_elem = soup.select("span[data-total-pages]")[0].attrs
 
-        for i in range(2, int(num_pages["data-total-pages"]) + 1):
+        num_pages = int(num_pages_elem["data-total-pages"])
+
+        for i in range(2, num_pages + 1):
             if not (self.root_dir / f"page{i}.html").exists():
-                algs_urls.append(constants.FIPS_ALG_URL + str(i))
+                algs_urls.append(constants.FIPS_ALG_SEARCH_URL + str(i))
                 algs_paths.append(self.root_dir / f"page{i}.html")
 
         # get the last page, always
-        helpers.download_file(
-            constants.FIPS_ALG_URL + num_pages["data-total-pages"],
-            self.root_dir / f"page{int(num_pages['data-total-pages'])}.html",
-        )
-        logger.info(f"downloading {len(algs_urls)} algs html files")
+        algs_urls.append(constants.FIPS_ALG_SEARCH_URL + str(num_pages))
+        algs_paths.append(self.root_dir / f"page{num_pages}.html")
+
+        logger.info(f"Downloading {len(algs_urls)} algo html files")
         cert_processing.process_parallel(
             FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)), config.n_threads
         )
 
+        logger.info(f"Parsing {len(algs_urls)} algo html files")
         self.parse_html()
 
     @staticmethod
@@ -88,42 +101,42 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                 )
 
                 alg_type, alg_id = split_alg(validation)
-                fips_alg = FIPSCertificate.Algorithm(alg_id, vendor, product, alg_type, date)
-                if alg_id not in self.certs:
-                    self.certs[alg_id] = []
-                self.certs[alg_id].append(fips_alg)
+                fips_alg = FIPSAlgorithm(alg_id, vendor, product, alg_type, date)
+                self.certs[fips_alg.dgst] = fips_alg
+        # And now rebuild the id map
+        self._build_id_map()
+
+    def _build_id_map(self):
+        for cert in self.certs.values():
+            self._id_map.setdefault(cert.cert_id, [])
+            self._id_map[cert.cert_id].append(cert.dgst)
+
+    def _get_certs_from_name(self, name: str) -> List[FIPSAlgorithm]:
+        raise NotImplementedError("Not meant to be implemented")
+
+    def _set_local_paths(self) -> None:
+        pass
+
+    @classmethod
+    def from_dict(cls, dct: Dict[str, Any]) -> "FIPSAlgorithmDataset":
+        dset: FIPSAlgorithmDataset = super().from_dict(dct)
+        dset._build_id_map()
+        return dset
 
     def convert_all_pdfs(self):
         raise NotImplementedError("Not meant to be implemented")
 
-    def download_all_pdfs(self):
+    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
         raise NotImplementedError("Not meant to be implemented")
 
-    @property
-    def serialized_attributes(self) -> List[str]:
-        return ["certs"]
+    def __getitem__(self, item: str) -> FIPSAlgorithm:
+        return self.certs.__getitem__(item)
 
-    @classmethod
-    def from_dict(cls, dct: Dict):
-        certs = dct["certs"]
+    def __setitem__(self, key: str, value: FIPSAlgorithm):
+        self.certs.__setitem__(key, value)
 
-        directory = dct["_root_dir"] if "_root_dir" in dct else ""
-        dset = cls(certs, Path(directory), "algorithms", "algorithms used in dataset")
-        return dset
-
-    def to_dict(self):
-        return self.__dict__
-
-    def to_json(self, output_path: Union[str, Path] = None):
-        if not output_path:
-            output_path = self.json_path
-        with Path(output_path).open("w") as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder)
-
-    @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        input_path = Path(input_path)
-        with input_path.open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        dset.root_dir = input_path.parent.absolute()
-        return dset
+    def certs_for_id(self, cert_id: int) -> List[FIPSAlgorithm]:
+        if cert_id in self._id_map:
+            return [self.certs[x] for x in self._id_map[cert_id]]
+        else:
+            return []

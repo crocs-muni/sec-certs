@@ -1,5 +1,5 @@
 {
-    "_type": "CommonCriteriaCert",
+    "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
     "dgst": "a9ccb81a92e547dc",
     "status": "archived",
     "category": "Sample category",
@@ -18,7 +18,7 @@
     "protection_profiles": {
         "_type": "Set",
         "elements": [{
-            "_type": "ProtectionProfile",
+            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
             "pp_name": "sample_pp",
             "pp_link": "https://sample.pp",
             "pp_ids": null
@@ -27,7 +27,7 @@
     "maintenance_updates": {
         "_type": "Set",
         "elements": [{
-            "_type": "MaintenanceReport",
+            "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.MaintenanceReport",
             "maintenance_date": "1900-01-01",
             "maintenance_title": "Sample maintenance",
             "maintenance_report_link": "https://maintenance.up",
@@ -35,7 +35,7 @@
         }]
     },
     "state": {
-        "_type": "InternalState",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -49,7 +49,7 @@
         "report_txt_hash": null
     },
     "pdf_data": {
-        "_type": "PdfData",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
         "report_metadata": null,
         "st_metadata": null,
         "report_frontpage": null,
@@ -58,7 +58,7 @@
         "st_keywords": null
     },
     "heuristics": {
-        "_type": "CCHeuristics",
+        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
         "extracted_versions": null,
         "cpe_matches": null,
         "verified_cpe_matches": null,
@@ -69,14 +69,14 @@
         "direct_dependency_cves": null,
         "indirect_dependency_cves": null,
         "report_references": {
-            "_type": "References",
+            "_type": "sec_certs.sample.certificate.References",
             "directly_referenced_by": null,
             "directly_referencing": null,
             "indirectly_referenced_by": null,
             "indirectly_referencing": null
         },
         "st_references": {
-            "_type": "References",
+            "_type": "sec_certs.sample.certificate.References",
             "directly_referenced_by": null,
             "directly_referencing": null,
             "indirectly_referenced_by": null,
