@@ -389,7 +389,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
             return False
 
-        algs = self.algorithms.certs[cert_candidate_id]
+        algs = self.algorithms.certs_for_id(int(cert_candidate_id))
         for current_alg in algs:
             if current_alg.vendor is None or processed_cert.web_data.vendor is None:
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")

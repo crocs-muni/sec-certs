@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
 
 
@@ -9,7 +10,7 @@ class FIPSAlgorithm(ComplexSerializableType):
     Data structure for algorithm of `FIPSCertificate`
     """
 
-    cert_id: str
+    cert_id: int
     vendor: str
     implementation: str
     algorithm_type: str
@@ -17,13 +18,14 @@ class FIPSAlgorithm(ComplexSerializableType):
 
     @property
     def dgst(self) -> str:
-        # certs in dataset are in format { id: [FIPSAlgorithm] }, there is only one type of algorithm
-        # for each id
-        # TODO: This is probably not a good digest.
-        return self.algorithm_type
+        return f"{self.algorithm_type}#{self.cert_id}"
+
+    @property
+    def page_url(self) -> str:
+        return constants.FIPS_ALG_URL.format(self.algorithm_type, self.cert_id)
 
     def __repr__(self) -> str:
-        return self.algorithm_type + " algorithm #" + self.cert_id + " created by " + self.vendor
+        return f"FIPSAlgorithm({self.dgst})"
 
     def __str__(self) -> str:
-        return str(self.algorithm_type + " algorithm #" + self.cert_id + " created by " + self.vendor)
+        return f"{self.algorithm_type} algorithm # {self.cert_id} created by {self.vendor}"

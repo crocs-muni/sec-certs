@@ -14,12 +14,25 @@ MIN_CC_PP_DATASET_SIZE = 2500000
 CPE_VERSION_NA = "-"
 
 FIPS_BASE_URL = "https://csrc.nist.gov"
-FIPS_MODULE_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{}"
-FIPS_ALG_URL = "https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/validation-search?searchMode=implementation&page="
+FIPS_CMVP_URL = FIPS_BASE_URL + "/projects/cryptographic-module-validation-program"
+FIPS_CAVP_URL = FIPS_BASE_URL + "/projects/Cryptographic-Algorithm-Validation-Program"
+FIPS_MODULE_URL = FIPS_CMVP_URL + "/certificate/{}"
+FIPS_ALG_SEARCH_URL = FIPS_CAVP_URL + "/validation-search?searchMode=implementation&page="
 FIPS_SP_URL = "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{}.pdf"
-FIPS_ACTIVE_MODULES_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0"
-FIPS_HISTORICAL_MODULES_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0"
-FIPS_REVOKED_MODULES_URL = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0"
+FIPS_ACTIVE_MODULES_URL = (
+    FIPS_CMVP_URL + "/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0"
+)
+FIPS_HISTORICAL_MODULES_URL = (
+    FIPS_CMVP_URL + "/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0"
+)
+FIPS_REVOKED_MODULES_URL = (
+    FIPS_CMVP_URL + "/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0"
+)
+FIPS_ALG_URL = FIPS_CAVP_URL + "/details?source={}&number={}"
+FIPS_IUT_URL = "https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/IUT-List"
+FIPS_MIP_URL = (
+    "https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/Modules-In-Process-List"
+)
 
 FIPS_DOWNLOAD_DELAY = 1
 

@@ -4,6 +4,8 @@ from tempfile import TemporaryDirectory
 from typing import Dict, Final, List
 from unittest import TestCase
 
+import pytest
+
 import tests.data.test_fips_oop
 from sec_certs.config.configuration import config
 from sec_certs.dataset import FIPSAlgorithmDataset, FIPSDataset
@@ -335,3 +337,13 @@ class TestFipsOOP(TestCase):
             self.assertEqual(
                 set(dataset.certs[fips_dgst("3158")].heuristics.web_references.directly_referencing), {"2398"}
             )
+
+
+class TestFIPSAlgo(TestCase):
+    @pytest.mark.slow
+    def test_get_certs_from_web(self):
+        with TemporaryDirectory() as tmp_dir:
+            web_path = Path(tmp_dir) / "web"
+            web_path.mkdir()
+            aset = FIPSAlgorithmDataset({}, web_path / "algorithms", "algorithms", "sample algs")
+            aset.get_certs_from_web()

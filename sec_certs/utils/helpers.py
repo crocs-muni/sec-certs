@@ -48,6 +48,7 @@ def download_file(
             )
         else:
             ctx = nullcontext
+
         if r.status_code == requests.codes.ok:
             with ctx() as pbar:
                 with output.open("wb") as f:
