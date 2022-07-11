@@ -297,19 +297,21 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             certificate.pdf_data.algorithms += algorithms
         return not_decoded
 
-    def _compute_heuristics_keywords(self) -> None:
+    def _compute_heuristics_clean_ids(self) -> None:
         for cert in self.certs.values():
-            cert.compute_heuristics_keywords()
+            self._clean_cert_ids(cert)
 
     def _extract_metadata(self):
         certs_to_process = [x for x in self]
-        cert_processing.process_parallel(
+        res = cert_processing.process_parallel(
             FIPSCertificate.extract_sp_metadata,
             certs_to_process,
             config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting security policy metadata",
         )
+        for r in res:
+            self.certs[r.dgst] = r
 
     def _unify_algorithms(self) -> None:
         for certificate in self.certs.values():
@@ -353,17 +355,16 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             or cert_first.year < conn_first.year
         )
 
-    def _remove_false_positives_for_cert(self, current_cert: FIPSCertificate) -> None:
-        if current_cert.heuristics.keywords is None:
-            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
-        for rule in current_cert.heuristics.keywords["fips_cert_id"]:
-            matches = current_cert.heuristics.keywords["fips_cert_id"][rule]
-            current_cert.heuristics.keywords["fips_cert_id"][rule] = [
-                cert_id
-                for cert_id in matches
-                if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
-                and cert_id != current_cert.cert_id
-            ]
+    def _clean_cert_ids(self, current_cert: FIPSCertificate) -> None:
+        current_cert.clean_cert_ids()
+        if not current_cert.state.txt_state:
+            return
+        current_cert.heuristics.clean_cert_ids = {
+            cert_id: count
+            for cert_id, count in current_cert.pdf_data.clean_cert_ids.items()
+            if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
+            and cert_id != current_cert.cert_id
+        }
 
     @staticmethod
     def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
@@ -412,7 +413,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                     lambda x: x,
                     map(
                         lambda cid: "".join(filter(str.isdigit, cid)),
-                        cert.heuristics.keywords["fips_cert_id"]["Cert"],
+                        cert.heuristics.clean_cert_ids,
                     ),
                 )
             )
@@ -421,13 +422,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             return set(
                 filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_data.mentioned_certs))
             )
-
-        current_cert: FIPSCertificate
-
-        for current_cert in self.certs.values():
-            if not current_cert.state.txt_state:
-                continue
-            self._remove_false_positives_for_cert(current_cert)
 
         finder = DependencyFinder()
         finder.fit(self.certs, lambda cert: cert.cert_id, pdf_lookup)  # type: ignore
@@ -452,7 +446,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         logger.info("Entering 'analysis' and building connections between certificates.")
         self._extract_metadata()
         self._unify_algorithms()
-        self._compute_heuristics_keywords()
+        self._compute_heuristics_clean_ids()
         self._compute_dependencies()
         if perform_cpe_heuristics:
             _, _, cve_dset = self.compute_cpe_heuristics()

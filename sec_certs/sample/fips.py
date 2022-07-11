@@ -127,8 +127,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         cert_id: int
         keywords: Dict
         algorithms: List
+        clean_cert_ids: Dict[str, int]
         st_metadata: Optional[Dict[str, Any]] = field(default=None)
-        # TODO: Add metadata processing.
 
         def __repr__(self) -> str:
             return str(self.cert_id)
@@ -145,6 +145,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         keywords: Dict[str, Dict]
         algorithms: List[Dict[str, Dict]]
         unmatched_algs: int
+        clean_cert_ids: Dict[str, int]
 
         extracted_versions: Optional[Set[str]] = field(default=None)
         cpe_matches: Optional[Set[str]] = field(default=None)
@@ -153,10 +154,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
 
         st_references: References = field(default_factory=References)
         web_references: References = field(default_factory=References)
-
-        @property
-        def serialized_attributes(self) -> List[str]:
-            return copy.deepcopy(super().serialized_attributes)
 
         @property
         def dgst(self) -> str:
@@ -315,8 +312,9 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
                 items_found["cert_id"],
                 {} if not initialized else initialized.pdf_data.keywords,
                 [] if not initialized else initialized.pdf_data.algorithms,
+                {} if not initialized else initialized.pdf_data.clean_cert_ids,
             ),
-            FIPSCertificate.Heuristics(dict(), [], 0),
+            FIPSCertificate.Heuristics(dict(), [], 0, {}),
             state,
         )
 
@@ -638,7 +636,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         return result
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
-        for found in self.heuristics.keywords["fips_certlike"]["Certlike"]:
+        for found in self.pdf_data.keywords["fips_certlike"]["Certlike"]:
             match_in_found = reg_to_match.search(found)
             match_in_cert = reg_to_match.search(cert)
             if (
@@ -653,39 +651,30 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
                 if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
                     to_pop.add(cert)
 
-    def compute_heuristics_keywords(self) -> None:
+    def clean_cert_ids(self) -> None:
         """
-        Compute the heuristics keywords.
-
-         - Removes algorithm mentions from the cert_id rule matches.
+        Removes algorithm mentions from the cert_id rule matches and stores them into clean_cert_id matches.
         """
         self.state.file_status = True
         if not self.pdf_data.keywords:
             return
 
-        self.heuristics.keywords = copy.deepcopy(self.pdf_data.keywords)
-
-        # XXX: Do not do this, the heuristics keywords need to be from the Security target only,
-        #      because the "st_references" are computed based on these, and the "web_references"
-        #      are computed based on "web_data.mentioned_certs".
-        # Add the mentioned certs
-        # if self.web_data.mentioned_certs:
-        #     for cert_id, value in self.web_data.mentioned_certs.items():
-        #         self.heuristics.keywords["fips_cert_id"]["Cert"]["#" + str(cert_id)] = value["count"]
+        matches = copy.deepcopy(self.pdf_data.keywords["fips_cert_id"]["Cert"])
 
         alg_set = self._create_alg_set()
         for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
             to_pop = set()
-            for cert in self.heuristics.keywords["fips_cert_id"]["Cert"]:
+            for cert in matches:
                 if cert in alg_set:
                     to_pop.add(cert)
                     continue
                 self._process_to_pop(cert_rule, cert, to_pop)
 
             for r in to_pop:
-                self.heuristics.keywords["fips_cert_id"]["Cert"].pop(r, None)
+                matches.pop(r, None)
 
-        self.heuristics.keywords["fips_cert_id"]["Cert"].pop("#" + str(self.cert_id), None)
+        matches.pop("#" + str(self.cert_id), None)
+        self.pdf_data.clean_cert_ids = matches
 
     @staticmethod
     def get_compare(vendor: str) -> str:
