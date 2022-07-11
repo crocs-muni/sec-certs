@@ -232,6 +232,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @serialize
     def get_certs_from_web(
         self,
+        # TODO: REMOVE THIS TEST ARGUMENT, OMG!
         test: Optional[Path] = None,
         update: bool = False,
         redo_web_scan=False,
@@ -299,6 +300,16 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _compute_heuristics_keywords(self) -> None:
         for cert in self.certs.values():
             cert.compute_heuristics_keywords()
+
+    def _extract_metadata(self):
+        certs_to_process = [x for x in self]
+        cert_processing.process_parallel(
+            FIPSCertificate.extract_sp_metadata,
+            certs_to_process,
+            config.n_threads,
+            use_threading=False,
+            progress_bar_desc="Extracting security policy metadata",
+        )
 
     def _unify_algorithms(self) -> None:
         for certificate in self.certs.values():
@@ -394,11 +405,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 return False
         return True
 
-    def _validate_results(self) -> None:
-        """
-        Function that validates results and finds the final connection output
-        """
-
+    def _compute_dependencies(self) -> None:
         def pdf_lookup(cert):
             return set(
                 filter(
@@ -443,9 +450,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param bool perform_cpe_heuristics: If CPE heuristics shall be computed, defaults to True
         """
         logger.info("Entering 'analysis' and building connections between certificates.")
+        self._extract_metadata()
         self._unify_algorithms()
         self._compute_heuristics_keywords()
-        self._validate_results()
+        self._compute_dependencies()
         if perform_cpe_heuristics:
             _, _, cve_dset = self.compute_cpe_heuristics()
             self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
@@ -580,9 +588,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def plot_graphs(self, show: bool = False) -> None:
         """
         Plots FIPS graphs.
-        # TODO: Currently broken, see https://github.com/crocs-muni/sec-certs/issues/211
-        :param bool show: If plots should be showed with .show() method, defaults to False
+
+        :param bool show: If plots should be shown with .show() method, defaults to False
         """
         self._create_dot_graph("full_graph", show=show)
         self._create_dot_graph("web_only_graph", "web", show=show)
-        self._create_dot_graph("pdf_only_graph", "pdf", show=show)
+        self._create_dot_graph("st_only_graph", "st", show=show)

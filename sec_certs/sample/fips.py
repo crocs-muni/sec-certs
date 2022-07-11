@@ -106,16 +106,6 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         sw_versions: Optional[str]
         product_url: Optional[str]
 
-        @property
-        def dgst(self) -> str:
-            return helpers.get_first_16_bytes_sha256(
-                self.product_url
-                if self.product_url is not None
-                else "" + self.vendor_www
-                if self.vendor_www is not None
-                else ""
-            )
-
         def __repr__(self) -> str:
             return (
                 self.module_name
@@ -137,11 +127,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         cert_id: int
         keywords: Dict
         algorithms: List
+        st_metadata: Optional[Dict[str, Any]] = field(default=None)
         # TODO: Add metadata processing.
-
-        @property
-        def dgst(self) -> str:
-            return helpers.get_first_16_bytes_sha256(str(self.keywords))
 
         def __repr__(self) -> str:
             return str(self.cert_id)
@@ -352,9 +339,15 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         """
         Downloads security policy file from web. Staticmethod to allow for parametrization.
         """
-        exit_code = helpers.download_file(*cert, delay=1)
+        exit_code = helpers.download_file(*cert, delay=constants.FIPS_DOWNLOAD_DELAY)
         if exit_code != requests.codes.ok:
             logger.error(f"Failed to download security policy from {cert[0]}, code: {exit_code}")
+
+    @staticmethod
+    def extract_sp_metadata(cert: FIPSCertificate) -> FIPSCertificate:
+        """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
+        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.sp_path)
+        return cert
 
     @staticmethod
     def _initialize_dictionary() -> Dict[str, Any]:

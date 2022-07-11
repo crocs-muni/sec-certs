@@ -116,6 +116,11 @@ class TestFipsOOP(TestCase):
                 dataset = _set_up_dataset(tmp_dir, certs)
                 self.assertEqual(len(dataset.certs), len(certs), "Wrong number of parsed certs")
 
+    def test_metadata_extraction(self):
+        with TemporaryDirectory() as tmp_dir:
+            dst = _set_up_dataset_for_full(tmp_dir, ["3493"], self.cpe_dset_path, self.cve_dset_path)
+            self.assertIsNotNone(dst.certs[fips_dgst("3493")].pdf_data.st_metadata)
+
     def test_connections_microsoft(self):
         certs = self.certs_to_parse["microsoft"]
         with TemporaryDirectory() as tmp_dir:
