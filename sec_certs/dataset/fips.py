@@ -226,9 +226,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 len(dset),
                 len(dset.algorithms) if dset.algorithms is not None else 0,
             )
-            # TODO: Fixme, this is really costly
-            # logger.info("The dataset does not contain the results of the dependency analysis - calculating them now...")
-            # dset.finalize_results()
             return dset
 
     def _set_local_paths(self) -> None:
