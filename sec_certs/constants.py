@@ -57,3 +57,23 @@ GARBAGE_SIZE_THRESHOLD = 1000
 GARBAGE_AVG_LLEN_THRESHOLD = 10
 GARBAGE_EVERY_SECOND_CHAR_THRESHOLD = 15
 GARBAGE_ALPHA_CHARS_THRESHOLD = 0.5
+
+CC_AUSTRALIA_BASE_URL = "https://www.cyber.gov.au"
+CC_AUSTRALIA_CERTIFIED_URL = (
+    CC_AUSTRALIA_BASE_URL + "/acsc/view-all-content/programs/australian-information-security-evaluation-program"
+)
+CC_CANADA_CERTIFIED_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteria/certified-products"
+CC_CANADA_INEVAL_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteria/products-evaluation"
+CC_ANSSI_BASE_URL = "https://www.ssi.gouv.fr"
+CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/en/products/certified-products/"
+CC_BSI_BASE_URL = "https://www.bsi.bund.de/"
+CC_BSI_CERTIFIED_URL = CC_BSI_BASE_URL + "EN/Topics/Certification/certified_products/certified_products_node.html"
+CC_INDIA_CERTIFIED_URL = "https://www.commoncriteria-india.gov.in/product-certified"
+CC_INDIA_ARCHIVED_URL = "https://www.commoncriteria-india.gov.in/archived-prod-cer"
+CC_ITALY_BASE_URL = "https://ocsi.isticom.it"
+CC_ITALY_CERTIFIED_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/prodotti-certificati"
+CC_ITALY_INEVAL_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/in-corso-di-valutazione"
+
+CC_JAPAN_CERTIFIED_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/certified_products/certfy_list_e31.html"
+CC_JAPAN_ARCHIVED_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/certified_products/certfy_list_e_archive.html"
+CC_JAPAN_INEVAL_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/prdct_in_eval.html"
