@@ -1102,15 +1102,13 @@ class CCSchemeDataset:
             url = a["href"]
             category_name = str(a.text)
             soup = CCSchemeDataset._download_page(constants.CC_BSI_BASE_URL + url)
-            content = soup.find("div", class_="content")
-            for header in content.find_all("h2"):
-                if "aural" in header.attrs.get("class", ""):
-                    continue
-                subcategory_name = str(header.text)
-                tbody = header.find_next_sibling("div", class_="wrapperTable").find("tbody")
+            content = soup.find("div", class_="content").find("div", class_="column")
+            for table in content.find_all("table"):
+                tbody = table.find("tbody")
+                header = table.find_parent("div", class_="wrapperTable").find_previous_sibling("h2")
                 for tr in tbody.find_all("tr"):
                     tds = tr.find_all("td")
-                    if not tds:
+                    if len(tds) != 4:
                         continue
                     cert = {
                         "cert_id": str(tds[0].text),
@@ -1118,9 +1116,10 @@ class CCSchemeDataset:
                         "vendor": str(tds[2].text),
                         "certification_date": str(tds[3].text),
                         "category": category_name,
-                        "subcategory": subcategory_name,
                         "url": constants.CC_BSI_BASE_URL + str(tds[0].find("a")["href"]),
                     }
+                    if header is not None:
+                        cert["subcategory"] = str(header.text)
                     results.append(cert)
         return results
 
