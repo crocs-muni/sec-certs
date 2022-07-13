@@ -1,48 +1,51 @@
 from unittest import TestCase
 
+import pytest
+
 from sec_certs.dataset.common_criteria import CCSchemeDataset
 
 
 class TestCCSchemes(TestCase):
     def test_australia(self):
-        CCSchemeDataset.get_australia_in_evaluation()
+        assert len(CCSchemeDataset.get_australia_in_evaluation()) != 0
 
     def test_canada(self):
-        CCSchemeDataset.get_canada_certified()
-        CCSchemeDataset.get_canada_in_evaluation()
+        assert len(CCSchemeDataset.get_canada_certified()) != 0
+        assert len(CCSchemeDataset.get_canada_in_evaluation()) != 0
 
     def test_anssi(self):
-        CCSchemeDataset.get_france_certified()
+        assert len(CCSchemeDataset.get_france_certified()) != 0
 
     def test_bsi(self):
-        CCSchemeDataset.get_germany_certified()
+        assert len(CCSchemeDataset.get_germany_certified()) != 0
 
+    @pytest.mark.xfail
     def test_india(self):
-        CCSchemeDataset.get_india_certified()
-        CCSchemeDataset.get_india_archived()
+        assert len(CCSchemeDataset.get_india_certified()) != 0
+        assert len(CCSchemeDataset.get_india_archived()) != 0
 
     def test_italy(self):
-        CCSchemeDataset.get_italy_certified()
-        CCSchemeDataset.get_italy_in_evaluation()
+        assert len(CCSchemeDataset.get_italy_certified()) != 0
+        assert len(CCSchemeDataset.get_italy_in_evaluation()) != 0
 
     def test_japan(self):
-        CCSchemeDataset.get_japan_certified()
-        CCSchemeDataset.get_japan_archived()
-        CCSchemeDataset.get_japan_in_evaluation()
+        assert len(CCSchemeDataset.get_japan_certified()) != 0
+        assert len(CCSchemeDataset.get_japan_archived()) != 0
+        assert len(CCSchemeDataset.get_japan_in_evaluation()) != 0
 
     def test_malaysia(self):
-        CCSchemeDataset.get_malaysia_certified()
-        CCSchemeDataset.get_malaysia_in_evalution()
+        assert len(CCSchemeDataset.get_malaysia_certified()) != 0
+        assert len(CCSchemeDataset.get_malaysia_in_evalution()) != 0
 
     def test_netherlands(self):
-        CCSchemeDataset.get_netherlands_certified()
-        CCSchemeDataset.get_netherlands_in_evaluation()
+        assert len(CCSchemeDataset.get_netherlands_certified()) != 0
+        assert len(CCSchemeDataset.get_netherlands_in_evaluation()) != 0
 
     def test_norway(self):
-        CCSchemeDataset.get_norway_certified()
-        CCSchemeDataset.get_norway_archived()
+        assert len(CCSchemeDataset.get_norway_certified()) != 0
+        assert len(CCSchemeDataset.get_norway_archived()) != 0
 
     def test_korea(self):
-        CCSchemeDataset.get_korea_certified()
+        assert len(CCSchemeDataset.get_korea_certified()) != 0
         CCSchemeDataset.get_korea_suspended()
-        CCSchemeDataset.get_korea_archived()
+        assert len(CCSchemeDataset.get_korea_archived()) != 0

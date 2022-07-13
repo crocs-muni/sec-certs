@@ -1104,8 +1104,10 @@ class CCSchemeDataset:
             soup = CCSchemeDataset._download_page(constants.CC_BSI_BASE_URL + url)
             content = soup.find("div", class_="content")
             for header in content.find_all("h2"):
+                if "aural" in header.attrs.get("class", ""):
+                    continue
                 subcategory_name = str(header.text)
-                tbody = header.find_next_sibling("table").find("tbody")
+                tbody = header.find_next_sibling("div", class_="wrapperTable").find("tbody")
                 for tr in tbody.find_all("tr"):
                     tds = tr.find_all("td")
                     if not tds:
