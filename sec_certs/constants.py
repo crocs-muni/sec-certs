@@ -86,3 +86,22 @@ CC_NORWAY_CERTIFIED_URL = "https://sertit.no/certified-products/category1919.htm
 CC_NORWAY_ARCHIVED_URL = "https://sertit.no/certified-products/product-archive/"
 CC_KOREA_EN_URL = "https://itscc.kr/main/main.do?accessMode=home_en"
 CC_KOREA_CERTIFIED_URL = "https://itscc.kr/certprod/list.do"
+CC_KOREA_PRODUCT_URL = "https://itscc.kr/certprod/view.do?product_id={}&product_class=1"
+CC_SINGAPORE_BASE_URL = "https://www.csa.gov.sg"
+CC_SINGAPORE_CERTIFIED_URL = (
+    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-list"
+)
+CC_SINGAPORE_ARCHIVED_URL = (
+    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-archives"
+)
+CC_SPAIN_BASE_URL = "https://oc.ccn.cni.es"
+CC_SPAIN_CERTIFIED_URL = CC_SPAIN_BASE_URL + "/en/certified-products/certified-products"
+CC_SWEDEN_BASE_URL = "https://www.fmv.se"
+CC_SWEDEN_CERTIFIED_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/certifikat-utgivna-av-csec/"
+CC_SWEDEN_INEVAL_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/pagaende-certifieringar/"
+CC_SWEDEN_ARCHIVED_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/arkiverade-certifikat-aldre-an-5-ar/"
+CC_TURKEY_ARCHIVED_URL = "https://statik.tse.org.tr/upload/tr/dosya/icerikyonetimi/3300/03112021143434-2.pdf"
+CC_USA_BASE_URL = "https://www.niap-ccevs.org"
+CC_USA_CERTIFIED_URL = CC_USA_BASE_URL + "/Product/PCL.cfm"
+CC_USA_INEVAL_URL = CC_USA_BASE_URL + "/Product/PINE.cfm"
+CC_USA_ARCHIVED_URL = CC_USA_BASE_URL + "/Product/Archived.cfm"

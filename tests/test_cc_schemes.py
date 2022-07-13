@@ -49,3 +49,24 @@ class TestCCSchemes(TestCase):
         assert len(CCSchemeDataset.get_korea_certified()) != 0
         CCSchemeDataset.get_korea_suspended()
         assert len(CCSchemeDataset.get_korea_archived()) != 0
+
+    def test_singapore(self):
+        assert len(CCSchemeDataset.get_singapore_certified()) != 0
+        assert len(CCSchemeDataset.get_singapore_archived()) != 0
+        assert len(CCSchemeDataset.get_singapore_in_evaluation()) != 0
+
+    def test_spain(self):
+        assert len(CCSchemeDataset.get_spain_certified()) != 0
+
+    def test_sweden(self):
+        assert len(CCSchemeDataset.get_sweden_certified()) != 0
+        assert len(CCSchemeDataset.get_sweden_in_evalution()) != 0
+        assert len(CCSchemeDataset.get_sweden_archived()) != 0
+
+    def test_turkey(self):
+        assert len(CCSchemeDataset.get_turkey_certified()) != 0
+
+    def test_usa(self):
+        assert len(CCSchemeDataset.get_usa_certified()) != 0
+        assert len(CCSchemeDataset.get_usa_in_evaluation()) != 0
+        assert len(CCSchemeDataset.get_usa_archived()) != 0
