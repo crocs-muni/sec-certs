@@ -57,3 +57,51 @@ GARBAGE_SIZE_THRESHOLD = 1000
 GARBAGE_AVG_LLEN_THRESHOLD = 10
 GARBAGE_EVERY_SECOND_CHAR_THRESHOLD = 15
 GARBAGE_ALPHA_CHARS_THRESHOLD = 0.5
+
+CC_AUSTRALIA_BASE_URL = "https://www.cyber.gov.au"
+CC_AUSTRALIA_CERTIFIED_URL = (
+    CC_AUSTRALIA_BASE_URL + "/acsc/view-all-content/programs/australian-information-security-evaluation-program"
+)
+CC_CANADA_CERTIFIED_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteria/certified-products"
+CC_CANADA_INEVAL_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteria/products-evaluation"
+CC_ANSSI_BASE_URL = "https://www.ssi.gouv.fr"
+CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/en/products/certified-products/"
+CC_BSI_BASE_URL = "https://www.bsi.bund.de/"
+CC_BSI_CERTIFIED_URL = CC_BSI_BASE_URL + "EN/Topics/Certification/certified_products/certified_products_node.html"
+CC_INDIA_CERTIFIED_URL = "https://www.commoncriteria-india.gov.in/product-certified"
+CC_INDIA_ARCHIVED_URL = "https://www.commoncriteria-india.gov.in/archived-prod-cer"
+CC_ITALY_BASE_URL = "https://ocsi.isticom.it"
+CC_ITALY_CERTIFIED_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/prodotti-certificati"
+CC_ITALY_INEVAL_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/in-corso-di-valutazione"
+CC_JAPAN_CERTIFIED_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/certified_products/certfy_list_e31.html"
+CC_JAPAN_ARCHIVED_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/certified_products/certfy_list_e_archive.html"
+CC_JAPAN_INEVAL_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/prdct_in_eval.html"
+CC_MALAYSIA_BASE_URL = "https://www.cybersecurity.my/mycc"
+CC_MALAYSIA_CERTIFIED_URL = CC_MALAYSIA_BASE_URL + "/mycprA.html"
+CC_MALAYSIA_INEVAL_URL = CC_MALAYSIA_BASE_URL + "/mycprC.html"
+CC_NETHERLANDS_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
+CC_NETHERLANDS_CERTIFIED_URL = CC_NETHERLANDS_BASE_URL + "/certificates.html"
+CC_NETHERLANDS_INEVAL_URL = CC_NETHERLANDS_BASE_URL + "/ongoing-certifications.html"
+CC_NORWAY_CERTIFIED_URL = "https://sertit.no/certified-products/category1919.html"
+CC_NORWAY_ARCHIVED_URL = "https://sertit.no/certified-products/product-archive/"
+CC_KOREA_EN_URL = "https://itscc.kr/main/main.do?accessMode=home_en"
+CC_KOREA_CERTIFIED_URL = "https://itscc.kr/certprod/list.do"
+CC_KOREA_PRODUCT_URL = "https://itscc.kr/certprod/view.do?product_id={}&product_class=1"
+CC_SINGAPORE_BASE_URL = "https://www.csa.gov.sg"
+CC_SINGAPORE_CERTIFIED_URL = (
+    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-list"
+)
+CC_SINGAPORE_ARCHIVED_URL = (
+    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-archives"
+)
+CC_SPAIN_BASE_URL = "https://oc.ccn.cni.es"
+CC_SPAIN_CERTIFIED_URL = CC_SPAIN_BASE_URL + "/en/certified-products/certified-products"
+CC_SWEDEN_BASE_URL = "https://www.fmv.se"
+CC_SWEDEN_CERTIFIED_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/certifikat-utgivna-av-csec/"
+CC_SWEDEN_INEVAL_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/pagaende-certifieringar/"
+CC_SWEDEN_ARCHIVED_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/arkiverade-certifikat-aldre-an-5-ar/"
+CC_TURKEY_ARCHIVED_URL = "https://statik.tse.org.tr/upload/tr/dosya/icerikyonetimi/3300/03112021143434-2.pdf"
+CC_USA_BASE_URL = "https://www.niap-ccevs.org"
+CC_USA_CERTIFIED_URL = CC_USA_BASE_URL + "/Product/PCL.cfm"
+CC_USA_INEVAL_URL = CC_USA_BASE_URL + "/Product/PINE.cfm"
+CC_USA_ARCHIVED_URL = CC_USA_BASE_URL + "/Product/Archived.cfm"
