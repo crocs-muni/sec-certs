@@ -997,8 +997,12 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
 class CCSchemeDataset:
     @staticmethod
-    def _download_page(url):
-        resp = requests.get(url, headers={"User-Agent": "seccerts.org"})
+    def _download_page(url, session=None):
+        if session:
+            conn = session
+        else:
+            conn = requests
+        resp = conn.get(url, headers={"User-Agent": "seccerts.org"})
         if resp.status_code != requests.codes.ok:
             raise ValueError(f"Unable to download: status={resp.status_code}")
         return BeautifulSoup(resp.content, "html.parser")
@@ -1350,3 +1354,190 @@ class CCSchemeDataset:
             }
             results.append(cert)
         return results
+
+    @staticmethod
+    def get_malaysia_certified():
+        soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_CERTIFIED_URL)
+        main_table = soup.find("table").find("table")
+        cert_table = main_table.find_all("table")[1].find("table")
+        tables = cert_table.find_all(lambda x: x.name == "table" and x.find_parent("table") == cert_table)
+        category_name = None
+        archive = False
+        results = []
+        for table in tables:
+            if table.find("table") is None:
+                name_td = table.find_all("td")[1]
+                if "Archive" in name_td.text:
+                    category_name = str(name_td.text).split("Archive")[1]
+                    archive = True
+                else:
+                    category_name = str(name_td.text)
+                    archive = False
+                continue
+            data_table = table.find("table")
+            tr = data_table.find_all("tr")[1]
+            tds = tr.find_all("td")
+            if len(tds) != 6:
+                continue
+            cert = {
+                "category": category_name,
+                "archived": archive,
+                "level": str(tds[0].text),
+                "cert_id": str(tds[1].text),
+                "certification_date": str(tds[2].text),
+                "product": str(tds[3].text),
+                "developer": str(tds[4].text),
+            }
+            results.append(cert)
+        return results
+
+    @staticmethod
+    def get_malaysia_in_evalution():
+        soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_INEVAL_URL)
+        cert_table = soup.find("table").find("table").find_all("table")[1]
+        tables = cert_table.find_all(lambda x: x.name == "table" and x.find_parent("table") == cert_table)
+        results = []
+        for table in tables:
+            cat_p = table.find_previous_sibling("p")
+            data_table = table.find("table")
+            tr = data_table.find_all("tr")[1]
+            tds = tr.find_all("td")
+            if len(tds) != 5:
+                continue
+            cert = {
+                "category": str(cat_p.text),
+                "level": str(tds[0].text),
+                "project_id": str(tds[1].text),
+                "toe_name": str(tds[2].text),
+                "developer": str(tds[3].text),
+                "expected_completion_date": str(tds[4].text),
+            }
+            results.append(cert)
+        return results
+
+    @staticmethod
+    def get_netherlands_certified():
+        soup = CCSchemeDataset._download_page(constants.CC_NETHERLANDS_CERTIFIED_URL)
+        main_div = soup.select("body > main > div > div > div > div:nth-child(2) > div.col-lg-9 > div:nth-child(3)")[0]
+        rows = main_div.find_all("div", class_="row", recursive=False)
+        modals = main_div.find_all("div", class_="modal", recursive=False)
+        results = []
+        for row, modal in zip(rows, modals):
+            row_entries = row.find_all("a")
+            modal_trs = modal.find_all("tr")
+            cert = {
+                "manufacturer": str(row_entries[0].text),
+                "product": str(row_entries[1].text),
+                "scheme": str(row_entries[2].text),
+                "cert_id": str(row_entries[3].text),
+            }
+            for tr in modal_trs:
+                th_text = tr.find("th").text
+                td = tr.find("td")
+                if "Manufacturer website" in th_text:
+                    cert["manufacturer_link"] = td.find("a")["href"]
+                elif "Assurancelevel" in th_text:
+                    cert["level"] = str(td.text)
+                elif "Certificate" in th_text:
+                    cert["cert_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                elif "Certificationreport" in th_text:
+                    cert["report_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                elif "Securitytarget" in th_text:
+                    cert["target_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                elif "Maintenance report" in th_text:
+                    cert["maintenance_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+            results.append(cert)
+        return results
+
+    @staticmethod
+    def get_netherlands_in_evaluation():
+        soup = CCSchemeDataset._download_page(constants.CC_NETHERLANDS_INEVAL_URL)
+        table = soup.find("table")
+        results = []
+        for tr in table.find_all("tr")[1:]:
+            tds = tr.find_all("td")
+            cert = {
+                "developer": str(tds[0].text),
+                "product": str(tds[1].text),
+                "category": str(tds[2].text),
+                "level": str(tds[3].text),
+                "certification_id": str(tds[4].text),
+            }
+            results.append(cert)
+        return results
+
+    @staticmethod
+    def _get_norway(url):
+        soup = CCSchemeDataset._download_page(url)
+        results = []
+        for tr in soup.find_all("tr", class_="certified-product"):
+            tds = tr.find_all("td")
+            cert = {
+                "product": str(tds[0].text).strip(),
+                "product_link": tds[0].find("a")["href"],
+                "category": str(tds[1].find("p", class_="value").text),
+                "developer": str(tds[2].find("p", class_="value").text),
+                "certification_date": str(tds[3].find("time").text),
+            }
+            results.append(cert)
+        return results
+
+    @staticmethod
+    def get_norway_certified():
+        return CCSchemeDataset._get_norway(constants.CC_NORWAY_CERTIFIED_URL)
+
+    @staticmethod
+    def get_norway_archived():
+        return CCSchemeDataset._get_norway(constants.CC_NORWAY_ARCHIVED_URL)
+
+    @staticmethod
+    def _get_korea(product_class):
+        session = requests.session()
+        session.get(constants.CC_KOREA_EN_URL)
+        # Get base page
+        url = constants.CC_KOREA_CERTIFIED_URL + f"?product_class={product_class}"
+        soup = CCSchemeDataset._download_page(url, session=session)
+        seen_pages = set()
+        pages = {1}
+        results = []
+        while pages:
+            page = pages.pop()
+            csrf = soup.find("form", id="fm").find("input", attrs={"name": "csrf"})["value"]
+            resp = session.post(url, data={"csrf": csrf, "selectPage": page, "product_class": product_class})
+            soup = BeautifulSoup(resp.content, "html.parser")
+            tbody = soup.find("table", class_="cpl").find("tbody")
+            for tr in tbody.find_all("tr"):
+                tds = tr.find_all("td")
+                if len(tds) != 6:
+                    continue
+                cert = {
+                    "product": str(tds[0].text),
+                    "cert_id": str(tds[1].text),
+                    "vendor": str(tds[2].text),
+                    "level": str(tds[3].text),
+                    "category": str(tds[4].text),
+                    "certification_date": str(tds[5].text),
+                }
+                results.append(cert)
+            seen_pages.add(page)
+            page_links = soup.find("div", class_="paginate").find_all("a", class_="number_off")
+            for page_link in page_links:
+                try:
+                    new_page = int(page_link.text)
+                    if new_page not in seen_pages:
+                        pages.add(new_page)
+                except Exception:
+                    pass
+        return results
+
+    @staticmethod
+    def get_korea_certified():
+        return CCSchemeDataset._get_korea(product_class=1)
+
+    @staticmethod
+    def get_korea_suspended():
+        return CCSchemeDataset._get_korea(product_class=2)
+
+    @staticmethod
+    def get_korea_archived():
+        return CCSchemeDataset._get_korea(product_class=4)
