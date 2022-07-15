@@ -84,6 +84,14 @@ def reload_nginx(c):
 
 
 @task
+def update(c):
+    """Update the sec-certs clone."""
+    print("Updating...")
+    with c.cd("/var/www/sec-certs/sec-certs"):
+        c.run(as_www_data(["git", "pull", "--tags", "origin", "main"], virtual=False))
+
+
+@task
 def deploy(c):
     """Deploy the whole thing, does a reload-only deploy."""
     print("Pulling...")
