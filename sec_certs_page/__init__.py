@@ -201,7 +201,7 @@ from .views import *
 
 
 @worker_process_init.connect
-def setup_celery_worker(sender, *kwargs):
+def setup_celery_worker(sender, **kwargs):
     mongo.init_app(app)
 
 
