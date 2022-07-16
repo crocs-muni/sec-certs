@@ -5,6 +5,7 @@ from pathlib import Path
 import sentry_sdk
 from celery import Celery, Task
 from celery.schedules import crontab
+from celery.signals import worker_process_init
 from flag import flag
 from flask import Flask, request
 from flask_assets import Environment as Assets
@@ -199,6 +200,11 @@ app.register_blueprint(docs)
 
 from .tasks import run_updates
 from .views import *
+
+
+@worker_process_init.connect
+def setup_celery_worker(sender, *kwargs):
+    mongo.init_app(app)
 
 
 @celery.on_after_configure.connect
