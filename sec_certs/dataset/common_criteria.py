@@ -603,7 +603,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         cat_dict = {x: y for (x, y) in zip(cc_table_ids, cc_categories)}
 
         with file.open("r") as handle:
-            soup = BeautifulSoup(handle, "html.parser")
+            soup = BeautifulSoup(handle, "html5lib")
 
         certs = {}
         for key, val in cat_dict.items():
@@ -1006,7 +1006,7 @@ class CCSchemeDataset:
         resp = conn.get(url, headers={"User-Agent": "seccerts.org"})
         if resp.status_code != requests.codes.ok:
             raise ValueError(f"Unable to download: status={resp.status_code}")
-        return BeautifulSoup(resp.content, "html.parser")
+        return BeautifulSoup(resp.content, "html5lib")
 
     @staticmethod
     def get_australia_in_evaluation():
@@ -1500,7 +1500,7 @@ class CCSchemeDataset:
             page = pages.pop()
             csrf = soup.find("form", id="fm").find("input", attrs={"name": "csrf"})["value"]
             resp = session.post(url, data={"csrf": csrf, "selectPage": page, "product_class": product_class})
-            soup = BeautifulSoup(resp.content, "html.parser")
+            soup = BeautifulSoup(resp.content, "html5lib")
             tbody = soup.find("table", class_="cpl").find("tbody")
             for tr in tbody.find_all("tr"):
                 tds = tr.find_all("td")

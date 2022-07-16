@@ -40,7 +40,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             logger.error("Couldn't download first page of algo dataset")
 
         with open(self.root_dir / "page1.html", "r") as alg_file:
-            soup = BeautifulSoup(alg_file.read(), "html.parser")
+            soup = BeautifulSoup(alg_file.read(), "html5lib")
             num_pages_elem = soup.select("span[data-total-pages]")[0].attrs
 
         num_pages = int(num_pages_elem["data-total-pages"])
@@ -89,7 +89,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                 continue
 
             with open(f, "r", encoding="utf-8") as handle:
-                html_soup = BeautifulSoup(handle.read(), "html.parser")
+                html_soup = BeautifulSoup(handle.read(), "html5lib")
 
             table = html_soup.find("table", class_="table table-condensed publications-table table-bordered")
             tbody_contents = table.find("tbody").find_all("tr")

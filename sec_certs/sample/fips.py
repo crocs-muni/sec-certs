@@ -426,7 +426,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
             items_found["cert_id"] = int(file.stem)
 
         text = sec_certs.utils.extract.load_cert_html_file(str(file))
-        soup = BeautifulSoup(text, "html.parser")
+        soup = BeautifulSoup(text, "html5lib")
         for div in soup.find_all("div", class_="row padrow"):
             _FIPSHTMLParser.parse_html_main(div, items_found)
 

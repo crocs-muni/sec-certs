@@ -164,7 +164,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
         logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
-            html = BeautifulSoup(handle.read(), "html.parser")
+            html = BeautifulSoup(handle.read(), "html5lib")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
         entries: Set[str] = set()
