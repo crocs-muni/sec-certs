@@ -1366,61 +1366,47 @@ class CCSchemeDataset:
     @staticmethod
     def get_malaysia_certified():
         soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_CERTIFIED_URL)
-        main_table = soup.find("table").find("table")
-        cert_table = main_table.find_all("table")[1].find("table")
-        tables = cert_table.find_all(lambda x: x.name == "table" and x.find_parent("table") == cert_table)
-        category_name = None
-        archive = False
+        main_div = soup.find("div", attrs={"itemprop": "articleBody"})
+        tables = main_div.find_all("table", recursive=False)
         results = []
         for table in tables:
-            if table.find("table") is None:
-                name_td = table.find_all("td")[1]
-                if "Archive" in name_td.text:
-                    category_name = str(name_td.text).split("Archive")[1]
-                    archive = True
-                else:
-                    category_name = str(name_td.text)
-                    archive = False
-                continue
-            data_table = table.find("table")
-            tr = data_table.find_all("tr")[1]
-            tds = tr.find_all("td")
-            if len(tds) != 6:
-                continue
-            cert = {
-                "category": category_name,
-                "archived": archive,
-                "level": str(tds[0].text),
-                "cert_id": str(tds[1].text),
-                "certification_date": str(tds[2].text),
-                "product": str(tds[3].text),
-                "developer": str(tds[4].text),
-            }
-            results.append(cert)
+            category_name = str(table.find_previous_sibling("h3").text)
+            for tr in table.find_all("tr")[1:]:
+                tds = tr.find_all("td")
+                if len(tds) != 6:
+                    continue
+                cert = {
+                    "category": category_name,
+                    "level": str(tds[0].text),
+                    "cert_id": str(tds[1].text),
+                    "certification_date": str(tds[2].text),
+                    "product": str(tds[3].text),
+                    "developer": str(tds[4].text),
+                }
+                results.append(cert)
         return results
 
     @staticmethod
-    def get_malaysia_in_evalution():
+    def get_malaysia_in_evaluation():
         soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_INEVAL_URL)
-        cert_table = soup.find("table").find("table").find_all("table")[1]
-        tables = cert_table.find_all(lambda x: x.name == "table" and x.find_parent("table") == cert_table)
+        main_div = soup.find("div", attrs={"itemprop": "articleBody"})
+        tables = main_div.find_all("table", recursive=False)
         results = []
         for table in tables:
-            cat_p = table.find_previous_sibling("p")
-            data_table = table.find("table")
-            tr = data_table.find_all("tr")[1]
-            tds = tr.find_all("td")
-            if len(tds) != 5:
-                continue
-            cert = {
-                "category": str(cat_p.text),
-                "level": str(tds[0].text),
-                "project_id": str(tds[1].text),
-                "toe_name": str(tds[2].text),
-                "developer": str(tds[3].text),
-                "expected_completion_date": str(tds[4].text),
-            }
-            results.append(cert)
+            category_name = str(table.find_previous_sibling("h3").text)
+            for tr in table.find_all("tr")[1:]:
+                tds = tr.find_all("td")
+                if len(tds) != 5:
+                    continue
+                cert = {
+                    "category": category_name,
+                    "level": str(tds[0].text),
+                    "project_id": str(tds[1].text),
+                    "toe_name": str(tds[2].text),
+                    "developer": str(tds[3].text),
+                    "expected_completion": str(tds[4].text),
+                }
+                results.append(cert)
         return results
 
     @staticmethod

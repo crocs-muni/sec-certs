@@ -35,7 +35,7 @@ class TestCCSchemes(TestCase):
 
     def test_malaysia(self):
         assert len(CCSchemeDataset.get_malaysia_certified()) != 0
-        assert len(CCSchemeDataset.get_malaysia_in_evalution()) != 0
+        assert len(CCSchemeDataset.get_malaysia_in_evaluation()) != 0
 
     def test_netherlands(self):
         assert len(CCSchemeDataset.get_netherlands_certified()) != 0

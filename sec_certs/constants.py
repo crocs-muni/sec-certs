@@ -76,9 +76,14 @@ CC_ITALY_INEVAL_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/in-
 CC_JAPAN_CERTIFIED_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/certified_products/certfy_list_e31.html"
 CC_JAPAN_ARCHIVED_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/certified_products/certfy_list_e_archive.html"
 CC_JAPAN_INEVAL_URL = "https://www.ipa.go.jp/security/jisec/jisec_e/prdct_in_eval.html"
-CC_MALAYSIA_BASE_URL = "https://www.cybersecurity.my/mycc"
-CC_MALAYSIA_CERTIFIED_URL = CC_MALAYSIA_BASE_URL + "/mycprA.html"
-CC_MALAYSIA_INEVAL_URL = CC_MALAYSIA_BASE_URL + "/mycprC.html"
+CC_MALAYSIA_BASE_URL = "https://iscb.cybersecurity.my"
+CC_MALAYSIA_CERTIFIED_URL = (
+    CC_MALAYSIA_BASE_URL + "/en/index.php/certification/product-certification/mycc/certified-products-and-systems"
+)
+CC_MALAYSIA_INEVAL_URL = (
+    CC_MALAYSIA_BASE_URL
+    + "/en/index.php/certification/product-certification/mycc/list-of-products-and-systems-under-evaluation-or-maintenance"
+)
 CC_NETHERLANDS_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
 CC_NETHERLANDS_CERTIFIED_URL = CC_NETHERLANDS_BASE_URL + "/certificates.html"
 CC_NETHERLANDS_INEVAL_URL = CC_NETHERLANDS_BASE_URL + "/ongoing-certifications.html"
