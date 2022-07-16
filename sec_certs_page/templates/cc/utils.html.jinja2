@@ -1,4 +1,4 @@
-{% from "common/entry.html.jinja2" import keywords_card, cryptography_keywords, device_keywords, security_keywords, other_keywords %}
+{% from "common/entry.html.jinja2" import keywords_card %}
 
 {% macro cc_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "cc_security_level",
