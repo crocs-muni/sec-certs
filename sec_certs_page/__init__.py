@@ -52,9 +52,7 @@ if not app.testing:  # pragma: no cover
         traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
     )
 
-    ignore_logger("sec_certs.helpers")
-    ignore_logger("sec_certs.dataset.dataset")
-    ignore_logger("sec_certs.sample.certificate")
+    ignore_logger("sec_certs.*")
 
 tool_config.load(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
