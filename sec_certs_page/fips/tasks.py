@@ -88,7 +88,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 
 
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
-    def process(self, dset, paths):
+    def process(self, dset: FIPSDataset, paths):
         to_reindex = set()
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
             if not self.skip_update or not paths["output_path"].exists():
@@ -100,6 +100,8 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                     dset.pdf_scan(update_json=False)
                 with sentry_sdk.start_span(op="fips.tables", description="Extract tables"):
                     dset.extract_certs_from_tables(high_precision=True, update_json=False)
+                with sentry_sdk.start_span(op="fips.algorithms", description="Process algorithms"):
+                    dset.process_algorithms(update_json=False)
                 with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
                     dset.finalize_results(update_json=False)
                 with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"):
