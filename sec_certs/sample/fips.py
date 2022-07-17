@@ -23,6 +23,7 @@ from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
+from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import fips_dgst
 
@@ -156,7 +157,7 @@ class _FIPSHTMLParser:
         return ids_found
 
     @staticmethod
-    def parse_table(element: Union[Tag, NavigableString]) -> Set[Tuple[Optional[str], str]]:
+    def parse_table(element: Union[Tag, NavigableString]) -> Set[FIPSAlgorithm]:
         """
         Parses content of <table> tags in FIPS .html CMVP page
 
@@ -171,13 +172,13 @@ class _FIPSHTMLParser:
             cert_ids = _FIPSHTMLParser.extract_algorithm_certificates(tds[1].text)
             name = tds[0].text
             for cert_id in cert_ids:
-                found_items.add((name, cert_id))
+                found_items.add(FIPSAlgorithm(cert_id, name))
 
         return found_items
 
     @staticmethod
-    def parse_description(current_text: str) -> Set[Tuple[Optional[str], str]]:
-        return set(map(lambda x: (None, x), _FIPSHTMLParser.extract_algorithm_certificates(current_text)))
+    def parse_description(current_text: str) -> Set[FIPSAlgorithm]:
+        return set(map(FIPSAlgorithm, _FIPSHTMLParser.extract_algorithm_certificates(current_text)))
 
     @staticmethod
     def extract_algorithm_certificates(current_text: str) -> Set[str]:
@@ -256,7 +257,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         exceptions: Optional[List[str]]
         module_type: Optional[str]
         embodiment: Optional[str]
-        algorithms: Optional[Set[Tuple[Optional[str], str]]]
+        algorithms: Optional[Set[FIPSAlgorithm]]
         tested_conf: Optional[List[str]]
         description: Optional[str]
         mentioned_certs: Optional[Dict[str, Dict[str, int]]]
@@ -294,7 +295,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
 
         cert_id: int
         keywords: Dict
-        algorithms: Set[Tuple[Optional[str], str]]
+        algorithms: Set[FIPSAlgorithm]
         clean_cert_ids: Dict[str, int]
         st_metadata: Optional[Dict[str, Any]] = field(default=None)
 
@@ -311,7 +312,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         """
 
         keywords: Dict[str, Dict]
-        algorithms: Set[Tuple[Optional[str], str]]
+        algorithms: Set[FIPSAlgorithm]
         unmatched_algs: int
         clean_cert_ids: Dict[str, int]
 
@@ -575,12 +576,14 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         return keywords, cert
 
     @staticmethod
-    def analyze_tables(tup: Tuple[FIPSCertificate, bool]) -> Tuple[bool, FIPSCertificate, Set]:  # noqa: C901
+    def analyze_tables(  # noqa: C901
+        tup: Tuple[FIPSCertificate, bool]
+    ) -> Tuple[bool, FIPSCertificate, Set[FIPSAlgorithm]]:
         """
         Searches for tables in pdf documents of the instance.
 
-        :param Tuple[FIPSCertificate, bool] tup: certificate object, whether to use high precision results or approx. results
-        :return Tuple[bool, FIPSCertificate, Set]: True on success / False otherwise, modified cert object, List of processed tables.
+        :param tup: certificate object, whether to use high precision results or approx. results
+        :return: True on success / False otherwise, modified cert object, List of processed tables.
         """
 
         def extract_algorithm_certificates(current_text):
@@ -588,7 +591,7 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
             reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
             for m in re.finditer(reg, current_text):
                 set_items.add(m.group())
-            return set(map(lambda x: (None, x), set_items))
+            return set(map(FIPSAlgorithm, set_items))
 
         cert, precision = tup
         if (not precision and cert.state.tables_done) or (
@@ -638,9 +641,15 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
             ):
                 to_pop.add(cert)
 
-        for alg_type, cert_no in self.heuristics.algorithms:
-            if int("".join(filter(str.isdigit, cert_no))) == int("".join(filter(str.isdigit, cert))):
-                to_pop.add(cert)
+        this_id = int("".join(filter(str.isdigit, cert)))
+
+        for algo in self.heuristics.algorithms:
+            try:
+                algo_id = int("".join(filter(str.isdigit, algo.cert_id)))
+                if algo_id == this_id:
+                    to_pop.add(cert)
+            except ValueError:
+                continue
 
     def clean_cert_ids(self) -> None:
         """
@@ -656,8 +665,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         if self.web_data.algorithms is None:
             raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
 
-        for alg_type, cert_no in self.web_data.algorithms:
-            alg_set.update(cert_no)
+        for algo in self.web_data.algorithms:
+            alg_set.add(algo.cert_id)
 
         for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
             to_pop = set()

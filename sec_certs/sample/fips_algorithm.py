@@ -1,20 +1,21 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 
 from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
 
 
-@dataclass(eq=True)
+@dataclass(eq=True, order=True, frozen=True)
 class FIPSAlgorithm(ComplexSerializableType):
     """
     Data structure for algorithm of `FIPSCertificate`
     """
 
-    cert_id: int
-    vendor: str
-    implementation: str
-    algorithm_type: str
-    date: str
+    cert_id: str
+    algorithm_type: Optional[str] = field(default=None)
+    vendor: Optional[str] = field(default=None)
+    implementation: Optional[str] = field(default=None)
+    date: Optional[str] = field(default=None)
 
     @property
     def dgst(self) -> str:

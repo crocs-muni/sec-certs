@@ -28,7 +28,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
         description: str = "dataset_description",
     ):
         super().__init__(certs, root_dir, name, description)
-        self._id_map: Dict[int, List[str]] = {}
+        self._id_map: Dict[str, List[str]] = {}
 
     def get_certs_from_web(self):
         self.root_dir.mkdir(exist_ok=True)
@@ -101,7 +101,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
                 )
 
                 alg_type, alg_id = split_alg(validation)
-                fips_alg = FIPSAlgorithm(alg_id, vendor, product, alg_type, date)
+                fips_alg = FIPSAlgorithm(alg_id, alg_type, vendor, product, date)
                 self.certs[fips_alg.dgst] = fips_alg
         # And now rebuild the id map
         self._build_id_map()
@@ -135,7 +135,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def __setitem__(self, key: str, value: FIPSAlgorithm):
         self.certs.__setitem__(key, value)
 
-    def certs_for_id(self, cert_id: int) -> List[FIPSAlgorithm]:
+    def certs_for_id(self, cert_id: str) -> List[FIPSAlgorithm]:
         if cert_id in self._id_map:
             return [self.certs[x] for x in self._id_map[cert_id]]
         else:

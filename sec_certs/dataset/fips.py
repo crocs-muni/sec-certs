@@ -356,8 +356,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @staticmethod
     def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
-        for alg_type, cert_id in processed_cert.heuristics.algorithms:
-            curr_id = "".join(filter(str.isdigit, cert_id))
+        for algo in processed_cert.heuristics.algorithms:
+            curr_id = "".join(filter(str.isdigit, algo.cert_id))
             if curr_id == cert_candidate_id:
                 return False
         return True
@@ -376,13 +376,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if self.algorithms is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
-        if cert_candidate_id not in self.algorithms.certs:
-            return True
-
         if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
             return False
 
-        algs = self.algorithms.certs_for_id(int(cert_candidate_id))
+        algs = self.algorithms.certs_for_id(cert_candidate_id)
         for current_alg in algs:
             if current_alg.vendor is None or processed_cert.web_data.vendor is None:
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
