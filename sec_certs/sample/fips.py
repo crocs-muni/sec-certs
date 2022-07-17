@@ -631,15 +631,16 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         return True, cert, lst
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
-        for found in self.pdf_data.keywords["fips_certlike"]["Certlike"]:
-            match_in_found = reg_to_match.search(found)
-            match_in_cert = reg_to_match.search(cert)
-            if (
-                match_in_found is not None
-                and match_in_cert is not None
-                and match_in_found.group("id") == match_in_cert.group("id")
-            ):
-                to_pop.add(cert)
+        if "Certlike" in self.pdf_data.keywords["fips_certlike"]:
+            for found in self.pdf_data.keywords["fips_certlike"]["Certlike"]:
+                match_in_found = reg_to_match.search(found)
+                match_in_cert = reg_to_match.search(cert)
+                if (
+                    match_in_found is not None
+                    and match_in_cert is not None
+                    and match_in_found.group("id") == match_in_cert.group("id")
+                ):
+                    to_pop.add(cert)
 
         this_id = int("".join(filter(str.isdigit, cert)))
 
@@ -657,6 +658,10 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         """
         self.state.file_status = True
         if not self.pdf_data.keywords:
+            return
+
+        if "Cert" not in self.pdf_data.keywords["fips_cert_id"]:
+            self.pdf_data.clean_cert_ids = {}
             return
 
         matches = copy.deepcopy(self.pdf_data.keywords["fips_cert_id"]["Cert"])
