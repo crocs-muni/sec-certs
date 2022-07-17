@@ -259,7 +259,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._download_all_htmls(cert_ids)
         self.download_all_pdfs(cert_ids)
 
-        self.web_scan(cert_ids, redo=redo_web_scan)
+        self.web_scan(cert_ids, redo=redo_web_scan, update_json=False)
 
     @serialize
     def process_algorithms(self):
