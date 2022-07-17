@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import date, datetime
 from pathlib import Path
 
@@ -168,6 +169,11 @@ def filter_fromisoformat(dt):
         return datetime.fromisoformat(dt)
     except ValueError:
         return date.fromisoformat(dt)
+
+
+@app.template_filter("ctime")
+def filter_ctime(s):
+    return time.ctime(s)
 
 
 @app.template_global("flatten")

@@ -1,0 +1,21 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div>
+                <h1>Tasks</h1>
+                {% if tasks %}
+                    <ul>
+                        {% for task in tasks %}
+                            <li>{{ task["name"] }}, since {{ task["time_start"]|ctime }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="lead">There are currently no tasks being executed.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+{% endblock %}

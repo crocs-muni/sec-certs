@@ -4,7 +4,7 @@ from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, identity_changed
 
-from .. import mongo
+from .. import celery, mongo
 from ..common.objformats import StorageFormat
 from ..common.views import Pagination
 from . import admin
@@ -20,6 +20,16 @@ admin_permission = Permission(RoleNeed("admin"))
 @register_breadcrumb(admin, ".", "Admin")
 def index():
     return render_template("admin/index.html.jinja2")
+
+
+@admin.route("/tasks")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".tasks", "Tasks")
+def tasks():
+    i = celery.control.inspect()
+    tasks = list(i.active().values())[0]
+    return render_template("admin/tasks.html.jinja2", tasks=tasks)
 
 
 @admin.route("/updates")
