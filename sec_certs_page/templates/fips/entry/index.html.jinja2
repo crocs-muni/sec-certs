@@ -192,14 +192,9 @@
                                 <td>
                                     <ul>
                                         {% for algo in cert["web_data"]["algorithms"] %}
-                                            {% if "Name" in algo %}
-                                                <li>{{ algo["Name"] }}{% if algo["Certificate"] %} - {% endif %}
-                                                    {% for name in algo["Certificate"] %}
-                                                        <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["Name"] }}&number={{ name.replace("#", "") }}"
-                                                           target="_blank" rel="noopener">{{ name }}</a>
-                                                        {{ ", " if not loop.last else "" }}
-                                                    {% endfor %}</li>
-                                            {% endif %}
+                                            <li><a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["algorithm_type"] }}&number={{ algo["cert_id"].replace("#", "") }}"
+                                                   target="_blank" rel="noopener">{{ algo["algorithm_type"] }}{{ algo["cert_id"] }}</a>
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 </td>
