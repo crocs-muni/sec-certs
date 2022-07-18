@@ -33,9 +33,9 @@ def load_fips_data():
             {
                 "_id": 1,
                 "cert_id": 1,
-                "web_scan.module_name": 1,
-                "web_scan.module_type": 1,
-                "web_scan.status": 1,
+                "web_data.module_name": 1,
+                "web_data.module_type": 1,
+                "web_data.status": 1,
                 "heuristics.st_references.directly_referencing": 1,
                 "heuristics.web_references.directly_referencing": 1,
             },
@@ -50,13 +50,13 @@ def load_fips_data():
                 refs["web"] = cert["heuristics"]["web_references"]["directly_referencing"]
             reference = {
                 "hashid": cert["_id"],
-                "name": cert["web_scan"]["module_name"],
+                "name": cert["web_data"]["module_name"],
                 "refs": refs,
                 "href": url_for("fips.entry", hashid=cert["_id"]),
-                "type": fips_types[cert["web_scan"]["module_type"]]["id"]
-                if cert["web_scan"]["module_type"] in fips_types
+                "type": fips_types[cert["web_data"]["module_type"]]["id"]
+                if cert["web_data"]["module_type"] in fips_types
                 else "",
-                "status": cert["web_scan"]["status"],
+                "status": cert["web_data"]["status"],
             }
             fips_references[str(cert["cert_id"])] = reference
 

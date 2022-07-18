@@ -36,8 +36,8 @@ class FIPSRenderer(DiffRenderer, FIPSMixin):
             "back": "fips/notifications/diff_back.html.jinja2",
         }
         self.k2map = {
-            "web_scan": ("web extraction data", False),
-            "pdf_scan": ("PDF extraction data", False),
+            "web_data": ("web extraction data", False),
+            "pdf_data": ("PDF extraction data", False),
             "heuristics": ("computed heuristics", True),
         }
 
@@ -68,14 +68,14 @@ def update_mip_data():  # pragma: no cover
 
 class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
     def create_document(self, dgst, document, cert, content):
-        category_id = fips_types[cert["web_scan"]["module_type"]]["id"]
+        category_id = fips_types[cert["web_data"]["module_type"]]["id"]
         return {
             "dgst": dgst,
-            "name": cert["web_scan"]["module_name"],
+            "name": cert["web_data"]["module_name"],
             "document_type": document,
             "cert_schema": self.cert_schema,
             "category": category_id,
-            "status": cert["web_scan"]["status"],
+            "status": cert["web_data"]["status"],
             "content": content,
         }
 

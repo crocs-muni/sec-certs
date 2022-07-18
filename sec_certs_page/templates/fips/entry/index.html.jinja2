@@ -5,7 +5,7 @@
 {% from "common/entry.html.jinja2" import render_local_files, render_cves %}
 {% block title %}
     <title>
-        {{ cert["web_scan"]["module_name"]|default("", true) + " | seccerts.org" }}
+        {{ cert["web_data"]["module_name"]|default("", true) + " | seccerts.org" }}
     </title>
 {% endblock %}
 {% block head %}
@@ -18,13 +18,13 @@
     <meta property="twitter:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
     <meta property="twitter:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
     <meta property="twitter:description"
-          content="FIPS 140 certificate {{ cert["web_scan"]["module_name"]|default("", true) }}"/>
-    <meta property="og:title" content="{{ cert["web_scan"]["module_name"]|default("seccerts.org", true) }}"/>
+          content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
+    <meta property="og:title" content="{{ cert["web_data"]["module_name"]|default("seccerts.org", true) }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
     <meta property="og:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
     <meta property="og:description"
-          content="FIPS 140 certificate {{ cert["web_scan"]["module_name"]|default("", true) }}"/>
+          content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
     <meta property="og:site_name" content="seccerts.org"/>
 {% endblock %}
 {% block navbar %}
@@ -51,7 +51,7 @@
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-            <h1>{{ cert["web_scan"]["module_name"]|default("", true) }}</h1>
+            <h1>{{ cert["web_data"]["module_name"]|default("", true) }}</h1>
 
             {% if cves %}
                 <div class="alert alert-warning mt-4">
@@ -62,7 +62,7 @@
             {% endif %}
 
             <h2>Certificate #{{ cert["cert_id"] }}</h2>
-            {% if "web_scan" in cert %}
+            {% if "web_data" in cert %}
                 <div class="mt-5 mb-5">
                     <h2 id="web-info" class="anchor">Webpage information
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
@@ -77,94 +77,94 @@
                         <tbody>
                         <tr data-cs-name="Certificate status">
                             <th scope="row">Status</th>
-                            <td>{{ render_status(cert["web_scan"]["status"]) }}</td>
+                            <td>{{ render_status(cert["web_data"]["status"]) }}</td>
                         </tr>
-                        {% if cert["web_scan"]["historical_reason"] %}
+                        {% if cert["web_data"]["historical_reason"] %}
                             <tr data-cs-name="Historical reason">
                                 <th scope="row">Historical reason</th>
-                                <td>{{ cert["web_scan"]["historical_reason"] }}</td>
+                                <td>{{ cert["web_data"]["historical_reason"] }}</td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["revoked_reason"] %}
+                        {% if cert["web_data"]["revoked_reason"] %}
                             <tr data-cs-name="Revoked reason">
                                 <th scope="row">Revoked reason</th>
-                                <td>{{ cert["web_scan"]["revoked_reason"] }}
-                                    {% if cert["web_scan"]["revoked_link"] %}
-                                        <a href="{{ cert["web_scan"]["revoked_link"] }}" target="_blank" rel="noopener">{{ cert["web_scan"]["revoked_link"] }}</a>
+                                <td>{{ cert["web_data"]["revoked_reason"] }}
+                                    {% if cert["web_data"]["revoked_link"] %}
+                                        <a href="{{ cert["web_data"]["revoked_link"] }}" target="_blank" rel="noopener">{{ cert["web_data"]["revoked_link"] }}</a>
                                     {% endif %}</td>
                             </tr>
                         {% endif %}
                         <tr data-cs-name="Validation dates">
                             <th scope="row">Validation dates</th>
                             <td>
-                                {% for date in cert["web_scan"]["date_validation"] %}
+                                {% for date in cert["web_data"]["date_validation"] %}
                                     {{ date|strftime("%d.%m.%Y") }}
                                     {{ ", " if not loop.last else "" }}{% endfor %}</td>
                         </tr>
-                        {% if cert["web_scan"]["date_sunset"] %}
+                        {% if cert["web_data"]["date_sunset"] %}
                             <tr data-cs-name="Sunset date">
                                 <th scope="row">Sunset date</th>
-                                <td>{{ cert["web_scan"]["date_sunset"]|strftime("%d-%m-%Y") }}</td>
+                                <td>{{ cert["web_data"]["date_sunset"]|strftime("%d-%m-%Y") }}</td>
                             </tr>
                         {% endif %}
                         <tr data-cs-name="Standard">
                             <th scope="row">Standard</th>
-                            <td>{{ cert["web_scan"]["standard"] }}</td>
+                            <td>{{ cert["web_data"]["standard"] }}</td>
                         </tr>
                         <tr data-cs-name="Security level">
                             <th scope="row">Security level</th>
-                            <td>{{ cert["web_scan"]["level"] }}</td>
+                            <td>{{ cert["web_data"]["level"] }}</td>
                         </tr>
                         <tr data-cs-name="Type">
                             <th scope="row">Type</th>
-                            <td>{{ render_type(cert["web_scan"]["module_type"]) }} {{ cert["web_scan"]["module_type"] }}</td>
+                            <td>{{ render_type(cert["web_data"]["module_type"]) }} {{ cert["web_data"]["module_type"] }}</td>
                         </tr>
                         <tr data-cs-name="Embodiment">
                             <th scope="row">Embodiment</th>
-                            <td>{{ cert["web_scan"]["embodiment"] }}</td>
+                            <td>{{ cert["web_data"]["embodiment"] }}</td>
                         </tr>
-                        {% if cert["web_scan"]["caveat"] %}
+                        {% if cert["web_data"]["caveat"] %}
                             <tr data-cs-name="Caveat">
                                 <th scope="row">Caveat</th>
-                                <td>{{ cert["web_scan"]["caveat"] }}</td>
+                                <td>{{ cert["web_data"]["caveat"] }}</td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["exceptions"] %}
+                        {% if cert["web_data"]["exceptions"] %}
                             <tr data-cs-name="Exceptions">
                                 <th scope="row">Exceptions</th>
                                 <td>
                                     <ul>
-                                        {% for exceptioon in cert["web_scan"]["exceptions"] %}
+                                        {% for exceptioon in cert["web_data"]["exceptions"] %}
                                             <li data-cs-name="Exceptions - {{ loop.index }}">{{ exceptioon }}</li>
                                         {% endfor %}
                                     </ul>
                                 </td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["description"] %}
+                        {% if cert["web_data"]["description"] %}
                             <tr data-cs-name="Description">
                                 <th scope="row">Description</th>
-                                <td>{{ cert["web_scan"]["description"] }}</td>
+                                <td>{{ cert["web_data"]["description"] }}</td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["hw_versions"] %}
+                        {% if cert["web_data"]["hw_versions"] %}
                             <tr>
                                 <th scope="row">Version (Hardware)</th>
-                                <td>{{ cert["web_scan"]["hw_versions"] }}</td>
+                                <td>{{ cert["web_data"]["hw_versions"] }}</td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["fw_versions"] %}
+                        {% if cert["web_data"]["fw_versions"] %}
                             <tr>
                                 <th scope="row">Version (Firmware)</th>
-                                <td>{{ cert["web_scan"]["fw_versions"] }}</td>
+                                <td>{{ cert["web_data"]["fw_versions"] }}</td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["tested_conf"] %}
+                        {% if cert["web_data"]["tested_conf"] %}
                             <tr>
                                 <th scope="row">Tested configurations</th>
                                 <td>
                                     <ul>
-                                        {% for conf in cert["web_scan"]["tested_conf"] %}
+                                        {% for conf in cert["web_data"]["tested_conf"] %}
                                             <li>{{ conf }}</li>
                                         {% endfor %}
                                     </ul>
@@ -174,24 +174,24 @@
                         <tr>
                             <th scope="row">Vendor</th>
                             <td>
-                                {{ cert["web_scan"]["vendor"] }} <a
-                                    href="{{ cert["web_scan"]['vendor_www'] }}" target="_blank" rel="noopener">{{ cert["web_scan"]["vendor_www"] }}</a>
+                                {{ cert["web_data"]["vendor"] }} <a
+                                    href="{{ cert["web_data"]['vendor_www'] }}" target="_blank" rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>
                             </td>
                         </tr>
-                        {% if cert["web_scan"]["lab"] %}
+                        {% if cert["web_data"]["lab"] %}
                             <tr>
                                 <th scope="row">Lab</th>
                                 <td>
-                                    {{ cert["web_scan"]["lab"] }} {% if cert["web_scan"]["lab_nvlap"] %}(NVLAP Code:
-                                    {{ cert["web_scan"]["lab_nvlap"] }}){% endif %}</td>
+                                    {{ cert["web_data"]["lab"] }} {% if cert["web_data"]["lab_nvlap"] %}(NVLAP Code:
+                                    {{ cert["web_data"]["lab_nvlap"] }}){% endif %}</td>
                             </tr>
                         {% endif %}
-                        {% if cert["web_scan"]["algorithms"] %}
+                        {% if cert["web_data"]["algorithms"] %}
                             <tr>
                                 <th scope="row">Algorithms</th>
                                 <td>
                                     <ul>
-                                        {% for algo in cert["web_scan"]["algorithms"] %}
+                                        {% for algo in cert["web_data"]["algorithms"] %}
                                             {% if "Name" in algo %}
                                                 <li>{{ algo["Name"] }}{% if algo["Certificate"] %} - {% endif %}
                                                     {% for name in algo["Certificate"] %}
@@ -218,11 +218,11 @@
                     </table>
 
                     <div class="mt-2 mb-2">
-                        {{ render_local_files(hashid, local_files, cert["web_scan"]["certificate_www"], None, cert["web_scan"]["security_policy_www"]) }}
+                        {{ render_local_files(hashid, local_files, cert["web_data"]["certificate_www"], None, cert["web_data"]["security_policy_www"]) }}
                         <a class="btn btn-outline-primary" role="button"
                            href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}"
                            data-bs-toggle="tooltip" data-bs-placement="bottom"
-                           title="{{ cert["web_scan"]['module_name']|default('') }}"><i
+                           title="{{ cert["web_data"]['module_name']|default('') }}"><i
                                 class="fas fa-external-link-alt"></i> Webpage</a>
                     </div>
                 </div>
@@ -239,8 +239,8 @@
                     </h2>
 
                     <h3 class="mt-4">Security policy
-                        {% if cert["web_scan"]["security_policy_www"] and False %}
-                            <a role="button" href="{{ cert["web_scan"]["security_policy_www"] }}"
+                        {% if cert["web_data"]["security_policy_www"] and False %}
+                            <a role="button" href="{{ cert["web_data"]["security_policy_www"] }}"
                                style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
                                data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i
                                     class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
@@ -364,7 +364,7 @@
             </div>
             <script>
                 let certificate_data = {
-                    name: "{{ cert["web_scan"]["module_name"]|default("", true) }}",
+                    name: "{{ cert["web_data"]["module_name"]|default("", true) }}",
                     hashid: "{{ hashid }}",
                     type: "fips",
                     url: "{{ url_for("fips.entry", hashid=hashid) }}"

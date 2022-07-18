@@ -125,7 +125,7 @@
                             </colgroup>
                             <thead style="border-top-color: #dfe0e1">
                             <tr>
-                                <td class="pl-1">{{ render_type(result["cert"]["web_scan"]["module_type"]) }}&nbsp;#{{ idd }}</td>
+                                <td class="pl-1">{{ render_type(result["cert"]["web_data"]["module_type"]) }}&nbsp;#{{ idd }}</td>
                                 <td>
                                     <a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}">{{ result["hit"]["name"] }}</a>
                                 </td>

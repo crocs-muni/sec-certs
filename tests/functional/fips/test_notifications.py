@@ -18,7 +18,7 @@ def sub_obj(certificate, request):
     return {
         "selected": [
             {
-                "name": certificate["web_scan"]["module_name"],
+                "name": certificate["web_data"]["module_name"],
                 "hashid": certificate["_id"],
                 "type": "fips",
                 "url": url_for("fips.entry", hashid=certificate["_id"]),

@@ -93,15 +93,15 @@
             </thead>
             {% for cert in certs %}
                 {% set id = cert["cert_id"] %}
-                {% set name = cert["web_scan"]["module_name"] %}
-                {% set status = cert["web_scan"]["status"] %}
-                {% set level = cert["web_scan"]["level"] %}
-                {% set vendor = cert["web_scan"]["vendor"] %}
-                {% set status = cert["web_scan"]["status"] %}
+                {% set name = cert["web_data"]["module_name"] %}
+                {% set status = cert["web_data"]["status"] %}
+                {% set level = cert["web_data"]["level"] %}
+                {% set vendor = cert["web_data"]["vendor"] %}
+                {% set status = cert["web_data"]["status"] %}
                 {% set hashid = cert["_id"] %}
-                {% set cert_dates = cert["web_scan"]["date_validation"] %}
-                {% set sunset_date = cert["web_scan"]["date_sunset"] %}
-                {% set type = cert["web_scan"]["module_type"] %}
+                {% set cert_dates = cert["web_data"]["date_validation"] %}
+                {% set sunset_date = cert["web_data"]["date_sunset"] %}
+                {% set type = cert["web_data"]["module_type"] %}
                 <tr>
                     <td class="pl-1">#{{ id }}</td>
                     <td>{{ render_type(type) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a>

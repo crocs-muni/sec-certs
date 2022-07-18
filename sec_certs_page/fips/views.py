@@ -107,13 +107,13 @@ def select_certs(q, cat, status, sort):
     projection = {
         "_id": 1,
         "cert_id": 1,
-        "web_scan.module_name": 1,
-        "web_scan.status": 1,
-        "web_scan.level": 1,
-        "web_scan.vendor": 1,
-        "web_scan.module_type": 1,
-        "web_scan.date_validation": 1,
-        "web_scan.date_sunset": 1,
+        "web_data.module_name": 1,
+        "web_data.status": 1,
+        "web_data.level": 1,
+        "web_data.vendor": 1,
+        "web_data.module_type": 1,
+        "web_data.date_validation": 1,
+        "web_data.date_sunset": 1,
     }
 
     if q is not None and q != "":
@@ -132,13 +132,13 @@ def select_certs(q, cat, status, sort):
                 category["selected"] = True
             else:
                 category["selected"] = False
-        query["web_scan.module_type"] = {"$in": selected_cats}
+        query["web_data.module_type"] = {"$in": selected_cats}
     else:
         for category in categories.values():
             category["selected"] = True
 
     if status is not None and status != "Any":
-        query["web_scan.status"] = status
+        query["web_data.status"] = status
 
     with sentry_sdk.start_span(op="mongo", description="Find certs."):
         cursor = mongo.db.fips.find(query, projection)
@@ -148,21 +148,21 @@ def select_certs(q, cat, status, sort):
         cursor.sort(
             [
                 ("score", {"$meta": "textScore"}),
-                ("web_scan.module_name", pymongo.ASCENDING),
+                ("web_data.module_name", pymongo.ASCENDING),
             ]
         )
     elif sort == "number":
         cursor.sort([("cert_id", pymongo.ASCENDING)])
     elif sort == "first_cert_date":
-        cursor.sort([("web_scan.date_validation.0", pymongo.ASCENDING)])
+        cursor.sort([("web_data.date_validation.0", pymongo.ASCENDING)])
     elif sort == "last_cert_date":
-        cursor.sort([("web_scan.date_validation", pymongo.ASCENDING)])
+        cursor.sort([("web_data.date_validation", pymongo.ASCENDING)])
     elif sort == "sunset_date":
-        cursor.sort([("web_scan.date_sunset", pymongo.ASCENDING)])
+        cursor.sort([("web_data.date_sunset", pymongo.ASCENDING)])
     elif sort == "level":
-        cursor.sort([("web_scan.level", pymongo.ASCENDING)])
+        cursor.sort([("web_data.level", pymongo.ASCENDING)])
     elif sort == "vendor":
-        cursor.sort([("web_scan.vendor", pymongo.ASCENDING)])
+        cursor.sort([("web_data.vendor", pymongo.ASCENDING)])
     else:
         cursor.sort([("cert_id", pymongo.ASCENDING)])
     return cursor, categories, count
@@ -581,7 +581,7 @@ def entry_id(cert_id):
 @fips.route("/name/<string:name>")
 def entry_name(name):
     with sentry_sdk.start_span(op="mongo", description="Find certs"):
-        ids = list(mongo.db.fips.find({"web_scan.module_name": name}, {"_id": 1}))
+        ids = list(mongo.db.fips.find({"web_data.module_name": name}, {"_id": 1}))
     if ids:
         if len(ids) == 1:
             return redirect(url_for("fips.entry", hashid=ids[0]["_id"]))

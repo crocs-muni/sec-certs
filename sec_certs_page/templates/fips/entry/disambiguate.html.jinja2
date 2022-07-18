@@ -8,9 +8,9 @@
             <p class="lead">There are several certificates that share the name "<i>{{ name }}</i>":</p>
             <ol>
                 {% for cert in certs %}
-                    <li><a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">#{{ cert["cert_id"] }}</a>, {{ render_status(cert["web_scan"]["status"]) }}, {% for date in cert["web_scan"]["date_validation"] %}
+                    <li><a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">#{{ cert["cert_id"] }}</a>, {{ render_status(cert["web_data"]["status"]) }}, {% for date in cert["web_data"]["date_validation"] %}
                         {{ date|strftime("%d.%m.%Y") }}
-                        {{ ", " if not loop.last else "" }}{% endfor %} - {% if cert["web_scan"]["date_sunset"] %}{{ cert["web_scan"]["date_sunset"]|strftime("%d.%m.%Y") }}{% endif %}</li>
+                        {{ ", " if not loop.last else "" }}{% endfor %} - {% if cert["web_data"]["date_sunset"] %}{{ cert["web_data"]["date_sunset"]|strftime("%d.%m.%Y") }}{% endif %}</li>
                 {% endfor %}
             </ol>
         </div>

@@ -123,7 +123,7 @@
                             <ul>
                                 {% for cert in fips_certs %}
                                     <li>
-                                        <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">{{ cert["web_scan"]["module_name"]|default("", true) }}</a>
+                                        <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">{{ cert["web_data"]["module_name"]|default("", true) }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
