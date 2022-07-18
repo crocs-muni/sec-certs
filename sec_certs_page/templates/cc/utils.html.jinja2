@@ -1,7 +1,7 @@
 {% from "common/entry.html.jinja2" import keywords_card %}
 
 {% macro cc_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "cc_security_level",
+    {{ keywords_card(keyword_scan, doc_prefix, "common-criteria", "Common Criteria", {"Security level": "cc_security_level",
                                                                         "Claims": "cc_claims",
 																		"Security Assurance Requirements (SAR)": "cc_sar",
 																		"Security Functional Requirements (SFR)": "cc_sfr",
