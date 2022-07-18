@@ -553,6 +553,7 @@ def entry_graph_json(hashid):
             network_data = node_link_data(fips_map[hashid])
         else:
             network_data = {}
+        network_data["highlighted"] = [hashid]
         return send_json_attachment(network_data)
     else:
         return abort(404)
