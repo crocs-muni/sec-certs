@@ -244,10 +244,10 @@
                                style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
                                data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i
                                     class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
-                    {{ cryptography_keywords(cert["heuristics"]["keywords"], "policy") }}
-                    {{ device_keywords(cert["heuristics"]["keywords"], "policy") }}
-                    {{ security_keywords(cert["heuristics"]["keywords"], "policy") }}
-                    {{ other_keywords(cert["heuristics"]["keywords"], "policy") }}
+                    {{ cryptography_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                    {{ device_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                    {{ security_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                    {{ other_keywords(cert["pdf_data"]["keywords"], "policy") }}
 
                     <h3 class="mt-3">References</h3>
                     <p>This certificate's security target directly references
