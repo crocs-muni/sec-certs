@@ -1,4 +1,5 @@
 import click
+import pymongo
 from flask.cli import AppGroup
 from tqdm import tqdm
 from whoosh.index import EmptyIndexError
@@ -70,6 +71,8 @@ def init_collections():  # pragma: no cover
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)
         click.echo(f"Created collection {collection}.")
+        if collection == "cve":
+            mongo.db[collection].createIndex([("vulnerable_cpes.uri", pymongo.ASCENDING)])
 
 
 @app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")

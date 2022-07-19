@@ -13,7 +13,9 @@ from . import fips
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")
 def create():  # pragma: no cover
-    _create("fips", ["web_data.module_name"], ["cert_id"])
+    _create(
+        "fips", ["web_data.module_name"], ["cert_id", "heuristics.related_cves._value", "heuristics.cpe_matches._value"]
+    )
 
 
 @fips.cli.command("drop", help="Drop the DB of FIPS 140 certs.")

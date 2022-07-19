@@ -113,4 +113,4 @@ def init_fips():
 
 
 from .commands import *
-from .views import *
+from .views import *  # noqa

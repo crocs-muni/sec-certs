@@ -15,7 +15,7 @@ from . import cc
 
 @cc.cli.command("create", help="Create the DB of CC certs.")
 def create():  # pragma: no cover
-    _create("cc", ["name", "heuristics.cert_id"], [])
+    _create("cc", ["name", "heuristics.cert_id"], ["heuristics.related_cves._value", "heuristics.cpe_matches._value"])
 
 
 @cc.cli.command("drop", help="Drop the DB of CC certs.")
