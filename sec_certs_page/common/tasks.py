@@ -57,6 +57,7 @@ class Updater:  # pragma: no cover
     log_collection: str
     skip_update: bool
     dset_class: Type[Dataset]
+    lock_name: str
 
     def make_dataset_paths(self):  # pragma: no cover
         instance_path = Path(current_app.instance_path)
@@ -235,9 +236,15 @@ class Updater:  # pragma: no cover
             # TODO: Take dataset and certificate state into account when processing into DB.
 
             with sentry_sdk.start_span(op=f"{self.collection}.db", description="Process certs into DB."):
-                self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
-                self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
-                self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+                lock = redis.lock(self.lock_name, blocking_timeout=30)
+                acquired = lock.acquire()
+                try:
+                    self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
+                    self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
+                    self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+                finally:
+                    if acquired:
+                        lock.release()
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)

@@ -21,6 +21,7 @@ class CCMixin:
         self.dset_class = CCDataset
         self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
         self.cert_schema = "cc"
+        self.lock_name = "cc_update"
 
 
 class CCRenderer(DiffRenderer, CCMixin):

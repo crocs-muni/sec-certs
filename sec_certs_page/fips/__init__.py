@@ -5,7 +5,7 @@ import sentry_sdk
 from flask import Blueprint, url_for
 from pymongo.errors import OperationFailure
 
-from .. import mongo, whoosh_index
+from .. import mongo, redis, whoosh_index
 from ..common.objformats import load
 from ..common.views import create_graph
 
@@ -69,19 +69,26 @@ def load_fips_data():
 
 def _update_fips_data():
     with sentry_sdk.start_span(op="fips.check", description="Check FIPS staleness"):
-        do_update = False
-        changes = fips_mem_changes.get(None)
-        if changes is None:
-            changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
-            fips_mem_changes.set(changes)
-            do_update = True
-        try:
-            while changes and changes.alive and changes.try_next():
+        lock = redis.lock("fips_update", blocking=False)
+        acquired = lock.acquire()
+        if acquired:
+            lock.release()
+            do_update = False
+            changes = fips_mem_changes.get(None)
+            if changes is None:
+                changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
+                fips_mem_changes.set(changes)
                 do_update = True
-        except OperationFailure:
-            changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
-            fips_mem_changes.set(changes)
-            do_update = True
+            try:
+                while changes and changes.alive and changes.try_next():
+                    do_update = True
+            except OperationFailure:
+                changes = mongo.db.fips.watch(batch_size=100, max_await_time_ms=50)
+                fips_mem_changes.set(changes)
+                do_update = True
+        else:
+            # Keep the stale FIPS data if we can't get the lock.
+            pass
     if do_update:
         load_fips_data()
 

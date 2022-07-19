@@ -6,7 +6,7 @@ import sentry_sdk
 from flask import Blueprint, current_app, url_for
 from pymongo.errors import OperationFailure
 
-from .. import mongo, whoosh_index
+from .. import mongo, redis, whoosh_index
 from ..common.objformats import load
 from ..common.views import create_graph
 
@@ -115,19 +115,26 @@ def load_cc_data():
 
 def _update_cc_data():
     with sentry_sdk.start_span(op="cc.check", description="Check CC staleness"):
-        do_update = False
-        changes = cc_mem_changes.get(None)
-        if changes is None:
-            changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
-            cc_mem_changes.set(changes)
-            do_update = True
-        try:
-            while changes is not None and changes.alive and changes.try_next():
+        lock = redis.lock("cc_update", blocking=False)
+        acquired = lock.acquire()
+        if acquired:
+            lock.release()
+            do_update = False
+            changes = cc_mem_changes.get(None)
+            if changes is None:
+                changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
+                cc_mem_changes.set(changes)
                 do_update = True
-        except OperationFailure:
-            changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
-            cc_mem_changes.set(changes)
-            do_update = True
+            try:
+                while changes is not None and changes.alive and changes.try_next():
+                    do_update = True
+            except OperationFailure:
+                changes = mongo.db.cc.watch(batch_size=100, max_await_time_ms=50)
+                cc_mem_changes.set(changes)
+                do_update = True
+        else:
+            # Keep the stale CC data if we can't get the lock.
+            pass
     if do_update:
         load_cc_data()
 

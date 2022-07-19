@@ -24,6 +24,7 @@ class FIPSMixin:
         self.dset_class = FIPSDataset
         self.dataset_path = current_app.config["DATASET_PATH_FIPS_DIR"]
         self.cert_schema = "fips"
+        self.lock_name = "fips_update"
 
 
 class FIPSRenderer(DiffRenderer, FIPSMixin):
