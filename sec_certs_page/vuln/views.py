@@ -33,7 +33,7 @@ def cve(cve_id):
     return render_template("vuln/cve.html.jinja2", cve=load(cve_doc), cc_certs=cc_certs, fips_certs=fips_certs)
 
 
-@vuln.route("/cpe/<string:cpe_id>")
+@vuln.route("/cpe/<path:cpe_id>")
 @register_breadcrumb(
     vuln,
     ".cpe",
