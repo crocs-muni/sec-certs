@@ -119,6 +119,14 @@ def dump(c):
 
 
 @task
+def release(c):
+    version = c.local("sentry-cli releases propose-version", hide="both").stdout.strip()
+    c.local(f"sentry-cli releases new {version}")
+    c.local(f"sentry-cli releases finalize {version}")
+    c.local(f"sentry-cli releases set-commits {version} --local")
+
+
+@task
 def restore(c):
     """Restore MongoDB data locally."""
     print("Restoring...")
