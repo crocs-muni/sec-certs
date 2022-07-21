@@ -2,7 +2,7 @@ import sentry_sdk
 from flask import abort, render_template, request
 from flask_breadcrumbs import register_breadcrumb
 
-from .. import mongo
+from .. import mongo, sitemap
 from ..common.objformats import load
 from . import vuln
 
@@ -55,3 +55,12 @@ def cpe(cpe_id):
     return render_template(
         "vuln/cpe.html.jinja2", cpe=load(cpe_doc), cc_certs=cc_certs, fips_certs=fips_certs, cves=cves
     )
+
+
+@sitemap.register_generator
+def sitemap_urls():
+    yield "vuln.index", {}
+    for doc in mongo.db.cve.find({}, {"_id": 1}):
+        yield "vuln.cve", {"cve_id": doc["_id"]}
+    for doc in mongo.db.cpe.find({}, {"_id": 1}):
+        yield "vuln.cpe", {"cpe_id": doc["_id"]}

@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import abort, current_app, request, send_file
 from werkzeug.utils import safe_join
 
-from .. import csrf, redis
+from .. import csrf, redis, sitemap
 from . import docs
 
 
@@ -43,3 +43,8 @@ def serve_docs(path):
             if index_path.exists() and index_path.is_file():
                 return send_file(index_path)
     return abort(404)
+
+
+@sitemap.register_generator
+def sitemap_urls():
+    yield "docs.serve_docs", {}
