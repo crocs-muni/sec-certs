@@ -32,7 +32,7 @@ cc_cert_id:
   "NO":
     - "SERTIT-[0-9]+"  # Norway
   US:
-    - "CCEVS-VR-(?:|VID)[0-9]+-[0-9]+[a-z]?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
+    - "CCEVS-VR-(?:|VID)[0-9]+-[0-9]+[a-z]?(?:-[0-9]+)?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
   CA:
     # '[0-9][0-9\-]+?-CR', # Canada
     - "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*"  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
@@ -43,8 +43,8 @@ cc_cert_id:
     - "CRP[0-9][0-9][0-9][0-9]*?"  # UK CESG
     - "CERTIFICATION REPORT No. P[0-9]+"  # UK CESG
   ES:
-    - "20[0-9][0-9]-[0-9]+-INF-[0-9]+"  # Spain
-    - "20[0-9][0-9]-[0-9]+-INF-[0-9]+(.(?:V|v)[0-9]+)*"  # Spain (2006-4-INF-98 v2 or (2006-4-INF-98-v2))
+    - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+"  # Spain
+    - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+([-‐]?[ -‐](?:V|v)[0-9]+)?"  # Spain ("2006-4-INF-98 v2" or "2006-4-INF-98-v2" or "2020-34-INF-3784- v1")
   KR:
     - "KECS-CR-[0-9]+-[0-9]+"  # Korea KECS-CR-20-61
     - "KECS-ISIS-[0-9]+?-[0-9][0-9][0-9][0-9]"  # Korea
@@ -62,12 +62,13 @@ cc_cert_id:
     - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
   TR:
     - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
+    - "(?:[0-9]{1,2}\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028
   SE:
     - "CSEC[0-9]+"  # Sweden (CSEC2019015)
   IN:
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
     # will miss STQC/CC/14-15/12/ETR/0017
-    - "(?:IC3S|STQC/CC)/[^ ]+?/CR " # must end with CR, no space inside
+    - "(?:IC3S|STQC/CC)/[^ ]+?/CR"
   SG:
     - "CSA_CC_[0-9]+"  # Singapore (CSA_CC_19001)
   AU:
