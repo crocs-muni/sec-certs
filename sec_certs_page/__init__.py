@@ -1,4 +1,5 @@
 import os
+import subprocess
 import time
 from datetime import date, datetime
 from pathlib import Path
@@ -28,6 +29,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.utils import get_default_release
 from whoosh.index import EmptyIndexError, Index
 
 from .common.search import create_index, get_index
@@ -184,6 +186,14 @@ def flatten(d):
 @app.template_global("is_admin")
 def is_admin():
     return Permission(RoleNeed("admin")).can()
+
+
+release = get_default_release()
+
+
+@app.template_global()
+def get_release():
+    return release
 
 
 from .admin import admin

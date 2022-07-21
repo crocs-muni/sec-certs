@@ -23,7 +23,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
         <script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
         {% assets output="gen/libs.js",
-                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js" %}
+                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/sentry.tracing.min.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
         <!-- Matomo -->
@@ -47,6 +47,20 @@
         <noscript><p><img src="https://fadmin.fi.muni.cz/piwik/matomo.php?idsite=44&rec=1" style="border:0;" alt=""/>
         </p></noscript>
         <!-- End Matomo Code -->
+        <!-- Sentry -->
+        <script>
+            let envs = {
+                "seccerts.org": "production",
+                "localhost.localdomain": "development"
+            }
+            Sentry.init({
+                dsn: "{{ config['SENTRY_INGEST'] }}",
+                environment: envs[window.location.hostname],
+                release: "{{ get_release() }}",
+                integrations: [new Sentry.BrowserTracing()]
+            });
+        </script>
+        <!-- End Sentry -->
         <meta name="google-site-verification" content="eW6ZAStAlQUFlO_OP8odanoJp_yXBTvIqvlVScyTu3g"/>
     {% endblock %}
 </head>
@@ -82,7 +96,8 @@
                 </div>
             {% endif %}
             <div class="mx-2">
-                <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-secondary px-4" role="button"><i
+                <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-secondary px-4"
+                   role="button"><i
                         class="fa fa-file"></i> Docs</a>
             </div>
         </div>
@@ -205,25 +220,29 @@
                 {% block footer %}
                     <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                                <img id="anonymous-logo" src="{{ url_for("static", filename="img/anonymous_claim.svg") }}"
-                                     alt="Anonymized for review" style="width: 100%;{% if not config["ANONYMOUS"] %}display: none{% endif %}"/>
-                                <a id="crocs-logo" href="https://crocs.fi.muni.cz" style="{% if config["ANONYMOUS"] %}display: none{% endif %}">
-                                    <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
-                                         alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
-                                </a>
-                                {% if config["ANONYMOUS"] %}
-                                    <script>
+                            <img id="anonymous-logo" src="{{ url_for("static", filename="img/anonymous_claim.svg") }}"
+                                 alt="Anonymized for review"
+                                 style="width: 100%;{% if not config["ANONYMOUS"] %}display: none{% endif %}"/>
+                            <a id="crocs-logo" href="https://crocs.fi.muni.cz"
+                               style="{% if config["ANONYMOUS"] %}display: none{% endif %}">
+                                <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
+                                     alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
+                            </a>
+                            {% if config["ANONYMOUS"] %}
+                                <script>
                                     $(function () {
                                         $("#anonymous-logo").click(function () {
                                             $("#anonymous-logo").hide();
                                             $("#crocs-logo").show();
                                         });
                                     });
-                                    </script>
-                                {% endif %}
+                                </script>
+                            {% endif %}
                         </div>
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <p class="fw-light">Check out our <a href="{% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}"
+                            <p class="fw-light">Check out our <a href="
+
+                                    {% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}"
                                                                  target="_blank" rel="noopener">Github</a>.</p>
                             <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
                             {% if current_user.is_authenticated %}
