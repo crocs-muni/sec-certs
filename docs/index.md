@@ -31,7 +31,6 @@ Seccerts PyPi <https://pypi.org/project/sec-certs/>
 :maxdepth: 1
 installation.md
 quickstart.md
-tutorial.md
 configuration.md
 ```
 
