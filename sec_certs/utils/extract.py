@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import logging
 import os
 import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Iterator, Optional, Tuple, Union
+from typing import Any, Iterator, Optional, Tuple, Union
 
 from sec_certs import constants as constants
 from sec_certs.cert_rules import REGEXEC_SEP
@@ -381,7 +383,7 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 60
-    items_found: Dict[str, str] = {}
+    items_found: dict[str, str] = {}
 
     try:
         # Process front page with info: cert_id, certified_item and developer
@@ -461,7 +463,7 @@ def search_only_headers_niap(filepath: Path):
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 15
-    items_found: Dict[str, str] = {}
+    items_found: dict[str, str] = {}
 
     try:
         # Process front page with info: cert_id, certified_item and developer
@@ -512,7 +514,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 20
-    items_found: Dict[str, str] = {}
+    items_found: dict[str, str] = {}
     try:
         whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
             filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
@@ -586,7 +588,7 @@ def search_files(folder: Union[str, Path]) -> Iterator[str]:
         yield from [os.path.join(root, x) for x in files]
 
 
-def flatten_matches(dct: Dict) -> Dict:
+def flatten_matches(dct: dict) -> dict:
     """
     Function to flatten dictionary of matches.
 
@@ -611,7 +613,7 @@ def flatten_matches(dct: Dict) -> Dict:
     return dict(result)
 
 
-def prune_matches(dct: Dict) -> Dict:
+def prune_matches(dct: dict) -> dict:
     """
     Prune a dictionary of matches.
 
@@ -644,7 +646,7 @@ def prune_matches(dct: Dict) -> Dict:
     return walk(dct, 0)
 
 
-def extract_keywords(filepath: Path, search_rules) -> Optional[Dict[str, Dict[str, int]]]:
+def extract_keywords(filepath: Path, search_rules) -> Optional[dict[str, dict[str, int]]]:
     """
     Extract keywords from filepath using the search rules.
 
