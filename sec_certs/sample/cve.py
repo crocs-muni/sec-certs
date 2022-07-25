@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import itertools
 from dataclasses import dataclass
@@ -114,7 +116,9 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         }
 
     @staticmethod
-    def _parse_nist_dict(lst: List, cpe_uris: List) -> None:
+    def _parse_nist_dict(lst: List) -> List[CPE]:
+        cpes: List[CPE] = []
+
         for x in lst:
             if x["vulnerable"]:
                 cpe_uri = x["cpe23Uri"]
@@ -134,28 +138,34 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                 else:
                     version_end = None
 
-                cpe_uris.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
+                cpes.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
+
+        return cpes
 
     @classmethod
-    def from_nist_dict(cls, dct: Dict) -> "CVE":
+    def from_nist_dict(cls, dct: Dict) -> CVE:
         """
         Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
         """
 
         def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> List[CPE]:
             def get_vulnerable_cpes_from_node(node: Dict) -> List[CPE]:
-                cpe_uris = []
+                cpes: List[CPE] = []
+
+                if node["operator"] == "AND":
+                    return cpes
+
                 if "children" in node:
                     for child in node["children"]:
-                        cpe_uris += get_vulnerable_cpes_from_node(child)
+                        cpes += get_vulnerable_cpes_from_node(child)
 
                 if "cpe_match" not in node:
-                    return cpe_uris
+                    return cpes
 
-                lst = node["cpe_match"]
-                CVE._parse_nist_dict(lst, cpe_uris)
+                candidates = node["cpe_match"]
+                cpes += CVE._parse_nist_dict(candidates)
 
-                return cpe_uris
+                return cpes
 
             return list(
                 itertools.chain.from_iterable(
