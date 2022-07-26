@@ -195,13 +195,16 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             annots = reduce(lambda x, y: x + y, annots)
             links = set()
             for a in annots:
-                if isinstance(a, IndirectObject):
-                    note = a.getObject()
-                else:
-                    note = a
-                link = note.get("/A", {}).get("/URI")
-                if link:
-                    links.add(map_metadata_value(link))
+                try:
+                    if isinstance(a, IndirectObject):
+                        note = a.getObject()
+                    else:
+                        note = a
+                    link = note.get("/A", {}).get("/URI")
+                    if link:
+                        links.add(map_metadata_value(link))
+                except Exception:
+                    pass
             metadata["pdf_hyperlinks"] = links
 
     except Exception as e:
