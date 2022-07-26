@@ -55,6 +55,7 @@ def init_collections():  # pragma: no cover
         "cc_log",
         "cc_diff",
         "cc_old",
+        "cc_scheme",
         "fips_log",
         "fips_diff",
         "fips_old",

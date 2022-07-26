@@ -10,6 +10,7 @@ from sec_certs.dataset.cve import CVEDataset
 
 from . import celery, mongo
 from .cc.tasks import update_data as update_cc_data
+from .cc.tasks import update_scheme_data as update_cc_scheme_data
 from .common.objformats import ObjFormat
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
@@ -73,6 +74,7 @@ def run_updates():  # pragma: no cover
         update_cve_data.si(),
         update_cpe_data.si(),
         update_cc_data.si(),
+        update_cc_scheme_data.si(),
         update_iut_data.si(),
         update_mip_data.si(),
         update_fips_data.si(),
