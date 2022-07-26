@@ -60,7 +60,7 @@ class TestCCSchemes(TestCase):
 
     def test_sweden(self):
         assert len(CCSchemeDataset.get_sweden_certified()) != 0
-        assert len(CCSchemeDataset.get_sweden_in_evalution()) != 0
+        assert len(CCSchemeDataset.get_sweden_in_evaluation()) != 0
         assert len(CCSchemeDataset.get_sweden_archived()) != 0
 
     def test_turkey(self):

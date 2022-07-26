@@ -1630,7 +1630,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_CERTIFIED_URL)
 
     @staticmethod
-    def get_sweden_in_evalution():
+    def get_sweden_in_evaluation():
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_INEVAL_URL)
 
     @staticmethod
