@@ -167,6 +167,14 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
             val = str(val)
         return val
 
+    def resolve_indirect(val, bound=10):
+        if isinstance(val, list) and bound:
+            return [resolve_indirect(v, bound - 1) for v in val]
+        elif isinstance(val, IndirectObject) and bound:
+            return resolve_indirect(val.getObject(), bound - 1)
+        else:
+            return val
+
     metadata: Dict[str, Any] = dict()
 
     try:
@@ -192,15 +200,12 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
 
             # Get the hyperlinks in the PDF
             annots = [page.get("/Annots", []) for page in pdf.pages]
-            annots = reduce(lambda x, y: x + y, annots)
+            annots = reduce(lambda x, y: x + y, map(resolve_indirect, annots))
             links = set()
-            for a in annots:
+            for annot in annots:
                 try:
-                    if isinstance(a, IndirectObject):
-                        note = a.getObject()
-                    else:
-                        note = a
-                    link = note.get("/A", {}).get("/URI")
+                    A = resolve_indirect(annot.get("/A", {}))
+                    link = resolve_indirect(A.get("/URI"))
                     if link:
                         links.add(map_metadata_value(link))
                 except Exception:
