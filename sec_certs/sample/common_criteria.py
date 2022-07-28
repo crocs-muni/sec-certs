@@ -363,6 +363,7 @@ class CommonCriteriaCert(
         "indirectly_referencing",
         "extracted_sars",
         "protection_profiles",
+        "cert_lab",
     ]
 
     def __init__(
@@ -482,6 +483,7 @@ class CommonCriteriaCert(
             self.heuristics.report_references.indirectly_referencing,
             self.heuristics.extracted_sars,
             [x.pp_name for x in self.protection_profiles] if self.protection_profiles else np.nan,
+            self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
         )
 
     def __str__(self) -> str:
