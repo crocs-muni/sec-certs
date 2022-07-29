@@ -96,6 +96,13 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         return df
 
+    def get_st_keywords_df(self) -> pd.DataFrame:
+        """
+        Get dataframe of keyword hits in security target.
+        """
+        data = [dict({"dgst": x.dgst}, **x.get_keywords_df_row()) for x in self]
+        return pd.DataFrame(data).set_index("dgst")
+
     @classmethod
     def from_dict(cls: Type[CCDataset], dct: Dict[str, Any]) -> "CCDataset":
         """
