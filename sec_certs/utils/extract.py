@@ -6,10 +6,12 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterator, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union
+
+import numpy as np
 
 from sec_certs import constants as constants
-from sec_certs.cert_rules import REGEXEC_SEP
+from sec_certs.cert_rules import REGEXEC_SEP, cc_rules
 from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -757,3 +759,59 @@ def load_cert_html_file(file_name: str) -> str:
         except UnicodeDecodeError:
             logger.error("Failed to read file {}".format(file_name))
     return ""
+
+
+def cc_rules_get_subset(desired_path: str) -> dict:
+    """
+    Recursively applies cc_certs.get(key) on tokens from desired_path,
+    returns the keys of the inner-most layer.
+    """
+    dct = cc_rules
+    for token in desired_path.split("."):
+        dct = dct[token]
+    return dct
+
+
+def extract_key_paths(dct: dict, current_path: str) -> List[str]:
+    """
+    Given subset of cc_rules dictionary, will compute full paths to all leafs
+    in the dictionaries, s.t. the final value of each path is a list of regex
+    matches in the keywords dictionary.
+    """
+    paths = []
+    for key in dct:
+        if isinstance(dct[key], dict):
+            paths.extend(extract_key_paths(dct[key], current_path + "." + key))
+        elif isinstance(dct[key], list):
+            paths.append(current_path + "." + key)
+    return paths
+
+
+def get_sum_of_values_from_dict_path(dct: Optional[dict], path: str, default: float = np.nan) -> float:
+    """
+    Given dictionary and path, will compute sum of occurences of values in the inner-most layer
+    of that path. If the key is missing from dict, return default value.
+    """
+    if not dct:
+        return np.nan
+
+    res = dct
+
+    try:
+        for token in path.split("."):
+            res = res[token]
+    except KeyError:
+        return default
+
+    return sum(res.values())
+
+
+def get_sums_for_cc_rules_subset(dct: Optional[dict], path: str) -> dict[str, float]:
+    """
+    Given path to search in cc_rules (e.g., "symmetric_crypto"),
+    will get the finest resolution and count occurences of the keys in the
+    examined dictionary.
+    """
+    cc_rules_subset_to_search = cc_rules_get_subset(path)
+    paths_to_search = extract_key_paths(cc_rules_subset_to_search, path)
+    return {x: get_sum_of_values_from_dict_path(dct, x, np.nan) for x in paths_to_search}

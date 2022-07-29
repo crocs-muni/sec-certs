@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Dict, Set, Tuple
+from typing import Dict, Final, List, Set, Tuple
 
 import yaml
 
@@ -204,3 +204,18 @@ for rule_group in rules["cc_rules"]:
 fips_rules = {}
 for rule_group in rules["fips_rules"]:
     fips_rules[rule_group] = _process(rules[rule_group], False)
+
+
+PANDAS_KEYWORDS_CATEGORIES: Final[List[str]] = [
+    "symmetric_crypto",
+    "asymmetric_crypto",
+    "pq_crypto",
+    "hash_function",
+    "crypto_scheme",
+    "crypto_protocol",
+    "randomness",
+    "cipher_mode",
+    "ecc_curve",
+    "crypto_engine",
+    "crypto_library",
+]

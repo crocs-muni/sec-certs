@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import operator
 import re
+from collections import ChainMap
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
@@ -18,7 +19,7 @@ import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
+from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES, SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import References, logger
@@ -352,6 +353,7 @@ class CommonCriteriaCert(
         "not_valid_after",
         "report_link",
         "st_link",
+        "cert_link",
         "manufacturer_web",
         "extracted_versions",
         "cpe_matches",
@@ -363,6 +365,7 @@ class CommonCriteriaCert(
         "indirectly_referencing",
         "extracted_sars",
         "protection_profiles",
+        "cert_lab",
     ]
 
     def __init__(
@@ -471,6 +474,7 @@ class CommonCriteriaCert(
             self.not_valid_after,
             self.report_link,
             self.st_link,
+            self.cert_link,
             self.manufacturer_web,
             self.heuristics.extracted_versions,
             self.heuristics.cpe_matches,
@@ -482,6 +486,7 @@ class CommonCriteriaCert(
             self.heuristics.report_references.indirectly_referencing,
             self.heuristics.extracted_sars,
             [x.pp_name for x in self.protection_profiles] if self.protection_profiles else np.nan,
+            self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
         )
 
     def __str__(self) -> str:
@@ -513,6 +518,19 @@ class CommonCriteriaCert(
                     logger.warning(
                         f"When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}"
                     )
+
+    def get_keywords_df_row(self) -> dict[str, float]:
+        """
+        Returns dictionary of sums of matches of keywords in ST. Iterates over all categories
+        """
+        return dict(
+            ChainMap(
+                *[
+                    sec_certs.utils.extract.get_sums_for_cc_rules_subset(self.pdf_data.st_keywords, cat)
+                    for cat in PANDAS_KEYWORDS_CATEGORIES
+                ]
+            )
+        )
 
     @classmethod
     def from_dict(cls, dct: Dict) -> CommonCriteriaCert:
