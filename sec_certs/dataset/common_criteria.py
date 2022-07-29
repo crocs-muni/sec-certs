@@ -82,7 +82,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
         df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True)
-        df = df.astype({"category": "category", "status": "category", "scheme": "category"}).fillna(value=np.nan)
+        df = df.astype(
+            {"category": "category", "status": "category", "scheme": "category", "cert_lab": "category"}
+        ).fillna(value=np.nan)
         df = df.loc[
             ~df.manufacturer.isnull()
         ]  # Manually delete one certificate with None manufacturer (seems to have many blank fields)
