@@ -20,7 +20,7 @@ from flask_mail import Mail
 from flask_principal import Permission, Principal, RoleNeed
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
-from flask_sitemap import Sitemap
+from flask_sitemap import Sitemap as FlaskSitemap
 from flask_wtf import CSRFProtect
 from public import public
 from sec_certs.config.configuration import config as tool_config
@@ -112,6 +112,17 @@ public(mail=mail)
 
 breadcrumbs: Breadcrumbs = Breadcrumbs(app)
 public(breadcrumbs=breadcrumbs)
+
+
+class Sitemap(FlaskSitemap):
+    @cache.cached(timeout=3600)
+    def sitemap(self):
+        return super().sitemap()
+
+    @cache.cached(timeout=3600)
+    def page(self, page):
+        return super().page(page)
+
 
 sitemap: Sitemap = Sitemap(app)
 public(sitemap=sitemap)
