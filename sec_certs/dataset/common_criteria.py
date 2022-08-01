@@ -1029,10 +1029,10 @@ class CCSchemeDataset:
             if not tds:
                 continue
             cert = {
-                "vendor": str(tds[0].text),
-                "product": str(tds[1].text),
+                "vendor": str(tds[0].text).strip(),
+                "product": str(tds[1].text.strip()),
                 "url": constants.CC_AUSTRALIA_BASE_URL + str(tds[1].find("a")["href"]),
-                "level": str(tds[2].text),
+                "level": str(tds[2].text).strip(),
             }
             results.append(cert)
         return results
@@ -1047,10 +1047,10 @@ class CCSchemeDataset:
             if not tds:
                 continue
             cert = {
-                "product": str(tds[0].text),
-                "vendor": str(tds[1].text),
-                "level": str(tds[2].text),
-                "certification_date": str(tds[3].text),
+                "product": str(tds[0].text).strip(),
+                "vendor": str(tds[1].text).strip(),
+                "level": str(tds[2].text).strip(),
+                "certification_date": str(tds[3].text).strip(),
             }
             results.append(cert)
         return results
@@ -1065,10 +1065,10 @@ class CCSchemeDataset:
             if not tds:
                 continue
             cert = {
-                "product": str(tds[0].text),
-                "vendor": str(tds[1].text),
-                "level": str(tds[2].text),
-                "cert_lab": str(tds[3].text),
+                "product": str(tds[0].text).strip(),
+                "vendor": str(tds[1].text).strip(),
+                "level": str(tds[2].text).strip(),
+                "cert_lab": str(tds[3].text).strip(),
             }
             results.append(cert)
         return results
@@ -1082,7 +1082,7 @@ class CCSchemeDataset:
         for li in category_nav.find_all("li"):
             a = li.find("a")
             url = a["href"]
-            category_name = str(a.text)
+            category_name = str(a.text).strip()
             soup = CCSchemeDataset._download_page(constants.CC_ANSSI_BASE_URL + url)
             table = soup.find("table", class_="produits-liste cc")
             if not table:
@@ -1093,11 +1093,11 @@ class CCSchemeDataset:
                 if not tds:
                     continue
                 cert = {
-                    "product": str(tds[0].text),
-                    "vendor": str(tds[1].text),
-                    "level": str(tds[2].text),
-                    "id": str(tds[3].text),
-                    "certification_date": str(tds[4].text),
+                    "product": str(tds[0].text).strip(),
+                    "vendor": str(tds[1].text).strip(),
+                    "level": str(tds[2].text).strip(),
+                    "id": str(tds[3].text).strip(),
+                    "certification_date": str(tds[4].text).strip(),
                     "category": category_name,
                     "url": constants.CC_ANSSI_BASE_URL + str(tds[0].find("a")["href"]),
                 }
@@ -1113,7 +1113,7 @@ class CCSchemeDataset:
         for li in category_nav.find_all("li"):
             a = li.find("a")
             url = a["href"]
-            category_name = str(a.text)
+            category_name = str(a.text).strip()
             soup = CCSchemeDataset._download_page(constants.CC_BSI_BASE_URL + url)
             content = soup.find("div", class_="content").find("div", class_="column")
             for table in content.find_all("table"):
@@ -1124,15 +1124,15 @@ class CCSchemeDataset:
                     if len(tds) != 4:
                         continue
                     cert = {
-                        "cert_id": str(tds[0].text),
-                        "product": str(tds[1].text),
-                        "vendor": str(tds[2].text),
-                        "certification_date": str(tds[3].text),
+                        "cert_id": str(tds[0].text).strip(),
+                        "product": str(tds[1].text).strip(),
+                        "vendor": str(tds[2].text).strip(),
+                        "certification_date": str(tds[3].text).strip(),
                         "category": category_name,
                         "url": constants.CC_BSI_BASE_URL + str(tds[0].find("a")["href"]),
                     }
                     if header is not None:
-                        cert["subcategory"] = str(header.text)
+                        cert["subcategory"] = str(header.text).strip()
                     results.append(cert)
         return results
 
@@ -1167,17 +1167,17 @@ class CCSchemeDataset:
                 target_a = tds[6].find("a")
                 cert_a = tds[7].find("a")
                 cert = {
-                    "serial_number": str(tds[0].text),
-                    "product": str(tds[1].text),
-                    "sponsor": str(tds[2].text),
-                    "developer": str(tds[3].text),
-                    "level": str(tds[4].text),
+                    "serial_number": str(tds[0].text).strip(),
+                    "product": str(tds[1].text).strip(),
+                    "sponsor": str(tds[2].text).strip(),
+                    "developer": str(tds[3].text).strip(),
+                    "level": str(tds[4].text).strip(),
                     "report_link": report_a["href"],
-                    "report_name": str(report_a.text),
+                    "report_name": str(report_a.text).strip(),
                     "target_link": target_a["href"],
-                    "target_name": str(target_a.text),
+                    "target_name": str(target_a.text).strip(),
                     "cert_link": cert_a["href"],
-                    "cert_name": str(cert_a.text),
+                    "cert_name": str(cert_a.text).strip(),
                 }
                 results.append(cert)
         return results
@@ -1213,18 +1213,18 @@ class CCSchemeDataset:
                 target_a = tds[6].find("a")
                 cert_a = tds[7].find("a")
                 cert = {
-                    "serial_number": str(tds[0].text),
-                    "product": str(tds[1].text),
-                    "sponsor": str(tds[2].text),
-                    "developer": str(tds[3].text),
-                    "level": str(tds[4].text),
+                    "serial_number": str(tds[0].text).strip(),
+                    "product": str(tds[1].text).strip(),
+                    "sponsor": str(tds[2].text).strip(),
+                    "developer": str(tds[3].text).strip(),
+                    "level": str(tds[4].text).strip(),
                     "report_link": report_a["href"],
-                    "report_name": str(report_a.text),
+                    "report_name": str(report_a.text).strip(),
                     "target_link": target_a["href"],
-                    "target_name": str(target_a.text),
+                    "target_name": str(target_a.text).strip(),
                     "cert_link": cert_a["href"],
-                    "cert_name": str(cert_a.text),
-                    "certification_date": str(tds[8].text),
+                    "cert_name": str(cert_a.text).strip(),
+                    "certification_date": str(tds[8].text).strip(),
                 }
                 results.append(cert)
         return results
@@ -1303,11 +1303,11 @@ class CCSchemeDataset:
                 continue
             if len(tds) == 6:
                 cert = {
-                    "cert_id": str(tds[0].text),
-                    "supplier": str(tds[1].text),
-                    "toe_overseas_name": str(tds[2].text),
-                    "certification_date": str(tds[3].text),
-                    "claim": str(tds[4].text),
+                    "cert_id": str(tds[0].text).strip(),
+                    "supplier": str(tds[1].text).strip(),
+                    "toe_overseas_name": str(tds[2].text).strip(),
+                    "certification_date": str(tds[3].text).strip(),
+                    "claim": str(tds[4].text).strip(),
                 }
                 toe_a = tds[2].find("a")
                 if toe_a and "href" in toe_a.attrs:
@@ -1315,7 +1315,7 @@ class CCSchemeDataset:
                 results.append(cert)
             if len(tds) == 1:
                 cert = results[-1]
-                cert["toe_japan_name"] = str(tds[0].text)
+                cert["toe_japan_name"] = str(tds[0].text).strip()
                 toe_a = tds[0].find("a")
                 if toe_a and "href" in toe_a.attrs:
                     cert["toe_japan_link"] = toe_a["href"]
@@ -1334,11 +1334,11 @@ class CCSchemeDataset:
                 continue
             if len(tds) == 6:
                 cert = {
-                    "cert_id": str(tds[0].text),
-                    "supplier": str(tds[1].text),
-                    "toe_overseas_name": str(tds[2].text),
-                    "certification_date": str(tds[3].text),
-                    "claim": str(tds[4].text),
+                    "cert_id": str(tds[0].text).strip(),
+                    "supplier": str(tds[1].text).strip(),
+                    "toe_overseas_name": str(tds[2].text).strip(),
+                    "certification_date": str(tds[3].text).strip(),
+                    "claim": str(tds[4].text).strip(),
                 }
                 toe_a = tds[2].find("a")
                 if toe_a and "href" in toe_a.attrs:
@@ -1346,7 +1346,7 @@ class CCSchemeDataset:
                 results.append(cert)
             if len(tds) == 1:
                 cert = results[-1]
-                cert["toe_japan_name"] = str(tds[0].text)
+                cert["toe_japan_name"] = str(tds[0].text).strip()
                 toe_a = tds[0].find("a")
                 if toe_a and "href" in toe_a.attrs:
                     cert["toe_japan_link"] = toe_a["href"]
@@ -1364,10 +1364,10 @@ class CCSchemeDataset:
                 continue
             toe_a = tds[1].find("a")
             cert = {
-                "supplier": str(tds[0].text),
-                "toe_name": str(toe_a.text),
+                "supplier": str(tds[0].text).strip(),
+                "toe_name": str(toe_a.text).strip(),
                 "toe_link": toe_a["href"],
-                "claim": str(tds[2].text),
+                "claim": str(tds[2].text).strip(),
             }
             results.append(cert)
         return results
@@ -1379,18 +1379,18 @@ class CCSchemeDataset:
         tables = main_div.find_all("table", recursive=False)
         results = []
         for table in tables:
-            category_name = str(table.find_previous_sibling("h3").text)
+            category_name = str(table.find_previous_sibling("h3").text).strip()
             for tr in table.find_all("tr")[1:]:
                 tds = tr.find_all("td")
                 if len(tds) != 6:
                     continue
                 cert = {
                     "category": category_name,
-                    "level": str(tds[0].text),
-                    "cert_id": str(tds[1].text),
-                    "certification_date": str(tds[2].text),
-                    "product": str(tds[3].text),
-                    "developer": str(tds[4].text),
+                    "level": str(tds[0].text).strip(),
+                    "cert_id": str(tds[1].text).strip(),
+                    "certification_date": str(tds[2].text).strip(),
+                    "product": str(tds[3].text).strip(),
+                    "developer": str(tds[4].text).strip(),
                 }
                 results.append(cert)
         return results
@@ -1402,18 +1402,18 @@ class CCSchemeDataset:
         tables = main_div.find_all("table", recursive=False)
         results = []
         for table in tables:
-            category_name = str(table.find_previous_sibling("h3").text)
+            category_name = str(table.find_previous_sibling("h3").text).strip()
             for tr in table.find_all("tr")[1:]:
                 tds = tr.find_all("td")
                 if len(tds) != 5:
                     continue
                 cert = {
                     "category": category_name,
-                    "level": str(tds[0].text),
-                    "project_id": str(tds[1].text),
-                    "toe_name": str(tds[2].text),
-                    "developer": str(tds[3].text),
-                    "expected_completion": str(tds[4].text),
+                    "level": str(tds[0].text).strip(),
+                    "project_id": str(tds[1].text).strip(),
+                    "toe_name": str(tds[2].text).strip(),
+                    "developer": str(tds[3].text).strip(),
+                    "expected_completion": str(tds[4].text).strip(),
                 }
                 results.append(cert)
         return results
@@ -1429,10 +1429,10 @@ class CCSchemeDataset:
             row_entries = row.find_all("a")
             modal_trs = modal.find_all("tr")
             cert = {
-                "manufacturer": str(row_entries[0].text),
-                "product": str(row_entries[1].text),
-                "scheme": str(row_entries[2].text),
-                "cert_id": str(row_entries[3].text),
+                "manufacturer": str(row_entries[0].text).strip(),
+                "product": str(row_entries[1].text).strip(),
+                "scheme": str(row_entries[2].text).strip(),
+                "cert_id": str(row_entries[3].text).strip(),
             }
             for tr in modal_trs:
                 th_text = tr.find("th").text
@@ -1440,7 +1440,7 @@ class CCSchemeDataset:
                 if "Manufacturer website" in th_text:
                     cert["manufacturer_link"] = td.find("a")["href"]
                 elif "Assurancelevel" in th_text:
-                    cert["level"] = str(td.text)
+                    cert["level"] = str(td.text).strip()
                 elif "Certificate" in th_text:
                     cert["cert_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
                 elif "Certificationreport" in th_text:
@@ -1460,11 +1460,11 @@ class CCSchemeDataset:
         for tr in table.find_all("tr")[1:]:
             tds = tr.find_all("td")
             cert = {
-                "developer": str(tds[0].text),
-                "product": str(tds[1].text),
-                "category": str(tds[2].text),
-                "level": str(tds[3].text),
-                "certification_id": str(tds[4].text),
+                "developer": str(tds[0].text).strip(),
+                "product": str(tds[1].text).strip(),
+                "category": str(tds[2].text).strip(),
+                "level": str(tds[3].text).strip(),
+                "certification_id": str(tds[4].text).strip(),
             }
             results.append(cert)
         return results
@@ -1479,9 +1479,9 @@ class CCSchemeDataset:
             cert = {
                 "product": str(tds[0].text).strip(),
                 "product_link": tds[0].find("a")["href"],
-                "category": str(tds[1].find("p", class_="value").text),
-                "developer": str(tds[2].find("p", class_="value").text),
-                "certification_date": str(tds[3].find("time").text),
+                "category": str(tds[1].find("p", class_="value").text).strip(),
+                "developer": str(tds[2].find("p", class_="value").text).strip(),
+                "certification_date": str(tds[3].find("time").text).strip(),
             }
             results.append(cert)
         return results
@@ -1518,13 +1518,13 @@ class CCSchemeDataset:
                 link = tds[0].find("a")
                 id = link["id"].split("-")[1]
                 cert = {
-                    "product": str(tds[0].text),
-                    "cert_id": str(tds[1].text),
+                    "product": str(tds[0].text).strip(),
+                    "cert_id": str(tds[1].text).strip(),
                     "product_link": constants.CC_KOREA_PRODUCT_URL.format(id),
-                    "vendor": str(tds[2].text),
-                    "level": str(tds[3].text),
-                    "category": str(tds[4].text),
-                    "certification_date": str(tds[5].text),
+                    "vendor": str(tds[2].text).strip(),
+                    "level": str(tds[3].text).strip(),
+                    "category": str(tds[4].text).strip(),
+                    "certification_date": str(tds[5].text).strip(),
                 }
                 results.append(cert)
             seen_pages.add(page)
@@ -1563,16 +1563,16 @@ class CCSchemeDataset:
                 continue
             tds = tr.find_all("td")
             if len(tds) == 1:
-                category_name = str(tds[0].text)
+                category_name = str(tds[0].text).strip()
                 skip = True
                 continue
 
             cert = {
-                "product": str(tds[0].text.split()[0]),
-                "vendor": str(tds[1].text),
-                "level": str(tds[2].text),
-                "certification_date": str(tds[3].text),
-                "expiration_date": str(tds[4].text),
+                "product": str(tds[0].text.split()[0]).strip(),
+                "vendor": str(tds[1].text).strip(),
+                "level": str(tds[2].text).strip(),
+                "certification_date": str(tds[3].text).strip(),
+                "expiration_date": str(tds[4].text).strip(),
                 "category": category_name,
             }
             for link in tds[0].find_all("a"):
@@ -1598,7 +1598,11 @@ class CCSchemeDataset:
         results = []
         for tr in table.find_all("tr")[1:]:
             tds = tr.find_all("td")
-            cert = {"name": str(tds[0].text), "vendor": str(tds[1].text), "level": str(tds[2].text)}
+            cert = {
+                "name": str(tds[0].text).strip(),
+                "vendor": str(tds[1].text).strip(),
+                "level": str(tds[2].text).strip(),
+            }
             results.append(cert)
         return results
 
@@ -1614,11 +1618,11 @@ class CCSchemeDataset:
         for tr in tbody.find_all("tr", recursive=False):
             tds = tr.find_all("td")
             cert = {
-                "product": str(tds[0].text),
+                "product": str(tds[0].text).strip(),
                 "product_link": constants.CC_SPAIN_BASE_URL + tds[0].find("a")["href"],
-                "category": str(tds[1].text),
-                "manufacturer": str(tds[2].text),
-                "certification_date": str(tds[3].text),
+                "category": str(tds[1].text).strip(),
+                "manufacturer": str(tds[2].text).strip(),
+                "certification_date": str(tds[3].text).strip(),
             }
             results.append(cert)
         return results
@@ -1630,7 +1634,7 @@ class CCSchemeDataset:
         nav = soup.find("main").find("nav", class_="component-nav-box__list")
         results = []
         for link in nav.find_all("a"):
-            cert = {"product": str(link.text), "product_link": link["href"]}
+            cert = {"product": str(link.text).strip(), "product_link": link["href"]}
             results.append(cert)
         return results
 
@@ -1691,14 +1695,14 @@ class CCSchemeDataset:
             if scheme_img["title"] != "USA":
                 continue
             cert = {
-                "product": str(product_link.text),
-                "vendor": str(vendor_span.text),
+                "product": str(product_link.text).strip(),
+                "vendor": str(vendor_span.text).strip(),
                 "product_link": product_link["href"],
-                "id": str(tds[1].text),
-                "cc_claim": str(tds[2].text),
-                "cert_lab": str(tds[3].text),
-                "certification_date": str(tds[4].text),
-                "assurance_maintenance_date": str(tds[5].text),
+                "id": str(tds[1].text).strip(),
+                "cc_claim": str(tds[2].text).strip(),
+                "cert_lab": str(tds[3].text).strip(),
+                "certification_date": str(tds[4].text).strip(),
+                "assurance_maintenance_date": str(tds[5].text).strip(),
             }
             results.append(cert)
         return results
@@ -1718,11 +1722,11 @@ class CCSchemeDataset:
                     product_name = str(child).strip()
                     break
             cert = {
-                "vendor": str(vendor_span.text),
-                "id": str(tds[1].text),
-                "cc_claim": str(tds[2].text),
-                "cert_lab": str(tds[3].text),
-                "kickoff_date": str(tds[4].text),
+                "vendor": str(vendor_span.text).strip(),
+                "id": str(tds[1].text).strip(),
+                "cc_claim": str(tds[2].text).strip(),
+                "cert_lab": str(tds[3].text).strip(),
+                "kickoff_date": str(tds[4].text).strip(),
             }
             if product_name:
                 cert["product"] = product_name
@@ -1748,11 +1752,11 @@ class CCSchemeDataset:
                     product_name = str(child).strip()
                     break
             cert = {
-                "vendor": str(vendor_span.text),
-                "id": str(tds[1].text),
-                "cc_claim": str(tds[2].text),
-                "cert_lab": str(tds[3].text),
-                "certification_date": str(tds[4].text),
+                "vendor": str(vendor_span.text).strip(),
+                "id": str(tds[1].text).strip(),
+                "cc_claim": str(tds[2].text).strip(),
+                "cert_lab": str(tds[3].text).strip(),
+                "certification_date": str(tds[4].text).strip(),
             }
             if product_name:
                 cert["product"] = product_name
