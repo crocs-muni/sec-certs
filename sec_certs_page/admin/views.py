@@ -28,7 +28,11 @@ def index():
 @register_breadcrumb(admin, ".tasks", "Tasks")
 def tasks():
     i = celery.control.inspect()
-    tasks = list(i.active().values())[0]
+    active = i.active()
+    if active:
+        tasks = list(active.values())[0]
+    else:
+        tasks = []
     return render_template("admin/tasks.html.jinja2", tasks=tasks)
 
 
