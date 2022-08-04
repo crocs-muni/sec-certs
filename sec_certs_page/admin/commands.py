@@ -74,6 +74,8 @@ def init_collections():  # pragma: no cover
         click.echo(f"Created collection {collection}.")
         if collection == "cve":
             mongo.db[collection].createIndex([("vulnerable_cpes.uri", pymongo.ASCENDING)])
+        if collection in ("cc_diff", "fips_diff"):
+            mongo.db[collection].createIndex([("dgst", pymongo.ASCENDING)])
 
 
 @app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
