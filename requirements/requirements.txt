@@ -118,6 +118,7 @@ langcodes==3.3.0
 lxml==4.9.1
     # via
     #   -r requirements.in
+    #   nbconvert
     #   pikepdf
 markupsafe==2.1.1
     # via
@@ -140,7 +141,7 @@ murmurhash==1.0.7
     #   thinc
 nbclient==0.6.0
     # via nbconvert
-nbconvert==6.5.0
+nbconvert==6.5.1
     # via notebook
 nbformat==5.3.0
     # via
