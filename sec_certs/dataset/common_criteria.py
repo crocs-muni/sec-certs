@@ -874,7 +874,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             dep_attr = f"{dep_source}_references"
 
             finder = DependencyFinder()
-            finder.fit(self.certs, lambda cert: cert.pdf_data.processed_cert_id, ref_lookup(kw_source))  # type: ignore
+            finder.fit(self.certs, lambda cert: cert.heuristics.cert_id, ref_lookup(kw_source))  # type: ignore
 
             for dgst in self.certs:
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst))
