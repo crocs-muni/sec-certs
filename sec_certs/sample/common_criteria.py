@@ -28,6 +28,7 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers
+from sec_certs.utils.extract import normalize_match_string
 
 HEADERS = {
     "anssi": sec_certs.utils.extract.search_only_headers_anssi,
@@ -269,53 +270,51 @@ class CommonCriteriaCert(
         def anssi_cert_id(self) -> Optional[str]:
             return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
-        @property
-        def processed_cert_id(self) -> Optional[str]:
+        def frontpage_cert_id(self, scheme: str) -> Optional[str]:
             """
-            Returns processed cert id extracted from the pdf data.
+            Returns processed cert id extracted from the report frontpage for the given scheme.
             """
-            cert_ids = set(
-                filter(
-                    lambda x: x,
-                    {self.bsi_cert_id, self.niap_cert_id, self.nscib_cert_id, self.canada_cert_id, self.anssi_cert_id},
-                )
-            )
-            # Expect only one cert_id in the set above.
-            if len(cert_ids) >= 2:
-                raise ValueError("More than one cert_id set.")
-            elif len(cert_ids) == 1:
-                return cert_ids.pop()
-            else:
-                return None
+            scheme_map = {
+                "DE": self.bsi_cert_id,
+                "US": self.niap_cert_id,
+                "NL": self.nscib_cert_id,
+                "CA": self.canada_cert_id,
+                "FR": self.anssi_cert_id,
+            }
+            return scheme_map.get(scheme)
 
-        @property
-        def keywords_rules_cert_id(self) -> Optional[Dict[str, int]]:
+        def keywords_cert_id(self, scheme: str) -> Optional[str]:
+            """
+            Returns the most frequently appearing cert id for the given scheme.
+            """
             if not self.report_keywords:
                 return None
-            cert_id_matches = self.report_keywords.get("cc_cert_id", None)
+            cert_id_matches = self.report_keywords.get("cc_cert_id")
             if not cert_id_matches:
                 return None
-            return sec_certs.utils.extract.flatten_matches(cert_id_matches)
 
-        @property
-        def keywords_cert_id(self) -> Optional[str]:
-            """
-            Returns the most frequently appearing cert id. If you don't know why to use this, you should probably use
-            `cert_id` property.
-            """
-            if not self.keywords_rules_cert_id:
+            if scheme not in cert_id_matches:
                 return None
+            matches = cert_id_matches[scheme]
 
-            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.items()]
+            candidates = [(x, y) for x, y in matches.items()]
             candidates = sorted(candidates, key=operator.itemgetter(1), reverse=True)
             return candidates[0][0]
 
-        @property
-        def cert_id(self) -> Optional[str]:
+        def metadata_cert_id(self, scheme: str) -> Optional[str]:
             """
-            Returns `processed_cert_id` if it exists, else return `keyword_cert_id`
+            Returns the cert id appearing in the report PDF metadata for the given scheme.
             """
-            return self.processed_cert_id if self.processed_cert_id else self.keywords_cert_id
+            rules = cc_rules["cc_cert_id"][scheme]
+            fields = ("/Title", "/Subject")
+            for meta_field in fields:
+                field_val = self.report_metadata.get(meta_field) if self.report_metadata else None
+                if not field_val:
+                    continue
+                for rule in rules:
+                    match = rule.search(field_val)
+                    return normalize_match_string(match.group())
+            return None
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -916,7 +915,15 @@ class CommonCriteriaCert(
         if not self.pdf_data:
             logger.warning("Cannot compute sample id when pdf files were not processed.")
             return
-        self.heuristics.cert_id = self.pdf_data.cert_id
+        # Use the frontpage cert id first
+        self.heuristics.cert_id = self.pdf_data.frontpage_cert_id(self.scheme)
+        # Try the keywords second
+        if self.heuristics.cert_id is None:
+            self.heuristics.cert_id = self.pdf_data.keywords_cert_id(self.scheme)
+        # Try the PDF metadata third
+        if self.heuristics.cert_id is None:
+            self.heuristics.cert_id = self.pdf_data.metadata_cert_id(self.scheme)
+        # TODO: Try the report filename fourth for scheme regexes
         self.normalize_cert_id(all_cert_ids)
 
     @staticmethod
@@ -1067,4 +1074,4 @@ class CommonCriteriaCert(
         if cert_lab == "unknown":
             return None
 
-        self.heuristics.cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)
+        self.heuristics.cert_id = fix_methods[cert_lab](self.heuristics.cert_id)

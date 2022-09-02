@@ -127,11 +127,11 @@ ANSSI-CC-2010/36,69c75283a4ccf934,tp,ANSSI-CC-2010/36,clone,
 BSI-DSZ-CC-0950-V2-2018,a46522d0a592c1fe,tp,BSI-DSZ-CC-0950-V2-2018,clone + removed,handle removed
 BSI-DSZ-CC-0950-V2-2018,6f90b0bf6bbe884b,tp,BSI-DSZ-CC-0950-V2-2018,clone,
 Rapport de certification 2005/01,f3bb1641b4bb0aa0,tp,Rapport de certification 2005/01,clone,
-Rapport de certification 2005/01,749fae44017016c5,tp,Rapport de certification 2005/01,clone + mismatched scheme ,scheme mismatch
+Rapport de certification 2005/01,749fae44017016c5,tp,Rapport de certification 2005/01,clone + mismatched scheme,scheme mismatch
 2004-3-INF-71,1bb3da30bc8f4750,tp,2004-3-INF-71v2,clone,
 2004-3-INF-71,0b0648a9b9a26747,tp,2004-3-INF-71v2,clone,
 CCEVS-VR-VID10559-2014,aa49720eb88f291c,tp,CCEVS-VR-VID10559-2014,,
-CCEVS-VR-VID10559-2014,449ea70a6342d680,fp,,wrong certification report ,
+CCEVS-VR-VID10559-2014,449ea70a6342d680,fp,,wrong certification report,
 ANSSI-CC-2021/30,c62b878b1ac43df9,tp,ANSSI-CC-2021/30,,
 ANSSI-CC-2021/30,459539da9315ccac,fp,ANSSI-CC-2021/30-R01,regex issue,regex fix
 ANSSI-CC-2010/24,0372b733c28f305a,tp,ANSSI-CC-2010/24,clone,
@@ -147,7 +147,7 @@ CCEVS-VR-06-0008,b33406a237a97bf0,tp,CCEVS-VR-06-0008,clone,
 ANSSI-CC-2014/36,8d6bca0d7f228191,tp,ANSSI-CC-2014/36,clone,
 ANSSI-CC-2014/36,f43765c81befb944,tp,ANSSI-CC-2014/36,clone,
 CCEVS-VR-VID10003-2008,bf7b3c78598f74cd,tp,CCEVS-VR-VID10003-2008,,
-CCEVS-VR-VID10003-2008,8f538d2eb9a1c6c7,fp,,wrong certification report ,
+CCEVS-VR-VID10003-2008,8f538d2eb9a1c6c7,fp,,wrong certification report,
 BSI-DSZ-CC-0891-V2-2016,bc715a45d7584d95,fp,NSCIB-CC-16-95781-CR,number of mentions of component certificate higher than actual,frontpage match + scheme mismatch
 BSI-DSZ-CC-0891-V2-2016,2d835bff00514238,tp,BSI-DSZ-CC-0891-V2-2016,,
 BSI-DSZ-CC-0935-2015,025ccea9d90154b0,tp,BSI-DSZ-CC-0935-2015,,
