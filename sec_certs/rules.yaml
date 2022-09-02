@@ -13,9 +13,8 @@ cc_cert_id:
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
   FR:
     - "ANSSI(?:-|-CC-|-CC )[0-9]+?/[0-9]+(v[1-9])?"  # French
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9][0-9]+(?!-M|-S)"  # French (/two or more digits then NOT -M or -S)
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+(?:v[0-9])?[_/-]M[0-9]+"  # French, maintenance report (ANSSI-CC-2014_46_M01)
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+(?:v[0-9])?[_/-]S[0-9]+"  # French, surveillance report (ANSSI-CC-2012/70-S01)
+    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9][0-9]+(?!-M|-S|-R)"  # French (/two or more digits then NOT -M or -S)
+    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+(?:v[0-9])?[_/-][MSR][0-9]+"  # French, maintenance or surveillance report (ANSSI-CC-2014_46_M01)
     # 'ANSSI-CC-CER-F-.+?', # French
     - "DCSSI-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
     - "Certification Report [0-9]+/[0-9]+" # French or Australia!! TODO: Resolve this.
@@ -55,7 +54,7 @@ cc_cert_id:
     - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
     - "Certification No. [cC][0-9]+" # Japan (Certification No. C0090)
   MY:
-    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9])?-[vV][0-9](?:\.[0-9])?[a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
+    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9])?-[vV][0-9](?:\\.[0-9])?[a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
   IT:
     - "OCSI/CERT/.+?"  # Italy
     - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
