@@ -25,6 +25,7 @@ from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
 from sec_certs.model.sar_transformer import SARTransformer
+from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -844,7 +845,12 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
                     return set()
                 res = set()
                 for scheme, matches in kws["cc_cert_id"].items():
-                    res.update(matches.keys())
+                    for match in matches.keys():
+                        try:
+                            canonical = CertificateId(scheme, match).canonical
+                            res.add(canonical)
+                        except Exception:
+                            res.add(match)
                 return res
 
             return func
