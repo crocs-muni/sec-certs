@@ -313,7 +313,8 @@ class CommonCriteriaCert(
                     continue
                 for rule in rules:
                     match = rule.search(field_val)
-                    return normalize_match_string(match.group())
+                    if match:
+                        return normalize_match_string(match.group())
             return None
 
     @dataclass
