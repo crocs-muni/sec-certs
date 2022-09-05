@@ -31,7 +31,6 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
 from sec_certs.utils import helpers as helpers
 from sec_certs.utils import parallel_processing as cert_processing
-from sec_certs.utils.extract import flatten_matches
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 
@@ -279,26 +278,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
                 config.cc_latest_snapshot, dset_path, show_progress_bar=True, progress_bar_desc="Downloading CC Dataset"
             )
             return cls.from_json(dset_path)
-
-    @property
-    def _all_cert_ids(self):
-        all_cert_ids = set()
-
-        for cert_obj in self:
-            cert_id = cert_obj.heuristics.cert_id
-
-            if not cert_id:
-                continue
-
-            all_cert_ids.add(cert_id)
-
-            if cert_obj.pdf_data.report_keywords is not None:
-                all_cert_ids.update(flatten_matches(cert_obj.pdf_data.report_keywords["cc_cert_id"]))
-
-            if cert_obj.pdf_data.st_keywords is not None:
-                all_cert_ids.update(flatten_matches(cert_obj.pdf_data.st_keywords["cc_cert_id"]))
-
-        return all_cert_ids
 
     def _set_local_paths(self):
         for cert in self:
@@ -830,7 +809,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def _compute_normalized_cert_ids(self):
         logger.info("Deriving information about sample ids from pdf scan.")
         for cert in self:
-            cert.compute_heuristics_cert_id(self._all_cert_ids)
+            cert.compute_heuristics_cert_id()
 
     def _compute_dependency_vulnerabilities(self):
         cve_dependency_finder = DependencyVulnerabilityFinder()
