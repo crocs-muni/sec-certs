@@ -55,7 +55,7 @@ b43100f226a61f53,FR,,malformed PDF
 1a8ac8fbe5bfcda9,NO,SERTIT-017,404 for report PDF
 3faae83d248da8ba,IT,,cert_id missing
 d5ed93f6586469f6,CA,503-LSS,regex missing
-a45f04b9a5244a51,KR,KECS-CR-09-49,has unicode hyphens 8208
+a45f04b9a5244a51,KR,KECS-ISIS-0189-2009,has unicode hyphens 8208
 243a29b98f34ae9a,SE,CSEC2019009,space in cert_id
 88eb228eeb487597,KR,KECS-ISIS-0223-2010,has unicode hyphens 8208
 739f48568b127f22,CA,,cert_id missing

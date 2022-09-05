@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import operator
 import re
 from collections import ChainMap
 from dataclasses import dataclass, field
@@ -18,7 +17,13 @@ import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
-from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES, SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
+from sec_certs.cert_rules import (
+    PANDAS_KEYWORDS_CATEGORIES,
+    SARS_IMPLIED_FROM_EAL,
+    cc_rules,
+    rules,
+    security_level_csv_scan,
+)
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -286,6 +291,7 @@ class CommonCriteriaCert(
         def keywords_cert_id(self, scheme: str) -> Optional[str]:
             """
             Returns the most frequently appearing cert id for the given scheme.
+            If more matches have the same frequency, choose the longer.
             """
             if not self.report_keywords:
                 return None
@@ -298,21 +304,21 @@ class CommonCriteriaCert(
             matches = cert_id_matches[scheme]
 
             candidates = [(x, y) for x, y in matches.items()]
-            candidates = sorted(candidates, key=operator.itemgetter(1), reverse=True)
+            candidates = sorted(candidates, key=lambda match: (match[1], len(match[0])), reverse=True)
             return candidates[0][0]
 
         def metadata_cert_id(self, scheme: str) -> Optional[str]:
             """
             Returns the cert id appearing in the report PDF metadata for the given scheme.
             """
-            rules = cc_rules["cc_cert_id"][scheme]
+            scheme_rules = rules["cc_cert_id"][scheme]
             fields = ("/Title", "/Subject")
             for meta_field in fields:
                 field_val = self.report_metadata.get(meta_field) if self.report_metadata else None
                 if not field_val:
                     continue
-                for rule in rules:
-                    match = rule.search(field_val)
+                for rule in scheme_rules:
+                    match = re.search(rule, field_val)
                     if match:
                         return normalize_match_string(match.group())
             return None
@@ -923,14 +929,14 @@ class CommonCriteriaCert(
         # Use the frontpage cert id first
         self.heuristics.cert_id = self.pdf_data.frontpage_cert_id(self.scheme)
         # Try the PDF metadata second
-        if self.heuristics.cert_id is None:
+        if not self.heuristics.cert_id:
             self.heuristics.cert_id = self.pdf_data.metadata_cert_id(self.scheme)
         # Try the keywords third
-        if self.heuristics.cert_id is None:
+        if not self.heuristics.cert_id:
             self.heuristics.cert_id = self.pdf_data.keywords_cert_id(self.scheme)
         # TODO: Try the report filename fourth for scheme regexes
 
         # And finally make it canonical, but only if we have it
-        if self.heuristics.cert_id is not None:
+        if self.heuristics.cert_id:
             cert_id = CertificateId(self.scheme, self.heuristics.cert_id)
             self.heuristics.cert_id = cert_id.canonical

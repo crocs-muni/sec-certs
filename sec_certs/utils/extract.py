@@ -573,7 +573,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                 cert_id = line_certid
                 break
 
-        if not no_match_yet:
+        if not no_match_yet and cert_id:
             items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
             items_found[constants.TAG_CERT_LAB] = "CANADA"
 

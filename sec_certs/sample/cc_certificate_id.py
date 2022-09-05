@@ -91,7 +91,7 @@ class CertificateId:
         if "V" in cert_num:
             cert_num = cert_num[: cert_num.find("V")]
 
-        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num}"  # drop version
+        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num.strip()}"  # drop version
 
         return new_cert_id
 
