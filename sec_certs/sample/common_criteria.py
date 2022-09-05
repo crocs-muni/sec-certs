@@ -1033,6 +1033,14 @@ class CommonCriteriaCert(
 
         return new_cert_id
 
+    @staticmethod
+    def _is_korea_cert_id(cert_id: str) -> bool:
+        return cert_id.startswith("KECS")
+
+    @staticmethod
+    def _fix_korea_cert_id(cert_id: str) -> str:
+        return cert_id.replace("\N{HYPHEN}", "-")
+
     def _get_cert_laboratory(self) -> str:
         if not self.heuristics.cert_id:
             raise ValueError("Cert ID was None but cert laboratory was to be computed based on its value.")
@@ -1050,6 +1058,9 @@ class CommonCriteriaCert(
         if CommonCriteriaCert._is_ocsi_cert_id(cert_id):
             return "ocsi"
 
+        if CommonCriteriaCert._is_korea_cert_id(cert_id):
+            return "korea"
+
         return "unknown"
 
     def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
@@ -1064,6 +1075,7 @@ class CommonCriteriaCert(
             "bsi": partial(CommonCriteriaCert._fix_bsi_cert_id, all_cert_ids=all_cert_ids),
             "spain": CommonCriteriaCert._fix_spain_cert_id,
             "ocsi": CommonCriteriaCert._fix_ocsi_cert_id,
+            "korea": CommonCriteriaCert._fix_korea_cert_id,
         }
 
         try:
