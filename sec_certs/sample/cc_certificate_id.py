@@ -12,6 +12,7 @@ class CertificateId:
     raw: str
 
     def _canonical_fr(self) -> str:
+        # TODO: Unify ANSSI vs DCSSI vs Certification Report vs Rapport de certification
         new_cert_id = self.clean
 
         # This currently only handles the ANSSI-CC-0000... ids.
@@ -127,6 +128,8 @@ class CertificateId:
             "IT": self._canonical_it,
             "IN": self._canonical_in,
             "SE": self._canonical_se,
+            # TODO: Unify UK CRP... vs Certification REPORT No.
+            # TODO: Unify JP C0000 vs JISEC-...
         }
 
         if self.scheme in schemes:
