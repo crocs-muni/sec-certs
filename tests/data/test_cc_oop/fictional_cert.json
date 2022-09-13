@@ -17,22 +17,27 @@
     "manufacturer_web": "https://path.to/manufacturer/web",
     "protection_profiles": {
         "_type": "Set",
-        "elements": [{
-            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
-            "pp_name": "sample_pp",
-            "pp_link": "https://sample.pp",
-            "pp_ids": null
-        }]
+        "elements": [
+            {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+                "pp_name": "sample_pp",
+                "pp_eal": null,
+                "pp_link": "https://sample.pp",
+                "pp_ids": null
+            }
+        ]
     },
     "maintenance_updates": {
         "_type": "Set",
-        "elements": [{
-            "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.MaintenanceReport",
-            "maintenance_date": "1900-01-01",
-            "maintenance_title": "Sample maintenance",
-            "maintenance_report_link": "https://maintenance.up",
-            "maintenance_st_link": "https://maintenance.up"
-        }]
+        "elements": [
+            {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.MaintenanceReport",
+                "maintenance_date": "1900-01-01",
+                "maintenance_title": "Sample maintenance",
+                "maintenance_report_link": "https://maintenance.up",
+                "maintenance_st_link": "https://maintenance.up"
+            }
+        ]
     },
     "state": {
         "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",

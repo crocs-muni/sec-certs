@@ -427,12 +427,15 @@ class CommonCriteriaCert(
         Returns EAL of certificate if it was extracted, None otherwise.
         """
         res = [x for x in self.security_level if re.match(security_level_csv_scan, x)]
-        if not res:
-            return None
-
-        if not len(res) == 1:
+        if res and len(res) == 1:
+            return res[0]
+        if res and len(res) > 1:
             raise ValueError(f"Expected single EAL in security_level field, got: {res}")
-        return res[0]
+        else:
+            if self.protection_profiles:
+                return helpers.choose_lowest_eal({x.pp_eal for x in self.protection_profiles if x.pp_eal})
+            else:
+                return None
 
     @property
     def actual_sars(self) -> Optional[Set[SAR]]:

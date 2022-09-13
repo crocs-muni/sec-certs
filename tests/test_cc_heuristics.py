@@ -257,13 +257,15 @@ class TestCommonCriteriaHeuristics(TestCase):
     def test_protection_profiles_matching(self):
         artificial_pp: ProtectionProfile = ProtectionProfile(
             "Korean National Protection Profile for Single Sign On V1.0",
-            "http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
+            "EAL1+",
+            pp_link="http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
         )
         self.cc_dset["ebd276cca70fd723"].protection_profiles = {artificial_pp}
         expected_pp: ProtectionProfile = ProtectionProfile(
             "Korean National Protection Profile for Single Sign On V1.0",
-            "http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
-            frozenset(["KECS-PP-0822-2017 SSO V1.0"]),
+            "EAL1+",
+            pp_link="http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
+            pp_ids=frozenset(["KECS-PP-0822-2017 SSO V1.0"]),
         )
         self.cc_dset.process_protection_profiles(to_download=False)
         self.assertSetEqual(self.cc_dset["ebd276cca70fd723"].protection_profiles, {expected_pp})
