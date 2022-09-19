@@ -811,7 +811,7 @@ class CommonCriteriaCert(
             exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
-            logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         else:

@@ -790,17 +790,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._extract_pdf_frontpage(fresh)
         self._extract_pdf_keywords(fresh)
 
-        if fresh is True:
-            logger.info("Attempting to re-extract failed data from report txts")
-            self._extract_report_metadata(False)
-            self._extract_report_frontpage(False)
-            self._extract_report_keywords(False)
-
-            logger.info("Attempting to re-extract failed data from ST txts")
-            self._extract_targets_metadata(False)
-            self._extract_targets_frontpage(False)
-            self._extract_targets_keywords(False)
-
     def _compute_cert_labs(self) -> None:
         logger.info("Deriving information about laboratories involved in certification.")
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
