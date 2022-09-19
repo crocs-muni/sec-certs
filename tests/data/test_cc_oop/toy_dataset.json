@@ -62,7 +62,9 @@
                 "report_frontpage": null,
                 "st_frontpage": null,
                 "report_keywords": null,
-                "st_keywords": null
+                "st_keywords": null,
+                "report_filename": null,
+                "st_filename": null
             },
             "heuristics": {
                 "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
@@ -143,7 +145,9 @@
                 "report_frontpage": null,
                 "st_frontpage": null,
                 "report_keywords": null,
-                "st_keywords": null
+                "st_keywords": null,
+                "report_filename": null,
+                "st_filename": null
             },
             "heuristics": {
                 "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",

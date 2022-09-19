@@ -1,0 +1,91 @@
+id,scheme,cert_id,reason
+889693d2b11bdfaf,JP,Certification No. C0023,not parsed due to PDF issue
+20c98a49ea86a519,UK,,maybe "COMMON CRITERIA CERTIFICATION REPORT NO. P153"
+a90d78924e91dc6c,FR,,404 for report PDF
+21d5f1b05e1ba491,JP,Certification No. C0003,not parsed due to PDF issue
+6af4a27251001715,US,,404 for report PDF
+3ad7749ef678ce95,JP,Certification No. C0093,not parsed due to PDF issue
+d0d0dfe4860db6be,US,,404 for report PDF
+822e5f25e7c4631e,CA,,cert_id missing
+10dc636e9da3e1b6,CA,,cert_id missing
+357b38a376d955f7,JP,,has security target uploaded in place of report
+e2ecf0daf73716f2,CA,511-LSS,regex missing
+7d074a56ee50aec4,US,,404 for report PDF
+e27eb9efbd67c4f7,KR,,404 for report PDF
+811ca609aebe2e96,US,,404 for report PDF
+9219f2fb5f305269,KR,KECS-ISIS-0119-2008,has unicode hyphens 8208
+10339846e519597c,CA,516-LSS,regex missing
+4a1fa75170579066,US,,cert_id missing
+f0068ddc5569b772,CA,518-LSS,regex missing
+28fb117adbb809e3,SE,CSEC2006002,space in cert_id
+2d05e976e1adf696,CA,,report not a PDF (docx) also cert_id missing
+a79f15874e255007,UK,,maybe "COMMON CRITERIA CERTIFICATION REPORT NO. P153"
+7b1f816f20381626,US,,maybe "10-1904-R-0030 V1.1" the ETR id
+32d4bf275131aa15,KR,KECS-ISIS-0118-2008,has unicode hyphens 8208
+f4dc9b09aa682008,US,,cert_id missing
+ed0b7793ac82822e,US,,cert_id missing
+bfc86f14e2484335,CA,,report not a PDF (docx) also cert_id missing
+1491021aa321b828,CA,517 CCS 2020,regex missing
+b762fcb2983aa148,JP,Certification No. C0046,not parsed due to PDF issue
+e133881d7203a6e4,ES,INF-3516,regex missing
+305af0eec85bb856,KR,,404 for report PDF
+a91b4c64329d05a8,SE,CSEC2019010,space in cert_id
+c5bad5b309469e22,CA,519-EWA,regex missing
+08e892fc32b0579f,ES,INF-3483,regex missing
+876cb2fe02017f3f,JP,Certification No. C0012,not parsed due to PDF issue
+0dcc691ea04d1b52,CA,,cert_id missing
+f9c8da9deff77ab5,CA,,report not a PDF (docx) also cert_id missing
+ace7ea6d7f58dbb1,DE,,404 for report PDF
+7147c2f70d983d57,TR,21.0.03/TSE-CCCS-44,report not a PDF (docx)
+6266d99d3b983091,CA,,cert_id missing
+66838f2e4bb6eccc,FR,,has security target uploaded in place of report
+8ed77a6223a94fb5,US,,maybe "09-1832-R-0027 V1.0" the ETR id
+422dc5758723c7d1,TR,21.0.03/TSE-CCCS-68,report not a PDF (docx)
+02482228eb547c15,US,,404 for report PDF
+4de4a9f436958574,CA,55 LSS 2020,report not a PDF (docx)
+c312bbf9e303b844,SE,CSEC2019012,space in cert_id
+fb6d7faf0ed2dca5,CA,,cert_id missing
+b3ae94eeccc566ba,CA,383-4-17-CR,regex missing
+d3568613c552f9e8,KR,,malformed PDF
+b43100f226a61f53,FR,,malformed PDF
+0a117ebd82bdfb0c,US,,maybe "11-2280-R-0077 V1.1" the ETR id
+95948dc5f3e472fb,IT,,cert_id missing
+9253ec0d31264194,US,,maybe "08-1602-R-0084 V1.1" the ETR id
+5f18321fb9a41409,KR,KECS-ISIS-0253-2010,has unicode hyphens 8208
+1a8ac8fbe5bfcda9,NO,SERTIT-017,404 for report PDF
+3faae83d248da8ba,IT,,cert_id missing
+d5ed93f6586469f6,CA,503-LSS,regex missing
+a45f04b9a5244a51,KR,KECS-ISIS-0189-2009,has unicode hyphens 8208
+243a29b98f34ae9a,SE,CSEC2019009,space in cert_id
+88eb228eeb487597,KR,KECS-ISIS-0223-2010,has unicode hyphens 8208
+739f48568b127f22,CA,,cert_id missing
+71e471543ea7e03f,CA,383-4-56-CR,regex missing
+ae1b80e9cccec491,JP,Certification No. C0089,not parsed due to PDF issues
+5945cedd8cb01e06,JP,CRP-C0120-01,report and target documents switched
+7e664d089ed905a5,CA,383-4-422P,regex missing
+c508c550607efde5,US,,cert_id missing
+456bfb3665815ccb,KR,KECS-ISIS-0120-2008,has unicode hyphens 8208
+1683817e5db17d9c,JP,Certification No. C0047,not parsed due to PDF issues
+b2aefe8b1bd4d9b3,UK,,cert_id missing
+f0af2383ad08e3ba,SE,CSEC2019011,regex missing
+ae78e8b68bd4c917,US,CCEVS-VR-CC-11074-2020,regex missing
+323987cac96072cb,TR,14.10.01/10-105,cert_id malformed
+8ac22970bd8042d2,US,,404 for report PDF
+b61b6299f457a01e,SE,CSEC2006001,regex missing
+6fbb34a3a08e943c,CA,,cert_id missing
+6901124edcfe478f,US,CCEVS-VR-03-0038,report and target documents switched
+98668cafb8dda26f,SE,CSEC2019014,report not a PDF (docx)
+d79ecebfe21f2144,US,,404 for report PDF
+7e32023021d5aad2,ES,INF-510,regex missing
+02958808b57334f0,SE,CSEC2019016,report not a PDF (docx)
+391c8b9254ed6ed9,CA,,404 for report PDF
+d3b7b0df0108a466,CA,,cert_id missing
+b17b7e4876e9e482,AU,DXC-EFC-T092-ETR 1.0,
+82fcce2db9ef6063,SG,,404 for report PDF
+5e646214ea5b1044,US,CCEVS-VR-VID11243-2022,has security target uploaded in place of report
+2b2268271ee16bd7,FR,ANSSI-CC 2022/05,not parsed due to PDF issue
+e37e1f81d12b63fd,FR,ANSSI-CC 2022/04,not parsed due to PDF issue
+8b6d2aa804720833,FR,ANSSI-CC-2017/42v2,not parsed due to PDF issue
+614f4dcdee0128bd,IN,IC3S/KOL01/ECITelecom/EAL2/0420/0019/CR,space in cert_id
+3477723044183b31,FR,ANSSI-CC-2017/42v2-S01,regex missing
+a5c2f0adcecf1a33,MY,ISCB-5-RPT-C127-CR-v1.1,regex missing
