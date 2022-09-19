@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import re
-from collections import ChainMap
+from collections import ChainMap, Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
@@ -278,9 +278,9 @@ class CommonCriteriaCert(
         def anssi_cert_id(self) -> Optional[str]:
             return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
-        def frontpage_cert_id(self, scheme: str) -> Optional[str]:
+        def frontpage_cert_id(self, scheme: str) -> Dict[str, float]:
             """
-            Returns processed cert id extracted from the report frontpage for the given scheme.
+            Get cert_id candidate from the frontpage of the report.
             """
             scheme_map = {
                 "DE": self.bsi_cert_id,
@@ -289,46 +289,61 @@ class CommonCriteriaCert(
                 "CA": self.canada_cert_id,
                 "FR": self.anssi_cert_id,
             }
-            return scheme_map.get(scheme)
+            if scheme in scheme_map and (candidate := scheme_map[scheme]):
+                return {candidate: 1.0}
+            return {}
 
-        def filename_cert_id(self, scheme: str) -> Optional[str]:
+        def filename_cert_id(self, scheme: str) -> Dict[str, float]:
             """
-            Returns a cert id matched out of a report filename.
+            Get cert_id candidates from the matches in the report filename.
             """
             if not self.report_filename:
-                return None
+                return {}
             scheme_rules = rules["cc_cert_id"][scheme]
+            matches: Counter = Counter()
             for rule in scheme_rules:
                 match = re.search(rule, self.report_filename)
                 if match:
-                    return normalize_match_string(match.group())
-            return None
+                    cert_id = normalize_match_string(match.group())
+                    matches[cert_id] += 1
+            if not matches:
+                return {}
+            total = matches.total()
+            results = {}
+            for candidate, count in matches.items():
+                results[candidate] = count / total
+            # TODO count length in weight
+            return results
 
-        def keywords_cert_id(self, scheme: str) -> Optional[str]:
+        def keywords_cert_id(self, scheme: str) -> Dict[str, float]:
             """
-            Returns the most frequently appearing cert id for the given scheme.
-            If more matches have the same frequency, choose the longer.
+            Get cert_id candidates from the keywords matches in the report.
             """
             if not self.report_keywords:
-                return None
+                return {}
             cert_id_matches = self.report_keywords.get("cc_cert_id")
             if not cert_id_matches:
-                return None
+                return {}
 
             if scheme not in cert_id_matches:
-                return None
-            matches = cert_id_matches[scheme]
+                return {}
+            matches = Counter(cert_id_matches[scheme])
+            if not matches:
+                return {}
+            total = matches.total()
+            results = {}
+            for candidate, count in matches.items():
+                results[candidate] = count / total
+            # TODO count length in weight
+            return results
 
-            candidates = [(x, y) for x, y in matches.items()]
-            candidates = sorted(candidates, key=lambda match: (match[1], len(match[0])), reverse=True)
-            return candidates[0][0]
-
-        def metadata_cert_id(self, scheme: str) -> Optional[str]:
+        def metadata_cert_id(self, scheme: str) -> Dict[str, float]:
             """
-            Returns the cert id appearing in the report PDF metadata for the given scheme.
+            Get cert_id candidates from the report metadata.
             """
             scheme_rules = rules["cc_cert_id"][scheme]
             fields = ("/Title", "/Subject")
+            matches: Counter = Counter()
             for meta_field in fields:
                 field_val = self.report_metadata.get(meta_field) if self.report_metadata else None
                 if not field_val:
@@ -336,8 +351,34 @@ class CommonCriteriaCert(
                 for rule in scheme_rules:
                     match = re.search(rule, field_val)
                     if match:
-                        return normalize_match_string(match.group())
-            return None
+                        cert_id = normalize_match_string(match.group())
+                        matches[cert_id] += 1
+            if not matches:
+                return {}
+            total = matches.total()
+            results = {}
+            for candidate, count in matches.items():
+                results[candidate] = count / total
+            # TODO count length in weight
+            return results
+
+        def candidate_cert_ids(self, scheme: str) -> Dict[str, float]:
+            frontpage_id = self.frontpage_cert_id(scheme)
+            metadata_id = self.metadata_cert_id(scheme)
+            filename_id = self.filename_cert_id(scheme)
+            keywords_id = self.keywords_cert_id(scheme)
+
+            # Join them and weigh them, each is normalized to sum weights to 1 (if anything is returned)
+            candidates: Dict[str, float] = defaultdict(lambda: 0.0)
+            for candidate, count in frontpage_id.items():
+                candidates[candidate] += count * 1.5
+            for candidate, count in metadata_id.items():
+                candidates[candidate] += count * 1.2
+            for candidate, count in filename_id.items():
+                candidates[candidate] += count * 1.2
+            for candidate, count in keywords_id.items():
+                candidates[candidate] += count * 1.0
+            return candidates
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -935,27 +976,18 @@ class CommonCriteriaCert(
         """
         Compute the heuristics cert_id of this cert, using several methods.
 
-        First uses the cert_id from the frontpage scan of the certification report.
-        Then tries the PDF metadata of the certification report.
-        Then tries the keywords in the certification report.
+        The candidate cert_ids are extracted from the frontpage, PDF metadata, filename, and keywords matches.
 
         Finally, the cert_id is canonicalized.
         """
         if not self.pdf_data:
             logger.warning("Cannot compute sample id when pdf files were not processed.")
             return
-        # Use the frontpage cert id first
-        self.heuristics.cert_id = self.pdf_data.frontpage_cert_id(self.scheme)
-        # Try the PDF metadata second
-        if not self.heuristics.cert_id:
-            self.heuristics.cert_id = self.pdf_data.metadata_cert_id(self.scheme)
-        # Try the keywords third
-        if not self.heuristics.cert_id:
-            self.heuristics.cert_id = self.pdf_data.keywords_cert_id(self.scheme)
-        if not self.heuristics.cert_id:
-            self.heuristics.cert_id = self.pdf_data.filename_cert_id(self.scheme)
+        # Extract candidate cert_ids
+        candidates = self.pdf_data.candidate_cert_ids(self.scheme)
 
-        # And finally make it canonical, but only if we have it
-        if self.heuristics.cert_id:
-            cert_id = CertificateId(self.scheme, self.heuristics.cert_id)
+        if candidates:
+            candidate = max(candidates, key=candidates.get)
+            # And finally make it canonical, but only if we have it
+            cert_id = CertificateId(self.scheme, candidate)
             self.heuristics.cert_id = cert_id.canonical

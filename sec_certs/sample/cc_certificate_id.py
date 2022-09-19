@@ -130,6 +130,7 @@ class CertificateId:
             "SE": self._canonical_se,
             # TODO: Unify UK CRP... vs Certification REPORT No.
             # TODO: Unify JP C0000 vs JISEC-...
+            # TODO: Unify US (-CR and no -CR)
         }
 
         if self.scheme in schemes:
