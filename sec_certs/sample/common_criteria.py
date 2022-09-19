@@ -8,6 +8,7 @@ from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from urllib.parse import unquote_plus, urlparse
 
 import numpy as np
 import requests
@@ -204,6 +205,8 @@ class CommonCriteriaCert(
         st_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
         report_keywords: Optional[Dict[str, Any]] = field(default=None)
         st_keywords: Optional[Dict[str, Any]] = field(default=None)
+        report_filename: Optional[str] = field(default=None)
+        st_filename: Optional[str] = field(default=None)
 
         def __bool__(self) -> bool:
             return any([x is not None for x in vars(self)])
@@ -287,6 +290,19 @@ class CommonCriteriaCert(
                 "FR": self.anssi_cert_id,
             }
             return scheme_map.get(scheme)
+
+        def filename_cert_id(self, scheme: str) -> Optional[str]:
+            """
+            Returns a cert id matched out of a report filename.
+            """
+            if not self.report_filename:
+                return None
+            scheme_rules = rules["cc_cert_id"][scheme]
+            for rule in scheme_rules:
+                match = re.search(rule, self.report_filename)
+                if match:
+                    return normalize_match_string(match.group())
+            return None
 
         def keywords_cert_id(self, scheme: str) -> Optional[str]:
             """
@@ -736,6 +752,7 @@ class CommonCriteriaCert(
             cert.state.errors.append(error_msg)
         else:
             cert.state.report_pdf_hash = helpers.get_sha256_filepath(cert.state.report_pdf_path)
+            cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.report_link).path).split("/")[-1])
         return cert
 
     @staticmethod
@@ -752,12 +769,13 @@ class CommonCriteriaCert(
         else:
             exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
-            error_msg = f"failed to download ST from {cert.report_link}, code: {exit_code}"
+            error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         else:
             cert.state.st_pdf_hash = helpers.get_sha256_filepath(cert.state.st_pdf_path)
+            cert.pdf_data.st_filename = unquote_plus(str(urlparse(cert.st_link).path).split("/")[-1])
         return cert
 
     @staticmethod
@@ -934,7 +952,8 @@ class CommonCriteriaCert(
         # Try the keywords third
         if not self.heuristics.cert_id:
             self.heuristics.cert_id = self.pdf_data.keywords_cert_id(self.scheme)
-        # TODO: Try the report filename fourth for scheme regexes
+        if not self.heuristics.cert_id:
+            self.heuristics.cert_id = self.pdf_data.filename_cert_id(self.scheme)
 
         # And finally make it canonical, but only if we have it
         if self.heuristics.cert_id:
