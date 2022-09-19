@@ -308,7 +308,7 @@ class CommonCriteriaCert(
                     matches[cert_id] += 1
             if not matches:
                 return {}
-            total = matches.total()
+            total = sum(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -327,10 +327,10 @@ class CommonCriteriaCert(
 
             if scheme not in cert_id_matches:
                 return {}
-            matches = Counter(cert_id_matches[scheme])
+            matches: Counter = Counter(cert_id_matches[scheme])
             if not matches:
                 return {}
-            total = matches.total()
+            total = sum(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -355,7 +355,7 @@ class CommonCriteriaCert(
                         matches[cert_id] += 1
             if not matches:
                 return {}
-            total = matches.total()
+            total = sum(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
