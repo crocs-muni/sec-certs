@@ -17,7 +17,7 @@ cc_cert_id:
     - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+(?:v[0-9])?[_/-][MSR][0-9]+"  # French, maintenance or surveillance report (ANSSI-CC-2014_46_M01)
     # 'ANSSI-CC-CER-F-.+?', # French
     - "DCSSI-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
-    - "Certification Report [0-9]+/[0-9]+" # French or Australia!! TODO: Resolve this.
+    - "Certification Report [0-9]+/[0-9]+" # French or Australia! Solved because we limit ourselves to scheme when doing heuristics.
     - "Rapport de certification [0-9]+/[0-9]+"  # French
   NL:
     - "NSCIB-CC-[0-9][0-9][0-9][0-9].+?"  # Netherlands
@@ -48,7 +48,6 @@ cc_cert_id:
     # - "KECS[-‐]CR[-‐][0-9]+[-‐][0-9]+"  # Korea KECS-CR-20-61
     - "KECS[-‐](?:ISIS|NISS|CISS)[-‐][0-9]+[-‐][0-9]{4}"  # Korea KECS-ISIS-1234-2011
   JP:
-    - "CRP-C[0-9]+?-[0-9]+?"  # Japan
     - "(?:CRP|ACR)-C[0-9]+-[0-9]+"  # Japan (CRP-C0595-01 ACR-C0417-03)
     - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
     - "Certification No. [cC][0-9]+" # Japan (Certification No. C0090)
@@ -61,7 +60,7 @@ cc_cert_id:
     - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
     - "(?:[0-9]{1,2}\\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028
   SE:
-    - "CSEC ?[0-9]+"  # Sweden (CSEC2019015)
+    - "CSEC ?[0-9]{7}"  # Sweden (CSEC2019015)
   IN:
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
     # will miss STQC/CC/14-15/12/ETR/0017
@@ -73,6 +72,7 @@ cc_cert_id:
     # XXX: Do not use Australian ETR numbers, they are not certificate id.
     # - "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+"
     - "Certificate Number: [0-9]{1,4}/[0-9]{1,4}"
+    - "Certification Report [0-9]+/[0-9]+"
 
 #####
 # Common Criteria protection profile IDs, grouped by certification body (e.g. BSI)
