@@ -83,15 +83,15 @@ class CertificateId:
         cert_id = self.clean
         spain_parts = cert_id.split("-")
         cert_year = spain_parts[0]
-        cert_batch = spain_parts[1]
-        cert_num = spain_parts[3]
+        cert_batch = spain_parts[1]  # TODO: drop leading zero
+        cert_num = spain_parts[3]  # TODO: drop leading zero
 
         if "v" in cert_num:
             cert_num = cert_num[: cert_num.find("v")]
         if "V" in cert_num:
             cert_num = cert_num[: cert_num.find("V")]
 
-        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num.strip()}"  # drop version
+        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num.strip()}"  # drop version # TODO: Maybe do not drop?
 
         return new_cert_id
 
@@ -131,9 +131,15 @@ class CertificateId:
             # TODO: Unify UK CRP... vs Certification REPORT No.
             # TODO: Unify JP C0000 vs JISEC-...
             # TODO: Unify US (-CR and no -CR)
+            # TODO: Unify CA (-CR and no -CR)
+            # TODO: Unify NL (-CR??)
         }
 
         if self.scheme in schemes:
             return schemes[self.scheme]()
         else:
             return self.clean
+
+
+def canonicalize(cert_id_str: str, scheme: str) -> str:
+    return CertificateId(cert_id_str, scheme).canonical
