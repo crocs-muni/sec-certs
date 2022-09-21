@@ -21,7 +21,7 @@ class CertificateId:
         ]
         for rule in rules:
             if match := re.match(rule, new_cert_id):
-                return "ANSSI-CC-" + match.group(1).replace("_", "/").replace("-", "/")
+                return "ANSSI-CC-" + match.group(1).replace("_", "/")
 
         return new_cert_id
 

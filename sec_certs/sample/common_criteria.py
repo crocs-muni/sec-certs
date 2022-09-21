@@ -308,7 +308,7 @@ class CommonCriteriaCert(
                     matches[cert_id] += 1
             if not matches:
                 return {}
-            total = sum(matches.values())
+            total = max(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -330,7 +330,7 @@ class CommonCriteriaCert(
             matches: Counter = Counter(cert_id_matches[scheme])
             if not matches:
                 return {}
-            total = sum(matches.values())
+            total = max(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -355,7 +355,7 @@ class CommonCriteriaCert(
                         matches[cert_id] += 1
             if not matches:
                 return {}
-            total = sum(matches.values())
+            total = max(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -368,15 +368,15 @@ class CommonCriteriaCert(
             filename_id = self.filename_cert_id(scheme)
             keywords_id = self.keywords_cert_id(scheme)
 
-            # Join them and weigh them, each is normalized to sum weights to 1 (if anything is returned)
+            # Join them and weigh them, each is normalized with weights from 0 to 1 (if anything is returned)
             candidates: Dict[str, float] = defaultdict(lambda: 0.0)
             for candidate, count in frontpage_id.items():
                 candidates[candidate] += count * 1.5
             for candidate, count in metadata_id.items():
                 candidates[candidate] += count * 1.2
-            for candidate, count in filename_id.items():
-                candidates[candidate] += count * 1.2
             for candidate, count in keywords_id.items():
+                candidates[candidate] += count * 1.0
+            for candidate, count in filename_id.items():
                 candidates[candidate] += count * 1.0
             return candidates
 

@@ -222,3 +222,7 @@ BSI-DSZ-CC-0639-2010,2f9feaf4121720da,tp,BSI-DSZ-CC-0639-2010,,
 BSI-DSZ-CC-0639-2010,db7627e56b8621b1,fp,KECS-ISIS-0394-2012,number of mentions of component certificate higher than actual,scheme mismatch
 Certification Report 98/94,28bb2a8869397c4c,fp,CRP106,number of mentions of component certificate higher than actual,scheme mismatch
 Certification Report 98/94,28a9fc2137d72ce9,fp,CRP103,number of mentions of component certificate higher than actual,scheme mismatch
+CSEC2015006,a5607124c92c10ed,tp,CSEC2015006,shared cert_id,
+CSEC2015006,f89c3a438204a45b,tp,CSEC2015006,shared cert_id,
+CRP208,b2aefe8b1bd4d9b3,fp,CRP208A,regex issue,regex fix
+CRP208,c90ddb9915291718,tp,CRP208,,
