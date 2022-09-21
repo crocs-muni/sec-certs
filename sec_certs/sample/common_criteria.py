@@ -25,7 +25,7 @@ from sec_certs.cert_rules import (
     rules,
     security_level_csv_scan,
 )
-from sec_certs.sample.cc_certificate_id import CertificateId
+from sec_certs.sample.cc_certificate_id import canonicalize
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import References, logger
@@ -989,5 +989,4 @@ class CommonCriteriaCert(
         if candidates:
             candidate = max(candidates, key=candidates.get)
             # And finally make it canonical, but only if we have it
-            cert_id = CertificateId(self.scheme, candidate)
-            self.heuristics.cert_id = cert_id.canonical
+            self.heuristics.cert_id = canonicalize(candidate, self.scheme)

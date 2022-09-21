@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -54,19 +55,9 @@ class CertificateId:
 
             return cert_num, cert_version, cert_year
 
-        # start_year = 1996
-        # limit_year = datetime.now().year + 1
         bsi_parts = self.clean.split("-")
 
         cert_num, cert_version, cert_year = extract_parts(bsi_parts)
-        # if cert_year is None:
-        #     for year in range(start_year, limit_year):
-        #         cert_id_possible = cert_id + "-" + str(year)
-        #
-        #         if cert_id_possible in all_cert_ids:
-        #             # we found version with year
-        #             cert_year = str(year)
-        #             break
 
         # reconstruct BSI number again
         new_cert_id = "BSI-DSZ-CC"
@@ -108,6 +99,25 @@ class CertificateId:
     def _canonical_se(self):
         return self.clean.replace(" ", "")
 
+    def _canonical_uk(self):
+        new_cert_id = self.clean
+        if match := re.match("CERTIFICATION REPORT No. P([0-9]+)", new_cert_id):
+            new_cert_id = "CRP" + match.group(1)
+        return new_cert_id
+
+    def _canonical_ca(self):
+        new_cert_id = self.clean
+        if new_cert_id.endswith("-CR"):
+            new_cert_id = new_cert_id[:-3]
+        return new_cert_id
+
+    def _canonical_jp(self):
+        new_cert_id = self.clean
+        if match := re.match("Certification No. (C[0-9]+)", new_cert_id):
+            return match.group(1)
+        if match := re.search("CRP-(C[0-9]+)-", new_cert_id):
+            return match.group(1)
+
     @property
     def clean(self) -> str:
         """
@@ -128,11 +138,9 @@ class CertificateId:
             "IT": self._canonical_it,
             "IN": self._canonical_in,
             "SE": self._canonical_se,
-            # TODO: Unify UK CRP... vs Certification REPORT No.
-            # TODO: Unify JP C0000 vs JISEC-...
-            # TODO: Unify US (-CR and no -CR)
-            # TODO: Unify CA (-CR and no -CR)
-            # TODO: Unify NL (-CR??)
+            "UK": self._canonical_uk,
+            "CA": self._canonical_ca,
+            "JP": self._canonical_jp,
         }
 
         if self.scheme in schemes:
