@@ -12,11 +12,11 @@ cc_cert_id:
     - "BSI-DSZ-CC-[0-9]+-[0-9][0-9][0-9][0-9]"  # German BSI (number + year, no version)
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
   FR:
-    - "ANSSI(?:-|-CC-|-CC )[0-9]+?/[0-9]+(v[1-9])?"  # French
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9][0-9]+(?!-M|-S|-R)"  # French (/two or more digits then NOT -M or -S)
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+(?:v[0-9])?[_/-][MSR][0-9]+"  # French, maintenance or surveillance report (ANSSI-CC-2014_46_M01)
+    - "ANSS[Ii](?:-|-CC-|-CC )[0-9]{4}/[0-9]+(v[1-9])?"  # French
+    - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9][0-9]+(?!-M|-S|-R)"  # French (/two or more digits then NOT -M or -S)
+    - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9]+(?:v[0-9])?[_/-][MSR][0-9]+"  # French, maintenance or surveillance report (ANSSI-CC-2014_46_M01)
     # 'ANSSI-CC-CER-F-.+?', # French
-    - "DCSSI-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
+    - "DCSS[Ii]-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
     - "Certification Report [0-9]+/[0-9]+" # French or Australia! Solved because we limit ourselves to scheme when doing heuristics.
     - "Rapport de certification [0-9]+/[0-9]+"  # French
   NL:
@@ -38,8 +38,8 @@ cc_cert_id:
     - "[0-9][0-9][0-9][ -](?:EWA|LSS|CCS)(?:[ -]20[0-9][0-9])?"  # Canada (522-EWA-2020, 524 LSS 2020, 503-LSS)
     - "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
   UK:
-    - "CRP[0-9]+"  # UK CESG
-    - "CERTIFICATION REPORT No. P[0-9]+"  # UK CESG
+    - "CRP[0-9]+[A-Z]?"  # UK CESG
+    - "CERTIFICATION REPORT No. P[0-9]+[A-Z]?"  # UK CESG
   ES:
     - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+([-‐]?[ -‐](?:V|v)[0-9]+)?"  # Spain ("2006-4-INF-98 v2" or "2006-4-INF-98-v2" or "2020-34-INF-3784- v1")
   KR:

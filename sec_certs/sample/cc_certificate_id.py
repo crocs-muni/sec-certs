@@ -13,27 +13,15 @@ class CertificateId:
     raw: str
 
     def _canonical_fr(self) -> str:
-        # TODO: Unify ANSSI vs DCSSI vs Certification Report vs Rapport de certification
         new_cert_id = self.clean
-
-        # This currently only handles the ANSSI-CC-0000... ids.
-        if not new_cert_id.startswith("ANSS"):
-            return new_cert_id
-
-        if new_cert_id.startswith("ANSSi"):  # mistyped ANSSi
-            new_cert_id = "ANSSI" + new_cert_id[4:]
-
-        # Bug - getting out of index - ANSSI-2009/30
-        # TMP solution
-        # TODO: Fix me, @georgefi
-        if len(new_cert_id) >= len("ANSSI-CC-0000") + 1:
-            if (
-                new_cert_id[len("ANSSI-CC-0000")] == "_"
-            ):  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
-                new_cert_id = new_cert_id[: len("ANSSI-CC-0000")] + "/" + new_cert_id[len("ANSSI-CC-0000") + 1 :]
-
-        if "_" in new_cert_id:  # _ instead of -
-            new_cert_id = new_cert_id.replace("_", "-")
+        rules = [
+            "(?:Rapport de certification|Certification Report) ([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "(?:ANSS[Ii]|DCSSI)(?:-CC)?[- ]([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+        ]
+        for rule in rules:
+            if match := re.match(rule, new_cert_id):
+                return "ANSSI-CC-" + match.group(1).replace("_", "/").replace("-", "/")
 
         return new_cert_id
 
@@ -74,8 +62,8 @@ class CertificateId:
         cert_id = self.clean
         spain_parts = cert_id.split("-")
         cert_year = spain_parts[0]
-        cert_batch = spain_parts[1]  # TODO: drop leading zero
-        cert_num = spain_parts[3]  # TODO: drop leading zero
+        cert_batch = spain_parts[1].lstrip("0")
+        cert_num = spain_parts[3].lstrip("0")
 
         if "v" in cert_num:
             cert_num = cert_num[: cert_num.find("v")]
@@ -101,7 +89,7 @@ class CertificateId:
 
     def _canonical_uk(self):
         new_cert_id = self.clean
-        if match := re.match("CERTIFICATION REPORT No. P([0-9]+)", new_cert_id):
+        if match := re.match("CERTIFICATION REPORT No. P([0-9]+[A-Z]?)", new_cert_id):
             new_cert_id = "CRP" + match.group(1)
         return new_cert_id
 
@@ -109,7 +97,7 @@ class CertificateId:
         new_cert_id = self.clean
         if new_cert_id.endswith("-CR"):
             new_cert_id = new_cert_id[:-3]
-        return new_cert_id
+        return new_cert_id.replace(" ", "-")
 
     def _canonical_jp(self):
         new_cert_id = self.clean
@@ -150,4 +138,4 @@ class CertificateId:
 
 
 def canonicalize(cert_id_str: str, scheme: str) -> str:
-    return CertificateId(cert_id_str, scheme).canonical
+    return CertificateId(scheme, cert_id_str).canonical

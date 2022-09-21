@@ -154,7 +154,7 @@ BSI-DSZ-CC-0935-2015,025ccea9d90154b0,tp,BSI-DSZ-CC-0935-2015,,
 BSI-DSZ-CC-0935-2015,a4bbf07046109fc9,fp,NSCIB-CC-10-30076-CR,number of mentions of component certificate higher than actual,scheme mismatch
 ANSSI-CC-2009/46,baead73ecc6e4a33,tp,ANSSI-CC-2009/46,clone,
 ANSSI-CC-2009/46,d76f210e41d5589c,tp,ANSSI-CC-2009/46,clone,
-BSI-DSZ-CC-0234-2004,f577607298c4b574,fp,CERTIFICATION REPORT No. P212,number of mentions of component certificate higher than actual,scheme mismatch
+BSI-DSZ-CC-0234-2004,f577607298c4b574,fp,CRP212,number of mentions of component certificate higher than actual,scheme mismatch
 BSI-DSZ-CC-0234-2004,1cb63a13bf4c58ff,tp,BSI-DSZ-CC-0234-2004,,
 BSI-DSZ-CC-1053-2018,4e246ff7fd346630,tp,BSI-DSZ-CC-1053-2018,clone,
 BSI-DSZ-CC-1053-2018,a6629b6ce5514a43,tp,BSI-DSZ-CC-1053-2018,clone,
