@@ -29,9 +29,9 @@ ANSSI-CC-2021/50,0d2cab8061464438,fp,ANSSI-CC-2022/25,number of mentions of comp
 ANSSI-CC-2014/58,27d11629261d8806,fp,KECS-ISIS-0798-2017,number of mentions of component certificate higher than actual,scheme mismatch
 ANSSI-CC-2014/58,627bfd69c2a831cf,tp,ANSSI-CC-2014/58,,
 ANSSI-CC-2014/58,cacdfdafce47678c,fp,KECS-ISIS-0799-2017,number of mentions of component certificate higher than actual,scheme mismatch
-BSI-DSZ-CC-0223-2003,4408217c4ce524fd,fp,DCSSI-CC-2003/12,number of mentions of component certificate higher than actual + clone,scheme mismatch
+BSI-DSZ-CC-0223-2003,4408217c4ce524fd,fp,ANSSI-CC-2003/12,number of mentions of component certificate higher than actual + clone,scheme mismatch
 BSI-DSZ-CC-0223-2003,b82b48b0e915aaac,tp,BSI-DSZ-CC-0223-2003,,
-BSI-DSZ-CC-0223-2003,c3f8e8ddb1dabb02,fp,DCSSI-CC-2003/12,number of mentions of component certificate higher than actual + clone,scheme mismatch
+BSI-DSZ-CC-0223-2003,c3f8e8ddb1dabb02,fp,ANSSI-CC-2003/12,number of mentions of component certificate higher than actual + clone,scheme mismatch
 ANSSI-CC-2019/01,f4b4b026e87b5086,fp,KECS-ISIS-0937-2019,number of mentions of component certificate higher than actual,scheme mismatch
 ANSSI-CC-2019/01,fbc78e2407910a4b,fp,KECS-ISIS-0936-2019,number of mentions of component certificate higher than actual,scheme mismatch
 ANSSI-CC-2019/01,84c8bf1f809380bc,tp,ANSSI-CC-2019/01,,
@@ -102,8 +102,8 @@ CCEVS-VR-10425-2011,e2f3a1cdd592ab05,tp,CCEVS-VR-10425-2011,clone,
 CCEVS-VR-10425-2011,52f07fb00a81780e,tp,CCEVS-VR-10425-2011,clone,
 CCEVS-VR-VID10510-2014,965f41d028746f9b,fp,,different reports share cert_id,
 CCEVS-VR-VID10510-2014,0cf98690ba05ef68,fp,,different reports share cert_id,
-383-4-263-CR,f2032ab2a50ab35d,tp,383-4-263-CR,clone,
-383-4-263-CR,1fb95703e4e12a49,tp,383-4-263-CR,clone,
+383-4-263-CR,f2032ab2a50ab35d,tp,383-4-263,clone,
+383-4-263-CR,1fb95703e4e12a49,tp,383-4-263,clone,
 NSCIB-CC-0237694-CR,9fd2cc58ecfab9c4,tp,NSCIB-CC-0237694-CR,clone,
 NSCIB-CC-0237694-CR,b1401488f998c1f0,tp,NSCIB-CC-0237694-CR,clone,
 ANSSI-CC-2020/07,8820852f4a1163b3,tp,ANSSI-CC-2020/07,clone,
@@ -112,8 +112,8 @@ CCEVS-VR-05-0124,8bf284d3b482ad65,tp,CCEVS-VR-05-0124,clone,
 CCEVS-VR-05-0124,3ad601a9cb30dfef,tp,CCEVS-VR-05-0124,clone,
 CCEVS-VR-05-0102,a67fe4216fd88917,tp,CCEVS-VR-05-0102,clone,
 CCEVS-VR-05-0102,ec25be3458d728cd,tp,CCEVS-VR-05-0102,clone,
-383-4-198-CR,3c24bbe7724dbfdd,tp,383-4-198-CR,clone,
-383-4-198-CR,0a3793d207c47790,tp,383-4-198-CR,clone,
+383-4-198-CR,3c24bbe7724dbfdd,tp,383-4-198,clone,
+383-4-198-CR,0a3793d207c47790,tp,383-4-198,clone,
 NSCIB-CC-0308282-CR,01fa8bfbc95c23b5,tp,NSCIB-CC-0308282-CR,clone,
 NSCIB-CC-0308282-CR,f6e744b5e5ae6d4f,tp,NSCIB-CC-0308282-CR,clone + removed,handle removed
 ANSSI-CC-2014/59,ac4687f4b15507b6,fp,KECS-ISIS-0797-2017,number of mentions of component certificate higher than actual,scheme mismatch
@@ -126,8 +126,8 @@ ANSSI-CC-2010/36,5e4c757231135ba1,tp,ANSSI-CC-2010/36,clone,
 ANSSI-CC-2010/36,69c75283a4ccf934,tp,ANSSI-CC-2010/36,clone,
 BSI-DSZ-CC-0950-V2-2018,a46522d0a592c1fe,tp,BSI-DSZ-CC-0950-V2-2018,clone + removed,handle removed
 BSI-DSZ-CC-0950-V2-2018,6f90b0bf6bbe884b,tp,BSI-DSZ-CC-0950-V2-2018,clone,
-Rapport de certification 2005/01,f3bb1641b4bb0aa0,tp,Rapport de certification 2005/01,clone,
-Rapport de certification 2005/01,749fae44017016c5,tp,Rapport de certification 2005/01,clone + mismatched scheme,scheme mismatch
+Rapport de certification 2005/01,f3bb1641b4bb0aa0,tp,ANSSI-CC-2005/01,clone,
+Rapport de certification 2005/01,749fae44017016c5,tp,ANSSI-CC-2005/01,clone + mismatched scheme,scheme mismatch
 2004-3-INF-71,1bb3da30bc8f4750,tp,2004-3-INF-71,clone,
 2004-3-INF-71,0b0648a9b9a26747,tp,2004-3-INF-71,clone,
 CCEVS-VR-VID10559-2014,aa49720eb88f291c,tp,CCEVS-VR-VID10559-2014,,
@@ -178,7 +178,7 @@ BSI-DSZ-CC-0196-2003,063d4ed52b084441,fp,,wrong certification report ,
 BSI-DSZ-CC-0196-2003,41708ba21f2bb4a7,tp,BSI-DSZ-CC-0196-2003,,
 BSI-DSZ-CC-0624-2010,09be49631855ae19,tp,BSI-DSZ-CC-0624-2010,,
 BSI-DSZ-CC-0624-2010,1816ddecd7432cf9,fp,KECS-ISIS-0378-2012,number of mentions of component certificate higher than actual,
-383-4-100-CR,8ba5d4d02ea73d3d,tp,383-4-100-CR,,scheme mismatch
+383-4-100-CR,8ba5d4d02ea73d3d,tp,383-4-100,,scheme mismatch
 383-4-100-CR,c4e1391e8ba34694,fp,,wrong certification report ,
 NSCIB-CC-0441513-CR,7533a87b0379ce3e,tp,NSCIB-CC-0441513-CR,clone + removed,handle removed
 NSCIB-CC-0441513-CR,82c6207791448e0c,tp,NSCIB-CC-0441513-CR,clone,
@@ -202,8 +202,8 @@ ANSSI-CC-2018/38,3459c14186e8223f,tp,ANSSI-CC-2018/38,,
 ANSSI-CC-2018/38,371dca18821f7714,fp,ANSSI-CC-2018/38v2,regex substring,frontpage match
 CRP292,a00e93f2981ef418,fp,CRP298,number of mentions of component certificate higher than actual,frontpage match
 CRP292,3e345d3c6002ad55,tp,CRP292,,
-ANSSI-2009/24,a52f807db0eb7fdb,tp,ANSSI-2009/24,clone,
-ANSSI-2009/24,e6a8cbbc8c557bed,tp,ANSSI-2009/24,clone,
+ANSSI-2009/24,a52f807db0eb7fdb,tp,ANSSI-CC-2009/24,clone,
+ANSSI-2009/24,e6a8cbbc8c557bed,tp,ANSSI-CC-2009/24,clone,
 ANSSI-CC-2013/47,34370b67b5e675c3,fp,KECS-ISIS-0489-2014,number of mentions of component certificate higher than actual,scheme mismatch
 ANSSI-CC-2013/47,6aa2f56da553d95d,tp,ANSSI-CC-2013/47,,
 ANSSI-CC-2010/02,7d4585a4b5b6e873,fp,KECS-ISIS-0419-2012,number of mentions of component certificate higher than actual,scheme mismatch
