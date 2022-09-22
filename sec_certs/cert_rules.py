@@ -4,8 +4,6 @@ from typing import Dict, Final, List, Set, Tuple
 
 import yaml
 
-REGEXEC_SEP = r"[ ,;\]”)(]"
-
 # This ignores ACM and AMA SARs that are present in CC version 2
 SARS_IMPLIED_FROM_EAL: Dict[str, Set[Tuple[str, int]]] = {
     "EAL1": {
@@ -180,6 +178,13 @@ SARS_IMPLIED_FROM_EAL: Dict[str, Set[Tuple[str, int]]] = {
 security_level_csv_scan = r"EAL[1-7]\+?"
 
 
+REGEXEC_SEP = "[ ,;\\[\\]”\"')(.]"
+MATCH_START = "(?P<match>"
+MATCH_END = ")"
+REGEXEC_SEP_START = f"(?:^|{REGEXEC_SEP})"
+REGEXEC_SEP_END = f"(?:$|{REGEXEC_SEP})"
+
+
 def _load():
     script_dir = Path(__file__).parent
     filepath = script_dir / "rules.yaml"
@@ -192,7 +197,14 @@ def _process(obj, add_sep=True):
     if isinstance(obj, dict):
         return {k: _process(v, add_sep=add_sep) for k, v in obj.items()}
     elif isinstance(obj, list):
-        return [re.compile(rule + REGEXEC_SEP if add_sep else rule) for rule in obj]
+        return [
+            re.compile(
+                REGEXEC_SEP_START + MATCH_START + rule + MATCH_END + REGEXEC_SEP_END
+                if add_sep
+                else MATCH_START + rule + MATCH_END
+            )
+            for rule in obj
+        ]
 
 
 rules = _load()
