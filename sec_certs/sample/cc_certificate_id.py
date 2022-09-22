@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -12,27 +13,15 @@ class CertificateId:
     raw: str
 
     def _canonical_fr(self) -> str:
-        # TODO: Unify ANSSI vs DCSSI vs Certification Report vs Rapport de certification
         new_cert_id = self.clean
-
-        # This currently only handles the ANSSI-CC-0000... ids.
-        if not new_cert_id.startswith("ANSS"):
-            return new_cert_id
-
-        if new_cert_id.startswith("ANSSi"):  # mistyped ANSSi
-            new_cert_id = "ANSSI" + new_cert_id[4:]
-
-        # Bug - getting out of index - ANSSI-2009/30
-        # TMP solution
-        # TODO: Fix me, @georgefi
-        if len(new_cert_id) >= len("ANSSI-CC-0000") + 1:
-            if (
-                new_cert_id[len("ANSSI-CC-0000")] == "_"
-            ):  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
-                new_cert_id = new_cert_id[: len("ANSSI-CC-0000")] + "/" + new_cert_id[len("ANSSI-CC-0000") + 1 :]
-
-        if "_" in new_cert_id:  # _ instead of -
-            new_cert_id = new_cert_id.replace("_", "-")
+        rules = [
+            "(?:Rapport de certification|Certification Report) ([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "(?:ANSS[Ii]|DCSSI)(?:-CC)?[- ]([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+        ]
+        for rule in rules:
+            if match := re.match(rule, new_cert_id):
+                return "ANSSI-CC-" + match.group(1).replace("_", "/")
 
         return new_cert_id
 
@@ -54,19 +43,9 @@ class CertificateId:
 
             return cert_num, cert_version, cert_year
 
-        # start_year = 1996
-        # limit_year = datetime.now().year + 1
         bsi_parts = self.clean.split("-")
 
         cert_num, cert_version, cert_year = extract_parts(bsi_parts)
-        # if cert_year is None:
-        #     for year in range(start_year, limit_year):
-        #         cert_id_possible = cert_id + "-" + str(year)
-        #
-        #         if cert_id_possible in all_cert_ids:
-        #             # we found version with year
-        #             cert_year = str(year)
-        #             break
 
         # reconstruct BSI number again
         new_cert_id = "BSI-DSZ-CC"
@@ -83,15 +62,15 @@ class CertificateId:
         cert_id = self.clean
         spain_parts = cert_id.split("-")
         cert_year = spain_parts[0]
-        cert_batch = spain_parts[1]
-        cert_num = spain_parts[3]
+        cert_batch = spain_parts[1].lstrip("0")
+        cert_num = spain_parts[3].lstrip("0")
 
         if "v" in cert_num:
             cert_num = cert_num[: cert_num.find("v")]
         if "V" in cert_num:
             cert_num = cert_num[: cert_num.find("V")]
 
-        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num.strip()}"  # drop version
+        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num.strip()}"  # drop version # TODO: Maybe do not drop?
 
         return new_cert_id
 
@@ -107,6 +86,27 @@ class CertificateId:
 
     def _canonical_se(self):
         return self.clean.replace(" ", "")
+
+    def _canonical_uk(self):
+        new_cert_id = self.clean
+        if match := re.match("CERTIFICATION REPORT No. P([0-9]+[A-Z]?)", new_cert_id):
+            new_cert_id = "CRP" + match.group(1)
+        return new_cert_id
+
+    def _canonical_ca(self):
+        new_cert_id = self.clean
+        if new_cert_id.endswith("-CR"):
+            new_cert_id = new_cert_id[:-3]
+        if new_cert_id.endswith("P"):
+            new_cert_id = new_cert_id[:-1]
+        return new_cert_id.replace(" ", "-")
+
+    def _canonical_jp(self):
+        new_cert_id = self.clean
+        if match := re.match("Certification No. (C[0-9]+)", new_cert_id):
+            return match.group(1)
+        if match := re.search("CRP-(C[0-9]+)-", new_cert_id):
+            return match.group(1)
 
     @property
     def clean(self) -> str:
@@ -128,12 +128,16 @@ class CertificateId:
             "IT": self._canonical_it,
             "IN": self._canonical_in,
             "SE": self._canonical_se,
-            # TODO: Unify UK CRP... vs Certification REPORT No.
-            # TODO: Unify JP C0000 vs JISEC-...
-            # TODO: Unify US (-CR and no -CR)
+            "UK": self._canonical_uk,
+            "CA": self._canonical_ca,
+            "JP": self._canonical_jp,
         }
 
         if self.scheme in schemes:
             return schemes[self.scheme]()
         else:
             return self.clean
+
+
+def canonicalize(cert_id_str: str, scheme: str) -> str:
+    return CertificateId(scheme, cert_id_str).canonical

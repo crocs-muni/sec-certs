@@ -25,7 +25,7 @@ from sec_certs.cert_rules import (
     rules,
     security_level_csv_scan,
 )
-from sec_certs.sample.cc_certificate_id import CertificateId
+from sec_certs.sample.cc_certificate_id import canonicalize
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import References, logger
@@ -308,7 +308,7 @@ class CommonCriteriaCert(
                     matches[cert_id] += 1
             if not matches:
                 return {}
-            total = sum(matches.values())
+            total = max(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -330,7 +330,7 @@ class CommonCriteriaCert(
             matches: Counter = Counter(cert_id_matches[scheme])
             if not matches:
                 return {}
-            total = sum(matches.values())
+            total = max(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -355,7 +355,7 @@ class CommonCriteriaCert(
                         matches[cert_id] += 1
             if not matches:
                 return {}
-            total = sum(matches.values())
+            total = max(matches.values())
             results = {}
             for candidate, count in matches.items():
                 results[candidate] = count / total
@@ -368,16 +368,18 @@ class CommonCriteriaCert(
             filename_id = self.filename_cert_id(scheme)
             keywords_id = self.keywords_cert_id(scheme)
 
-            # Join them and weigh them, each is normalized to sum weights to 1 (if anything is returned)
+            # Join them and weigh them, each is normalized with weights from 0 to 1 (if anything is returned)
             candidates: Dict[str, float] = defaultdict(lambda: 0.0)
+            # TODO: Add heuristic based on ordering of ids (and extracted year + increment)
+            # TODO: Add heuristic based on length
             for candidate, count in frontpage_id.items():
-                candidates[candidate] += count * 1.5
+                candidates[canonicalize(candidate, scheme)] += count * 1.5
             for candidate, count in metadata_id.items():
-                candidates[candidate] += count * 1.2
-            for candidate, count in filename_id.items():
-                candidates[candidate] += count * 1.2
+                candidates[canonicalize(candidate, scheme)] += count * 1.2
             for candidate, count in keywords_id.items():
-                candidates[candidate] += count * 1.0
+                candidates[canonicalize(candidate, scheme)] += count * 1.0
+            for candidate, count in filename_id.items():
+                candidates[canonicalize(candidate, scheme)] += count * 1.0
             return candidates
 
     @dataclass
@@ -987,7 +989,7 @@ class CommonCriteriaCert(
         candidates = self.pdf_data.candidate_cert_ids(self.scheme)
 
         if candidates:
-            candidate = max(candidates, key=candidates.get)
-            # And finally make it canonical, but only if we have it
-            cert_id = CertificateId(self.scheme, candidate)
-            self.heuristics.cert_id = cert_id.canonical
+            max_weight = max(candidates.values())
+            max_candidates = list(filter(lambda x: candidates[x] == max_weight, candidates.keys()))
+            max_candidates.sort(key=len, reverse=True)
+            self.heuristics.cert_id = max_candidates[0]
