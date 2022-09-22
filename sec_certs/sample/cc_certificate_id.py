@@ -97,6 +97,8 @@ class CertificateId:
         new_cert_id = self.clean
         if new_cert_id.endswith("-CR"):
             new_cert_id = new_cert_id[:-3]
+        if new_cert_id.endswith("P"):
+            new_cert_id = new_cert_id[:-1]
         return new_cert_id.replace(" ", "-")
 
     def _canonical_jp(self):
