@@ -201,7 +201,8 @@ def _process(obj, add_sep=True):
             re.compile(
                 REGEXEC_SEP_START + MATCH_START + rule + MATCH_END + REGEXEC_SEP_END
                 if add_sep
-                else MATCH_START + rule + MATCH_END
+                else MATCH_START + rule + MATCH_END,
+                re.MULTILINE,
             )
             for rule in obj
         ]
