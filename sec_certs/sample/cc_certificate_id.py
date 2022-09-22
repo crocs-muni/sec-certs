@@ -108,6 +108,11 @@ class CertificateId:
         if match := re.search("CRP-(C[0-9]+)-", new_cert_id):
             return match.group(1)
 
+    def _canonical_no(self):
+        new_cert_id = self.clean
+        cert_num = int(new_cert_id.split("-")[1])
+        return f"SERTIT-{cert_num:03}"
+
     @property
     def clean(self) -> str:
         """
@@ -131,6 +136,7 @@ class CertificateId:
             "UK": self._canonical_uk,
             "CA": self._canonical_ca,
             "JP": self._canonical_jp,
+            "NO": self._canonical_no,
         }
 
         if self.scheme in schemes:
