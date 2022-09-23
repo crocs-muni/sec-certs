@@ -368,6 +368,7 @@ class TestCommonCriteriaID(TestCase):
     def test_canonicalize_jp(self):
         self.assertEqual(canonicalize("Certification No. C01234", "JP"), "C01234")
         self.assertEqual(canonicalize("CRP-C01234-01", "JP"), "C01234")
+        self.assertEqual(canonicalize("JISEC-CC-CRP-C0689-01-2020", "JP"), "C0689")
 
     def test_canonicalize_no(self):
         self.assertEqual(canonicalize("SERTIT-12", "NO"), "SERTIT-012")

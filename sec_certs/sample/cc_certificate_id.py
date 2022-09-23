@@ -107,6 +107,7 @@ class CertificateId:
             return match.group(1)
         if match := re.search("CRP-(C[0-9]+)-", new_cert_id):
             return match.group(1)
+        return new_cert_id
 
     def _canonical_no(self):
         new_cert_id = self.clean
