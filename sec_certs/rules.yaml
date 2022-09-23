@@ -11,6 +11,7 @@ cc_cert_id:
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9][0-9][0-9][0-9])*"  # German BSI (number + version + year or without year)
     - "BSI-DSZ-CC-[0-9]+-[0-9][0-9][0-9][0-9]"  # German BSI (number + year, no version)
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
+    # - "BSI-DSZ-CC-[0-9]+"  # Maybe?
   FR:
     - "ANSS[Ii](?:-|-CC-|-CC )[0-9]{4}/[0-9]+(v[1-9])?"  # French
     - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9][0-9]+(?!-M|-S|-R)"  # French (/two or more digits then NOT -M or -S)
