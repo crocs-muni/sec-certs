@@ -1,0 +1,182 @@
+id,cert_id,location,reason,comment
+61e7578e78fbe755,14.10.06/13-006,report,self,
+dc91f94aa005a094,CCEVS-VR-VID10789-2017,report,self,
+0349c893b81f7c1a,NSCIB-CC-0189590-CR,report,self,
+0349c893b81f7c1a,NSCIB-CC-0031318-CR2,report,component used,"The TOE consists of an applet and the certified Java Card platform (SECORA ID-X Javacard OS platform) [PL-CERT]"
+0349c893b81f7c1a,NSCIB-CC-0031318-CR2,target,component used,"intended to be used exclusively on the SECORA ID-X Javacard OS platforms which is certified according to CC EAL 5+ [Cert_Secora]"
+0349c893b81f7c1a,BSI-DSZ-CC-1079-V2-2020,target,component used,"on a smart card chip based on the Infineon IFX_CCI_000010 security controller which is itself certified according to CC EAL 5+ [Cert_IC]."
+ece463ca87392f7b,CCEVS-VR-06-0016,report,self,
+c92a196d0408a5ff,ANSSI-CC-2013/57,report,self,
+c92a196d0408a5ff,ANSSI-CC-2012/49,report,previous version,"previous version of the product (see [ANSSI-CC-2012/49])"
+c92a196d0408a5ff,ANSSI-CC-2013/56,report,component used,"The main security services provided by the product are those provided by the previously certified (U)SIM platform see [ANSSI-CC2013/56]"
+c92a196d0408a5ff,ANSSI-CC-2011/07,report,basis of eval,"The random number generator used by the final product was evaluated as part of the evaluation of the microcontroller (see [ANSSI-CC-2011/07])."
+c92a196d0408a5ff,ANSSI-CC-2012/48,report,basis of eval,"TOE development phases taken into account during the evaluation of the platform (see [ANSSI-CC-2012/48])]"
+0e22fe4e4e58faf4,BSI-DSZ-CC-1052-V5-2022,report,self,
+0e22fe4e4e58faf4,BSI-DSZ-CC-1052-V4-2021,report,basis of recertification,"It is a re-certification based on BSI-DSZ-CC-1052-V4-2021"
+0e22fe4e4e58faf4,BSI-DSZ-CC-1052-V5,target,self,
+b4bec1e6f04c3533,BSI-DSZ-CC-0478-2008,report,self,
+b4bec1e6f04c3533,BSI-DSZ-CC-0478,target,self,
+940a18f62c79ffae,ANSSI-CC-2022/30,report,self,
+940a18f62c79ffae,ANSSI-CC-2021/51,report,basis of eval,"The evaluation is based on the evaluation results of the product NPCT7xx TPM2.0 rev 1.59 (configuration version 1.3.0.0) certified under the reference [ANSSI-CC-2021/51]."
+940a18f62c79ffae,ANSSI-CC-2022/30,target,self,
+940a18f62c79ffae,ANSSI-CC-2021/51,target,basis of eval,"The evaluation is based on the evaluation results of the product NPCT7xx TPM2.0 rev 1.59 (configuration version 1.3.0.0) certified under the reference [ANSSI-CC-2021/51]."
+00fc58baa6297c0d,C0072,report,self,
+29964f32c68b0ce8,BSI-DSZ-CC-0519-V4-2022,report,self,
+29964f32c68b0ce8,BSI-DSZ-CC-0519-V3-2021,report,basis of recertification,"The product ORGA 6141 online V3.8.2:1.2.0 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0519-V3-2021. Specific results from the evaluation process BSI-DSZ-CC-0519-V3-2021 were re-used."
+29964f32c68b0ce8,BSI-DSZ-CC-0519-V4,target,self,
+29964f32c68b0ce8,BSI-DSZ-CC-0519-V3,target,self,
+b2f3874cdb97fe27,BSI-DSZ-CC-0790-2013,report,self,
+1fb95703e4e12a49,383-4-263-CR,report,self,
+546f9e2496b1d11c,ANSSI-CC-2015/14,report,self,
+1dd7f4bf2e677073,ANSSI-CC-2014/20,report,self,
+b24a14935edd51ad,BSI-DSZ-CC-0783-2013,report,self,
+b24a14935edd51ad,BSI-DSZ-CC-0750-2010,report,component used,"The TOE consists of the Java Card Operating System the NXP Crypto Library for SmartMX v2.7 (certified under BSI-DSZ-CC-0750-2010) and the hardware platform P5CD145V0B or P5CC145V0B (certified under BSI-DSZ-CC-0645-2011)
+b24a14935edd51ad,BSI-DSZ-CC-0645-2011,report,component used,"The TOE consists of the Java Card Operating System the NXP Crypto Library for SmartMX v2.7 (certified under BSI-DSZ-CC-0750-2010) and the hardware platform P5CD145V0B or P5CC145V0B (certified under BSI-DSZ-CC-0645-2011)
+b24a14935edd51ad,BSI-DSZ-CC-0783,target,self,
+b24a14935edd51ad,BSI-DSZ-CC-0750,target,component used,"Table 2 gives the details of the underlying evaluations of the cryptographic library and the underlying hardware platforms."
+b24a14935edd51ad,BSI-DSZ-CC-0645,target,component used,"Table 2 gives the details of the underlying evaluations of the cryptographic library and the underlying hardware platforms."
+302df01b5d463eea,CCEVS-VR-VID10253-2009,report,self,
+6337d3dcc5362dc6,NSCIB-CC-0122197-CR,report,self,
+6337d3dcc5362dc6,ANSSI-CC-2019/12,report,component used,Very unclear and does not actually list the target cert anywhere but in references.
+6337d3dcc5362dc6,ANSSI-CC-2019/12,target,component used,"The ST31G480 Secured Microcontroller with Cryptographic Library has been certified by ANSSI (cert. report ANSSI-CC-2019/12) with assurance level EAL5+"
+8da378edb071a71c,CCEVS-VR-VID10691-2016,report,self,
+dd1482a4911a3f1d,CCEVS-VR-05-0105,report,self,
+99223aca5d9eb3b3,ANSSI-CC-2011/01,report,self,
+99223aca5d9eb3b3,BSI-DSZ-CC-0421-2008,report,component used,"This microcontroller was certified on December 4 2008 under the reference BSI-DSZ-CC-0421-2008."
+99223aca5d9eb3b3,ANSSI-CC-2009-46,report,basis of eval,"The evaluation is based on the evaluation results of the ID-One Cosmo V7.0-a smart card product in Standard and Basic configuration certified on November 19 2009 under the reference ANSSI-CC-2009-46 [ANSSI-CC -2009-46]."
+99223aca5d9eb3b3,BSI-DSZ-CC-0421-2008,target,component used,"IC Certificate"
+99223aca5d9eb3b3,DCSSI-2009/11,target,component used,"Toolbox Certificate"
+dc45c7a6ef17f8b5,BSI-DSZ-CC-1161-2020,report,self,
+dc45c7a6ef17f8b5,BSI-DSZ-CC-1125-2019,report,basis of recertification,"This is a re-certification based on BSI-DSZ-CC-1125-2019. Specific results from the evaluation process BSI-DSZ-CC-1125-2019 were re-used."
+dc45c7a6ef17f8b5,BSI-DSZ-CC-1161,target,self,
+15fae84c1e6c6c57,ANSSI-CC-2001/05,report,self,
+15fae84c1e6c6c57,ANSSI-CC-2001/05,report,component used,Very unclear and does not list the actual relationship directly.
+eaf0033626287cc4,ANSSI-CC-2012/81,report,self,
+3357e42cd4dc8605,383-4-256,report,self,
+4e0dc3133a7e601d,C0513,report,self,
+8877b69b21e92b41,2019-50-INF-3506,report,self,
+3c05395ee9e5adf1,BSI-DSZ-CC-0707-2012,report,self,
+a6e37f57c6e72d8c,ANSSI-CC-2005/13,report,self,
+f0068ddc5569b772,518-LSS,report,self,
+04715a4f818f4b71,383-4-345,report,self,
+3c0185a5cb2d1ea8,CSEC2011001,report,self,
+f91b60c2954d4b00,CSEC2017005,report,self,
+b95f2b009d70fad1,BSI-DSZ-CC-0637-2010,report,self,
+b95f2b009d70fad1,BSI-DSZ-CC-0534-2009,report,basis of recertification,"The product IBM z/OS Version 1 Release 11 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0534-2009. Specific results from the evaluation process BSI-DSZ-CC-0534-2009 were re-used."
+b95f2b009d70fad1,BSI-DSZ-CC-0637,target,self,
+d8c205b4924f91b3,ANSSI-CC-2022/09,report,self,
+d8c205b4924f91b3,ANSSI-CC-2021/47,report,basis of redo,"The evaluation is based on the evaluation results of this same product certified on October 8, 2021 under the reference ANSSI-CC-2021/47, see [CER]. It corresponds to an evaluation with scope reduction following the identification of vulnerability."
+82361ca3849ae025,383-4-420,report,self,
+40817e88a5a46fd5,CCEVS-VR-VID10541-2014,report,self,
+c1d88ce9dadd7d2d,BSI-DSZ-CC-0313-2006,report,self,
+c1d88ce9dadd7d2d,BSI-DSZ-CC-0312-2005,report,component used,"The TOE is a Smart Device with an operating system (Starcos) and a dedicated file-system, that contains all data relevant for the ICAO application. For details on the MRTD chip and IC Dedicated Software see certification reports BSI-DSZ-CC-0312-2006 [13] for the Philips chip P5CT072V0N."
+c1d88ce9dadd7d2d,BSI-DSZ-CC-0312-2005,target,component used,"HW-Part of TOE: Philips P5CT072V0N (BSI-DSZ-CC-0312-2005)."
+ba27867a74e9c47a,CCEVS-VR-VID10472-2014,report,self,
+f7cbb33cc639b5b5,KECS-ISIS-0222-2010,report,self,
+f7cbb33cc639b5b5,BSI-DSZ-CC-0501-2008,report,component used,"The TOE KCOS e-Passport Version 1.1 S3CC9 LC/GC/GW is composed of the following components: IC chip S3CC9LC provided by Samsung Electronics see BSI-DSZ-CC-0501-2008"
+f7cbb33cc639b5b5,BSI-DSZ-CC-0438-2007,report,component used,"The TOE KCOS e-Passport Version 1.1 S3CC9 LC/GC/GW is composed of the following components: IC chip S3CC9GC provided by Samsung Electronics see BSI-DSZ-CC-0438-2007"
+f7cbb33cc639b5b5,BSI-DSZ-CC-0400-2007,report,component used,"The TOE KCOS e-Passport Version 1.1 S3CC9 LC/GC/GW is composed of the following components: IC chip S3CC9GW provided by Samsung Electronics see BSI-DSZ-CC-0400-2007"
+f7cbb33cc639b5b5,BSI-DSZ-CC-0501-2008,target,component used,"IC Chip of Samsung Electronics and is certified according to CC EAL 5+(BSI-DSZ-CC-0501-2008)"
+f7cbb33cc639b5b5,BSI-DSZ-CC-0438-2007,target,component used,"IC chip of Samsung Electronics and is certified according to CC EAL 4+(BSI-DSZ-CC-0438-2007)"
+f7cbb33cc639b5b5,BSI-DSZ-CC-0400-2007,target,component used,"IC chip of Samsung Electronics and is certified according to CC EAL 4+(BSI-DSZ-CC-0400-2007)"
+1e7b90184a127017,CCEVS-VR-VID10502-2012,report,self,
+1e7b90184a127017,CCEVS-VR-VID10406-2011,report,previous version,"Sourcefire 3D System was Common Criteria certified by NIAP at EAL 2 augmented with ALC_FLR.2; Validation Report Number: CCEVS-VR-VID10406-2011"
+0d77936727b14c88,BSI-DSZ-CC-0591-2011,report,self,
+0d77936727b14c88,BSI-DSZ-CC-0591,target,self,
+9060684220d85047,ANSSI-CC-2008/01,report,self,
+9060684220d85047,BSI-DSZ-CC-0322,report,component used,"This evaluation thus took into account the results of the evaluation of the microcontroller (SLE66CX680PE - m1534-A13 with RSA2048 V1.4 & specific IC dedicated software) at the EAL5 level increased by the components ALC_DVS.2 AVA_MSU.3 and AVA_VLA.4 complies with the protection profile [PP0002]. This microcontroller was certified on September 14 2005 under the reference BSI-DSZ-CC-0322."
+b23a595bb30865b5,C0575,report,self,
+663d89dea15969c8,CRP214,report,self,
+724d3996cb63d204,CSEC2014001,report,self,
+724d3996cb63d204,CSEC2014001,target,self,
+5e89afca1d4570a4,C0077,report,self,
+37c8d23c44b95833,ANSSI-CC-2018/43,report,self,
+37c8d23c44b95833,ANSSI-CC-2017/16,report,basis of eval,"Rating is based on product review results SAMSUNG S3FV9QM / S3FV9QK certified on March 23 2017 under the reference [ANSSI CC2017/16]."
+dfb6af00c78cd061,C0421,report,self,
+b9365d96c9ecdde0,CCEVS-VR-VID10869-2018,report,self,
+c8427da3733c506d,OCSI/CERT/TEC/05/2017/RC,report,self,
+780f19df05e0dd18,C0334,report,self,
+56660124ad6ded6d,BSI-DSZ-CC-1089-2020,report,self,
+56660124ad6ded6d,BSI-DSZ-CC-1089,target,self,
+3ba9f330ce93636b,BSI-DSZ-CC-0732-2011,report,self,
+3ba9f330ce93636b,BSI-DSZ-CC-0640-2010,report,component used,"The TOE TCOS Signature Module Version 1.0 Release 1/SLE78CLX480P is composed of the components: Smart Card Security Controller SLE78CLX480P / M7820 A11 provided by Infineon Technologies AG (with specific IC dedicated software see BSI-DSZ-CC-0640-2010, but without usage of the Infineon crypto library)"
+3ba9f330ce93636b,BSI-DSZ-CC-0677-2010,report,basis of eval + derivative,"The evaluators have tested nearly the same TOE in the certification process BSI-DSZ-CC-0677 systematically against high attack potential during their penetration testing. They have analysed the changes between the two TOEs and found no differences in the source code concerning the security functionality of the TOE."
+3ba9f330ce93636b,BSI-DSZ-CC-0732-2011,target,self,
+3ba9f330ce93636b,BSI-DSZ-CC-0640-2010,report,component used,"The evaluation of the TOE is a composite evaluation and uses the results of the CC evaluation provided by [HWCR]"
+80932fd09bfc3f98,CCEVS-VR-VID10120-2008,report,self,
+8298c7814b3b2860,KECS-CISS-1153-2022,report,self,
+c290ee3692a00006,383-4-438,report,self,
+642d82f9a5e97fa2,CSEC2017014,report,self,
+642d82f9a5e97fa2,CSEC2017014,target,self,
+4b2b04554256b523,KECS-ISIS-0117-2008,report,self,
+4eaceb72085e12f7,C0668,report,self,
+70b12d34fa092eeb,CCEVS-VR-VID10380-2012,report,self,
+ec7db499df27dcf9,383-4-397,report,self,
+61821500cddab34f,BSI-DSZ-CC-0540-2009,report,self,
+61821500cddab34f,BSI-DSZ-CC-0540,target,self,
+0f3900cdcd0c7f3e,NSCIB-CC-127667-CR3,report,self,
+0f3900cdcd0c7f3e,NSCIB-CC-66030-CR5,report,component used,"Certification Report Crypto Library V3.1x on P6021yVB NSCIB-CC-66030-CR5 7 July 2021"
+0f3900cdcd0c7f3e,BSI-DSZ-CC-1072-V4-2021-MA-01,report,component used,"Certification Report NXP Secure Smart Card Controller P6021yVB including IC dedicated software BSI-DSZ-CC-1072-V4-2021-MA-01 17 December 2021"
+0f3900cdcd0c7f3e,NSCIB-CC-127667,target,self,
+0f3900cdcd0c7f3e,BSI-DSZ-CC-1072-V4-2021,target,component used,"The circuitry of the MRTD‘s chip P60D081PVB is certified under certificate identification BSI-DSZ-CC-1072-V4-2021"
+0f3900cdcd0c7f3e,NSCIB-CC-66030-CR5,target,component used,"and the Crypto Library V3.1.2 on P60D081PVB is certified under certificate identification NSCIB-CC-66030-CR5."
+238f8edc5eda1358,BSI-DSZ-CC-0285-2005,report,self,
+238f8edc5eda1358,BSI-DSZ-CC-0222-2003,report,basis of recertification,"The product IBM Tivoli Access Manager for e-Business, Version 5.1 with Fixpack 6 has undergone the certification procedure at BSI. This is a basis of recertification based on BSI-DSZ-CC-0222-2003."
+b5bcac5eb0f61dfe,CCEVS-VR-10822-2018,report,self,
+28fb117adbb809e3,CSEC2006002,report,self,
+c10773ac43ca7c2b,CRP180,report,self,
+6d6ade44dcc497dd,BSI-DSZ-CC-0312-2005,report,self,
+6d6ade44dcc497dd,BSI-DSZ-CC-0227-2004,report,basis of recertification,"This is a re-certification based on BSI-DSZ-CC-0227-2004 and BSI-DSZ-CC-0227-2004-MA-01."
+6d6ade44dcc497dd,BSI-DSZ-CC-0312,target,self,
+c23ca69c2f7528d1,ANSSI-CC-2020/24,report,self,
+abe89a00b3efa393,C0261,report,self,
+cf17d0efe1278432,ANSSI-CC-2007/24,report,self,
+7607e34a7608222c,ISCB-3-RPT-C098-CR-v1,report,self,
+5ae867bded9ef672,C0180,report,self,
+3f141b547bd4735f,CCEVS-VR-VID10571-2014,report,self,
+ed0b1d4c39cbd251,C0727,report,self,
+abc1f0f55adc2967,CCEVS-VR-VID11049,report,self,
+d68511e69820f461,CRP260,report,self,
+59b6bc42781e26d6,CSEC2019006,report,self,
+d9d0986019774924,KECS-NISS-0050-2006,report,self,
+318dcee9d8f6ac99,CSEC2018007,report,self,
+318dcee9d8f6ac99,CSEC2018007,target,self,
+a6fac58198296194,BSI-DSZ-CC-0857-2013,report,self,
+a6fac58198296194,BSI-DSZ-CC-0555-2009,report,basis of recertification,"This is a re-certification based on BSI-DSZ-CC-0555-2009. Specific results from the evaluation process BSI-DSZ-CC-0555-2009 were re-used."
+a6fac58198296194,BSI-DSZ-CC-0857,target,self,
+f1a73b2232787b26,BSI-DSZ-CC-0671-2011,report,self,
+f1a73b2232787b26,BSI-DSZ-CC-0664-2011,report,basis for,"The further security mechanisms Active Authentication and Extended Access Control as well as Chip Authentication are subjects of BSI-DSZ-CC-0664-2011"
+f1a73b2232787b26,ANSSI-CC-2010/02,report,component used,"The TOE is a composite product. It is composed from an Integrated Circuit... For details concerning the CC evaluation of the STMicroelectronics IC see the evaluation documentation under the Certification ID ANSSI-CC-2010/02 [16]"
+f1a73b2232787b26,BSI-DSZ-CC-0664-2011,target,basis for,
+f1a73b2232787b26,ANSSI-CC-2010/02,target,component used,"SB23YR80B is certified according to CC EAL5 augmented (ANSSI-CC-2010/02)"
+90f1d708d20deb30,SERTIT-043,report,self,
+faecd563eb8f1d6c,C0314,report,self,
+f5d49c63046c69d2,CCEVS-VR-VID10272-2008,report,self,
+f2e00a1fee27bdd7,BSI-DSZ-CC-0957-2015,report,self,
+f2e00a1fee27bdd7,BSI-DSZ-CC-0845-V2-2013,report,component used,"The TOE is set up as a composite product. It is composed from the Integrated Circuit... For details concerning the CC evaluation of the underlying IC see the evaluation documentation under the Certification ID BSI-DSZ-CC-0845-V2-2013"
+f2e00a1fee27bdd7,BSI-DSZ-CC-0957,target,self,
+33cb152e0a1be23c,CCEVS-VR-10928-2019,report,self,
+c16a92b40550193d,383-4-170,report,self,
+1fb1564dfb0f0b04,ANSSI-CC-2021/26,report,self,
+1fb1564dfb0f0b04,ANSSI-CC-2020/34,report,component used,"This evaluation thus took into account the results of the evaluation of the PEGASUS_CB_05 microcontroller at the EAL6 level increased by the ASE_TSS.2 component conforming to the protection profile [PP0084]. This microcontroller was certified on September 18 2020 see [ANSSI-CC-2020/46]"
+8b3c4eb3efd1cdaa,574-LSS,report,self,
+14ddeb255e0a1cd2,2017-60-INF-2765,report,self,
+01e3716dd2a5b510,BSI-DSZ-CC-0466-2008,report,self,
+01e3716dd2a5b510,BSI-DSZ-CC-0466,target,self,
+0c7ef6c32cbdee47,BSI-DSZ-CC-1073-2019,report,self,
+0c7ef6c32cbdee47,BSI-DSZ-CC-1074-2019,report,basis for,"The further security mechanism Basic Access Control is subject of the separate evaluation process BSI-DSZ-CC-1074-2019"
+0c7ef6c32cbdee47,ANSSI-CC-2017/61,report,component used,"The TOE is a composite product. It is composed from an Integrated Circuit... For details concerning the CC evaluation of the STM IC and its cryptographic libraries see the evaluation documentation under the Certification ID ANSSI-CC-2017/61"
+0c7ef6c32cbdee47,BSI-DSZ-CC-1073,target,self,
+0c7ef6c32cbdee47,ANSSI-CC-2017/61,target,component used,"The IC hardware ST31G480 C01 including the cryptographic library Neslib 5.2.0 provides basic functionality, among others the contactless communication interface and low-level security features (e.g. random number generator 3DES- AES and EC-support). It is certified (ANSSI-CC-2017/61) according to CC EAL5"
+13e3c6a0cd06ecf6,383-4-340,report,self,
+814a2ac0aeae08b1,CCEVS-VR-03-0044,report,self,
+11708925f70ce5d3,Certificate Number: 2011/72,report,self,
+ca5da2fe138af656,BSI-DSZ-CC-0423-2007,report,self,
+ca5da2fe138af656,BSI-DSZ-CC-0413-2007,report,basis of recertification,"The product S-TRUST Sign-it base components 2.1 Version 2.1.5.1 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0413-2007."
+ca5da2fe138af656,BSI-DSZ-CC-0423,target,self,
+98937f99289f2499,NSCIB-CC-15-66461-CR,report,self,
+c3b443f243b95913,CCEVS-VR-11219-2021,report,self,
+183a5cd3e2aaa0ec,ANSSI-CC-2017/81,report,self,
+183a5cd3e2aaa0ec,BSI-DSZ-CC-0891-V2-2016,report,component used,"The product consists of the following components: the previously certified M7892 G12 component (see [BSI-DSZ-CC-0891-V2-2016])"
+183a5cd3e2aaa0ec,ANSSI-CC-2017/76,report,component used,"The product consists of the following components: an operating system in the form of an open configuration platform or closed Java Card MultiApp V4.0.1. This platform is certified under the reference [ANSSI-CC-2017/76]"
+183a5cd3e2aaa0ec,BSI-DSZ-CC-0891-V2-2016,target,component used,"The evaluation is a composite evaluation and uses the results of the CC evaluation provided by [CR-IC]"
