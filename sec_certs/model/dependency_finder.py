@@ -19,6 +19,7 @@ class DependencyFinder:
 
     def __init__(self):
         self.dependencies: Dependencies = {}
+        self._fitted: bool = False
 
     def _add_direct_reference(self, referenced_by: ReferencedByDirect, cert_id: str, this_cert_id: str) -> None:
         if cert_id not in referenced_by:
@@ -57,10 +58,12 @@ class DependencyFinder:
                 continue
 
             this_cert_id = id_func(cert_obj)
+            if this_cert_id is None:
+                continue
 
             # Direct reference
             for cert_id in refs:
-                if cert_id != this_cert_id and this_cert_id is not None:
+                if cert_id != this_cert_id:
                     self._add_direct_reference(referenced_by, cert_id, this_cert_id)
 
         referenced_by_indirect: ReferencedByIndirect = {}
@@ -118,47 +121,42 @@ class DependencyFinder:
         :param IDLookupFunc id_func: lookup function for cert id
         :param ReferenceLookupFunc ref_lookup_func: lookup for references
         """
+        if self._fitted:
+            raise ValueError("Finder already fitted")
         referenced_by_direct, referenced_by_indirect = self._build_referenced_by(certificates, id_func, ref_lookup_func)
 
         self._build_referencing(certificates, id_func, referenced_by_direct, referenced_by_indirect)
-
-    def _get_directly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("directly_referenced_by", None)
-        return set(res) if res else None
-
-    def _get_indirectly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("indirectly_referenced_by", None)
-        return set(res) if res else None
-
-    def _get_directly_referencing(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("directly_referencing", None)
-        return set(res) if res else None
-
-    def _get_indirectly_referencing(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("indirectly_referencing", None)
-        return set(res) if res else None
+        self._fitted = True
 
     def predict_single_cert(self, dgst: str) -> References:
         """
-        Method returns references object for specified certificate digest
+        Returns references object for specified certificate digest.
 
         :param str dgst: certificate digest
         :return References: References object
         """
+        if not self._fitted:
+            raise ValueError("Finder not yet fitted")
+
+        def wrap(res):
+            return set(res) if res else None
+
         return References(
-            self._get_directly_referenced_by(dgst),
-            self._get_indirectly_referenced_by(dgst),
-            self._get_directly_referencing(dgst),
-            self._get_indirectly_referencing(dgst),
+            wrap(self.dependencies[dgst].get("directly_referenced_by", None)),
+            wrap(self.dependencies[dgst].get("indirectly_referenced_by", None)),
+            wrap(self.dependencies[dgst].get("directly_referencing", None)),
+            wrap(self.dependencies[dgst].get("indirectly_referencing", None)),
         )
 
     def predict(self, dgst_list: List[str]) -> Dict[str, References]:
         """
-        Method returns references for a list of certificate digests
+        Returns references for a list of certificate digests.
 
-        :param List[str] dgst_list: List of certificate hashes
+        :param List[str] dgst_list: List of certificate digests.
         :return Dict[str, References]: Dict with certificate hash and References object.
         """
+        if not self._fitted:
+            raise ValueError("Finder not yet fitted")
         cert_references = {}
 
         for dgst in dgst_list:
