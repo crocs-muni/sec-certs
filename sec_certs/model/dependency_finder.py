@@ -112,30 +112,16 @@ class DependencyFinder:
         return result if result else None
 
     def _build_referencing(
-        self,
-        certificates: Certificates,
-        id_func: IDLookupFunc,
-        referenced_by_direct: ReferencedByDirect,
-        referenced_by_indirect: ReferencedByIndirect,
-    ):
-        for dgst in certificates:
-            cert_id = id_func(certificates[dgst])
-            self.dependencies[dgst] = {}
-
-            if not cert_id:
-                continue
-
-            self.dependencies[dgst]["directly_referenced_by"] = referenced_by_direct.get(cert_id, None)
-
-            self.dependencies[dgst]["indirectly_referenced_by"] = referenced_by_indirect.get(cert_id, None)
-
-            self.dependencies[dgst]["directly_referencing"] = self._get_reverse_dependencies(
-                cert_id, referenced_by_direct
-            )
-
-            self.dependencies[dgst]["indirectly_referencing"] = self._get_reverse_dependencies(
-                cert_id, referenced_by_indirect
-            )
+        self, referenced_by_direct: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect
+    ) -> None:
+        for cert_id, cert_digests in self.id_mapping.items():
+            cert_dgst = cert_digests[0]
+            self.dependencies[cert_dgst] = {
+                "directly_referenced_by": referenced_by_direct.get(cert_id, None),
+                "indirectly_referenced_by": referenced_by_indirect.get(cert_id, None),
+                "directly_referencing": self._get_reverse_dependencies(cert_id, referenced_by_direct),
+                "indirectly_referencing": self._get_reverse_dependencies(cert_id, referenced_by_indirect),
+            }
 
     def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
         """
@@ -154,7 +140,7 @@ class DependencyFinder:
         referenced_by_direct, referenced_by_indirect = self._build_referenced_by(certificates, ref_lookup_func)
 
         # Build the referencing second (this actually writes into self.dependencies).
-        self._build_referencing(certificates, id_func, referenced_by_direct, referenced_by_indirect)
+        self._build_referencing(referenced_by_direct, referenced_by_indirect)
         self._fitted = True
 
     @property
@@ -205,6 +191,9 @@ class DependencyFinder:
             if not keep_unknowns:
                 res = filter(lambda cert_id: cert_id in self.id_mapping, res)
             return set(res)
+
+        if dgst not in self.dependencies:
+            return References()
 
         return References(
             wrap(self.dependencies[dgst].get("directly_referenced_by", None)),
