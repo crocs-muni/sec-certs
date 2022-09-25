@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Optional, Set, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 
 from sec_certs.sample.certificate import Certificate, References
 
@@ -20,15 +20,15 @@ class DependencyFinder:
     def __init__(self):
         self.dependencies: Dependencies = {}
 
-    @staticmethod
-    def _update_direct_references(referenced_by: ReferencedByDirect, cert_id: str, this_cert_id: str) -> None:
+    def _add_direct_reference(self, referenced_by: ReferencedByDirect, cert_id: str, this_cert_id: str) -> None:
         if cert_id not in referenced_by:
             referenced_by[cert_id] = set()
         if this_cert_id not in referenced_by[cert_id]:
             referenced_by[cert_id].add(this_cert_id)
 
-    @staticmethod
-    def _process_references(referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect) -> None:
+    def _process_references(
+        self, referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect
+    ) -> None:
         new_change_detected = True
         while new_change_detected:
             new_change_detected = False
@@ -43,11 +43,11 @@ class DependencyFinder:
                             x for x in tmp_referencing if x not in referenced_by_indirect[cert_id]
                         ]
                         referenced_by_indirect[cert_id].update(newly_discovered_references)
-                        new_change_detected = True if newly_discovered_references else False
+                        if newly_discovered_references:
+                            new_change_detected = True
 
-    @staticmethod
-    def _build_cert_references(
-        certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc
+    def _build_referenced_by(
+        self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc
     ) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
         referenced_by: ReferencedByDirect = {}
 
@@ -61,7 +61,7 @@ class DependencyFinder:
             # Direct reference
             for cert_id in refs:
                 if cert_id != this_cert_id and this_cert_id is not None:
-                    DependencyFinder._update_direct_references(referenced_by, cert_id, this_cert_id)
+                    self._add_direct_reference(referenced_by, cert_id, this_cert_id)
 
         referenced_by_indirect: ReferencedByIndirect = {}
 
@@ -70,36 +70,45 @@ class DependencyFinder:
             for item in referenced_by[cert_id]:
                 referenced_by_indirect[cert_id].add(item)
 
-        DependencyFinder._process_references(referenced_by, referenced_by_indirect)
+        self._process_references(referenced_by, referenced_by_indirect)
         return referenced_by, referenced_by_indirect
 
-    @staticmethod
-    def _get_referencing_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[Set[str]]:
-        filter_direct = set()
+    def _get_reverse_dependencies(
+        self, cert_id: str, references: Union[ReferencedByDirect, ReferencedByIndirect]
+    ) -> Optional[Set[str]]:
+        result = set()
 
-        for cert_id in referenced_by_direct:
-            if cert in referenced_by_direct[cert_id]:
-                filter_direct.add(cert_id)
+        for other_id in references:
+            if cert_id in references[other_id]:
+                result.add(other_id)
 
-        return filter_direct if filter_direct else None
+        return result if result else None
 
-    @staticmethod
-    def _get_referencing_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Optional[Set[str]]:
-        filter_indirect = set()
+    def _build_referencing(
+        self,
+        certificates: Certificates,
+        id_func: IDLookupFunc,
+        referenced_by_direct: ReferencedByDirect,
+        referenced_by_indirect: ReferencedByIndirect,
+    ):
+        for dgst in certificates:
+            cert_id = id_func(certificates[dgst])
+            self.dependencies[dgst] = {}
 
-        for cert_id in referenced_by_indirect:
-            if cert in referenced_by_indirect[cert_id]:
-                filter_indirect.add(cert_id)
+            if not cert_id:
+                continue
 
-        return filter_indirect if filter_indirect else None
+            self.dependencies[dgst]["directly_referenced_by"] = referenced_by_direct.get(cert_id, None)
 
-    @staticmethod
-    def _get_referenced_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[Set[str]]:
-        return referenced_by_direct.get(cert, None)
+            self.dependencies[dgst]["indirectly_referenced_by"] = referenced_by_indirect.get(cert_id, None)
 
-    @staticmethod
-    def _get_referenced_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Optional[Set[str]]:
-        return referenced_by_indirect.get(cert, None)
+            self.dependencies[dgst]["directly_referencing"] = self._get_reverse_dependencies(
+                cert_id, referenced_by_direct
+            )
+
+            self.dependencies[dgst]["indirectly_referencing"] = self._get_reverse_dependencies(
+                cert_id, referenced_by_indirect
+            )
 
     def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
         """
@@ -108,34 +117,10 @@ class DependencyFinder:
         :param Certificates certificates: dictionary of certificates with hashes as key
         :param IDLookupFunc id_func: lookup function for cert id
         :param ReferenceLookupFunc ref_lookup_func: lookup for references
-        :return None: None
         """
-        referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(
-            certificates, id_func, ref_lookup_func
-        )
+        referenced_by_direct, referenced_by_indirect = self._build_referenced_by(certificates, id_func, ref_lookup_func)
 
-        for dgst in certificates:
-            cert_id = id_func(certificates[dgst])
-            self.dependencies[dgst] = {}
-
-            if not cert_id:
-                continue
-
-            self.dependencies[dgst]["directly_referenced_by"] = DependencyFinder._get_referenced_directly(
-                cert_id, referenced_by_direct
-            )
-
-            self.dependencies[dgst]["indirectly_referenced_by"] = DependencyFinder._get_referenced_indirectly(
-                cert_id, referenced_by_indirect
-            )
-
-            self.dependencies[dgst]["directly_referencing"] = DependencyFinder._get_referencing_directly(
-                cert_id, referenced_by_direct
-            )
-
-            self.dependencies[dgst]["indirectly_referencing"] = DependencyFinder._get_referencing_indirectly(
-                cert_id, referenced_by_indirect
-            )
+        self._build_referencing(certificates, id_func, referenced_by_direct, referenced_by_indirect)
 
     def _get_directly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
         res = self.dependencies[dgst].get("directly_referenced_by", None)
