@@ -225,6 +225,8 @@ vendor:
     - "Huawei( Technologies)?( Co.)?"
   Microsoft:
     - "Microsoft( Corporation)?"
+  Cisco:
+    - "Cisco( Systems)?(, Inc.)?"
 
 #####
 # Common Criteria evaluation facility, mostly from https://www.commoncriteriaportal.org/labs/, grouped roughly by facility.
@@ -627,12 +629,18 @@ crypto_protocol:
       - "SSL( ?v?[123]\\.0)?"
     TLS:
       - "TLS( ?v?1\\.[0123])?"
+    DTLS:
+      - "DTLS( ?v?1\\.[0123])?"
   PACE:
     - "PACE"
   IKE:
     - "IKE(v[12])?"
   IPsec:
     - "IPsec"
+  VPN:
+    - "VPN"
+  PGP:
+    - "PGP"
 
 #####
 # Random number generator.
