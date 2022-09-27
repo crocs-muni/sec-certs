@@ -573,7 +573,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
                 cert_id = line_certid
                 break
 
-        if not no_match_yet:
+        if not no_match_yet and cert_id:
             items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
             items_found[constants.TAG_CERT_LAB] = "CANADA"
 
@@ -673,7 +673,7 @@ def extract_keywords(filepath: Path, search_rules) -> Optional[dict[str, dict[st
                 rule = rules
                 matches = []
                 for match in rule.finditer(whole_text):
-                    match = match.group()
+                    match = match.group("match")
                     match = normalize_match_string(match)
 
                     match_len = len(match)
@@ -692,7 +692,7 @@ def extract_keywords(filepath: Path, search_rules) -> Optional[dict[str, dict[st
 
 
 def normalize_match_string(match: str) -> str:
-    match = match.strip().rstrip('];.”":)(,').rstrip(os.sep).replace("  ", " ")
+    match = match.strip().strip("[];.”\"':)(,").rstrip(os.sep).replace("  ", " ")
     return "".join(filter(str.isprintable, match))
 
 

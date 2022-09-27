@@ -10,6 +10,7 @@ from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset, CPEDataset, CVEDataset
 from sec_certs.sample import CPE, CVE, SAR, CommonCriteriaCert, ProtectionProfile
+from sec_certs.sample.cc_certificate_id import canonicalize
 
 
 class TestCommonCriteriaHeuristics(TestCase):
@@ -335,3 +336,41 @@ class TestCommonCriteriaHeuristics(TestCase):
         actual_sars = test_cert.actual_sars
         eal_3_sars = {SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL["EAL3"]}
         self.assertTrue(eal_3_sars.issubset(actual_sars))
+
+
+class TestCommonCriteriaID(TestCase):
+    def test_canonicalize_fr(self):
+        self.assertEqual(canonicalize("Rapport de certification 2001/02v2", "FR"), "ANSSI-CC-2001/02v2")
+        self.assertEqual(canonicalize("ANSSI-CC 2001/02-R01", "FR"), "ANSSI-CC-2001/02-R01")
+
+    def test_canonicalize_de(self):
+        self.assertEqual(canonicalize("BSI-DSZ-CC-0420-2007", "DE"), "BSI-DSZ-CC-0420-2007")
+
+    def test_canonicalize_es(self):
+        self.assertEqual(canonicalize("2011-14-INF-1095-v1", "ES"), "2011-14-INF-1095")
+
+    def test_canonicalize_it(self):
+        self.assertEqual(canonicalize("OCSI/CERT/SYS/10/2016", "IT"), "OCSI/CERT/SYS/10/2016/RC")
+
+    def test_canonicalize_in(self):
+        self.assertEqual(canonicalize("IC3S/KOL01/ADVA/EAL2/0520/0021 /CR", "IN"), "IC3S/KOL01/ADVA/EAL2/0520/0021/CR")
+
+    def test_canonicalize_se(self):
+        self.assertEqual(canonicalize("CSEC2017020", "SE"), "CSEC2017020")
+        self.assertEqual(canonicalize("CSEC 2017020", "SE"), "CSEC2017020")
+
+    def test_canonicalize_uk(self):
+        self.assertEqual(canonicalize("CERTIFICATION REPORT No. P123", "UK"), "CRP123")
+        self.assertEqual(canonicalize("CRP123A", "UK"), "CRP123A")
+
+    def test_canonicalize_ca(self):
+        self.assertEqual(canonicalize("383-4-123-CR", "CA"), "383-4-123")
+        self.assertEqual(canonicalize("383-4-123P", "CA"), "383-4-123")
+
+    def test_canonicalize_jp(self):
+        self.assertEqual(canonicalize("Certification No. C01234", "JP"), "C01234")
+        self.assertEqual(canonicalize("CRP-C01234-01", "JP"), "C01234")
+        self.assertEqual(canonicalize("JISEC-CC-CRP-C0689-01-2020", "JP"), "C0689")
+
+    def test_canonicalize_no(self):
+        self.assertEqual(canonicalize("SERTIT-12", "NO"), "SERTIT-012")

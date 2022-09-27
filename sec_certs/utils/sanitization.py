@@ -5,8 +5,15 @@ from typing import Optional, Set, Union
 
 import numpy as np
 import pandas as pd
+from bs4 import NavigableString
 
 logger = logging.getLogger(__name__)
+
+
+def sanitize_navigable_string(string: Optional[Union[NavigableString, str]]) -> Optional[str]:
+    if not string:
+        return None
+    return str(string).strip().replace("\xad", "").replace("\xa0", "")
 
 
 def sanitize_link(record: Optional[str]) -> Optional[str]:

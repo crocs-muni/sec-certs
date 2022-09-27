@@ -11,14 +11,14 @@ cc_cert_id:
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9][0-9][0-9][0-9])*"  # German BSI (number + version + year or without year)
     - "BSI-DSZ-CC-[0-9]+-[0-9][0-9][0-9][0-9]"  # German BSI (number + year, no version)
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
+    # - "BSI-DSZ-CC-[0-9]+"  # Maybe?
   FR:
-    - "ANSSI(?:-|-CC-|-CC )[0-9]+?/[0-9]+(v[1-9])?"  # French
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9][0-9]+(?!-M|-S)"  # French (/two or more digits then NOT -M or -S)
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+[_/-]M[0-9]+"  # French, maintenance report (ANSSI-CC-2014_46_M01)
-    - "ANSS[Ii]-CC-[0-9][0-9][0-9][0-9][/-_][0-9]+[_/-]S[0-9]+"  # French, surveillance report (ANSSI-CC-2012/70-S01)
+    - "ANSS[Ii](?:-|-CC-|-CC )[0-9]{4}/[0-9]+(v[1-9])?"  # French
+    - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9][0-9]+(?!-M|-S|-R)"  # French (/two or more digits then NOT -M or -S)
+    - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9]+(?:v[0-9])?[_/-][MSR][0-9]+"  # French, maintenance or surveillance report (ANSSI-CC-2014_46_M01)
     # 'ANSSI-CC-CER-F-.+?', # French
-    - "DCSSI-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
-    - "Certification Report [0-9]+/[0-9]+" # French or Australia!! TODO: Resolve this.
+    - "DCSS[Ii]-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
+    - "Certification Report [0-9]+/[0-9]+" # French or Australia! Solved because we limit ourselves to scheme when doing heuristics.
     - "Rapport de certification [0-9]+/[0-9]+"  # French
   NL:
     - "NSCIB-CC-[0-9][0-9][0-9][0-9].+?"  # Netherlands
@@ -32,31 +32,28 @@ cc_cert_id:
   "NO":
     - "SERTIT-[0-9]+"  # Norway
   US:
-    - "CCEVS-VR-(?:|VID)[0-9]+-[0-9]+[a-z]?(?:-[0-9]+)?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
+    - "CCEVS-VR-(?:CC-|VID)?[0-9]+-[0-9]+[a-z]?(?:-[0-9]+)?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
   CA:
     # '[0-9][0-9\-]+?-CR', # Canada
-    - "[0-9][0-9][0-9]-[47]-[0-9][0-9][0-9](-CR)*"  # Canada xxx-{47}-xxx (383-4-438, 383-4-82-CR)
-    - "[0-9][0-9][0-9](?: |-)(?:EWA|LSS)(?: |-)20[0-9][0-9]"  # Canada (522-EWA-2020, 524 LSS 2020)
+    - "[0-9][0-9][0-9]-[347]-[0-9][0-9][0-9]?(?:-CR|P)?"  # Canada xxx-{347}-xxx (383-4-438, 383-4-82-CR, 383-4-422P)
+    - "[0-9][0-9][0-9][ -](?:EWA|LSS|CCS)(?:[ -]20[0-9][0-9])?"  # Canada (522-EWA-2020, 524 LSS 2020, 503-LSS)
     - "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
   UK:
-    - "CRP[0-9]+"  # UK CESG
-    - "CRP[0-9][0-9][0-9][0-9]*?"  # UK CESG
-    - "CERTIFICATION REPORT No. P[0-9]+"  # UK CESG
+    - "CRP[0-9]+[A-Z]?"  # UK CESG
+    - "CERTIFICATION REPORT No. P[0-9]+[A-Z]?"  # UK CESG
   ES:
-    - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+"  # Spain
     - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+([-‐]?[ -‐](?:V|v)[0-9]+)?"  # Spain ("2006-4-INF-98 v2" or "2006-4-INF-98-v2" or "2020-34-INF-3784- v1")
   KR:
-    - "KECS-CR-[0-9]+-[0-9]+"  # Korea KECS-CR-20-61
-    - "KECS-ISIS-[0-9]+?-[0-9][0-9][0-9][0-9]"  # Korea
-    - "KECS-(?:ISIS|NISS|CISS)-[0-9]+-[0-9][0-9][0-9][0-9]"  # Korea
+    # Korea
+    # XXX: Do not use KECS-CR as those refer to the certificate report and do not represent the certificate id.
+    # - "KECS[-‐]CR[-‐][0-9]+[-‐][0-9]+"  # Korea KECS-CR-20-61
+    - "KECS[-‐](?:ISIS|NISS|CISS)[-‐][0-9]+[-‐][0-9]{4}"  # Korea KECS-ISIS-1234-2011
   JP:
-    - "CRP-C[0-9]+?-[0-9]+?"  # Japan
     - "(?:CRP|ACR)-C[0-9]+-[0-9]+"  # Japan (CRP-C0595-01 ACR-C0417-03)
     - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
-    - "Certification No. C[0-9]+" # Japan (Certification No. C0090)
+    - "Certification No. [cC][0-9]+" # Japan (Certification No. C0090)
   MY:
-    - "ISCB-[0-9]+?-RPT-[0-9]+?" # Malaysia
-    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9]|)-[vV][0-9][a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
+    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9])?-[vV][0-9](?:\\.[0-9])?[a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
   IT:
     - "OCSI/CERT/.+?"  # Italy
     - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
@@ -64,17 +61,19 @@ cc_cert_id:
     - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
     - "(?:[0-9]{1,2}\\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028
   SE:
-    - "CSEC[0-9]+"  # Sweden (CSEC2019015)
+    - "CSEC ?[0-9]{7}"  # Sweden (CSEC2019015)
   IN:
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
     # will miss STQC/CC/14-15/12/ETR/0017
-    - "(?:IC3S|STQC/CC)/[^ ]+?/CR"
+    - "(?:IC3S|STQC/CC)/[^ ]+? ?/CR"
   SG:
     - "CSA_CC_[0-9]+"  # Singapore (CSA_CC_19001)
   AU:
     # Australia (EFS-T048 ETR 1.0, EFS-T056-ETR 1.0, DXC-EFC-T092-ETR 1.0)
-    - "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+"
+    # XXX: Do not use Australian ETR numbers, they are not certificate id.
+    # - "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+"
     - "Certificate Number: [0-9]{1,4}/[0-9]{1,4}"
+    - "Certification Report [0-9]+/[0-9]+"
 
 #####
 # Common Criteria protection profile IDs, grouped by certification body (e.g. BSI)
@@ -226,6 +225,8 @@ vendor:
     - "Huawei( Technologies)?( Co.)?"
   Microsoft:
     - "Microsoft( Corporation)?"
+  Cisco:
+    - "Cisco( Systems)?(, Inc.)?"
 
 #####
 # Common Criteria evaluation facility, mostly from https://www.commoncriteriaportal.org/labs/, grouped roughly by facility.
@@ -628,12 +629,18 @@ crypto_protocol:
       - "SSL( ?v?[123]\\.0)?"
     TLS:
       - "TLS( ?v?1\\.[0123])?"
+    DTLS:
+      - "DTLS( ?v?1\\.[0123])?"
   PACE:
     - "PACE"
   IKE:
     - "IKE(v[12])?"
   IPsec:
     - "IPsec"
+  VPN:
+    - "VPN"
+  PGP:
+    - "PGP"
 
 #####
 # Random number generator.

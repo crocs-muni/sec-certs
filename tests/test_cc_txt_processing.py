@@ -24,6 +24,17 @@ class TestCommonCriteriaTextProcessing(TestCase):
         cls.cc_dset.download_all_pdfs()
         cls.cc_dset.convert_all_pdfs()
 
+    def test_extract_metadata(self):
+        subject_cert: CommonCriteriaCert = list(self.cc_dset.certs.values())[0]
+
+        subject_cert.state.st_extract_ok = True
+        CommonCriteriaCert.extract_st_pdf_metadata(subject_cert)
+        self.assertTrue(subject_cert.state.st_extract_ok, True)
+
+        subject_cert.state.report_extract_ok = True
+        CommonCriteriaCert.extract_report_pdf_metadata(subject_cert)
+        self.assertTrue(subject_cert.state.report_extract_ok, True)
+
     def test_extract_frontpage(self):
         subject_cert: CommonCriteriaCert = list(self.cc_dset.certs.values())[0]
 

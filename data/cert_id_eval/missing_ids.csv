@@ -1,0 +1,80 @@
+id,scheme,cert_id,reason
+889693d2b11bdfaf,JP,C0023,pdf issue
+a90d78924e91dc6c,FR,,404 for report PDF
+21d5f1b05e1ba491,JP,C0003,pdf issue
+6af4a27251001715,US,,404 for report PDF
+3ad7749ef678ce95,JP,C0093,pdf issue
+d0d0dfe4860db6be,US,,404 for report PDF
+822e5f25e7c4631e,CA,,cert_id missing
+357b38a376d955f7,JP,C0678,has security target uploaded in place of report
+7d074a56ee50aec4,US,,404 for report PDF
+e27eb9efbd67c4f7,KR,,404 for report PDF
+811ca609aebe2e96,US,,404 for report PDF
+4a1fa75170579066,US,,cert_id missing
+7b1f816f20381626,US,,cert_id missing
+f4dc9b09aa682008,US,,cert_id missing
+ed0b7793ac82822e,US,,cert_id missing
+b762fcb2983aa148,JP,C0046,pdf issue
+e133881d7203a6e4,ES,INF-3516,regex missing
+305af0eec85bb856,KR,,404 for report PDF
+08e892fc32b0579f,ES,INF-3483,regex missing
+0dcc691ea04d1b52,CA,383-4-351,certificate.docx
+ace7ea6d7f58dbb1,DE,,404 for report PDF
+7147c2f70d983d57,TR,21.0.03/TSE-CCCS-44,report not a PDF (docx)
+66838f2e4bb6eccc,FR,ANSSI-CC-2018/42,has security target uploaded in place of report
+8ed77a6223a94fb5,US,,cert_id missing
+422dc5758723c7d1,TR,21.0.03/TSE-CCCS-68,report not a PDF (docx)
+02482228eb547c15,US,,404 for report PDF
+d3568613c552f9e8,KR,,malformed PDF
+b43100f226a61f53,FR,,malformed PDF
+0a117ebd82bdfb0c,US,,cert_id missing
+95948dc5f3e472fb,IT,,cert_id missing
+9253ec0d31264194,US,,cert_id missing
+1a8ac8fbe5bfcda9,NO,SERTIT-017,404 for report PDF
+3faae83d248da8ba,IT,,cert_id missing
+ae1b80e9cccec491,JP,C0089,pdf issue
+5945cedd8cb01e06,JP,C0120,report and target documents switched
+c508c550607efde5,US,,cert_id missing
+1683817e5db17d9c,JP,C0047,pdf issue
+323987cac96072cb,TR,14.10.01/10-105,cert_id malformed
+8ac22970bd8042d2,US,,404 for report PDF
+6901124edcfe478f,US,CCEVS-VR-03-0038,report and target documents switched
+98668cafb8dda26f,SE,CSEC2019014,report not a PDF (docx)
+d79ecebfe21f2144,US,,404 for report PDF
+7e32023021d5aad2,ES,INF-510,regex missing
+02958808b57334f0,SE,CSEC2019016,report not a PDF (docx)
+391c8b9254ed6ed9,CA,,404 for report PDF
+82fcce2db9ef6063,SG,,404 for report PDF
+5e646214ea5b1044,US,CCEVS-VR-VID11243-2022,has security target uploaded in place of report
+d399d47f958a80dd,AU,Certificate Number: 2020/126,certificate.pdf + OCR
+8b357b0ccdafe13b,AU,Certificate Number: 2019/120,certificate.pdf + OCR
+4fb34c6529549e26,JP,C0064,pdf issue
+c64192c1597a1a14,AU,,cert_id missing
+245f78711cfcb537,JP,C0142,pdf issue
+acd95d9dd4ad410c,AU,Certificate Number: 2019/121,certificate.pdf + OCR
+9903c89cbb35eec1,AU,Certificate Number: 2019/123,certificate.pdf + OCR
+908128ea95f94b09,AU,Certificate Number: 2020/132,certificate.pdf + OCR
+0597940a3fd25600,AU,Certificate Number: 2019/122,certificate.pdf + OCR
+372c24701fa80b5a,AU,Certificate Number: 2019/124,certificate.pdf + OCR
+5db22161b84ab3d5,AU,Certificate Number: 2020/127,certificate.pdf + OCR
+5390c9458174b933,AU,Certificate Number: 2020/129,certificate.pdf + OCR
+bd7d1fa4b1e938e4,AU,Certificate Number: 2020/128,certificate.pdf + OCR
+bd992ce6d76206bf,JP,C0203,pdf issue
+c74dd9d805e44354,FR,ANSSI-CC-2005/12,pdf issue
+ea708fac8f672c0f,JP,C0702,pdf issue
+14e28608791e4a82,AU,,cert_id missing
+96cf0d5d7f98fbf1,AU,Certificate Number: 2020/130,certificate.pdf + OCR
+770f2b13b0723e49,AU,Certificate Number: 2021/134,certificate.pdf + OCR
+3891a6c29ed701b4,FR,ANSSI-CC-2005/02,pdf issue
+7a799fc315ee99da,AU,Certificate Number: 2021/133,certificate.pdf + OCR
+5f6946c674c32b30,AU,Certificate Number: 2022/138,certificate.pdf
+749fae44017016c5,FR,ANSSI-CC-2005/01,pdf issue
+3097b47b6f065ba5,JP,C0062,pdf issue
+9a1c767d358eee50,AU,,cert_id missing
+5ceb859ce72daecf,AU,Certificate Number: 2021/135,certificate.pdf + OCR
+fdf20384e73efb57,AU,Certificate Number: 2020/131,certificate.pdf + OCR
+d2b49eb29a3dcbdc,US,,cert_id missing
+afcf5263d97159f8,AU,Certificate Number: 2019/125,certificate.pdf + OCR
+10d135ab24eab5a8,CA,383-4-270,pdf issue
+4408217c4ce524fd,FR,ANSSI-CC-2003/12,pdf issue
+c3f8e8ddb1dabb02,FR,ANSSI-CC-2003/12,pdf issue

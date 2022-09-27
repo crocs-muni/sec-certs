@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import copy
-import operator
 import re
-from collections import ChainMap
+from collections import ChainMap, Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
-from functools import partial
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from urllib.parse import unquote_plus, urlparse
 
 import numpy as np
 import requests
@@ -19,7 +18,14 @@ import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
-from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES, SARS_IMPLIED_FROM_EAL, cc_rules, security_level_csv_scan
+from sec_certs.cert_rules import (
+    PANDAS_KEYWORDS_CATEGORIES,
+    SARS_IMPLIED_FROM_EAL,
+    cc_rules,
+    rules,
+    security_level_csv_scan,
+)
+from sec_certs.sample.cc_certificate_id import canonicalize
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import References, logger
@@ -28,6 +34,7 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers
+from sec_certs.utils.extract import normalize_match_string
 
 HEADERS = {
     "anssi": sec_certs.utils.extract.search_only_headers_anssi,
@@ -198,6 +205,8 @@ class CommonCriteriaCert(
         st_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
         report_keywords: Optional[Dict[str, Any]] = field(default=None)
         st_keywords: Optional[Dict[str, Any]] = field(default=None)
+        report_filename: Optional[str] = field(default=None)
+        st_filename: Optional[str] = field(default=None)
 
         def __bool__(self) -> bool:
             return any([x is not None for x in vars(self)])
@@ -269,53 +278,109 @@ class CommonCriteriaCert(
         def anssi_cert_id(self) -> Optional[str]:
             return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
-        @property
-        def processed_cert_id(self) -> Optional[str]:
+        def frontpage_cert_id(self, scheme: str) -> Dict[str, float]:
             """
-            Returns processed cert id extracted from the pdf data.
+            Get cert_id candidate from the frontpage of the report.
             """
-            cert_ids = set(
-                filter(
-                    lambda x: x,
-                    {self.bsi_cert_id, self.niap_cert_id, self.nscib_cert_id, self.canada_cert_id, self.anssi_cert_id},
-                )
-            )
-            # Expect only one cert_id in the set above.
-            if len(cert_ids) >= 2:
-                raise ValueError("More than one cert_id set.")
-            elif len(cert_ids) == 1:
-                return cert_ids.pop()
-            else:
-                return None
+            scheme_map = {
+                "DE": self.bsi_cert_id,
+                "US": self.niap_cert_id,
+                "NL": self.nscib_cert_id,
+                "CA": self.canada_cert_id,
+                "FR": self.anssi_cert_id,
+            }
+            if scheme in scheme_map and (candidate := scheme_map[scheme]):
+                return {candidate: 1.0}
+            return {}
 
-        @property
-        def keywords_rules_cert_id(self) -> Optional[Dict[str, int]]:
+        def filename_cert_id(self, scheme: str) -> Dict[str, float]:
+            """
+            Get cert_id candidates from the matches in the report filename.
+            """
+            if not self.report_filename:
+                return {}
+            scheme_rules = rules["cc_cert_id"][scheme]
+            matches: Counter = Counter()
+            for rule in scheme_rules:
+                match = re.search(rule, self.report_filename)
+                if match:
+                    cert_id = normalize_match_string(match.group())
+                    matches[cert_id] += 1
+            if not matches:
+                return {}
+            total = max(matches.values())
+            results = {}
+            for candidate, count in matches.items():
+                results[candidate] = count / total
+            # TODO count length in weight
+            return results
+
+        def keywords_cert_id(self, scheme: str) -> Dict[str, float]:
+            """
+            Get cert_id candidates from the keywords matches in the report.
+            """
             if not self.report_keywords:
-                return None
-            cert_id_matches = self.report_keywords.get("cc_cert_id", None)
+                return {}
+            cert_id_matches = self.report_keywords.get("cc_cert_id")
             if not cert_id_matches:
-                return None
-            return sec_certs.utils.extract.flatten_matches(cert_id_matches)
+                return {}
 
-        @property
-        def keywords_cert_id(self) -> Optional[str]:
-            """
-            Returns the most frequently appearing cert id. If you don't know why to use this, you should probably use
-            `cert_id` property.
-            """
-            if not self.keywords_rules_cert_id:
-                return None
+            if scheme not in cert_id_matches:
+                return {}
+            matches: Counter = Counter(cert_id_matches[scheme])
+            if not matches:
+                return {}
+            total = max(matches.values())
+            results = {}
+            for candidate, count in matches.items():
+                results[candidate] = count / total
+            # TODO count length in weight
+            return results
 
-            candidates = [(x, y) for x, y in self.keywords_rules_cert_id.items()]
-            candidates = sorted(candidates, key=operator.itemgetter(1), reverse=True)
-            return candidates[0][0]
+        def metadata_cert_id(self, scheme: str) -> Dict[str, float]:
+            """
+            Get cert_id candidates from the report metadata.
+            """
+            scheme_rules = rules["cc_cert_id"][scheme]
+            fields = ("/Title", "/Subject")
+            matches: Counter = Counter()
+            for meta_field in fields:
+                field_val = self.report_metadata.get(meta_field) if self.report_metadata else None
+                if not field_val:
+                    continue
+                for rule in scheme_rules:
+                    match = re.search(rule, field_val)
+                    if match:
+                        cert_id = normalize_match_string(match.group())
+                        matches[cert_id] += 1
+            if not matches:
+                return {}
+            total = max(matches.values())
+            results = {}
+            for candidate, count in matches.items():
+                results[candidate] = count / total
+            # TODO count length in weight
+            return results
 
-        @property
-        def cert_id(self) -> Optional[str]:
-            """
-            Returns `processed_cert_id` if it exists, else return `keyword_cert_id`
-            """
-            return self.processed_cert_id if self.processed_cert_id else self.keywords_cert_id
+        def candidate_cert_ids(self, scheme: str) -> Dict[str, float]:
+            frontpage_id = self.frontpage_cert_id(scheme)
+            metadata_id = self.metadata_cert_id(scheme)
+            filename_id = self.filename_cert_id(scheme)
+            keywords_id = self.keywords_cert_id(scheme)
+
+            # Join them and weigh them, each is normalized with weights from 0 to 1 (if anything is returned)
+            candidates: Dict[str, float] = defaultdict(lambda: 0.0)
+            # TODO: Add heuristic based on ordering of ids (and extracted year + increment)
+            # TODO: Add heuristic based on length
+            for candidate, count in frontpage_id.items():
+                candidates[canonicalize(candidate, scheme)] += count * 1.5
+            for candidate, count in metadata_id.items():
+                candidates[canonicalize(candidate, scheme)] += count * 1.2
+            for candidate, count in keywords_id.items():
+                candidates[canonicalize(candidate, scheme)] += count * 1.0
+            for candidate, count in filename_id.items():
+                candidates[canonicalize(candidate, scheme)] += count * 1.0
+            return candidates
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -733,6 +798,7 @@ class CommonCriteriaCert(
             cert.state.errors.append(error_msg)
         else:
             cert.state.report_pdf_hash = helpers.get_sha256_filepath(cert.state.report_pdf_path)
+            cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.report_link).path).split("/")[-1])
         return cert
 
     @staticmethod
@@ -749,12 +815,13 @@ class CommonCriteriaCert(
         else:
             exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
         if exit_code != requests.codes.ok:
-            error_msg = f"failed to download ST from {cert.report_link}, code: {exit_code}"
-            logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
+            error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         else:
             cert.state.st_pdf_hash = helpers.get_sha256_filepath(cert.state.st_pdf_path)
+            cert.pdf_data.st_filename = unquote_plus(str(urlparse(cert.st_link).path).split("/")[-1])
         return cert
 
     @staticmethod
@@ -910,164 +977,22 @@ class CommonCriteriaCert(
             return
         self.heuristics.cert_lab = self.pdf_data.cert_lab
 
-    def compute_heuristics_cert_id(self, all_cert_ids: Set[str]):
+    def compute_heuristics_cert_id(self):
         """
-        Given list of cert ids from the whole dataset, will normalize own cert id into canonical form
+        Compute the heuristics cert_id of this cert, using several methods.
 
-        :param Set[str] all_cert_ids: cert ids from the whole dataset.
+        The candidate cert_ids are extracted from the frontpage, PDF metadata, filename, and keywords matches.
+
+        Finally, the cert_id is canonicalized.
         """
         if not self.pdf_data:
             logger.warning("Cannot compute sample id when pdf files were not processed.")
             return
-        self.heuristics.cert_id = self.pdf_data.cert_id
-        self.normalize_cert_id(all_cert_ids)
+        # Extract candidate cert_ids
+        candidates = self.pdf_data.candidate_cert_ids(self.scheme)
 
-    @staticmethod
-    def _is_anssi_cert(cert_id: str) -> bool:
-        return cert_id.startswith("ANSS")
-
-    @staticmethod
-    def _fix_anssi_cert_id(cert_id: str) -> str:
-        new_cert_id = cert_id
-
-        if new_cert_id.startswith("ANSSi"):  # mistyped ANSSi
-            new_cert_id = "ANSSI" + new_cert_id[4:]
-
-        # Bug - getting out of index - ANSSI-2009/30
-        # TMP solution
-        # TODO: Fix me, @georgefi
-        if len(new_cert_id) >= len("ANSSI-CC-0000") + 1:
-            if (
-                new_cert_id[len("ANSSI-CC-0000")] == "_"
-            ):  # _ instead of / after year (ANSSI-CC-2010_40 -> ANSSI-CC-2010/40)
-                new_cert_id = new_cert_id[: len("ANSSI-CC-0000")] + "/" + new_cert_id[len("ANSSI-CC-0000") + 1 :]
-
-        if "_" in new_cert_id:  # _ instead of -
-            new_cert_id = new_cert_id.replace("_", "-")
-
-        return new_cert_id
-
-    @staticmethod
-    def _is_bsi_cert(cert_id: str) -> bool:
-        return cert_id.startswith("BSI-DSZ-CC-")
-
-    @staticmethod
-    def _extract_bsi_parts(bsi_parts: List[str]) -> Tuple:
-        cert_num = None
-        cert_version = None
-        cert_year = None
-
-        if len(bsi_parts) > 3:
-            cert_num = bsi_parts[3]
-        if len(bsi_parts) > 4:
-            if bsi_parts[4].startswith("V") or bsi_parts[4].startswith("v"):
-                cert_version = bsi_parts[4].upper()  # get version in uppercase
-            else:
-                cert_year = bsi_parts[4]
-        if len(bsi_parts) > 5:
-            cert_year = bsi_parts[5]
-
-        return cert_num, cert_version, cert_year
-
-    @staticmethod
-    def _fix_bsi_cert_id(cert_id: str, all_cert_ids: Set[str]) -> str:
-        start_year = 1996
-        limit_year = datetime.now().year + 1
-        bsi_parts = cert_id.split("-")
-
-        cert_num, cert_version, cert_year = CommonCriteriaCert._extract_bsi_parts(bsi_parts)
-        if cert_year is None:
-            for year in range(start_year, limit_year):
-                cert_id_possible = cert_id + "-" + str(year)
-
-                if cert_id_possible in all_cert_ids:
-                    # we found version with year
-                    cert_year = str(year)
-                    break
-
-        # reconstruct BSI number again
-        new_cert_id = "BSI-DSZ-CC"
-        if cert_num is not None:
-            new_cert_id += "-" + cert_num
-        if cert_version is not None:
-            new_cert_id += "-" + cert_version
-        if cert_year is not None:
-            new_cert_id += "-" + cert_year
-
-        return new_cert_id
-
-    @staticmethod
-    def _is_spain_cert_id(cert_id: str) -> bool:
-        return "-INF-" in cert_id
-
-    @staticmethod
-    def _fix_spain_cert_id(cert_id: str) -> str:
-        spain_parts = cert_id.split("-")
-        cert_year = spain_parts[0]
-        cert_batch = spain_parts[1]
-        cert_num = spain_parts[3]
-
-        if "v" in cert_num:
-            cert_num = cert_num[: cert_num.find("v")]
-        if "V" in cert_num:
-            cert_num = cert_num[: cert_num.find("V")]
-
-        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num}"  # drop version
-
-        return new_cert_id
-
-    @staticmethod
-    def _is_ocsi_cert_id(cert_id: str) -> bool:
-        return "OCSI/CERT" in cert_id
-
-    @staticmethod
-    def _fix_ocsi_cert_id(cert_id: str) -> str:
-        new_cert_id = cert_id
-        if not new_cert_id.endswith("/RC"):
-            new_cert_id = cert_id + "/RC"
-
-        return new_cert_id
-
-    def _get_cert_laboratory(self) -> str:
-        if not self.heuristics.cert_id:
-            raise ValueError("Cert ID was None but cert laboratory was to be computed based on its value.")
-        cert_id = self.heuristics.cert_id.strip()
-
-        if CommonCriteriaCert._is_anssi_cert(cert_id):
-            return "anssi"
-
-        if CommonCriteriaCert._is_bsi_cert(cert_id):
-            return "bsi"
-
-        if CommonCriteriaCert._is_spain_cert_id(cert_id):
-            return "spain"
-
-        if CommonCriteriaCert._is_ocsi_cert_id(cert_id):
-            return "ocsi"
-
-        return "unknown"
-
-    def normalize_cert_id(self, all_cert_ids: Set[str]) -> None:
-        """
-        Attempts to find certification laboratory and transform certificate id into canonical form. This is achieved
-        also by comparisons to all other cert ids in the dataset.
-
-        :param Set[str] all_cert_ids: set of all cert ids in the dataset.
-        """
-        fix_methods: Dict[str, Callable] = {
-            "anssi": CommonCriteriaCert._fix_anssi_cert_id,
-            "bsi": partial(CommonCriteriaCert._fix_bsi_cert_id, all_cert_ids=all_cert_ids),
-            "spain": CommonCriteriaCert._fix_spain_cert_id,
-            "ocsi": CommonCriteriaCert._fix_ocsi_cert_id,
-        }
-
-        try:
-            cert_lab = self._get_cert_laboratory()
-        except ValueError:
-            return None
-
-        # No need for any fix, bcs we do not know how
-        if cert_lab == "unknown":
-            return None
-
-        self.heuristics.cert_id = fix_methods[cert_lab](self.pdf_data.cert_id)
+        if candidates:
+            max_weight = max(candidates.values())
+            max_candidates = list(filter(lambda x: candidates[x] == max_weight, candidates.keys()))
+            max_candidates.sort(key=len, reverse=True)
+            self.heuristics.cert_id = max_candidates[0]

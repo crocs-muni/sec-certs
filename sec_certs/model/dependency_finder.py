@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Optional, Set, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 
 from sec_certs.sample.certificate import Certificate, References
 
@@ -6,10 +6,13 @@ Certificates = Dict[str, Certificate]
 ReferencedByDirect = Dict[str, Set[str]]
 ReferencedByIndirect = Dict[str, Set[str]]
 Dependencies = Dict[str, Dict[str, Optional[Set[str]]]]
+IDMapping = Dict[str, List[str]]
+UnknownReferences = Dict[str, Set[str]]
 IDLookupFunc = Callable[[Certificate], str]
 ReferenceLookupFunc = Callable[[Certificate], Set[str]]
 
 
+# TODO: All of this can and should be rewritten on top of networkx or some other graph library.
 class DependencyFinder:
     """
     The class assigns references of other certificate instances for each instance.
@@ -19,87 +22,106 @@ class DependencyFinder:
 
     def __init__(self):
         self.dependencies: Dependencies = {}
+        self.id_mapping: IDMapping = {}
+        self._fitted: bool = False
 
-    @staticmethod
-    def _update_direct_references(referenced_by: ReferencedByDirect, cert_id: str, this_cert_id: str) -> None:
-        if cert_id not in referenced_by:
-            referenced_by[cert_id] = set()
-        if this_cert_id not in referenced_by[cert_id]:
-            referenced_by[cert_id].add(this_cert_id)
+    def _create_id_mapping(self, certificates: Certificates, id_func: IDLookupFunc) -> None:
+        """
+        Create the ID mapping of certificate IDs to certificate digests.
 
-    @staticmethod
-    def _process_references(referenced_by: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect) -> None:
+        Necessary for handling duplicates.
+        """
+        # Create a mapping of certificate ID to certificate digests with that ID.
+        for dgst in certificates:
+            cert_id = id_func(certificates[dgst])
+            c_list = self.id_mapping.setdefault(cert_id, [])
+            c_list.append(dgst)
+
+        # Sort digests in ID mapping to have deterministic behavior.
+        # The certificate with the first digest will be used with that ID, others will be discarded.
+        for digests in self.id_mapping.values():
+            digests.sort()
+
+    def _compute_indirect_references(self, referenced_by: ReferencedByDirect) -> ReferencedByIndirect:
+        """
+        Compute indirect references via a BFS algorithm.
+        """
+        referenced_by_indirect: ReferencedByIndirect = {}
+
+        # Populate with direct references.
+        certs_id_list = referenced_by.keys()
+        for cert_id in certs_id_list:
+            referenced_by_indirect[cert_id] = set()
+            for item in referenced_by[cert_id]:
+                referenced_by_indirect[cert_id].add(item)
+
+        # Flood in the indirect ones.
         new_change_detected = True
         while new_change_detected:
             new_change_detected = False
-            certs_id_list = referenced_by.keys()
 
             for cert_id in certs_id_list:
                 tmp_referenced_by_indirect_nums = referenced_by_indirect[cert_id].copy()
                 for referencing in tmp_referenced_by_indirect_nums:
-                    if referencing in referenced_by.keys():
+                    if referencing in certs_id_list:
                         tmp_referencing = referenced_by_indirect[referencing].copy()
                         newly_discovered_references = [
                             x for x in tmp_referencing if x not in referenced_by_indirect[cert_id]
                         ]
                         referenced_by_indirect[cert_id].update(newly_discovered_references)
-                        new_change_detected = True if newly_discovered_references else False
+                        if newly_discovered_references:
+                            new_change_detected = True
+        return referenced_by_indirect
 
-    @staticmethod
-    def _build_cert_references(
-        certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc
+    def _build_referenced_by(
+        self, certificates: Certificates, ref_lookup_func: ReferenceLookupFunc
     ) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
         referenced_by: ReferencedByDirect = {}
 
-        for cert_obj in certificates.values():
+        for this_cert_id, cert_digests in self.id_mapping.items():
+            # Take the first certificate digest from the ID mapping (to ensure deterministic behavior and resolve duplicates).
+            # TODO: A better approach for handling duplicates in the future would be nice.
+            cert_dgst = cert_digests[0]
+            cert_obj = certificates[cert_dgst]
+
             refs = ref_lookup_func(cert_obj)
             if refs is None:
                 continue
 
-            this_cert_id = id_func(cert_obj)
-
-            # Direct reference
+            # Process direct reference
+            # All are added here, the unknown ones are filtered later on.
             for cert_id in refs:
-                if cert_id != this_cert_id and this_cert_id is not None:
-                    DependencyFinder._update_direct_references(referenced_by, cert_id, this_cert_id)
+                if cert_id == this_cert_id:
+                    continue
+                referenced_by.setdefault(cert_id, set())
+                referenced_by[cert_id].add(this_cert_id)
 
-        referenced_by_indirect: ReferencedByIndirect = {}
-
-        for cert_id in referenced_by.keys():
-            referenced_by_indirect[cert_id] = set()
-            for item in referenced_by[cert_id]:
-                referenced_by_indirect[cert_id].add(item)
-
-        DependencyFinder._process_references(referenced_by, referenced_by_indirect)
+        # Now do the indirect ones
+        referenced_by_indirect = self._compute_indirect_references(referenced_by)
         return referenced_by, referenced_by_indirect
 
-    @staticmethod
-    def _get_referencing_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[Set[str]]:
-        filter_direct = set()
+    def _get_reverse_dependencies(
+        self, cert_id: str, references: Union[ReferencedByDirect, ReferencedByIndirect]
+    ) -> Optional[Set[str]]:
+        result = set()
 
-        for cert_id in referenced_by_direct:
-            if cert in referenced_by_direct[cert_id]:
-                filter_direct.add(cert_id)
+        for other_id in references:
+            if cert_id in references[other_id]:
+                result.add(other_id)
 
-        return filter_direct if filter_direct else None
+        return result if result else None
 
-    @staticmethod
-    def _get_referencing_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Optional[Set[str]]:
-        filter_indirect = set()
-
-        for cert_id in referenced_by_indirect:
-            if cert in referenced_by_indirect[cert_id]:
-                filter_indirect.add(cert_id)
-
-        return filter_indirect if filter_indirect else None
-
-    @staticmethod
-    def _get_referenced_directly(cert: str, referenced_by_direct: ReferencedByDirect) -> Optional[Set[str]]:
-        return referenced_by_direct.get(cert, None)
-
-    @staticmethod
-    def _get_referenced_indirectly(cert: str, referenced_by_indirect: ReferencedByIndirect) -> Optional[Set[str]]:
-        return referenced_by_indirect.get(cert, None)
+    def _build_referencing(
+        self, referenced_by_direct: ReferencedByDirect, referenced_by_indirect: ReferencedByIndirect
+    ) -> None:
+        for cert_id, cert_digests in self.id_mapping.items():
+            cert_dgst = cert_digests[0]
+            self.dependencies[cert_dgst] = {
+                "directly_referenced_by": referenced_by_direct.get(cert_id, None),
+                "indirectly_referenced_by": referenced_by_indirect.get(cert_id, None),
+                "directly_referencing": self._get_reverse_dependencies(cert_id, referenced_by_direct),
+                "indirectly_referencing": self._get_reverse_dependencies(cert_id, referenced_by_indirect),
+            }
 
     def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
         """
@@ -108,75 +130,91 @@ class DependencyFinder:
         :param Certificates certificates: dictionary of certificates with hashes as key
         :param IDLookupFunc id_func: lookup function for cert id
         :param ReferenceLookupFunc ref_lookup_func: lookup for references
-        :return None: None
         """
-        referenced_by_direct, referenced_by_indirect = DependencyFinder._build_cert_references(
-            certificates, id_func, ref_lookup_func
-        )
+        if self._fitted:
+            raise ValueError("Finder already fitted")
+        # Create the ID mapping first so that we can resolve duplicates.
+        self._create_id_mapping(certificates, id_func)
 
-        for dgst in certificates:
-            cert_id = id_func(certificates[dgst])
-            self.dependencies[dgst] = {}
+        # Build the referenced_by first
+        referenced_by_direct, referenced_by_indirect = self._build_referenced_by(certificates, ref_lookup_func)
 
-            if not cert_id:
+        # Build the referencing second (this actually writes into self.dependencies).
+        self._build_referencing(referenced_by_direct, referenced_by_indirect)
+        self._fitted = True
+
+    @property
+    def unknown_references(self) -> UnknownReferences:
+        """
+        Get the unknown references in the fitted dataset (to unknown certificate IDs, not in the dataset during fit).
+        """
+        if not self._fitted:
+            return {}
+        result = {}
+        for cert_id, digests in self.id_mapping.items():
+            cert_digest = digests[0]
+            cert_references = self.dependencies[cert_digest]
+            direct_refs = cert_references["directly_referencing"]
+            if not direct_refs:
                 continue
+            unknowns = set(filter(lambda refd_cert_id: refd_cert_id not in self.id_mapping, direct_refs))
+            if unknowns:
+                result[cert_id] = unknowns
+        return result
 
-            self.dependencies[dgst]["directly_referenced_by"] = DependencyFinder._get_referenced_directly(
-                cert_id, referenced_by_direct
-            )
-
-            self.dependencies[dgst]["indirectly_referenced_by"] = DependencyFinder._get_referenced_indirectly(
-                cert_id, referenced_by_indirect
-            )
-
-            self.dependencies[dgst]["directly_referencing"] = DependencyFinder._get_referencing_directly(
-                cert_id, referenced_by_direct
-            )
-
-            self.dependencies[dgst]["indirectly_referencing"] = DependencyFinder._get_referencing_indirectly(
-                cert_id, referenced_by_indirect
-            )
-
-    def _get_directly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("directly_referenced_by", None)
-        return set(res) if res else None
-
-    def _get_indirectly_referenced_by(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("indirectly_referenced_by", None)
-        return set(res) if res else None
-
-    def _get_directly_referencing(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("directly_referencing", None)
-        return set(res) if res else None
-
-    def _get_indirectly_referencing(self, dgst: str) -> Optional[Set[str]]:
-        res = self.dependencies[dgst].get("indirectly_referencing", None)
-        return set(res) if res else None
-
-    def predict_single_cert(self, dgst: str) -> References:
+    @property
+    def duplicates(self) -> IDMapping:
         """
-        Method returns references object for specified certificate digest
+        Get the duplicates in the fitted dataset.
 
-        :param str dgst: certificate digest
+        :return IDMapping: Mapping of certificate ID to digests that share it.
+        """
+        if not self._fitted:
+            return {}
+        return {cert_id: digests for cert_id, digests in self.id_mapping.items() if len(digests) > 1}
+
+    def predict_single_cert(self, dgst: str, keep_unknowns: bool = True) -> References:
+        """
+        Get the references object for specified certificate digest.
+
+        :param dgst: certificate digest
+        :param keep_unknowns: Whether to keep references to unknown certificate IDs
         :return References: References object
         """
+        if not self._fitted:
+            raise ValueError("Finder not yet fitted")
+
+        def wrap(res):
+            if not res:
+                return None
+            # If we do not want the unknown references, filter them here.
+            if not keep_unknowns:
+                res = filter(lambda cert_id: cert_id in self.id_mapping, res)
+            return set(res)
+
+        if dgst not in self.dependencies:
+            return References()
+
         return References(
-            self._get_directly_referenced_by(dgst),
-            self._get_indirectly_referenced_by(dgst),
-            self._get_directly_referencing(dgst),
-            self._get_indirectly_referencing(dgst),
+            wrap(self.dependencies[dgst].get("directly_referenced_by", None)),
+            wrap(self.dependencies[dgst].get("indirectly_referenced_by", None)),
+            wrap(self.dependencies[dgst].get("directly_referencing", None)),
+            wrap(self.dependencies[dgst].get("indirectly_referencing", None)),
         )
 
-    def predict(self, dgst_list: List[str]) -> Dict[str, References]:
+    def predict(self, dgst_list: List[str], keep_unknowns: bool = True) -> Dict[str, References]:
         """
-        Method returns references for a list of certificate digests
+        Get the references for a list of certificate digests.
 
-        :param List[str] dgst_list: List of certificate hashes
+        :param dgst_list: List of certificate digests.
+        :param keep_unknowns: Whether to keep references to and from unknown certificate IDs
         :return Dict[str, References]: Dict with certificate hash and References object.
         """
+        if not self._fitted:
+            raise ValueError("Finder not yet fitted")
         cert_references = {}
 
         for dgst in dgst_list:
-            cert_references[dgst] = self.predict_single_cert(dgst)
+            cert_references[dgst] = self.predict_single_cert(dgst, keep_unknowns=keep_unknowns)
 
         return cert_references
