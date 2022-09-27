@@ -65,7 +65,7 @@ b95f2b009d70fad1,BSI-DSZ-CC-0637-2010,report,self,
 b95f2b009d70fad1,BSI-DSZ-CC-0534-2009,report,basis of recertification,"The product IBM z/OS Version 1 Release 11 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0534-2009. Specific results from the evaluation process BSI-DSZ-CC-0534-2009 were re-used."
 b95f2b009d70fad1,BSI-DSZ-CC-0637,target,self,
 d8c205b4924f91b3,ANSSI-CC-2022/09,report,self,
-d8c205b4924f91b3,ANSSI-CC-2021/47,report,basis of redo,"The evaluation is based on the evaluation results of this same product certified on October 8, 2021 under the reference ANSSI-CC-2021/47, see [CER]. It corresponds to an evaluation with scope reduction following the identification of vulnerability."
+d8c205b4924f91b3,ANSSI-CC-2021/47,report,recertification,"The evaluation is based on the evaluation results of this same product certified on October 8, 2021 under the reference ANSSI-CC-2021/47, see [CER]. It corresponds to an evaluation with scope reduction following the identification of vulnerability."
 82361ca3849ae025,383-4-420,report,self,
 40817e88a5a46fd5,CCEVS-VR-VID10541-2014,report,self,
 c1d88ce9dadd7d2d,BSI-DSZ-CC-0313-2006,report,self,
@@ -100,7 +100,7 @@ c8427da3733c506d,OCSI/CERT/TEC/05/2017/RC,report,self,
 56660124ad6ded6d,BSI-DSZ-CC-1089,target,self,
 3ba9f330ce93636b,BSI-DSZ-CC-0732-2011,report,self,
 3ba9f330ce93636b,BSI-DSZ-CC-0640-2010,report,component used,"The TOE TCOS Signature Module Version 1.0 Release 1/SLE78CLX480P is composed of the components: Smart Card Security Controller SLE78CLX480P / M7820 A11 provided by Infineon Technologies AG (with specific IC dedicated software see BSI-DSZ-CC-0640-2010, but without usage of the Infineon crypto library)"
-3ba9f330ce93636b,BSI-DSZ-CC-0677-2010,report,basis of eval + derivative,"The evaluators have tested nearly the same TOE in the certification process BSI-DSZ-CC-0677 systematically against high attack potential during their penetration testing. They have analysed the changes between the two TOEs and found no differences in the source code concerning the security functionality of the TOE."
+3ba9f330ce93636b,BSI-DSZ-CC-0677-2010,report,basis of eval,"The evaluators have tested nearly the same TOE in the certification process BSI-DSZ-CC-0677 systematically against high attack potential during their penetration testing. They have analysed the changes between the two TOEs and found no differences in the source code concerning the security functionality of the TOE."
 3ba9f330ce93636b,BSI-DSZ-CC-0732-2011,target,self,
 3ba9f330ce93636b,BSI-DSZ-CC-0640-2010,report,component used,"The evaluation of the TOE is a composite evaluation and uses the results of the CC evaluation provided by [HWCR]"
 80932fd09bfc3f98,CCEVS-VR-VID10120-2008,report,self,
