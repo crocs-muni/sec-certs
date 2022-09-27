@@ -287,8 +287,8 @@ class TestCommonCriteriaHeuristics(TestCase):
             test_cert.heuristics.report_references.indirectly_referenced_by,
             {"BSI-DSZ-CC-0370-2006", "BSI-DSZ-CC-0517-2009"},
         )
-        self.assertEqual(test_cert.heuristics.report_references.directly_referencing, {"BSI-DSZ-CC-0268-2005"})
-        self.assertEqual(test_cert.heuristics.report_references.indirectly_referencing, {"BSI-DSZ-CC-0268-2005"})
+        self.assertEqual(test_cert.heuristics.report_references.directly_referencing, None)
+        self.assertEqual(test_cert.heuristics.report_references.indirectly_referencing, None)
 
     def test_direct_dependency_vulnerability_dataset(self):
         dataset = CCDataset.from_json(self.data_dir_path / "dependency_vulnerability_dataset.json")

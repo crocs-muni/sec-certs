@@ -852,7 +852,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             finder.fit(self.certs, lambda cert: cert.heuristics.cert_id, ref_lookup(kw_source))  # type: ignore
 
             for dgst in self.certs:
-                setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst))
+                setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
 
     @serialize
     def analyze_certificates(self, fresh: bool = True) -> None:

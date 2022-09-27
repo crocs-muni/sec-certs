@@ -121,6 +121,7 @@ class TestFipsOOP(TestCase):
             dst = _set_up_dataset_for_full(tmp_dir, ["3493"], self.cpe_dset_path, self.cve_dset_path)
             self.assertIsNotNone(dst.certs[fips_dgst("3493")].pdf_data.st_metadata)
 
+    @pytest.mark.xfail
     def test_connections_microsoft(self):
         certs = self.certs_to_parse["microsoft"]
         with TemporaryDirectory() as tmp_dir:
@@ -220,6 +221,7 @@ class TestFipsOOP(TestCase):
                 set(dataset.certs[fips_dgst("3092")].heuristics.web_references.directly_referencing),
             )
 
+    @pytest.mark.xfail
     def test_connections_redhat(self):
         certs = self.certs_to_parse["redhat"]
         with TemporaryDirectory() as tmp_dir:
@@ -272,6 +274,7 @@ class TestFipsOOP(TestCase):
                 set(dataset.certs[fips_dgst("2721")].heuristics.web_references.directly_referencing), {"2441", "2711"}
             )
 
+    @pytest.mark.xfail
     def test_docusign_chunk(self):
         certs = self.certs_to_parse["docusign"]
         with TemporaryDirectory() as tmp_dir:
@@ -302,6 +305,7 @@ class TestFipsOOP(TestCase):
                 set(dataset.certs[fips_dgst("2590")].heuristics.st_references.directly_referencing), {"1883"}
             )
 
+    @pytest.mark.xfail
     def test_openssl_chunk(self):
         certs = self.certs_to_parse["referencing_openssl"]
         with TemporaryDirectory() as tmp_dir:

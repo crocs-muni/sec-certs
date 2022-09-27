@@ -189,8 +189,8 @@ class DependencyFinder:
                 return None
             # If we do not want the unknown references, filter them here.
             if not keep_unknowns:
-                res = filter(lambda cert_id: cert_id in self.id_mapping, res)
-            return set(res)
+                res = set(filter(lambda cert_id: cert_id in self.id_mapping, res))
+            return set(res) if res else None
 
         if dgst not in self.dependencies:
             return References()
