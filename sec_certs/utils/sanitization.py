@@ -41,7 +41,7 @@ def sanitize_string(record: str) -> str:
 def sanitize_security_levels(record: Union[str, Set[str]]) -> Set[str]:
     if isinstance(record, str):
         record = set(record.split(","))
-    return record - {"Basic", "ND-PP", "PP\xa0Compliant", "None"}
+    return record - {"Basic", "ND-PP", "PP\xa0Compliant", "None", "Medium"}
 
 
 def sanitize_protection_profiles(record: str) -> list:

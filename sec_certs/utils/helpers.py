@@ -228,3 +228,16 @@ def warn_if_missing_tesseract() -> None:
             )
     except EnvironmentError:
         logger.warning("Attempting to find tesseract, but pkg-config was not found.")
+
+
+def choose_lowest_eal(eals: Optional[Set[str]]) -> Optional[str]:
+    """
+    Given a set of EAL strings, chooses the lowest one.
+    """
+    if not eals:
+        return None
+
+    matches = [(re.search(r"\d+", x)) for x in eals]
+    min_number = min([int(x.group()) for x in matches if x])
+    candidates = [x for x in eals if str(min_number) in x]
+    return "EAL" + str(min_number) if len(candidates) == 2 else candidates[0]

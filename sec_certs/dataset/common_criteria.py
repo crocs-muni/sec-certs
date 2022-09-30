@@ -463,7 +463,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         profiles = {
             x.dgst: set(
                 [
-                    ProtectionProfile(pp_name=y)
+                    ProtectionProfile(pp_name=y, pp_eal=None)
                     for y in sec_certs.utils.sanitization.sanitize_protection_profiles(x.protection_profiles)
                 ]
             )

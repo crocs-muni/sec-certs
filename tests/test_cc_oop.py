@@ -60,7 +60,8 @@ class TestCommonCriteriaOOP(TestCase):
             {
                 ProtectionProfile(
                     "Korean National Protection Profile for Single Sign On V1.0",
-                    "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
+                    "EAL1+",
+                    pp_link="https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
                 )
             },
             set(),
@@ -69,7 +70,7 @@ class TestCommonCriteriaOOP(TestCase):
             None,
         )
 
-        pp = ProtectionProfile("sample_pp", "https://sample.pp")
+        pp = ProtectionProfile("sample_pp", None, pp_link="https://sample.pp")
         update = CommonCriteriaCert.MaintenanceReport(
             date(1900, 1, 1), "Sample maintenance", "https://maintenance.up", "https://maintenance.up"
         )

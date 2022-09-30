@@ -12,7 +12,8 @@
     "name": "toy dataset",
     "description": "toy dataset description",
     "n_certs": 2,
-    "certs": [{
+    "certs": [
+        {
             "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
             "dgst": "309ac2fd7f2dcf17",
             "status": "active",
@@ -113,12 +114,15 @@
             "manufacturer_web": "https://www.dreamsecurity.com/",
             "protection_profiles": {
                 "_type": "Set",
-                "elements": [{
-                    "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
-                    "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
-                    "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
-                    "pp_ids": null
-                }]
+                "elements": [
+                    {
+                        "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+                        "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
+                        "pp_eal": "EAL1+",
+                        "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
+                        "pp_ids": null
+                    }
+                ]
             },
             "maintenance_updates": {
                 "_type": "Set",

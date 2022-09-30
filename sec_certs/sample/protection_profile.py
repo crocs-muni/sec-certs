@@ -16,6 +16,7 @@ class ProtectionProfile(ComplexSerializableType):
     """
 
     pp_name: str
+    pp_eal: Optional[str]
     pp_link: Optional[str] = None
     pp_ids: Optional[FrozenSet[str]] = None
 
@@ -34,7 +35,14 @@ class ProtectionProfile(ComplexSerializableType):
         pp_name = sanitization.sanitize_string(dct["csv_scan"]["cc_pp_name"])
         pp_link = sanitization.sanitize_link(dct["csv_scan"]["link_pp_document"])
         pp_ids = frozenset(dct["processed"]["cc_pp_csvid"]) if dct["processed"]["cc_pp_csvid"] else None
-        return cls(pp_name, pp_link, pp_ids)
+        eal_set = sanitization.sanitize_security_levels(dct["csv_scan"]["cc_security_level"])
+
+        if not len(eal_set) <= 1:
+            raise ValueError("EAL field should have single value or should be empty.")
+
+        eal_str = list(eal_set)[0] if eal_set else None
+
+        return cls(pp_name, eal_str, pp_link, pp_ids)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ProtectionProfile):
