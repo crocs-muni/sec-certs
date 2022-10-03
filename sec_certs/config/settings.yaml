@@ -17,7 +17,7 @@ n_threads:
   value: 8
 cpe_matching_threshold:
   description: Level of required string similarity between CPE and certificate name on CC CPE matching, 0-100. Lower values yield more false negatives, higher values more false positives
-  value: 90
+  value: 100
 cpe_n_max_matches:
   description: Maximum number of candidate CPE items that may be related to given certificate, >0
   value: 100
