@@ -104,16 +104,18 @@ class CommonCriteriaCert(
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
         """
-        Holds internal state of the dataset, whether downloads and converts of individual components succeeded. Also
+        Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
         holds information about errors and paths to the files.
         """
 
-        st_download_ok: bool
-        report_download_ok: bool
-        st_convert_ok: bool
-        report_convert_ok: bool
-        st_extract_ok: bool
-        report_extract_ok: bool
+        st_download_ok: bool  # Whether target download went OK
+        report_download_ok: bool  # Whether report download went OK
+        st_convert_garbage: bool  # Whether initial target conversion resulted in garbage
+        report_convert_garbage: bool  # Whether initial report conversion resulted in garbage
+        st_convert_ok: bool  # Whether overall target conversion went OK (either pdftotext or via OCR)
+        report_convert_ok: bool  # Whether overall report conversion went OK (either pdftotext or via OCR)
+        st_extract_ok: bool  # Whether target extraction went OK
+        report_extract_ok: bool  # Whether report extraction went OK
 
         errors: List[str]
 
@@ -129,20 +131,25 @@ class CommonCriteriaCert(
 
         def __init__(
             self,
-            st_download_ok: bool = True,
-            report_download_ok: bool = True,
-            st_convert_ok: bool = True,
-            report_convert_ok: bool = True,
-            st_extract_ok: bool = True,
-            report_extract_ok: bool = True,
+            st_download_ok: bool = False,
+            report_download_ok: bool = False,
+            st_convert_garbage: bool = False,
+            report_convert_garbage: bool = False,
+            st_convert_ok: bool = False,
+            report_convert_ok: bool = False,
+            st_extract_ok: bool = False,
+            report_extract_ok: bool = False,
             errors: Optional[List[str]] = None,
             st_pdf_hash: Optional[str] = None,
             report_pdf_hash: Optional[str] = None,
             st_txt_hash: Optional[str] = None,
             report_txt_hash: Optional[str] = None,
         ):
+            super().__init__()
             self.st_download_ok = st_download_ok
             self.report_download_ok = report_download_ok
+            self.st_convert_garbage = st_convert_garbage
+            self.report_convert_garbage = report_convert_garbage
             self.st_convert_ok = st_convert_ok
             self.report_convert_ok = report_convert_ok
             self.st_extract_ok = st_extract_ok
@@ -158,6 +165,8 @@ class CommonCriteriaCert(
             return [
                 "st_download_ok",
                 "report_download_ok",
+                "st_convert_garbage",
+                "report_convert_garbage",
                 "st_convert_ok",
                 "report_convert_ok",
                 "st_extract_ok",
@@ -797,6 +806,7 @@ class CommonCriteriaCert(
             cert.state.report_download_ok = False
             cert.state.errors.append(error_msg)
         else:
+            cert.state.report_download_ok = True
             cert.state.report_pdf_hash = helpers.get_sha256_filepath(cert.state.report_pdf_path)
             cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.report_link).path).split("/")[-1])
         return cert
@@ -820,6 +830,7 @@ class CommonCriteriaCert(
             cert.state.st_download_ok = False
             cert.state.errors.append(error_msg)
         else:
+            cert.state.st_download_ok = True
             cert.state.st_pdf_hash = helpers.get_sha256_filepath(cert.state.st_pdf_path)
             cert.pdf_data.st_filename = unquote_plus(str(urlparse(cert.st_link).path).split("/")[-1])
         return cert
@@ -839,6 +850,7 @@ class CommonCriteriaCert(
             cert.state.report_convert_ok = False
             cert.state.errors.append(error_msg)
         else:
+            cert.state.report_convert_ok = True
             cert.state.report_txt_hash = helpers.get_sha256_filepath(cert.state.report_txt_path)
         return cert
 
@@ -857,6 +869,7 @@ class CommonCriteriaCert(
             cert.state.st_convert_ok = False
             cert.state.errors.append(error_msg)
         else:
+            cert.state.st_convert_ok = True
             cert.state.st_txt_hash = helpers.get_sha256_filepath(cert.state.st_txt_path)
         return cert
 
@@ -872,6 +885,8 @@ class CommonCriteriaCert(
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
             cert.state.errors.append(response)
+        else:
+            cert.state.st_extract_ok = True
         return cert
 
     @staticmethod
@@ -886,6 +901,8 @@ class CommonCriteriaCert(
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
             cert.state.errors.append(response)
+        else:
+            cert.state.report_extract_ok = True
         return cert
 
     @staticmethod
