@@ -192,13 +192,13 @@ class CommonCriteriaCert(
 
         def report_is_ok_to_analyze(self, fresh: bool = True) -> bool:
             if fresh is True:
-                return self.report_download_ok and self.report_convert_ok and self.report_extract_ok
+                return self.report_download_ok and self.report_convert_ok
             else:
                 return self.report_download_ok and self.report_convert_ok and not self.report_extract_ok
 
         def st_is_ok_to_analyze(self, fresh: bool = True) -> bool:
             if fresh is True:
-                return self.st_download_ok and self.st_convert_ok and self.st_extract_ok
+                return self.st_download_ok and self.st_convert_ok
             else:
                 return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
