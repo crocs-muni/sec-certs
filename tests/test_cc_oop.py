@@ -142,6 +142,11 @@ class TestCommonCriteriaOOP(TestCase):
                     f"Hash of PDF security target for CommonCriteriaCert with digest {cert.dgst} deviates from template.",
                 )
 
+            self.assertFalse(dset["309ac2fd7f2dcf17"].state.report_convert_garbage)
+            self.assertFalse(dset["309ac2fd7f2dcf17"].state.st_convert_garbage)
+            self.assertTrue(dset["309ac2fd7f2dcf17"].state.report_convert_ok)
+            self.assertTrue(dset["309ac2fd7f2dcf17"].state.st_convert_ok)
+
             self.assertTrue(dset["309ac2fd7f2dcf17"].state.report_txt_path.exists())
             self.assertTrue(dset["309ac2fd7f2dcf17"].state.st_txt_path.exists())
 

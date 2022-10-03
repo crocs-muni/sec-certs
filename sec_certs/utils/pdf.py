@@ -64,15 +64,18 @@ def ocr_pdf_file(pdf_path: Path) -> str:
     return contents
 
 
-def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
+def convert_pdf_file(pdf_path: Path, txt_path: Path) -> Tuple[bool, bool]:
     """
     Convert a PDF tile to text and save it on the `txt_path`.
 
     :param pdf_path: Path to the to-be-converted PDF file.
     :param txt_path: Path to the resulting text file.
-    :return: Whether the conversion was successful (see constants).
+    :return: A tuple of two results, whether OCR was done and what the complete result
+             was (OK/NOK).
     """
     txt = None
+    ok = False
+    ocr = False
     try:
         with pdf_path.open("rb") as pdf_handle:
             pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
@@ -82,19 +85,19 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> str:
 
     if txt is None or text_is_garbage(txt):
         logger.warning(f"Detected garbage during conversion of {pdf_path}")
+        ocr = True
         try:
             txt = ocr_pdf_file(pdf_path)
             logger.info(f"OCR OK for {pdf_path}")
         except Exception as e:
             logger.error(f"Error during OCR of {pdf_path}, using garbage: {e}")
 
-    if txt is None:
-        return constants.RETURNCODE_NOK
+    if txt is not None:
+        ok = True
+        with txt_path.open("w", encoding="utf-8") as txt_handle:
+            txt_handle.write(txt)
 
-    with txt_path.open("w", encoding="utf-8") as txt_handle:
-        txt_handle.write(txt)
-
-    return constants.RETURNCODE_OK
+    return ocr, ok
 
 
 def parse_pdf_date(dateval: Optional[bytes]) -> Optional[datetime]:

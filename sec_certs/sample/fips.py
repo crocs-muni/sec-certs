@@ -559,8 +559,8 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         """
         cert, pdf_path, txt_path = tup
         if not cert.state.txt_state:
-            exit_code = sec_certs.utils.pdf.convert_pdf_file(pdf_path, txt_path)
-            if exit_code != constants.RETURNCODE_OK:
+            ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(pdf_path, txt_path)
+            if not ok_result:
                 logger.error(f"Cert dgst: {cert.cert_id} failed to convert security policy pdf->txt")
                 cert.state.txt_state = False
             else:
