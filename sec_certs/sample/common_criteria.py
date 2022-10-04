@@ -661,7 +661,9 @@ class CommonCriteriaCert(
         for link in list(cell.find_all("a")):
             if link.get("href") is not None and "/ppfiles/" in link.get("href"):
                 protection_profiles.add(
-                    ProtectionProfile(str(link.contents[0]), CommonCriteriaCert.cc_url + link.get("href"))
+                    ProtectionProfile(
+                        pp_name=str(link.contents[0]), pp_eal=None, pp_link=CommonCriteriaCert.cc_url + link.get("href")
+                    )
                 )
         return protection_profiles
 
