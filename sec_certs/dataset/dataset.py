@@ -244,12 +244,14 @@ class Dataset(Generic[CertSubType], ABC):
         return clf, cpe_dset, cve_dset
 
     def to_label_studio_json(self, output_path: Union[str, Path]) -> None:
+        cpe_dset = self._prepare_cpe_dataset()
+
         lst = []
         for cert in [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]:
             dct = {"text": cert.label_studio_title}
-            candidates = [x[1].title for x in cert.heuristics.cpe_matches]
-            candidates += ["No good match"] * (config.cc_cpe_max_matches - len(candidates))
-            options = ["option_" + str(x) for x in range(1, 21)]
+            candidates = [cpe_dset[x].title for x in cert.heuristics.cpe_matches]
+            candidates += ["No good match"] * (config.cpe_n_max_matches - len(candidates))
+            options = ["option_" + str(x) for x in range(1, config.cpe_n_max_matches)]
             dct.update({o: c for o, c in zip(options, candidates)})
             lst.append(dct)
 
