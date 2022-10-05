@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import functools
 import logging
 import tempfile
 import xml.etree.ElementTree as ET
@@ -13,6 +14,7 @@ from typing import Any, Dict, Final, List, Optional, Set, Tuple, Union
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from scipy import stats
 from tqdm.notebook import tqdm
 
 from sec_certs.dataset.cve import CVEDataset
@@ -149,6 +151,7 @@ def get_sar_level_from_set(sars: Set[SAR], sar_family: str) -> Optional[int]:
 def compute_cve_correlations(
     df: pd.DataFrame,
     exclude_vuln_free_certs: bool = False,
+    sar_families: Optional[List[str]] = None,
     output_path: Optional[Union[str, Path]] = None,
     filter_nans: bool = True,
 ) -> pd.DataFrame:
@@ -158,37 +161,77 @@ def compute_cve_correlations(
     - SAR column must be a set of SARs
     - `n_cves` and `worst_cve_score`, `avg_cve_score` columns must be present in the dataframe
     Possibly, it can filter columns will both values NaN (due to division by zero or super low supports.)
+    To choose correct minimal support is tricky, this is because SAR levels often having huge support, but being imbalanced themselves heavily in the favor
+    of a single value that is rarely modified. We recommend choosing 100 and discarding any row where some column would result into NaN
     """
-    df_sar = df.loc[:, ["eal", "extracted_sars", "worst_cve_score", "avg_cve_score", "n_cves"]]
-    families = discover_sar_families(df_sar.extracted_sars)
-    df_sar.eal = df_sar.eal.cat.codes
+    df_sar = df.loc[:, ["eal", "extracted_sars", "worst_cve_score", "avg_cve_score", "n_cves", "category"]]
+    df_sar = df_sar.loc[df_sar.category != "ICs, Smart Cards and Smart Card-Related Devices and Systems"]
 
     if exclude_vuln_free_certs:
         df_sar = df_sar.loc[df_sar.n_cves > 0]
 
-    n_cves_corrs = [df_sar["eal"].corr(df_sar.n_cves)]
-    worst_cve_corrs = [df_sar["eal"].corr(df_sar.worst_cve_score)]
-    avg_cve_corrs = [df_sar["eal"].corr(df_sar.avg_cve_score)]
+    families = sar_families if sar_families else discover_sar_families(df_sar.extracted_sars)
+
+    spearmanr = functools.partial(stats.spearmanr, nan_policy="omit", alternative="less")
+
+    df_sar.eal = df_sar.eal.cat.codes
+    df_sar.eal = df_sar.eal.map(lambda x: np.NaN if x == -1 else x)
+
+    n_cves_eal_corr, n_cves_eal_pvalue = spearmanr(df_sar.eal, df_sar.n_cves)
+    n_cves_corrs = [n_cves_eal_corr]
+    n_cves_pvalues = [n_cves_eal_pvalue]
+
+    worst_cve_eal_corr, worst_cve_eal_pvalue = spearmanr(df_sar.eal, df_sar.worst_cve_score)
+    worst_cve_corrs = [worst_cve_eal_corr]
+    worst_cve_pvalues = [worst_cve_eal_pvalue]
+
+    avg_cve_eal_corr, avg_cve_eal_pvalue = spearmanr(df_sar.eal, df_sar.avg_cve_score)
+    avg_cve_corrs = [avg_cve_eal_corr]
+    avg_cve_pvalues = [avg_cve_eal_pvalue]
+
     supports = [df_sar.loc[~df_sar["eal"].isnull()].shape[0]]
 
     for family in tqdm(families):
         df_sar[family] = df_sar.extracted_sars.map(lambda x: get_sar_level_from_set(x, family))
-        n_cves_corrs.append(df_sar[family].corr(df_sar.n_cves))
-        worst_cve_corrs.append(df_sar[family].corr(df_sar.worst_cve_score))
-        avg_cve_corrs.append(df_sar[family].corr(df_sar.avg_cve_score))
+
+        n_cves_corr, n_cves_pvalue = spearmanr(df_sar[family], df_sar.n_cves)
+        n_cves_corrs.append(n_cves_corr)
+        n_cves_pvalues.append(n_cves_pvalue)
+
+        worst_cve_corr, worst_cve_pvalue = spearmanr(df_sar[family], df_sar.worst_cve_score)
+        worst_cve_corrs.append(worst_cve_corr)
+        worst_cve_pvalues.append(worst_cve_pvalue)
+
+        avg_cve_corr, avg_cve_pvalue = spearmanr(df_sar[family], df_sar.avg_cve_score)
+        avg_cve_corrs.append(avg_cve_corr)
+        avg_cve_pvalues.append(avg_cve_pvalue)
+
         supports.append(df_sar.loc[~df_sar[family].isnull()].shape[0])
+
     df_sar = df_sar.copy()
 
-    tuples = list(zip(n_cves_corrs, worst_cve_corrs, avg_cve_corrs, supports))
+    tuples = list(
+        zip(n_cves_corrs, n_cves_pvalues, worst_cve_corrs, worst_cve_pvalues, avg_cve_corrs, avg_cve_pvalues, supports)
+    )
     dct = {family: correlations for family, correlations in zip(["eal"] + families, tuples)}
     df_corr = pd.DataFrame.from_dict(
-        dct, orient="index", columns=["n_cves_corr", "worst_cve_score_corr", "avg_cve_score_corr", "support"]
+        dct,
+        orient="index",
+        columns=[
+            "n_cves_corr",
+            "n_cves_pvalue",
+            "worst_cve_score_corr",
+            "worst_cve_pvalue",
+            "avg_cve_score_corr",
+            "avg_cve_pvalue",
+            "support",
+        ],
     )
     df_corr.style.set_caption("Correlations between EAL, SARs and CVEs")
     df_corr = df_corr.sort_values(by="support", ascending=False)
 
     if filter_nans:
-        df_corr = df_corr.dropna(how="all", subset=["n_cves_corr", "worst_cve_score_corr", "avg_cve_score_corr"])
+        df_corr = df_corr.dropna(how="any", subset=["n_cves_corr", "worst_cve_score_corr", "avg_cve_score_corr"])
 
     if output_path:
         df_corr.to_csv(output_path)
@@ -198,18 +241,64 @@ def compute_cve_correlations(
 
 def find_earliest_maintenance_after_cve(row):
     "Given dataframe row, will return first maintenance date succeeding first published CVE related to a certificate if exists, else np.nan"
-    if isinstance(row["earliest_cve"], float):
-        return np.nan
-    maintenances_after_cve = list(filter(lambda x: x > row["earliest_cve"], row["maintenance_dates"]))
+    maintenances_after_cve = [x for x in row["maintenance_dates"] if x > row["earliest_cve"]]
     return min(maintenances_after_cve) if maintenances_after_cve else np.nan
 
 
-def expand_cc_df_with_cve_cols(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
+def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
+    """
+    Filters the column `related_cves` in `cc_df` DataFrame to CVEs that were published within validity period of the
+    studied certificate.
+    """
+
+    def filter_cves(
+        cve_dset: CVEDataset, cves: Set[str], not_valid_before: pd.Timestamp, not_valid_after: pd.Timestamp
+    ) -> Union[Set[str], float]:
+
+        # Mypy is complaining, but the Optional date is resolved at the beginning of the and condition
+        result: Set[str] = {
+            x
+            for x in cves
+            if cve_dset[x].published_date
+            and not_valid_before < pd.Timestamp(cve_dset[x].published_date.date())  # type: ignore
+            and not_valid_after > pd.Timestamp(cve_dset[x].published_date.date())  # type: ignore
+        }
+
+        return result if result else np.nan
+
+    if (
+        cc_df.loc[
+            (cc_df.related_cves.notnull()) & ((cc_df.not_valid_before.isna()) | (cc_df.not_valid_after.isna()))
+        ].shape[0]
+        > 0
+    ):
+        raise ValueError(
+            "Cannot filter CVEs on certificates that have NaNs in not_valid_after or not_valid_before fields."
+        )
+
+    cc_df["related_cves"] = cc_df.apply(
+        lambda row: filter_cves(cve_dset, row["related_cves"], row["not_valid_before"], row["not_valid_after"])
+        if not pd.isna(row["related_cves"])
+        else row["related_cves"],
+        axis=1,
+    )
+
+    return cc_df
+
+
+def expand_cc_df_with_cve_cols(
+    cc_df: pd.DataFrame, cve_dset: CVEDataset, filter_to_cves_in_validity_period: bool = False
+) -> pd.DataFrame:
     df = cc_df.copy()
+
+    if filter_to_cves_in_validity_period:
+        df = filter_to_cves_within_validity_period(cc_df, cve_dset)
+
     df["n_cves"] = df.related_cves.map(lambda x: len(x) if x is not np.nan else 0)
     df["cve_published_dates"] = df.related_cves.map(
         lambda x: [cve_dset[y].published_date.date() for y in x] if x is not np.nan else np.nan  # type: ignore
     )
+
     df["earliest_cve"] = df.cve_published_dates.map(lambda x: min(x) if isinstance(x, list) else np.nan)
     df["worst_cve_score"] = df.related_cves.map(
         lambda x: max([cve_dset[cve].impact.base_score for cve in x]) if x is not np.nan else np.nan
@@ -399,16 +488,13 @@ def get_top_n_cwes(
     return top_n
 
 
-def compute_maintenances_that_should_fix_vulns(df: pd.DataFrame) -> pd.DataFrame:
+def compute_maintenances_that_come_after_vulns(df: pd.DataFrame) -> pd.DataFrame:
     """
     Given pre-processed CCDataset DataFrame (expanded with MU & CVE cols), computes time to fix CVE and earliest CVE after some vuln.
     """
     df_fixed = df.loc[(df.n_cves > 0) & (df.n_maintenances > 0)].copy()
-    df_fixed.maintenance_dates = df_fixed.maintenance_dates.map(
-        lambda x: [y.date() for y in x] if not isinstance(x, float) else x
-    )
-    df_fixed.loc[:, "earliest_maintenance"] = df_fixed.apply(find_earliest_maintenance_after_cve, axis=1)
-    df_fixed.loc[:, "time_to_fix_cve"] = df_fixed.earliest_maintenance - df_fixed.earliest_cve
+    df_fixed.maintenance_dates = df_fixed.maintenance_dates.map(lambda x: [y.date() for y in x])
+    df_fixed.loc[:, "earliest_maintenance_after_vuln"] = df_fixed.apply(find_earliest_maintenance_after_cve, axis=1)
     df_fixed.index.name = "dgst"
     return df_fixed
 
@@ -418,12 +504,12 @@ def move_fixing_mu_to_directory(
 ) -> pd.DataFrame:
     """
     Localizes reports of maintenance updates that should fix some vulnerability and copies them into a directory.
-    df_fixed should be the output of compute_maintenances_that_should_fix_vulns method.
+    df_fixed should be the output of compute_maintenances_that_come_after_vulns method.
     """
     fixed_df_index = (
-        df_fixed.loc[~df_fixed.earliest_maintenance.isnull()]
+        df_fixed.loc[~df_fixed.earliest_maintenance_after_vuln.isnull()]
         .reset_index()
-        .set_index(["dgst", "earliest_maintenance"])
+        .set_index(["dgst", "earliest_maintenance_after_vuln"])
         .index.to_flat_index()
     )
     main_df.maintenance_date = main_df.maintenance_date.map(lambda x: x.date())
