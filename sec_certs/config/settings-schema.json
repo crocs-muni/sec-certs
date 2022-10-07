@@ -137,6 +137,9 @@
         "cc_maintenances_latest_snapshot": {
             "$ref": "#/definitions/settings_url_entry"
         },
+        "pp_latest_snapshot": {
+            "$ref": "#/definitions/settings_url_entry"
+        },
         "ignore_first_page": {
             "$ref": "#/definitions/settings_boolean_entry"
         },
@@ -170,6 +173,7 @@
         "cpe_n_max_matches",
         "cc_latest_snapshot",
         "cc_maintenances_latest_snapshot",
+        "pp_latest_snapshot",
         "ignore_first_page",
         "cert_threshold",
         "fips_latest_snapshot",
