@@ -1,10 +1,26 @@
 import itertools
 import json
 import logging
+import re
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Collection, Dict, Generic, Iterator, List, Optional, Set, Tuple, Type, TypeVar, Union, cast
+from typing import (
+    Any,
+    Collection,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import requests
 
@@ -197,6 +213,12 @@ class Dataset(Generic[CertSubType], ABC):
     def compute_cpe_heuristics(
         self, download_fresh_cpes: bool = False
     ) -> Tuple[CPEClassifier, CPEDataset, Optional[CVEDataset]]:
+        RELEASE_CANDIDATE_REGEX: Pattern = re.compile(r"rc\d{0,2}$", re.IGNORECASE)
+        WINDOWS_WEAK_CPES: Set[CPE] = {
+            CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64", None, None),
+            CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86", None, None),
+        }
+
         def filter_condition(cpe: CPE) -> bool:
             """
             Filters out very weak CPE matches that don't improve our database.
@@ -213,6 +235,10 @@ class Dataset(Generic[CertSubType], ABC):
                 and (cpe.version == "-" or cpe.version == "*")
                 and not any(char.isdigit() for char in cpe.item_name)
             ):
+                return False
+            elif re.match(RELEASE_CANDIDATE_REGEX, cpe.update):
+                return False
+            elif cpe in WINDOWS_WEAK_CPES:
                 return False
             return True
 
@@ -259,20 +285,28 @@ class Dataset(Generic[CertSubType], ABC):
             json.dump(lst, handle, indent=4)
 
     @serialize
-    def load_label_studio_labels(self, input_path: Union[str, Path]) -> None:
+    def load_label_studio_labels(self, input_path: Union[str, Path]) -> Set[str]:
         with Path(input_path).open("r") as handle:
             data = json.load(handle)
 
         cpe_dset = self._prepare_cpe_dataset()
+        labeled_cert_digests: Set[str] = set()
 
         logger.info("Translating label studio matches into their CPE representations and assigning to certificates.")
-        for annotation in helpers.tqdm(
-            [x for x in data if "verified_cpe_match" in x], desc="Translating label studio matches"
-        ):
-            match_keys = annotation["verified_cpe_match"]
-            match_keys = [match_keys] if isinstance(match_keys, str) else match_keys["choices"]
-            match_keys = [x.lstrip("$") for x in match_keys]
-            predicted_annotations = [annotation[x] for x in match_keys if annotation[x] != "No good match"]
+        for annotation in helpers.tqdm(data, desc="Translating label studio matches"):
+            cpe_candidate_keys = {
+                key for key in annotation.keys() if "option_" in key and annotation[key] != "No good match"
+            }
+
+            if "verified_cpe_match" not in annotation:
+                incorrect_keys: Set[str] = set()
+            elif isinstance(annotation["verified_cpe_match"], str):
+                incorrect_keys = {annotation["verified_cpe_match"]}
+            else:
+                incorrect_keys = set(annotation["verified_cpe_match"]["choices"])
+
+            incorrect_keys = {x.lstrip("$") for x in incorrect_keys}
+            predicted_annotations = {annotation[x] for x in cpe_candidate_keys - incorrect_keys}
 
             cpes: Set[CPE] = set()
             for x in predicted_annotations:
@@ -292,9 +326,12 @@ class Dataset(Generic[CertSubType], ABC):
                 cert_name = annotation["text"]
 
             certs = self._get_certs_from_name(cert_name)
+            labeled_cert_digests.update({x.dgst for x in certs})
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = {x.uri for x in cpes if x is not None} if cpes else None
+
+        return labeled_cert_digests
 
     def _get_certs_from_name(self, name: str) -> List[CertSubType]:
         raise NotImplementedError("Not meant to be implemented by the base class.")
