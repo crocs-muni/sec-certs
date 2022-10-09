@@ -82,7 +82,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     def target_hw(self) -> str:
         if self.uri is None:
             raise RuntimeError("URI is missing.")
-        return " ".join(self.uri.split(":")[11].split("_"))
+        return " ".join(self.uri.split(":")[10].split("_"))
 
     @property
     def pandas_tuple(self) -> Tuple:
