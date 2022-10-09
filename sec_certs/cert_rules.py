@@ -185,6 +185,17 @@ REGEXEC_SEP_START = f"(?:^|{REGEXEC_SEP})"
 REGEXEC_SEP_END = f"(?:$|{REGEXEC_SEP})"
 
 
+SERVICE_PACK_RE = re.compile(r"(?:sp|service pack)\s{0,1}\d{1,2}", re.IGNORECASE)
+RELEASE_RE = re.compile(r"(?:r|release)\s{0,1}\d{1,2}", re.IGNORECASE)
+PLATFORM_REGEXES = {
+    "linux": re.compile(r"linux", re.IGNORECASE),
+    "mac_os": re.compile(r"mac\s?os\s?x?", re.IGNORECASE),
+    "windows": re.compile(r"windows", re.IGNORECASE),
+    "android": re.compile(r"android", re.IGNORECASE),
+    "ios": re.compile(r"(ios|iphone os)", re.IGNORECASE),
+}
+
+
 def _load():
     script_dir = Path(__file__).parent
     filepath = script_dir / "rules.yaml"
