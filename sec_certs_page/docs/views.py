@@ -3,6 +3,7 @@ import zipfile
 from pathlib import Path
 
 from flask import abort, current_app, request, send_file
+from redis.exceptions import LockNotOwnedError
 from werkzeug.utils import safe_join
 
 from .. import csrf, redis, sitemap
@@ -17,7 +18,7 @@ def upload_docs():
     if request.args["token"] != current_app.config["DOCS_AUTH_TOKEN"]:
         return abort(403)
 
-    lock = redis.lock("upload_docs", sleep=0.1, timeout=10)
+    lock = redis.lock("upload_docs", sleep=0.1, timeout=20)
     lock.acquire()
     try:
         docs_dir = Path(current_app.instance_path) / "docs"
@@ -26,7 +27,11 @@ def upload_docs():
         with zipfile.ZipFile(request.files["data"], "r") as z:
             z.extractall(docs_dir)
     finally:
-        lock.release()
+        try:
+            lock.release()
+        except LockNotOwnedError:
+            # We lost the lock in the meantime but no biggie
+            pass
     return "Docs uploaded correctly"
 
 
