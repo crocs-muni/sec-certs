@@ -138,3 +138,9 @@ CCEVS-VR-03-0044,814a2ac0aeae08b1,tp,CCEVS-VR-03-0044,clone,
 CCEVS-VR-03-0044,02a31d0ed42e4ff1,tp,CCEVS-VR-03-0044,clone,
 ANSSI-CC-2018/56,6df8f86449e56c05,tp,ANSSI-CC-2018/56,,
 ANSSI-CC-2018/56,c5e25f90c7006546,fp,ANSSI-CC-2018/56v2,number of mentions of component certificate higher than actual,frontpage match
+ANSSI-CC-2020/42,dcb259767b98f381,tp,ANSSI-CC-2020/42,,
+ANSSI-CC-2020/42,4c017087976d05eb,fp,ANSSI-CC-2020/49,number of mentions of component certificate higher than actual,frontpage match
+ANSSI-CC-2021/34,60f31793e1e5f4e1,tp,ANSSI-CC-2021/34,,
+ANSSI-CC-2021/34,3cbdd57de3f32ad0,fp,ANSSI-CC-2021/34-R01,number of mentions of component certificate higher than actual,frontpage match
+ANSSI-CC-2021/29,6ed3cd21c6a2c9d0,tp,ANSSI-CC-2021/29,,
+ANSSI-CC-2021/29,e34879f5664b1908,fp,ANSSI-CC-2021/36,number of mentions of component certificate higher than actual,frontpage match
