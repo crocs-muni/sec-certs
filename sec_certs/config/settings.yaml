@@ -22,11 +22,14 @@ cpe_n_max_matches:
   description: Maximum number of candidate CPE items that may be related to given certificate, >0
   value: 100
 cc_latest_snapshot:
-  description: Url from where to fetch the latest snapshot of fully processed CC dataset
+  description: URL from where to fetch the latest snapshot of fully processed CC dataset
   value: https://seccerts.org/cc/dataset.json
 cc_maintenances_latest_snapshot:
-  description: Url from where to fetch the latest snapshot of CC maintenance updates
+  description: URL from where to fetch the latest snapshot of CC maintenance updates
   value: https://seccerts.org/cc/maintenance_updates.json
+pp_latest_snapshot:
+  description: URL from where to fetch the latest snapshot of the PP dataset
+  value: https://seccerts.org/static/pp.json
 ignore_first_page:
   description: During keyword search, first page usually contains addresses - ignore it.
   value: true
@@ -34,7 +37,7 @@ cert_threshold:
   description: Used with --higher-precision-results. Determines the amount of mismatched algorithms to be considered faulty.
   value: 5
 fips_latest_snapshot:
-  description: Url for the latest snapshot of FIPS dataset
+  description: URL for the latest snapshot of FIPS dataset
   value: https://seccerts.org/fips/dataset.json
 minimal_token_length:
   description: Minimal length of a string that will be considered as a token during keyword extraction in CVE matching

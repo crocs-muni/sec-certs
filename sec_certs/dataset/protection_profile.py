@@ -3,9 +3,10 @@ import logging
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar, Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import sec_certs.utils.helpers as helpers
+from sec_certs.config.configuration import config
 from sec_certs.sample.protection_profile import ProtectionProfile
 
 logger = logging.getLogger(__name__)
@@ -13,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ProtectionProfileDataset:
-    static_dataset_url: ClassVar[str] = "https://ajanovsky.cz/pp_data_complete_processed.json"
-
     pps: Dict[Tuple[str, Optional[str]], ProtectionProfile]
 
     def __iter__(self):
@@ -48,12 +47,13 @@ class ProtectionProfileDataset:
 
     @classmethod
     def from_web(cls, store_dataset_path: Optional[Path] = None):
-        logger.info(f"Downloading static PP dataset from: {cls.static_dataset_url}")
+
+        logger.info(f"Downloading static PP dataset from: {config.pp_latest_snapshot}")
         if not store_dataset_path:
             tmp = tempfile.TemporaryDirectory()
             store_dataset_path = Path(tmp.name) / "pp_dataset.json"
 
-        helpers.download_file(cls.static_dataset_url, store_dataset_path)
+        helpers.download_file(config.pp_latest_snapshot, store_dataset_path)
         obj = cls.from_json(store_dataset_path)
 
         if not store_dataset_path:
