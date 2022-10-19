@@ -383,6 +383,12 @@ def mip_snapshot_json(id):
     return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
 
 
+@fips.route("/mip/latest.json")
+def mip_snapshot_latest_json():
+    snapshot = list(mongo.db.fips_mip.find({}).sort([("timestamp", pymongo.DESCENDING)]).limit(1))[0]
+    return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
+
+
 @fips.route("/mip/entry/<path:name>")
 @register_breadcrumb(
     fips,
@@ -457,6 +463,12 @@ def iut_snapshot(id):
 @fips.route("/iut/<ObjectId:id>.json")
 def iut_snapshot_json(id):
     snapshot = mongo.db.fips_iut.find_one_or_404({"_id": id}, {"_id": 0})
+    return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
+
+
+@fips.route("/iut/latest.json")
+def iut_snapshot_latest_json():
+    snapshot = list(mongo.db.fips_iut.find({}).sort([("timestamp", pymongo.DESCENDING)]).limit(1))[0]
     return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
 
 
