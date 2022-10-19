@@ -15,6 +15,10 @@ class TestFIPSMIP(TestCase):
         self.assertIsNotNone(dset)
         self.assertEqual(len(dset), 3)
 
+    def test_from_dataset_latest(self):
+        dset = MIPDataset.from_web_latest()
+        self.assertIsNotNone(dset)
+
     def test_from_dump(self):
         snap = MIPSnapshot.from_dump(self.test_data_dump)
         self.assertIsNotNone(snap)

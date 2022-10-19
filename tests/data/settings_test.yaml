@@ -39,9 +39,15 @@ cert_threshold:
 fips_latest_snapshot:
   description: URL for the latest snapshot of FIPS dataset
   value: https://seccerts.org/fips/dataset.json
+fips_iut_dataset:
+  description: URL for the dataset of FIPS IUT data
+  value: https://seccerts.org/fips/iut/dataset.json
 fips_iut_latest_snapshot:
   description: URL for the latest snapshot of FIPS IUT data
   value: https://seccerts.org/fips/iut/latest.json
+fips_mip_dataset:
+  description: URL for the dataset of FIPS MIP data
+  value: https://seccerts.org/fips/mip/dataset.json
 fips_mip_latest_snapshot:
   description: URL for the latest snapshot of FIPS MIP data
   value: https://seccerts.org/fips/mip/latest.json

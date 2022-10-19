@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Dict, Iterator, List, Mapping, Union
 
+import requests
+
+from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import logger
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.serialization.json import ComplexSerializableType
@@ -39,3 +43,15 @@ class IUTDataset(ComplexSerializableType):
     @classmethod
     def from_dict(cls, dct: Mapping) -> "IUTDataset":
         return cls(dct["snapshots"])
+
+    @classmethod
+    def from_web_latest(cls) -> "IUTDataset":
+        """
+        Get the IUTDataset from seccerts.org
+        """
+        iut_resp = requests.get(config.fips_mip_dataset)
+        if iut_resp.status_code != 200:
+            raise ValueError(f"Getting IUT dataset failed: {iut_resp.status_code}")
+        with NamedTemporaryFile() as tmpfile:
+            tmpfile.write(iut_resp.content)
+            return cls.from_json(tmpfile.name)

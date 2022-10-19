@@ -15,6 +15,10 @@ class TestFIPSIUT(TestCase):
         self.assertIsNotNone(dset)
         self.assertEqual(len(dset), 2)
 
+    def test_from_dataset_latest(self):
+        dset = IUTDataset.from_web_latest()
+        self.assertIsNotNone(dset)
+
     def test_from_dump(self):
         snap = IUTSnapshot.from_dump(self.test_data_dump)
         self.assertIsNotNone(snap)
