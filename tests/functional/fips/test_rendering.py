@@ -141,6 +141,8 @@ def test_entry_graph(client: FlaskClient):
 def test_mip(client: FlaskClient):
     resp = client.get("/fips/mip/")
     assert resp.status_code == 200
+    resp = client.get("/fips/mip/dataset.json")
+    assert resp.status_code == 200
     resp = client.get("/fips/mip/61f891ae309360b0d79d54ce")
     assert resp.status_code == 200
     resp = client.get("/fips/mip/61f891ae309360b0d79d54ce.json")
@@ -154,6 +156,8 @@ def test_mip(client: FlaskClient):
 @pytest.mark.remote
 def test_iut(client: FlaskClient):
     resp = client.get("/fips/iut/")
+    assert resp.status_code == 200
+    resp = client.get("/fips/iut/dataset.json")
     assert resp.status_code == 200
     resp = client.get("/fips/iut/61f891ad4790725e9e9d4578")
     assert resp.status_code == 200

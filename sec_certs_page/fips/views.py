@@ -365,6 +365,14 @@ def mip_index():
     return render_template("fips/mip/mip_index.html.jinja2", snapshots=mip_snapshots, pagination=pagination)
 
 
+@fips.route("/mip/dataset.json")
+def mip_dataset():
+    mip_snapshots = list(mongo.db.fips_mip.find({}).sort([("timestamp", pymongo.DESCENDING)]))
+    return send_json_attachment(
+        {"snapshots": [StorageFormat(snapshot).to_json_mapping() for snapshot in mip_snapshots]}
+    )
+
+
 @fips.route("/mip/<ObjectId:id>")
 @register_breadcrumb(
     fips,
@@ -446,6 +454,14 @@ def iut_index():
         alignment="center",
     )
     return render_template("fips/iut/iut_index.html.jinja2", snapshots=iut_snapshots, pagination=pagination)
+
+
+@fips.route("/iut/dataset.json")
+def iut_dataset():
+    iut_snapshots = list(mongo.db.fips_iut.find({}).sort([("timestamp", pymongo.DESCENDING)]))
+    return send_json_attachment(
+        {"snapshots": [StorageFormat(snapshot).to_json_mapping() for snapshot in iut_snapshots]}
+    )
 
 
 @fips.route("/iut/<ObjectId:id>")
