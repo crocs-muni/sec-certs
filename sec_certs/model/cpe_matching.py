@@ -2,14 +2,14 @@ import itertools
 import logging
 import operator
 import re
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Pattern, Set, Tuple
 
 import spacy
 from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
 import sec_certs.utils.helpers as helpers
-from sec_certs import constants
+from sec_certs import cert_rules, constants
 from sec_certs.sample.cpe import CPE
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ class CPEClassifier(BaseEstimator):
         relax_title: bool = False,
     ) -> Optional[Set[str]]:
         """
-        Predict List of CPE uris for triplet (vendor, product_name, list_of_version). The prediction is made as follows:
+        Predict List of CPE uris for triplet (vendor, product_name, list_of_versions). The prediction is made as follows:
         1. Sanitize vendor name, lemmatize product name.
         2. Find vendors in CPE dataset that are related to the certificate
         3. Based on (vendors, versions) find all CPE items that are considered as candidates for match
@@ -107,11 +107,17 @@ class CPEClassifier(BaseEstimator):
         :param bool relax_title: See step 7 above, defaults to False
         :return Optional[Set[str]]: Set of matching CPE uris, None if no matches found
         """
+
+        if "Active Directory Federation Services 2.0" in product_name:
+            print("geee")
+
         lemmatized_product_name = self._lemmatize_product_name(product_name)
         candidate_vendors = self._get_candidate_list_of_vendors(
             CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
         )
         candidates = self._get_candidate_cpe_matches(candidate_vendors, versions)
+        candidates = self._filter_candidates_by_platform(candidates, product_name)
+        candidates = self._filter_candidates_by_update(candidates, lemmatized_product_name)
 
         ratings = [
             self._compute_best_match(cpe, lemmatized_product_name, candidate_vendors, versions, relax_title=relax_title)
@@ -135,6 +141,54 @@ class CPEClassifier(BaseEstimator):
             )
 
         return final_matches if final_matches else None
+
+    def _filter_candidates_by_update(self, cpes: List[CPE], cert_title: str) -> List[CPE]:
+        """
+        Update means `service pack` or `release`.
+        """
+
+        def filter_condition(regex: Pattern, cpe: CPE, min_value: int, soft: bool = True):
+            if matches := re.findall(regex, cpe.update):
+                return int(re.findall(r"\d+", matches[0])[0]) >= min_value
+            return True if soft else False
+
+        update_regexes = [cert_rules.SERVICE_PACK_RE, cert_rules.RELEASE_RE]
+
+        for update_regex in update_regexes:
+            if matches := re.findall(update_regex, cert_title):
+                min_value = min([int(re.findall(r"\d+", x)[0]) for x in matches])
+                soft = False if any((re.search(update_regex, cpe.update + str(cpe.title)) for cpe in cpes)) else True
+                return [x for x in cpes if filter_condition(update_regex, x, min_value, soft)]
+
+        return cpes
+
+    def _filter_candidates_by_platform(self, cpes: List[CPE], cert_title: str) -> List[CPE]:
+        def filter_condition(cpe: CPE, cert_platforms: Set[str]):
+            if not cert_platforms and cpe.target_hw == "*":
+                return True
+            if cert_platforms and cpe.target_hw == "*":
+                return any((re.search(cert_rules.PLATFORM_REGEXES[x], str(cpe.title)) for x in cert_platforms))
+            if not cert_platforms and cpe.target_hw != "*":
+                return False
+            if cert_platforms and cpe.target_hw != "*":
+                target_hw_platforms = [
+                    platform
+                    for platform, regex in cert_rules.PLATFORM_REGEXES.items()
+                    if re.search(regex, cpe.target_hw)
+                ]
+                assert len(target_hw_platforms) <= 1
+                can_return_true = any(
+                    (re.search(cert_rules.PLATFORM_REGEXES[x], cpe.target_hw + str(cpe.title)) for x in cert_platforms)
+                )
+                if not target_hw_platforms:
+                    return can_return_true
+                else:
+                    return can_return_true and target_hw_platforms[0] in cert_platforms
+
+        crt_platforms = {
+            platform for platform, regex in cert_rules.PLATFORM_REGEXES.items() if re.search(regex, cert_title)
+        }
+        return [x for x in cpes if filter_condition(x, crt_platforms)]
 
     def _compute_best_match(
         self,
@@ -170,27 +224,43 @@ class CPEClassifier(BaseEstimator):
             else:
                 return 0
 
+        # Sometimes, sanitization shortens CPE title to very short length. E.g., CPEs in Japanese unicode symbols that get all deteled.
+        if len(sanitized_title) < 5:
+            return 0
+
         sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
-        cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
+        sanitized_cpe_stripped_manufacturer = re.sub(r"\b" + rf"{cpe.vendor}" + r"\b", "", sanitized_title)
         standard_version_product_name = self._standardize_version_in_cert_name(product_name, versions)
 
+        # The expression below is currently unused, it could assist with some matches though
+        # cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
+
+        # On some ratings, we require 100 match regardless of the treshold in settings.
         ratings = [
             fuzz.token_set_ratio(product_name, sanitized_title),
             fuzz.token_set_ratio(standard_version_product_name, sanitized_title),
-            fuzz.partial_ratio(product_name, sanitized_title),
-            fuzz.partial_ratio(standard_version_product_name, sanitized_title),
+            fuzz.partial_token_sort_ratio(product_name, sanitized_title, score_cutoff=100),
+            fuzz.partial_token_sort_ratio(standard_version_product_name, sanitized_title, score_cutoff=100),
+            fuzz.partial_ratio(product_name, sanitized_title, score_cutoff=100),
+            fuzz.partial_ratio(standard_version_product_name, sanitized_title, score_cutoff=100),
         ]
 
-        if relax_title:
-            token_set_ratio_on_item_name = fuzz.token_set_ratio(cert_stripped, sanitized_item_name)
-            partial_ratio_on_item_name = fuzz.partial_ratio(cert_stripped, sanitized_item_name)
-            ratings += [token_set_ratio_on_item_name, partial_ratio_on_item_name]
+        # Big-IP has dumb CPEs that contain only that string in item name, which leads to false positives.
+        if relax_title and cpe.item_name != "big-ip":
+            ratings += [
+                fuzz.token_set_ratio(product_name, sanitized_cpe_stripped_manufacturer, score_cutoff=100),
+                fuzz.partial_ratio(product_name, sanitized_cpe_stripped_manufacturer, score_cutoff=100),
+                fuzz.token_set_ratio(product_name, sanitized_item_name, score_cutoff=100),
+                fuzz.partial_ratio(product_name, sanitized_item_name, score_cutoff=100),
+            ]
 
         return max(ratings)
 
     @staticmethod
     def _fully_sanitize_string(string: str) -> str:
-        return CPEClassifier._replace_special_chars_with_space(CPEClassifier._discard_trademark_symbols(string.lower()))
+        return CPEClassifier._replace_special_chars_with_space(
+            CPEClassifier._discard_trademark_symbols(string.lower())
+        ).strip()
 
     @staticmethod
     def _replace_special_chars_with_space(string: str) -> str:
@@ -204,14 +274,14 @@ class CPEClassifier(BaseEstimator):
     def _strip_manufacturer_and_version(string: str, manufacturers: Optional[Set[str]], versions: Set[str]) -> str:
         to_strip = versions | manufacturers if manufacturers else versions
         for x in to_strip:
-            string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), "").strip()
+            string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), " ").strip()
         return string
 
     @staticmethod
     def _standardize_version_in_cert_name(string: str, detected_versions: Set[str]) -> str:
         for ver in detected_versions:
             version_regex = r"(" + r"(\bversion)\s*" + ver + r"+) | (\bv\s*" + ver + r"+)"
-            string = re.sub(version_regex, " " + ver, string, flags=re.IGNORECASE)
+            string = re.sub(version_regex, " " + ver + " ", string, flags=re.IGNORECASE)
         return string
 
     def _process_manufacturer(self, manufacturer: str, result: Set) -> Set[str]:
@@ -287,10 +357,19 @@ class CPEClassifier(BaseEstimator):
             if not cpe_version:
                 return False
             just_numbers = r"(\d{1,5})(\.\d{1,5})"  # TODO: The use of this should be double-checked
+
+            # This assures that on cert version with at least two tokens, we don't match only one-token CPE.
+            # E.g. cert with version 7.6 must not match CPE record of version 7
+            if len(cert_versions) == 1 and len(list(cert_versions)[0]) >= 3 and len(cpe_version) < 3:
+                return False
+
+            # Except from startswith stuff, this also mandates that for long enough cert vesions (e.g. `3.1`) we do not
+            # match too short CPE versions, e.g. `3`
             for v in cert_versions:
-                if (simple_startswith(v, cpe_version) and re.search(just_numbers, cpe_version)) or simple_startswith(
-                    cpe_version, v
-                ):
+                if (
+                    (simple_startswith(v, cpe_version) and re.search(just_numbers, cpe_version))
+                    or simple_startswith(cpe_version, v)
+                ) and (len(v) < 3 or len(cpe_version) >= 3):
                     return True
             return False
 

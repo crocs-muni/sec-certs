@@ -24,12 +24,10 @@ def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
     for true, pred in zip(y, y_pred):
         set_pred = set(pred) if pred else set()
         set_true = set(true) if true else set()
-        if set_pred and not set_true:
-            prec.append(0.0)
-        elif not set_pred and not set_true:
-            prec.append(1.0)
+        if not set_pred and not set_true:
+            pass
         else:
-            prec.append(len(set_true.intersection(set_pred)) / len(set_true))
+            prec.append(len(set_true) / len(set_true.union(set_pred)))
     return np.mean(prec)  # type: ignore
 
 
@@ -44,8 +42,9 @@ def evaluate(
 
     correctly_classified = []
     badly_classified = []
-    n_new_certs_with_match = 0
-    n_newly_identified = 0
+    n_cpes_lost = 0
+    n_certs_has_lost_cpes = 0
+    n_certs_lost = 0
 
     for cert, predicted_cpes, verified_cpes in zip(x_valid, y_pred, y_valid):
         if not verified_cpes:
@@ -58,32 +57,42 @@ def evaluate(
 
         cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_data.module_name
         vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_data.vendor
+
+        should_be_removed = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes - verified_cpes}
+        should_be_added = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes - predicted_cpes}
+
         record = {
             "certificate_name": cert_name,
             "vendor": vendor,
             "heuristic version": helpers.compute_heuristics_version(cert_name) if cert_name else None,
             "predicted_cpes": predicted_cpes_dict,
             "manually_assigned_cpes": verified_cpes_dict,
+            "should_be_removed": should_be_removed,
+            "should_be_added": should_be_added,
         }
 
-        if verified_cpes.issubset(predicted_cpes):
+        if not predicted_cpes and verified_cpes:
+            n_certs_lost += 1
+
+        if predicted_cpes.issubset(verified_cpes):
             correctly_classified.append(record)
         else:
             badly_classified.append(record)
 
-        if not verified_cpes and predicted_cpes:
-            n_new_certs_with_match += 1
-        n_newly_identified += len(predicted_cpes - verified_cpes)
+        if should_be_added:
+            n_certs_has_lost_cpes += 1
+            n_cpes_lost += len(should_be_added)
 
     results = {
         "Precision": precision,
-        "n_new_certs_with_match": n_new_certs_with_match,
-        "n_newly_identified": n_newly_identified,
+        "n_cpes_lost": n_cpes_lost,
+        "n_certs_has_lost_cpes": n_certs_has_lost_cpes,
+        "n_certs_lost": n_certs_lost,
         "correctly_classified": correctly_classified,
         "badly_classified": badly_classified,
     }
     logger.info(
-        f"While keeping precision: {precision}, the classifier identified {n_newly_identified} new CPE matches (Found match for {n_new_certs_with_match} certificates that were previously unmatched) compared to baseline."
+        f"Precision: {precision}; the classifier now misses {n_cpes_lost} CPE matches from {n_certs_has_lost_cpes} certificates ({n_certs_lost} certificates no longer have a match). In total, {sum([len(x) for x in y_pred if x])} CPEs were matched in {len(y_pred)} certs."
     )
 
     if outpath:
