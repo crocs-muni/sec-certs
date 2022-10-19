@@ -349,7 +349,7 @@ def mip_index():
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
     mip_snapshots = list(
-        mongo.db.fips_mip.find({}).sort([("_id", pymongo.DESCENDING)]).skip((page - 1) * per_page).limit(per_page)
+        mongo.db.fips_mip.find({}).sort([("timestamp", pymongo.DESCENDING)]).skip((page - 1) * per_page).limit(per_page)
     )
     count = mongo.db.fips_mip.count_documents({})
 
@@ -420,7 +420,7 @@ def iut_index():
 
     per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
     iut_snapshots = list(
-        mongo.db.fips_iut.find({}).sort([("_id", pymongo.DESCENDING)]).skip((page - 1) * per_page).limit(per_page)
+        mongo.db.fips_iut.find({}).sort([("timestamp", pymongo.DESCENDING)]).skip((page - 1) * per_page).limit(per_page)
     )
     count = mongo.db.fips_iut.count_documents({})
 
