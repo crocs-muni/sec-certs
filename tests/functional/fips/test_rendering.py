@@ -143,6 +143,8 @@ def test_mip(client: FlaskClient):
     assert resp.status_code == 200
     resp = client.get("/fips/mip/61f891ae309360b0d79d54ce")
     assert resp.status_code == 200
+    resp = client.get("/fips/mip/61f891ae309360b0d79d54ce.json")
+    assert resp.status_code == 200
     resp = client.get("/fips/mip/entry/BoringCrypto")
     assert resp.status_code == 200
 
@@ -152,6 +154,8 @@ def test_iut(client: FlaskClient):
     resp = client.get("/fips/iut/")
     assert resp.status_code == 200
     resp = client.get("/fips/iut/61f891ad4790725e9e9d4578")
+    assert resp.status_code == 200
+    resp = client.get("/fips/iut/61f891ad4790725e9e9d4578.json")
     assert resp.status_code == 200
     resp = client.get("/fips/iut/entry/CryptoComply")
     assert resp.status_code == 200

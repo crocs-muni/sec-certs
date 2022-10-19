@@ -10,6 +10,8 @@
                     Snapshot taken on {{ snapshot["timestamp"]|fromisoformat|strftime("%d.%m.%Y %H:%M") }} with a last
                     updated date of {{ snapshot["last_updated"]|fromisoformat|strftime("%d.%m.%Y") }}, containing a
                     total of {{ snapshot["total"] }} entries ({{ snapshot["displayed"] }} displayed, {{ snapshot["not_displayed"] }} not).
+                    <br/>
+                    <a class="btn btn-primary mt-2" href="{{ url_for("fips.mip_snapshot_json", id=snapshot["_id"]) }}" title="Download"><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
             <div class="row my-5">

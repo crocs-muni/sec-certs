@@ -377,6 +377,12 @@ def mip_snapshot(id):
     return render_template("fips/mip/mip.html.jinja2", snapshot=snapshot)
 
 
+@fips.route("/mip/<ObjectId:id>.json")
+def mip_snapshot_json(id):
+    snapshot = mongo.db.fips_mip.find_one_or_404({"_id": id}, {"_id": 0})
+    return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
+
+
 @fips.route("/mip/entry/<path:name>")
 @register_breadcrumb(
     fips,
@@ -446,6 +452,12 @@ def iut_index():
 def iut_snapshot(id):
     snapshot = mongo.db.fips_iut.find_one_or_404({"_id": id})
     return render_template("fips/iut/iut.html.jinja2", snapshot=snapshot)
+
+
+@fips.route("/iut/<ObjectId:id>.json")
+def iut_snapshot_json(id):
+    snapshot = mongo.db.fips_iut.find_one_or_404({"_id": id}, {"_id": 0})
+    return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
 
 
 @fips.route("/iut/entry/<path:name>")

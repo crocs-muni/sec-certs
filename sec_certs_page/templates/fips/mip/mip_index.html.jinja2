@@ -40,7 +40,8 @@
                             <td>{{ snapshot["displayed"] }}</td>
                             <td>{{ snapshot["not_displayed"] }}</td>
                             <td><a class="btn btn-primary"
-                                   href="{{ url_for("fips.mip_snapshot", id=snapshot["_id"]) }}">Go to snapshot</a></td>
+                                   href="{{ url_for("fips.mip_snapshot", id=snapshot["_id"]) }}">Go to snapshot</a>
+                                <a class="btn btn-primary" href="{{ url_for("fips.mip_snapshot_json", id=snapshot["_id"]) }}" title="Download"><i class="fas fa-download"></i></a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
