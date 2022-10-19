@@ -162,6 +162,8 @@ nest-asyncio==1.5.5
     #   jupyter-client
     #   nbclient
     #   notebook
+networkx==2.8.7
+    # via -r requirements.in
 notebook==6.4.12
     # via widgetsnbextension
 numpy==1.22.3

@@ -27,3 +27,4 @@ pkgconfig
 seaborn
 pySankeyBeta
 scipy
+networkx
