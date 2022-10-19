@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import copy
 import re
+from collections import ChainMap
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Pattern, Set, Tuple, Union
+from typing import Any, ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
 
+import numpy as np
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
 from dateutil import parser
@@ -17,7 +19,7 @@ import sec_certs.utils.extract
 import sec_certs.utils.helpers as helpers
 import sec_certs.utils.pdf
 import sec_certs.utils.tables
-from sec_certs.cert_rules import fips_rules
+from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -25,6 +27,7 @@ from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils.helpers import fips_dgst
 
 
@@ -196,13 +199,28 @@ class _FIPSHTMLParser:
         return set_items
 
 
-class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics"], ComplexSerializableType):
+class FIPSCertificate(
+    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics"], PandasSerializableType, ComplexSerializableType
+):
     """
     Data structure for common FIPS 140 certificate. Contains several inner classes that layer the data logic.
     Can be serialized into/from json (`ComplexSerializableType`).
     Is basic element of `FIPSDataset`. The functionality is mostly related to holding data and transformations that
     the certificate can handle itself. `FIPSDataset` class then instrument this functionality.
     """
+
+    pandas_columns: ClassVar[List[str]] = [
+        "dgst",
+        "cert_id",
+        "name",
+        "status",
+        "standard",
+        "type",
+        "level",
+        "embodiment",
+        "date_validation",
+        "date_sunset",
+    ]
 
     @dataclass(eq=True)
     # TODO: Include sp_pdf_hash and sp_txt_hash.
@@ -377,6 +395,34 @@ class FIPSCertificate(Certificate["FIPSCertificate", "FIPSCertificate.Heuristics
         self.pdf_data = pdf_data
         self.heuristics = heuristics
         self.state = state
+
+    @property
+    def pandas_tuple(self) -> Tuple:
+        return (
+            self.dgst,
+            self.cert_id,
+            self.web_data.module_name,
+            self.web_data.status,
+            self.web_data.standard,
+            self.web_data.module_type,
+            self.web_data.level,
+            self.web_data.embodiment,
+            self.web_data.date_validation[0] if self.web_data.date_validation else np.nan,
+            self.web_data.date_sunset,
+        )
+
+    def get_keywords_df_row(self) -> dict[str, float]:
+        """
+        Returns dictionary of sums of matches of keywords in ST. Iterates over all categories
+        """
+        return dict(
+            ChainMap(
+                *[
+                    sec_certs.utils.extract.get_sums_for_rules_subset(self.pdf_data.keywords, cat)
+                    for cat in PANDAS_KEYWORDS_CATEGORIES
+                ]
+            )
+        )
 
     @classmethod
     def from_dict(cls, dct: Dict) -> FIPSCertificate:
