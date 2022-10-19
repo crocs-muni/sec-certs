@@ -26,3 +26,5 @@ spacy
 pkgconfig
 seaborn
 pySankeyBeta
+scipy
+networkx

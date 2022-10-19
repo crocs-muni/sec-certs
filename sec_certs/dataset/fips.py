@@ -139,6 +139,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt"
         )
 
+    # TODO: this "test" parameter is nasty.
     def _prepare_dataset(self, test: Optional[Path] = None, update: bool = False) -> Set[str]:
         if test:
             html_files = [test]
@@ -408,13 +409,13 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             )
 
         finder = DependencyFinder()
-        finder.fit(self.certs, lambda cert: cert.cert_id, pdf_lookup)  # type: ignore
+        finder.fit(self.certs, lambda cert: str(cert.cert_id), pdf_lookup)  # type: ignore
 
         for dgst in self.certs:
             setattr(self.certs[dgst].heuristics, "st_references", finder.predict_single_cert(dgst, keep_unknowns=False))
 
         finder = DependencyFinder()
-        finder.fit(self.certs, lambda cert: cert.cert_id, web_lookup)  # type: ignore
+        finder.fit(self.certs, lambda cert: str(cert.cert_id), web_lookup)  # type: ignore
 
         for dgst in self.certs:
             setattr(

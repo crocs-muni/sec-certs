@@ -18,8 +18,7 @@ from importlib.metadata import version as get_version
 # -- Project information -----------------------------------------------------
 
 project = "sec-certs"
-copyright = "2020-2022, Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon."
-# author = "Adam Janovsky, Petr Svenda, Jan Jancar, Jiri Michalik, Stanislav Bobon"
+copyright = "2020-2022"
 
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
 release = ".".join(get_version("sec-certs").split(".")[:3])
@@ -64,7 +63,7 @@ html_logo = "_static/logo.svg"
 html_favicon = "_static/logo_badge.svg"
 
 html_theme_options = {
-    "repository_url": "https://github.com/crocs-muni/sec-certs",
+    "repository_url": "https://anonymous.4open.science/r/sec-certs-7A92",
     "repository_branch": "main",
     "launch_buttons": {"binderhub_url": "https://mybinder.org"},
     "use_fullscreen_button": False,
