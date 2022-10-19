@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 
 import requests
 from bs4 import BeautifulSoup, Tag
 
 from sec_certs import constants
+from sec_certs.config.configuration import config
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import to_utc
 
@@ -69,6 +71,9 @@ class IUTSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> "IUTSnapshot":
+        """
+        Get an IUT snapshot from a HTML dump of the FIPS website.
+        """
         if not content:
             raise ValueError("Empty content in IUT.")
         soup = BeautifulSoup(content, "html5lib")
@@ -121,6 +126,9 @@ class IUTSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_dump(cls, dump_path: Union[str, Path], snapshot_date: Optional[datetime] = None) -> "IUTSnapshot":
+        """
+        Get an IUT snapshot from a HTML file dump of the FIPS website.
+        """
         dump_path = Path(dump_path)
         if snapshot_date is None:
             try:
@@ -133,9 +141,24 @@ class IUTSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_web(cls) -> "IUTSnapshot":
+        """
+        Get an IUT snapshot from the FIPS website right now.
+        """
         iut_resp = requests.get(constants.FIPS_IUT_URL)
         if iut_resp.status_code != 200:
             raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
 
         snapshot_date = to_utc(datetime.now())
         return cls.from_page(iut_resp.content, snapshot_date)
+
+    @classmethod
+    def from_web_latest(cls) -> "IUTSnapshot":
+        """
+        Get a IUT snapshot from seccerts.org.
+        """
+        iut_resp = requests.get(config.fips_iut_latest_snapshot)
+        if iut_resp.status_code != 200:
+            raise ValueError(f"Getting MIP snapshot failed: {iut_resp.status_code}")
+        with NamedTemporaryFile() as tmpfile:
+            tmpfile.write(iut_resp.content)
+            return cls.from_json(tmpfile.name)

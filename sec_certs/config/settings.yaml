@@ -39,6 +39,12 @@ cert_threshold:
 fips_latest_snapshot:
   description: URL for the latest snapshot of FIPS dataset
   value: https://seccerts.org/fips/dataset.json
+fips_iut_latest_snapshot:
+  description: URL for the latest snapshot of FIPS IUT data
+  value: https://seccerts.org/fips/iut/latest.json
+fips_mip_latest_snapshot:
+  description: URL for the latest snapshot of FIPS MIP data
+  value: https://seccerts.org/fips/mip/latest.json
 minimal_token_length:
   description: Minimal length of a string that will be considered as a token during keyword extraction in CVE matching
   value: 3

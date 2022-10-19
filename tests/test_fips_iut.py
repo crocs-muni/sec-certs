@@ -22,3 +22,7 @@ class TestFIPSIUT(TestCase):
     def test_from_web(self):
         snap = IUTSnapshot.from_web()
         self.assertIsNotNone(snap)
+
+    def test_from_web_latest(self):
+        snap = IUTSnapshot.from_web_latest()
+        self.assertIsNotNone(snap)

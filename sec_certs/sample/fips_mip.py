@@ -3,12 +3,14 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
 
 import requests
 from bs4 import BeautifulSoup, Tag
 
 from sec_certs import constants
+from sec_certs.config.configuration import config
 from sec_certs.constants import FIPS_MIP_STATUS_RE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import to_utc
@@ -157,6 +159,9 @@ class MIPSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> "MIPSnapshot":
+        """
+        Get a MIP snapshot from a HTML dump of the FIPS website.
+        """
         if not content:
             raise ValueError("Empty content in MIP.")
         soup = BeautifulSoup(content, "html5lib")
@@ -197,6 +202,9 @@ class MIPSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_dump(cls, dump_path: Union[str, Path], snapshot_date: Optional[datetime] = None) -> "MIPSnapshot":
+        """
+        Get a MIP snapshot from a HTML file dump of the FIPS website.
+        """
         dump_path = Path(dump_path)
         if snapshot_date is None:
             try:
@@ -209,9 +217,24 @@ class MIPSnapshot(ComplexSerializableType):
 
     @classmethod
     def from_web(cls) -> "MIPSnapshot":
+        """
+        Get a MIP snapshot from the FIPS website right now.
+        """
         mip_resp = requests.get(constants.FIPS_MIP_URL)
         if mip_resp.status_code != 200:
             raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
 
         snapshot_date = to_utc(datetime.now())
         return cls.from_page(mip_resp.content, snapshot_date)
+
+    @classmethod
+    def from_web_latest(cls) -> "MIPSnapshot":
+        """
+        Get a MIP snapshot from seccerts.org.
+        """
+        mip_resp = requests.get(config.fips_mip_latest_snapshot)
+        if mip_resp.status_code != 200:
+            raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
+        with NamedTemporaryFile() as tmpfile:
+            tmpfile.write(mip_resp.content)
+            return cls.from_json(tmpfile.name)

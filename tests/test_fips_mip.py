@@ -22,3 +22,7 @@ class TestFIPSMIP(TestCase):
     def test_from_web(self):
         snap = MIPSnapshot.from_web()
         self.assertIsNotNone(snap)
+
+    def test_from_web_latest(self):
+        snap = MIPSnapshot.from_web_latest()
+        self.assertIsNotNone(snap)
