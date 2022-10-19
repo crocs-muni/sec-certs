@@ -385,7 +385,7 @@ def mip_snapshot_json(id):
 
 @fips.route("/mip/latest.json")
 def mip_snapshot_latest_json():
-    snapshot = list(mongo.db.fips_mip.find({}).sort([("timestamp", pymongo.DESCENDING)]).limit(1))[0]
+    snapshot = list(mongo.db.fips_mip.find({}, {"_id": 0}).sort([("timestamp", pymongo.DESCENDING)]).limit(1))[0]
     return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
 
 
@@ -468,7 +468,7 @@ def iut_snapshot_json(id):
 
 @fips.route("/iut/latest.json")
 def iut_snapshot_latest_json():
-    snapshot = list(mongo.db.fips_iut.find({}).sort([("timestamp", pymongo.DESCENDING)]).limit(1))[0]
+    snapshot = list(mongo.db.fips_iut.find({}, {"_id": 0}).sort([("timestamp", pymongo.DESCENDING)]).limit(1))[0]
     return send_json_attachment(StorageFormat(snapshot).to_json_mapping())
 
 
