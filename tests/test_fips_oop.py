@@ -137,9 +137,6 @@ class TestFipsOOP(TestCase):
             )
 
             self.assertEqual(
-                {"3615"}, set(dataset.certs[fips_dgst("3651")].heuristics.st_references.directly_referencing)
-            )
-            self.assertEqual(
                 {"3090", "3091"}, set(dataset.certs[fips_dgst("3093")].heuristics.st_references.directly_referencing)
             )
 
@@ -187,9 +184,6 @@ class TestFipsOOP(TestCase):
             self.assertEqual(
                 {"3644", "3196", "3651"},
                 set(dataset.certs[fips_dgst("3690")].heuristics.web_references.directly_referencing),
-            )
-            self.assertEqual(
-                {"3615"}, set(dataset.certs[fips_dgst("3644")].heuristics.st_references.directly_referencing)
             )
             self.assertEqual(
                 {"3090", "3091"}, set(dataset.certs[fips_dgst("3527")].heuristics.st_references.directly_referencing)
