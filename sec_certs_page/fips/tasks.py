@@ -100,7 +100,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                 with sentry_sdk.start_span(op="fips.scan_pdfs", description="Scan pdfs"):
                     dset.pdf_scan(update_json=False)
                 with sentry_sdk.start_span(op="fips.tables", description="Extract tables"):
-                    dset.extract_certs_from_tables(high_precision=True, update_json=False)
+                    dset.extract_certs_from_tables(high_precision=False, update_json=False)
                 with sentry_sdk.start_span(op="fips.algorithms", description="Process algorithms"):
                     dset.process_algorithms(update_json=False)
                 with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
