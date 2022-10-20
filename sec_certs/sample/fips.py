@@ -220,6 +220,18 @@ class FIPSCertificate(
         "embodiment",
         "date_validation",
         "date_sunset",
+        "extracted_versions",
+        "cpe_matches",
+        "verified_cpe_matches",
+        "related_cves",
+        "web_directly_referenced_by",
+        "web_indirectly_referenced_by",
+        "web_directly_referencing",
+        "web_indirectly_referencing",
+        "st_directly_referenced_by",
+        "st_indirectly_referenced_by",
+        "st_directly_referencing",
+        "st_indirectly_referencing",
     ]
 
     @dataclass(eq=True)
@@ -409,6 +421,18 @@ class FIPSCertificate(
             self.web_data.embodiment,
             self.web_data.date_validation[0] if self.web_data.date_validation else np.nan,
             self.web_data.date_sunset,
+            self.heuristics.extracted_versions,
+            self.heuristics.cpe_matches,
+            self.heuristics.verified_cpe_matches,
+            self.heuristics.related_cves,
+            self.heuristics.web_references.directly_referenced_by,
+            self.heuristics.web_references.indirectly_referenced_by,
+            self.heuristics.web_references.directly_referencing,
+            self.heuristics.web_references.indirectly_referencing,
+            self.heuristics.st_references.directly_referenced_by,
+            self.heuristics.st_references.indirectly_referenced_by,
+            self.heuristics.st_references.directly_referencing,
+            self.heuristics.st_references.indirectly_referencing,
         )
 
     def get_keywords_df_row(self) -> dict[str, float]:
