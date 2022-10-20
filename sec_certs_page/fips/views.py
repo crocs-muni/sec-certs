@@ -367,9 +367,13 @@ def mip_index():
 
 @fips.route("/mip/dataset.json")
 def mip_dataset():
-    mip_snapshots = list(mongo.db.fips_mip.find({}).sort([("timestamp", pymongo.DESCENDING)]))
+    # TODO: Make this go through the proper deserialization path.
+    mip_snapshots = list(mongo.db.fips_mip.find({}, {"_id": 0}).sort([("timestamp", pymongo.DESCENDING)]))
     return send_json_attachment(
-        {"snapshots": [StorageFormat(snapshot).to_json_mapping() for snapshot in mip_snapshots]}
+        {
+            "_type": "sec_certs.dataset.fips_mip.MIPDataset",
+            "snapshots": [StorageFormat(snapshot).to_json_mapping() for snapshot in mip_snapshots],
+        }
     )
 
 
@@ -458,9 +462,13 @@ def iut_index():
 
 @fips.route("/iut/dataset.json")
 def iut_dataset():
-    iut_snapshots = list(mongo.db.fips_iut.find({}).sort([("timestamp", pymongo.DESCENDING)]))
+    # TODO: Make this go through the proper deserialization path.
+    iut_snapshots = list(mongo.db.fips_iut.find({}, {"_id": 0}).sort([("timestamp", pymongo.DESCENDING)]))
     return send_json_attachment(
-        {"snapshots": [StorageFormat(snapshot).to_json_mapping() for snapshot in iut_snapshots]}
+        {
+            "_type": "sec_certs.dataset.fips_iut.IUTDataset",
+            "snapshots": [StorageFormat(snapshot).to_json_mapping() for snapshot in iut_snapshots],
+        }
     )
 
 
