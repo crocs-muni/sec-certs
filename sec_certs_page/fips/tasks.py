@@ -102,7 +102,10 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                 with sentry_sdk.start_span(op="fips.tables", description="Extract tables"):
                     dset.extract_certs_from_tables(high_precision=False, update_json=False)
                 with sentry_sdk.start_span(op="fips.algorithms", description="Process algorithms"):
-                    dset.process_algorithms(update_json=False)
+                    try:
+                        dset.process_algorithms(update_json=False)
+                    except FileNotFoundError:
+                        logger.warn("FIPS algos could not be downloaded.")
                 with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
                     dset.finalize_results(update_json=False)
                 with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"):
