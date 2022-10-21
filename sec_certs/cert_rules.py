@@ -204,15 +204,13 @@ def _load():
     return loaded
 
 
-def _process(obj, add_sep=True):
+def _process(obj):
     if isinstance(obj, dict):
-        return {k: _process(v, add_sep=add_sep) for k, v in obj.items()}
+        return {k: _process(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [
             re.compile(
-                REGEXEC_SEP_START + MATCH_START + rule + MATCH_END + REGEXEC_SEP_END
-                if add_sep
-                else MATCH_START + rule + MATCH_END,
+                REGEXEC_SEP_START + MATCH_START + rule + MATCH_END + REGEXEC_SEP_END,
                 re.MULTILINE,
             )
             for rule in obj
@@ -227,7 +225,7 @@ for rule_group in rules["cc_rules"]:
 
 fips_rules = {}
 for rule_group in rules["fips_rules"]:
-    fips_rules[rule_group] = _process(rules[rule_group], False)
+    fips_rules[rule_group] = _process(rules[rule_group])
 
 
 PANDAS_KEYWORDS_CATEGORIES: Final[List[str]] = [
