@@ -681,12 +681,12 @@ class FIPSCertificate(
                 data = read_pdf(cert_file, pages="all" if all_pages else tables, silent=True)
             except Exception as e:
                 try:
-                    logger.error(e)
+                    logger.warn(e)
                     sec_certs.utils.pdf.repair_pdf(cert_file)
                     data = read_pdf(cert_file, pages="all" if all_pages else tables, silent=True)
 
                 except Exception as ex:
-                    logger.error(ex)
+                    logger.warn(ex)
                     return False, cert, lst
 
             # find columns with cert numbers
