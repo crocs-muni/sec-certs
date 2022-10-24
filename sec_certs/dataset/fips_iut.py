@@ -49,7 +49,7 @@ class IUTDataset(ComplexSerializableType):
         """
         Get the IUTDataset from seccerts.org
         """
-        iut_resp = requests.get(config.fips_mip_dataset)
+        iut_resp = requests.get(config.fips_iut_dataset)
         if iut_resp.status_code != 200:
             raise ValueError(f"Getting IUT dataset failed: {iut_resp.status_code}")
         with NamedTemporaryFile() as tmpfile:

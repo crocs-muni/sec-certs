@@ -761,7 +761,7 @@ def load_cert_html_file(file_name: str) -> str:
     return ""
 
 
-def cc_rules_get_subset(desired_path: str) -> dict:
+def rules_get_subset(desired_path: str) -> dict:
     """
     Recursively applies cc_certs.get(key) on tokens from desired_path,
     returns the keys of the inner-most layer.
@@ -806,12 +806,12 @@ def get_sum_of_values_from_dict_path(dct: Optional[dict], path: str, default: fl
     return sum(res.values())
 
 
-def get_sums_for_cc_rules_subset(dct: Optional[dict], path: str) -> dict[str, float]:
+def get_sums_for_rules_subset(dct: Optional[dict], path: str) -> dict[str, float]:
     """
     Given path to search in cc_rules (e.g., "symmetric_crypto"),
     will get the finest resolution and count occurences of the keys in the
     examined dictionary.
     """
-    cc_rules_subset_to_search = cc_rules_get_subset(path)
+    cc_rules_subset_to_search = rules_get_subset(path)
     paths_to_search = extract_key_paths(cc_rules_subset_to_search, path)
     return {x: get_sum_of_values_from_dict_path(dct, x, np.nan) for x in paths_to_search}

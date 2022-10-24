@@ -3,6 +3,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
+import numpy as np
+import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
 from graphviz import Digraph
 
@@ -565,6 +567,36 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
             )
         return dset
+
+    def to_pandas(self) -> pd.DataFrame:
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
+        df = df.set_index("dgst")
+
+        df.date_validation = pd.to_datetime(df.date_validation, infer_datetime_format=True)
+        df.date_sunset = pd.to_datetime(df.date_sunset, infer_datetime_format=True)
+
+        df = df.loc[
+            ~(df.embodiment == "*")
+        ]  # Manually delete one certificate with bad embodiment (seems to have many blank fields)
+
+        df = df.astype(
+            {"type": "category", "status": "category", "standard": "category", "embodiment": "category"}
+        ).fillna(value=np.nan)
+
+        df.level = df.level.fillna(value=np.nan).astype("float")
+        # df.level = pd.Categorical(df.level, categories=sorted(df.level.dropna().unique().tolist()), ordered=True)
+
+        # Introduce year when cert got valid
+        df["year_from"] = pd.DatetimeIndex(df.date_validation).year
+
+        return df
+
+    def get_st_keywords_df(self) -> pd.DataFrame:
+        """
+        Get dataframe of keyword hits in security target.
+        """
+        data = [dict({"dgst": x.dgst}, **x.get_keywords_df_row()) for x in self]
+        return pd.DataFrame(data).set_index("dgst")
 
     def plot_graphs(self, show: bool = False) -> None:
         """

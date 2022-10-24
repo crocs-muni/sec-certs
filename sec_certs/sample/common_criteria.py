@@ -603,7 +603,7 @@ class CommonCriteriaCert(
         return dict(
             ChainMap(
                 *[
-                    sec_certs.utils.extract.get_sums_for_cc_rules_subset(self.pdf_data.st_keywords, cat)
+                    sec_certs.utils.extract.get_sums_for_rules_subset(self.pdf_data.st_keywords, cat)
                     for cat in PANDAS_KEYWORDS_CATEGORIES
                 ]
             )

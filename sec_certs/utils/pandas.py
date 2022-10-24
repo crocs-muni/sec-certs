@@ -286,13 +286,8 @@ def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEData
     return cc_df
 
 
-def expand_cc_df_with_cve_cols(
-    cc_df: pd.DataFrame, cve_dset: CVEDataset, filter_to_cves_in_validity_period: bool = False
-) -> pd.DataFrame:
-    df = cc_df.copy()
-
-    if filter_to_cves_in_validity_period:
-        df = filter_to_cves_within_validity_period(cc_df, cve_dset)
+def expand_df_with_cve_cols(df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
+    df = df.copy()
 
     df["n_cves"] = df.related_cves.map(lambda x: len(x) if x is not np.nan else 0)
     df["cve_published_dates"] = df.related_cves.map(
