@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import re
-from collections import ChainMap, Counter, defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
@@ -18,13 +18,7 @@ import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants as constants
-from sec_certs.cert_rules import (
-    PANDAS_KEYWORDS_CATEGORIES,
-    SARS_IMPLIED_FROM_EAL,
-    cc_rules,
-    rules,
-    security_level_csv_scan,
-)
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
 from sec_certs.sample.cc_certificate_id import canonicalize
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -596,18 +590,8 @@ class CommonCriteriaCert(
                         f"When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}"
                     )
 
-    def get_keywords_df_row(self) -> dict[str, float]:
-        """
-        Returns dictionary of sums of matches of keywords in ST. Iterates over all categories
-        """
-        return dict(
-            ChainMap(
-                *[
-                    sec_certs.utils.extract.get_sums_for_rules_subset(self.pdf_data.st_keywords, cat)
-                    for cat in PANDAS_KEYWORDS_CATEGORIES
-                ]
-            )
-        )
+    def _get_keyword_data_input(self) -> Optional[Dict]:
+        return self.pdf_data.st_keywords
 
     @classmethod
     def from_dict(cls, dct: Dict) -> CommonCriteriaCert:

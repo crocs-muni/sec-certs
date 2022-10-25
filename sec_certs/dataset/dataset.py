@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Collection, Dict, Generic, Iterator, Optional, Pattern, Set, Tuple, Type, TypeVar, Union, cast
 
+import pandas as pd
 import requests
 
 import sec_certs.constants as constants
@@ -433,3 +434,10 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         logger.info(
             f"In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates."
         )
+
+    def get_keywords_df(self) -> pd.DataFrame:
+        """
+        Get dataframe of keyword hits.
+        """
+        data = [dict({"dgst": x.dgst}, **x.keywords_df_data) for x in self]
+        return pd.DataFrame(data).set_index("dgst")

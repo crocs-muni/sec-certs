@@ -64,13 +64,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         return df
 
-    def get_st_keywords_df(self) -> pd.DataFrame:
-        """
-        Get dataframe of keyword hits in security target.
-        """
-        data = [dict({"dgst": x.dgst}, **x.get_keywords_df_row()) for x in self]
-        return pd.DataFrame(data).set_index("dgst")
-
     def _copy_dataset_contents(self, old_dset: CCDataset) -> None:
         if old_dset.state.meta_sources_parsed:
             try:

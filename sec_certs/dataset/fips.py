@@ -526,13 +526,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         return df
 
-    def get_st_keywords_df(self) -> pd.DataFrame:
-        """
-        Get dataframe of keyword hits in security target.
-        """
-        data = [dict({"dgst": x.dgst}, **x.get_keywords_df_row()) for x in self]
-        return pd.DataFrame(data).set_index("dgst")
-
     def plot_graphs(self, show: bool = False) -> None:
         """
         Plots FIPS graphs.

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import re
-from collections import ChainMap
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -19,7 +18,7 @@ import sec_certs.utils.extract
 import sec_certs.utils.helpers as helpers
 import sec_certs.utils.pdf
 import sec_certs.utils.tables
-from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES, fips_rules
+from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -437,18 +436,8 @@ class FIPSCertificate(
             self.heuristics.st_references.indirectly_referencing,
         )
 
-    def get_keywords_df_row(self) -> dict[str, float]:
-        """
-        Returns dictionary of sums of matches of keywords in ST. Iterates over all categories
-        """
-        return dict(
-            ChainMap(
-                *[
-                    sec_certs.utils.extract.get_sums_for_rules_subset(self.pdf_data.keywords, cat)
-                    for cat in PANDAS_KEYWORDS_CATEGORIES
-                ]
-            )
-        )
+    def _get_keyword_data_input(self) -> Dict:
+        return self.pdf_data.keywords
 
     @classmethod
     def from_dict(cls, dct: Dict) -> FIPSCertificate:
