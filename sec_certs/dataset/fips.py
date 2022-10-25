@@ -34,15 +34,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _algorithms_dir(self) -> Path:
         return self.auxillary_datasets_dir / "algorithms"
 
-    def _get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
-        """
-        Returns list of certificates that match given name.
-
-        :param str module_name: name to search for
-        :return List[FIPSCertificate]: List of certificates with web_data.module_name == module_name
-        """
-        return [crt for crt in self if crt.web_data.module_name == module_name]
-
     @serialize
     def _extract_data(self, redo: bool = False) -> None:
         """

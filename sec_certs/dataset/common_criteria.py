@@ -812,9 +812,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         self.state.certs_analyzed = True
 
-    def _get_certs_from_name(self, cert_name: str) -> List[CommonCriteriaCert]:
-        return [crt for crt in self if crt.name == cert_name]
-
     def process_maintenance_updates(self) -> CCDatasetMaintenanceUpdates:
         """
         Creates and fully processes (download, convert, analyze) a dataset of maintenance updates that are related

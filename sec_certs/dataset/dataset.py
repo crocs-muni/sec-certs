@@ -8,22 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Generic,
-    Iterator,
-    List,
-    Optional,
-    Pattern,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any, Collection, Dict, Generic, Iterator, Optional, Pattern, Set, Tuple, Type, TypeVar, Union, cast
 
 import requests
 
@@ -198,6 +183,12 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     # Workaround from https://peps.python.org/pep-0673/ applied.
     def _copy_dataset_contents(self: DatasetSubType, old_dset: DatasetSubType) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    def _get_certs_by_name(self, name: str) -> Set[CertSubType]:
+        """
+        Returns list of certificates that match given name.
+        """
+        return {crt for crt in self if crt.name and crt.name == name}
 
     @abstractmethod
     def get_certs_from_web(self) -> None:
@@ -382,16 +373,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             else:
                 cert_name = annotation["text"]
 
-            certs = self._get_certs_from_name(cert_name)
+            certs = self._get_certs_by_name(cert_name)
             labeled_cert_digests.update({x.dgst for x in certs})
 
             for c in certs:
                 c.heuristics.verified_cpe_matches = {x.uri for x in cpes if x is not None} if cpes else None
 
         return labeled_cert_digests
-
-    def _get_certs_from_name(self, name: str) -> List[CertSubType]:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def enrich_automated_cpes_with_manual_labels(self) -> None:
         """

@@ -111,7 +111,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
             self._id_map.setdefault(cert.cert_id, [])
             self._id_map[cert.cert_id].append(cert.dgst)
 
-    def _get_certs_from_name(self, name: str) -> List[FIPSAlgorithm]:
+    def _get_certs_by_name(self, name: str) -> Set[FIPSAlgorithm]:
         raise NotImplementedError("Not meant to be implemented")
 
     def _set_local_paths(self) -> None:
