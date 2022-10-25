@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import copy
 import itertools
 import json
 import locale
 import shutil
 import tempfile
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Type, Union
+from typing import Callable, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -41,38 +39,15 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
     """
 
-    @dataclass
-    class DatasetInternalState(ComplexSerializableType):
-        meta_sources_parsed: bool = False
-        pdfs_downloaded: bool = False
-        pdfs_converted: bool = False
-        certs_analyzed: bool = False
-
-        def __bool__(self):
-            return any(vars(self))
-
     def __init__(
         self,
         certs: Dict[str, CommonCriteriaCert] = dict(),
         root_dir: Optional[Path] = None,
         name: str = "Common Criteria Dataset",
         description: str = "No description",
-        state: Optional[DatasetInternalState] = None,
+        state: Optional[Dataset.DatasetInternalState] = None,
     ):
-        super().__init__(certs, root_dir, name, description)
-
-        if state is None:
-            state = self.DatasetInternalState()
-        self.state = state
-
-    def __call__(self, certs):
-        return copy.deepcopy(self)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Returns self serialized into dictionary
-        """
-        return {**{"state": self.state}, **super().to_dict()}
+        super().__init__(certs, root_dir, name, description, state)
 
     def to_pandas(self) -> pd.DataFrame:
         """
@@ -106,28 +81,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         data = [dict({"dgst": x.dgst}, **x.get_keywords_df_row()) for x in self]
         return pd.DataFrame(data).set_index("dgst")
 
-    @classmethod
-    def from_dict(cls: Type[CCDataset], dct: Dict[str, Any]) -> "CCDataset":
-        """
-        Reconstructs the CCDataset object from a dictionary
-        """
-        dset = super().from_dict(dct)
-        dset.state = copy.deepcopy(dct["state"])
-        return dset
-
-    # for type ignore explanation, see: https://github.com/python/mypy/issues/5936
-    @Dataset.root_dir.setter  # type: ignore
-    def root_dir(self, new_dir: Union[str, Path]) -> None:
-        old_dset = copy.deepcopy(self)
-        Dataset.root_dir.fset(self, new_dir)  # type: ignore
-        self._set_local_paths()
-
-        if self.state and old_dset.root_dir != Path(".."):
-            logger.info(f"Changing root dir of partially processed dataset. All contents will get copied to {new_dir}")
-            self._copy_dataset_contents(old_dset)
-            self.to_json()
-
-    def _copy_dataset_contents(self, old_dset: "CCDataset") -> None:
+    def _copy_dataset_contents(self, old_dset: CCDataset) -> None:
         if old_dset.state.meta_sources_parsed:
             try:
                 shutil.copytree(old_dset.web_dir, self.web_dir)
@@ -350,6 +304,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
         and constructs CommonCriteriaCert objects, fills the dataset with those.
+        Also downloads protection profiles snapshot
 
         :param bool to_download: If CSV and HTML files shall be downloaded (or existing files utilized), defaults to True
         :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
@@ -375,6 +330,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         self._set_local_paths()
         self.state.meta_sources_parsed = True
+        self.process_protection_profiles()
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, "CommonCriteriaCert"]:
         """
@@ -928,6 +884,9 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         raise NotImplementedError
 
     def compute_related_cves(self, download_fresh_cves: bool = False) -> None:
+        raise NotImplementedError
+
+    def process_auxillary_datasets(self) -> None:
         raise NotImplementedError
 
     @classmethod

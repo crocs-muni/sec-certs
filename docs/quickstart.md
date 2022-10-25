@@ -38,13 +38,13 @@ If you insist on processing the whole certificates pipeline, make sure that you 
 ::::{tab-set}
 :::{tab-item} Common Criteria
 ```bash
-$ cc-certs all
+$ sec-certs cc all
 ```
 :::
 
 :::{tab-item} FIPS 140
 ```bash
-$ fips-certs new-run
+$ sec-certs fips all
 ```
 :::
 ::::

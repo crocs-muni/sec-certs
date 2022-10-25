@@ -1,8 +1,10 @@
+import copy
 import itertools
 import json
 import logging
 import re
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import (
@@ -42,13 +44,24 @@ CertSubType = TypeVar("CertSubType", bound=Certificate)
 DatasetSubType = TypeVar("DatasetSubType", bound="Dataset")
 
 
-class Dataset(Generic[CertSubType], ABC):
+class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
+    @dataclass
+    class DatasetInternalState(ComplexSerializableType):
+        meta_sources_parsed: bool = False
+        pdfs_downloaded: bool = False
+        pdfs_converted: bool = False
+        certs_analyzed: bool = False
+
+        def __bool__(self):
+            return any(vars(self))
+
     def __init__(
         self,
         certs: Dict[str, CertSubType] = dict(),
         root_dir: Optional[Path] = None,
         name: str = "dataset name",
         description: str = "dataset_description",
+        state: Optional[DatasetInternalState] = None,
     ):
         if not root_dir:
             root_dir = Path.cwd() / (type(self).__name__).lower()
@@ -59,15 +72,26 @@ class Dataset(Generic[CertSubType], ABC):
         self.description = description
         self.certs = certs
 
+        if state is None:
+            state = self.DatasetInternalState()
+        self.state = state
+
     @property
     def root_dir(self) -> Path:
         return self._root_dir
 
     @root_dir.setter
     def root_dir(self, new_dir: Union[str, Path]) -> None:
-        new_dir = Path(new_dir)
-        new_dir.mkdir(exist_ok=True)
-        self._root_dir = new_dir
+        old_dset = copy.deepcopy(self)
+        self._root_dir = Path(new_dir)
+        self.root_dir.mkdir(exist_ok=True)
+
+        self._set_local_paths()
+
+        if self.state and old_dset.root_dir != Path(".."):
+            logger.info(f"Changing root dir of partially processed dataset. All contents will get copied to {new_dir}")
+            self._copy_dataset_contents(old_dset)
+            self.to_json()
 
     @property
     def web_dir(self) -> Path:
@@ -122,6 +146,7 @@ class Dataset(Generic[CertSubType], ABC):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "state": self.state,
             "timestamp": self.timestamp,
             "sha256_digest": self.sha256_digest,
             "name": self.name,
@@ -133,7 +158,7 @@ class Dataset(Generic[CertSubType], ABC):
     @classmethod
     def from_dict(cls: Type[DatasetSubType], dct: Dict) -> DatasetSubType:
         certs = {x.dgst: x for x in dct["certs"]}
-        dset = cls(certs, Path("../"), dct["name"], dct["description"])
+        dset = cls(certs, Path("../"), dct["name"], dct["description"], dct["state"])
         if len(dset) != (claimed := dct["n_certs"]):
             logger.error(
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
@@ -150,8 +175,20 @@ class Dataset(Generic[CertSubType], ABC):
     def _set_local_paths(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
+    # Workaround from https://peps.python.org/pep-0673/ applied.
+    def _copy_dataset_contents(self: DatasetSubType, old_dset: DatasetSubType) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
     @abstractmethod
     def get_certs_from_web(self) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    @abstractmethod
+    def process_auxillary_datasets(self) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    @abstractmethod
+    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
@@ -159,7 +196,7 @@ class Dataset(Generic[CertSubType], ABC):
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
+    def analyze_certificates(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @staticmethod

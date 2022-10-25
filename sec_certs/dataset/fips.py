@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -33,8 +33,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         root_dir: Optional[Path] = None,
         name: str = "FIPS Dataset",
         description: str = "No description",
+        state: Optional[Dataset.DatasetInternalState] = None,
     ):
-        super().__init__(certs, root_dir, name, description)
+        super().__init__(certs, root_dir, name, description, state)
         self.keywords: Dict[str, Dict] = {}
         self.algorithms: Optional[FIPSAlgorithmDataset] = None
 
@@ -45,6 +46,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @property
     def _algs_dir(self) -> Path:
         return self.web_dir / "algorithms"
+
+    # for type ignore explanation, see: https://github.com/python/mypy/issues/5936
+    @Dataset.root_dir.setter  # type: ignore
+    def root_dir(self, new_dir: Union[str, Path]) -> None:
+        # TODO: Implement me, also implement this for Algorithm Dataset?
+        pass
 
     def _get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
         """
@@ -265,7 +272,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.web_scan(cert_ids, redo=redo_web_scan, update_json=False)
 
     @serialize
-    def process_algorithms(self):
+    def process_auxillary_datasets(self) -> None:
+        self._process_algorithms()
+
+    def _process_algorithms(self):
         logger.info("Processing FIPS algorithms.")
         self.algorithms = FIPSAlgorithmDataset(
             {}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs"
@@ -425,7 +435,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             )
 
     @serialize
-    def finalize_results(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):
+    def analyze_certificates(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):
         """
         Performs processing of extracted data. Computes all heuristics.
 
@@ -433,6 +443,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param bool perform_cpe_heuristics: If CPE heuristics shall be computed, defaults to True
         """
         logger.info("Entering 'analysis' and building connections between certificates.")
+        self.pdf_scan(redo=False)
+        self.extract_certs_from_tables(high_precision=True)
+
         self._extract_metadata()
         self._unify_algorithms()
         self._compute_heuristics_clean_ids()
@@ -440,6 +453,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if perform_cpe_heuristics:
             _, _, cve_dset = self.compute_cpe_heuristics()
             self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
+        self.plot_graphs(show=True)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]
