@@ -1,7 +1,6 @@
 import logging
-import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import List, Optional, Set
 
 import numpy as np
 import pandas as pd
@@ -27,31 +26,13 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
 
-    def __init__(
-        self,
-        certs: Dict[str, FIPSCertificate] = dict(),
-        root_dir: Optional[Path] = None,
-        name: str = "FIPS Dataset",
-        description: str = "No description",
-        state: Optional[Dataset.DatasetInternalState] = None,
-    ):
-        super().__init__(certs, root_dir, name, description, state)
-        self.keywords: Dict[str, Dict] = {}
-        self.algorithms: Optional[FIPSAlgorithmDataset] = None
-
     @property
     def _policies_dir(self) -> Path:
         return self.root_dir / "security_policies"
 
     @property
-    def _algs_dir(self) -> Path:
-        return self.web_dir / "algorithms"
-
-    # for type ignore explanation, see: https://github.com/python/mypy/issues/5936
-    @Dataset.root_dir.setter  # type: ignore
-    def root_dir(self, new_dir: Union[str, Path]) -> None:
-        # TODO: Implement me, also implement this for Algorithm Dataset?
-        pass
+    def _algorithms_dir(self) -> Path:
+        return self.auxillary_datasets_dir / "algorithms"
 
     def _get_certs_from_name(self, module_name: str) -> List[FIPSCertificate]:
         """
@@ -63,11 +44,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return [crt for crt in self if crt.web_data.module_name == module_name]
 
     @serialize
-    def pdf_scan(self, redo: bool = False) -> None:
+    def _extract_data(self, redo: bool = False) -> None:
         """
-        pdf_scan()
         Extracts data from pdf files
-
         :param bool redo: Whether to try again with failed files, defaults to False
         """
         logger.info("Entering PDF scan.")
@@ -217,22 +196,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         """
         Fetches the fresh snapshot of FIPSDataset from mirror.
         """
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            dset_path = Path(tmp_dir) / "fips_latest_dataset.json"
-            logger.info("Downloading the latest FIPS dataset.")
-            helpers.download_file(
-                config.fips_latest_snapshot,
-                dset_path,
-                show_progress_bar=True,
-                progress_bar_desc="Downloading FIPS dataset",
-            )
-            dset: FIPSDataset = cls.from_json(dset_path)
-            logger.info(
-                "The dataset with %s certs and %s algorithms.",
-                len(dset),
-                len(dset.algorithms) if dset.algorithms is not None else 0,
-            )
-            return dset
+        return cls.from_web(config.cc_latest_snapshot, "Downloading FIPS Dataset", "fips_latest_dataset.json")
 
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
@@ -260,7 +224,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
         self._policies_dir.mkdir(exist_ok=True)
-        self._algs_dir.mkdir(exist_ok=True)
+        self._algorithms_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
         cert_ids = self._prepare_dataset(test, update)
@@ -443,7 +407,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :param bool perform_cpe_heuristics: If CPE heuristics shall be computed, defaults to True
         """
         logger.info("Entering 'analysis' and building connections between certificates.")
-        self.pdf_scan(redo=False)
+        self._extract_data(redo=False)
         self.extract_certs_from_tables(high_precision=True)
 
         self._extract_metadata()
@@ -549,39 +513,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         dot.render(self.root_dir / (str(output_file_name) + "_connections"), view=show)
         single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Serializes dataset into a dictionary
-
-        :return Dict[str, Any]: Dictionary that holds the whole dataset.
-        """
-        return {
-            "timestamp": self.timestamp,
-            "sha256_digest": self.sha256_digest,
-            "name": self.name,
-            "description": self.description,
-            "n_certs": len(self),
-            "certs": self.certs,
-            "algs": self.algorithms,
-        }
-
-    @classmethod
-    def from_dict(cls, dct: Dict[str, Any]) -> "FIPSDataset":
-        """
-        Reconstructs the original dataset from a dictionary
-
-        :param Dict[str, Any] dct: Dictionary that holds the serialized dataset
-        :return FIPSDataset: Deserialized FIPSDataset that corresponds to `dct` contents
-        """
-        certs = dct["certs"]
-        dset = cls(certs, Path("./"), dct["name"], dct["description"])
-        dset.algorithms = dct["algs"]
-        if len(dset) != (claimed := dct["n_certs"]):
-            logger.error(
-                f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
-            )
-        return dset
-
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
         df = df.set_index("dgst")
@@ -589,9 +520,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         df.date_validation = pd.to_datetime(df.date_validation, infer_datetime_format=True)
         df.date_sunset = pd.to_datetime(df.date_sunset, infer_datetime_format=True)
 
-        df = df.loc[
-            ~(df.embodiment == "*")
-        ]  # Manually delete one certificate with bad embodiment (seems to have many blank fields)
+        # Manually delete one certificate with bad embodiment (seems to have many blank fields)
+        df = df.loc[~(df.embodiment == "*")]
 
         df = df.astype(
             {"type": "category", "status": "category", "standard": "category", "embodiment": "category"}

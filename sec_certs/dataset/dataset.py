@@ -3,6 +3,7 @@ import itertools
 import json
 import logging
 import re
+import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -59,22 +60,34 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self,
         certs: Dict[str, CertSubType] = dict(),
         root_dir: Optional[Path] = None,
-        name: str = "dataset name",
-        description: str = "dataset_description",
+        name: Optional[str] = None,
+        description: str = None,
         state: Optional[DatasetInternalState] = None,
+        auxillary_datasets: Optional[Any] = None,
     ):
+        if state is None:
+            state = self.DatasetInternalState()
+        self.state = state
+
         if not root_dir:
             root_dir = Path.cwd() / (type(self).__name__).lower()
         self._root_dir = root_dir
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
+
+        if not name:
+            name = type(self).__name__ + " dataset"
+        self.name = name
+
+        if not description:
+            description = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.description = description
+
         self.name = name
         self.description = description
-        self.certs = certs
 
-        if state is None:
-            state = self.DatasetInternalState()
-        self.state = state
+        self.certs = certs
+        self.auxillary_datasets = auxillary_datasets
 
     @property
     def root_dir(self) -> Path:
@@ -88,7 +101,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
         self._set_local_paths()
 
-        if self.state and old_dset.root_dir != Path(".."):
+        if old_dset.root_dir != self.root_dir:
             logger.info(f"Changing root dir of partially processed dataset. All contents will get copied to {new_dir}")
             self._copy_dataset_contents(old_dset)
             self.to_json()
@@ -143,6 +156,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     def __str__(self) -> str:
         return str(type(self).__name__) + ":" + self.name + ", " + str(len(self)) + " certificates"
+
+    @classmethod
+    def from_web(cls: Type[DatasetSubType], url: str, progress_bar_desc: str, filename: str) -> DatasetSubType:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / filename
+            helpers.download_file(url, dset_path, show_progress_bar=True, progress_bar_desc=progress_bar_desc)
+            return cls.from_json(dset_path)
 
     def to_dict(self) -> Dict[str, Any]:
         return {

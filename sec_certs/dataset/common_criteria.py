@@ -39,16 +39,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
     """
 
-    def __init__(
-        self,
-        certs: Dict[str, CommonCriteriaCert] = dict(),
-        root_dir: Optional[Path] = None,
-        name: str = "Common Criteria Dataset",
-        description: str = "No description",
-        state: Optional[Dataset.DatasetInternalState] = None,
-    ):
-        super().__init__(certs, root_dir, name, description, state)
-
     def to_pandas(self) -> pd.DataFrame:
         """
         Return self serialized into pandas DataFrame
@@ -225,14 +215,8 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
     def from_web_latest(cls) -> "CCDataset":
         """
         Fetches the fresh snapshot of CCDataset from seccerts.org
-        :return CCDataset: returns the CCDataset object downloaded from seccerts.org
         """
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            dset_path = Path(tmp_dir) / "cc_latest_dataset.json"
-            helpers.download_file(
-                config.cc_latest_snapshot, dset_path, show_progress_bar=True, progress_bar_desc="Downloading CC Dataset"
-            )
-            return cls.from_json(dset_path)
+        return cls.from_web(config.cc_latest_snapshot, "Downloading CC Dataset", "cc_latest_dataset.json")
 
     def _set_local_paths(self):
         for cert in self:
