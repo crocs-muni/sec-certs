@@ -28,6 +28,7 @@ class FIPSAlgorithm(ComplexSerializableType):
         return constants.FIPS_ALG_URL.format(self.algorithm_type, self.cert_id)
 
     def _compare_tuple(self):
+        # This is necessary to not have errors with comparing str with None.
         return (
             self.cert_id,
             self.algorithm_type if self.algorithm_type else "",
