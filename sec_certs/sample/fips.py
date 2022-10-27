@@ -22,6 +22,7 @@ from sec_certs.cert_rules import fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.fips_algorithm import FIPSAlgorithm
@@ -199,7 +200,9 @@ class _FIPSHTMLParser:
 
 
 class FIPSCertificate(
-    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics"], PandasSerializableType, ComplexSerializableType
+    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics", "FIPSCertificate.PdfData"],
+    PandasSerializableType,
+    ComplexSerializableType,
 ):
     """
     Data structure for common FIPS 140 certificate. Contains several inner classes that layer the data logic.
@@ -318,7 +321,7 @@ class FIPSCertificate(
             return repr(self)
 
     @dataclass(eq=True)
-    class PdfData(ComplexSerializableType):
+    class PdfData(BasePdfData, ComplexSerializableType):
         """
         Data structure that holds data obtained from scanning pdf files (or their converted txt documents).
         """
@@ -435,9 +438,6 @@ class FIPSCertificate(
             self.heuristics.st_references.directly_referencing,
             self.heuristics.st_references.indirectly_referencing,
         )
-
-    def _get_keyword_data_input(self) -> Dict:
-        return self.pdf_data.keywords
 
     @classmethod
     def from_dict(cls, dct: Dict) -> FIPSCertificate:

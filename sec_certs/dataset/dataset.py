@@ -435,9 +435,9 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             f"In total, we identified {n_vulnerabilities} vulnerabilities in {n_vulnerable} vulnerable certificates."
         )
 
-    def get_keywords_df(self) -> pd.DataFrame:
+    def get_keywords_df(self, var: str) -> pd.DataFrame:
         """
-        Get dataframe of keyword hits.
+        Get dataframe of keyword hits for attribute (var) that is member of PdfData class.
         """
-        data = [dict({"dgst": x.dgst}, **x.keywords_df_data) for x in self]
+        data = [dict({"dgst": x.dgst}, **x.pdf_data.get_keywords_df_data(var)) for x in self]
         return pd.DataFrame(data).set_index("dgst")

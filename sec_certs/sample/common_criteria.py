@@ -22,6 +22,7 @@ from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, securit
 from sec_certs.sample.cc_certificate_id import canonicalize
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
@@ -45,7 +46,7 @@ class DependencyType(Enum):
 
 
 class CommonCriteriaCert(
-    Certificate["CommonCriteriaCert", "CommonCriteriaCert.Heuristics"],
+    Certificate["CommonCriteriaCert", "CommonCriteriaCert.Heuristics", "CommonCriteriaCert.PdfData"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -197,7 +198,7 @@ class CommonCriteriaCert(
                 return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
     @dataclass
-    class PdfData(ComplexSerializableType):
+    class PdfData(BasePdfData, ComplexSerializableType):
         """
         Class that holds data extracted from pdf files.
         """
@@ -589,9 +590,6 @@ class CommonCriteriaCert(
                     logger.warning(
                         f"When merging certificates with dgst {self.dgst}, the following mismatch occured: Attribute={att}, self[{att}]={getattr(self, att)}, other[{att}]={getattr(other, att)}"
                     )
-
-    def _get_keyword_data_input(self) -> Optional[Dict]:
-        return self.pdf_data.st_keywords
 
     @classmethod
     def from_dict(cls, dct: Dict) -> CommonCriteriaCert:

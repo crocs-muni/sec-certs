@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="Certificate")
 H = TypeVar("H", bound="Heuristics")
+P = TypeVar("P", bound="PdfData")
 
 
 @dataclass
@@ -30,9 +31,23 @@ class Heuristics:
     related_cves: Optional[Set[str]]
 
 
-class Certificate(Generic[T, H], ABC, ComplexSerializableType):
+class PdfData:
+    def get_keywords_df_data(self, var: str) -> Dict[str, float]:
+        data_dct = getattr(self, var)
+        return dict(
+            ChainMap(
+                *[
+                    sec_certs.utils.extract.get_sums_for_rules_subset(data_dct, cat)
+                    for cat in PANDAS_KEYWORDS_CATEGORIES
+                ]
+            )
+        )
+
+
+class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
     manufacturer: Optional[str]
     name: Optional[str]
+    pdf_data: P
     heuristics: H
 
     def __init__(self, *args, **kwargs):
@@ -53,20 +68,6 @@ class Certificate(Generic[T, H], ABC, ComplexSerializableType):
     @abstractmethod
     def label_studio_title(self):
         raise NotImplementedError("Not meant to be implemented")
-
-    @property
-    def keywords_df_data(self) -> Dict[str, float]:
-        """
-        Returns dictionary of keywords divided by categories, used to generate dataframe.
-        """
-        return dict(
-            ChainMap(
-                *[
-                    sec_certs.utils.extract.get_sums_for_rules_subset(self._get_keyword_data_input(), cat)
-                    for cat in PANDAS_KEYWORDS_CATEGORIES
-                ]
-            )
-        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Certificate):
@@ -91,8 +92,4 @@ class Certificate(Generic[T, H], ABC, ComplexSerializableType):
 
     @abstractmethod
     def compute_heuristics_version(self) -> None:
-        raise NotImplementedError("Not meant to be implemented")
-
-    @abstractmethod
-    def _get_keyword_data_input(self) -> Optional[Dict]:
         raise NotImplementedError("Not meant to be implemented")
