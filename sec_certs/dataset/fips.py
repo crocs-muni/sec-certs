@@ -27,11 +27,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     """
 
     @property
-    def _policies_dir(self) -> Path:
+    def policies_dir(self) -> Path:
         return self.root_dir / "security_policies"
 
     @property
-    def _algorithms_dir(self) -> Path:
+    def algorithms_dir(self) -> Path:
         return self.auxillary_datasets_dir / "algorithms"
 
     @serialize
@@ -60,15 +60,15 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         :raises RuntimeError: If no cert_ids are specified, raises.
         """
         sp_paths, sp_urls = [], []
-        self._policies_dir.mkdir(exist_ok=True)
+        self.policies_dir.mkdir(exist_ok=True)
         if cert_ids is None:
             raise RuntimeError("You need to provide cert ids to FIPS download PDFs functionality.")
         for cert_id in cert_ids:
-            if not (self._policies_dir / f"{cert_id}.pdf").exists() or (
+            if not (self.policies_dir / f"{cert_id}.pdf").exists() or (
                 fips_dgst(cert_id) in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
             ):
                 sp_urls.append(constants.FIPS_SP_URL.format(cert_id))
-                sp_paths.append(self._policies_dir / f"{cert_id}.pdf")
+                sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
         logger.info(f"downloading {len(sp_urls)} module pdf files")
         cert_processing.process_parallel(
             FIPSCertificate.download_security_policy,
@@ -110,9 +110,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         """
         logger.info("Converting FIPS sample reports to .txt")
         tuples = [
-            (cert, self._policies_dir / f"{cert.cert_id}.pdf", self._policies_dir / f"{cert.cert_id}.pdf.txt")
+            (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
             for cert in self.certs.values()
-            if not cert.state.txt_state and (self._policies_dir / f"{cert.cert_id}.pdf").exists()
+            if not cert.state.txt_state and (self.policies_dir / f"{cert.cert_id}.pdf").exists()
         ]
         cert_processing.process_parallel(
             FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt"
@@ -172,7 +172,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             self.certs[dgst] = FIPSCertificate.from_html_file(
                 self.web_dir / f"{cert_id}.html",
                 FIPSCertificate.InternalState(
-                    (self._policies_dir / str(cert_id)).with_suffix(".pdf"),
+                    (self.policies_dir / str(cert_id)).with_suffix(".pdf"),
                     (self.web_dir / str(cert_id)).with_suffix(".html"),
                     False,
                     None,
@@ -192,7 +192,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.set_local_paths(self._policies_dir, self.web_dir)
+            cert.set_local_paths(self.policies_dir, self.web_dir)
 
     @serialize
     def get_certs_from_web(
@@ -214,8 +214,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         logger.info("Downloading required html files")
 
         self.web_dir.mkdir(parents=True, exist_ok=True)
-        self._policies_dir.mkdir(exist_ok=True)
-        self._algorithms_dir.mkdir(exist_ok=True)
+        self.policies_dir.mkdir(exist_ok=True)
+        self.algorithms_dir.mkdir(exist_ok=True)
 
         # Download files containing all available module certs (always)
         cert_ids = self._prepare_dataset(test, update)

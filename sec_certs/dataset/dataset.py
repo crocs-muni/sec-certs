@@ -3,6 +3,7 @@ import itertools
 import json
 import logging
 import re
+import shutil
 import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -84,7 +85,6 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         old_dset = copy.deepcopy(self)
         self._root_dir = Path(new_dir)
         self.root_dir.mkdir(exist_ok=True)
-
         self._set_local_paths()
 
         if old_dset.root_dir != self.root_dir:
@@ -174,7 +174,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @classmethod
     def from_json(cls: Type[DatasetSubType], input_path: Union[str, Path]) -> DatasetSubType:
         dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
-        dset.root_dir = Path(input_path).parent.absolute()
+        dset._root_dir = Path(input_path).parent.absolute()
         dset._set_local_paths()
         return dset
 
@@ -183,7 +183,10 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     # Workaround from https://peps.python.org/pep-0673/ applied.
     def _copy_dataset_contents(self: DatasetSubType, old_dset: DatasetSubType) -> None:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
+        try:
+            shutil.copytree(old_dset.root_dir, self.root_dir, dirs_exist_ok=True)
+        except FileNotFoundError as e:
+            logger.error(f"Attempted to copy dataset from {old_dset.root_dir}, but it's not there ({e}).")
 
     def _get_certs_by_name(self, name: str) -> Set[CertSubType]:
         """

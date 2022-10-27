@@ -264,15 +264,9 @@ class FIPSCertificate(
             self.file_status = file_status
             self.txt_state = txt_state
 
-    def set_local_paths(
-        self,
-        sp_dir: Optional[Union[str, Path]],
-        html_dir: Optional[Union[str, Path]],
-    ) -> None:
-        if sp_dir is not None:
-            self.state.sp_path = (Path(sp_dir) / (str(self.cert_id))).with_suffix(".pdf")
-        if html_dir is not None:
-            self.state.html_path = (Path(html_dir) / (str(self.cert_id))).with_suffix(".html")
+    def set_local_paths(self, sp_dir: Path, web_dir: Path) -> None:
+        self.state.sp_path = (sp_dir / str(self.cert_id)).with_suffix(".pdf")
+        self.state.html_path = (web_dir / str(self.cert_id)).with_suffix(".html")
 
     @dataclass(eq=True)
     class WebData(ComplexSerializableType):

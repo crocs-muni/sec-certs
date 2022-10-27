@@ -64,23 +64,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         return df
 
-    def _copy_dataset_contents(self, old_dset: CCDataset) -> None:
-        if old_dset.state.meta_sources_parsed:
-            try:
-                shutil.copytree(old_dset.web_dir, self.web_dir)
-            except FileNotFoundError as e:
-                logger.warning(f"Attempted to copy non-existing file: {e}")
-        if old_dset.state.pdfs_downloaded:
-            try:
-                shutil.copytree(old_dset.certs_dir, self.certs_dir)
-            except FileNotFoundError as e:
-                logger.warning(f"Attempted to copy non-existing file: {e}")
-        if old_dset.state.certs_analyzed:
-            try:
-                shutil.copytree(old_dset.auxillary_datasets_dir, self.auxillary_datasets_dir)
-            except FileNotFoundError as e:
-                logger.warning(f"Attempted to copy non-existing file: {e}")
-
     @property
     def certs_dir(self) -> Path:
         """
@@ -826,6 +809,9 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         update_dset._extract_data()
 
         return update_dset
+
+    def process_auxillary_datasets(self) -> None:
+        raise NotImplementedError
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
