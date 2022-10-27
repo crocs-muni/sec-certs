@@ -248,22 +248,46 @@ class FIPSCertificate(
         file_status: bool
         txt_state: bool
 
-        sp_path: Path
-        html_path: Path
+        policy_pdf_path: Path
+        policy_txt_path: Path
+        module_html_path: Path
+
+        module_download_ok: bool
+        policy_download_ok: bool
+
+        errors: List[str]
 
         def __init__(
             self,
             tables_done: bool = False,
             file_status: bool = True,  # TODO: Check if this is correct
             txt_state: bool = True,  # TODO: Check if this is correct
+            module_download_ok: bool = False,
+            policy_download_ok: bool = False,
+            errors: Optional[List[str]] = None,
         ):
             self.tables_done = tables_done
             self.file_status = file_status
             self.txt_state = txt_state
+            self.module_download_ok = module_download_ok
+            self.policy_download_ok = policy_download_ok
+            self.errors = errors if errors else []
 
-    def set_local_paths(self, sp_dir: Path, web_dir: Path) -> None:
-        self.state.sp_path = (sp_dir / str(self.dgst)).with_suffix(".pdf")
-        self.state.html_path = (web_dir / str(self.dgst)).with_suffix(".html")
+        @property
+        def serialized_attributes(self) -> List[str]:
+            # TODO: Fix me, add other variables
+            return ["tables_done", "file_status", "txt_state"]
+
+        def module_is_ok_to_download(self, fresh: bool = True) -> bool:
+            return True if fresh else not self.module_download_ok
+
+        def policy_is_ok_to_download(self, fresh: bool = True) -> bool:
+            return True if fresh else not self.policy_download_ok
+
+    def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, web_dir: Path) -> None:
+        self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
+        self.state.policy_txt_path = (policies_txt_dir / str(self.dgst)).with_suffix(".txt")
+        self.state.module_html_path = (web_dir / str(self.dgst)).with_suffix(".html")
 
     @dataclass(eq=True)
     class WebData(ComplexSerializableType):
@@ -367,6 +391,14 @@ class FIPSCertificate(
     @property
     def manufacturer(self) -> Optional[str]:  # type: ignore
         return self.web_data.vendor
+
+    @property
+    def module_html_url(self) -> str:
+        return constants.FIPS_MODULE_URL.format(self.dgst)
+
+    @property
+    def policy_pdf_url(self) -> str:
+        return constants.FIPS_SP_URL.format(self.dgst)
 
     @property
     def name(self) -> Optional[str]:  # type: ignore
@@ -555,18 +587,29 @@ class FIPSCertificate(
         return None
 
     @staticmethod
-    def download_security_policy(cert: Tuple[str, Path]) -> None:
-        """
-        Downloads security policy file from web. Staticmethod to allow for parametrization.
-        """
-        exit_code = helpers.download_file(*cert, delay=constants.FIPS_DOWNLOAD_DELAY)
-        if exit_code != requests.codes.ok:
-            logger.error(f"Failed to download security policy from {cert[0]}, code: {exit_code}")
+    def download_module(cert: FIPSCertificate) -> FIPSCertificate:
+        if (exit_code := helpers.download_file(cert.module_html_url, cert.state.module_html_path)) != requests.codes.ok:
+            error_msg = f"failed to download html module from {cert.module_html_url}, code {exit_code}"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
+            cert.state.module_download_ok = False
+        else:
+            cert.state.module_download_ok = True
+        return cert
+
+    @staticmethod
+    def download_policy(cert: FIPSCertificate) -> FIPSCertificate:
+        if (exit_code := helpers.download_file(cert.policy_pdf_url, cert.state.policy_pdf_path)) != requests.codes.ok:
+            error_msg = f"failed to download pdf policy from {cert.policy_pdf_url}, code {exit_code}"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
+            cert.state.policy_download_ok = False
+        else:
+            cert.state.policy_download_ok = True
+        return cert
 
     @staticmethod
     def extract_sp_metadata(cert: FIPSCertificate) -> FIPSCertificate:
         """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
-        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.sp_path)
+        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
         cert.pdf_data.st_metadata = metadata if metadata else dict()
         return cert
 
@@ -626,7 +669,9 @@ class FIPSCertificate(
         if not cert.state.txt_state:
             return None, cert
 
-        keywords = sec_certs.utils.extract.extract_keywords(cert.state.sp_path.with_suffix(".pdf.txt"), fips_rules)
+        keywords = sec_certs.utils.extract.extract_keywords(
+            cert.state.policy_pdf_path.with_suffix(".pdf.txt"), fips_rules
+        )
         return keywords, cert
 
     @staticmethod
@@ -653,7 +698,7 @@ class FIPSCertificate(
         ):
             return cert.state.tables_done, cert, set()
 
-        cert_file = cert.state.sp_path
+        cert_file = cert.state.policy_pdf_path
         txt_file = cert_file.with_suffix(".pdf.txt")
         with open(txt_file, "r", encoding="utf-8") as f:
             tables = sec_certs.utils.tables.find_tables(f.read(), txt_file)

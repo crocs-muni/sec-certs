@@ -65,13 +65,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         return df
 
     @property
-    def certs_dir(self) -> Path:
-        """
-        Returns directory that holds files associated with certificates
-        """
-        return self.root_dir / "certs"
-
-    @property
     def reports_dir(self) -> Path:
         """
         Returns directory that holds files associated with certification reports
@@ -136,6 +129,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             raise ValueError("The dataset with maintenance updates does not exist")
 
         return CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path / "Maintenance updates.json")
+
+    @property
+    def artifact_download_methods(self) -> List[Callable]:
+        return [self._download_reports, self._download_targets]
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -517,6 +514,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         return certs
 
     def _download_reports(self, fresh: bool = True) -> None:
+        if fresh:
+            logger.info("Downloading PDFs of CC certification reports.")
+        else:
+            logger.info("Attempting to re-download failed PDFs of CC certification reports.")
+
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
         cert_processing.process_parallel(
@@ -527,6 +529,11 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         )
 
     def _download_targets(self, fresh: bool = True) -> None:
+        if fresh:
+            logger.info("Downloading PDFs of CC security targets.")
+        else:
+            logger.info("Attempting to re-download failed PDFs of CC security targets.")
+
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
         cert_processing.process_parallel(
@@ -535,32 +542,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             config.n_threads,
             progress_bar_desc="Downloading targets",
         )
-
-    @serialize
-    def download_all_artifacts(self, fresh: bool = True) -> None:
-        """
-        Downloads all pdf files associated with certificates of the datset.
-
-        :param bool fresh: whether all (true) or only failed (false) pdfs shall be downloaded, defaults to True
-        """
-        if self.state.meta_sources_parsed is False:
-            logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
-            return
-
-        logger.info("Downloading CC sample reports")
-        self._download_reports(fresh)
-
-        logger.info("Downloading CC security targets")
-        self._download_targets(fresh)
-
-        if fresh is True:
-            logger.info("Attempting to re-download failed report links.")
-            self._download_reports(False)
-
-            logger.info("Attempting to re-download failed security target links.")
-            self._download_targets(False)
-
-        self.state.pdfs_downloaded = True
 
     def _convert_reports_to_txt(self, fresh: bool = True) -> None:
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
@@ -589,7 +570,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         :param bool fresh: whether all (true) or only failed (false) pdfs shall be converted, defaults to True
         """
-        if self.state.pdfs_downloaded is False:
+        if self.state.artifacts_downloaded is False:
             logger.info("Attempting to convert pdf while not having them downloaded. Returning.")
             return
 

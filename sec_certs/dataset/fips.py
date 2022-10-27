@@ -2,7 +2,7 @@ import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Set
+from typing import Callable, Dict, Final, List, Set
 
 import numpy as np
 import pandas as pd
@@ -35,11 +35,27 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @property
     def policies_dir(self) -> Path:
-        return self.root_dir / "security_policies"
+        return self.certs_dir / "policies"
+
+    @property
+    def policies_pdf_dir(self) -> Path:
+        return self.policies_dir / "pdf"
+
+    @property
+    def policies_txt_dir(self) -> Path:
+        return self.policies_dir / "txt"
+
+    @property
+    def module_dir(self) -> Path:
+        return self.certs_dir / "modules"
 
     @property
     def algorithms_dir(self) -> Path:
         return self.auxillary_datasets_dir / "algorithms"
+
+    @property
+    def artifact_download_methods(self) -> List[Callable]:
+        return [self._download_modules, self._download_policies]
 
     @serialize
     def _extract_data(self, redo: bool = False) -> None:
@@ -59,64 +75,37 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_data.keywords = keyword
 
-    def download_all_artifacts(self, cert_ids: Optional[Set[str]] = None) -> None:
-        """
-        Downloads all pdf files related to the certificates specified with cert_ids.
+    def _download_modules(self, fresh: bool = True) -> None:
+        self.module_dir.mkdir(exist_ok=True)
 
-        :param Optional[Set[str]] cert_ids: cert_ids to download the pdfs foor, defaults to None
-        :raises RuntimeError: If no cert_ids are specified, raises.
-        """
-        # TODO: The code below was migrated here from get_certs_web()
-        #     self.policies_dir.mkdir(exist_ok=True)
-        #     self.algorithms_dir.mkdir(exist_ok=True)
-        #     logger.info("Downloading certificate html and security policies")
-        #     self._download_all_htmls(cert_ids)
-        #     self.download_all_pdfs(cert_ids)
-        #     self.web_scan(cert_ids, redo=redo_web_scan, update_json=False)
+        if fresh:
+            logger.info("Downloading HTML cryptographic modules.")
+        else:
+            logger.info("Attempting re-download of failed HTML cryptographic modules.")
 
-        sp_paths, sp_urls = [], []
-        self.policies_dir.mkdir(exist_ok=True)
-        if cert_ids is None:
-            raise RuntimeError("You need to provide cert ids to FIPS download PDFs functionality.")
-        for cert_id in cert_ids:
-            if not (self.policies_dir / f"{cert_id}.pdf").exists() or (
-                fips_dgst(cert_id) in self.certs and not self.certs[fips_dgst(cert_id)].state.txt_state
-            ):
-                sp_urls.append(constants.FIPS_SP_URL.format(cert_id))
-                sp_paths.append(self.policies_dir / f"{cert_id}.pdf")
-        logger.info(f"downloading {len(sp_urls)} module pdf files")
+        certs_to_process = [x for x in self if x.state.module_is_ok_to_download(fresh)]
         cert_processing.process_parallel(
-            FIPSCertificate.download_security_policy,
-            list(zip(sp_urls, sp_paths)),
+            FIPSCertificate.download_module,
+            certs_to_process,
             config.n_threads,
-            progress_bar_desc="Downloading PDF files",
+            progress_bar_desc="Downloading HTML modules",
         )
 
-    def _download_all_htmls(self, cert_ids: Set[str]) -> None:
-        html_paths, html_urls = [], []
-        self.web_dir.mkdir(exist_ok=True)
-        for cert_id in cert_ids:
-            if not (self.web_dir / f"{cert_id}.html").exists():
-                html_urls.append(constants.FIPS_MODULE_URL.format(cert_id))
-                html_paths.append(self.web_dir / f"{cert_id}.html")
+    def _download_policies(self, fresh: bool = True) -> None:
+        self.policies_pdf_dir.mkdir(exist_ok=True)
 
-        logger.info(f"downloading {len(html_urls)} module html files")
-        failed = cert_processing.process_parallel(
-            FIPSCertificate.download_html_page,
-            list(zip(html_urls, html_paths)),
+        if fresh:
+            logger.info("Downloading PDF security policies.")
+        else:
+            logger.info("Attempting re-download of failed PDF security policies.")
+
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_download(fresh)]
+        cert_processing.process_parallel(
+            FIPSCertificate.download_policy,
+            certs_to_process,
             config.n_threads,
-            progress_bar_desc="Downloading HTML files",
+            progress_bar_desc="Downloading PDF security policies",
         )
-        failed = [c for c in failed if c]
-
-        if len(failed) != 0:
-            logger.info(f"Download failed for {len(failed)} files. Retrying...")
-            cert_processing.process_parallel(
-                FIPSCertificate.download_html_page,
-                failed,
-                config.n_threads,
-                progress_bar_desc="Downloading HTML files again",
-            )
 
     @serialize
     def convert_all_pdfs(self) -> None:
@@ -196,7 +185,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.set_local_paths(self.policies_dir, self.web_dir)
+            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.web_dir)
 
     @serialize
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
@@ -221,9 +210,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def _process_algorithms(self):
         logger.info("Processing FIPS algorithms.")
-        self.algorithms = FIPSAlgorithmDataset(
-            {}, Path(self.root_dir / "web" / "algorithms"), "algorithms", "sample algs"
-        )
+        self.algorithms_dir.mkdir(parernts=True, exist_ok=True)
+        self.algorithms = FIPSAlgorithmDataset({}, self.algorithms_dir, "algorithms", "sample algs")
         self.algorithms.get_certs_from_web()
         logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 

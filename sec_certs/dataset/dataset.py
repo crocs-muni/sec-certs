@@ -9,7 +9,23 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Collection, Dict, Generic, Iterator, Optional, Pattern, Set, Tuple, Type, TypeVar, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import pandas as pd
 import requests
@@ -36,7 +52,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @dataclass
     class DatasetInternalState(ComplexSerializableType):
         meta_sources_parsed: bool = False
-        pdfs_downloaded: bool = False
+        artifacts_downloaded: bool = False
         pdfs_converted: bool = False
         certs_analyzed: bool = False
 
@@ -101,6 +117,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return self.root_dir / "auxillary_datasets"
 
     @property
+    def certs_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with certificates
+        """
+        return self.root_dir / "certs"
+
+    @property
     def cpe_dataset_path(self) -> Path:
         return self.auxillary_datasets_dir / "cpe_dataset.json"
 
@@ -115,6 +138,11 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @property
     def json_path(self) -> Path:
         return self.root_dir / (self.name + ".json")
+
+    @property
+    @abstractmethod
+    def artifact_download_methods(self) -> List[Callable]:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def __contains__(self, item: object) -> bool:
         if not isinstance(item, Certificate):
@@ -202,9 +230,20 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def process_auxillary_datasets(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    @abstractmethod
-    def download_all_artifacts(self, cert_ids: Optional[Set[str]] = None) -> None:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
+    @serialize
+    def download_all_artifacts(self, fresh: bool = True) -> None:
+        if self.state.meta_sources_parsed is False:
+            logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
+            return
+
+        for method in self.artifact_download_methods:
+            method(fresh)
+
+        if fresh:
+            for method in self.artifact_download_methods:
+                method(False)
+
+        self.state.artifacts_downloaded = True
 
     @abstractmethod
     def convert_all_pdfs(self) -> None:
