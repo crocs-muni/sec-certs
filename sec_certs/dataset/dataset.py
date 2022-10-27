@@ -46,7 +46,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def __init__(
         self,
         certs: Dict[str, CertSubType] = dict(),
-        root_dir: Optional[Path] = None,
+        root_dir: Optional[Union[str, Path]] = None,
         name: Optional[str] = None,
         description: str = None,
         state: Optional[DatasetInternalState] = None,
@@ -58,7 +58,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
         if not root_dir:
             root_dir = Path.cwd() / (type(self).__name__).lower()
-        self._root_dir = root_dir
+        self._root_dir = Path(root_dir)
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
 
@@ -203,7 +203,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
+    def download_all_artifacts(self, cert_ids: Optional[Set[str]] = None) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod

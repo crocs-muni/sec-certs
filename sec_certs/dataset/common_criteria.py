@@ -278,7 +278,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
         self._merge_certs(csv_certs, cert_source="csv")
 
-        # TODO: Someway along the way, 3 certificates get lost. Investigate and fix.
+        # Someway along the way, 3 certificates get lost.
         logger.info("Adding HTML certificates to CommonCriteria dataset.")
         html_certs = self._get_all_certs_from_html(get_active, get_archived)
         self._merge_certs(html_certs, cert_source="html")
@@ -290,7 +290,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         self._set_local_paths()
         self.state.meta_sources_parsed = True
-        self.process_protection_profiles()
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, "CommonCriteriaCert"]:
         """
@@ -538,7 +537,7 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         )
 
     @serialize
-    def download_all_pdfs(self, fresh: bool = True) -> None:
+    def download_all_artifacts(self, fresh: bool = True) -> None:
         """
         Downloads all pdf files associated with certificates of the datset.
 
@@ -804,14 +803,15 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates(
             {x.dgst: x for x in updates}, root_dir=self.mu_dataset_path, name="Maintenance updates"
         )
-        update_dset.download_all_pdfs()
+        update_dset.download_all_artifacts()
         update_dset.convert_all_pdfs()
         update_dset._extract_data()
 
         return update_dset
 
     def process_auxillary_datasets(self) -> None:
-        raise NotImplementedError
+        self.process_protection_profiles()
+        # TODO: Also process MUs
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):

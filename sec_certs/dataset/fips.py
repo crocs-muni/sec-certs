@@ -1,6 +1,8 @@
+import itertools
 import logging
+import shutil
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import Dict, Final, List, Optional, Set
 
 import numpy as np
 import pandas as pd
@@ -14,7 +16,6 @@ from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
-from sec_certs.utils import helpers as helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
 
@@ -25,6 +26,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     """
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
+
+    LIST_OF_CERTS_HTML: Final[Dict[str, str]] = {
+        "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
+        "fips_modules_historical.html": constants.FIPS_HISTORICAL_MODULES_URL,
+        "fips_modules_revoked.html": constants.FIPS_REVOKED_MODULES_URL,
+    }
 
     @property
     def policies_dir(self) -> Path:
@@ -52,13 +59,21 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_data.keywords = keyword
 
-    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
+    def download_all_artifacts(self, cert_ids: Optional[Set[str]] = None) -> None:
         """
         Downloads all pdf files related to the certificates specified with cert_ids.
 
         :param Optional[Set[str]] cert_ids: cert_ids to download the pdfs foor, defaults to None
         :raises RuntimeError: If no cert_ids are specified, raises.
         """
+        # TODO: The code below was migrated here from get_certs_web()
+        #     self.policies_dir.mkdir(exist_ok=True)
+        #     self.algorithms_dir.mkdir(exist_ok=True)
+        #     logger.info("Downloading certificate html and security policies")
+        #     self._download_all_htmls(cert_ids)
+        #     self.download_all_pdfs(cert_ids)
+        #     self.web_scan(cert_ids, redo=redo_web_scan, update_json=False)
+
         sp_paths, sp_urls = [], []
         self.policies_dir.mkdir(exist_ok=True)
         if cert_ids is None:
@@ -118,45 +133,36 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt"
         )
 
-    # TODO: this "test" parameter is nasty.
-    def _prepare_dataset(self, test: Optional[Path] = None, update: bool = False) -> Set[str]:
-        if test:
-            html_files = [test]
-        else:
-            html_files = [
-                Path("fips_modules_active.html"),
-                Path("fips_modules_historical.html"),
-                Path("fips_modules_revoked.html"),
-            ]
-            helpers.download_file(constants.FIPS_ACTIVE_MODULES_URL, Path(self.web_dir / "fips_modules_active.html"))
-            helpers.download_file(
-                constants.FIPS_HISTORICAL_MODULES_URL, Path(self.web_dir / "fips_modules_historical.html")
+    def _download_html_resources(self) -> None:
+        logger.info("Downloading HTML files that list FIPS certificates.")
+        html_urls = list(FIPSDataset.LIST_OF_CERTS_HTML.values())
+        html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML.keys()]
+        self._download_parallel(html_urls, html_paths)
+
+    def _get_all_certs_from_html_sources(self) -> Set[FIPSCertificate]:
+        return set(
+            itertools.chain.from_iterable(
+                [self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()]
             )
-            helpers.download_file(constants.FIPS_REVOKED_MODULES_URL, Path(self.web_dir / "fips_modules_revoked.html"))
+        )
 
-        # Parse those files and get list of currently processable files (always)
-        cert_ids: Set[str] = set()
-        for f in html_files:
-            cert_ids |= self._get_certificates_from_html(self.web_dir / f, update)
+    def _get_certificates_from_html(self, html_file: Path) -> Set[FIPSCertificate]:
+        logger.debug(f"Getting certificate ids from {html_file}")
 
-        return cert_ids
-
-    def _get_certificates_from_html(self, html_file: Path, update: bool = False) -> Set[str]:
-        logger.info(f"Getting certificate ids from {html_file}")
         with open(html_file, "r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html5lib")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
-        entries: Set[str] = set()
+        cert_ids: Set[int] = set()
 
         for entry in table:
             if isinstance(entry, NavigableString):
                 continue
             cert_id = entry.find("a").text
-            if cert_id not in entries:
-                entries.add(cert_id)
+            if cert_id not in cert_ids:
+                cert_ids.add(int(cert_id))
 
-        return entries
+        return {FIPSCertificate(cert_id) for cert_id in cert_ids}
 
     @serialize
     def web_scan(self, cert_ids: Set[str], redo: bool = False) -> None:
@@ -172,10 +178,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             self.certs[dgst] = FIPSCertificate.from_html_file(
                 self.web_dir / f"{cert_id}.html",
                 FIPSCertificate.InternalState(
-                    (self.policies_dir / str(cert_id)).with_suffix(".pdf"),
-                    (self.web_dir / str(cert_id)).with_suffix(".html"),
                     False,
-                    None,
+                    False,
                     False,
                 ),
                 self.certs.get(dgst),
@@ -195,36 +199,21 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             cert.set_local_paths(self.policies_dir, self.web_dir)
 
     @serialize
-    def get_certs_from_web(
-        self,
-        # TODO: REMOVE THIS TEST ARGUMENT, OMG!
-        test: Optional[Path] = None,
-        update: bool = False,
-        redo_web_scan=False,
-    ) -> None:
-        """Downloads HTML search pages, parses them, populates the dataset,
-        and performs `web-scan` - extracting information from CMVP pages for
-        each certificate.
-
-        Args:
-            test (Optional[Path], optional): Path to dataset used in testing. Defaults to None.
-            update (bool, optional): Whether to update dataset with new entries. Defaults to False.
-            redo_web_scan (bool, optional): Whether to redo the `web-scan` functionality. Defaults to False.
-        """
-        logger.info("Downloading required html files")
-
+    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
-        self.policies_dir.mkdir(exist_ok=True)
-        self.algorithms_dir.mkdir(exist_ok=True)
 
-        # Download files containing all available module certs (always)
-        cert_ids = self._prepare_dataset(test, update)
+        if to_download:
+            self._download_html_resources()
 
-        logger.info("Downloading certificate html and security policies")
-        self._download_all_htmls(cert_ids)
-        self.download_all_pdfs(cert_ids)
+        logger.info("Adding empty FIPS certificates into FIPSDataset.")
+        self.certs = {x.dgst: x for x in self._get_all_certs_from_html_sources()}
+        logger.info(f"The dataset now contains {len(self)} certificates.")
 
-        self.web_scan(cert_ids, redo=redo_web_scan, update_json=False)
+        if not keep_metadata:
+            shutil.rmtree(self.web_dir)
+
+        self._set_local_paths()
+        self.state.meta_sources_parsed = True
 
     @serialize
     def process_auxillary_datasets(self) -> None:

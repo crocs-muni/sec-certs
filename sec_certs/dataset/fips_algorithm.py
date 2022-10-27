@@ -126,7 +126,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def convert_all_pdfs(self):
         raise NotImplementedError("Not meant to be implemented")
 
-    def download_all_pdfs(self, cert_ids: Optional[Set[str]] = None) -> None:
+    def download_all_artifacts(self, cert_ids: Optional[Set[str]] = None) -> None:
         raise NotImplementedError("Not meant to be implemented")
 
     def __getitem__(self, item: str) -> FIPSAlgorithm:

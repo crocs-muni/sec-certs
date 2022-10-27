@@ -74,6 +74,9 @@ class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
             return False
         return self.dgst == other.dgst
 
+    def __hash__(self) -> int:
+        return hash(self.dgst)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             **{"dgst": self.dgst},

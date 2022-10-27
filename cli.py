@@ -161,9 +161,9 @@ def main(
         ),
         ProcessingStep(
             "download",
-            "download_all_pdfs",
+            "download_artifacts",
             precondition="meta_sources_parsed",
-            precondition_error_msg="Error: You want to download all pdfs, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
+            precondition_error_msg="Error: You want to download all artifacts, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
             pre_callback_func=None,
         ),
         ProcessingStep(

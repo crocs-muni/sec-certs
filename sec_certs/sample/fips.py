@@ -244,29 +244,26 @@ class FIPSCertificate(
         Holds state of the `FIPSCertificate`
         """
 
+        tables_done: bool
+        file_status: bool
+        txt_state: bool
+
         sp_path: Path
         html_path: Path
-        tables_done: bool
-        file_status: Optional[bool]
-        txt_state: bool
 
         def __init__(
             self,
-            sp_path: Union[str, Path],
-            html_path: Union[str, Path],
-            tables_done: bool,
-            file_status: Optional[bool],
-            txt_state: bool,
+            tables_done: bool = False,
+            file_status: bool = True,  # TODO: Check if this is correct
+            txt_state: bool = True,  # TODO: Check if this is correct
         ):
-            self.sp_path = Path(sp_path)
-            self.html_path = Path(html_path)
             self.tables_done = tables_done
             self.file_status = file_status
             self.txt_state = txt_state
 
     def set_local_paths(self, sp_dir: Path, web_dir: Path) -> None:
-        self.state.sp_path = (sp_dir / str(self.cert_id)).with_suffix(".pdf")
-        self.state.html_path = (web_dir / str(self.cert_id)).with_suffix(".html")
+        self.state.sp_path = (sp_dir / str(self.dgst)).with_suffix(".pdf")
+        self.state.html_path = (web_dir / str(self.dgst)).with_suffix(".html")
 
     @dataclass(eq=True)
     class WebData(ComplexSerializableType):
@@ -274,33 +271,33 @@ class FIPSCertificate(
         Data structure for data obtained from scanning certificate webpage at NIST.gov
         """
 
-        module_name: Optional[str]
-        standard: Optional[str]
-        status: Optional[str]
-        date_sunset: Optional[datetime]
-        date_validation: Optional[List[datetime]]
-        level: Optional[str]
-        caveat: Optional[str]
-        exceptions: Optional[List[str]]
-        module_type: Optional[str]
-        embodiment: Optional[str]
-        algorithms: Optional[Set[FIPSAlgorithm]]
-        tested_conf: Optional[List[str]]
-        description: Optional[str]
-        mentioned_certs: Optional[Dict[str, Dict[str, int]]]
-        vendor: Optional[str]
-        vendor_www: Optional[str]
-        lab: Optional[str]
-        lab_nvlap: Optional[str]
-        historical_reason: Optional[str]
-        security_policy_www: Optional[str]
-        certificate_www: Optional[str]
-        hw_version: Optional[str]
-        fw_version: Optional[str]
-        revoked_reason: Optional[str]
-        revoked_link: Optional[str]
-        sw_versions: Optional[str]
-        product_url: Optional[str]
+        module_name: Optional[str] = field(default=None)
+        standard: Optional[str] = field(default=None)
+        status: Optional[str] = field(default=None)
+        date_sunset: Optional[datetime] = field(default=None)
+        date_validation: Optional[List[datetime]] = field(default=None)
+        level: Optional[str] = field(default=None)
+        caveat: Optional[str] = field(default=None)
+        exceptions: Optional[List[str]] = field(default=None)
+        module_type: Optional[str] = field(default=None)
+        embodiment: Optional[str] = field(default=None)
+        algorithms: Optional[Set[FIPSAlgorithm]] = field(default=None)
+        tested_conf: Optional[List[str]] = field(default=None)
+        description: Optional[str] = field(default=None)
+        mentioned_certs: Optional[Dict[str, Dict[str, int]]] = field(default=None)
+        vendor: Optional[str] = field(default=None)
+        vendor_www: Optional[str] = field(default=None)
+        lab: Optional[str] = field(default=None)
+        lab_nvlap: Optional[str] = field(default=None)
+        historical_reason: Optional[str] = field(default=None)
+        security_policy_www: Optional[str] = field(default=None)
+        certificate_www: Optional[str] = field(default=None)
+        hw_version: Optional[str] = field(default=None)
+        fw_version: Optional[str] = field(default=None)
+        revoked_reason: Optional[str] = field(default=None)
+        revoked_link: Optional[str] = field(default=None)
+        sw_versions: Optional[str] = field(default=None)
+        product_url: Optional[str] = field(default=None)
 
         def __repr__(self) -> str:
             return (
@@ -320,17 +317,17 @@ class FIPSCertificate(
         Data structure that holds data obtained from scanning pdf files (or their converted txt documents).
         """
 
-        cert_id: int
-        keywords: Dict
-        algorithms: Set[FIPSAlgorithm]
-        clean_cert_ids: Dict[str, int]
-        st_metadata: Optional[Dict[str, Any]] = field(default=None)
+        keywords: Dict = field(default_factory=dict)
+        algorithms: Set[FIPSAlgorithm] = field(default_factory=set)
+        clean_cert_ids: Dict[str, int] = field(default_factory=dict)
+        st_metadata: Dict[str, Any] = field(default_factory=dict)
 
-        def __repr__(self) -> str:
-            return str(self.cert_id)
+        # TODO: Is this meaningful? Cert id attribute got deleted.
+        # def __repr__(self) -> str:
+        #     return str(self.cert_id)
 
-        def __str__(self) -> str:
-            return str(self.cert_id)
+        # def __str__(self) -> str:
+        #     return str(self.cert_id)
 
     @dataclass(eq=True)
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -338,12 +335,13 @@ class FIPSCertificate(
         Data structure that holds data obtained by processing the certificate and applying various heuristics.
         """
 
-        keywords: Dict[str, Dict]
-        algorithms: Set[FIPSAlgorithm]
-        unmatched_algs: int
-        clean_cert_ids: Dict[str, int]
+        # TODO: How are keywords, clean_cert_ids and algorithms attributes different from those in pdf data?
+        keywords: Dict[str, Dict] = field(default_factory=dict)
+        algorithms: Set[FIPSAlgorithm] = field(default_factory=set)
+        unmatched_algs: Optional[int] = field(default=None)
+        clean_cert_ids: Optional[Dict[str, int]] = field(default=None)
 
-        extracted_versions: Optional[Set[str]] = field(default=None)
+        extracted_versions: Set[str] = field(default_factory=set)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
@@ -393,17 +391,18 @@ class FIPSCertificate(
     def __init__(
         self,
         cert_id: int,
-        web_data: FIPSCertificate.WebData,
-        pdf_data: FIPSCertificate.PdfData,
-        heuristics: FIPSCertificate.Heuristics,
-        state: InternalState,
+        web_data: Optional[FIPSCertificate.WebData] = None,
+        pdf_data: Optional[FIPSCertificate.PdfData] = None,
+        heuristics: Optional[FIPSCertificate.Heuristics] = None,
+        state: Optional[InternalState] = None,
     ):
         super().__init__()
+
         self.cert_id = cert_id
-        self.web_data = web_data
-        self.pdf_data = pdf_data
-        self.heuristics = heuristics
-        self.state = state
+        self.web_data = web_data if web_data else FIPSCertificate.WebData()
+        self.pdf_data = pdf_data if pdf_data else FIPSCertificate.PdfData()
+        self.heuristics = heuristics if heuristics else FIPSCertificate.Heuristics()
+        self.state = state if state else FIPSCertificate.InternalState()
 
     @property
     def pandas_tuple(self) -> Tuple:
@@ -533,7 +532,6 @@ class FIPSCertificate(
                 items_found["product_url"] if "product_url" in items_found else None,
             ),
             FIPSCertificate.PdfData(
-                items_found["cert_id"],
                 {} if not initialized else initialized.pdf_data.keywords,
                 set() if not initialized else initialized.pdf_data.algorithms,
                 {} if not initialized else initialized.pdf_data.clean_cert_ids,
@@ -568,7 +566,8 @@ class FIPSCertificate(
     @staticmethod
     def extract_sp_metadata(cert: FIPSCertificate) -> FIPSCertificate:
         """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
-        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.sp_path)
+        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.sp_path)
+        cert.pdf_data.st_metadata = metadata if metadata else dict()
         return cert
 
     @staticmethod
@@ -686,26 +685,27 @@ class FIPSCertificate(
         return True, cert, lst
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
-        if "Certlike" in self.pdf_data.keywords["fips_certlike"]:
-            for found in self.pdf_data.keywords["fips_certlike"]["Certlike"]:
-                match_in_found = reg_to_match.search(found)
-                match_in_cert = reg_to_match.search(cert)
-                if (
-                    match_in_found is not None
-                    and match_in_cert is not None
-                    and match_in_found.group("id") == match_in_cert.group("id")
-                ):
-                    to_pop.add(cert)
+        pass
 
-        this_id = int("".join(filter(str.isdigit, cert)))
+    # def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
+    #         for found in self.pdf_data.keywords["fips_certlike"]["Certlike"]:
+    #             match_in_found = reg_to_match.search(found)
+    #             match_in_cert = reg_to_match.search(cert)
+    #             if (
+    #                 match_in_found is not None
+    #                 and match_in_cert is not None
+    #                 and match_in_found.group("id") == match_in_cert.group("id")
+    #             ):
+    #                 to_pop.add(cert)
 
-        for algo in self.heuristics.algorithms:
-            try:
-                algo_id = int("".join(filter(str.isdigit, algo.cert_id)))
-                if algo_id == this_id:
-                    to_pop.add(cert)
-            except ValueError:
-                continue
+    #     this_id = int("".join(filter(str.isdigit, cert)))
+    #     for algo in self.heuristics.algorithms:
+    #         try:
+    #             algo_id = int("".join(filter(str.isdigit, algo.cert_id)))
+    #             if algo_id == this_id:
+    #                 to_pop.add(cert)
+    #         except ValueError:
+    #             continue
 
     def clean_cert_ids(self) -> None:
         """
