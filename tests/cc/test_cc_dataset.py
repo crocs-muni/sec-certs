@@ -1,0 +1,156 @@
+import json
+import shutil
+from datetime import date
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import pytest
+
+import tests.data.cc.dataset
+from sec_certs import constants
+from sec_certs.dataset import CCDataset
+from sec_certs.sample.common_criteria import CommonCriteriaCert
+
+
+@pytest.fixture(scope="module")
+def data_dir() -> Path:
+    return Path(tests.data.cc.dataset.__path__[0])
+
+
+@pytest.fixture(scope="module")
+def crt() -> CommonCriteriaCert:
+    return CommonCriteriaCert(
+        "active",
+        "Access Control Devices and Systems",
+        "NetIQ Identity Manager 4.7",
+        "NetIQ Corporation",
+        "SE",
+        {"ALC_FLR.2", "EAL3+"},
+        date(2020, 6, 15),
+        date(2025, 6, 15),
+        "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf",
+        "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
+        "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
+        "https://www.netiq.com/",
+        set(),
+        set(),
+        None,
+        None,
+        None,
+    )
+
+
+@pytest.fixture
+def toy_dataset(data_dir: Path) -> CCDataset:
+    return CCDataset.from_json(data_dir / "toy_dataset.json")
+
+
+def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
+    template_report_pdf_hashes = {
+        "309ac2fd7f2dcf17": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
+        "8cf86948f02f047d": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
+    }
+
+    template_st_pdf_hashes = {
+        "309ac2fd7f2dcf17": "b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9",
+        "8cf86948f02f047d": "3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be",
+    }
+
+    with TemporaryDirectory() as td:
+        toy_dataset.root_dir = Path(td)
+        toy_dataset.download_all_artifacts()
+        toy_dataset.convert_all_pdfs()
+
+        for cert in toy_dataset:
+            assert cert.state.report_pdf_hash == template_report_pdf_hashes[cert.dgst]
+            assert cert.state.st_pdf_hash == template_st_pdf_hashes[cert.dgst]
+
+        assert not toy_dataset["309ac2fd7f2dcf17"].state.report_convert_garbage
+        assert not toy_dataset["309ac2fd7f2dcf17"].state.st_convert_garbage
+        assert toy_dataset["309ac2fd7f2dcf17"].state.report_convert_ok
+        assert toy_dataset["309ac2fd7f2dcf17"].state.st_convert_ok
+
+        assert toy_dataset["309ac2fd7f2dcf17"].state.report_txt_path.exists()
+        assert toy_dataset["309ac2fd7f2dcf17"].state.st_txt_path.exists()
+
+        template_report_txt_path = data_dir / "report_309ac2fd7f2dcf17.txt"
+        template_st_txt_path = data_dir / "target_309ac2fd7f2dcf17.txt"
+        assert (
+            abs(toy_dataset["309ac2fd7f2dcf17"].state.st_txt_path.stat().st_size - template_st_txt_path.stat().st_size)
+            < 1000
+        )
+        assert (
+            abs(
+                toy_dataset["309ac2fd7f2dcf17"].state.report_txt_path.stat().st_size
+                - template_report_txt_path.stat().st_size
+            )
+            < 1000
+        )
+
+
+def test_dataset_to_json(toy_dataset: CCDataset, data_dir: Path, tmp_path: Path):
+    toy_dataset.to_json(tmp_path / "dset.json")
+
+    with (tmp_path / "dset.json").open("r") as handle:
+        data = json.load(handle)
+
+    with (data_dir / "toy_dataset.json").open("r") as handle:
+        template_data = json.load(handle)
+
+    del data["timestamp"]
+    del template_data["timestamp"]
+    assert data == template_data
+
+
+def test_dataset_from_json(toy_dataset: CCDataset, data_dir: Path):
+    assert toy_dataset == CCDataset.from_json(data_dir / "toy_dataset.json")
+
+
+def test_build_empty_dataset():
+    with TemporaryDirectory() as tmp_dir:
+        dset = CCDataset({}, Path(tmp_dir), "sample_dataset", "sample dataset description")
+        dset.get_certs_from_web(to_download=False, get_archived=False, get_active=False)
+    assert len(dset) == 0
+    assert dset.state.meta_sources_parsed
+    assert not dset.state.artifacts_downloaded
+    assert not dset.state.pdfs_converted
+    assert not dset.state.certs_analyzed
+
+
+def test_build_dataset(data_dir: Path, crt: CommonCriteriaCert, toy_dataset: CCDataset):
+    with TemporaryDirectory() as tmp_dir:
+        dataset_path = Path(tmp_dir)
+        (dataset_path / "web").mkdir()
+        shutil.copyfile(data_dir / "cc_products_active.csv", dataset_path / "web" / "cc_products_active.csv")
+        shutil.copyfile(data_dir / "cc_products_active.html", dataset_path / "web" / "cc_products_active.html")
+
+        dset = CCDataset({}, dataset_path, "sample_dataset", "sample dataset description")
+        dset.get_certs_from_web(
+            keep_metadata=False, to_download=False, get_archived=False, get_active=True, update_json=False
+        )
+
+        assert len(list(dataset_path.iterdir())) == 0
+        assert len(dset) == 2
+        assert crt in dset
+        assert dset == toy_dataset
+
+
+def test_process_pp_dataset(toy_dataset: CCDataset):
+    with TemporaryDirectory() as tmp_dir:
+        toy_dataset.root_dir = tmp_dir  # type: ignore
+        toy_dataset.process_protection_profiles()
+        assert toy_dataset.pp_dataset_path.exists()
+        assert toy_dataset.pp_dataset_path.stat().st_size > constants.MIN_CC_PP_DATASET_SIZE
+
+
+def test_download_csv_html_files():
+    with TemporaryDirectory() as tmp_dir:
+        dset = CCDataset({}, Path(tmp_dir), "sample_dataset", "sample dataset description")
+        dset._download_csv_html_resources(get_active=True, get_archived=False)
+
+        for x in dset.active_html_tuples:
+            assert x[1].exists()
+            assert x[1].stat().st_size >= constants.MIN_CC_HTML_SIZE
+        for x in dset.active_csv_tuples:
+            assert x[1].exists()
+            assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE

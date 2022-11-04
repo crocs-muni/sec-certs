@@ -1,9 +1,9 @@
 {
     "_type": "sec_certs.dataset.common_criteria.CCDataset",
     "state": {
-        "_type": "sec_certs.dataset.common_criteria.CCDataset.DatasetInternalState",
+        "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
         "meta_sources_parsed": true,
-        "pdfs_downloaded": false,
+        "artifacts_downloaded": false,
         "pdfs_converted": false,
         "certs_analyzed": false
     },
