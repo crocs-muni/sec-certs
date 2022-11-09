@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import Dict, Set
 
@@ -80,8 +81,11 @@ def cve_dset(cves: Set[CVE]) -> CVEDataset:
 
 
 @pytest.fixture(scope="module")
-def cc_dset(data_dir: Path, cve_dset: CVEDataset) -> CCDataset:
-    cc_dset = CCDataset.from_json(data_dir / "vulnerable_dataset.json")
+def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset:
+    tmp_dir = tmp_path_factory.mktemp("cc_dset")
+    shutil.copytree(data_dir, tmp_dir, dirs_exist_ok=True)
+
+    cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.process_protection_profiles()
     cc_dset._extract_data()
     cc_dset.auxillary_datasets.cve_dset = cve_dset

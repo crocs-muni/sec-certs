@@ -15,7 +15,7 @@
     "certs": [
         {
             "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
-            "dgst": "c01e5375331b25dc",
+            "dgst": "ebd276cca70fd723",
             "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "IBM Security Access Manager for Enterprise Single Sign-On Version 8.2",
