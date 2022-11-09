@@ -31,7 +31,7 @@ def cpe_dict() -> Dict[str, Any]:
 
 @pytest.mark.slow
 @pytest.mark.monitor_test
-@pytest.xfail("May fail due to errors with NIST server.")
+@pytest.mark.xfail("May fail due to errors with NIST server.")
 def test_cpe_dset_from_web(tmp_path: Path):
     dset = CPEDataset.from_web(tmp_path)
     assert dset is not None
