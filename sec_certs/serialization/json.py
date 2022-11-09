@@ -5,7 +5,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
-T = TypeVar("T")
+T = TypeVar("T", bound="ComplexSerializableType")
 
 
 class ComplexSerializableType:
