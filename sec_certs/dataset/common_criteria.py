@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.config.configuration import config
-from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
@@ -33,7 +33,7 @@ from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 
-class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
+class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializableType):
     """
     Class that holds CommonCriteriaCert. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
@@ -129,10 +129,6 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
             raise ValueError("The dataset with maintenance updates does not exist")
 
         return CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path / "Maintenance updates.json")
-
-    @property
-    def artifact_download_methods(self) -> List[Callable]:
-        return [self._download_reports, self._download_targets]
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -513,6 +509,10 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
 
         return certs
 
+    def _download_all_artifacts_body(self, fresh: bool = True) -> None:
+        self._download_reports(fresh)
+        self._download_targets(fresh)
+
     def _download_reports(self, fresh: bool = True) -> None:
         if fresh:
             logger.info("Downloading PDFs of CC certification reports.")
@@ -712,8 +712,8 @@ class CCDataset(Dataset[CommonCriteriaCert], ComplexSerializableType):
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
         self._compute_sars()
-        _, _, cve_dset = self.compute_cpe_heuristics()
-        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
+        self.compute_cpe_heuristics()
+        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
         self._compute_dependency_vulnerabilities()
 
     def _compute_sars(self) -> None:

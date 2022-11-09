@@ -59,6 +59,15 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
     with TemporaryDirectory() as td:
         toy_dataset.root_dir = Path(td)
         toy_dataset.download_all_artifacts()
+
+        if not (
+            toy_dataset["309ac2fd7f2dcf17"].state.report_download_ok
+            or toy_dataset["309ac2fd7f2dcf17"].state.st_download_ok
+            or toy_dataset["8cf86948f02f047d"].state.report_download_ok
+            or toy_dataset["8cf86948f02f047d"].state.st_download_ok
+        ):
+            pytest.xfail(reason="Fail due to error during download")
+
         toy_dataset.convert_all_pdfs()
 
         for cert in toy_dataset:
@@ -143,6 +152,7 @@ def test_process_pp_dataset(toy_dataset: CCDataset):
         assert toy_dataset.pp_dataset_path.stat().st_size > constants.MIN_CC_PP_DATASET_SIZE
 
 
+@pytest.mark.xfail(reason="May fail due to error on CC server")
 def test_download_csv_html_files():
     with TemporaryDirectory() as tmp_dir:
         dset = CCDataset({}, Path(tmp_dir), "sample_dataset", "sample dataset description")

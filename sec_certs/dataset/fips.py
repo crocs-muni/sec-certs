@@ -2,7 +2,7 @@ import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Callable, Dict, Final, List, Set
+from typing import Dict, Final, List, Set
 
 import numpy as np
 import pandas as pd
@@ -11,7 +11,7 @@ from graphviz import Digraph
 
 from sec_certs import constants
 from sec_certs.config.configuration import config
-from sec_certs.dataset.dataset import Dataset
+from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
@@ -22,7 +22,7 @@ from sec_certs.utils.helpers import fips_dgst
 logger = logging.getLogger(__name__)
 
 
-class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
+class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializableType):
     """
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
@@ -53,10 +53,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def algorithms_dir(self) -> Path:
         return self.auxillary_datasets_dir / "algorithms"
 
-    @property
-    def artifact_download_methods(self) -> List[Callable]:
-        return [self._download_modules, self._download_policies]
-
     @serialize
     def _extract_data(self, redo: bool = False) -> None:
         """
@@ -74,6 +70,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_data.keywords = keyword
+
+    def _download_all_artifacts_body(self, fresh: bool = True) -> None:
+        self._download_modules(fresh)
+        self._download_policies(fresh)
 
     def _download_modules(self, fresh: bool = True) -> None:
         self.module_dir.mkdir(exist_ok=True)
@@ -383,8 +383,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._compute_heuristics_clean_ids()
         self._compute_dependencies()
         if perform_cpe_heuristics:
-            _, _, cve_dset = self.compute_cpe_heuristics()
-            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict, cve_dset=cve_dset)
+            self.compute_cpe_heuristics()
+            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
         self.plot_graphs(show=True)
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:

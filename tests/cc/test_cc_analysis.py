@@ -80,12 +80,11 @@ def cve_dset(cves: Set[CVE]) -> CVEDataset:
 
 
 @pytest.fixture(scope="module")
-def cc_dset(data_dir: Path) -> CCDataset:
+def cc_dset(data_dir: Path, cve_dset: CVEDataset) -> CCDataset:
     cc_dset = CCDataset.from_json(data_dir / "vulnerable_dataset.json")
     cc_dset.process_protection_profiles()
-    cc_dset.download_all_artifacts()
-    cc_dset.convert_all_pdfs()
     cc_dset._extract_data()
+    cc_dset.auxillary_datasets.cve_dset = cve_dset
     cc_dset._compute_heuristics(use_nist_cpe_matching_dict=False)
     return cc_dset
 
