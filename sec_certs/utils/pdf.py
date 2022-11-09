@@ -58,7 +58,8 @@ def ocr_pdf_file(pdf_path: Path) -> str:
             if tes.returncode != 0:
                 raise ValueError(f"tesseract failed: {tes.returncode}")
         contents = ""
-        for txt_path in map(Path, glob.glob(str(tmppath / "image*.txt"))):
+        txt_paths = list(glob.glob(str(tmppath / "image*.txt")))
+        for txt_path in map(Path, sorted(txt_paths, key=lambda fname: int(fname[6:-4]))):
             with txt_path.open("r", encoding="utf-8") as f:
                 contents += f.read()
     return contents
