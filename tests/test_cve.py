@@ -11,6 +11,7 @@ from sec_certs.sample.cpe import CPE
 
 @pytest.mark.slow
 @pytest.mark.monitor_test
+@pytest.mark.xfail("May fail due to errors on NIST server.")
 def test_from_web():
     dset = CVEDataset.from_web()
     assert dset is not None
