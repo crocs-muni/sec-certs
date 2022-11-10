@@ -11,7 +11,7 @@ from sec_certs.sample.cpe import CPE
 
 @pytest.mark.slow
 @pytest.mark.monitor_test
-@pytest.mark.xfail("May fail due to errors on NIST server.")
+@pytest.mark.xfail(reason="May fail due to errors on NIST server.")
 def test_from_web():
     dset = CVEDataset.from_web()
     assert dset is not None
@@ -100,3 +100,10 @@ def test_cve_from_to_dict(cve_dict: Dict[str, Any]):
     assert ret == cve_dict
     other_cve = CVE.from_dict(ret)
     assert cve == other_cve
+
+
+def test_to_pandas(cve_dset: CVEDataset):
+    df = cve_dset.to_pandas()
+    assert df.shape == (len(cve_dset), len(CVE.pandas_columns) - 1)
+    assert df.index.name == "cve_id"
+    assert set(df.columns) == set(CVE.pandas_columns) - {"cve_id"}

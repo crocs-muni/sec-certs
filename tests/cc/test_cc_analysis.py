@@ -50,7 +50,7 @@ def cpes(cpe_single_sign_on: CPE) -> Set[CPE]:
 
 @pytest.fixture(scope="module")
 def cpe_dset(cpes: Set[CPE]) -> CPEDataset:
-    return CPEDataset(True, Path("../"), {x.uri: x for x in cpes})
+    return CPEDataset(False, {x.uri: x for x in cpes}, Path("../"))
 
 
 @pytest.fixture(scope="module")

@@ -31,7 +31,7 @@ def cpe_dict() -> Dict[str, Any]:
 
 @pytest.mark.slow
 @pytest.mark.monitor_test
-@pytest.mark.xfail("May fail due to errors with NIST server.")
+@pytest.mark.xfail(reason="May fail due to errors with NIST server.")
 def test_cpe_dset_from_web(tmp_path: Path):
     dset = CPEDataset.from_web(tmp_path)
     assert dset is not None
@@ -121,3 +121,10 @@ def test_cpe_from_to_dict(cpe_dict):
     assert cpe_dict == ret
     other_cpe = CPE.from_dict(ret)
     assert cpe == other_cpe
+
+
+def test_to_pandas(cpe_dset: CPEDataset):
+    df = cpe_dset.to_pandas()
+    assert df.shape == (len(cpe_dset), len(CPE.pandas_columns) - 1)
+    assert df.index.name == "uri"
+    assert set(df.columns) == set(CPE.pandas_columns) - {"uri"}

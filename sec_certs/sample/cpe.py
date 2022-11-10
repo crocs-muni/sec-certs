@@ -26,8 +26,6 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         "item_name",
         "version",
         "title",
-        "start_version",
-        "end_version",
     ]
 
     def __init__(

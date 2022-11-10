@@ -182,7 +182,10 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         return dset
 
     def _set_local_paths(self) -> None:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
+        if self.auxillary_datasets.cpe_dset:
+            self.auxillary_datasets.cpe_dset.json_path = self.cpe_dataset_path
+        if self.auxillary_datasets.cve_dset:
+            self.auxillary_datasets.cve_dset.json_path = self.cve_dataset_path
 
     # Workaround from https://peps.python.org/pep-0673/ applied.
     def _copy_dataset_contents(self: DatasetSubType, old_dset: DatasetSubType) -> None:
@@ -246,14 +249,14 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                     logger.error(f"Corrupted file at: {p}")
                     p.unlink()
 
-    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False, init_lookup_dicts: bool = True) -> CPEDataset:
+    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
         logger.info("Preparing CPE dataset.")
         if not self.auxillary_datasets_dir.exists():
             self.auxillary_datasets_dir.mkdir(parents=True)
 
         if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
-            cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path, init_lookup_dicts)
-            cpe_dataset.to_json(str(self.cpe_dataset_path))
+            cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
+            cpe_dataset.to_json()
         else:
             cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
 
@@ -267,10 +270,10 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             self.auxillary_datasets_dir.mkdir(parents=True)
 
         if not self.cve_dataset_path.exists() or download_fresh_cves is True:
-            cve_dataset = CVEDataset.from_web()
-            cve_dataset.to_json(str(self.cve_dataset_path))
+            cve_dataset = CVEDataset.from_web(json_path=self.cve_dataset_path)
+            cve_dataset.to_json()
         else:
-            cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
+            cve_dataset = CVEDataset.from_json(self.cve_dataset_path)
 
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
         return cve_dataset
@@ -307,8 +310,8 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             return True
 
         logger.info("Computing heuristics: Finding CPE matches for certificates")
-        self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes, init_lookup_dicts=False)
-        self.auxillary_datasets.cpe_dset.build_lookup_dicts()
+        if not self.auxillary_datasets.cpe_dset or download_fresh_cpes:
+            self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
 
         # Temporarily disabled, see: https://github.com/crocs-muni/sec-certs/issues/173
         # if not cpe_dset.was_enhanced_with_vuln_cpes:

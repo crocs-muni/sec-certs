@@ -4,9 +4,8 @@ import logging
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
-from dataclasses import InitVar, dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
+from typing import Any, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union, cast
 
 import pandas as pd
 
@@ -19,29 +18,39 @@ from sec_certs.utils import helpers
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class CPEDataset(ComplexSerializableType):
     """
     Dataset of CPE records. Includes look-up dictionaries for fast search.
     """
 
-    was_enhanced_with_vuln_cpes: bool
-    json_path: Path
-    cpes: Dict[str, CPE]
-    vendor_to_versions: Dict[str, Set[str]] = field(
-        init=False, default_factory=dict
-    )  # Look-up dict cpe_vendor: list of viable versions
-    vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = field(
-        init=False, default_factory=dict
-    )  # Look-up dict (cpe_vendor, cpe_version): List of viable cpe items
-    title_to_cpes: Dict[str, Set[CPE]] = field(
-        init=False, default_factory=dict
-    )  # Look-up dict title: List of cert items
-    vendors: Set[str] = field(init=False, default_factory=set)
+    CPE_XML_BASENAME: ClassVar[str] = "official-cpe-dictionary_v2.3.xml"
+    CPE_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/" + CPE_XML_BASENAME + ".zip"
 
-    init_lookup_dicts: InitVar[bool] = True
-    cpe_xml_basename: ClassVar[str] = "official-cpe-dictionary_v2.3.xml"
-    cpe_url: ClassVar[str] = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/" + cpe_xml_basename + ".zip"
+    def __init__(
+        self,
+        was_enhanced_with_vuln_cpes: bool,
+        cpes: Dict[str, CPE],
+        json_path: Optional[Union[str, Path]] = None,
+    ):
+        self.was_enhanced_with_vuln_cpes = was_enhanced_with_vuln_cpes
+        self.cpes = cpes
+        self._json_path = Path(json_path) if json_path else Path.cwd() / (type(self).__name__).lower()
+
+        self.vendor_to_versions: Dict[str, Set[str]] = dict()
+        self.vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = dict()
+        self.title_to_cpes: Dict[str, Set[CPE]] = dict()
+        self.vendors: Set[str] = set()
+
+        self.build_lookup_dicts()
+
+    @property
+    def json_path(self) -> Path:
+        return self._json_path
+
+    @json_path.setter
+    def json_path(self, new_json_path: Union[str, Path]) -> None:
+        self._json_path = Path(new_json_path)
+        self.to_json()
 
     def __iter__(self) -> Iterator[CPE]:
         yield from self.cpes.values()
@@ -65,11 +74,7 @@ class CPEDataset(ComplexSerializableType):
 
     @property
     def serialized_attributes(self) -> List[str]:
-        return ["was_enhanced_with_vuln_cpes", "json_path", "cpes"]
-
-    def __post_init__(self, init_lookup_dicts: bool):
-        if init_lookup_dicts:
-            self.build_lookup_dicts()
+        return ["was_enhanced_with_vuln_cpes", "cpes"]
 
     def build_lookup_dicts(self) -> None:
         """
@@ -94,28 +99,25 @@ class CPEDataset(ComplexSerializableType):
                     self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
-    def from_web(cls, json_path: Union[str, Path], init_lookup_dicts: bool = True) -> "CPEDataset":
+    def from_web(cls, json_path: Optional[Union[str, Path]] = None) -> "CPEDataset":
         """
         Creates CPEDataset from NIST resources published on-line
 
         :param Union[str, Path] json_path: Path to store the dataset to
-        :param bool init_lookup_dicts: If dictionaries for fast matching should be computed, defaults to True
         :return CPEDataset: The resulting dataset
         """
         with tempfile.TemporaryDirectory() as tmp_dir:
-            xml_path = Path(tmp_dir) / cls.cpe_xml_basename
-            zip_path = Path(tmp_dir) / (cls.cpe_xml_basename + ".zip")
-            helpers.download_file(cls.cpe_url, zip_path)
+            xml_path = Path(tmp_dir) / cls.CPE_XML_BASENAME
+            zip_path = Path(tmp_dir) / (cls.CPE_XML_BASENAME + ".zip")
+            helpers.download_file(cls.CPE_URL, zip_path)
 
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tmp_dir)
 
-            return cls._from_xml(xml_path, json_path, init_lookup_dicts)
+            return cls._from_xml(xml_path, json_path)
 
     @classmethod
-    def _from_xml(
-        cls, xml_path: Union[str, Path], json_path: Union[str, Path], init_lookup_dicts: bool = True
-    ) -> "CPEDataset":
+    def _from_xml(cls, xml_path: Union[str, Path], json_path: Optional[Union[str, Path]] = None) -> "CPEDataset":
         logger.info("Loading CPE dataset from XML.")
         root = ET.parse(xml_path).getroot()
         dct = {}
@@ -136,7 +138,7 @@ class CPEDataset(ComplexSerializableType):
 
             dct[cpe_uri] = cached_cpe(cpe_uri, title)
 
-        return cls(False, Path(json_path), dct, init_lookup_dicts)
+        return cls(False, dct, json_path)
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]) -> "CPEDataset":
@@ -147,19 +149,22 @@ class CPEDataset(ComplexSerializableType):
         :return CPEDataset: the resulting dataset.
         """
         dset = cast("CPEDataset", ComplexSerializableType.from_json(input_path))
-        dset.json_path = Path(input_path)
+        dset._json_path = Path(input_path)
         return dset
 
     @classmethod
-    def from_dict(cls, dct: Dict[str, Any], init_lookup_dicts: bool = True) -> "CPEDataset":
+    def from_dict(cls, dct: Dict[str, Any]) -> "CPEDataset":
         """
         Loads dataset from dictionary.
 
         :param Dict[str, Any] dct: Dictionary that holds the dataset
-        :param bool init_lookup_dicts: Whether look-up dicts should be computed as a part of initialization, defaults to True
         :return CPEDataset: the resulting dataset.
         """
-        return cls(dct["was_enhanced_with_vuln_cpes"], Path("../"), dct["cpes"], init_lookup_dicts)
+        return cls(
+            dct["was_enhanced_with_vuln_cpes"],
+            dct["cpes"],
+            Path("../"),
+        )
 
     def to_pandas(self) -> pd.DataFrame:
         """

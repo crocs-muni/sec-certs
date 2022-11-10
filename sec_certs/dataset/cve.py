@@ -6,9 +6,8 @@ import logging
 import shutil
 import tempfile
 import zipfile
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Set, Union
+from typing import ClassVar, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -18,18 +17,29 @@ import sec_certs.utils.helpers as helpers
 from sec_certs.config.configuration import config
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
 from sec_certs.utils.parallel_processing import process_parallel
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class CVEDataset(ComplexSerializableType):
-    cves: Dict[str, CVE]
-    cpe_to_cve_ids_lookup: Dict[str, Set[str]] = field(init=False)
-    cve_url: Final[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
-    cpe_match_feed_url: Final[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
+    CVE_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
+    CPE_MATCH_FEED_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
+
+    def __init__(self, cves: Dict[str, CVE], json_path: Optional[Union[str, Path]] = None):
+        self.cves = cves
+        self._json_path = Path(json_path) if json_path else Path.cwd() / (type(self).__name__).lower()
+        self.cpe_to_cve_ids_lookup: Dict[str, Set[str]] = dict()
+
+    @property
+    def json_path(self) -> Path:
+        return self._json_path
+
+    @json_path.setter
+    def json_path(self, new_json_path: Union[str, Path]) -> None:
+        self._json_path = Path(new_json_path)
+        self.to_json()
 
     @property
     def serialized_attributes(self) -> List[str]:
@@ -89,7 +99,7 @@ class CVEDataset(ComplexSerializableType):
         if not output_path.exists:
             output_path.mkdir()
 
-        urls = [cls.cve_url + str(x) + ".json.zip" for x in range(start_year, end_year + 1)]
+        urls = [cls.CVE_URL + str(x) + ".json.zip" for x in range(start_year, end_year + 1)]
 
         logger.info(f"Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}")
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -113,7 +123,12 @@ class CVEDataset(ComplexSerializableType):
         return cls({x.cve_id: x for x in cves})
 
     @classmethod
-    def from_web(cls, start_year: int = 2002, end_year: int = datetime.datetime.now().year):
+    def from_web(
+        cls,
+        start_year: int = 2002,
+        end_year: int = datetime.datetime.now().year,
+        json_path: Optional[Union[str, Path]] = None,
+    ):
         logger.info("Building CVE dataset from nist.gov website.")
         with tempfile.TemporaryDirectory() as tmp_dir:
             cls.download_cves(tmp_dir, start_year, end_year)
@@ -131,20 +146,13 @@ class CVEDataset(ComplexSerializableType):
             for r in results:
                 all_cves.update(r.cves)
 
-        return cls(all_cves)
-
-    def to_json(self, output_path: Optional[Union[str, Path]] = None):
-        if output_path is None:
-            raise RuntimeError(
-                f"You tried to serialize an object ({type(self)}) that does not have implicit json path. Please provide json_path."
-            )
-        with Path(output_path).open("w") as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+        return cls(all_cves, json_path=json_path)
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):
         with Path(input_path).open("r") as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
+        dset._json_path = input_path
         return dset
 
     def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[Set[str]]:
@@ -204,10 +212,10 @@ class CVEDataset(ComplexSerializableType):
         if not input_filepath or not input_filepath.is_file():
             logger.debug("NIST mapping file not available, going to download.")
             with tempfile.TemporaryDirectory() as tmp_dir:
-                filename = Path(self.cpe_match_feed_url).name
+                filename = Path(self.CPE_MATCH_FEED_URL).name
                 download_path = Path(tmp_dir) / filename
                 unzipped_path = Path(tmp_dir) / filename.rstrip(".zip")
-                helpers.download_file(self.cpe_match_feed_url, download_path)
+                helpers.download_file(self.CPE_MATCH_FEED_URL, download_path)
 
                 with zipfile.ZipFile(download_path, "r") as zip_handle:
                     zip_handle.extractall(tmp_dir)

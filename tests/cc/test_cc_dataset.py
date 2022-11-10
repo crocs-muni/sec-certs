@@ -164,3 +164,10 @@ def test_download_csv_html_files():
         for x in dset.active_csv_tuples:
             assert x[1].exists()
             assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
+
+
+def test_to_pandas(toy_dataset: CCDataset):
+    df = toy_dataset.to_pandas()
+    assert df.shape == (len(toy_dataset), len(CommonCriteriaCert.pandas_columns))
+    assert df.index.name == "dgst"
+    assert set(df.columns) == (set(CommonCriteriaCert.pandas_columns).union({"year_from"})) - {"dgst"}

@@ -299,3 +299,9 @@ def test_openssl_chunk(certs_to_process):
         assert not dataset.certs[fips_dgst("3363")].heuristics.st_references.directly_referencing
         assert set(dataset.certs[fips_dgst("3608")].heuristics.st_references.directly_referencing) == {"2398"}
         assert set(dataset.certs[fips_dgst("3158")].heuristics.web_references.directly_referencing) == {"2398"}
+
+
+@pytest.mark.skip(reason="FIPS tests to-be-refactored")
+def test_to_pandas(fips_dset: FIPSDataset):
+    # copy-paste code from the same test in different classes.
+    pass

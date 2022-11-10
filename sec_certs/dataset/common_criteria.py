@@ -188,6 +188,7 @@ class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializa
         return cls.from_web(config.cc_latest_snapshot, "Downloading CC Dataset", "cc_latest_dataset.json")
 
     def _set_local_paths(self):
+        super()._set_local_paths()
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
 
