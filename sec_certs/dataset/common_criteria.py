@@ -5,6 +5,7 @@ import json
 import locale
 import shutil
 import tempfile
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
@@ -18,6 +19,8 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.config.configuration import config
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.dependency_finder import DependencyFinder
@@ -33,11 +36,40 @@ from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 
-class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializableType):
+@dataclass
+class CCAuxillaryDatasets(AuxillaryDatasets):
+    cpe_dset: Optional[CPEDataset] = None
+    cve_dset: Optional[CVEDataset] = None
+    pp_dset: Optional[ProtectionProfileDataset] = None
+    mu_dset: Optional[CCDatasetMaintenanceUpdates] = None
+
+
+class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSerializableType):
     """
     Class that holds CommonCriteriaCert. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
     """
+
+    def __init__(
+        self,
+        certs: Dict[str, CommonCriteriaCert] = dict(),
+        root_dir: Optional[Union[str, Path]] = None,
+        name: Optional[str] = None,
+        description: str = None,
+        state: Optional[Dataset.DatasetInternalState] = None,
+        auxillary_datasets: Optional[CCAuxillaryDatasets] = None,
+    ):
+        self.certs = certs
+        self._root_dir = Path(root_dir) if root_dir else Path.cwd() / (type(self).__name__).lower()
+        self.timestamp = datetime.now()
+        self.sha256_digest = "not implemented"
+        self.name = name if name else type(self).__name__ + " dataset"
+        self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.state = state if state else self.DatasetInternalState()
+
+        self.auxillary_datasets: CCAuxillaryDatasets = (
+            auxillary_datasets if auxillary_datasets else CCAuxillaryDatasets()
+        )
 
     def to_pandas(self) -> pd.DataFrame:
         """
@@ -114,21 +146,18 @@ class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializa
         return self.auxillary_datasets_dir / "pp_dataset.json"
 
     @property
-    def mu_dataset_path(self) -> Path:
+    def mu_dataset_dir(self) -> Path:
         """
         Returns directory that holds dataset of maintenance updates
         """
-        return self.certs_dir / "maintenances"
+        return self.auxillary_datasets_dir / "maintenances"
 
     @property
-    def mu_dataset(self) -> "CCDatasetMaintenanceUpdates":
+    def mu_dataset_path(self) -> Path:
         """
-        Returns object of dataset of maintenance updates if it exists, raises otherwise
+        Returns json that holds the datase of maintenance updates
         """
-        if not self.mu_dataset_path.exists():
-            raise ValueError("The dataset with maintenance updates does not exist")
-
-        return CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path / "Maintenance updates.json")
+        return self.mu_dataset_dir / "Maintenance updates.json"
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -776,6 +805,9 @@ class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializa
 
         :return CCDatasetMaintenanceUpdates: the resulting dataset of maintenance updates
         """
+        if not self.mu_dataset_dir.exists():
+            self.mu_dataset_dir.mkdir(parents=True)
+
         maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
         updates = list(
             itertools.chain.from_iterable(
@@ -783,7 +815,7 @@ class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializa
             )
         )
         update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates(
-            {x.dgst: x for x in updates}, root_dir=self.mu_dataset_path, name="Maintenance updates"
+            {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="Maintenance updates"
         )
         update_dset.download_all_artifacts()
         update_dset.convert_all_pdfs()
@@ -792,8 +824,8 @@ class CCDataset(Dataset[CommonCriteriaCert, AuxillaryDatasets], ComplexSerializa
         return update_dset
 
     def process_auxillary_datasets(self) -> None:
-        self.process_protection_profiles()
-        # TODO: Also process MUs
+        self.auxillary_datasets.pp_dset = self.process_protection_profiles()
+        self.auxillary_datasets.mu_dset = self.process_maintenance_updates()
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
@@ -829,6 +861,14 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         raise NotImplementedError
 
     def process_auxillary_datasets(self) -> None:
+        raise NotImplementedError
+
+    def analyze_certificates(self, fresh: bool = True) -> None:
+        raise NotImplementedError
+
+    def get_certs_from_web(
+        self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True, get_archived: bool = True
+    ) -> None:
         raise NotImplementedError
 
     @classmethod

@@ -1,0 +1,79 @@
+{
+    "_type": "sec_certs.dataset.common_criteria.CCDatasetMaintenanceUpdates",
+    "state": {
+        "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
+        "meta_sources_parsed": true,
+        "artifacts_downloaded": true,
+        "pdfs_converted": false,
+        "certs_analyzed": false
+    },
+    "timestamp": "2022-11-10 13:44:35.171285",
+    "sha256_digest": "not implemented",
+    "name": "Maintenance updates",
+    "description": "dataset_description",
+    "n_certs": 1,
+    "certs": [
+        {
+            "_type": "sec_certs.sample.cc_maintenance_update.CommonCriteriaMaintenanceUpdate",
+            "dgst": "cert_8a5e6bcda602920c_update_559ed93dd80320b5",
+            "name": "Fortinet FortiGate w/ FortiOS v5.6.7 Build 6022",
+            "report_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20MR%20v1.0e.pdf",
+            "st_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20ST%20v1.4%20CCRA.pdf",
+            "state": {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
+                "st_download_ok": true,
+                "report_download_ok": true,
+                "st_convert_garbage": false,
+                "report_convert_garbage": false,
+                "st_convert_ok": false,
+                "report_convert_ok": false,
+                "st_extract_ok": false,
+                "report_extract_ok": false,
+                "errors": [],
+                "st_pdf_hash": "d42e4364d037ba742fcd4050a9a84d0e6300f93eb68bcfe8c61f72c429c9ceca",
+                "report_pdf_hash": "80bada65614c1b037c13efa78996a8910700d0e05a3ca217286f76d7dacefe62",
+                "st_txt_hash": null,
+                "report_txt_hash": null
+            },
+            "pdf_data": {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+                "report_metadata": null,
+                "st_metadata": null,
+                "report_frontpage": null,
+                "st_frontpage": null,
+                "report_keywords": null,
+                "st_keywords": null,
+                "report_filename": "383-7-159 MR v1.0e.pdf",
+                "st_filename": "383-7-159 ST v1.4 CCRA.pdf"
+            },
+            "heuristics": {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+                "extracted_versions": null,
+                "cpe_matches": null,
+                "verified_cpe_matches": null,
+                "related_cves": null,
+                "cert_lab": null,
+                "cert_id": null,
+                "st_references": {
+                    "_type": "sec_certs.sample.certificate.References",
+                    "directly_referenced_by": null,
+                    "indirectly_referenced_by": null,
+                    "directly_referencing": null,
+                    "indirectly_referencing": null
+                },
+                "report_references": {
+                    "_type": "sec_certs.sample.certificate.References",
+                    "directly_referenced_by": null,
+                    "indirectly_referenced_by": null,
+                    "directly_referencing": null,
+                    "indirectly_referencing": null
+                },
+                "extracted_sars": null,
+                "direct_dependency_cves": null,
+                "indirect_dependency_cves": null
+            },
+            "related_cert_digest": "8a5e6bcda602920c",
+            "maintenance_date": "2019-08-26"
+        }
+    ]
+}

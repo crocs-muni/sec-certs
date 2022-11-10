@@ -49,11 +49,13 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
     template_report_pdf_hashes = {
         "309ac2fd7f2dcf17": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
         "8cf86948f02f047d": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
+        "8a5e6bcda602920c": "e277151e4b279085cd3041ce914ffb3942b43e5ace911c557ad6b8ed764a4ece",
     }
 
     template_st_pdf_hashes = {
         "309ac2fd7f2dcf17": "b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9",
         "8cf86948f02f047d": "3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be",
+        "8a5e6bcda602920c": "fcee91f09bb72a6526a1f94d0ab754a6db3fbe3ba5773cd372df19788bb25292",
     }
 
     with TemporaryDirectory() as td:
@@ -65,6 +67,8 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
             or toy_dataset["309ac2fd7f2dcf17"].state.st_download_ok
             or toy_dataset["8cf86948f02f047d"].state.report_download_ok
             or toy_dataset["8cf86948f02f047d"].state.st_download_ok
+            or toy_dataset["8a5e6bcda602920c"].state.report_download_ok
+            or toy_dataset["8a5e6bcda602920c"].state.st_download_ok
         ):
             pytest.xfail(reason="Fail due to error during download")
 
@@ -73,14 +77,12 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         for cert in toy_dataset:
             assert cert.state.report_pdf_hash == template_report_pdf_hashes[cert.dgst]
             assert cert.state.st_pdf_hash == template_st_pdf_hashes[cert.dgst]
-
-        assert not toy_dataset["309ac2fd7f2dcf17"].state.report_convert_garbage
-        assert not toy_dataset["309ac2fd7f2dcf17"].state.st_convert_garbage
-        assert toy_dataset["309ac2fd7f2dcf17"].state.report_convert_ok
-        assert toy_dataset["309ac2fd7f2dcf17"].state.st_convert_ok
-
-        assert toy_dataset["309ac2fd7f2dcf17"].state.report_txt_path.exists()
-        assert toy_dataset["309ac2fd7f2dcf17"].state.st_txt_path.exists()
+            assert not cert.state.report_convert_garbage
+            assert not cert.state.st_convert_garbage
+            assert cert.state.report_convert_ok
+            assert cert.state.st_convert_ok
+            assert cert.state.report_txt_path.exists()
+            assert cert.state.st_txt_path.exists()
 
         template_report_txt_path = data_dir / "report_309ac2fd7f2dcf17.txt"
         template_st_txt_path = data_dir / "target_309ac2fd7f2dcf17.txt"
@@ -139,7 +141,7 @@ def test_build_dataset(data_dir: Path, crt: CommonCriteriaCert, toy_dataset: CCD
         )
 
         assert len(list(dataset_path.iterdir())) == 0
-        assert len(dset) == 2
+        assert len(dset) == 3
         assert crt in dset
         assert dset == toy_dataset
 
