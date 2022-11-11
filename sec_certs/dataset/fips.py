@@ -76,13 +76,8 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         self._download_policies(fresh)
 
     def _download_modules(self, fresh: bool = True) -> None:
-        self.module_dir.mkdir(exist_ok=True)
-
-        if fresh:
-            logger.info("Downloading HTML cryptographic modules.")
-        else:
-            logger.info("Attempting re-download of failed HTML cryptographic modules.")
-
+        logger.info("Downloading HTML cryptographic modules.")
+        self.module_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.module_is_ok_to_download(fresh)]
         cert_processing.process_parallel(
             FIPSCertificate.download_module,
@@ -92,13 +87,8 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         )
 
     def _download_policies(self, fresh: bool = True) -> None:
-        self.policies_pdf_dir.mkdir(exist_ok=True)
-
-        if fresh:
-            logger.info("Downloading PDF security policies.")
-        else:
-            logger.info("Attempting re-download of failed PDF security policies.")
-
+        logger.info("Downloading PDF security policies.")
+        self.policies_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_download(fresh)]
         cert_processing.process_parallel(
             FIPSCertificate.download_policy,
@@ -108,10 +98,14 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         )
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        logger.info("Converting FIPS security policies to .txt")
         self._convert_policies_to_txt(fresh)
 
     def _convert_policies_to_txt(self, fresh: bool = True) -> None:
+        if fresh:
+            logger.info("Converting FIPS security policies to .txt")
+        else:
+            logger.info("Attempting re-conversion of failed PDF security policies to .txt")
+
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
         cert_processing.process_parallel(
@@ -184,7 +178,7 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
         for cert in self.certs.values():
-            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.web_dir)
+            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
 
     @serialize
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
@@ -206,6 +200,7 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
     @serialize
     def process_auxillary_datasets(self) -> None:
         self._process_algorithms()
+        super().process_auxillary_datasets()
 
     def _process_algorithms(self):
         logger.info("Processing FIPS algorithms.")
@@ -365,26 +360,26 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
                 self.certs[dgst].heuristics, "web_references", finder.predict_single_cert(dgst, keep_unknowns=False)
             )
 
-    @serialize
-    def analyze_certificates(self, use_nist_cpe_matching_dict: bool = True, perform_cpe_heuristics: bool = True):
-        """
-        Performs processing of extracted data. Computes all heuristics.
+    def _analyze_certificates_body(self, fresh: bool = True) -> None:
+        super()._analyze_certificates_body(fresh)
 
-        :param bool use_nist_cpe_matching_dict: If NIST CPE matching dictionary shall be used to drive computing related CVEs, defaults to True
-        :param bool perform_cpe_heuristics: If CPE heuristics shall be computed, defaults to True
-        """
-        logger.info("Entering 'analysis' and building connections between certificates.")
+        # Final methods
+        self._extract_data()
+        self._compute_heuristics()
+
+        # TODO: Distribute the methods below somehow between the final methods above
         self._extract_data(redo=False)
         self.extract_certs_from_tables(high_precision=True)
-
         self._extract_metadata()
         self._unify_algorithms()
         self._compute_heuristics_clean_ids()
         self._compute_dependencies()
-        if perform_cpe_heuristics:
-            self.compute_cpe_heuristics()
-            self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
+        self.compute_cpe_heuristics()
+        self.compute_related_cves()
         self.plot_graphs(show=True)
+
+    def _compute_heuristics(self):
+        logger.info("Computing various statistics from processed certificates.")
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]

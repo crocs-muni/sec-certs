@@ -517,11 +517,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._download_targets(fresh)
 
     def _download_reports(self, fresh: bool = True) -> None:
-        if fresh:
-            logger.info("Downloading PDFs of CC certification reports.")
-        else:
-            logger.info("Attempting to re-download failed PDFs of CC certification reports.")
-
+        logger.info("Downloading PDFs of CC certification reports.")
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
         cert_processing.process_parallel(
@@ -532,11 +528,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         )
 
     def _download_targets(self, fresh: bool = True) -> None:
-        if fresh:
-            logger.info("Downloading PDFs of CC security targets.")
-        else:
-            logger.info("Attempting to re-download failed PDFs of CC security targets.")
-
+        logger.info("Downloading PDFs of CC security targets.")
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
         cert_processing.process_parallel(
@@ -547,6 +539,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         )
 
     def _convert_reports_to_txt(self, fresh: bool = True) -> None:
+        logger.info("Converting CC sample reports to .txt")
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_convert(fresh)]
         cert_processing.process_parallel(
@@ -557,6 +550,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         )
 
     def _convert_targets_to_txt(self, fresh: bool = True) -> None:
+        logger.info("Converting CC security targets to .txt")
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.st_is_ok_to_convert(fresh)]
         cert_processing.process_parallel(
@@ -567,10 +561,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         )
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        logger.info("Converting CC sample reports to .txt")
         self._convert_reports_to_txt(fresh)
-
-        logger.info("Converting CC security targets to .txt")
         self._convert_targets_to_txt(fresh)
 
     def update_with_certs(self, certs: List[CommonCriteriaCert]) -> None:
@@ -665,7 +656,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._extract_targets_keywords(fresh)
 
     def _extract_data(self, fresh: bool = True) -> None:
-        logger.info("Extracting various stuff from converted txt filed from CC dataset.")
+        logger.info("Extracting various stuff from converted txt files from CC dataset.")
         self._extract_pdf_metadata(fresh)
         self._extract_pdf_frontpage(fresh)
         self._extract_pdf_keywords(fresh)
@@ -682,6 +673,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             cert.compute_heuristics_cert_id()
 
     def _compute_dependency_vulnerabilities(self):
+        logger.info("Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
         cve_dependency_finder = DependencyVulnerabilityFinder()
         cve_dependency_finder.fit(self.certs)
 
@@ -692,6 +684,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
 
     def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True) -> None:
+        logger.info("Computing various heuristics on CC certificates.")
         self._compute_cert_labs()
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
@@ -724,6 +717,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
             return func
 
+        logger.info("Compute references between certificates.")
         for dep_source in ("report", "st"):
             kw_source = f"{dep_source}_keywords"
             dep_attr = f"{dep_source}_references"
@@ -751,6 +745,11 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._compute_heuristics()
 
         self.state.certs_analyzed = True
+
+    def _analyze_certificates_body(self, fresh: bool = True) -> None:
+        super()._analyze_certificates_body(fresh)
+        self._extract_data(fresh)
+        self._compute_heuristics()
 
     def process_auxillary_datasets(self) -> None:
         self.auxillary_datasets.pp_dset = self.process_protection_profiles()

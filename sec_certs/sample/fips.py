@@ -302,10 +302,10 @@ class FIPSCertificate(
         def policy_is_ok_to_convert(self, fresh: bool = True) -> bool:
             return self.policy_download_ok if fresh else self.policy_download_ok and not self.policy_convert_ok
 
-    def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, web_dir: Path) -> None:
+    def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, modules_html_dir: Path) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
         self.state.policy_txt_path = (policies_txt_dir / str(self.dgst)).with_suffix(".txt")
-        self.state.module_html_path = (web_dir / str(self.dgst)).with_suffix(".html")
+        self.state.module_html_path = (modules_html_dir / str(self.dgst)).with_suffix(".html")
 
     @dataclass(eq=True)
     class WebData(ComplexSerializableType):
@@ -412,11 +412,11 @@ class FIPSCertificate(
 
     @property
     def module_html_url(self) -> str:
-        return constants.FIPS_MODULE_URL.format(self.dgst)
+        return constants.FIPS_MODULE_URL.format(self.cert_id)
 
     @property
     def policy_pdf_url(self) -> str:
-        return constants.FIPS_SP_URL.format(self.dgst)
+        return constants.FIPS_SP_URL.format(self.cert_id)
 
     @property
     def name(self) -> Optional[str]:  # type: ignore

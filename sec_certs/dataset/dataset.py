@@ -215,6 +215,11 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
             return
 
+        if fresh:
+            logger.info("Attempting to download certification artifacts.")
+        else:
+            logger.info("Attempting to re-download failed certification artifacts.")
+
         self._download_all_artifacts_body(fresh)
         if fresh:
             self._download_all_artifacts_body(False)
@@ -231,6 +236,11 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
 
+        if fresh:
+            logger.info("Converting all PDFs to txt")
+        else:
+            logger.info("Re-converting all failed PDFs to txt")
+
         self._convert_all_pdfs_body(fresh)
         if fresh:
             self._convert_all_pdfs_body(False)
@@ -241,9 +251,28 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    @abstractmethod
-    def analyze_certificates(self) -> None:
-        self.process_auxillary_datasets()
+    @serialize
+    def analyze_certificates(self, fresh: bool = True) -> None:
+        if not self.state.pdfs_converted:
+            logger.info(
+                "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
+            )
+            return
+
+        if fresh:
+            logger.info("Analyzing certificates.")
+        else:
+            logger.info("Re-analyzing certificates on which analysis failed.")
+
+        self._analyze_certificates_body(fresh)
+        if fresh:
+            self.analyze_certificates(False)
+
+        self.state.certs_analyzed = True
+
+    def _analyze_certificates_body(self, fresh: bool = True) -> None:
+        if fresh:
+            self.process_auxillary_datasets()
 
     @staticmethod
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True) -> None:
@@ -437,6 +466,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 download_fresh_cves, use_nist_cpe_matching_dict
             )
 
+        logger.info("Computing CVEs in certificates.")
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]
 
