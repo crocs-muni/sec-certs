@@ -211,7 +211,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @serialize
     def download_all_artifacts(self, fresh: bool = True) -> None:
-        if self.state.meta_sources_parsed is False:
+        if not self.state.meta_sources_parsed:
             logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
             return
 
@@ -221,11 +221,24 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
         self.state.artifacts_downloaded = True
 
+    @abstractmethod
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
+    @serialize
+    def convert_all_pdfs(self, fresh: bool = True) -> None:
+        if not self.state.artifacts_downloaded:
+            logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
+            return
+
+        self._convert_all_pdfs_body(fresh)
+        if fresh:
+            self._convert_all_pdfs_body(False)
+
+        self.state.pdfs_converted = True
+
     @abstractmethod
-    def convert_all_pdfs(self) -> None:
+    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod

@@ -244,18 +244,25 @@ class FIPSCertificate(
         Holds state of the `FIPSCertificate`
         """
 
-        tables_done: bool
-        file_status: bool
-        txt_state: bool
+        module_download_ok: bool
+        policy_download_ok: bool
+
+        policy_convert_garbage: bool
+        policy_convert_ok: bool
+
+        policy_pdf_hash: Optional[str]
+        policy_txt_hash: Optional[str]
 
         policy_pdf_path: Path
         policy_txt_path: Path
         module_html_path: Path
 
-        module_download_ok: bool
-        policy_download_ok: bool
-
         errors: List[str]
+
+        # Stale, probably delete
+        tables_done: bool
+        file_status: bool
+        txt_state: bool
 
         def __init__(
             self,
@@ -264,6 +271,10 @@ class FIPSCertificate(
             txt_state: bool = True,  # TODO: Check if this is correct
             module_download_ok: bool = False,
             policy_download_ok: bool = False,
+            policy_convert_garbage: bool = False,
+            policy_convert_ok: bool = False,
+            policy_pdf_hash: Optional[str] = None,
+            policy_txt_hash: Optional[str] = None,
             errors: Optional[List[str]] = None,
         ):
             self.tables_done = tables_done
@@ -271,6 +282,10 @@ class FIPSCertificate(
             self.txt_state = txt_state
             self.module_download_ok = module_download_ok
             self.policy_download_ok = policy_download_ok
+            self.policy_convert_garbage = policy_convert_garbage
+            self.policy_convert_ok = policy_convert_ok
+            self.policy_pdf_hash = policy_pdf_hash
+            self.policy_txt_hash = policy_txt_hash
             self.errors = errors if errors else []
 
         @property
@@ -283,6 +298,9 @@ class FIPSCertificate(
 
         def policy_is_ok_to_download(self, fresh: bool = True) -> bool:
             return True if fresh else not self.policy_download_ok
+
+        def policy_is_ok_to_convert(self, fresh: bool = True) -> bool:
+            return self.policy_download_ok if fresh else self.policy_download_ok and not self.policy_convert_ok
 
     def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, web_dir: Path) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
@@ -604,6 +622,27 @@ class FIPSCertificate(
             cert.state.policy_download_ok = False
         else:
             cert.state.policy_download_ok = True
+            cert.state.policy_pdf_hash = helpers.get_sha256_filepath(cert.state.policy_pdf_path)
+        return cert
+
+    @staticmethod
+    def convert_policy_pdf(cert: FIPSCertificate) -> FIPSCertificate:
+        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
+            cert.state.policy_pdf_path, cert.state.policy_txt_path
+        )
+
+        # If OCR was done and the result was garbage
+        cert.state.policy_convert_garbage = ocr_done
+        # And put the whole result into convert_ok
+        cert.state.policy_convert_ok = ok_result
+
+        if not ok_result:
+            error_msg = "Failed to convert policy pdf->txt"
+            logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
+            cert.state.errors.append(error_msg)
+        else:
+            cert.state.policy_txt_hash = helpers.get_sha256_filepath(cert.state.policy_txt_path)
+
         return cert
 
     @staticmethod

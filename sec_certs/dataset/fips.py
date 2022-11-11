@@ -107,19 +107,18 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             progress_bar_desc="Downloading PDF security policies",
         )
 
-    @serialize
-    def convert_all_pdfs(self) -> None:
-        """
-        Converts all pdfs to text files
-        """
-        logger.info("Converting FIPS sample reports to .txt")
-        tuples = [
-            (cert, self.policies_dir / f"{cert.cert_id}.pdf", self.policies_dir / f"{cert.cert_id}.pdf.txt")
-            for cert in self.certs.values()
-            if not cert.state.txt_state and (self.policies_dir / f"{cert.cert_id}.pdf").exists()
-        ]
+    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
+        logger.info("Converting FIPS security policies to .txt")
+        self._convert_policies_to_txt(fresh)
+
+    def _convert_policies_to_txt(self, fresh: bool = True) -> None:
+        self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
         cert_processing.process_parallel(
-            FIPSCertificate.convert_pdf_file, tuples, config.n_threads, progress_bar_desc="Converting to txt"
+            FIPSCertificate.convert_policy_pdf,
+            certs_to_process,
+            config.n_threads,
+            progress_bar_desc="Converting policies to pdf",
         )
 
     def _download_html_resources(self) -> None:

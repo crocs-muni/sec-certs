@@ -566,31 +566,12 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             progress_bar_desc="Converting targets to txt",
         )
 
-    @serialize
-    def convert_all_pdfs(self, fresh: bool = True) -> None:
-        """
-        Converts all pdfs associated to certificates of the dataset into txt files.
-
-        :param bool fresh: whether all (true) or only failed (false) pdfs shall be converted, defaults to True
-        """
-        if self.state.artifacts_downloaded is False:
-            logger.info("Attempting to convert pdf while not having them downloaded. Returning.")
-            return
-
+    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
         logger.info("Converting CC sample reports to .txt")
         self._convert_reports_to_txt(fresh)
 
         logger.info("Converting CC security targets to .txt")
         self._convert_targets_to_txt(fresh)
-
-        if fresh is True:
-            logger.info("Attempting to re-convert failed report pdfs")
-            self._convert_reports_to_txt(False)
-
-            logger.info("Attempting to re-convert failed target pdfs")
-            self._convert_targets_to_txt(False)
-
-        self.state.pdfs_converted = True
 
     def update_with_certs(self, certs: List[CommonCriteriaCert]) -> None:
         """
