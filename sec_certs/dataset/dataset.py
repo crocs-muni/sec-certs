@@ -206,7 +206,8 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @abstractmethod
     def process_auxillary_datasets(self) -> None:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
+        self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset()
+        self.auxillary_datasets.cve_dset = self._prepare_cve_dataset()
 
     @serialize
     def download_all_artifacts(self, fresh: bool = True) -> None:
@@ -229,7 +230,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @abstractmethod
     def analyze_certificates(self) -> None:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
+        self.process_auxillary_datasets()
 
     @staticmethod
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True) -> None:

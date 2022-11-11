@@ -254,33 +254,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._download_parallel(csv_urls, csv_paths)
 
     @serialize
-    def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True) -> None:
-        """
-        Downloads new snapshot of dataset with processed protection profiles (if it doesn't exist) and links PPs
-        with certificates within self. Assigns PPs to all certificates
-
-        :param bool to_download: If dataset should be downloaded or fetched from json, defaults to True
-        :param bool keep_metadata: If json related to the PP dataset should be kept on drive, defaults to True
-        :raises RuntimeError: When building of PPDataset fails
-        """
-        logger.info("Processing protection profiles.")
-        constructor: Dict[bool, Callable[..., ProtectionProfileDataset]] = {
-            True: ProtectionProfileDataset.from_web,
-            False: ProtectionProfileDataset.from_json,
-        }
-        if to_download is True and not self.auxillary_datasets_dir.exists():
-            self.auxillary_datasets_dir.mkdir()
-        pp_dataset = constructor[to_download](self.pp_dataset_path)
-
-        for cert in self:
-            if cert.protection_profiles is None:
-                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
-            cert.protection_profiles = {pp_dataset.pps.get((x.pp_name, x.pp_link), x) for x in cert.protection_profiles}
-
-        if not keep_metadata:
-            self.pp_dataset_path.unlink()
-
-    @serialize
     def get_certs_from_web(
         self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True, get_archived: bool = True
     ) -> None:
@@ -792,40 +765,75 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
                 "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
             )
             return
-
+        super().analyze_certificates()
         self._extract_data(fresh)
         self._compute_heuristics()
 
         self.state.certs_analyzed = True
 
-    def process_maintenance_updates(self) -> CCDatasetMaintenanceUpdates:
-        """
-        Creates and fully processes (download, convert, analyze) a dataset of maintenance updates that are related
-        to certificates of self.
-
-        :return CCDatasetMaintenanceUpdates: the resulting dataset of maintenance updates
-        """
-        if not self.mu_dataset_dir.exists():
-            self.mu_dataset_dir.mkdir(parents=True)
-
-        maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
-        updates = list(
-            itertools.chain.from_iterable(
-                [CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]
-            )
-        )
-        update_dset: CCDatasetMaintenanceUpdates = CCDatasetMaintenanceUpdates(
-            {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="Maintenance updates"
-        )
-        update_dset.download_all_artifacts()
-        update_dset.convert_all_pdfs()
-        update_dset._extract_data()
-
-        return update_dset
-
     def process_auxillary_datasets(self) -> None:
         self.auxillary_datasets.pp_dset = self.process_protection_profiles()
         self.auxillary_datasets.mu_dset = self.process_maintenance_updates()
+        super().process_auxillary_datasets()
+
+    @serialize
+    def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True) -> None:
+        """
+        Downloads new snapshot of dataset with processed protection profiles (if it doesn't exist) and links PPs
+        with certificates within self. Assigns PPs to all certificates
+
+        :param bool to_download: If dataset should be downloaded or fetched from json, defaults to True
+        :param bool keep_metadata: If json related to the PP dataset should be kept on drive, defaults to True
+        :raises RuntimeError: When building of PPDataset fails
+        """
+        logger.info("Processing protection profiles.")
+        constructor: Dict[bool, Callable[..., ProtectionProfileDataset]] = {
+            True: ProtectionProfileDataset.from_web,
+            False: ProtectionProfileDataset.from_json,
+        }
+        if to_download is True and not self.auxillary_datasets_dir.exists():
+            self.auxillary_datasets_dir.mkdir()
+        pp_dataset = constructor[to_download](self.pp_dataset_path)
+
+        for cert in self:
+            if cert.protection_profiles is None:
+                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
+            cert.protection_profiles = {pp_dataset.pps.get((x.pp_name, x.pp_link), x) for x in cert.protection_profiles}
+
+        if not keep_metadata:
+            self.pp_dataset_path.unlink()
+
+    def process_maintenance_updates(self, to_download: bool = True) -> CCDatasetMaintenanceUpdates:
+        """
+        Downloads or loads from json a dataset of maintenance updates. Runs analysis on that dataset if it's not completed.
+        :return CCDatasetMaintenanceUpdates: the resulting dataset of maintenance updates
+        """
+
+        logger.info("Processing maintenace updates")
+        if to_download and not self.mu_dataset_dir.exists():
+            self.mu_dataset_dir.mkdir(parents=True)
+
+        if to_download:
+            maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
+            updates = list(
+                itertools.chain.from_iterable(
+                    [CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]
+                )
+            )
+            update_dset = CCDatasetMaintenanceUpdates(
+                {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="Maintenance updates"
+            )
+        else:
+            update_dset = CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path)
+
+        if not update_dset.state.artifacts_downloaded:
+            update_dset.download_all_artifacts()
+        if not update_dset.state.pdfs_converted:
+            update_dset.convert_all_pdfs()
+        if not update_dset.state.certs_analyzed:
+            update_dset._extract_data()
+
+        return update_dset
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
