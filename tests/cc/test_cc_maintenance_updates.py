@@ -19,8 +19,11 @@ def cc_dset(data_dir: Path) -> CCDataset:
 
 
 @pytest.fixture
-def mu_dset(data_dir: Path) -> CCDatasetMaintenanceUpdates:
-    return CCDatasetMaintenanceUpdates.from_json(data_dir / "auxillary_datasets/maintenances/Maintenance updates.json")
+def mu_dset(data_dir: Path, tmp_path_factory) -> CCDatasetMaintenanceUpdates:
+    tmp_dir = tmp_path_factory.mktemp("mu_dset")
+    dset = CCDatasetMaintenanceUpdates.from_json(data_dir / "auxillary_datasets/maintenances/Maintenance updates.json")
+    dset.root_dir = tmp_dir
+    return dset
 
 
 def test_methods_not_meant_to_be_implemented():
