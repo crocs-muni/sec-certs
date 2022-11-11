@@ -5,6 +5,8 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
+from sec_certs import constants
+
 T = TypeVar("T", bound="ComplexSerializableType")
 
 
@@ -37,7 +39,7 @@ class ComplexSerializableType:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
     def to_json(self, output_path: Optional[Union[str, Path]] = None) -> None:
-        if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
+        if not output_path and (not hasattr(self, "json_path") or not self.json_path or self.json_path == constants.DUMMY_NONEXISTING_PATH):  # type: ignore
             raise ValueError(
                 f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
             )

@@ -1,4 +1,7 @@
 import re
+from pathlib import Path
+
+DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 
 RESPONSE_OK = 200
 RETURNCODE_OK = "ok"

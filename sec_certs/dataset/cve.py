@@ -27,9 +27,9 @@ class CVEDataset(ComplexSerializableType):
     CVE_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
     CPE_MATCH_FEED_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
 
-    def __init__(self, cves: Dict[str, CVE], json_path: Optional[Union[str, Path]] = None):
+    def __init__(self, cves: Dict[str, CVE], json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH):
         self.cves = cves
-        self._json_path = Path(json_path) if json_path else Path.cwd() / (type(self).__name__).lower()
+        self._json_path = Path(json_path)
         self.cpe_to_cve_ids_lookup: Dict[str, Set[str]] = dict()
 
     @property
@@ -127,7 +127,7 @@ class CVEDataset(ComplexSerializableType):
         cls,
         start_year: int = 2002,
         end_year: int = datetime.datetime.now().year,
-        json_path: Optional[Union[str, Path]] = None,
+        json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
     ):
         logger.info("Building CVE dataset from nist.gov website.")
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -146,7 +146,7 @@ class CVEDataset(ComplexSerializableType):
             for r in results:
                 all_cves.update(r.cves)
 
-        return cls(all_cves, json_path=json_path)
+        return cls(all_cves, json_path)
 
     @classmethod
     def from_json(cls, input_path: Union[str, Path]):

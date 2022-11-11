@@ -5,7 +5,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union, cast
+from typing import ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
 
 import pandas as pd
 
@@ -30,11 +30,11 @@ class CPEDataset(ComplexSerializableType):
         self,
         was_enhanced_with_vuln_cpes: bool,
         cpes: Dict[str, CPE],
-        json_path: Optional[Union[str, Path]] = None,
+        json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
     ):
         self.was_enhanced_with_vuln_cpes = was_enhanced_with_vuln_cpes
         self.cpes = cpes
-        self._json_path = Path(json_path) if json_path else Path.cwd() / (type(self).__name__).lower()
+        self._json_path = Path(json_path)
 
         self.vendor_to_versions: Dict[str, Set[str]] = dict()
         self.vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = dict()
@@ -99,7 +99,7 @@ class CPEDataset(ComplexSerializableType):
                     self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
-    def from_web(cls, json_path: Optional[Union[str, Path]] = None) -> "CPEDataset":
+    def from_web(cls, json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH) -> "CPEDataset":
         """
         Creates CPEDataset from NIST resources published on-line
 
@@ -117,7 +117,9 @@ class CPEDataset(ComplexSerializableType):
             return cls._from_xml(xml_path, json_path)
 
     @classmethod
-    def _from_xml(cls, xml_path: Union[str, Path], json_path: Optional[Union[str, Path]] = None) -> "CPEDataset":
+    def _from_xml(
+        cls, xml_path: Union[str, Path], json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH
+    ) -> "CPEDataset":
         logger.info("Loading CPE dataset from XML.")
         root = ET.parse(xml_path).getroot()
         dct = {}
@@ -151,20 +153,6 @@ class CPEDataset(ComplexSerializableType):
         dset = cast("CPEDataset", ComplexSerializableType.from_json(input_path))
         dset._json_path = Path(input_path)
         return dset
-
-    @classmethod
-    def from_dict(cls, dct: Dict[str, Any]) -> "CPEDataset":
-        """
-        Loads dataset from dictionary.
-
-        :param Dict[str, Any] dct: Dictionary that holds the dataset
-        :return CPEDataset: the resulting dataset.
-        """
-        return cls(
-            dct["was_enhanced_with_vuln_cpes"],
-            dct["cpes"],
-            Path("../"),
-        )
 
     def to_pandas(self) -> pd.DataFrame:
         """

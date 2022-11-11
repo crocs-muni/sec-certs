@@ -107,3 +107,9 @@ def test_to_pandas(cve_dset: CVEDataset):
     assert df.shape == (len(cve_dset), len(CVE.pandas_columns) - 1)
     assert df.index.name == "cve_id"
     assert set(df.columns) == set(CVE.pandas_columns) - {"cve_id"}
+
+
+def test_serialization_missing_path():
+    dummy_dset = CVEDataset({})
+    with pytest.raises(ValueError):
+        dummy_dset.to_json()

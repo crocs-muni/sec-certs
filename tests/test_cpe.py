@@ -128,3 +128,9 @@ def test_to_pandas(cpe_dset: CPEDataset):
     assert df.shape == (len(cpe_dset), len(CPE.pandas_columns) - 1)
     assert df.index.name == "uri"
     assert set(df.columns) == set(CPE.pandas_columns) - {"uri"}
+
+
+def test_serialization_missing_path():
+    dummy_dset = CPEDataset(False, dict())
+    with pytest.raises(ValueError):
+        dummy_dset.to_json()
