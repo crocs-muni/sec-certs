@@ -24,7 +24,7 @@ def mu_dset(data_dir: Path) -> CCDatasetMaintenanceUpdates:
 
 
 def test_methods_not_meant_to_be_implemented():
-    dset = CCDatasetMaintenanceUpdates(dict(), Path(".."))
+    dset = CCDatasetMaintenanceUpdates()
     with pytest.raises(NotImplementedError):
         dset.analyze_certificates()
     with pytest.raises(NotImplementedError):

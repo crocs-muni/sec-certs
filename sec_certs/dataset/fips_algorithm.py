@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Union
 
 from bs4 import BeautifulSoup
 
@@ -23,7 +23,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
     def __init__(
         self,
         certs: Dict[str, FIPSAlgorithm] = dict(),
-        root_dir: Optional[Path] = None,
+        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
     ):

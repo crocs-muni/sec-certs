@@ -39,12 +39,17 @@ class ComplexSerializableType:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
     def to_json(self, output_path: Optional[Union[str, Path]] = None) -> None:
-        if not output_path and (not hasattr(self, "json_path") or not self.json_path or self.json_path == constants.DUMMY_NONEXISTING_PATH):  # type: ignore
+        if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise ValueError(
                 f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
             )
         if not output_path:
             output_path = self.json_path  # type: ignore
+            if self.json_path == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
+                raise ValueError(f"json_path variable for {type(self)} was not yet set.")
+
+        if Path(output_path).is_dir():  # type: ignore
+            raise ValueError("output path for json cannot be directory.")
 
         # false positive MyPy warning, cannot be None
         with Path(output_path).open("w") as handle:  # type: ignore

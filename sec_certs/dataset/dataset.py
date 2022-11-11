@@ -53,14 +53,14 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     def __init__(
         self,
         certs: Dict[str, CertSubType] = dict(),
-        root_dir: Optional[Union[str, Path]] = None,
+        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
         name: Optional[str] = None,
         description: str = None,
         state: Optional[DatasetInternalState] = None,
         auxillary_datasets: Optional[AuxillaryDatasetsSubType] = None,
     ):
         self.certs = certs
-        self._root_dir = Path(root_dir) if root_dir else Path.cwd() / (type(self).__name__).lower()
+        self._root_dir = Path(root_dir)
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
@@ -167,7 +167,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     @classmethod
     def from_dict(cls: Type[DatasetSubType], dct: Dict) -> DatasetSubType:
         certs = {x.dgst: x for x in dct["certs"]}
-        dset = cls(certs, Path("../"), dct["name"], dct["description"], dct["state"])
+        dset = cls(certs, name=dct["name"], description=dct["description"], state=dct["state"])
         if len(dset) != (claimed := dct["n_certs"]):
             logger.error(
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."

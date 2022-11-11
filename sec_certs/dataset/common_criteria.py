@@ -53,14 +53,14 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
     def __init__(
         self,
         certs: Dict[str, CommonCriteriaCert] = dict(),
-        root_dir: Optional[Union[str, Path]] = None,
+        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
         name: Optional[str] = None,
         description: str = None,
         state: Optional[Dataset.DatasetInternalState] = None,
         auxillary_datasets: Optional[CCAuxillaryDatasets] = None,
     ):
         self.certs = certs
-        self._root_dir = Path(root_dir) if root_dir else Path.cwd() / (type(self).__name__).lower()
+        self._root_dir = Path(root_dir)
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
@@ -837,8 +837,8 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: Dict[str, CommonCriteriaMaintenanceUpdate],  # type: ignore
-        root_dir: Path,
+        certs: Dict[str, CommonCriteriaMaintenanceUpdate] = dict(),  # type: ignore
+        root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
         state: Optional[CCDataset.DatasetInternalState] = None,
