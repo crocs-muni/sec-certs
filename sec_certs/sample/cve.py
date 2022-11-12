@@ -69,7 +69,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         self,
         cve_id: str,
         vulnerable_cpes: List[CPE],
-        vulnerable_and_cpes: dict[CPE, list[CPE]],
+        vulnerable_and_cpes: dict[str, list[CPE]],
         impact: Impact,
         published_date: str,
         cwe_ids: Optional[Set[str]],
@@ -149,17 +149,13 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
         return cpes
 
-    @staticmethod
-    def _parse_os_cpe_dict(dct: dict) -> CPE:
-        return CPE(uri=dct["cpe23Uri"])
-
     @classmethod
     def from_nist_dict(cls, dct: Dict) -> CVE:
         """
         Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
         """
 
-        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> tuple[list[CPE], dict[CPE, list[CPE]]]:
+        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> tuple[list[CPE], dict[str, list[CPE]]]:
             def get_vulnerable_or_type_cpes_from_node(node: Dict) -> List[CPE]:
                 cpes: List[CPE] = []
 
@@ -178,8 +174,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
                 return cpes
 
-            def get_vulnerable_and_type_cpes_from_node(node: dict) -> dict[CPE, list[CPE]]:
-                cpes: dict[CPE, list[CPE]] = {}
+            def get_vulnerable_and_type_cpes_from_node(node: dict) -> dict[str, list[CPE]]:
+                cpes: dict[str, list[CPE]] = {}
 
                 if node["operator"] == "AND" and "children" in node:
                     try:
@@ -189,8 +185,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                         return cpes
 
                     for vulnerable_os_dict in vulnerable_operating_systems:
-                        vulnerable_os_cpe = CVE._parse_os_cpe_dict(vulnerable_os_dict)
-                        cpes[vulnerable_os_cpe] = vulnerable_platforms
+                        cpe_uri = vulnerable_os_dict["uri23Cpe"]
+                        cpes[cpe_uri] = vulnerable_platforms
 
                 return cpes
 
@@ -200,7 +196,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                 )
             )
 
-            and_type_cpes_dict = {}
+            and_type_cpes_dict: dict[str, list[CPE]] = {}
 
             for dct in [get_vulnerable_and_type_cpes_from_node(x) for x in dct["configurations"]["nodes"]]:
                 and_type_cpes_dict |= dct
@@ -213,7 +209,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         published_date = dct["publishedDate"]
         cwe_ids = cls.parse_cwe_data(dct)
 
-        return cls(cve_id, vulnerable_or_cpes, impact, published_date, cwe_ids)
+        return cls(cve_id, vulnerable_or_cpes, vulnerable_and_cpes, impact, published_date, cwe_ids)
 
     @staticmethod
     def parse_cwe_data(dct: Dict) -> Optional[Set[str]]:

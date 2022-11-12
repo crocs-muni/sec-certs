@@ -147,10 +147,29 @@ class CVEDataset(ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 
-    def get_cve_ids_for_cpe_uri(self, cpe_matches) -> Set[str]:
-        # TODO - This function will need to take all the CPEs and with
-        # TODO - 'AND' type CPES find both of the cases -> only then it is match
+    def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[Set[str]]:
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
+
+    def get_cve_ids_for_cpe_matches(self, cpe_matches: set[str]) -> set[str]:
+        cve_ids = set()
+
+        for cpe_match in cpe_matches:
+            cve_set = self._get_cve_ids_for_cpe_uri(cpe_match)
+
+            if cve_set:
+                cve_ids.update(cve_set)
+
+        cves_containing_and_type_cpes = [cve for cve in self if cve.vulnerable_and_cpes]
+
+        for cve in cves_containing_and_type_cpes:
+            match: str
+            if any((match := item) in cve.vulnerable_and_cpes for item in cpe_matches):
+                platform_cpes = cve.vulnerable_and_cpes[match]
+
+                if any(item in platform_cpes for item in cpe_matches):
+                    cve_ids.add(cve.cve_id)
+
+        return cve_ids
 
     def filter_related_cpes(self, relevant_cpes: Set[CPE]):
         """
