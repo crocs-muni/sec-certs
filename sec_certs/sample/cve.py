@@ -185,7 +185,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                         return cpes
 
                     for vulnerable_os_dict in vulnerable_operating_systems:
-                        cpe_uri = vulnerable_os_dict["uri23Cpe"]
+                        cpe_uri = vulnerable_os_dict["cpe23Uri"]
                         cpes[cpe_uri] = vulnerable_platforms
 
                 return cpes
