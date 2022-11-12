@@ -168,7 +168,7 @@ class CVEDataset(ComplexSerializableType):
             if any((match := item) in cve.vulnerable_and_cpes for item in cpe_matches):
                 platform_cpes = cve.vulnerable_and_cpes[match]
 
-                if any(item in platform_cpes for item in cpe_matches):
+                if any(item in map(lambda cpe: cpe.uri, platform_cpes) for item in cpe_matches):
                     cve_ids.add(cve.cve_id)
 
         return cve_ids
