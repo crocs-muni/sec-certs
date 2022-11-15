@@ -132,7 +132,7 @@ def dataset():
         dset_path,
         as_attachment=True,
         mimetype="application/json",
-        attachment_filename="dataset.json",
+        download_name="dataset.json",
     )
 
 
@@ -146,7 +146,7 @@ def maintenance_updates():
         dset_path,
         as_attachment=True,
         mimetype="application/json",
-        attachment_filename="maintenance_updates.json",
+        download_name="maintenance_updates.json",
     )
 
 

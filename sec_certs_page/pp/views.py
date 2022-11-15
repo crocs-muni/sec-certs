@@ -34,7 +34,7 @@ def dataset():
         Path(current_app.instance_path) / "pp.json",
         as_attachment=True,
         mimetype="application/json",
-        attachment_filename="dataset.json",
+        download_name="dataset.json",
     )
 
 

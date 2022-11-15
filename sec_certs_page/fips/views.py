@@ -80,7 +80,7 @@ def dataset():
         dset_path,
         as_attachment=True,
         mimetype="application/json",
-        attachment_filename="dataset.json",
+        download_name="dataset.json",
     )
 
 
