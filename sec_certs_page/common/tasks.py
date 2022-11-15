@@ -9,6 +9,7 @@ from pathlib import Path
 from shutil import rmtree
 from typing import Mapping, Tuple, Type
 
+import sec_certs
 import sentry_sdk
 from bs4 import BeautifulSoup
 from bson import ObjectId
@@ -179,7 +180,12 @@ class Updater:  # pragma: no cover
         ...
 
     def update(self):
-        tool_version = get_distribution("sec-certs").version
+        try:
+            from setuptools_scm import get_version
+
+            tool_version = get_version(str(Path(sec_certs.__file__).parent.parent))
+        except Exception:
+            tool_version = get_distribution("sec-certs").version
         start = datetime.now()
         paths = self.make_dataset_paths()
 
