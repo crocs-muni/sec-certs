@@ -64,7 +64,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
-        self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.description = description if description else "No description provided"
         self.state = state if state else self.DatasetInternalState()
 
         if not auxillary_datasets:
@@ -271,8 +271,16 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         self.state.certs_analyzed = True
 
     def _analyze_certificates_body(self, fresh: bool = True) -> None:
-        if fresh:
-            self.process_auxillary_datasets()
+        self._extract_data(fresh)
+        self._compute_heuristics(fresh)
+
+    @abstractmethod
+    def _extract_data(self, fresh: bool = True) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    def _compute_heuristics(self, fresh: bool = True) -> None:
+        self.compute_cpe_heuristics()
+        self.compute_related_cves()
 
     @staticmethod
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True) -> None:

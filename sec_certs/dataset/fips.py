@@ -27,6 +27,9 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
 
+    def __init__(self, *args, **kwargs):
+        return super().__init__(*args, **kwargs)
+
     LIST_OF_CERTS_HTML: Final[Dict[str, str]] = {
         "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
         "fips_modules_historical.html": constants.FIPS_HISTORICAL_MODULES_URL,
@@ -218,11 +221,14 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         logger.info("Entering table scan.")
         result = cert_processing.process_parallel(
             FIPSCertificate.analyze_tables,
-            [
-                (cert, high_precision)
-                for cert in self.certs.values()
-                if cert is not None and (not cert.state.tables_done or high_precision) and cert.state.txt_state
-            ],
+            [(cert, high_precision) for cert in self.certs.values() if cert is not None and high_precision],
+            # TODO: Below is an old version with tables_done, txt_state attribute that we already deleted, rewrite without it
+            # FIPSCertificate.analyze_tables
+            # [
+            #     (cert, high_precision)
+            #     for cert in self.certs.values()
+            #     if cert is not None and (not cert.state.tables_done or high_precision) and cert.state.txt_state
+            # ],
             config.n_threads // 4,  # tabula already processes by parallel, so
             # it's counterproductive to use all threads
             use_threading=False,
@@ -232,7 +238,8 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         not_decoded = [cert.state.sp_path for done, cert, _ in result if done is False]
         for state, cert, algorithms in result:
             certificate = self.certs[cert.dgst]
-            certificate.state.tables_done = state
+            # TODO: Fix me, attribute below deleted
+            # certificate.state.tables_done = state
             certificate.pdf_data.algorithms = algorithms
         return not_decoded
 
@@ -284,8 +291,9 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
 
     def _clean_cert_ids(self, current_cert: FIPSCertificate) -> None:
         current_cert.clean_cert_ids()
-        if not current_cert.state.txt_state:
-            return
+        # TODO: Fix me, txt state no longer available
+        # if not current_cert.state.txt_state:
+        #     return
         current_cert.heuristics.clean_cert_ids = {
             cert_id: count
             for cert_id, count in current_cert.pdf_data.clean_cert_ids.items()
@@ -363,9 +371,9 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
     def _analyze_certificates_body(self, fresh: bool = True) -> None:
         super()._analyze_certificates_body(fresh)
 
-        # Final methods
-        self._extract_data()
-        self._compute_heuristics()
+        # Final methods -- delete them, just a placeholder, they're handled by superclass
+        # self._extract_data()
+        # self._compute_heuristics()
 
         # TODO: Distribute the methods below somehow between the final methods above
         self._extract_data(redo=False)
@@ -441,8 +449,9 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         for key in self.certs:
             cert = self.certs[key]
 
-            if not cert.state.file_status:
-                continue
+            # TODO: Not sure what this was for, fix me
+            # if not cert.state.file_status:
+            #     continue
 
             processed = self._get_processed_list(connection_list, key)
 
@@ -462,8 +471,10 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         for key in self.certs:
             cert = self.certs[key]
 
-            if not cert.state.file_status:
-                continue
+            # TODO: Not sure what this was for, fix me
+            # if not cert.state.file_status:
+            #     continue
+
             processed = self._get_processed_list(connection_list, key)
             for conn in processed:
                 self._add_colored_node(dot, fips_dgst(conn), highlighted_vendor)

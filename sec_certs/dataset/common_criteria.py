@@ -683,14 +683,13 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             self.certs[dgst].heuristics.direct_dependency_cves = dependency_cve.direct_dependency_cves
             self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
 
-    def _compute_heuristics(self, use_nist_cpe_matching_dict: bool = True) -> None:
+    def _compute_heuristics(self, fresh: bool = True) -> None:
         logger.info("Computing various heuristics on CC certificates.")
+        super()._compute_heuristics()
         self._compute_cert_labs()
         self._compute_normalized_cert_ids()
         self._compute_dependencies()
         self._compute_sars()
-        self.compute_cpe_heuristics()
-        self.compute_related_cves(use_nist_cpe_matching_dict=use_nist_cpe_matching_dict)
         self._compute_dependency_vulnerabilities()
 
     def _compute_sars(self) -> None:
@@ -727,29 +726,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
             for dgst in self.certs:
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
-
-    @serialize
-    def analyze_certificates(self, fresh: bool = True) -> None:
-        """
-        Searches for all RE in the txt files of the dataset. These are further processed during heuristics computation.
-
-        :param bool fresh: Whether to run this phase on all certificates (true) or only on those that failed (false), defaults to True
-        """
-        if self.state.pdfs_converted is False:
-            logger.info(
-                "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
-            )
-            return
-        super().analyze_certificates()
-        self._extract_data(fresh)
-        self._compute_heuristics()
-
-        self.state.certs_analyzed = True
-
-    def _analyze_certificates_body(self, fresh: bool = True) -> None:
-        super()._analyze_certificates_body(fresh)
-        self._extract_data(fresh)
-        self._compute_heuristics()
 
     def process_auxillary_datasets(self) -> None:
         self.auxillary_datasets.pp_dset = self.process_protection_profiles()

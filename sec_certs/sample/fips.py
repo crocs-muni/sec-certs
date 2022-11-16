@@ -238,7 +238,6 @@ class FIPSCertificate(
     ]
 
     @dataclass(eq=True)
-    # TODO: Include sp_pdf_hash and sp_txt_hash.
     class InternalState(ComplexSerializableType):
         """
         Holds state of the `FIPSCertificate`
@@ -259,16 +258,8 @@ class FIPSCertificate(
 
         errors: List[str]
 
-        # Stale, probably delete
-        tables_done: bool
-        file_status: bool
-        txt_state: bool
-
         def __init__(
             self,
-            tables_done: bool = False,
-            file_status: bool = True,  # TODO: Check if this is correct
-            txt_state: bool = True,  # TODO: Check if this is correct
             module_download_ok: bool = False,
             policy_download_ok: bool = False,
             policy_convert_garbage: bool = False,
@@ -277,9 +268,6 @@ class FIPSCertificate(
             policy_txt_hash: Optional[str] = None,
             errors: Optional[List[str]] = None,
         ):
-            self.tables_done = tables_done
-            self.file_status = file_status
-            self.txt_state = txt_state
             self.module_download_ok = module_download_ok
             self.policy_download_ok = policy_download_ok
             self.policy_convert_garbage = policy_convert_garbage
@@ -290,8 +278,14 @@ class FIPSCertificate(
 
         @property
         def serialized_attributes(self) -> List[str]:
-            # TODO: Fix me, add other variables
-            return ["tables_done", "file_status", "txt_state"]
+            return [
+                "module_download_ok",
+                "policy_download_ok",
+                "policy_convert_garbage",
+                "policy_convert_ok",
+                "policy_pdf_hash",
+                "policy_txt_hash",
+            ]
 
         def module_is_ok_to_download(self, fresh: bool = True) -> bool:
             return True if fresh else not self.module_download_ok
@@ -522,9 +516,11 @@ class FIPSCertificate(
             items_found["revoked_reason"] = None
             items_found["revoked_link"] = None
             items_found["mentioned_certs"] = {}
-            state.tables_done = initialized.state.tables_done
-            state.file_status = initialized.state.file_status
-            state.txt_state = initialized.state.txt_state
+
+            # TODO: Not sure what this was for, fixme
+            # state.tables_done = initialized.state.tables_done
+            # state.file_status = initialized.state.file_status
+            # state.txt_state = initialized.state.txt_state
 
         if redo:
             items_found = FIPSCertificate._initialize_dictionary()
@@ -676,7 +672,6 @@ class FIPSCertificate(
             "revoked_link": None,
             "algorithms": set(),
             "mentioned_certs": {},
-            "tables_done": False,
             "security_policy_www": None,
             "certificate_www": None,
             "hw_versions": None,
@@ -686,27 +681,10 @@ class FIPSCertificate(
         }
 
     @staticmethod
-    def convert_pdf_file(tup: Tuple[FIPSCertificate, Path, Path]) -> FIPSCertificate:
-        """
-        Converts pdf file of FIPSCertificate. Staticmethod to allow for paralelization.
-
-        :param Tuple[FIPSCertificate, Path, Path] tup: object which file will be converted, path to pdf, path to txt.
-        :return FIPSCertificate: the modified FIPSCertificate.
-        """
-        cert, pdf_path, txt_path = tup
-        if not cert.state.txt_state:
-            ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(pdf_path, txt_path)
-            if not ok_result:
-                logger.error(f"Cert dgst: {cert.cert_id} failed to convert security policy pdf->txt")
-                cert.state.txt_state = False
-            else:
-                cert.state.txt_state = True
-        return cert
-
-    @staticmethod
     def find_keywords(cert: FIPSCertificate) -> Tuple[Optional[Dict], FIPSCertificate]:
-        if not cert.state.txt_state:
-            return None, cert
+        # TODO: Replace the condition below
+        # if not cert.state.txt_state:
+        #     return None, cert
 
         keywords = sec_certs.utils.extract.extract_keywords(
             cert.state.policy_pdf_path.with_suffix(".pdf.txt"), fips_rules
@@ -732,10 +710,11 @@ class FIPSCertificate(
             return set(map(FIPSAlgorithm, set_items))
 
         cert, precision = tup
-        if (not precision and cert.state.tables_done) or (
-            precision and cert.heuristics.unmatched_algs < config.cert_threshold
-        ):
-            return cert.state.tables_done, cert, set()
+        # TODO: Not sure what this was for, fixme
+        # if (not precision and cert.state.tables_done) or (
+        #     precision and cert.heuristics.unmatched_algs < config.cert_threshold
+        # ):
+        #     return cert.state.tables_done, cert, set()
 
         cert_file = cert.state.policy_pdf_path
         txt_file = cert_file.with_suffix(".pdf.txt")
@@ -795,7 +774,7 @@ class FIPSCertificate(
         """
         Removes algorithm mentions from the cert_id rule matches and stores them into clean_cert_id matches.
         """
-        self.state.file_status = True
+        # self.state.file_status = True # TODO: Not sure what this was for
         if not self.pdf_data.keywords:
             return
 
