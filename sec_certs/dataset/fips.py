@@ -384,7 +384,6 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         self._compute_dependencies()
         self.compute_cpe_heuristics()
         self.compute_related_cves()
-        self.plot_graphs(show=True)
 
     def _compute_heuristics(self):
         logger.info("Computing various statistics from processed certificates.")
@@ -420,72 +419,6 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         attr = {"st": "st_references", "web": "web_references"}[connection_list]
         return getattr(self.certs[dgst].heuristics, attr).directly_referencing
 
-    def _create_dot_graph(
-        self,
-        output_file_name: str,
-        connection_list: str = "st",
-        highlighted_vendor: str = "Red Hat®, Inc.",
-        show: bool = True,
-    ) -> None:
-        """
-        Function that plots .dot graph of dependencies between certificates
-        Certificates with at least one dependency are displayed in "{output_file_name}connections.pdf", remaining
-        certificates are displayed in {output_file_name}single.pdf
-        :param show: display graph right on screen
-        :param highlighted_vendor: vendor whose certificates should be highlighted in red color
-        :param output_file_name: prefix to "connections", "connections.pdf", "single" and "single.pdf"
-        :param connection_list: 'st' or 'web' - plots a graph from this source
-        """
-        dot = Digraph(comment="Certificate ecosystem")
-        single_dot = Digraph(comment="Modules with no dependencies")
-        single_dot.attr("graph", label="Single nodes", labelloc="t", fontsize="30")
-        single_dot.attr("node", style="filled")
-        dot.attr("graph", label="Dependencies", labelloc="t", fontsize="30")
-        dot.attr("node", style="filled")
-
-        keys = 0
-        edges = 0
-
-        for key in self.certs:
-            cert = self.certs[key]
-
-            # TODO: Not sure what this was for, fix me
-            # if not cert.state.file_status:
-            #     continue
-
-            processed = self._get_processed_list(connection_list, key)
-
-            if processed:
-                self._add_colored_node(dot, key, highlighted_vendor)
-                keys += 1
-            else:
-                single_dot.attr("node", color="lightblue")
-                self._highlight_vendor_in_dot(dot, key, highlighted_vendor)
-                single_dot.node(
-                    key,
-                    label=str(cert.cert_id) + "\r\n" + cert.web_data.vendor
-                    if cert.web_data.vendor is not None
-                    else "" + ("\r\n" + cert.web_data.module_name if cert.web_data.module_name else ""),
-                )
-
-        for key in self.certs:
-            cert = self.certs[key]
-
-            # TODO: Not sure what this was for, fix me
-            # if not cert.state.file_status:
-            #     continue
-
-            processed = self._get_processed_list(connection_list, key)
-            for conn in processed:
-                self._add_colored_node(dot, fips_dgst(conn), highlighted_vendor)
-                dot.edge(key, conn)
-                edges += 1
-
-        logger.info(f"rendering for {connection_list}: {keys} keys and {edges} edges")
-
-        dot.render(self.root_dir / (str(output_file_name) + "_connections"), view=show)
-        single_dot.render(self.root_dir / (str(output_file_name) + "_single"), view=show)
-
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
         df = df.set_index("dgst")
@@ -507,13 +440,3 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         df["year_from"] = pd.DatetimeIndex(df.date_validation).year
 
         return df
-
-    def plot_graphs(self, show: bool = False) -> None:
-        """
-        Plots FIPS graphs.
-
-        :param bool show: If plots should be shown with .show() method, defaults to False
-        """
-        self._create_dot_graph("full_graph", show=show)
-        self._create_dot_graph("web_only_graph", "web", show=show)
-        self._create_dot_graph("st_only_graph", "st", show=show)
