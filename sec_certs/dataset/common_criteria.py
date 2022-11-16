@@ -667,7 +667,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         for cert in certs_to_process:
             cert.compute_heuristics_cert_lab()
 
-    def _compute_normalized_cert_ids(self):
+    def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
         logger.info("Deriving information about sample ids from pdf scan.")
         for cert in self:
             cert.compute_heuristics_cert_id()
@@ -687,10 +687,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Computing various heuristics on CC certificates.")
         super()._compute_heuristics()
         self._compute_cert_labs()
-        self._compute_normalized_cert_ids()
-        self._compute_dependencies()
         self._compute_sars()
-        self._compute_dependency_vulnerabilities()
 
     def _compute_sars(self) -> None:
         logger.info("Computing SARs")
@@ -698,7 +695,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         for cert in self:
             cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
 
-    def _compute_dependencies(self) -> None:
+    def _compute_dependencies(self, fresh: bool = True) -> None:
         def ref_lookup(kw_attr):
             def func(cert):
                 kws = getattr(cert.pdf_data, kw_attr)

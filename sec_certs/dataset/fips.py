@@ -58,11 +58,14 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
 
     @serialize
     def _extract_data(self, redo: bool = False) -> None:
+        # TODO: Refactor me
         """
         Extracts data from pdf files
         :param bool redo: Whether to try again with failed files, defaults to False
         """
         logger.info("Entering PDF scan.")
+
+        self._extract_data_from_html_modules()
 
         keywords = cert_processing.process_parallel(
             FIPSCertificate.find_keywords,
@@ -73,6 +76,9 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         )
         for keyword, cert in keywords:
             self.certs[cert.dgst].pdf_data.keywords = keyword
+
+        self._extract_metadata()
+        self.extract_certs_from_tables(high_precision=True)
 
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
         self._download_modules(fresh)
@@ -149,14 +155,15 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
 
         return {FIPSCertificate(cert_id) for cert_id in cert_ids}
 
-    @serialize
-    def web_scan(self, cert_ids: Set[str], redo: bool = False) -> None:
+    def _extract_data_from_html_modules(self, redo: bool = False) -> None:
         """
         Creates FIPSCertificate object from the relevant html file that must be downlaoded.
 
         :param Set[str] cert_ids: Cert ids to create FIPSCertificate objects for.
         :param bool redo: whether to re-attempt with failed certificates, defaults to False
         """
+        cert_ids: Set[str] = set()  # I guess all cert ids in dset, depending on fresh?
+
         logger.info("Entering web scan.")
         for cert_id in cert_ids:
             dgst = fips_dgst(cert_id)
@@ -243,11 +250,13 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             certificate.pdf_data.algorithms = algorithms
         return not_decoded
 
-    def _compute_heuristics_clean_ids(self) -> None:
+    def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
+        # TODO: Refactor me
         for cert in self.certs.values():
             self._clean_cert_ids(cert)
 
     def _extract_metadata(self):
+        # TODO: Refactor me
         certs_to_process = [x for x in self]
         res = cert_processing.process_parallel(
             FIPSCertificate.extract_sp_metadata,
@@ -301,6 +310,10 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             and cert_id != current_cert.cert_id
         }
 
+    def _compute_dependency_vulnerabilities(self, fresh: bool = True) -> None:
+        # TODO: Implement me
+        pass
+
     @staticmethod
     def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
         for algo in processed_cert.heuristics.algorithms:
@@ -337,7 +350,7 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
                 return False
         return True
 
-    def _compute_dependencies(self) -> None:
+    def _compute_dependencies(self, fresh: bool = True) -> None:
         def pdf_lookup(cert):
             return set(
                 filter(
@@ -368,25 +381,10 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
                 self.certs[dgst].heuristics, "web_references", finder.predict_single_cert(dgst, keep_unknowns=False)
             )
 
-    def _analyze_certificates_body(self, fresh: bool = True) -> None:
-        super()._analyze_certificates_body(fresh)
-
-        # Final methods -- delete them, just a placeholder, they're handled by superclass
-        # self._extract_data()
-        # self._compute_heuristics()
-
-        # TODO: Distribute the methods below somehow between the final methods above
-        self._extract_data(redo=False)
-        self.extract_certs_from_tables(high_precision=True)
-        self._extract_metadata()
-        self._unify_algorithms()
-        self._compute_heuristics_clean_ids()
-        self._compute_dependencies()
-        self.compute_cpe_heuristics()
-        self.compute_related_cves()
-
     def _compute_heuristics(self):
         logger.info("Computing various statistics from processed certificates.")
+        super()._compute_heuristics()
+        self._unify_algorithms()
 
     def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
         current_cert = self.certs[current_dgst]
@@ -399,25 +397,6 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             dot.attr("node", color="grey32")
         if current_cert.web_data.status == "Historical":
             dot.attr("node", color="gold3")
-
-    def _add_colored_node(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
-        current_cert = self.certs[current_dgst]
-        dot.attr("node", color="lightgreen")
-        if current_cert.web_data.status == "Revoked":
-            dot.attr("node", color="lightgrey")
-        if current_cert.web_data.status == "Historical":
-            dot.attr("node", color="gold")
-        self._highlight_vendor_in_dot(dot, current_dgst, highlighted_vendor)
-        dot.node(
-            str(current_cert.cert_id),
-            label=str(current_cert.cert_id) + "&#10;" + current_cert.web_data.vendor
-            if current_cert.web_data.vendor is not None
-            else "" + "&#10;" + (current_cert.web_data.module_name if current_cert.web_data.module_name else ""),
-        )
-
-    def _get_processed_list(self, connection_list: str, dgst: str) -> List[str]:
-        attr = {"st": "st_references", "web": "web_references"}[connection_list]
-        return getattr(self.certs[dgst].heuristics, attr).directly_referencing
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)

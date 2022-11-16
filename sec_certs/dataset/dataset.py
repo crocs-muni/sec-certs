@@ -279,8 +279,23 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def _compute_heuristics(self, fresh: bool = True) -> None:
+        self._compute_normalized_cert_ids()
         self.compute_cpe_heuristics()
         self.compute_related_cves()
+        self._compute_dependencies()
+        self._compute_dependency_vulnerabilities()
+
+    @abstractmethod
+    def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    @abstractmethod
+    def _compute_dependencies(self, fresh: bool = True) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    @abstractmethod
+    def _compute_dependency_vulnerabilities(self, fresh: bool = True) -> None:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @staticmethod
     def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True) -> None:
