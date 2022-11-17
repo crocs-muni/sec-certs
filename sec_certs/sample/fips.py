@@ -3,14 +3,14 @@ from __future__ import annotations
 import copy
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Pattern, Set, Tuple, Union
+from typing import Any, Callable, ClassVar, Dict, Final, List, Literal, Optional, Pattern, Set, Tuple
 
+import dateutil
 import numpy as np
 import requests
-from bs4 import BeautifulSoup, NavigableString, Tag
-from dateutil import parser
+from bs4 import BeautifulSoup, Tag
 from tabula import read_pdf
 
 import sec_certs.constants as constants
@@ -18,7 +18,7 @@ import sec_certs.utils.extract
 import sec_certs.utils.helpers as helpers
 import sec_certs.utils.pdf
 import sec_certs.utils.tables
-from sec_certs.cert_rules import fips_rules
+from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -31,172 +31,142 @@ from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils.helpers import fips_dgst
 
 
-class _FIPSHTMLParser:
-    @staticmethod
-    def parse_html_main(current_div: Tag, html_items_found: Dict) -> None:
-        pairs = {
-            "Module Name": "module_name",
-            "Standard": "standard",
-            "Status": "status",
-            "Sunset Date": "date_sunset",
-            "Validation Dates": "date_validation",
-            "Overall Level": "level",
-            "Caveat": "caveat",
-            "Security Level Exceptions": "exceptions",
-            "Module Type": "module_type",
-            "Embodiment": "embodiment",
-            "FIPS Algorithms": "algorithms",
-            # "Allowed Algorithms": "algorithms",
-            # "Other Algorithms": "algorithms",
-            "Tested Configuration(s)": "tested_conf",
-            "Description": "description",
-            "Historical Reason": "historical_reason",
-            "Hardware Versions": "hw_versions",
-            "Firmware Versions": "fw_versions",
-            "Revoked Reason": "revoked_reason",
-            "Revoked Link": "revoked_link",
-            "Software Versions": "sw_versions",
-            "Product URL": "product_url",
-        }
-        title = current_div.find("div", class_="col-md-3").text.strip()
-        content = (
-            current_div.find("div", class_="col-md-9")
-            .text.strip()
-            .replace("\n", "")
-            .replace("\t", "")
-            .replace("    ", " ")
+class FIPSHTMLParser:
+    def __init__(self, soup: BeautifulSoup):
+        self._soup = soup
+
+    def build_web_data(self) -> FIPSCertificate.WebData:
+        divs = self._soup.find_all("div", class_="panel panel-default")
+        details_div, vendor_div, related_files_div, validation_history_div = divs
+
+        # TODO: Move the assertions to tests
+        assert len(divs) == 4
+        assert details_div.find("h4").text == "Details"
+        assert vendor_div.find("h4").text == "Vendor"
+        assert related_files_div.find("h4").text == "Related Files"
+        assert validation_history_div.find("h4").text == "Validation History"
+
+        details_dict = self._build_details_dict(details_div)
+        vendor_dict = self._build_vendor_dict(vendor_div)
+        related_files_dict = self._build_related_files_dict(related_files_div)
+        validation_history_dict = self._build_validation_history_dict(validation_history_div)
+        return FIPSCertificate.WebData(
+            **{**details_dict, **vendor_dict, **related_files_dict, **validation_history_dict}
         )
 
-        if title in pairs:
-            if "date_sunset" == pairs[title]:
-                html_items_found[pairs[title]] = parser.parse(content).date()
+    @classmethod
+    def _build_details_dict(cls, details_div: Tag) -> Dict[str, Any]:
+        def parse_single_detail_entry(key, entry):
+            normalized_key = DETAILS_KEY_NORMALIZATION_DICT[key]
+            normalization_func = DETAILS_KEY_TO_NORMALIZATION_FUNCTION.get(normalized_key, None)
+            normalized_entry = (
+                FIPSHTMLParser.normalize_string(entry.text) if not normalization_func else normalization_func(entry)
+            )
+            return normalized_key, normalized_entry
 
-            elif "caveat" in pairs[title]:
-                html_items_found[pairs[title]] = content
-                html_items_found["mentioned_certs"].update(_FIPSHTMLParser.parse_caveat(content))
+        entries = details_div.find_all("div", class_="row padrow")
+        entries = zip(
+            [x.find("div", class_="col-md-3") for x in entries], [x.find("div", class_="col-md-9") for x in entries]
+        )
+        entries = [(FIPSHTMLParser.normalize_string(key.text), entry) for key, entry in entries]
+        entries = [parse_single_detail_entry(*x) for x in entries if x[0] in DETAILS_KEY_NORMALIZATION_DICT.keys()]
+        entries = dict((x, y) for x, y in entries)
 
-            elif "FIPS Algorithms" in title:
-                html_items_found["algorithms"].update(
-                    _FIPSHTMLParser.parse_table(current_div.find("div", class_="col-md-9"))
-                )
+        if "caveat" in entries:
+            entries["mentioned_certs"] = FIPSHTMLParser.get_mentioned_certs_from_caveat(entries["caveat"])
+        # TODO: Enhance algorithms with those parsed from description entry
 
-            elif "Algorithms" in title or "Description" in title:
-                html_items_found["algorithms"].update(_FIPSHTMLParser.parse_description(content))
-                if "Description" in title:
-                    html_items_found["description"] = content
-
-            elif "tested_conf" in pairs[title] or "exceptions" in pairs[title]:
-                html_items_found[pairs[title]] = [
-                    x.text for x in current_div.find("div", class_="col-md-9").find_all("li")
-                ]
-            else:
-                html_items_found[pairs[title]] = content
+        return entries
 
     @staticmethod
-    def parse_vendor(current_div: Tag, html_items_found: Dict, current_file: Path) -> None:
-        vendor_string = current_div.find("div", "panel-body").find("a")
-
-        if not vendor_string:
-            vendor_string = list(current_div.find("div", "panel-body").children)[0].strip()
-            html_items_found["vendor_www"] = ""
+    def _build_vendor_dict(vendor_div: Tag) -> Dict[str, Any]:
+        if not (link := vendor_div.find("a")):
+            return {"vendor_url": None, "vendor": list(vendor_div.find("div", "panel-body").children)[0].strip()}
         else:
-            html_items_found["vendor_www"] = vendor_string.get("href")
-            vendor_string = vendor_string.text.strip()
-
-        html_items_found["vendor"] = vendor_string
-        if html_items_found["vendor"] == "":
-            logger.warning(f"NO VENDOR FOUND {current_file}")
+            return {"vendor_url": link.get("href"), "vendor": link.text.strip()}
 
     @staticmethod
-    def parse_lab(current_div: Tag, html_items_found: Dict, current_file: Path) -> None:
-        html_items_found["lab"] = list(current_div.find("div", "panel-body").children)[0].strip()
-        html_items_found["nvlap_code"] = (
-            list(current_div.find("div", "panel-body").children)[2].strip().split("\n")[1].strip()
-        )
-
-        if html_items_found["lab"] == "":
-            logger.warning(f"NO LAB FOUND {current_file}")
-
-        if html_items_found["nvlap_code"] == "":
-            logger.warning(f"NO NVLAP CODE FOUND {current_file}")
+    def _build_related_files_dict(related_files_div: Tag) -> Dict[str, Any]:
+        if cert_link := [x for x in related_files_div.find_all("a") if "Certificate" in x.text]:
+            return {"certificate_pdf_url": constants.FIPS_BASE_URL + cert_link[0].get("href")}
+        else:
+            return {"certificate_pdf_url": None}
 
     @staticmethod
-    def parse_related_files(current_div: Tag, html_items_found: Dict) -> None:
-        links = current_div.find_all("a")
-        html_items_found["security_policy_www"] = constants.FIPS_BASE_URL + links[0].get("href")
+    def _build_validation_history_dict(validation_history_div: Tag) -> Dict[str, Any]:
+        def parse_row(row):
+            validation_date, validation_type, lab = row.find_all("td")
+            return FIPSCertificate.ValidationHistoryEntry(
+                dateutil.parser.parse(validation_date.text).date(), validation_type.text, lab.text
+            )
 
-        if len(links) == 2:
-            html_items_found["certificate_www"] = constants.FIPS_BASE_URL + links[1].get("href")
-
-    @staticmethod
-    def normalize(items: Dict) -> None:
-        items["module_type"] = items["module_type"].lower().replace("-", " ").title()
-        items["embodiment"] = items["embodiment"].lower().replace("-", " ").replace("stand alone", "standalone").title()
-
-    @staticmethod
-    def parse_validation_dates(current_div: Tag, html_items_found: Dict) -> None:
-        table = current_div.find("table")
-        rows = table.find("tbody").findAll("tr")
-        html_items_found["date_validation"] = [parser.parse(td.text).date() for td in [row.find("td") for row in rows]]
+        rows = validation_history_div.find("tbody").find_all("tr")
+        history: Optional[List[FIPSCertificate.ValidationHistoryEntry]] = [parse_row(x) for x in rows] if rows else None
+        return {"validation_history": history}
 
     @staticmethod
-    def parse_caveat(current_text: str) -> Dict[str, Dict[str, int]]:
-        """
-        Parses content of "Caveat" of FIPS CMVP .html file
-
-        :param str current_text: text of "Caveat"
-        :return Dict[str, Dict[str, int]]: dictionary of all found algorithm IDs
-        """
-        ids_found: Dict[str, Dict[str, int]] = {}
+    def get_mentioned_certs_from_caveat(caveat: str) -> Dict[str, int]:
+        ids_found: Dict[str, int] = {}
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
-        for m in re.finditer(r_key, current_text):
+        for m in re.finditer(r_key, caveat):
             if m.group("word") and m.group("word").lower() in {"rsa", "shs", "dsa", "pkcs", "aes"}:
                 continue
             if m.group("id") in ids_found:
-                ids_found[m.group("id")]["count"] += 1
+                ids_found[m.group("id")] += 1
             else:
-                ids_found[m.group("id")] = {"count": 1}
-
+                ids_found[m.group("id")] = 1
         return ids_found
 
     @staticmethod
-    def parse_table(element: Union[Tag, NavigableString]) -> Set[FIPSAlgorithm]:
-        """
-        Parses content of <table> tags in FIPS .html CMVP page
-
-        :param Union[Tag, NavigableString] element: text in <table> tags
-        :return: set of all found algorithm IDs
-        """
-
-        found_items = set()
-        trs = element.find_all("tr")
-        for tr in trs:
-            tds = tr.find_all("td")
-            cert_ids = _FIPSHTMLParser.extract_algorithm_certificates(tds[1].text)
-            name = tds[0].text
-            for cert_id in cert_ids:
-                found_items.add(FIPSAlgorithm(cert_id, name))
-
-        return found_items
+    def parse_algorithms(algorithms_div: Tag) -> Dict[str, Set[str]]:
+        rows = algorithms_div.find("tbody").find_all("tr")
+        dct: Dict[str, Set[str]] = dict()
+        for row in rows:
+            cells = row.find_all("td")
+            dct[cells[0].text] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
+        return dct
 
     @staticmethod
-    def parse_description(current_text: str) -> Set[FIPSAlgorithm]:
-        return set(map(FIPSAlgorithm, _FIPSHTMLParser.extract_algorithm_certificates(current_text)))
+    def normalize_string(string: str) -> str:
+        return " ".join(string.split())
 
     @staticmethod
-    def extract_algorithm_certificates(current_text: str) -> Set[str]:
-        """
-        Parses table of FIPS (non) allowed algorithms
+    def parse_tested_configurations(tested_configurations: Tag) -> Optional[List[str]]:
+        configurations = [y.text for y in tested_configurations.find_all("li")]
+        return configurations if not configurations == ["N/A"] else None
 
-        :param str current_text: Contents of the table
-        :return: A list of found algorithm ids.
-        """
-        set_items = set()
-        reg = r"(?:#[CcAa]?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
-        for m in re.finditer(reg, current_text):
-            set_items.add(m.group())
 
-        return set_items
+DETAILS_KEY_NORMALIZATION_DICT: Final[Dict[str, str]] = {
+    "Module Name": "module_name",
+    "Standard": "standard",
+    "Status": "status",
+    "Sunset Date": "date_sunset",
+    "Validation Dates": "date_validation",
+    "Overall Level": "level",
+    "Caveat": "caveat",
+    "Security Level Exceptions": "exceptions",
+    "Module Type": "module_type",
+    "Embodiment": "embodiment",
+    "Approved Algorithms": "algorithms",
+    "Tested Configuration(s)": "tested_conf",
+    "Description": "description",
+    "Historical Reason": "historical_reason",
+    "Hardware Versions": "hw_versions",
+    "Firmware Versions": "fw_versions",
+    "Revoked Reason": "revoked_reason",
+    "Revoked Link": "revoked_link",
+    "Software Versions": "sw_versions",
+    "Product URL": "product_url",
+}
+
+DETAILS_KEY_TO_NORMALIZATION_FUNCTION: Dict[str, Callable] = {
+    "date_sunset": lambda x: dateutil.parser.parse(x.text).date(),
+    "algorithms": getattr(FIPSHTMLParser, "parse_algorithms"),
+    "tested_conf": getattr(FIPSHTMLParser, "parse_tested_configurations"),
+    "exceptions": lambda x: [y.text for y in x.find_all("li")],
+    "status": lambda x: FIPSHTMLParser.normalize_string(x.text).lower(),
+    "level": lambda x: int(FIPSHTMLParser.normalize_string(x.text)),
+}
 
 
 class FIPSCertificate(
@@ -249,6 +219,9 @@ class FIPSCertificate(
         policy_convert_garbage: bool
         policy_convert_ok: bool
 
+        module_extract_ok: bool
+        policy_extract_ok: bool
+
         policy_pdf_hash: Optional[str]
         policy_txt_hash: Optional[str]
 
@@ -264,6 +237,8 @@ class FIPSCertificate(
             policy_download_ok: bool = False,
             policy_convert_garbage: bool = False,
             policy_convert_ok: bool = False,
+            module_extract_ok: bool = False,
+            policy_extract_ok: bool = False,
             policy_pdf_hash: Optional[str] = None,
             policy_txt_hash: Optional[str] = None,
             errors: Optional[List[str]] = None,
@@ -272,6 +247,8 @@ class FIPSCertificate(
             self.policy_download_ok = policy_download_ok
             self.policy_convert_garbage = policy_convert_garbage
             self.policy_convert_ok = policy_convert_ok
+            self.module_extract_ok = module_extract_ok
+            self.policy_extract_ok = policy_extract_ok
             self.policy_pdf_hash = policy_pdf_hash
             self.policy_txt_hash = policy_txt_hash
             self.errors = errors if errors else []
@@ -283,6 +260,8 @@ class FIPSCertificate(
                 "policy_download_ok",
                 "policy_convert_garbage",
                 "policy_convert_ok",
+                "module_extract_ok",
+                "policy_extract_ok",
                 "policy_pdf_hash",
                 "policy_txt_hash",
             ]
@@ -296,10 +275,25 @@ class FIPSCertificate(
         def policy_is_ok_to_convert(self, fresh: bool = True) -> bool:
             return self.policy_download_ok if fresh else self.policy_download_ok and not self.policy_convert_ok
 
+        def module_is_ok_to_analyze(self, fresh: bool = True) -> bool:
+            return self.module_download_ok if fresh else self.module_download_ok and not self.module_extract_ok
+
     def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, modules_html_dir: Path) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
         self.state.policy_txt_path = (policies_txt_dir / str(self.dgst)).with_suffix(".txt")
         self.state.module_html_path = (modules_html_dir / str(self.dgst)).with_suffix(".html")
+
+    @dataclass(eq=True)
+    class ValidationHistoryEntry(ComplexSerializableType):
+        date: date
+        validation_type: Literal["initial", "update"]
+        lab: str
+
+        @classmethod
+        def from_dict(cls, dct: Dict) -> FIPSCertificate.ValidationHistoryEntry:
+            new_dct = dct.copy()
+            new_dct["date"] = dateutil.parser.parse(dct["date"]).date()
+            return cls(**new_dct)
 
     @dataclass(eq=True)
     class WebData(ComplexSerializableType):
@@ -308,32 +302,31 @@ class FIPSCertificate(
         """
 
         module_name: Optional[str] = field(default=None)
+        validation_history: Optional[List[FIPSCertificate.ValidationHistoryEntry]] = field(default=None)
+        vendor_url: Optional[str] = field(default=None)
+        vendor: Optional[str] = field(default=None)
+        certificate_pdf_url: Optional[str] = field(default=None)
+        module_type: Optional[str] = field(default=None)
         standard: Optional[str] = field(default=None)
-        status: Optional[str] = field(default=None)
-        date_sunset: Optional[datetime] = field(default=None)
-        date_validation: Optional[List[datetime]] = field(default=None)
-        level: Optional[str] = field(default=None)
+        status: Optional[Literal["active", "historical", "revoked"]] = field(default=None)
+        level: Optional[Literal[1, 2, 3, 4]] = field(default=None)
         caveat: Optional[str] = field(default=None)
         exceptions: Optional[List[str]] = field(default=None)
-        module_type: Optional[str] = field(default=None)
         embodiment: Optional[str] = field(default=None)
-        algorithms: Optional[Set[FIPSAlgorithm]] = field(default=None)
-        tested_conf: Optional[List[str]] = field(default=None)
         description: Optional[str] = field(default=None)
-        mentioned_certs: Optional[Dict[str, Dict[str, int]]] = field(default=None)
-        vendor: Optional[str] = field(default=None)
-        vendor_www: Optional[str] = field(default=None)
-        lab: Optional[str] = field(default=None)
-        lab_nvlap: Optional[str] = field(default=None)
+        tested_conf: Optional[List[str]] = field(default=None)
+        algorithms: Optional[Dict[str, Set[str]]] = field(default=None)
+        hw_versions: Optional[str] = field(default=None)
+        fw_versions: Optional[str] = field(default=None)
+        sw_versions: Optional[str] = field(default=None)
+        mentioned_certs: Optional[Dict[str, int]] = field(default=None)  # Cert_id: n_occurences
         historical_reason: Optional[str] = field(default=None)
-        security_policy_www: Optional[str] = field(default=None)
-        certificate_www: Optional[str] = field(default=None)
-        hw_version: Optional[str] = field(default=None)
-        fw_version: Optional[str] = field(default=None)
+        date_sunset: Optional[date] = field(default=None)
         revoked_reason: Optional[str] = field(default=None)
         revoked_link: Optional[str] = field(default=None)
-        sw_versions: Optional[str] = field(default=None)
-        product_url: Optional[str] = field(default=None)
+
+        # Those below are left unused at the moment
+        # product_url: Optional[str] = field(default=None)
 
         def __repr__(self) -> str:
             return (
@@ -346,6 +339,13 @@ class FIPSCertificate(
 
         def __str__(self) -> str:
             return repr(self)
+
+        @classmethod
+        def from_dict(cls, dct: Dict) -> FIPSCertificate.WebData:
+            new_dct = dct.copy()
+            if new_dct["date_sunset"]:
+                new_dct["date_sunset"] = dateutil.parser.parse(new_dct["date_sunset"]).date()
+            return cls(**dct)
 
     @dataclass(eq=True)
     class PdfData(BasePdfData, ComplexSerializableType):
@@ -426,10 +426,10 @@ class FIPSCertificate(
             + str(self.web_data.module_name)
             + "\n"
             + "HW version: "
-            + str(self.web_data.hw_version)
+            + str(self.web_data.hw_versions)
             + "\n"
             + "FW version: "
-            + str(self.web_data.fw_version)
+            + str(self.web_data.fw_versions)
         )
 
     def __init__(
@@ -443,7 +443,7 @@ class FIPSCertificate(
         super().__init__()
 
         self.cert_id = cert_id
-        self.web_data = web_data if web_data else FIPSCertificate.WebData()
+        self.web_data: FIPSCertificate.WebData = web_data if web_data else FIPSCertificate.WebData()
         self.pdf_data = pdf_data if pdf_data else FIPSCertificate.PdfData()
         self.heuristics = heuristics if heuristics else FIPSCertificate.Heuristics()
         self.state = state if state else FIPSCertificate.InternalState()
@@ -459,7 +459,7 @@ class FIPSCertificate(
             self.web_data.module_type,
             self.web_data.level,
             self.web_data.embodiment,
-            self.web_data.date_validation[0] if self.web_data.date_validation else np.nan,
+            self.web_data.validation_history[0] if self.web_data.validation_history else np.nan,
             self.web_data.date_sunset,
             self.heuristics.algorithms,
             self.heuristics.extracted_versions,
@@ -476,117 +476,18 @@ class FIPSCertificate(
             self.heuristics.st_references.indirectly_referencing,
         )
 
-    @classmethod
-    def from_dict(cls, dct: Dict) -> FIPSCertificate:
-        """
-        Deserializes dictionary into FIPSCertificate
+    @staticmethod
+    def parse_html_module(cert: FIPSCertificate) -> FIPSCertificate:
+        with cert.state.module_html_path.open("r") as handle:
+            soup = BeautifulSoup(handle, "html5lib")
 
-        :param Dict dct: dictionary that holds the FIPSCertificate data
-        :return FIPSCertificate: object reconstructed from dct
-        """
-        new_dct = dct.copy()
+        parser = FIPSHTMLParser(soup)
+        cert.web_data = parser.build_web_data()
 
-        if new_dct["web_data"].date_validation:
-            new_dct["web_data"].date_validation = [parser.parse(x).date() for x in new_dct["web_data"].date_validation]
-
-        if new_dct["web_data"].date_sunset:
-            new_dct["web_data"].date_sunset = parser.parse(new_dct["web_data"].date_sunset).date()
-        return super(cls, FIPSCertificate).from_dict(new_dct)
-
-    @classmethod
-    def from_html_file(
-        cls, file: Path, state: InternalState, initialized: FIPSCertificate = None, redo: bool = False
-    ) -> FIPSCertificate:
-        """
-        Constructs FIPSCertificate object from html file.
-
-        :param Path file: path to the html file to use for initialization
-        :param InternalState state: state of the certificate
-        :param FIPSCertificate initialized: possibly partially initialized FIPSCertificate, defaults to None
-        :param bool redo: if the method should be reattempted in case of failure, defaults to False
-        :return FIPSCertificate: resulting `FIPSCertificate` object.
-        """
-
-        if not initialized:
-            items_found = FIPSCertificate._initialize_dictionary()
-            items_found["cert_id"] = int(file.stem)
-        else:
-            items_found = initialized.web_data.__dict__
-            items_found["cert_id"] = initialized.cert_id
-            items_found["revoked_reason"] = None
-            items_found["revoked_link"] = None
-            items_found["mentioned_certs"] = {}
-
-            # TODO: Not sure what this was for, fixme
-            # state.tables_done = initialized.state.tables_done
-            # state.file_status = initialized.state.file_status
-            # state.txt_state = initialized.state.txt_state
-
-        if redo:
-            items_found = FIPSCertificate._initialize_dictionary()
-            items_found["cert_id"] = int(file.stem)
-
-        text = sec_certs.utils.extract.load_cert_html_file(str(file))
-        soup = BeautifulSoup(text, "html5lib")
-        for div in soup.find_all("div", class_="row padrow"):
-            _FIPSHTMLParser.parse_html_main(div, items_found)
-
-        for div in soup.find_all("div", class_="panel panel-default")[1:]:
-            if div.find("h4", class_="panel-title").text == "Vendor":
-                _FIPSHTMLParser.parse_vendor(div, items_found, file)
-
-            if div.find("h4", class_="panel-title").text == "Lab":
-                _FIPSHTMLParser.parse_lab(div, items_found, file)
-
-            if div.find("h4", class_="panel-title").text == "Related Files":
-                _FIPSHTMLParser.parse_related_files(div, items_found)
-
-            if div.find("h4", class_="panel-title").text == "Validation History":
-                _FIPSHTMLParser.parse_validation_dates(div, items_found)
-
-        _FIPSHTMLParser.normalize(items_found)
-
-        return FIPSCertificate(
-            items_found["cert_id"],
-            FIPSCertificate.WebData(
-                items_found["module_name"] if "module_name" in items_found else None,
-                items_found["standard"] if "standard" in items_found else None,
-                items_found["status"] if "status" in items_found else None,
-                items_found["date_sunset"] if "date_sunset" in items_found else None,
-                items_found["date_validation"] if "date_validation" in items_found else None,
-                items_found["level"] if "level" in items_found else None,
-                items_found["caveat"] if "caveat" in items_found else None,
-                items_found["exceptions"] if "exceptions" in items_found else None,
-                items_found["module_type"] if "module_type" in items_found else None,
-                items_found["embodiment"] if "embodiment" in items_found else None,
-                items_found["algorithms"] if "algorithms" in items_found else None,
-                items_found["tested_conf"] if "tested_conf" in items_found else None,
-                items_found["description"] if "description" in items_found else None,
-                items_found["mentioned_certs"] if "mentioned_certs" in items_found else None,
-                items_found["vendor"] if "vendor" in items_found else None,
-                items_found["vendor_www"] if "vendor_www" in items_found else None,
-                items_found["lab"] if "lab" in items_found else None,
-                items_found["nvlap_code"] if "nvlap_code" in items_found else None,
-                items_found["historical_reason"] if "historical_reason" in items_found else None,
-                items_found["security_policy_www"] if "security_policy_www" in items_found else None,
-                items_found["certificate_www"] if "certificate_www" in items_found else None,
-                items_found["hw_versions"] if "hw_versions" in items_found else None,
-                items_found["fw_versions"] if "fw_versions" in items_found else None,
-                items_found["revoked_reason"] if "revoked_reason" in items_found else None,
-                items_found["revoked_link"] if "revoked_link" in items_found else None,
-                items_found["sw_versions"] if "sw_versions" in items_found else None,
-                items_found["product_url"] if "product_url" in items_found else None,
-            ),
-            FIPSCertificate.PdfData(
-                {} if not initialized else initialized.pdf_data.keywords,
-                set() if not initialized else initialized.pdf_data.algorithms,
-                {} if not initialized else initialized.pdf_data.clean_cert_ids,
-            ),
-            FIPSCertificate.Heuristics(dict(), set(), 0, {}),
-            state,
-        )
+        return cert
 
     @staticmethod
+    # TODO: This should probably get deleted
     def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
         """
         Wrapper for downloading a file. `delay=1` introduced to avoid problems with requests at NIST.gov
@@ -647,38 +548,6 @@ class FIPSCertificate(
         _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
         cert.pdf_data.st_metadata = metadata if metadata else dict()
         return cert
-
-    @staticmethod
-    def _initialize_dictionary() -> Dict[str, Any]:
-        return {
-            "module_name": None,
-            "standard": None,
-            "status": None,
-            "date_sunset": None,
-            "date_validation": None,
-            "level": None,
-            "caveat": None,
-            "exceptions": None,
-            "module_type": None,
-            "embodiment": None,
-            "tested_conf": None,
-            "description": None,
-            "vendor": None,
-            "vendor_www": None,
-            "lab": None,
-            "lab_nvlap": None,
-            "historical_reason": None,
-            "revoked_reason": None,
-            "revoked_link": None,
-            "algorithms": set(),
-            "mentioned_certs": {},
-            "security_policy_www": None,
-            "certificate_www": None,
-            "hw_versions": None,
-            "fw_versions": None,
-            "sw_versions": None,
-            "product_url": None,
-        }
 
     @staticmethod
     def find_keywords(cert: FIPSCertificate) -> Tuple[Optional[Dict], FIPSCertificate]:
@@ -788,8 +657,9 @@ class FIPSCertificate(
         if self.web_data.algorithms is None:
             raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
 
-        for algo in self.web_data.algorithms:
-            alg_set.add(algo.cert_id)
+        # TODO : Refactor this, dictionary form changed
+        # for algo in self.web_data.algorithms:
+        #     alg_set.add(algo.cert_id)
 
         for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
             to_pop = set()
@@ -822,8 +692,8 @@ class FIPSCertificate(
         versions_for_extraction = ""
         if self.web_data.module_name:
             versions_for_extraction += f" {self.web_data.module_name}"
-        if self.web_data.hw_version:
-            versions_for_extraction += f" {self.web_data.hw_version}"
-        if self.web_data.fw_version:
-            versions_for_extraction += f" {self.web_data.fw_version}"
+        if self.web_data.hw_versions:
+            versions_for_extraction += f" {self.web_data.hw_versions}"
+        if self.web_data.fw_versions:
+            versions_for_extraction += f" {self.web_data.fw_versions}"
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)

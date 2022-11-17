@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Collection, Dict, Generic, Iterator, Optional, Pattern, Set, Type, TypeVar, Union, cast
+from typing import Any, Collection, Dict, Generic, Iterator, List, Optional, Pattern, Set, Type, TypeVar, Union, cast
 
 import pandas as pd
 import requests
@@ -61,6 +61,10 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     ):
         self.certs = certs
         self._root_dir = Path(root_dir)
+
+        if not self._root_dir and self._root_dir != constants.DUMMY_NONEXISTING_PATH:
+            self._root_dir.mkdir(parents=True)
+
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
@@ -528,3 +532,12 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         """
         data = [dict({"dgst": x.dgst}, **x.pdf_data.get_keywords_df_data(var)) for x in self]
         return pd.DataFrame(data).set_index("dgst")
+
+    def update_with_certs(self, certs: List[CertSubType]) -> None:
+        """
+        Enriches the dataset with `certs`
+        :param List[CommonCriteriaCert] certs: new certs to include into the dataset.
+        """
+        if any([x not in self for x in certs]):
+            logger.warning("Updating dataset with certificates outside of the dataset!")
+        self.certs.update({x.dgst: x for x in certs})

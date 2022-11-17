@@ -564,16 +564,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._convert_reports_to_txt(fresh)
         self._convert_targets_to_txt(fresh)
 
-    def update_with_certs(self, certs: List[CommonCriteriaCert]) -> None:
-        """
-        Enriches the dataset with `certs`
-
-        :param List[CommonCriteriaCert] certs: new certs to include into the dataset.
-        """
-        if any([x not in self for x in certs]):
-            logger.warning("Updating dataset with certificates outside of the dataset!")
-        self.certs.update({x.dgst: x for x in certs})
-
     def _extract_report_metadata(self, fresh: bool = True) -> None:
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze(fresh)]
         processed_certs = cert_processing.process_parallel(

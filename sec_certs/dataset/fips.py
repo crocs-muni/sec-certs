@@ -155,28 +155,20 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
 
         return {FIPSCertificate(cert_id) for cert_id in cert_ids}
 
-    def _extract_data_from_html_modules(self, redo: bool = False) -> None:
+    def _extract_data_from_html_modules(self, fresh: bool = True) -> None:
         """
-        Creates FIPSCertificate object from the relevant html file that must be downlaoded.
-
-        :param Set[str] cert_ids: Cert ids to create FIPSCertificate objects for.
-        :param bool redo: whether to re-attempt with failed certificates, defaults to False
+        Extracts data from html module file
+        :param bool fresh: if all certs should be processed, or only the failed ones. Defaults to True
         """
-        cert_ids: Set[str] = set()  # I guess all cert ids in dset, depending on fresh?
-
-        logger.info("Entering web scan.")
-        for cert_id in cert_ids:
-            dgst = fips_dgst(cert_id)
-            self.certs[dgst] = FIPSCertificate.from_html_file(
-                self.web_dir / f"{cert_id}.html",
-                FIPSCertificate.InternalState(
-                    False,
-                    False,
-                    False,
-                ),
-                self.certs.get(dgst),
-                redo=redo,
-            )
+        certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(
+            FIPSCertificate.parse_html_module,
+            certs_to_process,
+            config.n_threads,
+            use_threading=False,
+            progress_bar_desc="Extracting data from module html",
+        )
+        self.update_with_certs(processed_certs)
 
     @classmethod
     def from_web_latest(cls) -> "FIPSDataset":
@@ -268,29 +260,31 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         for r in res:
             self.certs[r.dgst] = r
 
+    # TODO: Refactor me
     def _unify_algorithms(self) -> None:
-        for certificate in self.certs.values():
-            certificate.heuristics.algorithms = set()
-            if certificate.web_data.algorithms:
-                certificate.heuristics.algorithms.update(certificate.web_data.algorithms)
-            if certificate.pdf_data.algorithms:
-                certificate.heuristics.algorithms.update(certificate.pdf_data.algorithms)
+        pass
+        # for certificate in self.certs.values():
+        #     certificate.heuristics.algorithms = set()
+        #     if certificate.web_data.algorithms:
+        #         certificate.heuristics.algorithms.update(certificate.web_data.algorithms)
+        #     if certificate.pdf_data.algorithms:
+        #         certificate.heuristics.algorithms.update(certificate.pdf_data.algorithms)
 
     def _compare_certs(self, current_certificate: FIPSCertificate, other_id: str) -> bool:
         other_dgst = fips_dgst(other_id)
         other_cert = self.certs[other_dgst]
 
         if (
-            current_certificate.web_data.date_validation is None
+            current_certificate.web_data.validation_history is None
             or other_cert is None
-            or other_cert.web_data.date_validation is None
+            or other_cert.web_data.validation_history is None
         ):
             raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
 
-        cert_first = current_certificate.web_data.date_validation[0]
-        cert_last = current_certificate.web_data.date_validation[-1]
-        conn_first = other_cert.web_data.date_validation[0]
-        conn_last = other_cert.web_data.date_validation[-1]
+        cert_first = current_certificate.web_data.validation_history[0].date
+        cert_last = current_certificate.web_data.validation_history[-1].date
+        conn_first = other_cert.web_data.validation_history[0].date
+        conn_last = other_cert.web_data.validation_history[-1].date
 
         return (
             cert_first.year - conn_first.year > config.year_difference_between_validations

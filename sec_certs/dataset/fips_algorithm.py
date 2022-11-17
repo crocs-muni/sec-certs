@@ -55,6 +55,7 @@ class FIPSAlgorithmDataset(Dataset, ComplexSerializableType):
         algs_paths.append(self.root_dir / f"page{num_pages}.html")
 
         logger.info(f"Downloading {len(algs_urls)} algo html files")
+        # TODO: Refactor me, the method download_html_page should definitely not be called!
         cert_processing.process_parallel(
             FIPSCertificate.download_html_page, list(zip(algs_urls, algs_paths)), config.n_threads
         )

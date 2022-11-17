@@ -195,6 +195,8 @@ PLATFORM_REGEXES = {
     "ios": re.compile(r"(ios|iphone os)", re.IGNORECASE),
 }
 
+FIPS_ALGS_IN_TABLE = r"(?:#[CcAa]?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
+
 
 def _load():
     script_dir = Path(__file__).parent
