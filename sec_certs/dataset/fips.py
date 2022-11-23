@@ -56,29 +56,39 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
     def algorithms_dir(self) -> Path:
         return self.auxillary_datasets_dir / "algorithms"
 
-    @serialize
-    def _extract_data(self, redo: bool = False) -> None:
-        # TODO: Refactor me
+    def _extract_data_from_html_modules(self, fresh: bool = True) -> None:
         """
-        Extracts data from pdf files
-        :param bool redo: Whether to try again with failed files, defaults to False
+        Extracts data from html module file
+        :param bool fresh: if all certs should be processed, or only the failed ones. Defaults to True
         """
-        logger.info("Entering PDF scan.")
-
-        self._extract_data_from_html_modules()
-
-        keywords = cert_processing.process_parallel(
-            FIPSCertificate.find_keywords,
-            [cert for cert in self.certs.values() if not cert.pdf_data.keywords or redo],
+        certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(
+            FIPSCertificate.parse_html_module,
+            certs_to_process,
             config.n_threads,
             use_threading=False,
-            progress_bar_desc="Scanning PDF files",
+            progress_bar_desc="Extracting data from module html",
         )
-        for keyword, cert in keywords:
-            self.certs[cert.dgst].pdf_data.keywords = keyword
+        self.update_with_certs(processed_certs)
 
-        self._extract_metadata()
-        self.extract_certs_from_tables(high_precision=True)
+    @serialize
+    def _extract_data(self, fresh: bool = True) -> None:
+        # TODO: Update state of extraction properly, atm completely ignored.
+        self._extract_data_from_html_modules(fresh)
+        self._extract_policy_pdf_metadata(fresh)
+        self._extract_policy_pdf_keywords(fresh)
+        self.extract_certs_from_tables(fresh)
+
+    def _extract_policy_pdf_keywords(self, fresh: bool = True) -> None:
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(
+            FIPSCertificate.extract_policy_pdf_keywords,
+            certs_to_process,
+            config.n_threads,
+            use_threading=False,
+            progress_bar_desc="Extracting keywords from policy",
+        )
+        self.update_with_certs(processed_certs)
 
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
         self._download_modules(fresh)
@@ -155,21 +165,6 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
 
         return {FIPSCertificate(cert_id) for cert_id in cert_ids}
 
-    def _extract_data_from_html_modules(self, fresh: bool = True) -> None:
-        """
-        Extracts data from html module file
-        :param bool fresh: if all certs should be processed, or only the failed ones. Defaults to True
-        """
-        certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze(fresh)]
-        processed_certs = cert_processing.process_parallel(
-            FIPSCertificate.parse_html_module,
-            certs_to_process,
-            config.n_threads,
-            use_threading=False,
-            progress_bar_desc="Extracting data from module html",
-        )
-        self.update_with_certs(processed_certs)
-
     @classmethod
     def from_web_latest(cls) -> "FIPSDataset":
         """
@@ -212,11 +207,12 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 
     @serialize
-    def extract_certs_from_tables(self, high_precision: bool) -> List[Path]:
+    def extract_certs_from_tables(self, fresh: bool = True, high_precision: bool = True) -> List[Path]:
         """
         Function that extracts algorithm IDs from tables in security policies files.
         :return: list of files that couldn't have been decoded
         """
+        # TODO: Refactor me
         logger.info("Entering table scan.")
         result = cert_processing.process_parallel(
             FIPSCertificate.analyze_tables,
@@ -247,18 +243,16 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         for cert in self.certs.values():
             self._clean_cert_ids(cert)
 
-    def _extract_metadata(self):
-        # TODO: Refactor me
-        certs_to_process = [x for x in self]
-        res = cert_processing.process_parallel(
-            FIPSCertificate.extract_sp_metadata,
+    def _extract_policy_pdf_metadata(self, fresh: bool = True) -> None:
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
+        processed_certs = cert_processing.process_parallel(
+            FIPSCertificate.extract_policy_pdf_metadata,
             certs_to_process,
             config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting security policy metadata",
         )
-        for r in res:
-            self.certs[r.dgst] = r
+        self.update_with_certs(processed_certs)
 
     # TODO: Refactor me
     def _unify_algorithms(self) -> None:

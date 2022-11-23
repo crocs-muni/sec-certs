@@ -278,6 +278,9 @@ class FIPSCertificate(
         def module_is_ok_to_analyze(self, fresh: bool = True) -> bool:
             return self.module_download_ok if fresh else self.module_download_ok and not self.module_extract_ok
 
+        def policy_is_ok_to_analyze(self, fresh: bool = True) -> bool:
+            return self.policy_convert_ok if fresh else self.policy_convert_ok and not self.policy_extract_ok
+
     def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, modules_html_dir: Path) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
         self.state.policy_txt_path = (policies_txt_dir / str(self.dgst)).with_suffix(".txt")
@@ -444,7 +447,7 @@ class FIPSCertificate(
 
         self.cert_id = cert_id
         self.web_data: FIPSCertificate.WebData = web_data if web_data else FIPSCertificate.WebData()
-        self.pdf_data = pdf_data if pdf_data else FIPSCertificate.PdfData()
+        self.pdf_data: FIPSCertificate.PdfData = pdf_data if pdf_data else FIPSCertificate.PdfData()
         self.heuristics = heuristics if heuristics else FIPSCertificate.Heuristics()
         self.state = state if state else FIPSCertificate.InternalState()
 
@@ -459,7 +462,7 @@ class FIPSCertificate(
             self.web_data.module_type,
             self.web_data.level,
             self.web_data.embodiment,
-            self.web_data.validation_history[0] if self.web_data.validation_history else np.nan,
+            self.web_data.validation_history[0].date if self.web_data.validation_history else np.nan,
             self.web_data.date_sunset,
             self.heuristics.algorithms,
             self.heuristics.extracted_versions,
@@ -543,22 +546,20 @@ class FIPSCertificate(
         return cert
 
     @staticmethod
-    def extract_sp_metadata(cert: FIPSCertificate) -> FIPSCertificate:
+    def extract_policy_pdf_metadata(cert: FIPSCertificate) -> FIPSCertificate:
         """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
         _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
         cert.pdf_data.st_metadata = metadata if metadata else dict()
         return cert
 
     @staticmethod
-    def find_keywords(cert: FIPSCertificate) -> Tuple[Optional[Dict], FIPSCertificate]:
-        # TODO: Replace the condition below
-        # if not cert.state.txt_state:
-        #     return None, cert
-
-        keywords = sec_certs.utils.extract.extract_keywords(
-            cert.state.policy_pdf_path.with_suffix(".pdf.txt"), fips_rules
-        )
-        return keywords, cert
+    def extract_policy_pdf_keywords(cert: FIPSCertificate) -> FIPSCertificate:
+        keywords = sec_certs.utils.extract.extract_keywords(cert.state.policy_txt_path, fips_rules)
+        if not keywords:
+            cert.state.policy_extract_ok = False
+        else:
+            cert.pdf_data.keywords = keywords
+        return cert
 
     @staticmethod
     def analyze_tables(  # noqa: C901

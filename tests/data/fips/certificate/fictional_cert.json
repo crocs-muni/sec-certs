@@ -4,107 +4,27 @@
     "cert_id": 3518,
     "web_data": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
-        "module_name": "DocuSign Signature Appliance",
-        "validation_history": [
-            {
-                "_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
-                "date": "2019-09-05",
-                "validation_type": "Initial",
-                "lab": "CYGNACOM SOLUTIONS INC"
-            }
-        ],
-        "vendor_url": "http://www.docusign.com",
-        "vendor": "DocuSign, Inc.",
-        "certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/SeptConsolidated.pdf",
-        "module_type": "Hardware",
-        "standard": "FIPS 140-2",
-        "status": "active",
-        "level": 3,
-        "caveat": "When operated in FIPS mode. This module contains the embedded module eToken 5105 validated to FIPS 140-2 under Cert. #1883 operating in FIPS mode. No assurance of the minimum strength of generated keys",
-        "exceptions": [
-            "Mitigation of Other Attacks: N/A"
-        ],
-        "embodiment": "Multi-Chip Stand Alone",
-        "description": "The DocuSign Signature Appliance is a digital signature appliance that is connected to the organizational network and manages all signature keys and certificates of organization's end-users. End-users will connect securely to the appliance from their PC for the purpose of signing documents and data. The DocuSign Signature Appliance also enables organization using AES based encryption keys for encrypting/decrypting data.",
+        "module_name": null,
+        "validation_history": null,
+        "vendor_url": null,
+        "vendor": null,
+        "certificate_pdf_url": null,
+        "module_type": null,
+        "standard": null,
+        "status": null,
+        "level": null,
+        "caveat": null,
+        "exceptions": null,
+        "embodiment": null,
+        "description": null,
         "tested_conf": null,
-        "algorithms": {
-            "AES": {
-                "_type": "Set",
-                "elements": [
-                    "#C85",
-                    "#C86"
-                ]
-            },
-            "CKG": {
-                "_type": "Set",
-                "elements": []
-            },
-            "CVL": {
-                "_type": "Set",
-                "elements": [
-                    "#C86"
-                ]
-            },
-            "DRBG": {
-                "_type": "Set",
-                "elements": [
-                    "#98",
-                    "#C85"
-                ]
-            },
-            "HMAC": {
-                "_type": "Set",
-                "elements": [
-                    "#C85",
-                    "#C86"
-                ]
-            },
-            "KTS": {
-                "_type": "Set",
-                "elements": [
-                    "#C86"
-                ]
-            },
-            "PBKDF": {
-                "_type": "Set",
-                "elements": []
-            },
-            "RSA": {
-                "_type": "Set",
-                "elements": [
-                    "#C85",
-                    "#C86"
-                ]
-            },
-            "SHS": {
-                "_type": "Set",
-                "elements": [
-                    "#1465",
-                    "#C85",
-                    "#C86"
-                ]
-            },
-            "Triple-DES": {
-                "_type": "Set",
-                "elements": [
-                    "#C85"
-                ]
-            },
-            "Triple-DES MAC": {
-                "_type": "Set",
-                "elements": [
-                    "#C85"
-                ]
-            }
-        },
-        "hw_versions": "8.0",
-        "fw_versions": "9.0.9.10",
+        "algorithms": null,
+        "hw_versions": null,
+        "fw_versions": null,
         "sw_versions": null,
-        "mentioned_certs": {
-            "1883": 1
-        },
+        "mentioned_certs": null,
         "historical_reason": null,
-        "date_sunset": "2024-09-04",
+        "date_sunset": null,
         "revoked_reason": null,
         "revoked_link": null
     },

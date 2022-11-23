@@ -89,7 +89,7 @@ def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset
     cc_dset.process_protection_profiles()
     cc_dset._extract_data()
     cc_dset.auxillary_datasets.cve_dset = cve_dset
-    cc_dset._compute_heuristics(use_nist_cpe_matching_dict=False)
+    cc_dset._compute_heuristics()
     return cc_dset
 
 
@@ -116,7 +116,7 @@ def test_find_related_cves(
     cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: Set[CVE], random_certificate: CommonCriteriaCert
 ):
     random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
-    cc_dset.compute_related_cves(use_nist_cpe_matching_dict=False)
+    cc_dset.compute_related_cves()
     assert {x.cve_id for x in cves} == random_certificate.heuristics.related_cves
 
 
