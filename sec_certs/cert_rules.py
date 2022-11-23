@@ -196,6 +196,7 @@ PLATFORM_REGEXES = {
 }
 
 FIPS_ALGS_IN_TABLE = r"(?:#[CcAa]?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>\d+)"
+FIPS_LIST_OF_TABLES = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
 
 
 def _load():

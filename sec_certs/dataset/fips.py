@@ -2,7 +2,7 @@ import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, Final, List, Set
+from typing import Dict, Final, Set
 
 import numpy as np
 import pandas as pd
@@ -73,11 +73,15 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
 
     @serialize
     def _extract_data(self, fresh: bool = True) -> None:
-        # TODO: Update state of extraction properly, atm completely ignored.
+        if fresh:
+            for cert in self:
+                cert.state.policy_extract_ok = True
+                cert.state.module_extract_ok = True
+
         self._extract_data_from_html_modules(fresh)
         self._extract_policy_pdf_metadata(fresh)
         self._extract_policy_pdf_keywords(fresh)
-        self.extract_certs_from_tables(fresh)
+        self._get_algorithms_from_policy_tables(fresh)
 
     def _extract_policy_pdf_keywords(self, fresh: bool = True) -> None:
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
@@ -206,37 +210,15 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         self.algorithms.get_certs_from_web()
         logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 
-    @serialize
-    def extract_certs_from_tables(self, fresh: bool = True, high_precision: bool = True) -> List[Path]:
-        """
-        Function that extracts algorithm IDs from tables in security policies files.
-        :return: list of files that couldn't have been decoded
-        """
-        # TODO: Refactor me
-        logger.info("Entering table scan.")
-        result = cert_processing.process_parallel(
-            FIPSCertificate.analyze_tables,
-            [(cert, high_precision) for cert in self.certs.values() if cert is not None and high_precision],
-            # TODO: Below is an old version with tables_done, txt_state attribute that we already deleted, rewrite without it
-            # FIPSCertificate.analyze_tables
-            # [
-            #     (cert, high_precision)
-            #     for cert in self.certs.values()
-            #     if cert is not None and (not cert.state.tables_done or high_precision) and cert.state.txt_state
-            # ],
-            config.n_threads // 4,  # tabula already processes by parallel, so
-            # it's counterproductive to use all threads
+    def _get_algorithms_from_policy_tables(self, fresh: bool = True):
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
+        cert_processing.process_parallel(
+            FIPSCertificate.get_algorithms_from_policy_tables,
+            certs_to_process,
+            config.n_threads,
             use_threading=False,
-            progress_bar_desc="Searching tables",
+            progress_bar_desc="Extracting Algorithms from policy tables",
         )
-
-        not_decoded = [cert.state.sp_path for done, cert, _ in result if done is False]
-        for state, cert, algorithms in result:
-            certificate = self.certs[cert.dgst]
-            # TODO: Fix me, attribute below deleted
-            # certificate.state.tables_done = state
-            certificate.pdf_data.algorithms = algorithms
-        return not_decoded
 
     def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
         # TODO: Refactor me
@@ -370,6 +352,7 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             )
 
     def _compute_heuristics(self):
+        # TODO: Check in what state the cert must be in order to compute heuristics. Enforce it in the super method?
         logger.info("Computing various statistics from processed certificates.")
         super()._compute_heuristics()
         self._unify_algorithms()

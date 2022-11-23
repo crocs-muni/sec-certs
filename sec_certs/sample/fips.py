@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import re
 from dataclasses import dataclass, field
 from datetime import date
@@ -17,9 +18,9 @@ import sec_certs.constants as constants
 import sec_certs.utils.extract
 import sec_certs.utils.helpers as helpers
 import sec_certs.utils.pdf
-import sec_certs.utils.tables
+import sec_certs.utils.pdf as pdf
+import sec_certs.utils.tables as tables
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
-from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -276,10 +277,18 @@ class FIPSCertificate(
             return self.policy_download_ok if fresh else self.policy_download_ok and not self.policy_convert_ok
 
         def module_is_ok_to_analyze(self, fresh: bool = True) -> bool:
-            return self.module_download_ok if fresh else self.module_download_ok and not self.module_extract_ok
+            return (
+                self.module_download_ok and self.module_extract_ok
+                if fresh
+                else self.module_download_ok and not self.module_extract_ok
+            )
 
         def policy_is_ok_to_analyze(self, fresh: bool = True) -> bool:
-            return self.policy_convert_ok if fresh else self.policy_convert_ok and not self.policy_extract_ok
+            return (
+                self.policy_convert_ok and self.policy_extract_ok
+                if fresh
+                else self.policy_convert_ok and not self.policy_extract_ok
+            )
 
     def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, modules_html_dir: Path) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
@@ -548,8 +557,14 @@ class FIPSCertificate(
     @staticmethod
     def extract_policy_pdf_metadata(cert: FIPSCertificate) -> FIPSCertificate:
         """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
-        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
-        cert.pdf_data.st_metadata = metadata if metadata else dict()
+        status, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
+
+        if metadata:
+            cert.pdf_data.st_metadata = metadata
+        else:
+            cert.pdf_data.st_metadata = dict()
+            cert.state.policy_extract_ok = False
+            cert.state.errors.append(status)
         return cert
 
     @staticmethod
@@ -562,60 +577,18 @@ class FIPSCertificate(
         return cert
 
     @staticmethod
-    def analyze_tables(  # noqa: C901
-        tup: Tuple[FIPSCertificate, bool]
-    ) -> Tuple[bool, FIPSCertificate, Set[FIPSAlgorithm]]:
-        """
-        Searches for tables in pdf documents of the instance.
-
-        :param tup: certificate object, whether to use high precision results or approx. results
-        :return: True on success / False otherwise, modified cert object, List of processed tables.
-        """
-
-        def extract_algorithm_certificates(current_text):
-            set_items = set()
-            reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
-            for m in re.finditer(reg, current_text):
-                set_items.add(m.group())
-            return set(map(FIPSAlgorithm, set_items))
-
-        cert, precision = tup
-        # TODO: Not sure what this was for, fixme
-        # if (not precision and cert.state.tables_done) or (
-        #     precision and cert.heuristics.unmatched_algs < config.cert_threshold
-        # ):
-        #     return cert.state.tables_done, cert, set()
-
-        cert_file = cert.state.policy_pdf_path
-        txt_file = cert_file.with_suffix(".pdf.txt")
-        with open(txt_file, "r", encoding="utf-8") as f:
-            tables = sec_certs.utils.tables.find_tables(f.read(), txt_file)
-        all_pages = precision and cert.heuristics.unmatched_algs > config.cert_threshold  # bool value
-
-        lst: Set = set()
-        if tables:
+    def get_algorithms_from_policy_tables(cert: FIPSCertificate):
+        if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy_txt_path):
+            pdf.repair_pdf(cert.state.policy_pdf_path)
             try:
-                data = read_pdf(cert_file, pages="all" if all_pages else tables, silent=True)
+                tabular_data = read_pdf(cert.state.policy_pdf_path, pages=table_rich_page_numbers, silent=True)
             except Exception as e:
-                try:
-                    logger.warn(e)
-                    sec_certs.utils.pdf.repair_pdf(cert_file)
-                    data = read_pdf(cert_file, pages="all" if all_pages else tables, silent=True)
+                logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")
+                cert.state.policy_extract_ok = False
 
-                except Exception as ex:
-                    logger.warn(ex)
-                    return False, cert, lst
-
-            # find columns with cert numbers
-            for df in data:
-                for col in range(len(df.columns)):
-                    if "cert" in df.columns[col].lower() or "algo" in df.columns[col].lower():
-                        tmp = extract_algorithm_certificates(df.iloc[:, col].to_string(index=False))
-                        lst.update(tmp)
-                # Parse again if someone picks not so descriptive column names
-                tmp = extract_algorithm_certificates(df.to_string(index=False))
-                lst.update(tmp)
-        return True, cert, lst
+            algorithms_str = set(itertools.chain.from_iterable([tables.get_algs_from_table(df) for df in tabular_data]))
+            algorithms = {FIPSAlgorithm(x) for x in algorithms_str}
+            cert.pdf_data.algorithms = cert.pdf_data.algorithms.union(algorithms)
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
         pass

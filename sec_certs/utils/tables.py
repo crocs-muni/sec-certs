@@ -1,27 +1,28 @@
 import logging
 import re
 from pathlib import Path
-from typing import List, Optional, Set, Union
+from typing import Set
+
+from sec_certs.cert_rules import FIPS_LIST_OF_TABLES
 
 logger = logging.getLogger(__name__)
 
 
-def parse_list_of_tables(txt: str) -> Set[str]:
+def parse_list_of_tables(txt: str) -> Set[int]:
     """
-    Parses list of tables from function find_tables(), finds ones that mention algorithms
-    :param txt: chunk of text
-    :return: set of all pages mentioning algorithm table
+    Parses list of tables in policy txt, returns page numbers of tables that mention algorithms
     """
     rr = re.compile(r"^.+?(?:[Ff]unction|[Aa]lgorithm|[Ss]ecurity [Ff]unctions?).+?(?P<page_num>\d+)$", re.MULTILINE)
-    pages = set()
-    for m in rr.finditer(txt):
-        pages.add(m.group("page_num"))
-    return pages
+    return {int(m.group("page_num")) for m in rr.finditer(txt)}
 
 
-def find_tables_iterative(file_text: str) -> List[int]:
+def get_table_rich_page_numbers_from_footer(file_text: str) -> Set[int]:
+    """
+    Parses page numbers of policy txt pages that may contain tables with algorithm data
+    """
     current_page = 1
     pages = set()
+
     for line in file_text.split("\n"):
         if "\f" in line:
             current_page += 1
@@ -30,34 +31,31 @@ def find_tables_iterative(file_text: str) -> List[int]:
             pages.add(current_page + 1)
             if current_page > 2:
                 pages.add(current_page - 1)
-    if not pages:
-        logger.warning("No pages found")
+
     for page in pages:
         if page > current_page - 1:
-            return list(pages - {page})
+            return pages - {page}
 
-    return list(pages)
+    return pages
 
 
-def find_tables(txt: str, file_name: Path) -> Optional[Union[List[str], List[int]]]:
+def find_pages_with_tables(txt_filepath: Path) -> Set[int]:
     """
-    Function that tries to pages in security policy pdf files, where it's possible to find a table containing
-    algorithms
-    :param txt: file in .txt format (output of pdftotext)
-    :param file_name: name of the file
-    :return:    list of pages possibly containing a table
-                None if these cannot be found
+    Identifies pages in txt file that may contain tables. Return their page numbers.
     """
-    # Look for "List of Tables", where we can find exactly tables with page num
-    tables_regex = re.compile(r"^(?:(?:[Tt]able\s|[Ll]ist\s)(?:[Oo]f\s))[Tt]ables[\s\S]+?\f", re.MULTILINE)
-    table = tables_regex.search(txt)
-    if table:
-        rb = parse_list_of_tables(table.group())
-        if rb:
-            return list(rb)
-        return None
+    with txt_filepath.open("r", encoding="utf-8") as handle:
+        txt = handle.read()
 
-    # Otherwise look for "Table" in text and \f representing footer, then extract page number from footer
-    logger.info(f"parsing tables in {file_name}")
-    table_page_indices = find_tables_iterative(txt)
-    return table_page_indices if table_page_indices else None
+    # Parse page numbers from list of tables if available
+    # Else look for "Table" in text and \f representing footer, then extract page number from footer
+    if list_of_tables := FIPS_LIST_OF_TABLES.search(txt):
+        result = parse_list_of_tables(list_of_tables.group())
+    else:
+        result = get_table_rich_page_numbers_from_footer(txt)
+
+    return result if result else set()
+
+
+def get_algs_from_table(dataframe_text: str) -> Set[str]:
+    reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
+    return {m.group() for m in re.finditer(reg, dataframe_text)}
