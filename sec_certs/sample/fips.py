@@ -230,8 +230,6 @@ class FIPSCertificate(
         policy_txt_path: Path
         module_html_path: Path
 
-        errors: List[str]
-
         def __init__(
             self,
             module_download_ok: bool = False,
@@ -242,7 +240,6 @@ class FIPSCertificate(
             policy_extract_ok: bool = False,
             policy_pdf_hash: Optional[str] = None,
             policy_txt_hash: Optional[str] = None,
-            errors: Optional[List[str]] = None,
         ):
             self.module_download_ok = module_download_ok
             self.policy_download_ok = policy_download_ok
@@ -252,7 +249,6 @@ class FIPSCertificate(
             self.policy_extract_ok = policy_extract_ok
             self.policy_pdf_hash = policy_pdf_hash
             self.policy_txt_hash = policy_txt_hash
-            self.errors = errors if errors else []
 
         @property
         def serialized_attributes(self) -> List[str]:
@@ -548,7 +544,6 @@ class FIPSCertificate(
         if not ok_result:
             error_msg = "Failed to convert policy pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
-            cert.state.errors.append(error_msg)
         else:
             cert.state.policy_txt_hash = helpers.get_sha256_filepath(cert.state.policy_txt_path)
 
@@ -564,7 +559,6 @@ class FIPSCertificate(
         else:
             cert.pdf_data.st_metadata = dict()
             cert.state.policy_extract_ok = False
-            cert.state.errors.append(status)
         return cert
 
     @staticmethod

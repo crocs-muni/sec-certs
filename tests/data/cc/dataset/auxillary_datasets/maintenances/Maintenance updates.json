@@ -29,7 +29,6 @@
                 "report_convert_ok": false,
                 "st_extract_ok": false,
                 "report_extract_ok": false,
-                "errors": [],
                 "st_pdf_hash": "d42e4364d037ba742fcd4050a9a84d0e6300f93eb68bcfe8c61f72c429c9ceca",
                 "report_pdf_hash": "80bada65614c1b037c13efa78996a8910700d0e05a3ca217286f76d7dacefe62",
                 "st_txt_hash": null,

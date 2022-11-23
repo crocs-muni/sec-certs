@@ -62,7 +62,6 @@
                 "report_convert_ok": true,
                 "st_extract_ok": true,
                 "report_extract_ok": true,
-                "errors": [],
                 "st_pdf_hash": "f4ab8c62a2325cc634eef164a9707d2375f2e3d5c5ab9791b7c00a6034e64b62",
                 "report_pdf_hash": "1954f42e857c02a156caf8fea7abd36ee0a5953fe0e319c4ec749af277fcfb4b",
                 "st_txt_hash": "c8b4c5667a3f60edc845051e5a31a2d17b9d9a11df9e56dd89681d25e727a622",

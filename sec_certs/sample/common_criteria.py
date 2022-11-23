@@ -112,8 +112,6 @@ class CommonCriteriaCert(
         st_extract_ok: bool  # Whether target extraction went OK
         report_extract_ok: bool  # Whether report extraction went OK
 
-        errors: List[str]
-
         st_pdf_hash: Optional[str]
         report_pdf_hash: Optional[str]
         st_txt_hash: Optional[str]
@@ -134,7 +132,6 @@ class CommonCriteriaCert(
             report_convert_ok: bool = False,
             st_extract_ok: bool = False,
             report_extract_ok: bool = False,
-            errors: Optional[List[str]] = None,
             st_pdf_hash: Optional[str] = None,
             report_pdf_hash: Optional[str] = None,
             st_txt_hash: Optional[str] = None,
@@ -149,7 +146,6 @@ class CommonCriteriaCert(
             self.report_convert_ok = report_convert_ok
             self.st_extract_ok = st_extract_ok
             self.report_extract_ok = report_extract_ok
-            self.errors = errors if errors else []
             self.st_pdf_hash = st_pdf_hash
             self.report_pdf_hash = report_pdf_hash
             self.st_txt_hash = st_txt_hash
@@ -166,7 +162,6 @@ class CommonCriteriaCert(
                 "report_convert_ok",
                 "st_extract_ok",
                 "report_extract_ok",
-                "errors",
                 "st_pdf_hash",
                 "report_pdf_hash",
                 "st_txt_hash",
@@ -788,7 +783,6 @@ class CommonCriteriaCert(
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.report_download_ok = False
-            cert.state.errors.append(error_msg)
         else:
             cert.state.report_download_ok = True
             cert.state.report_pdf_hash = helpers.get_sha256_filepath(cert.state.report_pdf_path)
@@ -812,7 +806,6 @@ class CommonCriteriaCert(
             error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.st_download_ok = False
-            cert.state.errors.append(error_msg)
         else:
             cert.state.st_download_ok = True
             cert.state.st_pdf_hash = helpers.get_sha256_filepath(cert.state.st_pdf_path)
@@ -837,7 +830,6 @@ class CommonCriteriaCert(
         if not ok_result:
             error_msg = "failed to convert report pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.errors.append(error_msg)
         else:
             cert.state.report_txt_hash = helpers.get_sha256_filepath(cert.state.report_txt_path)
         return cert
@@ -858,7 +850,6 @@ class CommonCriteriaCert(
         if not ok_result:
             error_msg = "failed to convert security target pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.errors.append(error_msg)
         else:
             cert.state.st_txt_hash = helpers.get_sha256_filepath(cert.state.st_txt_path)
         return cert
@@ -874,7 +865,6 @@ class CommonCriteriaCert(
         response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.st_extract_ok = False
-            cert.state.errors.append(response)
         else:
             cert.state.st_extract_ok = True
         return cert
@@ -890,7 +880,6 @@ class CommonCriteriaCert(
         response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
             cert.state.report_extract_ok = False
-            cert.state.errors.append(response)
         else:
             cert.state.report_extract_ok = True
         return cert
@@ -910,10 +899,6 @@ class CommonCriteriaCert(
 
             if response != constants.RETURNCODE_OK:
                 cert.state.st_extract_ok = False
-                if not cert.state.errors:
-                    cert.state.errors = []
-                cert.state.errors.append(response)
-
         return cert
 
     @staticmethod
@@ -931,10 +916,6 @@ class CommonCriteriaCert(
 
             if response != constants.RETURNCODE_OK:
                 cert.state.report_extract_ok = False
-                if not cert.state.errors:
-                    cert.state.errors = []
-                cert.state.errors.append(response)
-
         return cert
 
     @staticmethod

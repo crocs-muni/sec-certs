@@ -49,7 +49,6 @@
         "report_convert_ok": false,
         "st_extract_ok": false,
         "report_extract_ok": false,
-        "errors": [],
         "st_pdf_hash": null,
         "report_pdf_hash": null,
         "st_txt_hash": null,

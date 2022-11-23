@@ -43,8 +43,7 @@
                 "st_convert_ok": true,
                 "report_convert_ok": true,
                 "st_extract_ok": true,
-                "report_extract_ok": true,
-                "errors": []
+                "report_extract_ok": true
             },
             "pdf_data": {
                 "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
