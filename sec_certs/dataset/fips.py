@@ -1,8 +1,9 @@
+import datetime
 import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, Final, Set
+from typing import Dict, Final, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,8 @@ from bs4 import BeautifulSoup, NavigableString
 
 from sec_certs import constants
 from sec_certs.config.configuration import config
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.dependency_finder import DependencyFinder
@@ -21,13 +24,36 @@ from sec_certs.utils.helpers import fips_dgst
 logger = logging.getLogger(__name__)
 
 
-class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializableType):
+class FIPSAuxillaryDatasets(AuxillaryDatasets):
+    cpe_dset: Optional[CPEDataset] = None
+    cve_dset: Optional[CVEDataset] = None
+    algorithm_dset: Optional[FIPSAlgorithmDataset] = None
+
+
+class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerializableType):
     """
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
 
-    def __init__(self, *args, **kwargs):
-        return super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        certs: Dict[str, FIPSCertificate] = dict(),
+        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
+        name: Optional[str] = None,
+        description: str = None,
+        state: Optional[Dataset.DatasetInternalState] = None,
+        auxillary_datasets: Optional[FIPSAuxillaryDatasets] = None,
+    ):
+        self.certs = certs
+        self._root_dir = Path(root_dir)
+        self.timestamp = datetime.datetime.now()
+        self.sha256_digest = "not implemented"
+        self.name = name if name else type(self).__name__ + " dataset"
+        self.description = description if description else datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.state = state if state else self.DatasetInternalState()
+        self.auxillary_datasets: FIPSAuxillaryDatasets = (
+            auxillary_datasets if auxillary_datasets else FIPSAuxillaryDatasets()
+        )
 
     LIST_OF_CERTS_HTML: Final[Dict[str, str]] = {
         "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
@@ -205,8 +231,10 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
     def _process_algorithms(self):
         logger.info("Processing FIPS algorithms.")
         self.algorithms_dir.mkdir(parernts=True, exist_ok=True)
-        self.algorithms = FIPSAlgorithmDataset({}, self.algorithms_dir, "algorithms", "sample algs")
-        self.algorithms.get_certs_from_web()
+        self.auxillary_datasets.algorithm_dset = FIPSAlgorithmDataset(
+            {}, self.algorithms_dir, "algorithms", "sample algs"
+        )
+        self.auxillary_datasets.algorithm_dset.get_certs_from_web()
         logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 
     def _extract_algorithms_from_policy_tables(self, fresh: bool = True):
@@ -292,13 +320,13 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         ):
             return False
 
-        if self.algorithms is None:
+        if self.auxillary_datasets.algorithm_dset is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
         if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
             return False
 
-        algs = self.algorithms.certs_for_id(cert_candidate_id)
+        algs = self.auxillary_datasets.algorithm_dset.certs_for_id(cert_candidate_id)
         for current_alg in algs:
             if current_alg.vendor is None or processed_cert.web_data.vendor is None:
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
