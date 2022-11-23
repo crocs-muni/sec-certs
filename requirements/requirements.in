@@ -1,7 +1,6 @@
 beautifulsoup4
 billiard
 click
-graphviz
 html5lib
 jsonschema
 lxml

@@ -206,17 +206,6 @@ def warn_if_missing_poppler() -> None:
         logger.warning("Attempting to find poppler-cpp, but pkg-config was not found.")
 
 
-def warn_if_missing_graphviz() -> None:
-    """
-    Warns user if he misses a graphviz dependency
-    """
-    try:
-        if not pkgconfig.installed("libcgraph", ">=2.0.0"):
-            logger.warning("Attempting to run pipeline that requires graphviz, but graphviz was not found.")
-    except EnvironmentError:
-        logger.warning("Attempting to find graphviz, but pkg-config was not found.")
-
-
 def warn_if_missing_tesseract() -> None:
     """
     Warns user if he misses a tesseract dependency

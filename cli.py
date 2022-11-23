@@ -11,7 +11,7 @@ import click
 from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset, FIPSDataset
-from sec_certs.utils.helpers import warn_if_missing_graphviz, warn_if_missing_poppler, warn_if_missing_tesseract
+from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tesseract
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +153,7 @@ def main(
 
     dset = build_or_load_dataset(framework, inputpath, "build" in actions_set, outputpath)
     aux_dsets_to_handle = "PP, Maintenance updates" if framework == "cc" else "Algorithms"
-    analysis_pre_callback = None if framework == "cc" else warn_if_missing_graphviz
+    analysis_pre_callback = None
 
     steps = [
         ProcessingStep(
