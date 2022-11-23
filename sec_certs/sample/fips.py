@@ -36,7 +36,7 @@ class FIPSHTMLParser:
     def __init__(self, soup: BeautifulSoup):
         self._soup = soup
 
-    def build_web_data(self) -> FIPSCertificate.WebData:
+    def get_web_data_and_algorithms(self) -> Tuple[Set[FIPSAlgorithm], FIPSCertificate.WebData]:
         divs = self._soup.find_all("div", class_="panel panel-default")
         details_div, vendor_div, related_files_div, validation_history_div = divs
 
@@ -48,15 +48,25 @@ class FIPSHTMLParser:
         assert validation_history_div.find("h4").text == "Validation History"
 
         details_dict = self._build_details_dict(details_div)
+
         vendor_dict = self._build_vendor_dict(vendor_div)
         related_files_dict = self._build_related_files_dict(related_files_div)
         validation_history_dict = self._build_validation_history_dict(validation_history_div)
-        return FIPSCertificate.WebData(
+
+        if "algorithms" in details_dict:
+            algorithms_data = details_dict.pop("algorithms")
+            algorithms = set()
+            for category, alg_ids in algorithms_data.items():
+                algorithms |= {FIPSAlgorithm(x, algorithm_type=category) for x in alg_ids}
+
+        else:
+            algorithms = set()
+
+        return algorithms, FIPSCertificate.WebData(
             **{**details_dict, **vendor_dict, **related_files_dict, **validation_history_dict}
         )
 
-    @classmethod
-    def _build_details_dict(cls, details_div: Tag) -> Dict[str, Any]:
+    def _build_details_dict(self, details_div: Tag) -> Dict[str, Any]:
         def parse_single_detail_entry(key, entry):
             normalized_key = DETAILS_KEY_NORMALIZATION_DICT[key]
             normalization_func = DETAILS_KEY_TO_NORMALIZATION_FUNCTION.get(normalized_key, None)
@@ -323,7 +333,6 @@ class FIPSCertificate(
         embodiment: Optional[str] = field(default=None)
         description: Optional[str] = field(default=None)
         tested_conf: Optional[List[str]] = field(default=None)
-        algorithms: Optional[Dict[str, Set[str]]] = field(default=None)
         hw_versions: Optional[str] = field(default=None)
         fw_versions: Optional[str] = field(default=None)
         sw_versions: Optional[str] = field(default=None)
@@ -362,7 +371,6 @@ class FIPSCertificate(
         """
 
         keywords: Dict = field(default_factory=dict)
-        algorithms: Set[FIPSAlgorithm] = field(default_factory=set)
         clean_cert_ids: Dict[str, int] = field(default_factory=dict)
         st_metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -490,8 +498,8 @@ class FIPSCertificate(
             soup = BeautifulSoup(handle, "html5lib")
 
         parser = FIPSHTMLParser(soup)
-        cert.web_data = parser.build_web_data()
-
+        algorithms, cert.web_data = parser.get_web_data_and_algorithms()
+        cert.heuristics.algorithms |= algorithms
         return cert
 
     @staticmethod
@@ -552,7 +560,7 @@ class FIPSCertificate(
     @staticmethod
     def extract_policy_pdf_metadata(cert: FIPSCertificate) -> FIPSCertificate:
         """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
-        status, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
+        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
 
         if metadata:
             cert.pdf_data.st_metadata = metadata
@@ -581,8 +589,7 @@ class FIPSCertificate(
                 cert.state.policy_extract_ok = False
 
             algorithms_str = set(itertools.chain.from_iterable([tables.get_algs_from_table(df) for df in tabular_data]))
-            algorithms = {FIPSAlgorithm(x) for x in algorithms_str}
-            cert.pdf_data.algorithms = cert.pdf_data.algorithms.union(algorithms)
+            cert.heuristics.algorithms |= {FIPSAlgorithm(x) for x in algorithms_str}
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
         pass
@@ -622,8 +629,8 @@ class FIPSCertificate(
         matches = copy.deepcopy(self.pdf_data.keywords["fips_cert_id"]["Cert"])
 
         alg_set: Set[str] = set()
-        if self.web_data.algorithms is None:
-            raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
+        # if self.web_data.algorithms is None:
+        #     raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
 
         # TODO : Refactor this, dictionary form changed
         # for algo in self.web_data.algorithms:

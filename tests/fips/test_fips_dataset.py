@@ -92,7 +92,7 @@ def _set_up_dataset_for_full(td, certs, cpe_dset_path: Path, cve_dset_path: Path
     dataset.download_all_artifacts(set(certs))
     dataset.convert_all_pdfs()
     dataset._extract_data()
-    dataset._get_algorithms_from_policy_tables()
+    dataset._extract_algorithms_from_policy_tables()
     dataset.algorithms = FIPSAlgorithmDataset.from_json(Path(__file__).parent / "data/test_fips_oop/algorithms.json")
     dataset.analyze_certificates(use_nist_cpe_matching_dict=False, perform_cpe_heuristics=False)
     return dataset

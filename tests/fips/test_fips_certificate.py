@@ -15,7 +15,7 @@ def data_dir() -> Path:
     return Path(tests.data.fips.certificate.__path__[0])
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def certificate(tmp_path_factory) -> FIPSCertificate:
     tmp_dir = tmp_path_factory.mktemp("dset")
     dset_json_path = Path(tests.data.fips.dataset.__path__[0]) / "toy_dataset.json"

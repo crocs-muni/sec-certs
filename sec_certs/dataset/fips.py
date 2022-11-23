@@ -7,7 +7,6 @@ from typing import Dict, Final, Set
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
-from graphviz import Digraph
 
 from sec_certs import constants
 from sec_certs.config.configuration import config
@@ -81,7 +80,7 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         self._extract_data_from_html_modules(fresh)
         self._extract_policy_pdf_metadata(fresh)
         self._extract_policy_pdf_keywords(fresh)
-        self._get_algorithms_from_policy_tables(fresh)
+        self._extract_algorithms_from_policy_tables(fresh)
 
     def _extract_policy_pdf_keywords(self, fresh: bool = True) -> None:
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
@@ -210,7 +209,7 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
         self.algorithms.get_certs_from_web()
         logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
 
-    def _get_algorithms_from_policy_tables(self, fresh: bool = True):
+    def _extract_algorithms_from_policy_tables(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
@@ -235,16 +234,6 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             progress_bar_desc="Extracting security policy metadata",
         )
         self.update_with_certs(processed_certs)
-
-    # TODO: Refactor me
-    def _unify_algorithms(self) -> None:
-        pass
-        # for certificate in self.certs.values():
-        #     certificate.heuristics.algorithms = set()
-        #     if certificate.web_data.algorithms:
-        #         certificate.heuristics.algorithms.update(certificate.web_data.algorithms)
-        #     if certificate.pdf_data.algorithms:
-        #         certificate.heuristics.algorithms.update(certificate.pdf_data.algorithms)
 
     def _compare_certs(self, current_certificate: FIPSCertificate, other_id: str) -> bool:
         other_dgst = fips_dgst(other_id)
@@ -350,24 +339,6 @@ class FIPSDataset(Dataset[FIPSCertificate, AuxillaryDatasets], ComplexSerializab
             setattr(
                 self.certs[dgst].heuristics, "web_references", finder.predict_single_cert(dgst, keep_unknowns=False)
             )
-
-    def _compute_heuristics(self):
-        # TODO: Check in what state the cert must be in order to compute heuristics. Enforce it in the super method?
-        logger.info("Computing various statistics from processed certificates.")
-        super()._compute_heuristics()
-        self._unify_algorithms()
-
-    def _highlight_vendor_in_dot(self, dot: Digraph, current_dgst: str, highlighted_vendor: str) -> None:
-        current_cert = self.certs[current_dgst]
-
-        if current_cert.web_data.vendor != highlighted_vendor:
-            return
-
-        dot.attr("node", color="red")
-        if current_cert.web_data.status == "Revoked":
-            dot.attr("node", color="grey32")
-        if current_cert.web_data.status == "Historical":
-            dot.attr("node", color="gold3")
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
