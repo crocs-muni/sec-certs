@@ -675,6 +675,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
     def _compute_heuristics(self, fresh: bool = True) -> None:
         logger.info("Computing various heuristics on CC certificates.")
+        self._compute_normalized_cert_ids()
         super()._compute_heuristics()
         self._compute_cert_labs()
         self._compute_sars()
@@ -827,8 +828,8 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         input_path = Path(input_path)
         with input_path.open("r") as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
+        dset._root_dir = Path(input_path).parent
         return dset
-        # TODO: This does not set the root_path properly
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame(

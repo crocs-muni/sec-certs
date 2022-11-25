@@ -29,7 +29,7 @@ setup(
     },
     include_package_data=True,
     package_data={"sec_certs": ["settings.yaml", "settings-schema.json", "rules.yaml"]},
-    entry_points={"console_scripts": ["sec-certs=cli:main"]},
+    entry_points={"console_scripts": ["sec-certs=sec_certs.cli:main"]},
     project_urls={
         "Project homepage": "https://seccerts.org",
         "GitHub repository": "https://github.com/crocs-muni/sec-certs/",

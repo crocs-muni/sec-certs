@@ -287,7 +287,6 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def _compute_heuristics(self, fresh: bool = True) -> None:
-        self._compute_normalized_cert_ids()
         self.compute_cpe_heuristics()
         self.compute_related_cves()
         self._compute_dependencies()

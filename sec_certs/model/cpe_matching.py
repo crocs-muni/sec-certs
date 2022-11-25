@@ -356,7 +356,7 @@ class CPEClassifier(BaseEstimator):
 
             if not cpe_version:
                 return False
-            just_numbers = r"(\d{1,5})(\.\d{1,5})"  # TODO: The use of this should be double-checked
+            just_numbers = r"(\d{1,5})(\.\d{1,5})"
 
             # This assures that on cert version with at least two tokens, we don't match only one-token CPE.
             # E.g. cert with version 7.6 must not match CPE record of version 7

@@ -38,14 +38,6 @@ class FIPSHTMLParser:
     def get_web_data_and_algorithms(self) -> Tuple[Set[str], FIPSCertificate.WebData]:
         divs = self._soup.find_all("div", class_="panel panel-default")
         details_div, vendor_div, related_files_div, validation_history_div = divs
-
-        # TODO: Move the assertions to tests
-        assert len(divs) == 4
-        assert details_div.find("h4").text == "Details"
-        assert vendor_div.find("h4").text == "Vendor"
-        assert related_files_div.find("h4").text == "Related Files"
-        assert validation_history_div.find("h4").text == "Validation History"
-
         details_dict = self._build_details_dict(details_div)
 
         vendor_dict = self._build_vendor_dict(vendor_div)
@@ -382,39 +374,20 @@ class FIPSCertificate(
         clean_cert_ids: Dict[str, int] = field(default_factory=dict)
         st_metadata: Dict[str, Any] = field(default_factory=dict)
 
-        # TODO: Is this meaningful? Cert id attribute got deleted.
-        # def __repr__(self) -> str:
-        #     return str(self.cert_id)
-
-        # def __str__(self) -> str:
-        #     return str(self.cert_id)
-
     @dataclass(eq=True)
     class Heuristics(BaseHeuristics, ComplexSerializableType):
         """
         Data structure that holds data obtained by processing the certificate and applying various heuristics.
         """
 
-        # TODO: How are keywords, clean_cert_ids and algorithms attributes different from those in pdf data?
-        keywords: Dict[str, Dict] = field(default_factory=dict)
         algorithms: Set[str] = field(default_factory=set)
-        unmatched_algs: Optional[int] = field(default=None)
         clean_cert_ids: Optional[Dict[str, int]] = field(default=None)
-
         extracted_versions: Set[str] = field(default_factory=set)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
-
-        st_references: References = field(default_factory=References)
-        web_references: References = field(default_factory=References)
-
-        @property
-        def dgst(self) -> str:
-            return helpers.get_first_16_bytes_sha256(str(self.keywords))
-
-    def __str__(self) -> str:
-        return str(self.cert_id)
+        policy_references: References = field(default_factory=References)
+        module_references: References = field(default_factory=References)
 
     @property
     def dgst(self) -> str:
@@ -423,7 +396,6 @@ class FIPSCertificate(
         """
         return fips_dgst(self.cert_id)
 
-    # TODO: Fix type errors, they exist because FIPS uses this as property to change variable names, while CC and abstract class have variables
     @property
     def manufacturer(self) -> Optional[str]:  # type: ignore
         return self.web_data.vendor
@@ -490,14 +462,14 @@ class FIPSCertificate(
             self.heuristics.cpe_matches,
             self.heuristics.verified_cpe_matches,
             self.heuristics.related_cves,
-            self.heuristics.web_references.directly_referenced_by,
-            self.heuristics.web_references.indirectly_referenced_by,
-            self.heuristics.web_references.directly_referencing,
-            self.heuristics.web_references.indirectly_referencing,
-            self.heuristics.st_references.directly_referenced_by,
-            self.heuristics.st_references.indirectly_referenced_by,
-            self.heuristics.st_references.directly_referencing,
-            self.heuristics.st_references.indirectly_referencing,
+            self.heuristics.module_references.directly_referenced_by,
+            self.heuristics.module_references.indirectly_referenced_by,
+            self.heuristics.module_references.directly_referencing,
+            self.heuristics.module_references.indirectly_referencing,
+            self.heuristics.policy_references.directly_referenced_by,
+            self.heuristics.policy_references.indirectly_referenced_by,
+            self.heuristics.policy_references.directly_referencing,
+            self.heuristics.policy_references.indirectly_referencing,
         )
 
     @staticmethod
@@ -576,13 +548,13 @@ class FIPSCertificate(
         if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy_txt_path):
             pdf.repair_pdf(cert.state.policy_pdf_path)
             try:
-                tabular_data = read_pdf(cert.state.policy_pdf_path, pages=table_rich_page_numbers, silent=True)
+                tabular_data = read_pdf(cert.state.policy_pdf_path, pages=list(table_rich_page_numbers), silent=True)
             except Exception as e:
                 logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")
                 cert.state.policy_extract_ok = False
 
             cert.heuristics.algorithms |= set(
-                itertools.chain.from_iterable([tables.get_algs_from_table(df) for df in tabular_data])
+                itertools.chain.from_iterable([tables.get_algs_from_table(df.to_string()) for df in tabular_data])
             )
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
@@ -609,13 +581,10 @@ class FIPSCertificate(
     #             continue
 
     def clean_cert_ids(self) -> None:
+        # TODO: Refactor me
         """
         Removes algorithm mentions from the cert_id rule matches and stores them into clean_cert_id matches.
         """
-        # self.state.file_status = True # TODO: Not sure what this was for
-        if not self.pdf_data.keywords:
-            return
-
         if "Cert" not in self.pdf_data.keywords["fips_cert_id"]:
             self.pdf_data.clean_cert_ids = {}
             return
@@ -625,8 +594,6 @@ class FIPSCertificate(
         alg_set: Set[str] = set()
         # if self.web_data.algorithms is None:
         #     raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
-
-        # TODO : Refactor this, dictionary form changed
         # for algo in self.web_data.algorithms:
         #     alg_set.add(algo.cert_id)
 

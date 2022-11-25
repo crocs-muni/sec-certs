@@ -278,15 +278,18 @@ def test_docusign_chunk(certs_to_process):
     certs = certs_to_process["docusign"]
     with TemporaryDirectory() as tmp_dir:
         dataset = _set_up_dataset_for_full(tmp_dir, certs, Path("."), Path("."))
-        assert set(dataset.certs[fips_dgst("3850")].heuristics.st_references.directly_referencing) == {"1883", "3518"}
-        assert set(dataset.certs[fips_dgst("3850")].heuristics.web_references.directly_referencing) == {"1883"}
-        assert set(dataset.certs[fips_dgst("2779")].heuristics.st_references.directly_referencing) == {"1883"}
-        assert set(dataset.certs[fips_dgst("2860")].heuristics.st_references.directly_referencing) == {"1883"}
-        assert set(dataset.certs[fips_dgst("2665")].heuristics.st_references.directly_referencing) == {"1883"}
-        assert not dataset.certs[fips_dgst("1883")].heuristics.st_references.directly_referencing
-        assert set(dataset.certs[fips_dgst("3518")].heuristics.st_references.directly_referencing) == {"1883"}
-        assert set(dataset.certs[fips_dgst("3141")].heuristics.st_references.directly_referencing) == {"1883"}
-        assert set(dataset.certs[fips_dgst("2590")].heuristics.st_references.directly_referencing) == {"1883"}
+        assert set(dataset.certs[fips_dgst("3850")].heuristics.policy_references.directly_referencing) == {
+            "1883",
+            "3518",
+        }
+        assert set(dataset.certs[fips_dgst("3850")].heuristics.module_references.directly_referencing) == {"1883"}
+        assert set(dataset.certs[fips_dgst("2779")].heuristics.policy_references.directly_referencing) == {"1883"}
+        assert set(dataset.certs[fips_dgst("2860")].heuristics.policy_references.directly_referencing) == {"1883"}
+        assert set(dataset.certs[fips_dgst("2665")].heuristics.policy_references.directly_referencing) == {"1883"}
+        assert not dataset.certs[fips_dgst("1883")].heuristics.policy_references.directly_referencing
+        assert set(dataset.certs[fips_dgst("3518")].heuristics.policy_references.directly_referencing) == {"1883"}
+        assert set(dataset.certs[fips_dgst("3141")].heuristics.policy_references.directly_referencing) == {"1883"}
+        assert set(dataset.certs[fips_dgst("2590")].heuristics.policy_references.directly_referencing) == {"1883"}
 
 
 @pytest.mark.skip(reason="FIPS tests to-be-refactored")
@@ -295,24 +298,24 @@ def test_openssl_chunk(certs_to_process):
     certs = certs_to_process["referencing_openssl"]
     with TemporaryDirectory() as tmp_dir:
         dataset = _set_up_dataset_for_full(tmp_dir, certs, Path("."), Path("."))
-        assert set(dataset.certs[fips_dgst("3493")].heuristics.st_references.directly_referencing) == {"2398"}
-        assert not dataset.certs[fips_dgst("3495")].heuristics.st_references.directly_referencing
-        assert not dataset.certs[fips_dgst("3711")].heuristics.st_references.directly_referencing
-        assert not dataset.certs[fips_dgst("3176")].heuristics.st_references.directly_referencing
-        assert not dataset.certs[fips_dgst("3488")].heuristics.st_references.directly_referencing
-        assert not dataset.certs[fips_dgst("3126")].heuristics.st_references.directly_referencing
-        assert set(dataset.certs[fips_dgst("3126")].heuristics.web_references.directly_referencing) == {"2398"}
-        assert not dataset.certs[fips_dgst("3269")].heuristics.st_references.directly_referencing
-        assert set(dataset.certs[fips_dgst("3524")].heuristics.web_references.directly_referencing) == {"3220"}
-        assert set(dataset.certs[fips_dgst("3220")].heuristics.st_references.directly_referencing) == {"2398"}
-        assert not dataset.certs[fips_dgst("3220")].heuristics.web_references.directly_referencing
-        assert not dataset.certs[fips_dgst("2398")].heuristics.st_references.directly_referencing
-        assert set(dataset.certs[fips_dgst("3543")].heuristics.web_references.directly_referencing) == {"2398"}
-        assert set(dataset.certs[fips_dgst("2676")].heuristics.web_references.directly_referencing) == {"2398"}
-        assert set(dataset.certs[fips_dgst("3313")].heuristics.web_references.directly_referencing) == {"3220"}
-        assert not dataset.certs[fips_dgst("3363")].heuristics.st_references.directly_referencing
-        assert set(dataset.certs[fips_dgst("3608")].heuristics.st_references.directly_referencing) == {"2398"}
-        assert set(dataset.certs[fips_dgst("3158")].heuristics.web_references.directly_referencing) == {"2398"}
+        assert set(dataset.certs[fips_dgst("3493")].heuristics.policy_references.directly_referencing) == {"2398"}
+        assert not dataset.certs[fips_dgst("3495")].heuristics.policy_references.directly_referencing
+        assert not dataset.certs[fips_dgst("3711")].heuristics.policy_references.directly_referencing
+        assert not dataset.certs[fips_dgst("3176")].heuristics.policy_references.directly_referencing
+        assert not dataset.certs[fips_dgst("3488")].heuristics.policy_references.directly_referencing
+        assert not dataset.certs[fips_dgst("3126")].heuristics.policy_references.directly_referencing
+        assert set(dataset.certs[fips_dgst("3126")].heuristics.module_references.directly_referencing) == {"2398"}
+        assert not dataset.certs[fips_dgst("3269")].heuristics.policy_references.directly_referencing
+        assert set(dataset.certs[fips_dgst("3524")].heuristics.module_references.directly_referencing) == {"3220"}
+        assert set(dataset.certs[fips_dgst("3220")].heuristics.policy_references.directly_referencing) == {"2398"}
+        assert not dataset.certs[fips_dgst("3220")].heuristics.module_references.directly_referencing
+        assert not dataset.certs[fips_dgst("2398")].heuristics.policy_references.directly_referencing
+        assert set(dataset.certs[fips_dgst("3543")].heuristics.module_references.directly_referencing) == {"2398"}
+        assert set(dataset.certs[fips_dgst("2676")].heuristics.module_references.directly_referencing) == {"2398"}
+        assert set(dataset.certs[fips_dgst("3313")].heuristics.module_references.directly_referencing) == {"3220"}
+        assert not dataset.certs[fips_dgst("3363")].heuristics.policy_references.directly_referencing
+        assert set(dataset.certs[fips_dgst("3608")].heuristics.policy_references.directly_referencing) == {"2398"}
+        assert set(dataset.certs[fips_dgst("3158")].heuristics.module_references.directly_referencing) == {"2398"}
 
 
 def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):

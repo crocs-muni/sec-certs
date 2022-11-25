@@ -298,10 +298,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         )
 
     def _clean_cert_ids(self, current_cert: FIPSCertificate) -> None:
+        # TODO: Refactor me
         current_cert.clean_cert_ids()
-        # TODO: Fix me, txt state no longer available
-        # if not current_cert.state.txt_state:
-        #     return
         current_cert.heuristics.clean_cert_ids = {
             cert_id: count
             for cert_id, count in current_cert.pdf_data.clean_cert_ids.items()
@@ -322,6 +320,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return True
 
     def _validate_id(self, processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
+        # TODO: Refactor me
         candidate_dgst = fips_dgst(cert_candidate_id)
         if candidate_dgst not in self.certs or not cert_candidate_id.isdecimal():
             return False
@@ -350,6 +349,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return True
 
     def _compute_dependencies(self, fresh: bool = True) -> None:
+        # TODO: Refactor me
         def pdf_lookup(cert):
             return set(
                 filter(
