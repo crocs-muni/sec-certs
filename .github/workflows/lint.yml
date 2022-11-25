@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name : Setup python
+      - name: Setup python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - name: Install external dependencies
         run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
       - name: Install python dependencies
@@ -33,15 +33,15 @@ jobs:
           python-version: 3.8
       - uses: isort/isort-action@master
         with:
-            requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
+          requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
   flake8-lint:
     runs-on: ubuntu-latest
     name: Flake8
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Python environment
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: "3.8"
       - name: flake8 Lint
