@@ -8,9 +8,9 @@ import spacy
 from rapidfuzz import fuzz
 from sklearn.base import BaseEstimator
 
-import sec_certs.utils.helpers as helpers
 from sec_certs import cert_rules, constants
 from sec_certs.sample.cpe import CPE
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class CPEClassifier(BaseEstimator):
         self.vendors_ = set(self.vendor_to_versions_.keys())
         self.vendor_version_to_cpe_ = dict()
 
-        for cpe in helpers.tqdm(sufficiently_long_cpes, desc="Fitting the CPE classifier"):
+        for cpe in tqdm(sufficiently_long_cpes, desc="Fitting the CPE classifier"):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
                 self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
@@ -80,7 +80,7 @@ class CPEClassifier(BaseEstimator):
         :param List[Tuple[str, str, str]] X: tuples (vendor, product name, identified versions in product name)
         :return List[Optional[Set[str]]]: List of CPE uris that correspond to given input, None if nothing was found.
         """
-        return [self.predict_single_cert(x[0], x[1], x[2]) for x in helpers.tqdm(X, desc="Predicting")]
+        return [self.predict_single_cert(x[0], x[1], x[2]) for x in tqdm(X, desc="Predicting")]
 
     def predict_single_cert(
         self,

@@ -14,6 +14,7 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +205,7 @@ class CPEDataset(ComplexSerializableType):
         # We only enrich if tuple (vendor, item_name) is not already in the dataset
         vendor_item_lookup = {(cpe.vendor, cpe.item_name) for cpe in self}
         vendor_item_version_lookup = {(cpe.vendor, cpe.item_name, cpe.version) for cpe in self}
-        for cpe in helpers.tqdm(all_cpes_in_cve_dset, desc="Enriching CPE dataset with new CPEs"):
+        for cpe in tqdm(all_cpes_in_cve_dset, desc="Enriching CPE dataset with new CPEs"):
             if _adding_condition(cpe, vendor_item_lookup, vendor_item_version_lookup):
                 new_cpe = copy.deepcopy(cpe)
                 new_cpe.start_version = None

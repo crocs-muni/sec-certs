@@ -9,14 +9,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Collection, Dict, Generic, Iterator, List, Optional, Pattern, Set, Type, TypeVar, Union, cast
+from typing import Any, Dict, Generic, Iterator, List, Optional, Pattern, Set, Type, TypeVar, Union, cast
 
 import pandas as pd
-import requests
 
 import sec_certs.constants as constants
 import sec_certs.utils.helpers as helpers
-import sec_certs.utils.parallel_processing as cert_processing
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
@@ -24,6 +22,7 @@ from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +44,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         meta_sources_parsed: bool = False
         artifacts_downloaded: bool = False
         pdfs_converted: bool = False
+        auxillary_datasets_processed: bool = False
         certs_analyzed: bool = False
 
         def __bool__(self):
@@ -262,6 +262,10 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
             )
             return
+        if not self.state.auxillary_datasets_processed:
+            logger.info(
+                "Attempting to run analysis of certifies while not having the auxillary datasets processed. Returning."
+            )
 
         if fresh:
             logger.info("Analyzing certificates.")
@@ -300,24 +304,6 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     @abstractmethod
     def _compute_dependency_vulnerabilities(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
-
-    @staticmethod
-    def _download_parallel(urls: Collection[str], paths: Collection[Path], prune_corrupted: bool = True) -> None:
-        exit_codes = cert_processing.process_parallel(
-            helpers.download_file, list(zip(urls, paths)), config.n_threads, unpack=True
-        )
-        n_successful = len([e for e in exit_codes if e == requests.codes.ok])
-        logger.info(f"Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.")
-
-        for url, e in zip(urls, exit_codes):
-            if e != requests.codes.ok:
-                logger.error(f"Failed to download {url}, exit code: {e}")
-
-        if prune_corrupted is True:
-            for p in paths:
-                if p.exists() and p.stat().st_size < constants.MIN_CORRECT_CERT_SIZE:
-                    logger.error(f"Corrupted file at: {p}")
-                    p.unlink()
 
     def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
         logger.info("Preparing CPE dataset.")
@@ -394,7 +380,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         clf.fit([x for x in self.auxillary_datasets.cpe_dset if filter_condition(x)])
 
         cert: CertSubType
-        for cert in helpers.tqdm(self, desc="Predicting CPE matches with the classifier"):
+        for cert in tqdm(self, desc="Predicting CPE matches with the classifier"):
             cert.compute_heuristics_version()
 
             cert.heuristics.cpe_matches = (
@@ -429,7 +415,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         labeled_cert_digests: Set[str] = set()
 
         logger.info("Translating label studio matches into their CPE representations and assigning to certificates.")
-        for annotation in helpers.tqdm(data, desc="Translating label studio matches"):
+        for annotation in tqdm(data, desc="Translating label studio matches"):
             cpe_candidate_keys = {
                 key for key in annotation.keys() if "option_" in key and annotation[key] != "No good match"
             }
@@ -507,7 +493,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         self.auxillary_datasets.cve_dset.filter_related_cpes(relevant_cpes)
 
         cert: Certificate
-        for cert in helpers.tqdm(cpe_rich_certs, desc="Computing related CVES"):
+        for cert in tqdm(cpe_rich_certs, desc="Computing related CVES"):
             if cert.heuristics.cpe_matches:
                 related_cves = [
                     self.auxillary_datasets.cve_dset.get_cve_ids_for_cpe_uri(x) for x in cert.heuristics.cpe_matches

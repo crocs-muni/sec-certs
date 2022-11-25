@@ -5,26 +5,19 @@ import time
 from contextlib import nullcontext
 from datetime import datetime
 from functools import partial
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Collection, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pkgconfig
 import requests
-from tqdm import tqdm as tqdm_original
 
 import sec_certs.constants as constants
 from sec_certs.config.configuration import config
+from sec_certs.utils import parallel_processing
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
-
-
-# TODO: Once typehints in tqdm are implemented, we should use them: https://github.com/tqdm/tqdm/issues/260
-def tqdm(*args, **kwargs):
-    if "disable" in kwargs:
-        return tqdm_original(*args, **kwargs)
-    return tqdm_original(*args, **kwargs, disable=not config.enable_progress_bars)
 
 
 def download_file(
@@ -66,20 +59,20 @@ def download_file(
     return constants.RETURNCODE_NOK
 
 
-def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
-    def download(url_output):
-        url, output = url_output
-        return url, download_file(url, output)
+def download_parallel(
+    urls: Collection[str], paths: Collection[Path], progress_bar_desc: Optional[str] = None
+) -> List[int]:
+    exit_codes = parallel_processing.process_parallel(
+        download_file, list(zip(urls, paths)), config.n_threads, unpack=True, progress_bar_desc=progress_bar_desc
+    )
+    n_successful = len([e for e in exit_codes if e == requests.codes.ok])
+    logger.info(f"Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.")
 
-    pool = ThreadPool(num_threads)
-    responses = []
-    with tqdm(total=len(items)) as progress:
-        for response in pool.imap(download, items):
-            progress.update(1)
-            responses.append(response)
-    pool.close()
-    pool.join()
-    return responses
+    for url, e in zip(urls, exit_codes):
+        if e != requests.codes.ok:
+            logger.error(f"Failed to download {url}, exit code: {e}")
+
+    return exit_codes
 
 
 def fips_dgst(cert_id: Union[int, str]) -> str:

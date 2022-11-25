@@ -26,7 +26,6 @@ from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
-from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils.helpers import fips_dgst
@@ -36,7 +35,7 @@ class FIPSHTMLParser:
     def __init__(self, soup: BeautifulSoup):
         self._soup = soup
 
-    def get_web_data_and_algorithms(self) -> Tuple[Set[FIPSAlgorithm], FIPSCertificate.WebData]:
+    def get_web_data_and_algorithms(self) -> Tuple[Set[str], FIPSCertificate.WebData]:
         divs = self._soup.find_all("div", class_="panel panel-default")
         details_div, vendor_div, related_files_div, validation_history_div = divs
 
@@ -57,8 +56,7 @@ class FIPSHTMLParser:
             algorithms_data = details_dict.pop("algorithms")
             algorithms = set()
             for category, alg_ids in algorithms_data.items():
-                algorithms |= {FIPSAlgorithm(x, algorithm_type=category) for x in alg_ids}
-
+                algorithms |= {category + x for x in alg_ids}
         else:
             algorithms = set()
 
@@ -85,7 +83,13 @@ class FIPSHTMLParser:
 
         if "caveat" in entries:
             entries["mentioned_certs"] = FIPSHTMLParser.get_mentioned_certs_from_caveat(entries["caveat"])
-        # TODO: Enhance algorithms with those parsed from description entry
+
+        if "description" in entries:
+            algs = FIPSHTMLParser.get_algs_from_description(entries["description"])
+            if "algorithms" in entries:
+                entries["algorithms"].update(algs)
+            else:
+                entries["algorithms"] = algs
 
         return entries
 
@@ -127,6 +131,10 @@ class FIPSHTMLParser:
             else:
                 ids_found[m.group("id")] = 1
         return ids_found
+
+    @staticmethod
+    def get_algs_from_description(description: str) -> Set[str]:
+        return {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, description)}
 
     @staticmethod
     def parse_algorithms(algorithms_div: Tag) -> Dict[str, Set[str]]:
@@ -389,7 +397,7 @@ class FIPSCertificate(
 
         # TODO: How are keywords, clean_cert_ids and algorithms attributes different from those in pdf data?
         keywords: Dict[str, Dict] = field(default_factory=dict)
-        algorithms: Set[FIPSAlgorithm] = field(default_factory=set)
+        algorithms: Set[str] = field(default_factory=set)
         unmatched_algs: Optional[int] = field(default=None)
         clean_cert_ids: Optional[Dict[str, int]] = field(default=None)
 
@@ -461,8 +469,8 @@ class FIPSCertificate(
         self.cert_id = cert_id
         self.web_data: FIPSCertificate.WebData = web_data if web_data else FIPSCertificate.WebData()
         self.pdf_data: FIPSCertificate.PdfData = pdf_data if pdf_data else FIPSCertificate.PdfData()
-        self.heuristics = heuristics if heuristics else FIPSCertificate.Heuristics()
-        self.state = state if state else FIPSCertificate.InternalState()
+        self.heuristics: FIPSCertificate.Heuristics = heuristics if heuristics else FIPSCertificate.Heuristics()
+        self.state: FIPSCertificate.InternalState = state if state else FIPSCertificate.InternalState()
 
     @property
     def pandas_tuple(self) -> Tuple:
@@ -501,21 +509,6 @@ class FIPSCertificate(
         algorithms, cert.web_data = parser.get_web_data_and_algorithms()
         cert.heuristics.algorithms |= algorithms
         return cert
-
-    @staticmethod
-    # TODO: This should probably get deleted
-    def download_html_page(cert: Tuple[str, Path]) -> Optional[Tuple[str, Path]]:
-        """
-        Wrapper for downloading a file. `delay=1` introduced to avoid problems with requests at NIST.gov
-
-        :param Tuple[str, Path] cert: tuple url, output_path
-        :return Optional[Tuple[str, Path]]: None on success, `cert` on failure.
-        """
-        exit_code = helpers.download_file(*cert, delay=constants.FIPS_DOWNLOAD_DELAY)
-        if exit_code != requests.codes.ok:
-            logger.error(f"Failed to download html page from {cert[0]}, code: {exit_code}")
-            return cert
-        return None
 
     @staticmethod
     def download_module(cert: FIPSCertificate) -> FIPSCertificate:
@@ -588,8 +581,9 @@ class FIPSCertificate(
                 logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")
                 cert.state.policy_extract_ok = False
 
-            algorithms_str = set(itertools.chain.from_iterable([tables.get_algs_from_table(df) for df in tabular_data]))
-            cert.heuristics.algorithms |= {FIPSAlgorithm(x) for x in algorithms_str}
+            cert.heuristics.algorithms |= set(
+                itertools.chain.from_iterable([tables.get_algs_from_table(df) for df in tabular_data])
+            )
 
     def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
         pass

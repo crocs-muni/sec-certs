@@ -18,6 +18,7 @@ from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.dependency_finder import DependencyFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
 
@@ -80,6 +81,10 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
     @property
     def algorithms_dir(self) -> Path:
         return self.auxillary_datasets_dir / "algorithms"
+
+    @property
+    def algorithm_dataset_path(self) -> Path:
+        return self.algorithms_dir / "algorithms.json"
 
     def _extract_data_from_html_modules(self, fresh: bool = True) -> None:
         """
@@ -167,7 +172,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         logger.info("Downloading HTML files that list FIPS certificates.")
         html_urls = list(FIPSDataset.LIST_OF_CERTS_HTML.values())
         html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML.keys()]
-        self._download_parallel(html_urls, html_paths)
+        helpers.download_parallel(html_urls, html_paths)
 
     def _get_all_certs_from_html_sources(self) -> Set[FIPSCertificate]:
         return set(
@@ -206,6 +211,10 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         for cert in self.certs.values():
             cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
 
+        super()._set_local_paths()
+        if self.auxillary_datasets.algorithm_dset:
+            self.auxillary_datasets.algorithm_dset.json_path = self.algorithm_dataset_path
+
     @serialize
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
@@ -225,17 +234,20 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     @serialize
     def process_auxillary_datasets(self) -> None:
-        self._process_algorithms()
+        self.auxillary_datasets.algorithm_dset = self._prepare_algorithm_dataset()
         super().process_auxillary_datasets()
 
-    def _process_algorithms(self):
-        logger.info("Processing FIPS algorithms.")
-        self.algorithms_dir.mkdir(parernts=True, exist_ok=True)
-        self.auxillary_datasets.algorithm_dset = FIPSAlgorithmDataset(
-            {}, self.algorithms_dir, "algorithms", "sample algs"
-        )
-        self.auxillary_datasets.algorithm_dset.get_certs_from_web()
-        logger.info(f"Finished parsing. Have algorithm dataset with {len(self.algorithms)} algorithm numbers.")
+    def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
+        logger.info("Preparing FIPSAlgorithm dataset.")
+        self.algorithms_dir.mkdir(parents=True, exist_ok=True)
+
+        if not self.algorithm_dataset_path.exists() or download_fresh_algs:
+            alg_dset = FIPSAlgorithmDataset.from_web(self.algorithm_dataset_path)
+            alg_dset.to_json()
+        else:
+            alg_dset = FIPSAlgorithmDataset.from_json(self.algorithm_dataset_path)
+
+        return alg_dset
 
     def _extract_algorithms_from_policy_tables(self, fresh: bool = True):
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
@@ -304,7 +316,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
     @staticmethod
     def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
         for algo in processed_cert.heuristics.algorithms:
-            curr_id = "".join(filter(str.isdigit, algo.cert_id))
+            curr_id = "".join(filter(str.isdigit, algo))
             if curr_id == cert_candidate_id:
                 return False
         return True
@@ -326,7 +338,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
             return False
 
-        algs = self.auxillary_datasets.algorithm_dset.certs_for_id(cert_candidate_id)
+        algs = self.auxillary_datasets.algorithm_dset.get_algorithms_by_id(cert_candidate_id)
         for current_alg in algs:
             if current_alg.vendor is None or processed_cert.web_data.vendor is None:
                 raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")

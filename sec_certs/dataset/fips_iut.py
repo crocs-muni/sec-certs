@@ -9,7 +9,7 @@ from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import logger
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.serialization.json import ComplexSerializableType
-from sec_certs.utils.helpers import tqdm
+from sec_certs.utils.tqdm import tqdm
 
 
 @dataclass

@@ -20,19 +20,20 @@ logger = logging.getLogger(__name__)
 class ProcessingStep:
     name: str
     processing_function_name: str
-    precondition: Optional[str] = field(default=None)
+    preconditions: List[str] = field(default_factory=list)
     precondition_error_msg: Optional[str] = field(default=None)
     pre_callback_func: Optional[Callable] = field(default=None)
 
     def run(self, dset: Union[CCDataset, FIPSDataset]) -> None:
-        if self.precondition and not getattr(dset.state, self.precondition):
-            err_msg = (
-                self.precondition_error_msg
-                if self.precondition_error_msg
-                else f"Error, precondition to run {self.name} not met, exiting."
-            )
-            print(err_msg)
-            sys.exit(1)
+        for condition in self.preconditions:
+            if not getattr(dset.state, condition):
+                err_msg = (
+                    self.precondition_error_msg
+                    if self.precondition_error_msg
+                    else f"Error, precondition to run {self.name} not met, exiting."
+                )
+                print(err_msg)
+                sys.exit(1)
         if self.pre_callback_func:
             self.pre_callback_func()
 
@@ -159,28 +160,28 @@ def main(
         ProcessingStep(
             "process-aux-dsets",
             "process_auxillary_datasets",
-            precondition="meta_sources_parsed",
+            preconditions=["meta_sources_parsed"],
             precondition_error_msg=f"Error: You want to process the auxillary datasets: {aux_dsets_to_handle} , but the data from cert. framework website was not parsed. You must use 'build' action first.",
             pre_callback_func=None,
         ),
         ProcessingStep(
             "download",
             "download_all_artifacts",
-            precondition="meta_sources_parsed",
+            preconditions=["meta_sources_parsed"],
             precondition_error_msg="Error: You want to download all artifacts, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
             pre_callback_func=None,
         ),
         ProcessingStep(
             "convert",
             "convert_all_pdfs",
-            precondition="pdfs_downloaded",
+            preconditions=["pdfs_downloaded"],
             precondition_error_msg="Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first.",
             pre_callback_func=warn_missing_libs,
         ),
         ProcessingStep(
             "analyze",
             "analyze_certificates",
-            precondition="pdfs_converted",
+            preconditions=["pdfs_converted", "auxillary_datasets_processed"],
             precondition_error_msg="Error: You want to process txt documents of certificates, but pdfs were not converted. You must use 'convert' action first.",
             pre_callback_func=analysis_pre_callback,
         ),

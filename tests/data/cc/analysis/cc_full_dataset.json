@@ -5,6 +5,7 @@
         "meta_sources_parsed": true,
         "artifacts_downloaded": true,
         "pdfs_converted": true,
+        "auxillary_datasets_processed": true,
         "certs_analyzed": false
     },
     "timestamp": "2022-11-04 16:28:04.282938",

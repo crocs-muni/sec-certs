@@ -250,8 +250,8 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         csv_urls, csv_paths = [x[0] for x in csv_items], [x[1] for x in csv_items]
 
         logger.info("Downloading required csv and html files.")
-        self._download_parallel(html_urls, html_paths)
-        self._download_parallel(csv_urls, csv_paths)
+        helpers.download_parallel(html_urls, html_paths)
+        helpers.download_parallel(csv_urls, csv_paths)
 
     @serialize
     def get_certs_from_web(

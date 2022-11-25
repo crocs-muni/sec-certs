@@ -19,6 +19,7 @@ from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
 from sec_certs.utils.parallel_processing import process_parallel
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +80,7 @@ class CVEDataset(ComplexSerializableType):
             matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
         cve: CVE
-        for cve in helpers.tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
+        for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
                 vulnerable_configurations = list(
@@ -104,16 +105,12 @@ class CVEDataset(ComplexSerializableType):
         logger.info(f"Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}")
         with tempfile.TemporaryDirectory() as tmp_dir:
             outpaths = [Path(tmp_dir) / Path(x).name.rstrip(".zip") for x in urls]
-            responses = list(zip(*helpers.download_parallel(list(zip(urls, outpaths)), num_threads=config.n_threads)))[
-                1
-            ]
+            responses = helpers.download_parallel(urls, outpaths)
 
-            for o, u, r in zip(outpaths, urls, responses):
+            for o, r in zip(outpaths, responses):
                 if r == constants.RESPONSE_OK:
                     with zipfile.ZipFile(o, "r") as zip_handle:
                         zip_handle.extractall(output_path)
-                else:
-                    logger.info(f"Failed to download from {u}, got status code {r}")
 
     @classmethod
     def from_nist_json(cls, input_path: str) -> "CVEDataset":
@@ -229,7 +226,7 @@ class CVEDataset(ComplexSerializableType):
                 match_data = json.load(handle)
 
         mapping_dict = dict()
-        for match in helpers.tqdm(match_data["matches"], desc="parsing cpe matching (by NIST) dictionary"):
+        for match in tqdm(match_data["matches"], desc="parsing cpe matching (by NIST) dictionary"):
             key = parse_key_cpe(match)
             value = parse_values_cpe(match)
             mapping_dict[key] = value if value else [key]
