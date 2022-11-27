@@ -16,10 +16,6 @@ class CPEConfiguration:
     def match(self, set_of_cpes: set[str]) -> bool:
         return self.platform.uri in set_of_cpes and any([cpe in map(lambda x: x.uri, self.cpes) for cpe in set_of_cpes])
 
-    @classmethod
-    def create_cpe_configuration_from_node(cls, node) -> "CPEConfiguration":
-        return NotImplemented
-
 
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
