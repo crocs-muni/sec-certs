@@ -62,6 +62,7 @@ class TestCommonCriteriaHeuristics(TestCase):
             CVE(
                 "CVE-2017-1732",
                 [cpe_single_sign_on],
+                [],
                 CVE.Impact(5.3, "MEDIUM", 3.9, 1.4),
                 "2021-05-26T04:15Z",
                 {"CWE-200"},
@@ -69,6 +70,7 @@ class TestCommonCriteriaHeuristics(TestCase):
             CVE(
                 "CVE-2019-4513",
                 [cpe_single_sign_on],
+                [],
                 CVE.Impact(8.2, "HIGH", 3.9, 4.2),
                 "2000-05-26T04:15Z",
                 {"CVE-611"},
