@@ -374,7 +374,7 @@ class Dataset(Generic[CertSubType], ABC):
         cert: Certificate
         for cert in helpers.tqdm(cpe_rich_certs, desc="Computing related CVES"):
             if cert.heuristics.cpe_matches:
-                related_cves: set[str] = cve_dset.get_cve_ids_for_cpe_matches(cert.heuristics.cpe_matches)
+                related_cves: set[str] = cve_dset.get_cves_from_matched_cpes(cert.heuristics.cpe_matches)
 
                 if related_cves:
                     cert.heuristics.related_cves = related_cves

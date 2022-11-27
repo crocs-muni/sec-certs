@@ -150,8 +150,8 @@ class CVEDataset(ComplexSerializableType):
     def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[Set[str]]:
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
 
-    def _get_cve_ids_for_or_cpe_type(self, cpe_matches: set[str]) -> set[str]:
-        cve_ids = set()
+    def _get_cves_from_exactly_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
+        cve_ids: set[str] = set()
 
         for cpe_match in cpe_matches:
             if cve_set := self._get_cve_ids_for_cpe_uri(cpe_match):
@@ -159,26 +159,22 @@ class CVEDataset(ComplexSerializableType):
 
         return cve_ids
 
-    def _get_cve_ids_for_and_cpe_type(self, cpe_matches: set[str]) -> set[str]:
-        cve_ids = set()
-        cves_containing_and_type_cpes = [cve for cve in self if cve.vulnerable_and_cpes]
+    def _get_cves_from_cpe_configurations(self, cpe_matches: set[str]) -> set[str]:
+        cves: set[str] = set()
+        cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
 
-        for cve in cves_containing_and_type_cpes:
-            match: str
-            if any((match := item) in cve.vulnerable_and_cpes for item in cpe_matches):
-                platform_cpes = cve.vulnerable_and_cpes[match]
+        for cve in cves_with_vulnerable_configurations:
+            if any([cpe_configuration.match(cpe_matches) for cpe_configuration in cve.vulnerable_cpe_configurations]):
+                cves.add(cve.cve_id)
 
-                if any(item in map(lambda cpe: cpe.uri, platform_cpes) for item in cpe_matches):
-                    cve_ids.add(cve.cve_id)
+        return cves
 
-        return cve_ids
+    def get_cves_from_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
+        cves = self._get_cves_from_exactly_matched_cpes(cpe_matches)
+        cves_matched_by_configurations = self._get_cves_from_cpe_configurations(cpe_matches)
+        cves.update(cves_matched_by_configurations)
 
-    def get_cve_ids_for_cpe_matches(self, cpe_matches: set[str]) -> set[str]:
-        cve_ids_or_type = self._get_cve_ids_for_or_cpe_type(cpe_matches)
-        cve_ids_and_type = self._get_cve_ids_for_and_cpe_type(cpe_matches)
-        cve_ids_or_type.update(cve_ids_and_type)
-
-        return cve_ids_or_type
+        return cves
 
     def filter_related_cpes(self, relevant_cpes: Set[CPE]):
         """
