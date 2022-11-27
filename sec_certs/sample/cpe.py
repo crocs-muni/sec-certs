@@ -9,7 +9,6 @@ from sec_certs.utils import helpers
 
 
 class CPEConfiguration:
-
     def __init__(self, platform: "CPE", cpes: list["CPE"]) -> None:
         self.platform: "CPE" = platform
         self.cpes: list["CPE"] = cpes

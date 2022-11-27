@@ -159,11 +159,11 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         def get_cpe_configurations_from_and_cpe_dict(children: list[dict]) -> list[CPEConfiguration]:
             configurations: list[CPEConfiguration] = []
 
-            if not children:
+            if not children or len(children) != 2:
                 return configurations
 
-            cpes = [CVE._parse_nist_dict(cpe) for cpe in children[1]["cpe_match"]]
-            platforms = [CVE._parse_nist_dict(cpe) for cpe in child[0]["cpe_match"]]
+            cpes = CVE._parse_nist_dict(children[0]["cpe_match"])
+            platforms = CVE._parse_nist_dict(children[1]["cpe_match"])
 
             for platform in platforms:
                 configurations.append(CPEConfiguration(platform, cpes))
@@ -171,7 +171,9 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             return configurations
 
         def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> tuple[list[CPE], list[CPEConfiguration]]:
-            def get_vulnerable_cpes_and_cpe_configurations(node: Dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]) -> tuple[list[CPE], list[CPEConfiguration]]:
+            def get_vulnerable_cpes_and_cpe_configurations(
+                node: Dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]
+            ) -> tuple[list[CPE], list[CPEConfiguration]]:
                 if node["operator"] == "AND":
                     cpe_configurations.extend(get_cpe_configurations_from_and_cpe_dict(node["children"]))
 
@@ -187,18 +189,12 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
                 return cpes, cpe_configurations
 
+            result = [get_vulnerable_cpes_and_cpe_configurations(x, [], []) for x in dct["configurations"]["nodes"]]
+            or_type_cpes = list(itertools.chain.from_iterable(map(lambda x: x[0], result)))
+            and_type_cpes = list(itertools.chain.from_iterable(map(lambda x: x[1], result)))
 
-            or_type_cpes = list(
-                itertools.chain.from_iterable(
-                    [get_vulnerable_cpes_and_cpe_configurations(x, [], [])[0] for x in dct["configurations"]["nodes"]]
-                )
-            )
-
-            and_type_cpes = list(
-                itertools.chain.from_iterable(
-                    [get_vulnerable_cpes_and_cpe_configurations(x, [], [])[1] for x in dct["configurations"]["nodes"]]
-                )
-            )
+            if not or_type_cpes or not and_type_cpes:
+                return [], []
 
             return or_type_cpes, and_type_cpes
 
