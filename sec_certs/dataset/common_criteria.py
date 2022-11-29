@@ -662,7 +662,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         for cert in self:
             cert.compute_heuristics_cert_id()
 
-    def _compute_dependency_vulnerabilities(self):
+    def _compute_transitive_vulnerabilities(self):
         logger.info("Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
         cve_dependency_finder = DependencyVulnerabilityFinder()
         cve_dependency_finder.fit(self.certs)
@@ -686,7 +686,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         for cert in self:
             cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
 
-    def _compute_dependencies(self, fresh: bool = True) -> None:
+    def _compute_references(self, fresh: bool = True) -> None:
         def ref_lookup(kw_attr):
             def func(cert):
                 kws = getattr(cert.pdf_data, kw_attr)

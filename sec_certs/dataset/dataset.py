@@ -289,19 +289,19 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     def _compute_heuristics(self, fresh: bool = True) -> None:
         self.compute_cpe_heuristics()
         self.compute_related_cves()
-        self._compute_dependencies()
-        self._compute_dependency_vulnerabilities()
+        self._compute_references()
+        self._compute_transitive_vulnerabilities()
 
     @abstractmethod
     def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def _compute_dependencies(self, fresh: bool = True) -> None:
+    def _compute_references(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def _compute_dependency_vulnerabilities(self, fresh: bool = True) -> None:
+    def _compute_transitive_vulnerabilities(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:

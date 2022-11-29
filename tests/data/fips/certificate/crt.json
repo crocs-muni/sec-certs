@@ -35,12 +35,10 @@
     },
     "heuristics": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
-        "keywords": {},
         "algorithms": {
             "_type": "Set",
             "elements": []
         },
-        "unmatched_algs": null,
         "clean_cert_ids": null,
         "extracted_versions": {
             "_type": "Set",
@@ -49,14 +47,14 @@
         "cpe_matches": null,
         "verified_cpe_matches": null,
         "related_cves": null,
-        "st_references": {
+        "policy_references": {
             "_type": "sec_certs.sample.certificate.References",
             "directly_referenced_by": null,
             "indirectly_referenced_by": null,
             "directly_referencing": null,
             "indirectly_referencing": null
         },
-        "web_references": {
+        "module_references": {
             "_type": "sec_certs.sample.certificate.References",
             "directly_referenced_by": null,
             "indirectly_referenced_by": null,

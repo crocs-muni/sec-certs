@@ -307,7 +307,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             and cert_id != current_cert.cert_id
         }
 
-    def _compute_dependency_vulnerabilities(self, fresh: bool = True) -> None:
+    def _compute_transitive_vulnerabilities(self, fresh: bool = True) -> None:
         # TODO: Implement me
         pass
 
@@ -348,7 +348,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
                 return False
         return True
 
-    def _compute_dependencies(self, fresh: bool = True) -> None:
+    def _compute_references(self, fresh: bool = True) -> None:
         # TODO: Refactor me
         def pdf_lookup(cert):
             return set(

@@ -202,7 +202,7 @@ def test_single_record_dependency_heuristics(random_certificate: CommonCriteriaC
 
 
 def test_dependency_dataset(dependency_dataset: CCDataset):
-    dependency_dataset._compute_dependencies()
+    dependency_dataset._compute_references()
     test_cert = dependency_dataset["692e91451741ef49"]
 
     assert test_cert.heuristics.report_references.directly_referenced_by == {"BSI-DSZ-CC-0370-2006"}
@@ -215,12 +215,12 @@ def test_dependency_dataset(dependency_dataset: CCDataset):
 
 
 def test_direct_dependency_vulnerability_dataset(dependency_vulnerability_dataset: CCDataset):
-    dependency_vulnerability_dataset._compute_dependency_vulnerabilities()
+    dependency_vulnerability_dataset._compute_transitive_vulnerabilities()
     assert dependency_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.direct_dependency_cves == {"CVE-2013-5385"}
 
 
 def test_indirect_dependency_vulnerability_dataset(dependency_vulnerability_dataset: CCDataset):
-    dependency_vulnerability_dataset._compute_dependency_vulnerabilities()
+    dependency_vulnerability_dataset._compute_transitive_vulnerabilities()
     assert dependency_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.indirect_dependency_cves == {"CVE-2013-5385"}
 
 
