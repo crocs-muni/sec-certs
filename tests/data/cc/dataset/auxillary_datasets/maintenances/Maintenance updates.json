@@ -69,8 +69,8 @@
                     "indirectly_referencing": null
                 },
                 "extracted_sars": null,
-                "direct_dependency_cves": null,
-                "indirect_dependency_cves": null
+                "direct_transitive_cves": null,
+                "indirect_transitive_cves": null
             },
             "related_cert_digest": "8a5e6bcda602920c",
             "maintenance_date": "2019-08-26"

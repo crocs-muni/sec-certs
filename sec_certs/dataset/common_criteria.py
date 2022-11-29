@@ -23,9 +23,9 @@ from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.model.dependency_finder import DependencyFinder
-from sec_certs.model.dependency_vulnerability_finder import DependencyVulnerabilityFinder
+from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.sar_transformer import SARTransformer
+from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.common_criteria import CommonCriteriaCert
@@ -664,14 +664,14 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
     def _compute_transitive_vulnerabilities(self):
         logger.info("Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
-        cve_dependency_finder = DependencyVulnerabilityFinder()
-        cve_dependency_finder.fit(self.certs)
+        transitive_cve_finder = TransitiveVulnerabilityFinder()
+        transitive_cve_finder.fit(self.certs)
 
         for dgst in self.certs:
-            dependency_cve = cve_dependency_finder.predict_single_cert(dgst)
+            transitive_cve = transitive_cve_finder.predict_single_cert(dgst)
 
-            self.certs[dgst].heuristics.direct_dependency_cves = dependency_cve.direct_dependency_cves
-            self.certs[dgst].heuristics.indirect_dependency_cves = dependency_cve.indirect_dependency_cves
+            self.certs[dgst].heuristics.direct_transitive_cves = transitive_cve.direct_transitive_cves
+            self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
 
     def _compute_heuristics(self, fresh: bool = True) -> None:
         logger.info("Computing various heuristics on CC certificates.")
@@ -705,11 +705,11 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             return func
 
         logger.info("Compute references between certificates.")
-        for dep_source in ("report", "st"):
-            kw_source = f"{dep_source}_keywords"
-            dep_attr = f"{dep_source}_references"
+        for ref_source in ("report", "st"):
+            kw_source = f"{ref_source}_keywords"
+            dep_attr = f"{ref_source}_references"
 
-            finder = DependencyFinder()
+            finder = ReferenceFinder()
             finder.fit(self.certs, lambda cert: cert.heuristics.cert_id, ref_lookup(kw_source))  # type: ignore
 
             for dgst in self.certs:

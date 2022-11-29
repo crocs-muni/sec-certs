@@ -721,8 +721,8 @@
                         }
                     ]
                 },
-                "direct_dependency_cves": null,
-                "indirect_dependency_cves": null
+                "direct_transitive_cves": null,
+                "indirect_transitive_cves": null
             }
         }
     ]

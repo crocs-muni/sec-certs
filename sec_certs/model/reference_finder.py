@@ -5,7 +5,7 @@ from sec_certs.sample.certificate import Certificate, References
 Certificates = Dict[str, Certificate]
 ReferencedByDirect = Dict[str, Set[str]]
 ReferencedByIndirect = Dict[str, Set[str]]
-Dependencies = Dict[str, Dict[str, Optional[Set[str]]]]
+ReferencesType = Dict[str, Dict[str, Optional[Set[str]]]]
 IDMapping = Dict[str, List[str]]
 UnknownReferences = Dict[str, Set[str]]
 IDLookupFunc = Callable[[Certificate], str]
@@ -13,7 +13,7 @@ ReferenceLookupFunc = Callable[[Certificate], Set[str]]
 
 
 # TODO: All of this can and should be rewritten on top of networkx or some other graph library.
-class DependencyFinder:
+class ReferenceFinder:
     """
     The class assigns references of other certificate instances for each instance.
     Adheres to sklearn BaseEstimator interface.
@@ -21,7 +21,7 @@ class DependencyFinder:
     """
 
     def __init__(self):
-        self.dependencies: Dependencies = {}
+        self.references: ReferencesType = {}
         self.id_mapping: IDMapping = {}
         self._fitted: bool = False
 
@@ -100,7 +100,7 @@ class DependencyFinder:
         referenced_by_indirect = self._compute_indirect_references(referenced_by)
         return referenced_by, referenced_by_indirect
 
-    def _get_reverse_dependencies(
+    def _get_reverse_references(
         self, cert_id: str, references: Union[ReferencedByDirect, ReferencedByIndirect]
     ) -> Optional[Set[str]]:
         result = set()
@@ -116,11 +116,11 @@ class DependencyFinder:
     ) -> None:
         for cert_id, cert_digests in self.id_mapping.items():
             cert_dgst = cert_digests[0]
-            self.dependencies[cert_dgst] = {
+            self.references[cert_dgst] = {
                 "directly_referenced_by": referenced_by_direct.get(cert_id, None),
                 "indirectly_referenced_by": referenced_by_indirect.get(cert_id, None),
-                "directly_referencing": self._get_reverse_dependencies(cert_id, referenced_by_direct),
-                "indirectly_referencing": self._get_reverse_dependencies(cert_id, referenced_by_indirect),
+                "directly_referencing": self._get_reverse_references(cert_id, referenced_by_direct),
+                "indirectly_referencing": self._get_reverse_references(cert_id, referenced_by_indirect),
             }
 
     def fit(self, certificates: Certificates, id_func: IDLookupFunc, ref_lookup_func: ReferenceLookupFunc) -> None:
@@ -139,7 +139,7 @@ class DependencyFinder:
         # Build the referenced_by first
         referenced_by_direct, referenced_by_indirect = self._build_referenced_by(certificates, ref_lookup_func)
 
-        # Build the referencing second (this actually writes into self.dependencies).
+        # Build the referencing second (this actually writes into self.references).
         self._build_referencing(referenced_by_direct, referenced_by_indirect)
         self._fitted = True
 
@@ -153,7 +153,7 @@ class DependencyFinder:
         result = {}
         for cert_id, digests in self.id_mapping.items():
             cert_digest = digests[0]
-            cert_references = self.dependencies[cert_digest]
+            cert_references = self.references[cert_digest]
             direct_refs = cert_references["directly_referencing"]
             if not direct_refs:
                 continue
@@ -192,14 +192,14 @@ class DependencyFinder:
                 res = set(filter(lambda cert_id: cert_id in self.id_mapping, res))
             return set(res) if res else None
 
-        if dgst not in self.dependencies:
+        if dgst not in self.references:
             return References()
 
         return References(
-            wrap(self.dependencies[dgst].get("directly_referenced_by", None)),
-            wrap(self.dependencies[dgst].get("indirectly_referenced_by", None)),
-            wrap(self.dependencies[dgst].get("directly_referencing", None)),
-            wrap(self.dependencies[dgst].get("indirectly_referencing", None)),
+            wrap(self.references[dgst].get("directly_referenced_by", None)),
+            wrap(self.references[dgst].get("indirectly_referenced_by", None)),
+            wrap(self.references[dgst].get("directly_referencing", None)),
+            wrap(self.references[dgst].get("indirectly_referencing", None)),
         )
 
     def predict(self, dgst_list: List[str], keep_unknowns: bool = True) -> Dict[str, References]:

@@ -10,7 +10,7 @@
   "timestamp": "2021-11-14 13:18:53.333058",
   "sha256_digest": "not implemented",
   "name": "test dataset",
-  "description": "test dataset for testing dependencies",
+  "description": "test dataset for testing references",
   "n_certs": 3,
   "certs": [
     {
@@ -568,8 +568,8 @@
             }
           ]
         },
-        "direct_dependency_cves": null,
-        "indirect_dependency_cves": null
+        "direct_transitive_cves": null,
+        "indirect_transitive_cves": null
       }
     },
     {
@@ -1205,8 +1205,8 @@
             }
           ]
         },
-        "direct_dependency_cves": null,
-        "indirect_dependency_cves": null
+        "direct_transitive_cves": null,
+        "indirect_transitive_cves": null
       }
     },
     {
@@ -1836,8 +1836,8 @@
             }
           ]
         },
-        "direct_dependency_cves": null,
-        "indirect_dependency_cves": null
+        "direct_transitive_cves": null,
+        "indirect_transitive_cves": null
       }
     }
   ]

@@ -40,7 +40,7 @@ HEADERS = {
 }
 
 
-class DependencyType(Enum):
+class ReferenceType(Enum):
     DIRECT = "direct"
     INDIRECT = "indirect"
 
@@ -396,8 +396,8 @@ class CommonCriteriaCert(
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
         extracted_sars: Optional[Set[SAR]] = field(default=None)
-        direct_dependency_cves: Optional[Set[str]] = field(default=None)
-        indirect_dependency_cves: Optional[Set[str]] = field(default=None)
+        direct_transitive_cves: Optional[Set[str]] = field(default=None)
+        indirect_transitive_cves: Optional[Set[str]] = field(default=None)
 
         @property
         def serialized_attributes(self) -> List[str]:

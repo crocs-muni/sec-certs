@@ -78,8 +78,8 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "extracted_sars": null,
-                "direct_dependency_cves": null,
-                "indirect_dependency_cves": null,
+                "direct_transitive_cves": null,
+                "indirect_transitive_cves": null,
                 "report_references": {
                     "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,
@@ -165,8 +165,8 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "extracted_sars": null,
-                "direct_dependency_cves": null,
-                "indirect_dependency_cves": null,
+                "direct_transitive_cves": null,
+                "indirect_transitive_cves": null,
                 "report_references": {
                     "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,
@@ -260,8 +260,8 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "extracted_sars": null,
-                "direct_dependency_cves": null,
-                "indirect_dependency_cves": null,
+                "direct_transitive_cves": null,
+                "indirect_transitive_cves": null,
                 "report_references": {
                     "_type": "sec_certs.sample.certificate.References",
                     "directly_referenced_by": null,

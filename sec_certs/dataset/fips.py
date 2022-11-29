@@ -15,7 +15,7 @@ from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.model.dependency_finder import DependencyFinder
+from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
@@ -366,13 +366,13 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
                 filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_data.mentioned_certs))
             )
 
-        finder = DependencyFinder()
+        finder = ReferenceFinder()
         finder.fit(self.certs, lambda cert: str(cert.cert_id), pdf_lookup)  # type: ignore
 
         for dgst in self.certs:
             setattr(self.certs[dgst].heuristics, "st_references", finder.predict_single_cert(dgst, keep_unknowns=False))
 
-        finder = DependencyFinder()
+        finder = ReferenceFinder()
         finder.fit(self.certs, lambda cert: str(cert.cert_id), web_lookup)  # type: ignore
 
         for dgst in self.certs:

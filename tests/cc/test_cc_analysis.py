@@ -94,13 +94,13 @@ def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset
 
 
 @pytest.fixture
-def dependency_dataset(data_dir) -> CCDataset:
-    return CCDataset.from_json(data_dir / "dependency_dataset.json")
+def reference_dataset(data_dir) -> CCDataset:
+    return CCDataset.from_json(data_dir / "reference_dataset.json")
 
 
 @pytest.fixture
-def dependency_vulnerability_dataset(data_dir) -> CCDataset:
-    return CCDataset.from_json(data_dir / "dependency_vulnerability_dataset.json")
+def transitive_vulnerability_dataset(data_dir) -> CCDataset:
+    return CCDataset.from_json(data_dir / "transitive_vulnerability_dataset.json")
 
 
 @pytest.fixture
@@ -193,7 +193,7 @@ def test_protection_profile_matching(cc_dset: CCDataset, random_certificate: Com
     assert random_certificate.protection_profiles == {expected_pp}
 
 
-def test_single_record_dependency_heuristics(random_certificate: CommonCriteriaCert):
+def test_single_record_references_heuristics(random_certificate: CommonCriteriaCert):
     # Single record in daset is not affecting nor affected by other records
     assert not random_certificate.heuristics.report_references.directly_referenced_by
     assert not random_certificate.heuristics.report_references.indirectly_referenced_by
@@ -201,9 +201,9 @@ def test_single_record_dependency_heuristics(random_certificate: CommonCriteriaC
     assert not random_certificate.heuristics.report_references.indirectly_referencing
 
 
-def test_dependency_dataset(dependency_dataset: CCDataset):
-    dependency_dataset._compute_references()
-    test_cert = dependency_dataset["692e91451741ef49"]
+def test_reference_dataset(reference_dataset: CCDataset):
+    reference_dataset._compute_references()
+    test_cert = reference_dataset["692e91451741ef49"]
 
     assert test_cert.heuristics.report_references.directly_referenced_by == {"BSI-DSZ-CC-0370-2006"}
     assert test_cert.heuristics.report_references.indirectly_referenced_by == {
@@ -214,14 +214,14 @@ def test_dependency_dataset(dependency_dataset: CCDataset):
     assert not test_cert.heuristics.report_references.indirectly_referencing
 
 
-def test_direct_dependency_vulnerability_dataset(dependency_vulnerability_dataset: CCDataset):
-    dependency_vulnerability_dataset._compute_transitive_vulnerabilities()
-    assert dependency_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.direct_dependency_cves == {"CVE-2013-5385"}
+def test_direct_transitive_vulnerability_dataset(transitive_vulnerability_dataset: CCDataset):
+    transitive_vulnerability_dataset._compute_transitive_vulnerabilities()
+    assert transitive_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.direct_transitive_cves == {"CVE-2013-5385"}
 
 
-def test_indirect_dependency_vulnerability_dataset(dependency_vulnerability_dataset: CCDataset):
-    dependency_vulnerability_dataset._compute_transitive_vulnerabilities()
-    assert dependency_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.indirect_dependency_cves == {"CVE-2013-5385"}
+def test_indirect_transitive_vulnerability_dataset(transitive_vulnerability_dataset: CCDataset):
+    transitive_vulnerability_dataset._compute_transitive_vulnerabilities()
+    assert transitive_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.indirect_transitive_cves == {"CVE-2013-5385"}
 
 
 def test_sar_object():
