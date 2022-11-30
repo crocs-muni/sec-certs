@@ -210,6 +210,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @abstractmethod
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+        logger.info("Processing auxillary datasets.")
         self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh)
         self.auxillary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh_cves=download_fresh)
         self.state.auxillary_datasets_processed = True
@@ -220,11 +221,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
             return
 
-        if fresh:
-            logger.info("Attempting to download certification artifacts.")
-        else:
-            logger.info("Attempting to re-download failed certification artifacts.")
-
+        logger.info("Attempting to download certification artifacts.")
         self._download_all_artifacts_body(fresh)
         if fresh:
             self._download_all_artifacts_body(False)
@@ -241,11 +238,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
 
-        if fresh:
-            logger.info("Converting all PDFs to txt")
-        else:
-            logger.info("Re-converting all failed PDFs to txt")
-
+        logger.info("Converting all PDFs to txt")
         self._convert_all_pdfs_body(fresh)
         if fresh:
             self._convert_all_pdfs_body(False)
@@ -281,6 +274,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def _compute_heuristics(self) -> None:
+        logger.info("Computing various heuristics from the certificates.")
         self.compute_cpe_heuristics()
         self.compute_related_cves()
         self._compute_references()
@@ -468,7 +462,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 download_fresh_cves, use_nist_cpe_matching_dict
             )
 
-        logger.info("Computing CVEs in certificates.")
+        logger.info("Computing heuristics: CVEs in certificates.")
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]
 

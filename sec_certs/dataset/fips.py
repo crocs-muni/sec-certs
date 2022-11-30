@@ -98,18 +98,20 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         Extracts data from html module file
         :param bool fresh: if all certs should be processed, or only the failed ones. Defaults to True
         """
+        logger.info("Extracting data from html modules.")
         certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.parse_html_module,
             certs_to_process,
             config.n_threads,
             use_threading=False,
-            progress_bar_desc="Extracting data from module html",
+            progress_bar_desc="Extracting data from html modules",
         )
         self.update_with_certs(processed_certs)
 
     @serialize
     def _extract_data(self) -> None:
+        logger.info("Extracting various data from certification artifacts.")
         for cert in self:
             cert.state.policy_extract_ok = True
             cert.state.module_extract_ok = True
@@ -120,13 +122,14 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self._extract_algorithms_from_policy_tables()
 
     def _extract_policy_pdf_keywords(self) -> None:
+        logger.info("Extracting keywords from policy pdfs.")
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_keywords,
             certs_to_process,
             config.n_threads,
             use_threading=False,
-            progress_bar_desc="Extracting keywords from policy",
+            progress_bar_desc="Extracting keywords from policy pdfs",
         )
         self.update_with_certs(processed_certs)
 
@@ -135,9 +138,14 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self._download_policies(fresh)
 
     def _download_modules(self, fresh: bool = True) -> None:
-        logger.info("Downloading HTML cryptographic modules.")
         self.module_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.module_is_ok_to_download(fresh)]
+
+        if fresh:
+            logger.info("Downloading HTML cryptographic modules.")
+        if not fresh and certs_to_process:
+            logger.info(f"Downloading {len(certs_to_process)} HTML modules for which download failed.")
+
         cert_processing.process_parallel(
             FIPSCertificate.download_module,
             certs_to_process,
@@ -146,9 +154,14 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         )
 
     def _download_policies(self, fresh: bool = True) -> None:
-        logger.info("Downloading PDF security policies.")
         self.policies_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_download(fresh)]
+
+        if fresh:
+            logger.info("Downloading PDF security policies.")
+        if not fresh and certs_to_process:
+            logger.info(f"Downloading {len(certs_to_process)} PDF security policies for which download failed.")
+
         cert_processing.process_parallel(
             FIPSCertificate.download_policy,
             certs_to_process,
@@ -160,13 +173,16 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self._convert_policies_to_txt(fresh)
 
     def _convert_policies_to_txt(self, fresh: bool = True) -> None:
-        if fresh:
-            logger.info("Converting FIPS security policies to .txt")
-        else:
-            logger.info("Attempting re-conversion of failed PDF security policies to .txt")
-
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
+
+        if fresh:
+            logger.info("Converting FIPS security policies to .txt")
+        if not fresh and certs_to_process:
+            logger.info(
+                f"Converting {len(certs_to_process)} FIPS security polcies to .txt for which previous convert failed."
+            )
+
         cert_processing.process_parallel(
             FIPSCertificate.convert_policy_pdf,
             certs_to_process,
@@ -188,8 +204,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         )
 
     def _get_certificates_from_html(self, html_file: Path) -> Set[FIPSCertificate]:
-        logger.debug(f"Getting certificate ids from {html_file}")
-
         with open(html_file, "r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html5lib")
 
@@ -240,8 +254,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     @serialize
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
-        self.auxillary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
         super().process_auxillary_datasets(download_fresh)
+        self.auxillary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
 
     def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
         logger.info("Preparing FIPSAlgorithm dataset.")
@@ -256,6 +270,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return alg_dset
 
     def _extract_algorithms_from_policy_tables(self):
+        logger.info("Extracting Algorithms from policy tables")
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
@@ -266,6 +281,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         )
 
     def _extract_policy_pdf_metadata(self) -> None:
+        logger.info("Extracting security policy metadata from the pdfs")
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_metadata,
@@ -277,7 +293,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.update_with_certs(processed_certs)
 
     def _compute_transitive_vulnerabilities(self) -> None:
-        logger.info("Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
+        logger.info("Computing heuristics: Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
         transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: cert.cert_id)
         transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.policy_processed_references)
 
@@ -298,6 +314,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         #   - We are uncertain of the effectivity of such measure, disabling it for now.
 
     def _compute_references(self, keep_unknowns: bool = False) -> None:
+        logger.info("Computing heuristics: Recovering references between certificates")
         self._prune_reference_candidates()
 
         policy_reference_finder = ReferenceFinder()
