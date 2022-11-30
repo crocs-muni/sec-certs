@@ -71,7 +71,7 @@
         "log_filepath": {
             "$ref": "#/definitions/settings_string_entry"
         },
-        "smallest_certificate_id_to_connect": {
+        "always_false_positive_fips_cert_id_threshold": {
             "$ref": "#/definitions/settings_number_entry"
         },
         "year_difference_between_validations": {
@@ -166,7 +166,7 @@
     },
     "required": [
         "log_filepath",
-        "smallest_certificate_id_to_connect",
+        "always_false_positive_fips_cert_id_threshold",
         "year_difference_between_validations",
         "n_threads",
         "cpe_matching_threshold",

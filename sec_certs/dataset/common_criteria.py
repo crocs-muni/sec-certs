@@ -715,10 +715,10 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             for dgst in self.certs:
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
 
-    def process_auxillary_datasets(self) -> None:
-        self.auxillary_datasets.pp_dset = self.process_protection_profiles()
-        self.auxillary_datasets.mu_dset = self.process_maintenance_updates()
-        super().process_auxillary_datasets()
+    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+        self.auxillary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
+        self.auxillary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
+        super().process_auxillary_datasets(download_fresh)
 
     @serialize
     def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True) -> None:
@@ -812,7 +812,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def compute_related_cves(self, download_fresh_cves: bool = False) -> None:
         raise NotImplementedError
 
-    def process_auxillary_datasets(self) -> None:
+    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
         raise NotImplementedError
 
     def analyze_certificates(self, fresh: bool = True) -> None:

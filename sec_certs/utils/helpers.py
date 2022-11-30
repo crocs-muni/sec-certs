@@ -149,6 +149,18 @@ def tokenize(string: str, keywords: Set[str]) -> str:
     return " ".join([x for x in string.split() if x.lower() in keywords])
 
 
+def normalize_fips_vendor(string: str) -> str:
+    """
+    "Normalizes" FIPS vendor. Precisely:
+    - Removes some punctuation and non-alphanumerical symbols
+    - Returns only first 5 tokens
+    # TODO: The rationale of the steps outlined above should be investigatated
+    """
+    return " ".join(
+        string.replace("(R)", "").replace(",", "").replace("®", "").replace("-", " ").replace("+", " ").split()[:4]
+    )
+
+
 # Credit: https://stackoverflow.com/questions/18092354/
 def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> List[str]:
     """

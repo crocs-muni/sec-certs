@@ -209,9 +209,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def process_auxillary_datasets(self) -> None:
-        self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset()
-        self.auxillary_datasets.cve_dset = self._prepare_cve_dataset()
+    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+        self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh)
+        self.auxillary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh_cves=download_fresh)
 
     @serialize
     def download_all_artifacts(self, fresh: bool = True) -> None:
@@ -291,10 +291,6 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         self.compute_related_cves()
         self._compute_references()
         self._compute_transitive_vulnerabilities()
-
-    @abstractmethod
-    def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
-        raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
     def _compute_references(self, fresh: bool = True) -> None:

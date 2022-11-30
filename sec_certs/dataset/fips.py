@@ -86,6 +86,12 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
     def algorithm_dataset_path(self) -> Path:
         return self.algorithms_dir / "algorithms.json"
 
+    def __getitem__(self, item: str) -> FIPSCertificate:
+        if len(item) < 5:
+            return super().__getitem__(fips_dgst(item))
+        else:
+            return super().__getitem__(item)
+
     def _extract_data_from_html_modules(self, fresh: bool = True) -> None:
         """
         Extracts data from html module file
@@ -188,14 +194,14 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             html = BeautifulSoup(handle.read(), "html5lib")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
-        cert_ids: Set[int] = set()
+        cert_ids: Set[str] = set()
 
         for entry in table:
             if isinstance(entry, NavigableString):
                 continue
             cert_id = entry.find("a").text
             if cert_id not in cert_ids:
-                cert_ids.add(int(cert_id))
+                cert_ids.add(cert_id)
 
         return {FIPSCertificate(cert_id) for cert_id in cert_ids}
 
@@ -233,9 +239,9 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.state.meta_sources_parsed = True
 
     @serialize
-    def process_auxillary_datasets(self) -> None:
-        self.auxillary_datasets.algorithm_dset = self._prepare_algorithm_dataset()
-        super().process_auxillary_datasets()
+    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+        self.auxillary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
+        super().process_auxillary_datasets(download_fresh)
 
     def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
         logger.info("Preparing FIPSAlgorithm dataset.")
@@ -258,11 +264,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             use_threading=False,
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
-
-    def _compute_normalized_cert_ids(self, fresh: bool = True) -> None:
-        # TODO: Refactor me
-        for cert in self.certs.values():
-            self._clean_cert_ids(cert)
 
     def _extract_policy_pdf_metadata(self, fresh: bool = True) -> None:
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
@@ -297,87 +298,40 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             or cert_first.year < conn_first.year
         )
 
-    def _clean_cert_ids(self, current_cert: FIPSCertificate) -> None:
-        # TODO: Refactor me
-        current_cert.clean_cert_ids()
-        current_cert.heuristics.clean_cert_ids = {
-            cert_id: count
-            for cert_id, count in current_cert.pdf_data.clean_cert_ids.items()
-            if self._validate_id(current_cert, cert_id.replace("Cert.", "").replace("cert.", "").lstrip("#CA0 "))
-            and cert_id != current_cert.cert_id
-        }
-
     def _compute_transitive_vulnerabilities(self, fresh: bool = True) -> None:
         # TODO: Implement me
         pass
 
-    @staticmethod
-    def _match_with_algorithm(processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
-        for algo in processed_cert.heuristics.algorithms:
-            curr_id = "".join(filter(str.isdigit, algo))
-            if curr_id == cert_candidate_id:
-                return False
-        return True
+    def _prune_reference_candidates(self) -> None:
+        for cert in self:
+            cert.prune_referenced_cert_ids()
 
-    def _validate_id(self, processed_cert: FIPSCertificate, cert_candidate_id: str) -> bool:
-        # TODO: Refactor me
-        candidate_dgst = fips_dgst(cert_candidate_id)
-        if candidate_dgst not in self.certs or not cert_candidate_id.isdecimal():
-            return False
+        # Previously, a following procedure was used to prune reference_candidates:
+        #   - A set of algorithms was obtained via self.auxillary_datasets.algorithm_dset.get_algorithms_by_id(reference_candidate)
+        #   - If any of these algorithms had the same vendor as the reference_candidate, the candidate was rejected
+        #   - The rationale is that if an ID appears in a certificate s.t. an algorithm with the same ID was produced by the same vendor, the reference likely refers to alg.
+        #   - Such reference should then be discarded.
+        #   - We are uncertain of the effectivity of such measure, disabling it for now.
 
-        # "< number" still needs to be used, because of some old certs being revalidated
-        if int(cert_candidate_id) < config.smallest_certificate_id_to_connect or self._compare_certs(
-            processed_cert, cert_candidate_id
-        ):
-            return False
+    def _compute_references(self, fresh: bool = True, keep_unknowns: bool = False) -> None:
+        self._prune_reference_candidates()
 
-        if self.auxillary_datasets.algorithm_dset is None:
-            raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
+        policy_reference_finder = ReferenceFinder()
+        policy_reference_finder.fit(
+            self.certs, lambda cert: cert.cert_id, lambda cert: cert.heuristics.policy_prunned_references
+        )
 
-        if not FIPSDataset._match_with_algorithm(processed_cert, cert_candidate_id):
-            return False
+        module_reference_finder = ReferenceFinder()
+        module_reference_finder.fit(
+            self.certs, lambda cert: cert.cert_id, lambda cert: cert.heuristics.module_prunned_references
+        )
 
-        algs = self.auxillary_datasets.algorithm_dset.get_algorithms_by_id(cert_candidate_id)
-        for current_alg in algs:
-            if current_alg.vendor is None or processed_cert.web_data.vendor is None:
-                raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
-
-            if FIPSCertificate.get_compare(processed_cert.web_data.vendor) == FIPSCertificate.get_compare(
-                current_alg.vendor
-            ):
-                return False
-        return True
-
-    def _compute_references(self, fresh: bool = True) -> None:
-        # TODO: Refactor me
-        def pdf_lookup(cert):
-            return set(
-                filter(
-                    lambda x: x,
-                    map(
-                        lambda cid: "".join(filter(str.isdigit, cid)),
-                        cert.heuristics.clean_cert_ids,
-                    ),
-                )
+        for cert in self:
+            cert.heuristics.policy_processed_references = policy_reference_finder.predict_single_cert(
+                cert.dgst, keep_unknowns
             )
-
-        def web_lookup(cert):
-            return set(
-                filter(lambda x: x, map(lambda cid: "".join(filter(str.isdigit, cid)), cert.web_data.mentioned_certs))
-            )
-
-        finder = ReferenceFinder()
-        finder.fit(self.certs, lambda cert: str(cert.cert_id), pdf_lookup)  # type: ignore
-
-        for dgst in self.certs:
-            setattr(self.certs[dgst].heuristics, "st_references", finder.predict_single_cert(dgst, keep_unknowns=False))
-
-        finder = ReferenceFinder()
-        finder.fit(self.certs, lambda cert: str(cert.cert_id), web_lookup)  # type: ignore
-
-        for dgst in self.certs:
-            setattr(
-                self.certs[dgst].heuristics, "web_references", finder.predict_single_cert(dgst, keep_unknowns=False)
+            cert.heuristics.module_processed_references = module_reference_finder.predict_single_cert(
+                cert.dgst, keep_unknowns
             )
 
     def to_pandas(self) -> pd.DataFrame:

@@ -2,10 +2,10 @@
 log_filepath:
   description: Path to the file, relative to working directory, where the log will be stored
   value: ./cert_processing_log.txt
-smallest_certificate_id_to_connect:
+always_false_positive_fips_cert_id_threshold:
   description:
     During validation we don't connect certificates with number lower than
-    _this_ to connections
+    _this_ to connections due to these numbers being typically false positives
   value: 40
 year_difference_between_validations:
   description:

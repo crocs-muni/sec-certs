@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import copy
 import itertools
 import re
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, Final, List, Literal, Optional, Pattern, Set, Tuple
+from typing import Any, Callable, ClassVar, Dict, Final, List, Literal, Optional, Set, Tuple
 
 import dateutil
 import numpy as np
@@ -21,6 +20,7 @@ import sec_certs.utils.pdf
 import sec_certs.utils.pdf as pdf
 import sec_certs.utils.tables as tables
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
+from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -208,14 +208,14 @@ class FIPSCertificate(
         "cpe_matches",
         "verified_cpe_matches",
         "related_cves",
-        "web_directly_referenced_by",
-        "web_indirectly_referenced_by",
-        "web_directly_referencing",
-        "web_indirectly_referencing",
-        "st_directly_referenced_by",
-        "st_indirectly_referenced_by",
-        "st_directly_referencing",
-        "st_indirectly_referencing",
+        "module_directly_referenced_by",
+        "module_indirectly_referenced_by",
+        "module_directly_referencing",
+        "module_indirectly_referencing",
+        "policy_directly_referenced_by",
+        "policy_indirectly_referenced_by",
+        "policy_directly_referencing",
+        "policy_indirectly_referencing",
     ]
 
     @dataclass(eq=True)
@@ -371,8 +371,14 @@ class FIPSCertificate(
         """
 
         keywords: Dict = field(default_factory=dict)
-        clean_cert_ids: Dict[str, int] = field(default_factory=dict)
-        st_metadata: Dict[str, Any] = field(default_factory=dict)
+        policy_metadata: Dict[str, Any] = field(default_factory=dict)
+
+        @property
+        def certlike_algorithm_numbers(self) -> Set[str]:
+            """Returns numbers of certificates from keywords["fips_certlike"]["Certlike"]"""
+            fips_certlike = self.keywords["fips_certlike"].get("Certlike", dict())
+            matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike.keys()}
+            return {"".join([x for x in match.group() if x.isdigit()]) for match in matches if match}
 
     @dataclass(eq=True)
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -381,13 +387,23 @@ class FIPSCertificate(
         """
 
         algorithms: Set[str] = field(default_factory=set)
-        clean_cert_ids: Optional[Dict[str, int]] = field(default=None)
         extracted_versions: Set[str] = field(default_factory=set)
         cpe_matches: Optional[Set[str]] = field(default=None)
         verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
         related_cves: Optional[Set[str]] = field(default=None)
-        policy_references: References = field(default_factory=References)
-        module_references: References = field(default_factory=References)
+        policy_prunned_references: Set[str] = field(default_factory=set)
+        module_prunned_references: Set[str] = field(default_factory=set)
+        policy_processed_references: References = field(default_factory=References)
+        module_processed_references: References = field(default_factory=References)
+
+        @property
+        def algorithm_numbers(self) -> Set[str]:
+            """Returns numbers of algorithms"""
+
+            def alg_to_number(alg: str) -> str:
+                return "".join([x for x in alg.split("#")[1] if x.isdigit()])
+
+            return {alg_to_number(x) for x in self.algorithms}
 
     @property
     def dgst(self) -> str:
@@ -430,7 +446,7 @@ class FIPSCertificate(
 
     def __init__(
         self,
-        cert_id: int,
+        cert_id: str,
         web_data: Optional[FIPSCertificate.WebData] = None,
         pdf_data: Optional[FIPSCertificate.PdfData] = None,
         heuristics: Optional[FIPSCertificate.Heuristics] = None,
@@ -462,14 +478,14 @@ class FIPSCertificate(
             self.heuristics.cpe_matches,
             self.heuristics.verified_cpe_matches,
             self.heuristics.related_cves,
-            self.heuristics.module_references.directly_referenced_by,
-            self.heuristics.module_references.indirectly_referenced_by,
-            self.heuristics.module_references.directly_referencing,
-            self.heuristics.module_references.indirectly_referencing,
-            self.heuristics.policy_references.directly_referenced_by,
-            self.heuristics.policy_references.indirectly_referenced_by,
-            self.heuristics.policy_references.directly_referencing,
-            self.heuristics.policy_references.indirectly_referencing,
+            self.heuristics.module_processed_references.directly_referenced_by,
+            self.heuristics.module_processed_references.indirectly_referenced_by,
+            self.heuristics.module_processed_references.directly_referencing,
+            self.heuristics.module_processed_references.indirectly_referencing,
+            self.heuristics.policy_processed_references.directly_referenced_by,
+            self.heuristics.policy_processed_references.indirectly_referenced_by,
+            self.heuristics.policy_processed_references.directly_referencing,
+            self.heuristics.policy_processed_references.indirectly_referencing,
         )
 
     @staticmethod
@@ -528,9 +544,9 @@ class FIPSCertificate(
         _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
 
         if metadata:
-            cert.pdf_data.st_metadata = metadata
+            cert.pdf_data.policy_metadata = metadata
         else:
-            cert.pdf_data.st_metadata = dict()
+            cert.pdf_data.policy_metadata = dict()
             cert.state.policy_extract_ok = False
         return cert
 
@@ -557,69 +573,19 @@ class FIPSCertificate(
                 itertools.chain.from_iterable([tables.get_algs_from_table(df.to_string()) for df in tabular_data])
             )
 
-    def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
-        pass
-
-    # def _process_to_pop(self, reg_to_match: Pattern, cert: str, to_pop: Set[str]) -> None:
-    #         for found in self.pdf_data.keywords["fips_certlike"]["Certlike"]:
-    #             match_in_found = reg_to_match.search(found)
-    #             match_in_cert = reg_to_match.search(cert)
-    #             if (
-    #                 match_in_found is not None
-    #                 and match_in_cert is not None
-    #                 and match_in_found.group("id") == match_in_cert.group("id")
-    #             ):
-    #                 to_pop.add(cert)
-
-    #     this_id = int("".join(filter(str.isdigit, cert)))
-    #     for algo in self.heuristics.algorithms:
-    #         try:
-    #             algo_id = int("".join(filter(str.isdigit, algo.cert_id)))
-    #             if algo_id == this_id:
-    #                 to_pop.add(cert)
-    #         except ValueError:
-    #             continue
-
-    def clean_cert_ids(self) -> None:
-        # TODO: Refactor me
+    def prune_referenced_cert_ids(self) -> None:
         """
-        Removes algorithm mentions from the cert_id rule matches and stores them into clean_cert_id matches.
+        This method goes through all IDs (numbers) that correspond to FIPS Certificates and are stored in
+        pdf_data.keywords or web_data.mentioned_certs. It performs prunning of these attributes and fills attributes
+        heuristics.prunned_module_references and heuristics.prunned_policy_references. These variables are further
+        processed and Reference objects are created from them.
         """
-        if "Cert" not in self.pdf_data.keywords["fips_cert_id"]:
-            self.pdf_data.clean_cert_ids = {}
-            return
+        html_module_ids = set(self.web_data.mentioned_certs.keys()) if self.web_data.mentioned_certs else set()
+        self.heuristics.module_prunned_references = self._prune_reference_ids_variable(html_module_ids)
 
-        matches = copy.deepcopy(self.pdf_data.keywords["fips_cert_id"]["Cert"])
-
-        alg_set: Set[str] = set()
-        # if self.web_data.algorithms is None:
-        #     raise RuntimeError(f"Algorithms were not found for cert {self.cert_id} - this should not be happening.")
-        # for algo in self.web_data.algorithms:
-        #     alg_set.add(algo.cert_id)
-
-        for cert_rule in fips_rules["fips_cert_id"]["Cert"]:
-            to_pop = set()
-            for cert in matches:
-                if cert in alg_set:
-                    to_pop.add(cert)
-                    continue
-                self._process_to_pop(cert_rule, cert, to_pop)
-
-            for r in to_pop:
-                matches.pop(r, None)
-
-        matches.pop("#" + str(self.cert_id), None)
-        self.pdf_data.clean_cert_ids = matches
-
-    @staticmethod
-    def get_compare(vendor: str) -> str:
-        """
-        Tokenizes vendor name of the certificate.
-        """
-        vendor_split = (
-            vendor.replace(",", "").replace("-", " ").replace("+", " ").replace("®", "").replace("(R)", "").split()
-        )
-        return vendor_split[0][:4] if len(vendor_split) > 0 else vendor
+        pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict().keys()))
+        pdf_policy_ids = {x.replace("#", "").strip() for x in pdf_policy_ids}
+        self.heuristics.policy_prunned_references = self._prune_reference_ids_variable(pdf_policy_ids)
 
     def compute_heuristics_version(self) -> None:
         """
@@ -633,3 +599,18 @@ class FIPSCertificate(
         if self.web_data.fw_versions:
             versions_for_extraction += f" {self.web_data.fw_versions}"
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
+
+    def _prune_reference_ids_variable(self, attribute_to_prune: Set[str]) -> Set[str]:
+        """
+        Prunnes cert_ids from variable "attribute_to_prune", return result. Steps:
+            0. Consider only ids != self.cert_id
+            1. Consider only ids > config.always_false_positive_fips_cert_id_threshold
+            2. Consider only ids s.t. they don't appear in self.heuristics.algorithms
+            3. Consider only ids s.t. they don't appear in self.pdf_data.keywords["fips_certlike"]["Certlike"]
+        """
+        prunned = {x for x in attribute_to_prune if x != self.cert_id}
+        prunned = {x for x in prunned if int(x) > config.always_false_positive_fips_cert_id_threshold}
+        prunned = {x for x in prunned if x not in self.heuristics.algorithm_numbers}
+        prunned = {x for x in prunned if x not in self.pdf_data.certlike_algorithm_numbers}
+
+        return prunned

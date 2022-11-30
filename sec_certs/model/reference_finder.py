@@ -1,15 +1,16 @@
-from typing import Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
 
 from sec_certs.sample.certificate import Certificate, References
 
-Certificates = Dict[str, Certificate]
+CertSubType = TypeVar("CertSubType", bound=Certificate)
+Certificates = Dict[str, CertSubType]
 ReferencedByDirect = Dict[str, Set[str]]
 ReferencedByIndirect = Dict[str, Set[str]]
 ReferencesType = Dict[str, Dict[str, Optional[Set[str]]]]
 IDMapping = Dict[str, List[str]]
 UnknownReferences = Dict[str, Set[str]]
-IDLookupFunc = Callable[[Certificate], str]
-ReferenceLookupFunc = Callable[[Certificate], Set[str]]
+IDLookupFunc = Callable[[CertSubType], str]
+ReferenceLookupFunc = Callable[[CertSubType], Set[str]]
 
 
 # TODO: All of this can and should be rewritten on top of networkx or some other graph library.
