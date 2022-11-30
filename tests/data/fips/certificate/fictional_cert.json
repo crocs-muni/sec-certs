@@ -66,7 +66,9 @@
             "indirectly_referenced_by": null,
             "directly_referencing": null,
             "indirectly_referencing": null
-        }
+        },
+        "direct_transitive_cves": null,
+        "indirect_transitive_cves": null
     },
     "state": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",

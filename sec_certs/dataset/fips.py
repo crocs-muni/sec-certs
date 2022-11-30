@@ -93,12 +93,12 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         else:
             return super().__getitem__(item)
 
-    def _extract_data_from_html_modules(self, fresh: bool = True) -> None:
+    def _extract_data_from_html_modules(self) -> None:
         """
         Extracts data from html module file
         :param bool fresh: if all certs should be processed, or only the failed ones. Defaults to True
         """
-        certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze(fresh)]
+        certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.parse_html_module,
             certs_to_process,
@@ -109,19 +109,18 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.update_with_certs(processed_certs)
 
     @serialize
-    def _extract_data(self, fresh: bool = True) -> None:
-        if fresh:
-            for cert in self:
-                cert.state.policy_extract_ok = True
-                cert.state.module_extract_ok = True
+    def _extract_data(self) -> None:
+        for cert in self:
+            cert.state.policy_extract_ok = True
+            cert.state.module_extract_ok = True
 
-        self._extract_data_from_html_modules(fresh)
-        self._extract_policy_pdf_metadata(fresh)
-        self._extract_policy_pdf_keywords(fresh)
-        self._extract_algorithms_from_policy_tables(fresh)
+        self._extract_data_from_html_modules()
+        self._extract_policy_pdf_metadata()
+        self._extract_policy_pdf_keywords()
+        self._extract_algorithms_from_policy_tables()
 
-    def _extract_policy_pdf_keywords(self, fresh: bool = True) -> None:
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
+    def _extract_policy_pdf_keywords(self) -> None:
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_keywords,
             certs_to_process,
@@ -256,8 +255,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
         return alg_dset
 
-    def _extract_algorithms_from_policy_tables(self, fresh: bool = True):
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
+    def _extract_algorithms_from_policy_tables(self):
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
             certs_to_process,
@@ -266,8 +265,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
 
-    def _extract_policy_pdf_metadata(self, fresh: bool = True) -> None:
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze(fresh)]
+    def _extract_policy_pdf_metadata(self) -> None:
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_metadata,
             certs_to_process,
@@ -298,7 +297,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         #   - Such reference should then be discarded.
         #   - We are uncertain of the effectivity of such measure, disabling it for now.
 
-    def _compute_references(self, fresh: bool = True, keep_unknowns: bool = False) -> None:
+    def _compute_references(self, keep_unknowns: bool = False) -> None:
         self._prune_reference_candidates()
 
         policy_reference_finder = ReferenceFinder()

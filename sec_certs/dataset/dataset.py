@@ -287,7 +287,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         self._compute_transitive_vulnerabilities()
 
     @abstractmethod
-    def _compute_references(self, fresh: bool = True) -> None:
+    def _compute_references(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
