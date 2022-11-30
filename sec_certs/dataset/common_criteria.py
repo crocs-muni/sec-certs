@@ -664,8 +664,8 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
     def _compute_transitive_vulnerabilities(self):
         logger.info("Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
-        transitive_cve_finder = TransitiveVulnerabilityFinder()
-        transitive_cve_finder.fit(self.certs)
+        transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: cert.heuristics.cert_id)
+        transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.report_references)
 
         for dgst in self.certs:
             transitive_cve = transitive_cve_finder.predict_single_cert(dgst)
@@ -815,7 +815,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
         raise NotImplementedError
 
-    def analyze_certificates(self, fresh: bool = True) -> None:
+    def analyze_certificates(self) -> None:
         raise NotImplementedError
 
     def get_certs_from_web(

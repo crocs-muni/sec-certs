@@ -16,6 +16,7 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.reference_finder import ReferenceFinder
+from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
@@ -276,31 +277,15 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         )
         self.update_with_certs(processed_certs)
 
-    def _compare_certs(self, current_certificate: FIPSCertificate, other_id: str) -> bool:
-        other_dgst = fips_dgst(other_id)
-        other_cert = self.certs[other_dgst]
+    def _compute_transitive_vulnerabilities(self) -> None:
+        logger.info("Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
+        transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: cert.cert_id)
+        transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.policy_processed_references)
 
-        if (
-            current_certificate.web_data.validation_history is None
-            or other_cert is None
-            or other_cert.web_data.validation_history is None
-        ):
-            raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
-
-        cert_first = current_certificate.web_data.validation_history[0].date
-        cert_last = current_certificate.web_data.validation_history[-1].date
-        conn_first = other_cert.web_data.validation_history[0].date
-        conn_last = other_cert.web_data.validation_history[-1].date
-
-        return (
-            cert_first.year - conn_first.year > config.year_difference_between_validations
-            and cert_last.year - conn_last.year > config.year_difference_between_validations
-            or cert_first.year < conn_first.year
-        )
-
-    def _compute_transitive_vulnerabilities(self, fresh: bool = True) -> None:
-        # TODO: Implement me
-        pass
+        for dgst in self.certs:
+            transitive_cve = transitive_cve_finder.predict_single_cert(dgst)
+            self.certs[dgst].heuristics.direct_transitive_cves = transitive_cve.direct_transitive_cves
+            self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
 
     def _prune_reference_candidates(self) -> None:
         for cert in self:

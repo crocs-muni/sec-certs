@@ -395,6 +395,8 @@ class FIPSCertificate(
         module_prunned_references: Set[str] = field(default_factory=set)
         policy_processed_references: References = field(default_factory=References)
         module_processed_references: References = field(default_factory=References)
+        direct_transitive_cves: Optional[Set[str]] = field(default=None)
+        indirect_transitive_cves: Optional[Set[str]] = field(default=None)
 
         @property
         def algorithm_numbers(self) -> Set[str]:

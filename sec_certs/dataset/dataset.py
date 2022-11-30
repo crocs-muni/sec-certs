@@ -212,6 +212,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
         self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh)
         self.auxillary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh_cves=download_fresh)
+        self.state.auxillary_datasets_processed = True
 
     @serialize
     def download_all_artifacts(self, fresh: bool = True) -> None:
@@ -256,7 +257,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
-    def analyze_certificates(self, fresh: bool = True) -> None:
+    def analyze_certificates(self) -> None:
         if not self.state.pdfs_converted:
             logger.info(
                 "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
@@ -267,26 +268,19 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 "Attempting to run analysis of certifies while not having the auxillary datasets processed. Returning."
             )
 
-        if fresh:
-            logger.info("Analyzing certificates.")
-        else:
-            logger.info("Re-analyzing certificates on which analysis failed.")
-
-        self._analyze_certificates_body(fresh)
-        if fresh:
-            self.analyze_certificates(False)
-
+        logger.info("Analyzing certificates.")
+        self._analyze_certificates_body()
         self.state.certs_analyzed = True
 
-    def _analyze_certificates_body(self, fresh: bool = True) -> None:
-        self._extract_data(fresh)
-        self._compute_heuristics(fresh)
+    def _analyze_certificates_body(self) -> None:
+        self._extract_data()
+        self._compute_heuristics()
 
     @abstractmethod
-    def _extract_data(self, fresh: bool = True) -> None:
+    def _extract_data(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    def _compute_heuristics(self, fresh: bool = True) -> None:
+    def _compute_heuristics(self) -> None:
         self.compute_cpe_heuristics()
         self.compute_related_cves()
         self._compute_references()
@@ -297,7 +291,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @abstractmethod
-    def _compute_transitive_vulnerabilities(self, fresh: bool = True) -> None:
+    def _compute_transitive_vulnerabilities(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:

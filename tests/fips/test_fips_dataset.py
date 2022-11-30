@@ -2,7 +2,6 @@ import json
 import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Set
 
 import pytest
 
@@ -20,120 +19,6 @@ def data_dir() -> Path:
 @pytest.fixture
 def toy_dataset(data_dir: Path) -> FIPSDataset:
     return FIPSDataset.from_json(data_dir / "toy_dataset.json")
-
-
-@pytest.fixture(scope="module")
-def toy_static_dataset(data_dir: Path) -> FIPSDataset:
-    return FIPSDataset.from_json(data_dir / "toy_dataset.json")
-
-
-@pytest.fixture(scope="module")
-def processed_dataset(toy_static_dataset: FIPSDataset, tmp_path_factory) -> FIPSDataset:
-    tmp_dir = tmp_path_factory.mktemp("cc_dset")
-    toy_static_dataset.root_dir = tmp_dir
-
-    tested_certs = {toy_static_dataset["3095"], toy_static_dataset["3093"], toy_static_dataset["3197"]}
-    toy_static_dataset.certs = {x.dgst: x for x in tested_certs}
-
-    toy_static_dataset.download_all_artifacts()
-    toy_static_dataset.convert_all_pdfs()
-    toy_static_dataset._extract_data()
-    toy_static_dataset._compute_references(keep_unknowns=True)
-    return toy_static_dataset
-
-
-@pytest.mark.parametrize(
-    "input_dgst, expected_refs",
-    [
-        ("3095", {"3093", "3094", "3096"}),
-        ("3093", {"3090", "3091"}),
-        ("3197", {"3195", "3096", "3196", "3644", "3651"}),
-    ],
-)
-def test_html_modules_directly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.module_extract_ok:
-        pytest.xfail(reason="Data from module not extracted")
-    assert crt.heuristics.module_processed_references.directly_referencing == expected_refs
-
-
-@pytest.mark.parametrize("input_dgst, expected_refs", [("3095", {"3093", "3094", "3096"}), ("3093", {"3090", "3091"})])
-def test_pdf_policies_directly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.policy_extract_ok:
-        pytest.xfail(reason="Data from policy not extracted")
-    assert crt.heuristics.policy_processed_references.directly_referencing == expected_refs
-
-
-@pytest.mark.parametrize(
-    "input_dgst, expected_refs",
-    [
-        (
-            "3093",
-            {
-                "3090",
-                "3091",
-            },
-        ),
-        ("3095", {"3090", "3091", "3093", "3094", "3096"}),
-    ],
-)
-def test_html_modules_indirectly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.module_extract_ok:
-        pytest.xfail(reason="Data from module not extracted")
-    assert crt.heuristics.module_processed_references.indirectly_referencing == expected_refs
-
-
-@pytest.mark.parametrize(
-    "input_dgst, expected_refs",
-    [("3095", {"3090", "3091", "3093", "3094", "3096"}), ("3093", {"3090", "3091"})],
-)
-def test_pdf_policies_indirectly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.policy_extract_ok:
-        pytest.xfail(reason="Data from policy not extracted")
-    assert crt.heuristics.policy_processed_references.indirectly_referencing == expected_refs
-
-
-@pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
-def test_html_modules_directly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
-):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.module_extract_ok:
-        pytest.xfail(reason="Data from module not extracted")
-    assert crt.heuristics.module_processed_references.directly_referenced_by == expected_refs
-
-
-@pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
-def test_pdf_policies_directly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
-):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.policy_extract_ok:
-        pytest.xfail(reason="Data from policy not extracted")
-    assert crt.heuristics.policy_processed_references.directly_referenced_by == expected_refs
-
-
-@pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
-def test_html_modules_indirectly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
-):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.module_extract_ok:
-        pytest.xfail(reason="Data from module not extracted")
-    assert crt.heuristics.module_processed_references.indirectly_referenced_by == expected_refs
-
-
-@pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
-def test_pdf_policies_indirectly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
-):
-    crt = processed_dataset[input_dgst]
-    if not crt.state.policy_extract_ok:
-        pytest.xfail(reason="Data from module not extracted")
-    assert crt.heuristics.module_processed_references.indirectly_referenced_by == expected_refs
 
 
 def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):
