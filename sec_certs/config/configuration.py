@@ -6,7 +6,7 @@ import jsonschema
 import yaml
 
 
-class Configuration(object):
+class Configuration:
     def load(self, filepath: Union[str, Path]) -> None:
         with Path(filepath).open("r") as file:
             state = yaml.load(file, Loader=yaml.FullLoader)

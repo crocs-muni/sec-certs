@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import itertools
 from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple
+from typing import Any, ClassVar
 
 from dateutil.parser import isoparse
 
@@ -24,7 +24,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         __slots__ = ["base_score", "severity", "exploitability_score", "impact_score"]
 
         @classmethod
-        def from_nist_dict(cls, dct: Dict[str, Any]) -> "CVE.Impact":
+        def from_nist_dict(cls, dct: dict[str, Any]) -> CVE.Impact:
             """
             Will load Impact from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
             """
@@ -47,14 +47,14 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             raise ValueError("NIST Dict for CVE Impact badly formatted.")
 
     cve_id: str
-    vulnerable_cpes: List[CPE]
+    vulnerable_cpes: list[CPE]
     impact: Impact
-    published_date: Optional[datetime.datetime]
-    cwe_ids: Optional[Set[str]]
+    published_date: datetime.datetime | None
+    cwe_ids: set[str] | None
 
     __slots__ = ["cve_id", "vulnerable_cpes", "impact", "published_date", "cwe_ids"]
 
-    pandas_columns: ClassVar[List[str]] = [
+    pandas_columns: ClassVar[list[str]] = [
         "cve_id",
         "vulnerable_cpes",
         "base_score",
@@ -66,7 +66,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     ]
 
     def __init__(
-        self, cve_id: str, vulnerable_cpes: List[CPE], impact: Impact, published_date: str, cwe_ids: Optional[Set[str]]
+        self, cve_id: str, vulnerable_cpes: list[CPE], impact: Impact, published_date: str, cwe_ids: set[str] | None
     ):
         super().__init__()
         self.cve_id = cve_id
@@ -106,7 +106,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             self.cwe_ids,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "cve_id": self.cve_id,
             "vulnerable_cpes": self.vulnerable_cpes,
@@ -116,14 +116,14 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         }
 
     @staticmethod
-    def _parse_nist_dict(lst: List) -> List[CPE]:
-        cpes: List[CPE] = []
+    def _parse_nist_dict(lst: list) -> list[CPE]:
+        cpes: list[CPE] = []
 
         for x in lst:
             if x["vulnerable"]:
                 cpe_uri = x["cpe23Uri"]
-                version_start: Optional[Tuple[str, str]]
-                version_end: Optional[Tuple[str, str]]
+                version_start: tuple[str, str] | None
+                version_end: tuple[str, str] | None
                 if "versionStartIncluding" in x and x["versionStartIncluding"]:
                     version_start = ("including", x["versionStartIncluding"])
                 elif "versionStartExcluding" in x and x["versionStartExcluding"]:
@@ -143,14 +143,14 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         return cpes
 
     @classmethod
-    def from_nist_dict(cls, dct: Dict) -> CVE:
+    def from_nist_dict(cls, dct: dict) -> CVE:
         """
         Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
         """
 
-        def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> List[CPE]:
-            def get_vulnerable_cpes_from_node(node: Dict) -> List[CPE]:
-                cpes: List[CPE] = []
+        def get_vulnerable_cpes_from_nist_dict(dct: dict) -> list[CPE]:
+            def get_vulnerable_cpes_from_node(node: dict) -> list[CPE]:
+                cpes: list[CPE] = []
 
                 if node["operator"] == "AND":
                     return cpes
@@ -182,6 +182,6 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         return cls(cve_id, vulnerable_cpes, impact, published_date, cwe_ids)
 
     @staticmethod
-    def parse_cwe_data(dct: Dict) -> Optional[Set[str]]:
+    def parse_cwe_data(dct: dict) -> set[str] | None:
         descriptions = dct["cve"]["problemtype"]["problemtype_data"][0]["description"]
         return {x["value"] for x in descriptions} if descriptions else None

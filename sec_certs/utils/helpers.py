@@ -207,7 +207,7 @@ def warn_if_missing_poppler() -> None:
             logger.warning(
                 "Attempting to run pipeline with pdf->txt conversion, but poppler-cpp dependency was not found."
             )
-    except EnvironmentError:
+    except OSError:
         logger.warning("Attempting to find poppler-cpp, but pkg-config was not found.")
 
 
@@ -220,7 +220,7 @@ def warn_if_missing_tesseract() -> None:
             logger.warning(
                 "Attempting to run pipeline with pdf->txt conversion, that requires tesseract, but tesseract was not found."
             )
-    except EnvironmentError:
+    except OSError:
         logger.warning("Attempting to find tesseract, but pkg-config was not found.")
 
 

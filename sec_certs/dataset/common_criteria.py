@@ -8,7 +8,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import ClassVar, Iterator
 
 import numpy as np
 import pandas as pd
@@ -38,10 +38,10 @@ from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 @dataclass
 class CCAuxillaryDatasets(AuxillaryDatasets):
-    cpe_dset: Optional[CPEDataset] = None
-    cve_dset: Optional[CVEDataset] = None
-    pp_dset: Optional[ProtectionProfileDataset] = None
-    mu_dset: Optional[CCDatasetMaintenanceUpdates] = None
+    cpe_dset: CPEDataset | None = None
+    cve_dset: CVEDataset | None = None
+    pp_dset: ProtectionProfileDataset | None = None
+    mu_dset: CCDatasetMaintenanceUpdates | None = None
 
 
 class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSerializableType):
@@ -52,12 +52,12 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
     def __init__(
         self,
-        certs: Dict[str, CommonCriteriaCert] = dict(),
-        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
-        name: Optional[str] = None,
+        certs: dict[str, CommonCriteriaCert] = dict(),
+        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        name: str | None = None,
         description: str = None,
-        state: Optional[Dataset.DatasetInternalState] = None,
-        auxillary_datasets: Optional[CCAuxillaryDatasets] = None,
+        state: Dataset.DatasetInternalState | None = None,
+        auxillary_datasets: CCAuxillaryDatasets | None = None,
     ):
         self.certs = certs
         self._root_dir = Path(root_dir)
@@ -178,7 +178,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
     PP_CSV = {"cc_pp_active.csv": BASE_URL + "/pps/pps.csv", "cc_pp_archived.csv": BASE_URL + "/pps/pps-archived.csv"}
 
     @property
-    def active_html_tuples(self) -> List[Tuple[str, Path]]:
+    def active_html_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of html file and second element is its Path.
         The files correspond to html files parsed from CC website that list all *active* certificates.
@@ -186,7 +186,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if "active" in y]
 
     @property
-    def archived_html_tuples(self) -> List[Tuple[str, Path]]:
+    def archived_html_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of html file and second element is its Path.
         The files correspond to html files parsed from CC website that list all *archived* certificates.
@@ -194,7 +194,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if "archived" in y]
 
     @property
-    def active_csv_tuples(self) -> List[Tuple[str, Path]]:
+    def active_csv_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of csv file and second element is its Path.
         The files correspond to csv files downloaded from CC website that list all *active* certificates.
@@ -202,7 +202,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "active" in y]
 
     @property
-    def archived_csv_tuples(self) -> List[Tuple[str, Path]]:
+    def archived_csv_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of csv file and second element is its Path.
         The files correspond to csv files downloaded from CC website that list all *archived* certificates.
@@ -210,7 +210,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "archived" in y]
 
     @classmethod
-    def from_web_latest(cls) -> "CCDataset":
+    def from_web_latest(cls) -> CCDataset:
         """
         Fetches the fresh snapshot of CCDataset from seccerts.org
         """
@@ -221,7 +221,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
 
-    def _merge_certs(self, certs: Dict[str, "CommonCriteriaCert"], cert_source: Optional[str] = None) -> None:
+    def _merge_certs(self, certs: dict[str, CommonCriteriaCert], cert_source: str | None = None) -> None:
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
@@ -287,7 +287,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
-    def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> Dict[str, "CommonCriteriaCert"]:
+    def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> dict[str, CommonCriteriaCert]:
         """
         Creates dictionary of new certificates from csv sources.
         """
@@ -303,7 +303,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return new_certs
 
     @staticmethod
-    def _parse_single_csv(file: Path) -> Dict[str, "CommonCriteriaCert"]:
+    def _parse_single_csv(file: Path) -> dict[str, CommonCriteriaCert]:
         """
         Using pandas, this parses a single CSV file.
         """
@@ -372,15 +372,13 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         df_main = df_main.drop_duplicates()
 
         profiles = {
-            x.dgst: set(
-                [
-                    ProtectionProfile(pp_name=y, pp_eal=None)
-                    for y in sec_certs.utils.sanitization.sanitize_protection_profiles(x.protection_profiles)
-                ]
-            )
+            x.dgst: {
+                ProtectionProfile(pp_name=y, pp_eal=None)
+                for y in sec_certs.utils.sanitization.sanitize_protection_profiles(x.protection_profiles)
+            }
             for x in df_base.itertuples()
         }
-        updates: Dict[str, Set] = {x.dgst: set() for x in df_base.itertuples()}
+        updates: dict[str, set] = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
             updates[x.dgst].add(
                 CommonCriteriaCert.MaintenanceReport(
@@ -412,7 +410,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         }
         return certs
 
-    def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> Dict[str, "CommonCriteriaCert"]:
+    def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> dict[str, CommonCriteriaCert]:
         """
         Prepares dictionary of certificates from all html files.
         """
@@ -430,7 +428,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return new_certs
 
     @staticmethod
-    def _parse_single_html(file: Path) -> Dict[str, "CommonCriteriaCert"]:
+    def _parse_single_html(file: Path) -> dict[str, CommonCriteriaCert]:
         """
         Prepares a dictionary of certificates from a single html file.
         """
@@ -445,7 +443,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
         def _parse_table(
             soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str
-        ) -> Dict[str, "CommonCriteriaCert"]:
+        ) -> dict[str, CommonCriteriaCert]:
             tables = soup.find_all("table", id=table_id)
 
             if not len(tables) <= 1:
@@ -789,7 +787,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self.mu_dataset_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download or not self.mu_dataset_path.exists():
-            maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
+            maintained_certs: list[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
             updates = list(
                 itertools.chain.from_iterable(
                     [CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]
@@ -820,11 +818,11 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: Dict[str, CommonCriteriaMaintenanceUpdate] = dict(),  # type: ignore
+        certs: dict[str, CommonCriteriaMaintenanceUpdate] = dict(),  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
-        state: Optional[CCDataset.DatasetInternalState] = None,
+        state: CCDataset.DatasetInternalState | None = None,
     ):
         super().__init__(certs, root_dir, name, description, state)  # type: ignore
         self.state.meta_sources_parsed = True
@@ -855,7 +853,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         raise NotImplementedError
 
     @classmethod
-    def from_json(cls, input_path: Union[str, Path]) -> "CCDatasetMaintenanceUpdates":
+    def from_json(cls, input_path: str | Path) -> CCDatasetMaintenanceUpdates:
         input_path = Path(input_path)
         with input_path.open("r") as handle:
             dset = json.load(handle, cls=CustomJSONDecoder)
@@ -875,7 +873,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         return df
 
     @classmethod
-    def from_web_latest(cls) -> "CCDatasetMaintenanceUpdates":
+    def from_web_latest(cls) -> CCDatasetMaintenanceUpdates:
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "cc_maintenances_latest_dataset.json"
             helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)

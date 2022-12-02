@@ -210,6 +210,8 @@ python-dateutil==2.8.2
     # via jupyter-client
 pytz==2022.1
     # via babel
+pyupgrade==3.2.3
+    # via -r dev_requirements.in
 pyyaml==6.0
     # via
     #   jupyter-cache
@@ -269,6 +271,8 @@ stack-data==0.2.0
     # via ipython
 tabulate==0.8.9
     # via jupyter-cache
+tokenize-rt==5.0.0
+    # via pyupgrade
 toml==0.10.2
     # via pre-commit
 tomli==2.0.1

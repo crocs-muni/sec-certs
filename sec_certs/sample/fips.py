@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, Final, List, Literal, Optional, Set, Tuple
+from typing import Any, Callable, ClassVar, Final, Literal
 
 import dateutil
 import numpy as np
@@ -35,7 +35,7 @@ class FIPSHTMLParser:
     def __init__(self, soup: BeautifulSoup):
         self._soup = soup
 
-    def get_web_data_and_algorithms(self) -> Tuple[Set[str], FIPSCertificate.WebData]:
+    def get_web_data_and_algorithms(self) -> tuple[set[str], FIPSCertificate.WebData]:
         divs = self._soup.find_all("div", class_="panel panel-default")
         details_div, vendor_div, related_files_div, validation_history_div = divs
         details_dict = self._build_details_dict(details_div)
@@ -56,7 +56,7 @@ class FIPSHTMLParser:
             **{**details_dict, **vendor_dict, **related_files_dict, **validation_history_dict}
         )
 
-    def _build_details_dict(self, details_div: Tag) -> Dict[str, Any]:
+    def _build_details_dict(self, details_div: Tag) -> dict[str, Any]:
         def parse_single_detail_entry(key, entry):
             normalized_key = DETAILS_KEY_NORMALIZATION_DICT[key]
             normalization_func = DETAILS_KEY_TO_NORMALIZATION_FUNCTION.get(normalized_key, None)
@@ -71,7 +71,7 @@ class FIPSHTMLParser:
         )
         entries = [(FIPSHTMLParser.normalize_string(key.text), entry) for key, entry in entries]
         entries = [parse_single_detail_entry(*x) for x in entries if x[0] in DETAILS_KEY_NORMALIZATION_DICT.keys()]
-        entries = dict((x, y) for x, y in entries)
+        entries = {x: y for x, y in entries}
 
         if "caveat" in entries:
             entries["mentioned_certs"] = FIPSHTMLParser.get_mentioned_certs_from_caveat(entries["caveat"])
@@ -87,21 +87,21 @@ class FIPSHTMLParser:
         return entries
 
     @staticmethod
-    def _build_vendor_dict(vendor_div: Tag) -> Dict[str, Any]:
+    def _build_vendor_dict(vendor_div: Tag) -> dict[str, Any]:
         if not (link := vendor_div.find("a")):
             return {"vendor_url": None, "vendor": list(vendor_div.find("div", "panel-body").children)[0].strip()}
         else:
             return {"vendor_url": link.get("href"), "vendor": link.text.strip()}
 
     @staticmethod
-    def _build_related_files_dict(related_files_div: Tag) -> Dict[str, Any]:
+    def _build_related_files_dict(related_files_div: Tag) -> dict[str, Any]:
         if cert_link := [x for x in related_files_div.find_all("a") if "Certificate" in x.text]:
             return {"certificate_pdf_url": constants.FIPS_BASE_URL + cert_link[0].get("href")}
         else:
             return {"certificate_pdf_url": None}
 
     @staticmethod
-    def _build_validation_history_dict(validation_history_div: Tag) -> Dict[str, Any]:
+    def _build_validation_history_dict(validation_history_div: Tag) -> dict[str, Any]:
         def parse_row(row):
             validation_date, validation_type, lab = row.find_all("td")
             return FIPSCertificate.ValidationHistoryEntry(
@@ -109,12 +109,12 @@ class FIPSHTMLParser:
             )
 
         rows = validation_history_div.find("tbody").find_all("tr")
-        history: Optional[List[FIPSCertificate.ValidationHistoryEntry]] = [parse_row(x) for x in rows] if rows else None
+        history: list[FIPSCertificate.ValidationHistoryEntry] | None = [parse_row(x) for x in rows] if rows else None
         return {"validation_history": history}
 
     @staticmethod
-    def get_mentioned_certs_from_caveat(caveat: str) -> Dict[str, int]:
-        ids_found: Dict[str, int] = {}
+    def get_mentioned_certs_from_caveat(caveat: str) -> dict[str, int]:
+        ids_found: dict[str, int] = {}
         r_key = r"(?P<word>\w+)?\s?(?:#\s?|Cert\.?(?!.\s)\s?|Certificate\s?)+(?P<id>\d+)"
         for m in re.finditer(r_key, caveat):
             if m.group("word") and m.group("word").lower() in {"rsa", "shs", "dsa", "pkcs", "aes"}:
@@ -126,13 +126,13 @@ class FIPSHTMLParser:
         return ids_found
 
     @staticmethod
-    def get_algs_from_description(description: str) -> Set[str]:
+    def get_algs_from_description(description: str) -> set[str]:
         return {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, description)}
 
     @staticmethod
-    def parse_algorithms(algorithms_div: Tag) -> Dict[str, Set[str]]:
+    def parse_algorithms(algorithms_div: Tag) -> dict[str, set[str]]:
         rows = algorithms_div.find("tbody").find_all("tr")
-        dct: Dict[str, Set[str]] = dict()
+        dct: dict[str, set[str]] = dict()
         for row in rows:
             cells = row.find_all("td")
             dct[cells[0].text] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
@@ -143,12 +143,12 @@ class FIPSHTMLParser:
         return " ".join(string.split())
 
     @staticmethod
-    def parse_tested_configurations(tested_configurations: Tag) -> Optional[List[str]]:
+    def parse_tested_configurations(tested_configurations: Tag) -> list[str] | None:
         configurations = [y.text for y in tested_configurations.find_all("li")]
         return configurations if not configurations == ["N/A"] else None
 
 
-DETAILS_KEY_NORMALIZATION_DICT: Final[Dict[str, str]] = {
+DETAILS_KEY_NORMALIZATION_DICT: Final[dict[str, str]] = {
     "Module Name": "module_name",
     "Standard": "standard",
     "Status": "status",
@@ -171,7 +171,7 @@ DETAILS_KEY_NORMALIZATION_DICT: Final[Dict[str, str]] = {
     "Product URL": "product_url",
 }
 
-DETAILS_KEY_TO_NORMALIZATION_FUNCTION: Dict[str, Callable] = {
+DETAILS_KEY_TO_NORMALIZATION_FUNCTION: dict[str, Callable] = {
     "date_sunset": lambda x: dateutil.parser.parse(x.text).date(),
     "algorithms": getattr(FIPSHTMLParser, "parse_algorithms"),
     "tested_conf": getattr(FIPSHTMLParser, "parse_tested_configurations"),
@@ -193,7 +193,7 @@ class FIPSCertificate(
     the certificate can handle itself. `FIPSDataset` class then instrument this functionality.
     """
 
-    pandas_columns: ClassVar[List[str]] = [
+    pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "cert_id",
         "name",
@@ -234,8 +234,8 @@ class FIPSCertificate(
         module_extract_ok: bool
         policy_extract_ok: bool
 
-        policy_pdf_hash: Optional[str]
-        policy_txt_hash: Optional[str]
+        policy_pdf_hash: str | None
+        policy_txt_hash: str | None
 
         policy_pdf_path: Path
         policy_txt_path: Path
@@ -249,8 +249,8 @@ class FIPSCertificate(
             policy_convert_ok: bool = False,
             module_extract_ok: bool = False,
             policy_extract_ok: bool = False,
-            policy_pdf_hash: Optional[str] = None,
-            policy_txt_hash: Optional[str] = None,
+            policy_pdf_hash: str | None = None,
+            policy_txt_hash: str | None = None,
         ):
             self.module_download_ok = module_download_ok
             self.policy_download_ok = policy_download_ok
@@ -262,7 +262,7 @@ class FIPSCertificate(
             self.policy_txt_hash = policy_txt_hash
 
         @property
-        def serialized_attributes(self) -> List[str]:
+        def serialized_attributes(self) -> list[str]:
             return [
                 "module_download_ok",
                 "policy_download_ok",
@@ -309,7 +309,7 @@ class FIPSCertificate(
         lab: str
 
         @classmethod
-        def from_dict(cls, dct: Dict) -> FIPSCertificate.ValidationHistoryEntry:
+        def from_dict(cls, dct: dict) -> FIPSCertificate.ValidationHistoryEntry:
             new_dct = dct.copy()
             new_dct["date"] = dateutil.parser.parse(dct["date"]).date()
             return cls(**new_dct)
@@ -320,28 +320,28 @@ class FIPSCertificate(
         Data structure for data obtained from scanning certificate webpage at NIST.gov
         """
 
-        module_name: Optional[str] = field(default=None)
-        validation_history: Optional[List[FIPSCertificate.ValidationHistoryEntry]] = field(default=None)
-        vendor_url: Optional[str] = field(default=None)
-        vendor: Optional[str] = field(default=None)
-        certificate_pdf_url: Optional[str] = field(default=None)
-        module_type: Optional[str] = field(default=None)
-        standard: Optional[str] = field(default=None)
-        status: Optional[Literal["active", "historical", "revoked"]] = field(default=None)
-        level: Optional[Literal[1, 2, 3, 4]] = field(default=None)
-        caveat: Optional[str] = field(default=None)
-        exceptions: Optional[List[str]] = field(default=None)
-        embodiment: Optional[str] = field(default=None)
-        description: Optional[str] = field(default=None)
-        tested_conf: Optional[List[str]] = field(default=None)
-        hw_versions: Optional[str] = field(default=None)
-        fw_versions: Optional[str] = field(default=None)
-        sw_versions: Optional[str] = field(default=None)
-        mentioned_certs: Optional[Dict[str, int]] = field(default=None)  # Cert_id: n_occurences
-        historical_reason: Optional[str] = field(default=None)
-        date_sunset: Optional[date] = field(default=None)
-        revoked_reason: Optional[str] = field(default=None)
-        revoked_link: Optional[str] = field(default=None)
+        module_name: str | None = field(default=None)
+        validation_history: list[FIPSCertificate.ValidationHistoryEntry] | None = field(default=None)
+        vendor_url: str | None = field(default=None)
+        vendor: str | None = field(default=None)
+        certificate_pdf_url: str | None = field(default=None)
+        module_type: str | None = field(default=None)
+        standard: str | None = field(default=None)
+        status: Literal["active", "historical", "revoked"] | None = field(default=None)
+        level: Literal[1, 2, 3, 4] | None = field(default=None)
+        caveat: str | None = field(default=None)
+        exceptions: list[str] | None = field(default=None)
+        embodiment: str | None = field(default=None)
+        description: str | None = field(default=None)
+        tested_conf: list[str] | None = field(default=None)
+        hw_versions: str | None = field(default=None)
+        fw_versions: str | None = field(default=None)
+        sw_versions: str | None = field(default=None)
+        mentioned_certs: dict[str, int] | None = field(default=None)  # Cert_id: n_occurences
+        historical_reason: str | None = field(default=None)
+        date_sunset: date | None = field(default=None)
+        revoked_reason: str | None = field(default=None)
+        revoked_link: str | None = field(default=None)
 
         # Those below are left unused at the moment
         # product_url: Optional[str] = field(default=None)
@@ -359,7 +359,7 @@ class FIPSCertificate(
             return repr(self)
 
         @classmethod
-        def from_dict(cls, dct: Dict) -> FIPSCertificate.WebData:
+        def from_dict(cls, dct: dict) -> FIPSCertificate.WebData:
             new_dct = dct.copy()
             if new_dct["date_sunset"]:
                 new_dct["date_sunset"] = dateutil.parser.parse(new_dct["date_sunset"]).date()
@@ -371,11 +371,11 @@ class FIPSCertificate(
         Data structure that holds data obtained from scanning pdf files (or their converted txt documents).
         """
 
-        keywords: Dict = field(default_factory=dict)
-        policy_metadata: Dict[str, Any] = field(default_factory=dict)
+        keywords: dict = field(default_factory=dict)
+        policy_metadata: dict[str, Any] = field(default_factory=dict)
 
         @property
-        def certlike_algorithm_numbers(self) -> Set[str]:
+        def certlike_algorithm_numbers(self) -> set[str]:
             """Returns numbers of certificates from keywords["fips_certlike"]["Certlike"]"""
             if self.keywords and "fips_certlike" in self.keywords:
                 fips_certlike = self.keywords["fips_certlike"].get("Certlike", dict())
@@ -390,20 +390,20 @@ class FIPSCertificate(
         Data structure that holds data obtained by processing the certificate and applying various heuristics.
         """
 
-        algorithms: Set[str] = field(default_factory=set)
-        extracted_versions: Set[str] = field(default_factory=set)
-        cpe_matches: Optional[Set[str]] = field(default=None)
-        verified_cpe_matches: Optional[Set[CPE]] = field(default=None)
-        related_cves: Optional[Set[str]] = field(default=None)
-        policy_prunned_references: Set[str] = field(default_factory=set)
-        module_prunned_references: Set[str] = field(default_factory=set)
+        algorithms: set[str] = field(default_factory=set)
+        extracted_versions: set[str] = field(default_factory=set)
+        cpe_matches: set[str] | None = field(default=None)
+        verified_cpe_matches: set[CPE] | None = field(default=None)
+        related_cves: set[str] | None = field(default=None)
+        policy_prunned_references: set[str] = field(default_factory=set)
+        module_prunned_references: set[str] = field(default_factory=set)
         policy_processed_references: References = field(default_factory=References)
         module_processed_references: References = field(default_factory=References)
-        direct_transitive_cves: Optional[Set[str]] = field(default=None)
-        indirect_transitive_cves: Optional[Set[str]] = field(default=None)
+        direct_transitive_cves: set[str] | None = field(default=None)
+        indirect_transitive_cves: set[str] | None = field(default=None)
 
         @property
-        def algorithm_numbers(self) -> Set[str]:
+        def algorithm_numbers(self) -> set[str]:
             """Returns numbers of algorithms"""
 
             def alg_to_number(alg: str) -> str:
@@ -419,7 +419,7 @@ class FIPSCertificate(
         return fips_dgst(self.cert_id)
 
     @property
-    def manufacturer(self) -> Optional[str]:  # type: ignore
+    def manufacturer(self) -> str | None:  # type: ignore
         return self.web_data.vendor
 
     @property
@@ -431,7 +431,7 @@ class FIPSCertificate(
         return constants.FIPS_SP_URL.format(self.cert_id)
 
     @property
-    def name(self) -> Optional[str]:  # type: ignore
+    def name(self) -> str | None:  # type: ignore
         return self.web_data.module_name
 
     @property
@@ -453,10 +453,10 @@ class FIPSCertificate(
     def __init__(
         self,
         cert_id: str,
-        web_data: Optional[FIPSCertificate.WebData] = None,
-        pdf_data: Optional[FIPSCertificate.PdfData] = None,
-        heuristics: Optional[FIPSCertificate.Heuristics] = None,
-        state: Optional[InternalState] = None,
+        web_data: FIPSCertificate.WebData | None = None,
+        pdf_data: FIPSCertificate.PdfData | None = None,
+        heuristics: FIPSCertificate.Heuristics | None = None,
+        state: InternalState | None = None,
     ):
         super().__init__()
 
@@ -467,7 +467,7 @@ class FIPSCertificate(
         self.state: FIPSCertificate.InternalState = state if state else FIPSCertificate.InternalState()
 
     @property
-    def pandas_tuple(self) -> Tuple:
+    def pandas_tuple(self) -> tuple:
         return (
             self.dgst,
             self.cert_id,
@@ -611,7 +611,7 @@ class FIPSCertificate(
             versions_for_extraction += f" {self.web_data.fw_versions}"
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(versions_for_extraction)
 
-    def _prune_reference_ids_variable(self, attribute_to_prune: Set[str]) -> Set[str]:
+    def _prune_reference_ids_variable(self, attribute_to_prune: set[str]) -> set[str]:
         """
         Prunnes cert_ids from variable "attribute_to_prune", return result. Steps:
             0. Consider only ids != self.cert_id

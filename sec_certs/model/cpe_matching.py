@@ -122,9 +122,9 @@ class CPEClassifier(BaseEstimator):
         threshold = self.match_threshold if not relax_version else 100
         final_matches_aux: List[Tuple[float, CPE]] = list(filter(lambda x: x[0] >= threshold, zip(ratings, candidates)))
         final_matches_aux = sorted(final_matches_aux, key=operator.itemgetter(0, 1), reverse=True)
-        final_matches: Optional[Set[str]] = set(
-            [x[1].uri for x in final_matches_aux[: self.n_max_matches] if x[1].uri is not None]
-        )
+        final_matches: Optional[Set[str]] = {
+            x[1].uri for x in final_matches_aux[: self.n_max_matches] if x[1].uri is not None
+        }
 
         if not relax_title and not final_matches:
             final_matches = self.predict_single_cert(
@@ -153,7 +153,7 @@ class CPEClassifier(BaseEstimator):
         for update_regex in update_regexes:
             if matches := re.findall(update_regex, cert_title):
                 min_value = min([int(re.findall(r"\d+", x)[0]) for x in matches])
-                soft = False if any((re.search(update_regex, cpe.update + str(cpe.title)) for cpe in cpes)) else True
+                soft = False if any(re.search(update_regex, cpe.update + str(cpe.title)) for cpe in cpes) else True
                 return [x for x in cpes if filter_condition(update_regex, x, min_value, soft)]
 
         return cpes
@@ -163,7 +163,7 @@ class CPEClassifier(BaseEstimator):
             if not cert_platforms and cpe.target_hw == "*":
                 return True
             if cert_platforms and cpe.target_hw == "*":
-                return any((re.search(cert_rules.PLATFORM_REGEXES[x], str(cpe.title)) for x in cert_platforms))
+                return any(re.search(cert_rules.PLATFORM_REGEXES[x], str(cpe.title)) for x in cert_platforms)
             if not cert_platforms and cpe.target_hw != "*":
                 return False
             if cert_platforms and cpe.target_hw != "*":
@@ -174,7 +174,7 @@ class CPEClassifier(BaseEstimator):
                 ]
                 assert len(target_hw_platforms) <= 1
                 can_return_true = any(
-                    (re.search(cert_rules.PLATFORM_REGEXES[x], cpe.target_hw + str(cpe.title)) for x in cert_platforms)
+                    re.search(cert_rules.PLATFORM_REGEXES[x], cpe.target_hw + str(cpe.title)) for x in cert_platforms
                 )
                 if not target_hw_platforms:
                     return can_return_true

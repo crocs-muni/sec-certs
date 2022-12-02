@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, ClassVar
 from urllib.parse import unquote_plus, urlparse
 
 import numpy as np
@@ -66,10 +66,10 @@ class CommonCriteriaCert(
         Object for holding maintenance reports.
         """
 
-        maintenance_date: Optional[date]
-        maintenance_title: Optional[str]
-        maintenance_report_link: Optional[str]
-        maintenance_st_link: Optional[str]
+        maintenance_date: date | None
+        maintenance_title: str | None
+        maintenance_report_link: str | None
+        maintenance_st_link: str | None
 
         def __post_init__(self):
             super().__setattr__(
@@ -84,7 +84,7 @@ class CommonCriteriaCert(
             super().__setattr__("maintenance_date", sec_certs.utils.sanitization.sanitize_date(self.maintenance_date))
 
         @classmethod
-        def from_dict(cls, dct: Dict) -> CommonCriteriaCert.MaintenanceReport:
+        def from_dict(cls, dct: dict) -> CommonCriteriaCert.MaintenanceReport:
             new_dct = dct.copy()
             new_dct["maintenance_date"] = (
                 date.fromisoformat(dct["maintenance_date"])
@@ -112,10 +112,10 @@ class CommonCriteriaCert(
         st_extract_ok: bool  # Whether target extraction went OK
         report_extract_ok: bool  # Whether report extraction went OK
 
-        st_pdf_hash: Optional[str]
-        report_pdf_hash: Optional[str]
-        st_txt_hash: Optional[str]
-        report_txt_hash: Optional[str]
+        st_pdf_hash: str | None
+        report_pdf_hash: str | None
+        st_txt_hash: str | None
+        report_txt_hash: str | None
 
         st_pdf_path: Path
         report_pdf_path: Path
@@ -132,10 +132,10 @@ class CommonCriteriaCert(
             report_convert_ok: bool = False,
             st_extract_ok: bool = False,
             report_extract_ok: bool = False,
-            st_pdf_hash: Optional[str] = None,
-            report_pdf_hash: Optional[str] = None,
-            st_txt_hash: Optional[str] = None,
-            report_txt_hash: Optional[str] = None,
+            st_pdf_hash: str | None = None,
+            report_pdf_hash: str | None = None,
+            st_txt_hash: str | None = None,
+            report_txt_hash: str | None = None,
         ):
             super().__init__()
             self.st_download_ok = st_download_ok
@@ -152,7 +152,7 @@ class CommonCriteriaCert(
             self.report_txt_hash = report_txt_hash
 
         @property
-        def serialized_attributes(self) -> List[str]:
+        def serialized_attributes(self) -> list[str]:
             return [
                 "st_download_ok",
                 "report_download_ok",
@@ -198,55 +198,55 @@ class CommonCriteriaCert(
         Class that holds data extracted from pdf files.
         """
 
-        report_metadata: Optional[Dict[str, Any]] = field(default=None)
-        st_metadata: Optional[Dict[str, Any]] = field(default=None)
-        report_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
-        st_frontpage: Optional[Dict[str, Dict[str, Any]]] = field(default=None)
-        report_keywords: Optional[Dict[str, Any]] = field(default=None)
-        st_keywords: Optional[Dict[str, Any]] = field(default=None)
-        report_filename: Optional[str] = field(default=None)
-        st_filename: Optional[str] = field(default=None)
+        report_metadata: dict[str, Any] | None = field(default=None)
+        st_metadata: dict[str, Any] | None = field(default=None)
+        report_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
+        st_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
+        report_keywords: dict[str, Any] | None = field(default=None)
+        st_keywords: dict[str, Any] | None = field(default=None)
+        report_filename: str | None = field(default=None)
+        st_filename: str | None = field(default=None)
 
         def __bool__(self) -> bool:
             return any([x is not None for x in vars(self)])
 
         @property
-        def bsi_data(self) -> Optional[Dict[str, Any]]:
+        def bsi_data(self) -> dict[str, Any] | None:
             """
             Returns frontpage data related to BSI-provided information
             """
             return self.report_frontpage.get("bsi", None) if self.report_frontpage else None
 
         @property
-        def niap_data(self) -> Optional[Dict[str, Any]]:
+        def niap_data(self) -> dict[str, Any] | None:
             """
             Returns frontpage data related to niap-provided information
             """
             return self.report_frontpage.get("niap", None) if self.report_frontpage else None
 
         @property
-        def nscib_data(self) -> Optional[Dict[str, Any]]:
+        def nscib_data(self) -> dict[str, Any] | None:
             """
             Returns frontpage data related to nscib-provided information
             """
             return self.report_frontpage.get("nscib", None) if self.report_frontpage else None
 
         @property
-        def canada_data(self) -> Optional[Dict[str, Any]]:
+        def canada_data(self) -> dict[str, Any] | None:
             """
             Returns frontpage data related to canada-provided information
             """
             return self.report_frontpage.get("canada", None) if self.report_frontpage else None
 
         @property
-        def anssi_data(self) -> Optional[Dict[str, Any]]:
+        def anssi_data(self) -> dict[str, Any] | None:
             """
             Returns frontpage data related to ANSSI-provided information
             """
             return self.report_frontpage.get("anssi", None) if self.report_frontpage else None
 
         @property
-        def cert_lab(self) -> Optional[List[str]]:
+        def cert_lab(self) -> list[str] | None:
             """
             Returns labs for which certificate data was parsed.
             """
@@ -258,26 +258,26 @@ class CommonCriteriaCert(
             return labs if labs else None
 
         @property
-        def bsi_cert_id(self) -> Optional[str]:
+        def bsi_cert_id(self) -> str | None:
             return self.bsi_data.get("cert_id", None) if self.bsi_data else None
 
         @property
-        def niap_cert_id(self) -> Optional[str]:
+        def niap_cert_id(self) -> str | None:
             return self.niap_data.get("cert_id", None) if self.niap_data else None
 
         @property
-        def nscib_cert_id(self) -> Optional[str]:
+        def nscib_cert_id(self) -> str | None:
             return self.nscib_data.get("cert_id", None) if self.nscib_data else None
 
         @property
-        def canada_cert_id(self) -> Optional[str]:
+        def canada_cert_id(self) -> str | None:
             return self.canada_data.get("cert_id", None) if self.canada_data else None
 
         @property
-        def anssi_cert_id(self) -> Optional[str]:
+        def anssi_cert_id(self) -> str | None:
             return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
-        def frontpage_cert_id(self, scheme: str) -> Dict[str, float]:
+        def frontpage_cert_id(self, scheme: str) -> dict[str, float]:
             """
             Get cert_id candidate from the frontpage of the report.
             """
@@ -292,7 +292,7 @@ class CommonCriteriaCert(
                 return {candidate: 1.0}
             return {}
 
-        def filename_cert_id(self, scheme: str) -> Dict[str, float]:
+        def filename_cert_id(self, scheme: str) -> dict[str, float]:
             """
             Get cert_id candidates from the matches in the report filename.
             """
@@ -314,7 +314,7 @@ class CommonCriteriaCert(
             # TODO count length in weight
             return results
 
-        def keywords_cert_id(self, scheme: str) -> Dict[str, float]:
+        def keywords_cert_id(self, scheme: str) -> dict[str, float]:
             """
             Get cert_id candidates from the keywords matches in the report.
             """
@@ -336,7 +336,7 @@ class CommonCriteriaCert(
             # TODO count length in weight
             return results
 
-        def metadata_cert_id(self, scheme: str) -> Dict[str, float]:
+        def metadata_cert_id(self, scheme: str) -> dict[str, float]:
             """
             Get cert_id candidates from the report metadata.
             """
@@ -361,14 +361,14 @@ class CommonCriteriaCert(
             # TODO count length in weight
             return results
 
-        def candidate_cert_ids(self, scheme: str) -> Dict[str, float]:
+        def candidate_cert_ids(self, scheme: str) -> dict[str, float]:
             frontpage_id = self.frontpage_cert_id(scheme)
             metadata_id = self.metadata_cert_id(scheme)
             filename_id = self.filename_cert_id(scheme)
             keywords_id = self.keywords_cert_id(scheme)
 
             # Join them and weigh them, each is normalized with weights from 0 to 1 (if anything is returned)
-            candidates: Dict[str, float] = defaultdict(lambda: 0.0)
+            candidates: dict[str, float] = defaultdict(lambda: 0.0)
             # TODO: Add heuristic based on ordering of ids (and extracted year + increment)
             # TODO: Add heuristic based on length
             for candidate, count in frontpage_id.items():
@@ -387,23 +387,23 @@ class CommonCriteriaCert(
         Class for various heuristics related to CommonCriteriaCert
         """
 
-        extracted_versions: Optional[Set[str]] = field(default=None)
-        cpe_matches: Optional[Set[str]] = field(default=None)
-        verified_cpe_matches: Optional[Set[str]] = field(default=None)
-        related_cves: Optional[Set[str]] = field(default=None)
-        cert_lab: Optional[List[str]] = field(default=None)
-        cert_id: Optional[str] = field(default=None)
+        extracted_versions: set[str] | None = field(default=None)
+        cpe_matches: set[str] | None = field(default=None)
+        verified_cpe_matches: set[str] | None = field(default=None)
+        related_cves: set[str] | None = field(default=None)
+        cert_lab: list[str] | None = field(default=None)
+        cert_id: str | None = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
-        extracted_sars: Optional[Set[SAR]] = field(default=None)
-        direct_transitive_cves: Optional[Set[str]] = field(default=None)
-        indirect_transitive_cves: Optional[Set[str]] = field(default=None)
+        extracted_sars: set[SAR] | None = field(default=None)
+        direct_transitive_cves: set[str] | None = field(default=None)
+        indirect_transitive_cves: set[str] | None = field(default=None)
 
         @property
-        def serialized_attributes(self) -> List[str]:
+        def serialized_attributes(self) -> list[str]:
             return copy.deepcopy(super().serialized_attributes)
 
-    pandas_columns: ClassVar[List[str]] = [
+    pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "cert_id",
         "name",
@@ -437,20 +437,20 @@ class CommonCriteriaCert(
         status: str,
         category: str,
         name: str,
-        manufacturer: Optional[str],
+        manufacturer: str | None,
         scheme: str,
-        security_level: Union[str, Set[str]],
-        not_valid_before: Optional[date],
-        not_valid_after: Optional[date],
+        security_level: str | set[str],
+        not_valid_before: date | None,
+        not_valid_after: date | None,
         report_link: str,
         st_link: str,
-        cert_link: Optional[str],
-        manufacturer_web: Optional[str],
-        protection_profiles: Optional[Set[ProtectionProfile]],
-        maintenance_updates: Optional[Set[MaintenanceReport]],
-        state: Optional[InternalState],
-        pdf_data: Optional[PdfData],
-        heuristics: Optional[Heuristics],
+        cert_link: str | None,
+        manufacturer_web: str | None,
+        protection_profiles: set[ProtectionProfile] | None,
+        maintenance_updates: set[MaintenanceReport] | None,
+        state: InternalState | None,
+        pdf_data: PdfData | None,
+        heuristics: Heuristics | None,
     ):
         super().__init__()
 
@@ -486,7 +486,7 @@ class CommonCriteriaCert(
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
     @property
-    def eal(self) -> Optional[str]:
+    def eal(self) -> str | None:
         """
         Returns EAL of certificate if it was extracted, None otherwise.
         """
@@ -502,7 +502,7 @@ class CommonCriteriaCert(
                 return None
 
     @property
-    def actual_sars(self) -> Optional[Set[SAR]]:
+    def actual_sars(self) -> set[SAR] | None:
         """
         Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs
         :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
@@ -519,11 +519,11 @@ class CommonCriteriaCert(
         return set(sars.values()) if sars else None
 
     @property
-    def label_studio_title(self) -> Optional[str]:
+    def label_studio_title(self) -> str | None:
         return self.name
 
     @property
-    def pandas_tuple(self) -> Tuple:
+    def pandas_tuple(self) -> tuple:
         """
         Returns tuple of attributes meant for pandas serialization
         """
@@ -560,7 +560,7 @@ class CommonCriteriaCert(
         printed_manufacturer = self.manufacturer if self.manufacturer else "Unknown manufacturer"
         return str(printed_manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
 
-    def merge(self, other: CommonCriteriaCert, other_source: Optional[str] = None) -> None:
+    def merge(self, other: CommonCriteriaCert, other_source: str | None = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
@@ -587,7 +587,7 @@ class CommonCriteriaCert(
                     )
 
     @classmethod
-    def from_dict(cls, dct: Dict) -> CommonCriteriaCert:
+    def from_dict(cls, dct: dict) -> CommonCriteriaCert:
         """
         Deserializes dictionary into `CommonCriteriaCert`
         """
@@ -611,7 +611,7 @@ class CommonCriteriaCert(
         return list(cell.stripped_strings)[0]
 
     @staticmethod
-    def _html_row_get_manufacturer(cell: Tag) -> Optional[str]:
+    def _html_row_get_manufacturer(cell: Tag) -> str | None:
         if lst := list(cell.stripped_strings):
             return lst[0]
         else:
@@ -626,7 +626,7 @@ class CommonCriteriaCert(
         return set(cell.stripped_strings)
 
     @staticmethod
-    def _html_row_get_manufacturer_web(cell: Tag) -> Optional[str]:
+    def _html_row_get_manufacturer_web(cell: Tag) -> str | None:
         for link in cell.find_all("a"):
             if link is not None and link.get("title") == "Vendor's web site" and link.get("href") != "http://":
                 return link.get("href")
@@ -645,13 +645,13 @@ class CommonCriteriaCert(
         return protection_profiles
 
     @staticmethod
-    def _html_row_get_date(cell: Tag) -> Optional[date]:
+    def _html_row_get_date(cell: Tag) -> date | None:
         text = cell.get_text()
         extracted_date = datetime.strptime(text, "%Y-%m-%d").date() if text else None
         return extracted_date
 
     @staticmethod
-    def _html_row_get_report_st_links(cell: Tag) -> Tuple[str, str]:
+    def _html_row_get_report_st_links(cell: Tag) -> tuple[str, str]:
         links = cell.find_all("a")
         assert links[1].get("title").startswith("Certification Report")
         assert links[2].get("title").startswith("Security Target")
@@ -662,12 +662,12 @@ class CommonCriteriaCert(
         return report_link, security_target_link
 
     @staticmethod
-    def _html_row_get_cert_link(cell: Tag) -> Optional[str]:
+    def _html_row_get_cert_link(cell: Tag) -> str | None:
         links = cell.find_all("a")
         return CommonCriteriaCert.cc_url + links[0].get("href") if links else None
 
     @staticmethod
-    def _html_row_get_maintenance_div(cell: Tag) -> Optional[Tag]:
+    def _html_row_get_maintenance_div(cell: Tag) -> Tag | None:
         divs = cell.find_all("div")
         for d in divs:
             if d.find("div") and d.stripped_strings and list(d.stripped_strings)[0] == "Maintenance Report(s)":
@@ -675,7 +675,7 @@ class CommonCriteriaCert(
         return None
 
     @staticmethod
-    def _html_row_get_maintenance_updates(main_div: Tag) -> Set[CommonCriteriaCert.MaintenanceReport]:
+    def _html_row_get_maintenance_updates(main_div: Tag) -> set[CommonCriteriaCert.MaintenanceReport]:
         possible_updates = list(main_div.find_all("li"))
         maintenance_updates = set()
         for u in possible_updates:
@@ -744,10 +744,10 @@ class CommonCriteriaCert(
 
     def set_local_paths(
         self,
-        report_pdf_dir: Optional[Union[str, Path]],
-        st_pdf_dir: Optional[Union[str, Path]],
-        report_txt_dir: Optional[Union[str, Path]],
-        st_txt_dir: Optional[Union[str, Path]],
+        report_pdf_dir: str | Path | None,
+        st_pdf_dir: str | Path | None,
+        report_txt_dir: str | Path | None,
+        st_txt_dir: str | Path | None,
     ) -> None:
         """
         Sets paths to files given the requested directories
@@ -774,7 +774,7 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: cert to download the pdf report for
         :return CommonCriteriaCert: returns the modified certificate with updated state
         """
-        exit_code: Union[str, int]
+        exit_code: str | int
         if not cert.report_link:
             exit_code = "No link"
         else:
@@ -797,7 +797,7 @@ class CommonCriteriaCert(
         :param CommonCriteriaCert cert: cert to download the pdf security target for
         :return CommonCriteriaCert: returns the modified certificate with updated state
         """
-        exit_code: Union[str, int]
+        exit_code: str | int
         if not cert.st_link:
             exit_code = "No link"
         else:
