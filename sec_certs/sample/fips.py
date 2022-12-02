@@ -79,9 +79,9 @@ class FIPSHTMLParser:
         if "description" in entries:
             algs = FIPSHTMLParser.get_algs_from_description(entries["description"])
             if "algorithms" in entries:
-                entries["algorithms"].update(algs)
+                entries["algorithms"].update({"UNKNOWN": x for x in algs})
             else:
-                entries["algorithms"] = algs
+                entries["algorithms"] = {"UNKNOWN": x for x in algs}
 
         return entries
 
@@ -498,6 +498,8 @@ class FIPSCertificate(
         parser = FIPSHTMLParser(soup)
         algorithms, cert.web_data = parser.get_web_data_and_algorithms()
         cert.heuristics.algorithms |= algorithms
+        cert.state.module_extract_ok = True
+
         return cert
 
     @staticmethod
@@ -567,13 +569,12 @@ class FIPSCertificate(
             pdf.repair_pdf(cert.state.policy_pdf_path)
             try:
                 tabular_data = read_pdf(cert.state.policy_pdf_path, pages=list(table_rich_page_numbers), silent=True)
+                cert.heuristics.algorithms |= set(
+                    itertools.chain.from_iterable([tables.get_algs_from_table(df.to_string()) for df in tabular_data])
+                )
             except Exception as e:
                 logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")
                 cert.state.policy_extract_ok = False
-
-            cert.heuristics.algorithms |= set(
-                itertools.chain.from_iterable([tables.get_algs_from_table(df.to_string()) for df in tabular_data])
-            )
 
     def prune_referenced_cert_ids(self) -> None:
         """
@@ -586,7 +587,7 @@ class FIPSCertificate(
         self.heuristics.module_prunned_references = self._prune_reference_ids_variable(html_module_ids)
 
         pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict().keys()))
-        pdf_policy_ids = {x.replace("#", "").strip() for x in pdf_policy_ids}
+        pdf_policy_ids = {"".join([y for y in x if y.isdigit()]) for x in pdf_policy_ids}
         self.heuristics.policy_prunned_references = self._prune_reference_ids_variable(pdf_policy_ids)
 
     def compute_heuristics_version(self) -> None:
