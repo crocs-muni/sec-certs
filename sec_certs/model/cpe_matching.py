@@ -107,10 +107,6 @@ class CPEClassifier(BaseEstimator):
         :param bool relax_title: See step 7 above, defaults to False
         :return Optional[Set[str]]: Set of matching CPE uris, None if no matches found
         """
-
-        if "Active Directory Federation Services 2.0" in product_name:
-            print("geee")
-
         lemmatized_product_name = self._lemmatize_product_name(product_name)
         candidate_vendors = self._get_candidate_list_of_vendors(
             CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor

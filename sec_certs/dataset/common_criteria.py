@@ -8,7 +8,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -763,13 +763,13 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         :raises RuntimeError: When building of PPDataset fails
         """
         logger.info("Processing protection profiles.")
-        constructor: Dict[bool, Callable[..., ProtectionProfileDataset]] = {
-            True: ProtectionProfileDataset.from_web,
-            False: ProtectionProfileDataset.from_json,
-        }
-        if to_download is True and not self.auxillary_datasets_dir.exists():
-            self.auxillary_datasets_dir.mkdir()
-        pp_dataset = constructor[to_download](self.pp_dataset_path)
+
+        self.auxillary_datasets_dir.mkdir(parents=True, exist_ok=True)
+
+        if to_download or not self.pp_dataset_path.exists():
+            pp_dataset = ProtectionProfileDataset.from_web(self.pp_dataset_path)
+        else:
+            pp_dataset = ProtectionProfileDataset.from_json(self.pp_dataset_path)
 
         for cert in self:
             if cert.protection_profiles is None:
@@ -786,10 +786,9 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         """
 
         logger.info("Processing maintenace updates")
-        if to_download and not self.mu_dataset_dir.exists():
-            self.mu_dataset_dir.mkdir(parents=True)
+        self.mu_dataset_dir.mkdir(parents=True, exist_ok=True)
 
-        if to_download:
+        if to_download or not self.mu_dataset_path.exists():
             maintained_certs: List[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
             updates = list(
                 itertools.chain.from_iterable(
