@@ -76,12 +76,13 @@ class FIPSHTMLParser:
         if "caveat" in entries:
             entries["mentioned_certs"] = FIPSHTMLParser.get_mentioned_certs_from_caveat(entries["caveat"])
 
-        if "description" in entries:
-            algs = FIPSHTMLParser.get_algs_from_description(entries["description"])
-            if "algorithms" in entries:
-                entries["algorithms"].update({"UNKNOWN": x for x in algs})
-            else:
-                entries["algorithms"] = {"UNKNOWN": x for x in algs}
+        # Temporarily disabled, as this isn't extracting anything useful. Only UNKNOWN#1-9 algs were extracted over whole dataset.
+        # if "description" in entries:
+        #     algs = FIPSHTMLParser.get_algs_from_description(entries["description"])
+        #     if "algorithms" in entries:
+        #         entries["algorithms"].update({"UNKNOWN": x for x in algs})
+        #     else:
+        #         entries["algorithms"] = {"UNKNOWN": x for x in algs}
 
         return entries
 
@@ -376,9 +377,12 @@ class FIPSCertificate(
         @property
         def certlike_algorithm_numbers(self) -> Set[str]:
             """Returns numbers of certificates from keywords["fips_certlike"]["Certlike"]"""
-            fips_certlike = self.keywords["fips_certlike"].get("Certlike", dict())
-            matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike.keys()}
-            return {"".join([x for x in match.group() if x.isdigit()]) for match in matches if match}
+            if self.keywords and "fips_certlike" in self.keywords:
+                fips_certlike = self.keywords["fips_certlike"].get("Certlike", dict())
+                matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike.keys()}
+                return {"".join([x for x in match.group() if x.isdigit()]) for match in matches if match}
+            else:
+                return set()
 
     @dataclass(eq=True)
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -586,8 +590,12 @@ class FIPSCertificate(
         html_module_ids = set(self.web_data.mentioned_certs.keys()) if self.web_data.mentioned_certs else set()
         self.heuristics.module_prunned_references = self._prune_reference_ids_variable(html_module_ids)
 
-        pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict().keys()))
-        pdf_policy_ids = {"".join([y for y in x if y.isdigit()]) for x in pdf_policy_ids}
+        if self.pdf_data.keywords:
+            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict().keys()))
+            pdf_policy_ids = {"".join([y for y in x if y.isdigit()]) for x in pdf_policy_ids}
+        else:
+            pdf_policy_ids = set()
+
         self.heuristics.policy_prunned_references = self._prune_reference_ids_variable(pdf_policy_ids)
 
     def compute_heuristics_version(self) -> None:
