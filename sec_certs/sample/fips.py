@@ -147,6 +147,17 @@ class FIPSHTMLParser:
         configurations = [y.text for y in tested_configurations.find_all("li")]
         return configurations if not configurations == ["N/A"] else None
 
+    @staticmethod
+    def normalize_embodiment(embodiment_element: Tag) -> str:
+        text = FIPSHTMLParser.normalize_string(embodiment_element.text)
+        embodiment_normalization_dict = {
+            "Multi-chip embedded": "Multi-Chip Embedded",
+            "Multi-chip Standalone": "Multi-Chip Stand Alone",
+            "Multi-chip standalone": "Multi-Chip Stand Alone",
+            "Single-chip": "Single Chip",
+        }
+        return embodiment_normalization_dict.get(text, text)
+
 
 DETAILS_KEY_NORMALIZATION_DICT: Final[dict[str, str]] = {
     "Module Name": "module_name",
@@ -178,6 +189,7 @@ DETAILS_KEY_TO_NORMALIZATION_FUNCTION: dict[str, Callable] = {
     "exceptions": lambda x: [y.text for y in x.find_all("li")],
     "status": lambda x: FIPSHTMLParser.normalize_string(x.text).lower(),
     "level": lambda x: int(FIPSHTMLParser.normalize_string(x.text)),
+    "embodiment": getattr(FIPSHTMLParser, "normalize_embodiment"),
 }
 
 
