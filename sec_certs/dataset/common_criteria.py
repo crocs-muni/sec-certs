@@ -157,7 +157,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         """
         Returns json that holds the datase of maintenance updates
         """
-        return self.mu_dataset_dir / "Maintenance updates.json"
+        return self.mu_dataset_dir / "maintenance_updates.json"
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -797,7 +797,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
                 )
             )
             update_dset = CCDatasetMaintenanceUpdates(
-                {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="Maintenance updates"
+                {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="maintenance_updates"
             )
         else:
             update_dset = CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path)

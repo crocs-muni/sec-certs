@@ -10,7 +10,7 @@
     },
     "timestamp": "2022-11-10 13:44:35.171285",
     "sha256_digest": "not implemented",
-    "name": "Maintenance updates",
+    "name": "maintenance_updates",
     "description": "dataset_description",
     "n_certs": 1,
     "certs": [

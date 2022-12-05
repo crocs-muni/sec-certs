@@ -157,6 +157,7 @@ def main(
 
         dset = build_or_load_dataset(framework, inputpath, "build" in actions_set, outputpath)
         aux_dsets_to_handle = "PP, Maintenance updates" if framework == "cc" else "Algorithms"
+        aux_dsets_to_handle += "CPE, CVE"
         analysis_pre_callback = None
 
         steps = [
