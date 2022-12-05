@@ -9,12 +9,12 @@ from sec_certs.utils import helpers
 
 
 class CPEConfiguration:
-    def __init__(self, platform: "CPE", cpes: list["CPE"]) -> None:
-        self.platform: "CPE" = platform
-        self.cpes: list["CPE"] = cpes
+    def __init__(self, platform: str, cpes: list[str]) -> None:
+        self.platform: str = platform
+        self.cpes: list[str] = cpes
 
     def match(self, set_of_cpes: set[str]) -> bool:
-        return self.platform.uri in set_of_cpes and any([cpe in map(lambda x: x.uri, self.cpes) for cpe in set_of_cpes])
+        return self.platform in set_of_cpes and any([cpe for cpe in set_of_cpes])
 
 
 @dataclass(init=False)

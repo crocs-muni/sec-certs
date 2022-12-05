@@ -147,17 +147,11 @@ class CVEDataset(ComplexSerializableType):
             dset = json.load(handle, cls=CustomJSONDecoder)
         return dset
 
-    def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[Set[str]]:
-        return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
+    def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str]:
+        return self.cpe_to_cve_ids_lookup.get(cpe_uri, set())
 
     def _get_cves_from_exactly_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
-        cve_ids: set[str] = set()
-
-        for cpe_match in cpe_matches:
-            if cve_set := self._get_cve_ids_for_cpe_uri(cpe_match):
-                cve_ids.update(cve_set)
-
-        return cve_ids
+        return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_matches]))
 
     def _get_cves_from_cpe_configurations(self, cpe_matches: set[str]) -> set[str]:
         cves: set[str] = set()

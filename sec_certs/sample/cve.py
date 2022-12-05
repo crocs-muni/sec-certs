@@ -189,9 +189,10 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                 return configurations
 
             cpes = CVE._parse_cpe_list(children[0]["cpe_match"])
+            cpe_uris = [cpe.uri for cpe in cpes]
             platforms = CVE._parse_cpe_list(children[1]["cpe_match"])
 
-            return [CPEConfiguration(platform, cpes) for platform in platforms]
+            return [CPEConfiguration(platform.uri, cpe_uris) for platform in platforms]
 
         def get_vulnerable_cpes_from_nist_dict(dct: Dict) -> tuple[list[CPE], list[CPEConfiguration]]:
             def get_vulnerable_cpes_and_cpe_configurations(
