@@ -226,7 +226,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         """
         Fetches the fresh snapshot of FIPSDataset from mirror.
         """
-        return cls.from_web(config.cc_latest_snapshot, "Downloading FIPS Dataset", "fips_latest_dataset.json")
+        return cls.from_web(config.fips_latest_snapshot, "Downloading FIPS Dataset", "fips_latest_dataset.json")
 
     def _set_local_paths(self) -> None:
         cert: FIPSCertificate
