@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 class CVEDataset(ComplexSerializableType):
     cves: Dict[str, CVE]
     cpe_to_cve_ids_lookup: Dict[str, Set[str]] = field(init=False)
+    cves_with_vulnerable_configurations: list[CVE] = field(init=False)
     cve_url: Final[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
     cpe_match_feed_url: Final[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
 
@@ -82,6 +83,9 @@ class CVEDataset(ComplexSerializableType):
                     self.cpe_to_cve_ids_lookup[cpe.uri] = {cve.cve_id}
                 else:
                     self.cpe_to_cve_ids_lookup[cpe.uri].add(cve.cve_id)
+
+    def build_cpe_configuration_list(self) -> None:
+        self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
 
     @classmethod
     def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
@@ -154,14 +158,16 @@ class CVEDataset(ComplexSerializableType):
         return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_matches]))
 
     def _get_cves_from_cpe_configurations(self, cpe_matches: set[str]) -> set[str]:
-        cves: set[str] = set()
-        cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
+        def is_cve_matched_to_cpe_matches(cve: CVE, cpe_matches: set[str]) -> bool:
+            return any(
+                [cpe_configuration.match(cpe_matches) for cpe_configuration in cve.vulnerable_cpe_configurations]
+            )
 
-        for cve in cves_with_vulnerable_configurations:
-            if any([cpe_configuration.match(cpe_matches) for cpe_configuration in cve.vulnerable_cpe_configurations]):
-                cves.add(cve.cve_id)
-
-        return cves
+        return {
+            cve.cve_id
+            for cve in self.cves_with_vulnerable_configurations
+            if is_cve_matched_to_cpe_matches(cve, cpe_matches)
+        }
 
     def get_cves_from_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
         cves = self._get_cves_from_exactly_matched_cpes(cpe_matches)

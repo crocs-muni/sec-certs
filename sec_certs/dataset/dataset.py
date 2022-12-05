@@ -207,6 +207,8 @@ class Dataset(Generic[CertSubType], ABC):
             cve_dataset = CVEDataset.from_json(str(self.cve_dataset_path))
 
         cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
+        cve_dataset.build_cpe_configuration_list()
+
         return cve_dataset
 
     @serialize
