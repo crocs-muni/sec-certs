@@ -44,13 +44,11 @@ class FIPSHTMLParser:
         related_files_dict = self._build_related_files_dict(related_files_div)
         validation_history_dict = self._build_validation_history_dict(validation_history_div)
 
+        algorithms = set()
         if "algorithms" in details_dict:
             algorithms_data = details_dict.pop("algorithms")
-            algorithms = set()
             for category, alg_ids in algorithms_data.items():
                 algorithms |= {category + x for x in alg_ids}
-        else:
-            algorithms = set()
 
         return algorithms, FIPSCertificate.WebData(
             **{**details_dict, **vendor_dict, **related_files_dict, **validation_history_dict}
@@ -603,7 +601,7 @@ class FIPSCertificate(
         self.heuristics.module_prunned_references = self._prune_reference_ids_variable(html_module_ids)
 
         if self.pdf_data.keywords:
-            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict().keys()))
+            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict()).keys())
             pdf_policy_ids = {"".join([y for y in x if y.isdigit()]) for x in pdf_policy_ids}
         else:
             pdf_policy_ids = set()

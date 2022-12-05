@@ -260,7 +260,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
         and constructs CommonCriteriaCert objects, fills the dataset with those.
-        Also downloads protection profiles snapshot
 
         :param bool to_download: If CSV and HTML files shall be downloaded (or existing files utilized), defaults to True
         :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
@@ -675,7 +674,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._extract_report_keywords()
         self._extract_targets_keywords()
 
-    def _extract_data(self) -> None:
+    def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts")
         self._extract_pdf_metadata()
         self._extract_pdf_frontpage()
@@ -751,7 +750,9 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self.auxillary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
 
     @serialize
-    def process_protection_profiles(self, to_download: bool = True, keep_metadata: bool = True) -> None:
+    def process_protection_profiles(
+        self, to_download: bool = True, keep_metadata: bool = True
+    ) -> ProtectionProfileDataset:
         """
         Downloads new snapshot of dataset with processed protection profiles (if it doesn't exist) and links PPs
         with certificates within self. Assigns PPs to all certificates
@@ -776,6 +777,8 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
         if not keep_metadata:
             self.pp_dataset_path.unlink()
+
+        return pp_dataset
 
     def process_maintenance_updates(self, to_download: bool = True) -> CCDatasetMaintenanceUpdates:
         """
@@ -804,7 +807,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         if not update_dset.state.pdfs_converted:
             update_dset.convert_all_pdfs()
         if not update_dset.state.certs_analyzed:
-            update_dset._extract_data()
+            update_dset.extract_data()
 
         return update_dset
 

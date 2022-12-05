@@ -18,6 +18,8 @@ MIN_CC_PP_DATASET_SIZE = 2500000
 
 CPE_VERSION_NA = "-"
 
+RELEASE_CANDIDATE_REGEX: re.Pattern = re.compile(r"rc\d{0,2}$", re.IGNORECASE)
+
 FIPS_BASE_URL = "https://csrc.nist.gov"
 FIPS_CMVP_URL = FIPS_BASE_URL + "/projects/cryptographic-module-validation-program"
 FIPS_CAVP_URL = FIPS_BASE_URL + "/projects/Cryptographic-Algorithm-Validation-Program"

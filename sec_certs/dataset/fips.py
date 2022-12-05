@@ -112,7 +112,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.update_with_certs(processed_certs)
 
     @serialize
-    def _extract_data(self) -> None:
+    def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts.")
         for cert in self:
             cert.state.policy_extract_ok = True
@@ -244,7 +244,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         if to_download:
             self._download_html_resources()
 
-        logger.info("Adding empty FIPS certificates into FIPSDataset.")
+        logger.info("Adding unprocessed FIPS certificates into FIPSDataset.")
         self.certs = {x.dgst: x for x in self._get_all_certs_from_html_sources()}
         logger.info(f"The dataset now contains {len(self)} certificates.")
 

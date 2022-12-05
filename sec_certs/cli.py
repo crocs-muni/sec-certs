@@ -103,7 +103,7 @@ def build_or_load_dataset(
     "--output",
     type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True, resolve_path=True),
     help="Path where the output of the experiment will be stored. May overwrite existing content.",
-    default=Path("./cc_dset/"),
+    default=Path("./dataset/"),
     show_default=True,
 )
 @click.option(
@@ -121,7 +121,7 @@ def build_or_load_dataset(
     type=click.Path(file_okay=True, dir_okay=False, writable=True, readable=True),
     help="If set, the actions will be performed on a CC dataset loaded from JSON from the input path.",
 )
-@click.option("-s", "--silent", is_flag=True, help="If set, will not print to stdout")
+@click.option("-q", "--quiet", is_flag=True, help="If set, will not print to stdout")
 def main(
     framework: str,
     actions: list[str],

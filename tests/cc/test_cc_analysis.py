@@ -88,7 +88,7 @@ def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset
 
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.process_protection_profiles()
-    cc_dset._extract_data()
+    cc_dset.extract_data()
     cc_dset.auxillary_datasets.cve_dset = cve_dset
     cc_dset._compute_heuristics()
     return cc_dset

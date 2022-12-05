@@ -98,7 +98,7 @@ def processed_dataset(
 
     toy_static_dataset.download_all_artifacts()
     toy_static_dataset.convert_all_pdfs()
-    toy_static_dataset._extract_data()
+    toy_static_dataset.extract_data()
     toy_static_dataset._compute_references(keep_unknowns=True)
 
     toy_static_dataset.auxillary_datasets.cpe_dset = cpe_dataset

@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generic, Iterator, Pattern, TypeVar, cast
+from typing import Any, Generic, Iterator, TypeVar, cast
 
 import pandas as pd
 
@@ -268,11 +268,11 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         self.state.certs_analyzed = True
 
     def _analyze_certificates_body(self) -> None:
-        self._extract_data()
+        self.extract_data()
         self._compute_heuristics()
 
     @abstractmethod
-    def _extract_data(self) -> None:
+    def extract_data(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def _compute_heuristics(self) -> None:
@@ -321,7 +321,6 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @serialize
     def compute_cpe_heuristics(self, download_fresh_cpes: bool = False) -> CPEClassifier:
-        RELEASE_CANDIDATE_REGEX: Pattern = re.compile(r"rc\d{0,2}$", re.IGNORECASE)
         WINDOWS_WEAK_CPES: set[CPE] = {
             CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64", None, None),
             CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86", None, None),
@@ -344,7 +343,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 and not any(char.isdigit() for char in cpe.item_name)
             ):
                 return False
-            elif re.match(RELEASE_CANDIDATE_REGEX, cpe.update):
+            elif re.match(constants.RELEASE_CANDIDATE_REGEX, cpe.update):
                 return False
             elif cpe in WINDOWS_WEAK_CPES:
                 return False
