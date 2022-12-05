@@ -155,7 +155,7 @@ class CPEClassifier(BaseEstimator):
         for update_regex in update_regexes:
             if matches := re.findall(update_regex, cert_title):
                 min_value = min([int(re.findall(r"\d+", x)[0]) for x in matches])
-                soft = False if any(re.search(update_regex, cpe.update + str(cpe.title)) for cpe in cpes) else True
+                soft = not any(re.search(update_regex, cpe.update + str(cpe.title)) for cpe in cpes)
                 return [x for x in cpes if filter_condition(update_regex, x, min_value, soft)]
 
         return cpes
