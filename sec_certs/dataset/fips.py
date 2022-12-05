@@ -90,10 +90,10 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return self.algorithms_dir / "algorithms.json"
 
     def __getitem__(self, item: str) -> FIPSCertificate:
-        if len(item) < 5:
-            return super().__getitem__(fips_dgst(item))
-        else:
+        try:
             return super().__getitem__(item)
+        except KeyError:
+            return super().__getitem__(fips_dgst(item))
 
     def _extract_data_from_html_modules(self) -> None:
         """
