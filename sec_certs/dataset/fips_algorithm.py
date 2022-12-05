@@ -65,9 +65,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
     def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> FIPSAlgorithmDataset:
         with TemporaryDirectory() as tmp_dir:
             htmls = FIPSAlgorithmDataset.download_alg_list_htmls(Path(tmp_dir))
-            algs = set(
-                itertools.chain.from_iterable([FIPSAlgorithmDataset.parse_algorithms_from_html(x) for x in htmls])
-            )
+            algs = set(itertools.chain.from_iterable(FIPSAlgorithmDataset.parse_algorithms_from_html(x) for x in htmls))
         return cls({x.dgst: x for x in algs}, json_path)
 
     @staticmethod

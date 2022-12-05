@@ -168,9 +168,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                 return cpes
 
             return list(
-                itertools.chain.from_iterable(
-                    [get_vulnerable_cpes_from_node(x) for x in dct["configurations"]["nodes"]]
-                )
+                itertools.chain.from_iterable(get_vulnerable_cpes_from_node(x) for x in dct["configurations"]["nodes"])
             )
 
         cve_id = dct["cve"]["CVE_data_meta"]["ID"]

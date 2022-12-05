@@ -793,7 +793,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             maintained_certs: list[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
             updates = list(
                 itertools.chain.from_iterable(
-                    [CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs]
+                    CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs
                 )
             )
             update_dset = CCDatasetMaintenanceUpdates(

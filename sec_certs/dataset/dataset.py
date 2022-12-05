@@ -473,7 +473,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             )
             return
 
-        relevant_cpes = set(itertools.chain.from_iterable([x.heuristics.cpe_matches for x in cpe_rich_certs]))
+        relevant_cpes = set(itertools.chain.from_iterable(x.heuristics.cpe_matches for x in cpe_rich_certs))
         self.auxillary_datasets.cve_dset.filter_related_cpes(relevant_cpes)
 
         cert: Certificate
@@ -485,7 +485,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 related_cves = list(filter(lambda x: x is not None, related_cves))
                 if related_cves:
                     cert.heuristics.related_cves = set(
-                        itertools.chain.from_iterable([x for x in related_cves if x is not None])
+                        itertools.chain.from_iterable(x for x in related_cves if x is not None)
                     )
             else:
                 cert.heuristics.related_cves = None

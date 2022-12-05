@@ -320,10 +320,10 @@ class CPEClassifier(BaseEstimator):
 
         if splits:
             vendor_tokens = set(
-                itertools.chain.from_iterable([[x.strip() for x in manufacturer.split(s)] for s in splits])
+                itertools.chain.from_iterable([x.strip() for x in manufacturer.split(s)] for s in splits)
             )
             result_aux = [self._get_candidate_list_of_vendors(x) for x in vendor_tokens]
-            result_used = set(set(itertools.chain.from_iterable([x for x in result_aux if x])))
+            result_used = set(set(itertools.chain.from_iterable(x for x in result_aux if x)))
             return result_used if result_used else set()
 
         if manufacturer in self.vendors_:
@@ -393,9 +393,7 @@ class CPEClassifier(BaseEstimator):
         """
         candidate_vendor_version_pairs = self._get_candidate_vendor_version_pairs(candidate_vendors, candidate_versions)
         return (
-            list(
-                itertools.chain.from_iterable([self.vendor_version_to_cpe_[x] for x in candidate_vendor_version_pairs])
-            )
+            list(itertools.chain.from_iterable(self.vendor_version_to_cpe_[x] for x in candidate_vendor_version_pairs))
             if candidate_vendor_version_pairs
             else []
         )

@@ -584,7 +584,7 @@ class FIPSCertificate(
             try:
                 tabular_data = read_pdf(cert.state.policy_pdf_path, pages=list(table_rich_page_numbers), silent=True)
                 cert.heuristics.algorithms |= set(
-                    itertools.chain.from_iterable([tables.get_algs_from_table(df.to_string()) for df in tabular_data])
+                    itertools.chain.from_iterable(tables.get_algs_from_table(df.to_string()) for df in tabular_data)
                 )
             except Exception as e:
                 logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")

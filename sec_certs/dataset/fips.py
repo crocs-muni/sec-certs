@@ -201,7 +201,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
     def _get_all_certs_from_html_sources(self) -> set[FIPSCertificate]:
         return set(
             itertools.chain.from_iterable(
-                [self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()]
+                self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()
             )
         )
 

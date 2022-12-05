@@ -86,7 +86,7 @@ class CVEDataset(ComplexSerializableType):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
                 vulnerable_configurations = list(
-                    itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+                    itertools.chain.from_iterable(matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes)
                 )
             else:
                 vulnerable_configurations = cve.vulnerable_cpes

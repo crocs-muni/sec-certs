@@ -198,7 +198,7 @@ class CPEDataset(ComplexSerializableType):
 
         if not isinstance(cve_dset, CVEDataset):
             raise RuntimeError("Conversion of CVE dataset did not work.")
-        all_cpes_in_cve_dset = set(itertools.chain.from_iterable([cve.vulnerable_cpes for cve in cve_dset]))
+        all_cpes_in_cve_dset = set(itertools.chain.from_iterable(cve.vulnerable_cpes for cve in cve_dset))
 
         old_len = len(self.cpes)
 
