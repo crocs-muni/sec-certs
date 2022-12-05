@@ -1,14 +1,15 @@
+from __future__ import annotations
+
 import logging
 import re
 from pathlib import Path
-from typing import Set
 
 from sec_certs.cert_rules import FIPS_LIST_OF_TABLES
 
 logger = logging.getLogger(__name__)
 
 
-def parse_list_of_tables(txt: str) -> Set[int]:
+def parse_list_of_tables(txt: str) -> set[int]:
     """
     Parses list of tables in policy txt, returns page numbers of tables that mention algorithms
     """
@@ -16,7 +17,7 @@ def parse_list_of_tables(txt: str) -> Set[int]:
     return {int(m.group("page_num")) for m in rr.finditer(txt)}
 
 
-def get_table_rich_page_numbers_from_footer(file_text: str) -> Set[int]:
+def get_table_rich_page_numbers_from_footer(file_text: str) -> set[int]:
     """
     Parses page numbers of policy txt pages that may contain tables with algorithm data
     """
@@ -39,7 +40,7 @@ def get_table_rich_page_numbers_from_footer(file_text: str) -> Set[int]:
     return pages
 
 
-def find_pages_with_tables(txt_filepath: Path) -> Set[int]:
+def find_pages_with_tables(txt_filepath: Path) -> set[int]:
     """
     Identifies pages in txt file that may contain tables. Return their page numbers.
     """
@@ -56,6 +57,6 @@ def find_pages_with_tables(txt_filepath: Path) -> Set[int]:
     return result if result else set()
 
 
-def get_algs_from_table(dataframe_text: str) -> Set[str]:
+def get_algs_from_table(dataframe_text: str) -> set[str]:
     reg = r"(?:#?\s?|(?:Cert)\.?[^. ]*?\s?)(?:[CcAa]\s)?(?P<id>[CcAa]? ?\d+)"
     return {m.group() for m in re.finditer(reg, dataframe_text)}

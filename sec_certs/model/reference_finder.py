@@ -1,4 +1,6 @@
-from typing import Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
+from __future__ import annotations
+
+from typing import Callable, Dict, List, Optional, Set, TypeVar
 
 from sec_certs.sample.certificate import Certificate, References
 
@@ -76,7 +78,7 @@ class ReferenceFinder:
 
     def _build_referenced_by(
         self, certificates: Certificates, ref_lookup_func: ReferenceLookupFunc
-    ) -> Tuple[ReferencedByDirect, ReferencedByIndirect]:
+    ) -> tuple[ReferencedByDirect, ReferencedByIndirect]:
         referenced_by: ReferencedByDirect = {}
 
         for this_cert_id, cert_digests in self.id_mapping.items():
@@ -102,8 +104,8 @@ class ReferenceFinder:
         return referenced_by, referenced_by_indirect
 
     def _get_reverse_references(
-        self, cert_id: str, references: Union[ReferencedByDirect, ReferencedByIndirect]
-    ) -> Optional[Set[str]]:
+        self, cert_id: str, references: ReferencedByDirect | ReferencedByIndirect
+    ) -> set[str] | None:
         result = set()
 
         for other_id in references:
@@ -203,7 +205,7 @@ class ReferenceFinder:
             wrap(self.references[dgst].get("indirectly_referencing", None)),
         )
 
-    def predict(self, dgst_list: List[str], keep_unknowns: bool = True) -> Dict[str, References]:
+    def predict(self, dgst_list: list[str], keep_unknowns: bool = True) -> dict[str, References]:
         """
         Get the references for a list of certificate digests.
 

@@ -17,3 +17,4 @@ sphinx-book-theme
 sphinx-design
 sphinx-copybutton
 pyupgrade
+flake8-future-annotations

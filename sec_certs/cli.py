@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import logging
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, List, Optional, Type, Union
+from typing import Callable
 
 import click
 
@@ -20,11 +22,11 @@ logger = logging.getLogger(__name__)
 class ProcessingStep:
     name: str
     processing_function_name: str
-    preconditions: List[str] = field(default_factory=list)
-    precondition_error_msg: Optional[str] = field(default=None)
-    pre_callback_func: Optional[Callable] = field(default=None)
+    preconditions: list[str] = field(default_factory=list)
+    precondition_error_msg: str | None = field(default=None)
+    pre_callback_func: Callable | None = field(default=None)
 
-    def run(self, dset: Union[CCDataset, FIPSDataset]) -> None:
+    def run(self, dset: CCDataset | FIPSDataset) -> None:
         for condition in self.preconditions:
             if not getattr(dset.state, condition):
                 err_msg = (
@@ -47,12 +49,12 @@ def warn_missing_libs():
 
 def build_or_load_dataset(
     framework: str,
-    inputpath: Optional[Path],
+    inputpath: Path | None,
     to_build: bool,
     outputpath: Path = constants.DUMMY_NONEXISTING_PATH,
-) -> Union[CCDataset, FIPSDataset]:
-    constructor: Union[Type[CCDataset], Type[FIPSDataset]] = CCDataset if framework == "cc" else FIPSDataset
-    dset: Union[CCDataset, FIPSDataset]
+) -> CCDataset | FIPSDataset:
+    constructor: type[CCDataset] | type[FIPSDataset] = CCDataset if framework == "cc" else FIPSDataset
+    dset: CCDataset | FIPSDataset
 
     if to_build:
         if inputpath:
@@ -122,10 +124,10 @@ def build_or_load_dataset(
 @click.option("-s", "--silent", is_flag=True, help="If set, will not print to stdout")
 def main(
     framework: str,
-    actions: List[str],
+    actions: list[str],
     outputpath: Path,
-    configpath: Optional[str],
-    inputpath: Optional[Path],
+    configpath: str | None,
+    inputpath: Path | None,
     silent: bool,
 ):
     file_handler = logging.FileHandler(config.log_filepath)
@@ -133,7 +135,7 @@ def main(
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
-    handlers: List[logging.StreamHandler] = [file_handler] if silent else [file_handler, stream_handler]
+    handlers: list[logging.StreamHandler] = [file_handler] if silent else [file_handler, stream_handler]
     logging.basicConfig(level=logging.INFO, handlers=handlers)
     start = datetime.now()
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import logging
 import re
@@ -6,7 +8,7 @@ from contextlib import nullcontext
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Any, Collection, Dict, List, Optional, Set, Union
+from typing import Any, Collection
 
 import numpy as np
 import pkgconfig
@@ -21,8 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 def download_file(
-    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: Optional[str] = None
-) -> Union[str, int]:
+    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: str | None = None
+) -> str | int:
     try:
         time.sleep(delay)
         # See https://github.com/psf/requests/issues/3953 for header justification
@@ -60,8 +62,8 @@ def download_file(
 
 
 def download_parallel(
-    urls: Collection[str], paths: Collection[Path], progress_bar_desc: Optional[str] = None
-) -> List[int]:
+    urls: Collection[str], paths: Collection[Path], progress_bar_desc: str | None = None
+) -> list[int]:
     exit_codes = parallel_processing.process_parallel(
         download_file, list(zip(urls, paths)), config.n_threads, unpack=True, progress_bar_desc=progress_bar_desc
     )
@@ -75,7 +77,7 @@ def download_parallel(
     return exit_codes
 
 
-def fips_dgst(cert_id: Union[int, str]) -> str:
+def fips_dgst(cert_id: int | str) -> str:
     return get_first_16_bytes_sha256(str(cert_id))
 
 
@@ -83,7 +85,7 @@ def get_first_16_bytes_sha256(string: str) -> str:
     return hashlib.sha256(string.encode("utf-8")).hexdigest()[:16]
 
 
-def get_sha256_filepath(filepath: Union[str, Path]) -> str:
+def get_sha256_filepath(filepath: str | Path) -> str:
     hash_sha256 = hashlib.sha256()
     with Path(filepath).open("rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -100,7 +102,7 @@ def to_utc(timestamp: datetime) -> datetime:
     return timestamp
 
 
-def is_in_dict(target_dict: Dict, path: str) -> bool:
+def is_in_dict(target_dict: dict, path: str) -> bool:
     current_level = target_dict
     for item in path:
         if item not in current_level:
@@ -110,7 +112,7 @@ def is_in_dict(target_dict: Dict, path: str) -> bool:
     return True
 
 
-def compute_heuristics_version(cert_name: str) -> Set[str]:
+def compute_heuristics_version(cert_name: str) -> set[str]:
     """
     Will extract possible versions from the name of sample
     """
@@ -141,11 +143,11 @@ def compute_heuristics_version(cert_name: str) -> Set[str]:
     return {x.group() for x in matched if x is not None}
 
 
-def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:
+def tokenize_dataset(dset: list[str], keywords: set[str]) -> np.ndarray:
     return np.array([tokenize(x, keywords) for x in dset])
 
 
-def tokenize(string: str, keywords: Set[str]) -> str:
+def tokenize(string: str, keywords: set[str]) -> str:
     return " ".join([x for x in string.split() if x.lower() in keywords])
 
 
@@ -162,7 +164,7 @@ def normalize_fips_vendor(string: str) -> str:
 
 
 # Credit: https://stackoverflow.com/questions/18092354/
-def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> List[str]:
+def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> list[str]:
     """
     >>> split_unescape('foo,bar', ',')
     ['foo', 'bar']
@@ -224,7 +226,7 @@ def warn_if_missing_tesseract() -> None:
         logger.warning("Attempting to find tesseract, but pkg-config was not found.")
 
 
-def choose_lowest_eal(eals: Optional[Set[str]]) -> Optional[str]:
+def choose_lowest_eal(eals: set[str] | None) -> str | None:
     """
     Given a set of EAL strings, chooses the lowest one.
     """

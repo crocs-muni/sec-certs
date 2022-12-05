@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import itertools
 import logging
@@ -5,7 +7,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
-from typing import ClassVar, Dict, Iterator, List, Set, Tuple, Union, cast
+from typing import ClassVar, Iterator, cast
 
 import pandas as pd
 
@@ -30,17 +32,17 @@ class CPEDataset(ComplexSerializableType):
     def __init__(
         self,
         was_enhanced_with_vuln_cpes: bool,
-        cpes: Dict[str, CPE],
-        json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
+        cpes: dict[str, CPE],
+        json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
     ):
         self.was_enhanced_with_vuln_cpes = was_enhanced_with_vuln_cpes
         self.cpes = cpes
         self._json_path = Path(json_path)
 
-        self.vendor_to_versions: Dict[str, Set[str]] = dict()
-        self.vendor_version_to_cpe: Dict[Tuple[str, str], Set[CPE]] = dict()
-        self.title_to_cpes: Dict[str, Set[CPE]] = dict()
-        self.vendors: Set[str] = set()
+        self.vendor_to_versions: dict[str, set[str]] = dict()
+        self.vendor_version_to_cpe: dict[tuple[str, str], set[CPE]] = dict()
+        self.title_to_cpes: dict[str, set[CPE]] = dict()
+        self.vendors: set[str] = set()
 
         self.build_lookup_dicts()
 
@@ -49,7 +51,7 @@ class CPEDataset(ComplexSerializableType):
         return self._json_path
 
     @json_path.setter
-    def json_path(self, new_json_path: Union[str, Path]) -> None:
+    def json_path(self, new_json_path: str | Path) -> None:
         self._json_path = Path(new_json_path)
         self.to_json()
 
@@ -74,7 +76,7 @@ class CPEDataset(ComplexSerializableType):
         return isinstance(other, CPEDataset) and self.cpes == other.cpes
 
     @property
-    def serialized_attributes(self) -> List[str]:
+    def serialized_attributes(self) -> list[str]:
         return ["was_enhanced_with_vuln_cpes", "cpes"]
 
     def build_lookup_dicts(self) -> None:
@@ -100,7 +102,7 @@ class CPEDataset(ComplexSerializableType):
                     self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
-    def from_web(cls, json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH) -> "CPEDataset":
+    def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CPEDataset:
         """
         Creates CPEDataset from NIST resources published on-line
 
@@ -118,9 +120,7 @@ class CPEDataset(ComplexSerializableType):
             return cls._from_xml(xml_path, json_path)
 
     @classmethod
-    def _from_xml(
-        cls, xml_path: Union[str, Path], json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH
-    ) -> "CPEDataset":
+    def _from_xml(cls, xml_path: str | Path, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CPEDataset:
         logger.info("Loading CPE dataset from XML.")
         root = ET.parse(xml_path).getroot()
         dct = {}
@@ -144,7 +144,7 @@ class CPEDataset(ComplexSerializableType):
         return cls(False, dct, json_path)
 
     @classmethod
-    def from_json(cls, input_path: Union[str, Path]) -> "CPEDataset":
+    def from_json(cls, input_path: str | Path) -> CPEDataset:
         """
         Loads dataset from json
 
@@ -166,7 +166,7 @@ class CPEDataset(ComplexSerializableType):
         return df
 
     @serialize
-    def enhance_with_cpes_from_cve_dataset(self, cve_dset: Union[CVEDataset, str, Path]) -> None:
+    def enhance_with_cpes_from_cve_dataset(self, cve_dset: CVEDataset | str | Path) -> None:
         """
         Some CPEs are present only in the CVEDataset and are missing from the CPE Dataset.
         This method goes through the provided CVEDataset and enriches self with CPEs from
@@ -177,8 +177,8 @@ class CPEDataset(ComplexSerializableType):
 
         def _adding_condition(
             considered_cpe: CPE,
-            vndr_item_lookup: Set[Tuple[str, str]],
-            vndr_item_version_lookup: Set[Tuple[str, str, str]],
+            vndr_item_lookup: set[tuple[str, str]],
+            vndr_item_version_lookup: set[tuple[str, str, str]],
         ) -> bool:
             if (
                 considered_cpe.version == constants.CPE_VERSION_NA

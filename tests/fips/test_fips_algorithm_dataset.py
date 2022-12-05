@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -30,7 +32,7 @@ def alg_dset(alg_dset_path: Path) -> FIPSAlgorithmDataset:
 
 
 @pytest.fixture(scope="module")
-def alg_dict() -> Dict[str, Any]:
+def alg_dict() -> dict[str, Any]:
     return {
         "alg_number": "2902",
         "algorithm_type": "AES",
@@ -45,7 +47,7 @@ def test_alg_dset_lookup_dict(alg_dset: FIPSAlgorithmDataset):
     assert alg_dset.alg_number_to_algs["2902"] == {alg}
 
 
-def test_alg_from_to_dict(alg_dict: Dict[str, Any]):
+def test_alg_from_to_dict(alg_dict: dict[str, Any]):
     alg = FIPSAlgorithm.from_dict(alg_dict)
     ret = alg.to_dict()
     assert alg_dict == ret

@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 from datetime import date
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import ClassVar
 
 import sec_certs.utils.helpers as helpers
 from sec_certs.sample.common_criteria import CommonCriteriaCert
@@ -10,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableType):
-    pandas_columns: ClassVar[List[str]] = [
+    pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "name",
         "report_link",
@@ -24,9 +26,9 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         name: str,
         report_link: str,
         st_link: str,
-        state: Optional[CommonCriteriaCert.InternalState],
-        pdf_data: Optional[CommonCriteriaCert.PdfData],
-        heuristics: Optional[CommonCriteriaCert.Heuristics],
+        state: CommonCriteriaCert.InternalState | None,
+        pdf_data: CommonCriteriaCert.PdfData | None,
+        heuristics: CommonCriteriaCert.Heuristics | None,
         related_cert_digest: str,
         maintenance_date: date,
     ):
@@ -53,7 +55,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         self.maintenance_date = maintenance_date
 
     @property
-    def serialized_attributes(self) -> List[str]:
+    def serialized_attributes(self) -> list[str]:
         return ["dgst"] + list(self.__class__.__init__.__code__.co_varnames)[1:]
 
     @property
@@ -63,16 +65,16 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         return "cert_" + self.related_cert_digest + "_update_" + helpers.get_first_16_bytes_sha256(self.name)
 
     @property
-    def pandas_tuple(self) -> Tuple:
+    def pandas_tuple(self) -> tuple:
         return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])
 
     @classmethod
-    def from_dict(cls, dct: Dict) -> "CommonCriteriaMaintenanceUpdate":
+    def from_dict(cls, dct: dict) -> CommonCriteriaMaintenanceUpdate:
         dct.pop("dgst")
         return cls(*(tuple(dct.values())))
 
     @classmethod
-    def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert) -> List["CommonCriteriaMaintenanceUpdate"]:
+    def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert) -> list[CommonCriteriaMaintenanceUpdate]:
         if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 

@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
-from typing import List, Optional, Set, Union
 
 import numpy as np
 
@@ -14,7 +15,7 @@ from sec_certs.serialization.json import CustomJSONEncoder
 logger = logging.getLogger(__name__)
 
 
-def get_validation_dgsts(filepath: Union[str, Path]) -> Set[str]:
+def get_validation_dgsts(filepath: str | Path) -> set[str]:
     with Path(filepath).open("r") as handle:
         return set(json.load(handle))
 
@@ -32,9 +33,9 @@ def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
 
 
 def evaluate(
-    x_valid: List[Union[CommonCriteriaCert, FIPSCertificate]],
-    y_valid: List[Optional[Set[str]]],
-    outpath: Optional[Union[Path, str]],
+    x_valid: list[CommonCriteriaCert | FIPSCertificate],
+    y_valid: list[set[str] | None],
+    outpath: Path | str | None,
     cpe_dset: CPEDataset,
 ) -> None:
     y_pred = [x.heuristics.cpe_matches for x in x_valid]

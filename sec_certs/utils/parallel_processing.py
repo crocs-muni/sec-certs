@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import time
 from multiprocessing.pool import ThreadPool
-from typing import Any, Callable, Iterable, List, Optional, Union
+from typing import Any, Callable, Iterable
 
 from billiard.pool import Pool
 
@@ -11,14 +13,14 @@ def process_parallel(
     func: Callable,
     items: Iterable,
     max_workers: int,
-    callback: Optional[Callable] = None,
+    callback: Callable | None = None,
     use_threading: bool = True,
     progress_bar: bool = True,
     unpack: bool = False,
-    progress_bar_desc: Optional[str] = None,
-) -> List[Any]:
+    progress_bar_desc: str | None = None,
+) -> list[Any]:
 
-    pool: Union[Pool, ThreadPool] = ThreadPool(max_workers) if use_threading else Pool(max_workers)
+    pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = (
         [pool.apply_async(func, (*i,), callback=callback) for i in items]
         if unpack

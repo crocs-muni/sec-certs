@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date
-from typing import ClassVar, List, Tuple
+from typing import ClassVar
 
 from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
@@ -19,7 +21,7 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
     implementation_name: str
     validation_date: date
 
-    pandas_columns: ClassVar[List[str]] = [
+    pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "alg_number",
         "algorithm_type",
@@ -29,7 +31,7 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
     ]
 
     @property
-    def pandas_tuple(self) -> Tuple:
+    def pandas_tuple(self) -> tuple:
         return (
             self.dgst,
             self.alg_number,

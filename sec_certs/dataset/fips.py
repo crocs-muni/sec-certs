@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import datetime
 import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, Final, Optional, Set, Union
+from typing import Final
 
 import numpy as np
 import pandas as pd
@@ -27,9 +29,9 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAuxillaryDatasets(AuxillaryDatasets):
-    cpe_dset: Optional[CPEDataset] = None
-    cve_dset: Optional[CVEDataset] = None
-    algorithm_dset: Optional[FIPSAlgorithmDataset] = None
+    cpe_dset: CPEDataset | None = None
+    cve_dset: CVEDataset | None = None
+    algorithm_dset: FIPSAlgorithmDataset | None = None
 
 
 class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerializableType):
@@ -39,12 +41,12 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     def __init__(
         self,
-        certs: Dict[str, FIPSCertificate] = dict(),
-        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
-        name: Optional[str] = None,
+        certs: dict[str, FIPSCertificate] = dict(),
+        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        name: str | None = None,
         description: str = None,
-        state: Optional[Dataset.DatasetInternalState] = None,
-        auxillary_datasets: Optional[FIPSAuxillaryDatasets] = None,
+        state: Dataset.DatasetInternalState | None = None,
+        auxillary_datasets: FIPSAuxillaryDatasets | None = None,
     ):
         self.certs = certs
         self._root_dir = Path(root_dir)
@@ -57,7 +59,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             auxillary_datasets if auxillary_datasets else FIPSAuxillaryDatasets()
         )
 
-    LIST_OF_CERTS_HTML: Final[Dict[str, str]] = {
+    LIST_OF_CERTS_HTML: Final[dict[str, str]] = {
         "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
         "fips_modules_historical.html": constants.FIPS_HISTORICAL_MODULES_URL,
         "fips_modules_revoked.html": constants.FIPS_REVOKED_MODULES_URL,
@@ -196,19 +198,19 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML.keys()]
         helpers.download_parallel(html_urls, html_paths)
 
-    def _get_all_certs_from_html_sources(self) -> Set[FIPSCertificate]:
+    def _get_all_certs_from_html_sources(self) -> set[FIPSCertificate]:
         return set(
             itertools.chain.from_iterable(
                 [self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()]
             )
         )
 
-    def _get_certificates_from_html(self, html_file: Path) -> Set[FIPSCertificate]:
+    def _get_certificates_from_html(self, html_file: Path) -> set[FIPSCertificate]:
         with open(html_file, encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html5lib")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]
-        cert_ids: Set[str] = set()
+        cert_ids: set[str] = set()
 
         for entry in table:
             if isinstance(entry, NavigableString):
@@ -220,7 +222,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return {FIPSCertificate(cert_id) for cert_id in cert_ids}
 
     @classmethod
-    def from_web_latest(cls) -> "FIPSDataset":
+    def from_web_latest(cls) -> FIPSDataset:
         """
         Fetches the fresh snapshot of FIPSDataset from mirror.
         """

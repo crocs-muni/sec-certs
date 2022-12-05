@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Dict, Iterator, List, Mapping, Union
+from typing import Iterator, Mapping
 
 import requests
 
@@ -14,7 +16,7 @@ from sec_certs.utils.tqdm import tqdm
 
 @dataclass
 class MIPDataset(ComplexSerializableType):
-    snapshots: List[MIPSnapshot]
+    snapshots: list[MIPSnapshot]
 
     def __iter__(self) -> Iterator[MIPSnapshot]:
         yield from self.snapshots
@@ -26,7 +28,7 @@ class MIPDataset(ComplexSerializableType):
         return len(self.snapshots)
 
     @classmethod
-    def from_dumps(cls, dump_path: Union[str, Path]) -> "MIPDataset":
+    def from_dumps(cls, dump_path: str | Path) -> MIPDataset:
         directory = Path(dump_path)
         fnames = list(directory.glob("*"))
         snapshots = []
@@ -37,15 +39,15 @@ class MIPDataset(ComplexSerializableType):
                 logger.error(e)
         return cls(snapshots)
 
-    def to_dict(self) -> Dict[str, List[MIPSnapshot]]:
+    def to_dict(self) -> dict[str, list[MIPSnapshot]]:
         return {"snapshots": list(self.snapshots)}
 
     @classmethod
-    def from_dict(cls, dct: Mapping) -> "MIPDataset":
+    def from_dict(cls, dct: Mapping) -> MIPDataset:
         return cls(dct["snapshots"])
 
     @classmethod
-    def from_web_latest(cls) -> "MIPDataset":
+    def from_web_latest(cls) -> MIPDataset:
         """
         Get the MIPDataset from seccerts.org
         """

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -20,7 +22,7 @@ def cpe_dset(cpe_dset_path: Path) -> CPEDataset:
 
 
 @pytest.fixture(scope="module")
-def cpe_dict() -> Dict[str, Any]:
+def cpe_dict() -> dict[str, Any]:
     return {
         "uri": "cpe:2.3:o:freebsd:freebsd:1.0:*:*:*:*:*:*:*",
         "title": None,

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -25,14 +27,14 @@ def cve_dataset_path() -> Path:
 
 
 @pytest.fixture(scope="module")
-def cve_dset(cves: List[CVE]) -> CVEDataset:
+def cve_dset(cves: list[CVE]) -> CVEDataset:
     cve_dset = CVEDataset({x.cve_id: x for x in cves})
     cve_dset.build_lookup_dict(use_nist_mapping=False)
     return cve_dset
 
 
 @pytest.fixture(scope="module")
-def cve_dict() -> Dict[str, Any]:
+def cve_dict() -> dict[str, Any]:
     return {
         "cve_id": "CVE-1999-0001",
         "vulnerable_cpes": [
@@ -56,7 +58,7 @@ def cve_dict() -> Dict[str, Any]:
 
 
 @pytest.fixture(scope="module")
-def cves() -> List[CVE]:
+def cves() -> list[CVE]:
     cpe_single_sign_on = CPE(
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
         "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
@@ -80,7 +82,7 @@ def cves() -> List[CVE]:
     ]
 
 
-def test_cve_dset_lookup_dicts(cves: List[CVE], cve_dset: CVEDataset):
+def test_cve_dset_lookup_dicts(cves: list[CVE], cve_dset: CVEDataset):
     alt_lookup = {x: set(y) for x, y in cve_dset.cpe_to_cve_ids_lookup.items()}
     assert alt_lookup == {
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*": {
@@ -94,7 +96,7 @@ def test_cve_dset_from_json(cve_dataset_path: Path, cve_dset: CVEDataset):
     assert dset == cve_dset
 
 
-def test_cve_from_to_dict(cve_dict: Dict[str, Any]):
+def test_cve_from_to_dict(cve_dict: dict[str, Any]):
     cve = CVE.from_dict(cve_dict)
     ret = cve.to_dict()
     assert ret == cve_dict

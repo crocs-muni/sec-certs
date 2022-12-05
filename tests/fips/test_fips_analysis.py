@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional, Set
 
 import pytest
 
@@ -117,7 +118,7 @@ def processed_dataset(
         ("3197", {"3195", "3096", "3196", "3644", "3651"}),
     ],
 )
-def test_html_modules_directly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
+def test_html_modules_directly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str]):
     crt = processed_dataset[input_dgst]
     if not crt.state.module_extract_ok:
         pytest.xfail(reason="Data from module not extracted")
@@ -125,7 +126,7 @@ def test_html_modules_directly_referencing(processed_dataset: FIPSDataset, input
 
 
 @pytest.mark.parametrize("input_dgst, expected_refs", [("3095", {"3093", "3094", "3096"}), ("3093", {"3090", "3091"})])
-def test_pdf_policies_directly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
+def test_pdf_policies_directly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str]):
     crt = processed_dataset[input_dgst]
     if not crt.state.policy_extract_ok:
         pytest.xfail(reason="Data from policy not extracted")
@@ -145,7 +146,7 @@ def test_pdf_policies_directly_referencing(processed_dataset: FIPSDataset, input
         ("3095", {"3090", "3091", "3093", "3094", "3096"}),
     ],
 )
-def test_html_modules_indirectly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
+def test_html_modules_indirectly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str]):
     crt = processed_dataset[input_dgst]
     if not crt.state.module_extract_ok:
         pytest.xfail(reason="Data from module not extracted")
@@ -156,7 +157,7 @@ def test_html_modules_indirectly_referencing(processed_dataset: FIPSDataset, inp
     "input_dgst, expected_refs",
     [("3095", {"3090", "3091", "3093", "3094", "3096"}), ("3093", {"3090", "3091"})],
 )
-def test_pdf_policies_indirectly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Set[str]):
+def test_pdf_policies_indirectly_referencing(processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str]):
     crt = processed_dataset[input_dgst]
     if not crt.state.policy_extract_ok:
         pytest.xfail(reason="Data from policy not extracted")
@@ -165,7 +166,7 @@ def test_pdf_policies_indirectly_referencing(processed_dataset: FIPSDataset, inp
 
 @pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
 def test_html_modules_directly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
+    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str] | None
 ):
     crt = processed_dataset[input_dgst]
     if not crt.state.module_extract_ok:
@@ -175,7 +176,7 @@ def test_html_modules_directly_referenced_by(
 
 @pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
 def test_pdf_policies_directly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
+    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str] | None
 ):
     crt = processed_dataset[input_dgst]
     if not crt.state.policy_extract_ok:
@@ -185,7 +186,7 @@ def test_pdf_policies_directly_referenced_by(
 
 @pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
 def test_html_modules_indirectly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
+    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str] | None
 ):
     crt = processed_dataset[input_dgst]
     if not crt.state.module_extract_ok:
@@ -195,7 +196,7 @@ def test_html_modules_indirectly_referenced_by(
 
 @pytest.mark.parametrize("input_dgst, expected_refs", [("3095", None), ("3093", {"3095"})])
 def test_pdf_policies_indirectly_referenced_by(
-    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: Optional[Set[str]]
+    processed_dataset: FIPSDataset, input_dgst: str, expected_refs: set[str] | None
 ):
     crt = processed_dataset[input_dgst]
     if not crt.state.policy_extract_ok:

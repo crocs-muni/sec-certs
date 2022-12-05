@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import itertools
 import json
@@ -9,7 +11,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Generic, Iterator, List, Optional, Pattern, Set, Type, TypeVar, Union, cast
+from typing import Any, Generic, Iterator, Pattern, TypeVar, cast
 
 import pandas as pd
 
@@ -29,8 +31,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AuxillaryDatasets:
-    cpe_dset: Optional[CPEDataset] = None
-    cve_dset: Optional[CVEDataset] = None
+    cpe_dset: CPEDataset | None = None
+    cve_dset: CVEDataset | None = None
 
 
 CertSubType = TypeVar("CertSubType", bound=Certificate)
@@ -52,12 +54,12 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     def __init__(
         self,
-        certs: Dict[str, CertSubType] = dict(),
-        root_dir: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH,
-        name: Optional[str] = None,
+        certs: dict[str, CertSubType] = dict(),
+        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        name: str | None = None,
         description: str = None,
-        state: Optional[DatasetInternalState] = None,
-        auxillary_datasets: Optional[AuxillaryDatasetsSubType] = None,
+        state: DatasetInternalState | None = None,
+        auxillary_datasets: AuxillaryDatasetsSubType | None = None,
     ):
         self.certs = certs
         self._root_dir = Path(root_dir)
@@ -81,7 +83,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         return self._root_dir
 
     @root_dir.setter
-    def root_dir(self, new_dir: Union[str, Path]) -> None:
+    def root_dir(self, new_dir: str | Path) -> None:
         old_dset = copy.deepcopy(self)
         self._root_dir = Path(new_dir)
         self.root_dir.mkdir(exist_ok=True)
@@ -151,13 +153,13 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         return str(type(self).__name__) + ":" + self.name + ", " + str(len(self)) + " certificates"
 
     @classmethod
-    def from_web(cls: Type[DatasetSubType], url: str, progress_bar_desc: str, filename: str) -> DatasetSubType:
+    def from_web(cls: type[DatasetSubType], url: str, progress_bar_desc: str, filename: str) -> DatasetSubType:
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / filename
             helpers.download_file(url, dset_path, show_progress_bar=True, progress_bar_desc=progress_bar_desc)
             return cls.from_json(dset_path)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "state": self.state,
             "timestamp": self.timestamp,
@@ -169,7 +171,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         }
 
     @classmethod
-    def from_dict(cls: Type[DatasetSubType], dct: Dict) -> DatasetSubType:
+    def from_dict(cls: type[DatasetSubType], dct: dict) -> DatasetSubType:
         certs = {x.dgst: x for x in dct["certs"]}
         dset = cls(certs, name=dct["name"], description=dct["description"], state=dct["state"])
         if len(dset) != (claimed := dct["n_certs"]):
@@ -179,7 +181,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         return dset
 
     @classmethod
-    def from_json(cls: Type[DatasetSubType], input_path: Union[str, Path]) -> DatasetSubType:
+    def from_json(cls: type[DatasetSubType], input_path: str | Path) -> DatasetSubType:
         dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
         dset._root_dir = Path(input_path).parent.absolute()
         dset._set_local_paths()
@@ -198,7 +200,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         except FileNotFoundError as e:
             logger.error(f"Attempted to copy dataset from {old_dset.root_dir}, but it's not there ({e}).")
 
-    def _get_certs_by_name(self, name: str) -> Set[CertSubType]:
+    def _get_certs_by_name(self, name: str) -> set[CertSubType]:
         """
         Returns list of certificates that match given name.
         """
@@ -320,7 +322,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     @serialize
     def compute_cpe_heuristics(self, download_fresh_cpes: bool = False) -> CPEClassifier:
         RELEASE_CANDIDATE_REGEX: Pattern = re.compile(r"rc\d{0,2}$", re.IGNORECASE)
-        WINDOWS_WEAK_CPES: Set[CPE] = {
+        WINDOWS_WEAK_CPES: set[CPE] = {
             CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64", None, None),
             CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86", None, None),
         }
@@ -374,7 +376,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
         return clf
 
-    def to_label_studio_json(self, output_path: Union[str, Path]) -> None:
+    def to_label_studio_json(self, output_path: str | Path) -> None:
         cpe_dset = self._prepare_cpe_dataset()
 
         lst = []
@@ -390,12 +392,12 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             json.dump(lst, handle, indent=4)
 
     @serialize
-    def load_label_studio_labels(self, input_path: Union[str, Path]) -> Set[str]:
+    def load_label_studio_labels(self, input_path: str | Path) -> set[str]:
         with Path(input_path).open("r") as handle:
             data = json.load(handle)
 
         cpe_dset = self._prepare_cpe_dataset()
-        labeled_cert_digests: Set[str] = set()
+        labeled_cert_digests: set[str] = set()
 
         logger.info("Translating label studio matches into their CPE representations and assigning to certificates.")
         for annotation in tqdm(data, desc="Translating label studio matches"):
@@ -404,7 +406,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             }
 
             if "verified_cpe_match" not in annotation:
-                incorrect_keys: Set[str] = set()
+                incorrect_keys: set[str] = set()
             elif isinstance(annotation["verified_cpe_match"], str):
                 incorrect_keys = {annotation["verified_cpe_match"]}
             else:
@@ -413,7 +415,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
             incorrect_keys = {x.lstrip("$") for x in incorrect_keys}
             predicted_annotations = {annotation[x] for x in cpe_candidate_keys - incorrect_keys}
 
-            cpes: Set[CPE] = set()
+            cpes: set[CPE] = set()
             for x in predicted_annotations:
                 if x not in cpe_dset.title_to_cpes:
                     logger.error(f"{x} not in dataset")
@@ -502,7 +504,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         data = [dict({"dgst": x.dgst}, **x.pdf_data.get_keywords_df_data(var)) for x in self]
         return pd.DataFrame(data).set_index("dgst")
 
-    def update_with_certs(self, certs: List[CertSubType]) -> None:
+    def update_with_certs(self, certs: list[CertSubType]) -> None:
         """
         Enriches the dataset with `certs`
         :param List[CommonCriteriaCert] certs: new certs to include into the dataset.

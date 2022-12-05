@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import itertools
 import logging
 import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Iterator, List, Set, Union, cast
+from typing import Iterator, cast
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -18,16 +20,16 @@ logger = logging.getLogger(__name__)
 
 class FIPSAlgorithmDataset(ComplexSerializableType):
     def __init__(
-        self, algs: Dict[str, FIPSAlgorithm] = dict(), json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH
+        self, algs: dict[str, FIPSAlgorithm] = dict(), json_path: str | Path = constants.DUMMY_NONEXISTING_PATH
     ):
         self.algs = algs
         self._json_path = Path(json_path)
-        self.alg_number_to_algs: Dict[str, Set[FIPSAlgorithm]] = dict()
+        self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = dict()
 
         self._build_lookup_dicts()
 
     @property
-    def serialized_attributes(self) -> List[str]:
+    def serialized_attributes(self) -> list[str]:
         return ["algs"]
 
     @property
@@ -35,7 +37,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
         return self._json_path
 
     @json_path.setter
-    def json_path(self, new_json_path: Union[str, Path]) -> None:
+    def json_path(self, new_json_path: str | Path) -> None:
         self._json_path = Path(new_json_path)
         self.to_json()
 
@@ -60,7 +62,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
         return isinstance(other, FIPSAlgorithmDataset) and self.algs == other.algs
 
     @classmethod
-    def from_web(cls, json_path: Union[str, Path] = constants.DUMMY_NONEXISTING_PATH) -> "FIPSAlgorithmDataset":
+    def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> FIPSAlgorithmDataset:
         with TemporaryDirectory() as tmp_dir:
             htmls = FIPSAlgorithmDataset.download_alg_list_htmls(Path(tmp_dir))
             algs = set(
@@ -69,7 +71,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
         return cls({x.dgst: x for x in algs}, json_path)
 
     @staticmethod
-    def download_alg_list_htmls(output_dir: Path) -> List[Path]:
+    def download_alg_list_htmls(output_dir: Path) -> list[Path]:
         first_page_path = output_dir / "page1.html"
         ITEMS_PER_PAGE = "ipp=250"
 
@@ -104,7 +106,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
         return int(soup.select("span[data-total-pages]")[0].attrs["data-total-pages"])
 
     @staticmethod
-    def parse_algorithms_from_html(html_path: Path) -> Set[FIPSAlgorithm]:
+    def parse_algorithms_from_html(html_path: Path) -> set[FIPSAlgorithm]:
         df = pd.read_html(html_path)[0]
         df["alg_type"] = df["Validation Number"].map(lambda x: re.sub(r"[0-9\s]", "", x))
         df["alg_number"] = df["Validation Number"].map(lambda x: re.sub(r"[^0-9]", "", x))
@@ -117,7 +119,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
         return set(df["alg"])
 
     @classmethod
-    def from_json(cls, input_path: Union[str, Path]) -> "FIPSAlgorithmDataset":
+    def from_json(cls, input_path: str | Path) -> FIPSAlgorithmDataset:
         dset = cast("FIPSAlgorithmDataset", ComplexSerializableType.from_json(input_path))
         dset._json_path = Path(input_path)
         return dset
@@ -134,5 +136,5 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
             else:
                 self.alg_number_to_algs[alg.alg_number].add(alg)
 
-    def get_algorithms_by_id(self, alg_number: str) -> Set[FIPSAlgorithm]:
+    def get_algorithms_by_id(self, alg_number: str) -> set[FIPSAlgorithm]:
         return self.alg_number_to_algs.get(alg_number, set())

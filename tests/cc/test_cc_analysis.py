@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
-from typing import Dict, Set
 
 import pytest
 
@@ -30,7 +31,7 @@ def cpe_single_sign_on() -> CPE:
 
 
 @pytest.fixture(scope="module")
-def cpes(cpe_single_sign_on: CPE) -> Set[CPE]:
+def cpes(cpe_single_sign_on: CPE) -> set[CPE]:
     return {
         cpe_single_sign_on,
         CPE(
@@ -49,12 +50,12 @@ def cpes(cpe_single_sign_on: CPE) -> Set[CPE]:
 
 
 @pytest.fixture(scope="module")
-def cpe_dset(cpes: Set[CPE]) -> CPEDataset:
+def cpe_dset(cpes: set[CPE]) -> CPEDataset:
     return CPEDataset(False, {x.uri: x for x in cpes})
 
 
 @pytest.fixture(scope="module")
-def cves(cpe_single_sign_on) -> Set[CVE]:
+def cves(cpe_single_sign_on) -> set[CVE]:
     return {
         CVE(
             "CVE-2017-1732",
@@ -74,7 +75,7 @@ def cves(cpe_single_sign_on) -> Set[CVE]:
 
 
 @pytest.fixture(scope="module")
-def cve_dset(cves: Set[CVE]) -> CVEDataset:
+def cve_dset(cves: set[CVE]) -> CVEDataset:
     cve_dset = CVEDataset({x.cve_id: x for x in cves})
     cve_dset.build_lookup_dict(use_nist_mapping=False)
     return cve_dset
@@ -113,7 +114,7 @@ def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CommonCriteriaCe
 
 
 def test_find_related_cves(
-    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: Set[CVE], random_certificate: CommonCriteriaCert
+    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE], random_certificate: CommonCriteriaCert
 ):
     random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
     cc_dset.compute_related_cves()
@@ -156,7 +157,7 @@ def test_cert_id_heuristics(random_certificate: CommonCriteriaCert):
 
 def test_keywords_heuristics(random_certificate: CommonCriteriaCert):
     assert random_certificate.pdf_data.st_keywords
-    extracted_keywords: Dict = random_certificate.pdf_data.st_keywords
+    extracted_keywords: dict = random_certificate.pdf_data.st_keywords
 
     assert "cc_security_level" in extracted_keywords
     assert extracted_keywords["cc_security_level"]["EAL"]["EAL3"] == 1

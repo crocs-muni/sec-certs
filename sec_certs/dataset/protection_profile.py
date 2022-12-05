@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 import json
 import logging
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
 
 import sec_certs.utils.helpers as helpers
 from sec_certs.config.configuration import config
@@ -14,15 +15,15 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ProtectionProfileDataset:
-    pps: Dict[Tuple[str, Optional[str]], ProtectionProfile]
+    pps: dict[tuple[str, str | None], ProtectionProfile]
 
     def __iter__(self):
         yield from self.pps.values()
 
-    def __getitem__(self, item: Tuple[str, Optional[str]]) -> ProtectionProfile:
+    def __getitem__(self, item: tuple[str, str | None]) -> ProtectionProfile:
         return self.pps.__getitem__(item)
 
-    def __setitem__(self, key: Tuple[str, Optional[str]], value: ProtectionProfile):
+    def __setitem__(self, key: tuple[str, str | None], value: ProtectionProfile):
         self.pps.__setitem__(key, value)
 
     def __contains__(self, key):
@@ -32,7 +33,7 @@ class ProtectionProfileDataset:
         return len(self.pps)
 
     @classmethod
-    def from_json(cls, json_path: Union[str, Path]):
+    def from_json(cls, json_path: str | Path):
         with Path(json_path).open("r") as handle:
             data = json.load(handle)
         pps = [ProtectionProfile.from_old_api_dict(x) for x in data.values()]
@@ -46,7 +47,7 @@ class ProtectionProfileDataset:
         return cls(dct)
 
     @classmethod
-    def from_web(cls, store_dataset_path: Optional[Path] = None):
+    def from_web(cls, store_dataset_path: Path | None = None):
 
         logger.info(f"Downloading static PP dataset from: {config.pp_latest_snapshot}")
         if not store_dataset_path:

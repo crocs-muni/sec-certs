@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import re
 from pathlib import Path
-from typing import Dict, Final, List, Set, Tuple
+from typing import Final
 
 import yaml
 
 # This ignores ACM and AMA SARs that are present in CC version 2
-SARS_IMPLIED_FROM_EAL: Dict[str, Set[Tuple[str, int]]] = {
+SARS_IMPLIED_FROM_EAL: dict[str, set[tuple[str, int]]] = {
     "EAL1": {
         ("ADV_FSP", 1),
         ("AGD_OPE", 1),
@@ -231,7 +233,7 @@ for rule_group in rules["fips_rules"]:
     fips_rules[rule_group] = _process(rules[rule_group])
 
 
-PANDAS_KEYWORDS_CATEGORIES: Final[List[str]] = [
+PANDAS_KEYWORDS_CATEGORIES: Final[list[str]] = [
     "symmetric_crypto",
     "asymmetric_crypto",
     "pq_crypto",

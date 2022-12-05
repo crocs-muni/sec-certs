@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar
 
 from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
@@ -14,13 +16,13 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     version: str
     vendor: str
     item_name: str
-    title: Optional[str]
-    start_version: Optional[Tuple[str, str]]
-    end_version: Optional[Tuple[str, str]]
+    title: str | None
+    start_version: tuple[str, str] | None
+    end_version: tuple[str, str] | None
 
     __slots__ = ["uri", "version", "vendor", "item_name", "title", "start_version", "end_version"]
 
-    pandas_columns: ClassVar[List[str]] = [
+    pandas_columns: ClassVar[list[str]] = [
         "uri",
         "vendor",
         "item_name",
@@ -31,9 +33,9 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     def __init__(
         self,
         uri: str,
-        title: Optional[str] = None,
-        start_version: Optional[Tuple[str, str]] = None,
-        end_version: Optional[Tuple[str, str]] = None,
+        title: str | None = None,
+        start_version: tuple[str, str] | None = None,
+        end_version: tuple[str, str] | None = None,
     ):
         super().__init__()
         self.uri = uri
@@ -46,7 +48,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         self.start_version = start_version
         self.end_version = end_version
 
-    def __lt__(self, other: "CPE") -> bool:
+    def __lt__(self, other: CPE) -> bool:
         return self.uri < other.uri
 
     @staticmethod
@@ -59,7 +61,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return version
 
     @classmethod
-    def from_dict(cls, dct: Dict[str, Any]) -> "CPE":
+    def from_dict(cls, dct: dict[str, Any]) -> CPE:
         if isinstance(dct["start_version"], list):
             dct["start_version"] = tuple(dct["start_version"])
         if isinstance(dct["end_version"], list):
@@ -67,7 +69,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return super().from_dict(dct)
 
     @property
-    def serialized_attributes(self) -> List[str]:
+    def serialized_attributes(self) -> list[str]:
         return ["uri", "title", "start_version", "end_version"]
 
     @property
@@ -83,7 +85,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return " ".join(self.uri.split(":")[10].split("_"))
 
     @property
-    def pandas_tuple(self) -> Tuple:
+    def pandas_tuple(self) -> tuple:
         return self.uri, self.vendor, self.item_name, self.version, self.title
 
     def __hash__(self) -> int:

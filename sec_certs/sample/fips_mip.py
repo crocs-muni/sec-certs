@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
+from typing import Iterator, Mapping
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -30,10 +32,10 @@ class MIPEntry(ComplexSerializableType):
     module_name: str
     vendor_name: str
     standard: str
-    status: Optional[MIPStatus]
-    status_since: Optional[date]
+    status: MIPStatus | None
+    status_since: date | None
 
-    def to_dict(self) -> Dict[str, Union[str, Optional[MIPStatus], Optional[date]]]:
+    def to_dict(self) -> dict[str, str | MIPStatus | None | date | None]:
         return {
             **self.__dict__,
             "status": self.status.value if self.status else None,
@@ -41,7 +43,7 @@ class MIPEntry(ComplexSerializableType):
         }
 
     @classmethod
-    def from_dict(cls, dct: Mapping) -> "MIPEntry":
+    def from_dict(cls, dct: Mapping) -> MIPEntry:
         return cls(
             dct["module_name"],
             dct["vendor_name"],
@@ -53,7 +55,7 @@ class MIPEntry(ComplexSerializableType):
 
 @dataclass
 class MIPSnapshot(ComplexSerializableType):
-    entries: Set[MIPEntry]
+    entries: set[MIPEntry]
     timestamp: datetime
     last_updated: date
     displayed: int
@@ -66,7 +68,7 @@ class MIPSnapshot(ComplexSerializableType):
     def __iter__(self) -> Iterator[MIPEntry]:
         yield from self.entries
 
-    def to_dict(self) -> Dict[str, Union[int, str, List[MIPEntry]]]:
+    def to_dict(self) -> dict[str, int | str | list[MIPEntry]]:
         return {
             "entries": list(self.entries),
             "timestamp": self.timestamp.isoformat(),
@@ -77,7 +79,7 @@ class MIPSnapshot(ComplexSerializableType):
         }
 
     @classmethod
-    def from_dict(cls, dct: Mapping) -> "MIPSnapshot":
+    def from_dict(cls, dct: Mapping) -> MIPSnapshot:
         return cls(
             set(dct["entries"]),
             datetime.fromisoformat(dct["timestamp"]),
@@ -158,7 +160,7 @@ class MIPSnapshot(ComplexSerializableType):
         return entries
 
     @classmethod
-    def from_page(cls, content: bytes, snapshot_date: datetime) -> "MIPSnapshot":
+    def from_page(cls, content: bytes, snapshot_date: datetime) -> MIPSnapshot:
         """
         Get a MIP snapshot from a HTML dump of the FIPS website.
         """
@@ -201,7 +203,7 @@ class MIPSnapshot(ComplexSerializableType):
         )
 
     @classmethod
-    def from_dump(cls, dump_path: Union[str, Path], snapshot_date: Optional[datetime] = None) -> "MIPSnapshot":
+    def from_dump(cls, dump_path: str | Path, snapshot_date: datetime | None = None) -> MIPSnapshot:
         """
         Get a MIP snapshot from a HTML file dump of the FIPS website.
         """
@@ -216,7 +218,7 @@ class MIPSnapshot(ComplexSerializableType):
         return cls.from_page(content, snapshot_date)
 
     @classmethod
-    def from_web(cls) -> "MIPSnapshot":
+    def from_web(cls) -> MIPSnapshot:
         """
         Get a MIP snapshot from the FIPS website right now.
         """
@@ -228,7 +230,7 @@ class MIPSnapshot(ComplexSerializableType):
         return cls.from_page(mip_resp.content, snapshot_date)
 
     @classmethod
-    def from_web_latest(cls) -> "MIPSnapshot":
+    def from_web_latest(cls) -> MIPSnapshot:
         """
         Get a MIP snapshot from seccerts.org.
         """
