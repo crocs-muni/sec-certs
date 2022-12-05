@@ -688,7 +688,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             cert.compute_heuristics_cert_lab()
 
     def _compute_normalized_cert_ids(self) -> None:
-        logger.info("omputing heuristics: Deriving information about sample ids from pdf scan.")
+        logger.info("Computing heuristics: Deriving information about certificate ids from artifacts.")
         for cert in self:
             cert.compute_heuristics_cert_id()
 
