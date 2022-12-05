@@ -710,7 +710,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._compute_sars()
 
     def _compute_sars(self) -> None:
-        logger.info("omputing heuristics: Computing SARs")
+        logger.info("Computing heuristics: Computing SARs")
         transformer = SARTransformer().fit(self.certs.values())
         for cert in self:
             cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
