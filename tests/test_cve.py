@@ -24,6 +24,7 @@ class TestCVE:
                     "end_version": None,
                 }
             ],
+            "vulnerable_cpe_configurations":  [],
             "impact": {
                 "_type": "Impact",
                 "base_score": 5,

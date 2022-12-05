@@ -13,6 +13,7 @@
                     "end_version": null
                 }
             ],
+            "vulnerable_cpe_configurations":  [],
             "impact": {
                 "_type": "sec_certs.sample.cve.CVE.Impact",
                 "base_score": 5.3,
@@ -40,6 +41,7 @@
                     "end_version": null
                 }
             ],
+            "vulnerable_cpe_configurations":  [],
             "impact": {
                 "_type": "sec_certs.sample.cve.CVE.Impact",
                 "base_score": 8.2,
