@@ -130,71 +130,75 @@ def main(
     inputpath: Path | None,
     silent: bool,
 ):
-    file_handler = logging.FileHandler(config.log_filepath)
-    stream_handler = logging.StreamHandler(sys.stderr)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
-    handlers: list[logging.StreamHandler] = [file_handler] if silent else [file_handler, stream_handler]
-    logging.basicConfig(level=logging.INFO, handlers=handlers)
-    start = datetime.now()
+    try:
+        file_handler = logging.FileHandler(config.log_filepath)
+        stream_handler = logging.StreamHandler(sys.stderr)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
+        stream_handler.setFormatter(formatter)
+        handlers: list[logging.StreamHandler] = [file_handler] if silent else [file_handler, stream_handler]
+        logging.basicConfig(level=logging.INFO, handlers=handlers)
+        start = datetime.now()
 
-    if configpath:
-        try:
-            config.load(Path(configpath))
-        except FileNotFoundError:
-            print("Error: Bad path to configuration file")
-            sys.exit(1)
-        except ValueError as e:
-            print(f"Error: Bad format of configuration file: {e}")
+        if configpath:
+            try:
+                config.load(Path(configpath))
+            except FileNotFoundError:
+                print("Error: Bad path to configuration file")
+                sys.exit(1)
+            except ValueError as e:
+                print(f"Error: Bad format of configuration file: {e}")
 
-    actions_set = (
-        {"build", "process-aux-dsets", "download", "convert", "analyze", "maintenances"}
-        if "all" in actions
-        else set(actions)
-    )
+        actions_set = (
+            {"build", "process-aux-dsets", "download", "convert", "analyze", "maintenances"}
+            if "all" in actions
+            else set(actions)
+        )
 
-    dset = build_or_load_dataset(framework, inputpath, "build" in actions_set, outputpath)
-    aux_dsets_to_handle = "PP, Maintenance updates" if framework == "cc" else "Algorithms"
-    analysis_pre_callback = None
+        dset = build_or_load_dataset(framework, inputpath, "build" in actions_set, outputpath)
+        aux_dsets_to_handle = "PP, Maintenance updates" if framework == "cc" else "Algorithms"
+        analysis_pre_callback = None
 
-    steps = [
-        ProcessingStep(
-            "process-aux-dsets",
-            "process_auxillary_datasets",
-            preconditions=["meta_sources_parsed"],
-            precondition_error_msg=f"Error: You want to process the auxillary datasets: {aux_dsets_to_handle} , but the data from cert. framework website was not parsed. You must use 'build' action first.",
-            pre_callback_func=None,
-        ),
-        ProcessingStep(
-            "download",
-            "download_all_artifacts",
-            preconditions=["meta_sources_parsed"],
-            precondition_error_msg="Error: You want to download all artifacts, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
-            pre_callback_func=None,
-        ),
-        ProcessingStep(
-            "convert",
-            "convert_all_pdfs",
-            preconditions=["pdfs_downloaded"],
-            precondition_error_msg="Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first.",
-            pre_callback_func=warn_missing_libs,
-        ),
-        ProcessingStep(
-            "analyze",
-            "analyze_certificates",
-            preconditions=["pdfs_converted", "auxillary_datasets_processed"],
-            precondition_error_msg="Error: You want to process txt documents of certificates, but pdfs were not converted. You must use 'convert' action first.",
-            pre_callback_func=analysis_pre_callback,
-        ),
-    ]
+        steps = [
+            ProcessingStep(
+                "process-aux-dsets",
+                "process_auxillary_datasets",
+                preconditions=["meta_sources_parsed"],
+                precondition_error_msg=f"Error: You want to process the auxillary datasets: {aux_dsets_to_handle} , but the data from cert. framework website was not parsed. You must use 'build' action first.",
+                pre_callback_func=None,
+            ),
+            ProcessingStep(
+                "download",
+                "download_all_artifacts",
+                preconditions=["meta_sources_parsed"],
+                precondition_error_msg="Error: You want to download all artifacts, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
+                pre_callback_func=None,
+            ),
+            ProcessingStep(
+                "convert",
+                "convert_all_pdfs",
+                preconditions=["pdfs_downloaded"],
+                precondition_error_msg="Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first.",
+                pre_callback_func=warn_missing_libs,
+            ),
+            ProcessingStep(
+                "analyze",
+                "analyze_certificates",
+                preconditions=["pdfs_converted", "auxillary_datasets_processed"],
+                precondition_error_msg="Error: You want to process txt documents of certificates, but pdfs were not converted. You must use 'convert' action first.",
+                pre_callback_func=analysis_pre_callback,
+            ),
+        ]
 
-    processing_step: ProcessingStep
-    for processing_step in [x for x in steps if x in actions_set]:
-        processing_step.run(dset)
+        processing_step: ProcessingStep
+        for processing_step in [x for x in steps if x in actions_set]:
+            processing_step.run(dset)
 
-    end = datetime.now()
-    logger.info(f"The computation took {(end-start)} seconds.")
+        end = datetime.now()
+        logger.info(f"The computation took {(end-start)} seconds.")
+    except Exception:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
