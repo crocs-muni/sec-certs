@@ -34,6 +34,20 @@ jobs:
       - uses: isort/isort-action@master
         with:
           requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
+  pyupgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - name: Install python dependencies
+        run: |
+          pip install -r requirements/requirements.txt
+          pip install -r requirements/dev_requirements.txt
+      - name: Run pyupgrade
+        run: pre-commit run pyupgrade --all-files
   flake8-lint:
     runs-on: ubuntu-latest
     name: Flake8
@@ -46,3 +60,5 @@ jobs:
           python-version: "3.8"
       - name: flake8 Lint
         uses: py-actions/flake8@v2
+        with:
+          plugins: "flake8-future-annotations"
