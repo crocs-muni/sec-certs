@@ -59,7 +59,7 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
     }
 
     with TemporaryDirectory() as td:
-        toy_dataset.root_dir = Path(td)
+        toy_dataset.copy_dataset(td)
         toy_dataset.download_all_artifacts()
 
         if not (
@@ -148,7 +148,7 @@ def test_build_dataset(data_dir: Path, crt: CommonCriteriaCert, toy_dataset: CCD
 
 def test_process_pp_dataset(toy_dataset: CCDataset):
     with TemporaryDirectory() as tmp_dir:
-        toy_dataset.root_dir = tmp_dir  # type: ignore
+        toy_dataset.copy_dataset(tmp_dir)
         toy_dataset.process_protection_profiles()
         assert toy_dataset.pp_dataset_path.exists()
         assert toy_dataset.pp_dataset_path.stat().st_size > constants.MIN_CC_PP_DATASET_SIZE

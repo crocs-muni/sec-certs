@@ -9,6 +9,7 @@ import tests.data.cc.analysis.auxillary_datasets
 from sec_certs.dataset import CVEDataset
 from sec_certs.sample import CVE
 from sec_certs.sample.cpe import CPE
+from sec_certs.serialization.json import SerializationError
 
 
 @pytest.mark.slow
@@ -113,5 +114,5 @@ def test_to_pandas(cve_dset: CVEDataset):
 
 def test_serialization_missing_path():
     dummy_dset = CVEDataset({})
-    with pytest.raises(ValueError):
+    with pytest.raises(SerializationError):
         dummy_dset.to_json()

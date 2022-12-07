@@ -84,7 +84,7 @@ def test_download_and_convert_artifacts(toy_dataset: FIPSDataset, data_dir: Path
     crt = toy_dataset["184097a88a9b4ad9"]
     toy_dataset.certs = {crt.dgst: crt}
     with TemporaryDirectory() as tmp_dir:
-        toy_dataset.root_dir = Path(tmp_dir)
+        toy_dataset.copy_dataset(tmp_dir)
         toy_dataset.download_all_artifacts()
 
     if not crt.state.policy_download_ok or crt.state.module_download_ok:

@@ -9,6 +9,7 @@ import tests.data.cc.analysis.auxillary_datasets
 from sec_certs import constants
 from sec_certs.dataset import CPEDataset
 from sec_certs.sample import CPE
+from sec_certs.serialization.json import SerializationError
 
 
 @pytest.fixture(scope="module")
@@ -134,5 +135,5 @@ def test_to_pandas(cpe_dset: CPEDataset):
 
 def test_serialization_missing_path():
     dummy_dset = CPEDataset(False, dict())
-    with pytest.raises(ValueError):
+    with pytest.raises(SerializationError):
         dummy_dset.to_json()

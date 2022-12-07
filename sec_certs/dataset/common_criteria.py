@@ -60,7 +60,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         auxillary_datasets: CCAuxillaryDatasets | None = None,
     ):
         self.certs = certs
-        self._root_dir = Path(root_dir)
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
@@ -70,6 +69,8 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self.auxillary_datasets: CCAuxillaryDatasets = (
             auxillary_datasets if auxillary_datasets else CCAuxillaryDatasets()
         )
+
+        self.root_dir = Path(root_dir)
 
     def to_pandas(self) -> pd.DataFrame:
         """
@@ -218,8 +219,16 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
     def _set_local_paths(self):
         super()._set_local_paths()
+
+        if self.auxillary_datasets.pp_dset:
+            self.auxillary_datasets.pp_dset.json_path = self.pp_dataset_path
+
+        if self.auxillary_datasets.mu_dset:
+            self.auxillary_datasets.mu_dset.root_dir = self.mu_dataset_dir
+
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
+        # TODO: This forgets to set local paths for other auxillary datasets
 
     def _merge_certs(self, certs: dict[str, CommonCriteriaCert], cert_source: str | None = None) -> None:
         """
@@ -703,7 +712,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
 
     def _compute_heuristics(self) -> None:
-        logger.info("Computing various heuristics on certificates.")
         self._compute_normalized_cert_ids()
         super()._compute_heuristics()
         self._compute_cert_labs()
@@ -829,7 +837,6 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     ):
         super().__init__(certs, root_dir, name, description, state)  # type: ignore
         self.state.meta_sources_parsed = True
-        self._set_local_paths()
 
     @property
     def certs_dir(self) -> Path:

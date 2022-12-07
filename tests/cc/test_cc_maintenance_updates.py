@@ -22,7 +22,7 @@ def cc_dset(data_dir: Path) -> CCDataset:
 def mu_dset(data_dir: Path, tmp_path_factory) -> CCDatasetMaintenanceUpdates:
     tmp_dir = tmp_path_factory.mktemp("mu_dset")
     dset = CCDatasetMaintenanceUpdates.from_json(data_dir / "auxillary_datasets/maintenances/maintenance_updates.json")
-    dset.root_dir = tmp_dir
+    dset.copy_dataset(tmp_dir)
     return dset
 
 

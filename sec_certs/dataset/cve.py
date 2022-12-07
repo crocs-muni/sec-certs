@@ -17,32 +17,24 @@ import pandas as pd
 import sec_certs.constants as constants
 import sec_certs.utils.helpers as helpers
 from sec_certs.config.configuration import config
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.parallel_processing import process_parallel
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
 
-class CVEDataset(ComplexSerializableType):
+class CVEDataset(JSONPathDataset, ComplexSerializableType):
     CVE_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
     CPE_MATCH_FEED_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
 
     def __init__(self, cves: dict[str, CVE], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
         self.cves = cves
-        self._json_path = Path(json_path)
+        self.json_path = Path(json_path)
         self.cpe_to_cve_ids_lookup: dict[str, set[str]] = dict()
-
-    @property
-    def json_path(self) -> Path:
-        return self._json_path
-
-    @json_path.setter
-    def json_path(self, new_json_path: str | Path) -> None:
-        self._json_path = Path(new_json_path)
-        self.to_json()
 
     @property
     def serialized_attributes(self) -> list[str]:
@@ -107,7 +99,7 @@ class CVEDataset(ComplexSerializableType):
         logger.info(f"Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}")
         with tempfile.TemporaryDirectory() as tmp_dir:
             outpaths = [Path(tmp_dir) / Path(x).name.rstrip(".zip") for x in urls]
-            responses = helpers.download_parallel(urls, outpaths)
+            responses = helpers.download_parallel(urls, outpaths, "Downloading CVEs resources from NVD")
 
             for o, r in zip(outpaths, responses):
                 if r == constants.RESPONSE_OK:
@@ -146,13 +138,6 @@ class CVEDataset(ComplexSerializableType):
                 all_cves.update(r.cves)
 
         return cls(all_cves, json_path)
-
-    @classmethod
-    def from_json(cls, input_path: str | Path):
-        with Path(input_path).open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        dset._json_path = input_path
-        return dset
 
     def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str] | None:
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)

@@ -7,12 +7,13 @@ import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
-from typing import ClassVar, Iterator, cast
+from typing import ClassVar, Iterator
 
 import pandas as pd
 
 from sec_certs import constants
 from sec_certs.dataset.cve import CVEDataset
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
@@ -21,7 +22,7 @@ from sec_certs.utils.tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
-class CPEDataset(ComplexSerializableType):
+class CPEDataset(JSONPathDataset, ComplexSerializableType):
     """
     Dataset of CPE records. Includes look-up dictionaries for fast search.
     """
@@ -37,7 +38,7 @@ class CPEDataset(ComplexSerializableType):
     ):
         self.was_enhanced_with_vuln_cpes = was_enhanced_with_vuln_cpes
         self.cpes = cpes
-        self._json_path = Path(json_path)
+        self.json_path = Path(json_path)
 
         self.vendor_to_versions: dict[str, set[str]] = dict()
         self.vendor_version_to_cpe: dict[tuple[str, str], set[CPE]] = dict()
@@ -45,15 +46,6 @@ class CPEDataset(ComplexSerializableType):
         self.vendors: set[str] = set()
 
         self.build_lookup_dicts()
-
-    @property
-    def json_path(self) -> Path:
-        return self._json_path
-
-    @json_path.setter
-    def json_path(self, new_json_path: str | Path) -> None:
-        self._json_path = Path(new_json_path)
-        self.to_json()
 
     def __iter__(self) -> Iterator[CPE]:
         yield from self.cpes.values()
@@ -142,18 +134,6 @@ class CPEDataset(ComplexSerializableType):
             dct[cpe_uri] = cached_cpe(cpe_uri, title)
 
         return cls(False, dct, json_path)
-
-    @classmethod
-    def from_json(cls, input_path: str | Path) -> CPEDataset:
-        """
-        Loads dataset from json
-
-        :param Union[str, Path] input_path: Path to the serialized json dataset
-        :return CPEDataset: the resulting dataset.
-        """
-        dset = cast("CPEDataset", ComplexSerializableType.from_json(input_path))
-        dset._json_path = Path(input_path)
-        return dset
 
     def to_pandas(self) -> pd.DataFrame:
         """

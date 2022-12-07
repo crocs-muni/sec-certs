@@ -8,6 +8,7 @@ import pytest
 import tests.data.fips.dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.sample.fips_algorithm import FIPSAlgorithm
+from sec_certs.serialization.json import SerializationError
 
 
 @pytest.mark.xfail(reason="May fail due to errors with NIST server.")
@@ -64,5 +65,5 @@ def test_to_pandas(alg_dset: FIPSAlgorithmDataset):
 
 def test_serialization_missing_path():
     dummy_dset = FIPSAlgorithmDataset()
-    with pytest.raises(ValueError):
+    with pytest.raises(SerializationError):
         dummy_dset.to_json()

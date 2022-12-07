@@ -12,6 +12,10 @@ from sec_certs import constants
 T = TypeVar("T", bound="ComplexSerializableType")
 
 
+class SerializationError(Exception):
+    pass
+
+
 class ComplexSerializableType:
     __slots__: tuple[str]
 
@@ -42,16 +46,18 @@ class ComplexSerializableType:
 
     def to_json(self, output_path: str | Path | None = None) -> None:
         if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
-            raise ValueError(
+            raise SerializationError(
                 f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
             )
         if not output_path:
             output_path = self.json_path  # type: ignore
             if self.json_path == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise ValueError(f"json_path variable for {type(self)} was not yet set.")
+                raise SerializationError(f"json_path attribute for '{get_class_fullname(self)}' was not yet set.")
+            if hasattr(self, "root_dir") and self.root_dir == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
+                raise SerializationError(f"root_dir attribute for '{get_class_fullname(self)}' was not yet set.")
 
         if Path(output_path).is_dir():  # type: ignore
-            raise ValueError("output path for json cannot be directory.")
+            raise SerializationError("output path for json cannot be directory.")
 
         # false positive MyPy warning, cannot be None
         with Path(output_path).open("w") as handle:  # type: ignore
@@ -74,6 +80,11 @@ def serialize(func: Callable):
                 "@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes."
             )
 
+        if hasattr(args[0], "_root_dir") and args[0]._root_dir == constants.DUMMY_NONEXISTING_PATH:
+            raise SerializationError(
+                "The invoked method requires dataset serialization. Cannot serialize without root_dir set. You can set it with obj.root_dir = ..."
+            )
+
         update_json = kwargs.pop("update_json", True)
         result = func(*args, **kwargs)
         if update_json:
@@ -83,7 +94,7 @@ def serialize(func: Callable):
     return inner_func
 
 
-def _class_fullname(obj: Any) -> str:
+def get_class_fullname(obj: Any) -> str:
     if isinstance(obj, type):
         klass = obj
     else:
@@ -97,7 +108,7 @@ def _class_fullname(obj: Any) -> str:
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ComplexSerializableType):
-            return {**{"_type": _class_fullname(obj)}, **obj.to_dict()}
+            return {**{"_type": get_class_fullname(obj)}, **obj.to_dict()}
         if isinstance(obj, dict):
             return obj
         if isinstance(obj, set):
@@ -120,7 +131,7 @@ class CustomJSONDecoder(json.JSONDecoder):
 
     def __init__(self, *args, **kwargs):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
-        self.serializable_complex_types = {_class_fullname(x): x for x in ComplexSerializableType.__subclasses__()}
+        self.serializable_complex_types = {get_class_fullname(x): x for x in ComplexSerializableType.__subclasses__()}
 
     def object_hook(self, obj):
         if "_type" in obj and obj["_type"] == "Set":
@@ -129,6 +140,6 @@ class CustomJSONDecoder(json.JSONDecoder):
             complex_type = obj.pop("_type")
             return self.serializable_complex_types[complex_type].from_dict(obj)
         elif "_type" in obj:
-            print(obj)
+            raise SerializationError(f"JSONDecoder doesn't know how to handle {obj}")
 
         return obj

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import itertools
 import json
 import logging
@@ -23,7 +22,7 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
-from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname, serialize
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -62,14 +61,10 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         auxillary_datasets: AuxillaryDatasetsSubType | None = None,
     ):
         self.certs = certs
-        self._root_dir = Path(root_dir)
-
-        if not self._root_dir and self._root_dir != constants.DUMMY_NONEXISTING_PATH:
-            self._root_dir.mkdir(parents=True)
 
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
-        self.name = name if name else type(self).__name__ + " dataset"
+        self.name = name if name else type(self).__name__.lower() + "_dataset"
         self.description = description if description else "No description provided"
         self.state = state if state else self.DatasetInternalState()
 
@@ -78,21 +73,20 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         else:
             self.auxillary_datasets = auxillary_datasets
 
+        self.root_dir = Path(root_dir)
+
     @property
     def root_dir(self) -> Path:
         return self._root_dir
 
     @root_dir.setter
-    def root_dir(self, new_dir: str | Path) -> None:
-        old_dset = copy.deepcopy(self)
-        self._root_dir = Path(new_dir)
-        self.root_dir.mkdir(exist_ok=True)
-        self._set_local_paths()
+    def root_dir(self: DatasetSubType, new_dir: str | Path) -> None:
+        new_dir = Path(new_dir)
+        if new_dir.is_file():
+            raise ValueError(f"Root dir of {get_class_fullname(self)} cannot be a file.")
 
-        if old_dset.root_dir != self.root_dir:
-            logger.info(f"Changing root dir of partially processed dataset. All contents will get copied to {new_dir}")
-            self._copy_dataset_contents(old_dset)
-            self.to_json()
+        self._root_dir = new_dir
+        self._set_local_paths()
 
     @property
     def web_dir(self) -> Path:
@@ -157,7 +151,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / filename
             helpers.download_file(url, dset_path, show_progress_bar=True, progress_bar_desc=progress_bar_desc)
-            return cls.from_json(dset_path)
+            dset = cls.from_json(dset_path)
+            dset.root_dir = constants.DUMMY_NONEXISTING_PATH
+            return dset
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -193,12 +189,32 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         if self.auxillary_datasets.cve_dset:
             self.auxillary_datasets.cve_dset.json_path = self.cve_dataset_path
 
-    # Workaround from https://peps.python.org/pep-0673/ applied.
-    def _copy_dataset_contents(self: DatasetSubType, old_dset: DatasetSubType) -> None:
-        try:
-            shutil.copytree(old_dset.root_dir, self.root_dir, dirs_exist_ok=True)
-        except FileNotFoundError as e:
-            logger.error(f"Attempted to copy dataset from {old_dset.root_dir}, but it's not there ({e}).")
+    def move_dataset(self, new_root_dir: str | Path) -> None:
+        """
+        Moves all dataset files to `new_root_dir` and adjusts all paths internally. Deletes the artifacts from the original location.
+        :param str | Path new_root_dir: path to directory where the new dataset shall be stored.
+        """
+        new_root_dir = Path(new_root_dir)
+        if new_root_dir.is_file():
+            raise ValueError("New root dir must be a directory, not an existing file.")
+        new_root_dir.mkdir(parents=True, exist_ok=True)
+
+        shutil.copytree(str(self.root_dir), str(new_root_dir), dirs_exist_ok=True)
+        shutil.rmtree(self.root_dir)
+        self.root_dir = new_root_dir
+
+    def copy_dataset(self, new_root_dir: str | Path) -> None:
+        """
+        Copies all dataset files to `new_root_dir` and adjusts all paths internally. Keeps the artifacts from the original location.
+        :param str | Path new_root_dir: path to directory where the new dataset shall be stored.
+        """
+        new_root_dir = Path(new_root_dir)
+        if new_root_dir.is_file():
+            raise ValueError("New root dir must be a directory, not an existing file.")
+        new_root_dir.mkdir(parents=True, exist_ok=True)
+
+        shutil.copytree(str(self.root_dir), str(new_root_dir), dirs_exist_ok=True)
+        self.root_dir = new_root_dir
 
     def _get_certs_by_name(self, name: str) -> set[CertSubType]:
         """
@@ -210,9 +226,11 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     def get_certs_from_web(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
+    @serialize
     @abstractmethod
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
         logger.info("Processing auxillary datasets.")
+        self.auxillary_datasets_dir.mkdir(parents=True, exist_ok=True)
         self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh)
         self.auxillary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh_cves=download_fresh)
         self.state.auxillary_datasets_processed = True

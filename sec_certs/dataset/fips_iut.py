@@ -7,16 +7,23 @@ from typing import Iterator, Mapping
 
 import requests
 
+from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import logger
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.tqdm import tqdm
 
 
 @dataclass
-class IUTDataset(ComplexSerializableType):
+class IUTDataset(JSONPathDataset, ComplexSerializableType):
     snapshots: list[IUTSnapshot]
+    _json_path: Path
+
+    def __init__(self, snapshots: list[IUTSnapshot], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+        self.snapshots = snapshots
+        self.json_path = Path(json_path)
 
     def __iter__(self) -> Iterator[IUTSnapshot]:
         yield from self.snapshots

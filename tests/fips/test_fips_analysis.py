@@ -86,7 +86,7 @@ def processed_dataset(
     toy_static_dataset: FIPSDataset, cpe_dataset: CPEDataset, cve_dataset: CVEDataset, tmp_path_factory
 ) -> FIPSDataset:
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
-    toy_static_dataset.root_dir = tmp_dir
+    toy_static_dataset.copy_dataset(tmp_dir)
 
     tested_certs = {
         toy_static_dataset["3095"],

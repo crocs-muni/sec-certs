@@ -49,7 +49,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         auxillary_datasets: FIPSAuxillaryDatasets | None = None,
     ):
         self.certs = certs
-        self._root_dir = Path(root_dir)
         self.timestamp = datetime.datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
@@ -58,6 +57,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.auxillary_datasets: FIPSAuxillaryDatasets = (
             auxillary_datasets if auxillary_datasets else FIPSAuxillaryDatasets()
         )
+
+        self.root_dir = Path(root_dir)
 
     LIST_OF_CERTS_HTML: Final[dict[str, str]] = {
         "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
@@ -82,12 +83,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return self.certs_dir / "modules"
 
     @property
-    def algorithms_dir(self) -> Path:
-        return self.auxillary_datasets_dir / "algorithms"
-
-    @property
     def algorithm_dataset_path(self) -> Path:
-        return self.algorithms_dir / "algorithms.json"
+        return self.auxillary_datasets_dir / "algorithms.json"
 
     def __getitem__(self, item: str) -> FIPSCertificate:
         try:
@@ -229,13 +226,13 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         return cls.from_web(config.fips_latest_snapshot, "Downloading FIPS Dataset", "fips_latest_dataset.json")
 
     def _set_local_paths(self) -> None:
-        cert: FIPSCertificate
-        for cert in self.certs.values():
-            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
-
         super()._set_local_paths()
         if self.auxillary_datasets.algorithm_dset:
             self.auxillary_datasets.algorithm_dset.json_path = self.algorithm_dataset_path
+
+        cert: FIPSCertificate
+        for cert in self.certs.values():
+            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
 
     @serialize
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
@@ -261,8 +258,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
         logger.info("Preparing FIPSAlgorithm dataset.")
-        self.algorithms_dir.mkdir(parents=True, exist_ok=True)
-
         if not self.algorithm_dataset_path.exists() or download_fresh_algs:
             alg_dset = FIPSAlgorithmDataset.from_web(self.algorithm_dataset_path)
             alg_dset.to_json()

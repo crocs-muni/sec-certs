@@ -5,12 +5,13 @@ import logging
 import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Iterator, cast
+from typing import Iterator
 
 import pandas as pd
 from bs4 import BeautifulSoup
 
 from sec_certs import constants
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample import FIPSAlgorithm
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
@@ -18,12 +19,12 @@ from sec_certs.utils import helpers
 logger = logging.getLogger(__name__)
 
 
-class FIPSAlgorithmDataset(ComplexSerializableType):
+class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
     def __init__(
         self, algs: dict[str, FIPSAlgorithm] = dict(), json_path: str | Path = constants.DUMMY_NONEXISTING_PATH
     ):
         self.algs = algs
-        self._json_path = Path(json_path)
+        self.json_path = Path(json_path)
         self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = dict()
 
         self._build_lookup_dicts()
@@ -31,15 +32,6 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
     @property
     def serialized_attributes(self) -> list[str]:
         return ["algs"]
-
-    @property
-    def json_path(self) -> Path:
-        return self._json_path
-
-    @json_path.setter
-    def json_path(self, new_json_path: str | Path) -> None:
-        self._json_path = Path(new_json_path)
-        self.to_json()
 
     def __iter__(self) -> Iterator[FIPSAlgorithm]:
         yield from self.algs.values()
@@ -115,12 +107,6 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
             axis=1,
         )
         return set(df["alg"])
-
-    @classmethod
-    def from_json(cls, input_path: str | Path) -> FIPSAlgorithmDataset:
-        dset = cast("FIPSAlgorithmDataset", ComplexSerializableType.from_json(input_path))
-        dset._json_path = Path(input_path)
-        return dset
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=FIPSAlgorithm.pandas_columns)

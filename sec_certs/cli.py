@@ -75,7 +75,7 @@ def build_or_load_dataset(
                 print(
                     "Warning: you provided both input and output paths. The dataset from input path will get copied to output path."
                 )
-                dset.root_dir = outputpath
+                dset.copy_dataset(outputpath)
         else:
             print(
                 "Error: If you do not use 'build' action, you must provide --input parameter to point to an existing dataset."
