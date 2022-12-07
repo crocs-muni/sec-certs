@@ -539,6 +539,9 @@ class FIPSCertificate(
 
     @staticmethod
     def convert_policy_pdf(cert: FIPSCertificate) -> FIPSCertificate:
+        """
+        Converts policy pdf -> txt
+        """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
             cert.state.policy_pdf_path, cert.state.policy_txt_path
         )
@@ -558,7 +561,9 @@ class FIPSCertificate(
 
     @staticmethod
     def extract_policy_pdf_metadata(cert: FIPSCertificate) -> FIPSCertificate:
-        """Extract the PDF metadata from the security policy. Staticmethod to allow for parametrization."""
+        """
+        Extract the PDF metadata from the security policy.
+        """
         _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
 
         if metadata:
@@ -570,6 +575,9 @@ class FIPSCertificate(
 
     @staticmethod
     def extract_policy_pdf_keywords(cert: FIPSCertificate) -> FIPSCertificate:
+        """
+        Extract keywords from policy document
+        """
         keywords = sec_certs.utils.extract.extract_keywords(cert.state.policy_txt_path, fips_rules)
         if not keywords:
             cert.state.policy_extract_ok = False
@@ -579,6 +587,10 @@ class FIPSCertificate(
 
     @staticmethod
     def get_algorithms_from_policy_tables(cert: FIPSCertificate):
+        """
+        Retrieves IDs of algorithms from tables inside security policy pdfs.
+        External library is used to handle this.
+        """
         if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy_txt_path):
             pdf.repair_pdf(cert.state.policy_pdf_path)
             try:

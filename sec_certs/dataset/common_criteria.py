@@ -523,7 +523,6 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._download_targets(fresh)
 
     def _download_reports(self, fresh: bool = True) -> None:
-
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
 
@@ -753,6 +752,10 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
 
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+        """
+        Processes all auxillary datasets needed during computation. On top of base-class processing,
+        CC handles protection profiles and maintenance updates.
+        """
         super().process_auxillary_datasets(download_fresh)
         self.auxillary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
         self.auxillary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)

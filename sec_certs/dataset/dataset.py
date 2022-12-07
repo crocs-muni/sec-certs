@@ -40,6 +40,11 @@ DatasetSubType = TypeVar("DatasetSubType", bound="Dataset")
 
 
 class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializableType, ABC):
+    """
+    Base class for dataset of certificates from CC and FIPS 140 schemes. Layouts public
+    functions, the processing pipeline and common operations on the dataset and certs.
+    """
+
     @dataclass
     class DatasetInternalState(ComplexSerializableType):
         meta_sources_parsed: bool = False
@@ -77,10 +82,17 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @property
     def root_dir(self) -> Path:
+        """
+        Directory that will hold the serialized dataset files.
+        """
         return self._root_dir
 
     @root_dir.setter
     def root_dir(self: DatasetSubType, new_dir: str | Path) -> None:
+        """
+        This setter will only set the root dir and all internal paths so that they point
+        to the new root dir. No data is being moved around.
+        """
         new_dir = Path(new_dir)
         if new_dir.is_file():
             raise ValueError(f"Root dir of {get_class_fullname(self)} cannot be a file.")
@@ -90,10 +102,16 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @property
     def web_dir(self) -> Path:
+        """
+        Path to certification-artifacts posted on web.
+        """
         return self.root_dir / "web"
 
     @property
     def auxillary_datasets_dir(self) -> Path:
+        """
+        Path to directory with auxillary datasets.
+        """
         return self.root_dir / "auxillary_datasets"
 
     @property
@@ -148,6 +166,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @classmethod
     def from_web(cls: type[DatasetSubType], url: str, progress_bar_desc: str, filename: str) -> DatasetSubType:
+        """
+        Fetches a fully processed dataset instance from static site that hosts it.
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / filename
             helpers.download_file(url, dset_path, show_progress_bar=True, progress_bar_desc=progress_bar_desc)
@@ -229,6 +250,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     @serialize
     @abstractmethod
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+        """
+        Processes all auxillary datasets (CPE, CVE, ...) that are required during computation.
+        """
         logger.info("Processing auxillary datasets.")
         self.auxillary_datasets_dir.mkdir(parents=True, exist_ok=True)
         self.auxillary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh)
@@ -237,6 +261,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @serialize
     def download_all_artifacts(self, fresh: bool = True) -> None:
+        """
+        Downloads all artifacts related to certification in the given scheme.
+        """
         if not self.state.meta_sources_parsed:
             logger.error("Attempting to download pdfs while not having csv/html meta-sources parsed. Returning.")
             return
@@ -254,6 +281,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @serialize
     def convert_all_pdfs(self, fresh: bool = True) -> None:
+        """
+        Converts all pdf artifacts to txt, given the certification scheme.
+        """
         if not self.state.artifacts_downloaded:
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
@@ -271,6 +301,11 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @serialize
     def analyze_certificates(self) -> None:
+        """
+        Does two things:
+            - Extracts data from certificates (keywords, etc.)
+            - Computes various heuristics on the certificates.
+        """
         if not self.state.pdfs_converted:
             logger.info(
                 "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
@@ -339,6 +374,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     @serialize
     def compute_cpe_heuristics(self, download_fresh_cpes: bool = False) -> CPEClassifier:
+        """
+        Computes matching CPEs for the certificates.
+        """
         WINDOWS_WEAK_CPES: set[CPE] = {
             CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64", None, None),
             CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86", None, None),
@@ -475,6 +513,9 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         download_fresh_cves: bool = False,
         use_nist_cpe_matching_dict: bool = True,
     ) -> None:
+        """
+        Computes CVEs for the certificates, given their CPE matches.
+        """
         logger.info("Retrieving related CVEs to verified CPE matches")
         if download_fresh_cves or not self.auxillary_datasets.cve_dset:
             self.auxillary_datasets.cve_dset = self._prepare_cve_dataset(
