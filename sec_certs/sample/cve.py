@@ -53,7 +53,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     published_date: Optional[datetime.datetime]
     cwe_ids: Optional[Set[str]]
 
-    __slots__ = ["cve_id", "vulnerable_cpes", "impact", "published_date", "cwe_ids"]
+    __slots__ = ["cve_id", "vulnerable_cpes", "vulnerable_cpe_configurations", "impact", "published_date", "cwe_ids"]
 
     pandas_columns: ClassVar[List[str]] = [
         "cve_id",
@@ -118,6 +118,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         return {
             "cve_id": self.cve_id,
             "vulnerable_cpes": self.vulnerable_cpes,
+            "vulnerable_cpe_configurations": self.vulnerable_cpe_configurations,
             "impact": self.impact,
             "published_date": self.published_date.isoformat() if self.published_date else None,
             "cwe_ids": self.cwe_ids,
