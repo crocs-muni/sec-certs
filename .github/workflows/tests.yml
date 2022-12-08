@@ -17,11 +17,8 @@ jobs:
         with:
           python-version: "3.8"
       - name: Install python dependencies
-        run: pip install -r requirements/requirements.txt
-      - name: Download spacy language model
-        run: python -m spacy download en_core_web_sm
-      - name: Install pytest and package
         run: |
+          pip install -r requirements/requirements.txt
           pip install -r requirements/test_requirements.txt
       - name: Run tests
         run: pytest --cov=sec_certs tests
