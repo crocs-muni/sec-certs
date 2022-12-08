@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 import jsonschema
 import yaml
 
 
-class Configuration(object):
-    def load(self, filepath: Union[str, Path]) -> None:
+class Configuration:
+    def load(self, filepath: str | Path) -> None:
         with Path(filepath).open("r") as file:
             state = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -30,7 +32,7 @@ class Configuration(object):
             return res["value"]
         return object.__getattribute__(self, key)
 
-    def get_desription(self, key: str) -> Optional[str]:
+    def get_desription(self, key: str) -> str | None:
         res = object.__getattribute__(self, key)
         if isinstance(res, dict) and "description" in res:
             return res["description"]

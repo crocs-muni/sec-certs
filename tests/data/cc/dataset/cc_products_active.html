@@ -1,0 +1,763 @@
+<!--Manticore2004-->
+<!--Manticore2004-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- no action (no SSL on dev box) -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+   <meta name="description" content="" />
+   <meta name="keywords" content="" />
+   <meta name="classification" content="Internet" />
+   <meta name="distribution" content="Global" />
+   <meta name="rating" content="Safe For Kids" />
+   <meta name="copyright" content="public domain" />
+   <meta name="language" content="en" />
+
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta http-equiv="Accept-Encoding" content="compress, gzip" />
+
+
+   <title>Certified Products : New CC Portal</title>
+
+
+   <link href="/assets/css/main.css" rel="stylesheet" type="text/css" />
+   <link href="/assets/css/print.css" rel="stylesheet" type="text/css" media="print" />
+   <link href="/assets/js/jQuery/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css" />
+   <link href="/assets/js/jQuery/plugins/tabs/tabs.css" rel="stylesheet" type="text/css" />
+   <!--[if lt IE 7]>
+	<link href="/assets/css/ie-lt-7.css" rel="stylesheet" type="text/css" />
+<![endif]-->
+   <!--[if gte IE 7]>
+	<link href="/assets/css/ie7.css" rel="stylesheet" type="text/css" />
+<![endif]-->
+
+
+   <script src="/assets/js/jQuery/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+   <script src="/assets/js/jQuery/js/jquery-ui-1.8.4.custom.min.js" type="text/javascript"></script>
+   <script src="/assets/js/jQuery/plugins/metadata/jquery.metadata.js" type="text/javascript"></script>
+
+   <script src="/assets/js/jQuery/plugins/tabs/jquery.tools.min.js" type="text/javascript"></script>
+
+
+   <!-- jstablesorter sppt -->
+   <script src="/assets/js/jQuery/plugins/tablesorter/jquery.tablesorter.min.js" type="text/javascript"></script>
+   <link href="/assets/js/jQuery/plugins/tablesorter/css/style.css" rel="stylesheet" type="text/css" />
+   <!-- END jstablesorter sppt -->
+
+
+
+
+   <link rel="alternate" title="Protection Profiles" href="../rss/pps.xml" type="application/rss+xml" />
+
+   <link rel="Shortcut Icon" type="image/ico" href="/assets/images/cc.ico" />
+
+
+   <!--  assets/includes/SQL_Check.cfm -->
+   <!--  ??? ????????             -->
+   <!--  2012.03.15 - 2012.XX.XX  -->
+
+   <!--  This page creates and manages a list of IP addresses to be blocked due -->
+   <!--  to dangerous requests which may be SQL Injection Attacks               -->
+   <!--  Included in the site's std header:  assets/includes/header.cfm         -->
+   <!--Corregidor-->
+
+
+
+
+
+
+
+
+
+   <!--Corregidor-->
+
+
+
+
+
+
+
+
+   <!--  2012.03.15 - 2012.XX.XX - Initial dev//???                             -->
+   <!--  2012.07.11 - Last mod before 2016//???                                 -->
+   <!--  2016.06.23 - Cleanup, minor edits, and comments added//KC              -->
+
+
+</head>
+
+
+<!-- 2017.09.07 - Adjusted jstablesorter sppt//KC                            -->
+
+
+
+<body>
+
+
+   <div id="wrap">
+
+
+      <div id="banner">
+         <p class="topNav">
+            <a href="/sitemap/" title="View the sitemap"> Sitemap</a> &nbsp; | &nbsp;
+
+            <a href="/contact/message/" title="Contact us">Contact</a>
+            &nbsp;&nbsp;
+         </p>
+
+         <!-- Google CSE Search Box Begins -->
+
+         <div id="searchbox">
+            <form id="016233930414485990345:f_zj6spfpx4" action="/search/" style="margin:0;padding:0">
+               <span style="white-space:nowrap">
+                  <input type="hidden" name="cx" value="016233930414485990345:f_zj6spfpx4" />
+                  <input type="hidden" name="cof" value="FORID:11" />
+                  <input type="hidden" name="ie" value="UTF-8" />
+                  <input name="q" type="text" size="30" />
+                  <input type="submit" name="sa" value="Search" />
+               </span>
+            </form>
+         </div>
+         <script type="text/javascript" src="//www.google.com/coop/cse/brand?form=searchbox_016233930414485990345:f_zj6spfpx4"></script>
+
+         <!-- Google CSE Search Box Ends -->
+
+      </div>
+      <div id="logo">
+
+         <p>
+
+            <a href="https://www.commoncriteriaportal.org/members/account/login/">Login &nbsp; <img src="/assets/images/icon_arrow.png" /> </a>
+
+
+         </p>
+      </div>
+      <!--[if gte IE 9]>
+  <style type="text/css">
+    .gradient {
+       filter: none;
+    }$(function() {
+
+    $( "#menutabs" ).menutabs();
+
+
+  </style>
+<![endif]-->
+      <!-- >
+  <style type="text/css">
+    .trad-blink {
+      animation: blinker 1.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;
+    }
+    @keyframes blinker {
+    	from { opacity: 1; }
+        to { opacity: .2;}
+        }
+  </style>
+< -->
+
+      <div id="menutabs">
+
+         <ul class="menutabs menuitem">
+            <li><a href="/news/" title="News">
+                  NEWS</a></li>
+            <li class="inline-code trad-blink"> <a href="/iccc/" title="ICCC">
+                  ICCC</a></li>
+            <li>
+               <a href="/pps/" title="Protection Profiles">
+                  PROTECTION PROFILES </a>
+            </li>
+            <li>
+               <a href="/pps/?cpp=1" title="Collaborative Protection Profiles">
+                  COLLABORATIVE PPS </a>
+            </li>
+
+            <li> <a href="/products/" title="Certified Products">
+                  CERTIFIED PRODUCTS </a></li>
+            <li>
+               <a href="/communities/index.cfm" title="Technology Communities">
+                  TECHNICAL COMMUNITIES</a>
+            </li>
+            <li>
+               <a href="/cc/">
+                  PUBLICATIONS</a>
+            </li>
+            <li><a href="/ccra/index.cfm">
+                  ABOUT THE CC</a></li>
+            <li><a href="/">HOME</a></li>
+
+         </ul>
+
+
+
+
+      </div>
+
+
+      <div id="slides">
+         <div class="slides_container">
+
+
+
+            <div><img src="/assets/images/slides/certified_products_banner.jpg"></div>
+
+
+            <br />
+
+         </div>
+
+      </div>
+
+      <!--[if gte IE 9]>
+  <style type="text/css">
+    .gradient {
+       filter: none;
+    }
+  </style>
+<![endif]-->
+      <div id="content">
+
+
+         <h1 id="page_title">Certified Products</h1>
+
+
+
+
+         <!-- --------------------------------------------------------------------------------------------------------------
+	For those of you poking around in the page source, the following URL parameters are available on this page:
+	expand - auto-expand the tables after the page loads
+	names - display filenames for the certification report and security target files for easier (F)inding
+--------------------------------------------------------------------------------------------------------------- -->
+
+
+         <style type="text/css">
+            .gridTable thead,
+            .gridTable tbody,
+            .gridTable tfoot {
+               display: none
+            }
+
+            .gridTable caption a {
+               color: #333;
+               text-decoration: none
+            }
+
+            .gridTable caption {
+               text-align: left !important;
+               background: #fff
+            }
+         </style>
+
+         <script>
+            $(document).ready(function () {
+
+               $("a#toggle").click().toggle(
+                  function () { openAll() },
+                  function () { closeAll() }
+               );
+               $("a.toggle").click().toggle(
+                  function () { openTbl(this.name); },
+                  function () { closeTbl(this.name); }
+               );
+
+               function openAll() {
+                  $(".gridTable caption").css({ 'background': '#333' });
+                  $(".gridTable caption a").css({ 'color': '#fff' });
+                  $(".gridTable thead").show();
+                  $(".gridTable tbody").show();
+                  $(".gridTable tfoot").show();
+                  $("a[id^='toggle'] img").attr("src", "/assets/images/minicon.gif");
+               }
+               function closeAll() {
+                  $(".gridTable caption").css({ 'background': '#fff' });
+                  $(".gridTable caption a").css({ 'color': '#333' });
+                  $(".gridTable thead").hide();
+                  $(".gridTable tbody").hide();
+                  $(".gridTable tfoot").hide();
+                  $("a[id^='toggle'] img").attr("src", "/assets/images/plusicon.gif");
+               }
+               function openTbl(tbl) {
+                  $(".gridTable#tbl" + tbl + " caption").css({ 'background': '#333' });
+                  $(".gridTable#tbl" + tbl + " caption a").css({ 'color': '#fff' });
+                  $(".gridTable#tbl" + tbl + " thead").show();
+                  $(".gridTable#tbl" + tbl + " tbody").show();
+                  $(".gridTable#tbl" + tbl + " tfoot").show();
+                  $("a#toggle" + tbl + " img").attr("src", "/assets/images/minicon.gif");
+               }
+               function closeTbl(tbl) {
+                  $(".gridTable#tbl" + tbl + " caption").css({ 'background': '#fff' });
+                  $(".gridTable#tbl" + tbl + " caption a").css({ 'color': '#333' });
+                  $(".gridTable#tbl" + tbl + " thead").hide();
+                  $(".gridTable#tbl" + tbl + " tbody").hide();
+                  $(".gridTable#tbl" + tbl + " tfoot").hide();
+                  $("a#toggle" + tbl + " img").attr("src", "/assets/images/plusicon.gif");
+               }
+
+               function showProgress() {
+                  $('#progress').css({ 'display': 'block' });
+                  $('#content').attr('disabled', true);
+               }
+               function hideProgress() {
+                  $('#progress').css({ 'display': 'none' });
+                  $('#content').removeAttr('disabled');
+               }
+            });
+         </script>
+
+         <div class="noprint" style="float:right;margin-top:-3.5em;margin-right:1em;white-space:nowrap">
+
+            <a href="./stats/" title="View the Certified Products Statistics" class="button2">Statistics</a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="certified_products.csv" title="Download the Certified Products List as a CSV file" class="button2">
+               <img src="/assets/images/icon_csv.gif" height="16" width="15" alt="" align="top"> Download CSV
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="index.cfm?archived=1" title="View the Archived Certified Products List" class="button2">Archived
+               Certified Products</a>
+
+         </div>
+
+
+         <!-- Blurb for the active list -->
+         <p>
+            The Common Criteria Recognition Arrangement covers certificates with claims of compliance against Common
+            Criteria assurance components of either:&nbsp;
+         </p>
+         <ol>
+            <li /> a collaborative Protection Profile (cPP), developed and maintained in accordance with CCRA Annex K,
+            with assurance activities selected from Evaluation Assurance Levels up to and including level 4 and ALC_FLR,
+            developed through an International Technical Community endorsed by the Management Committee; or
+            <li /> Evaluation Assurance Levels 1 through 2 and ALC_FLR.&nbsp;
+         </ol>
+         <p class="b">
+            Where a CC certificate claims compliance to Evaluation Assurance Level 3 or higher, but does not claim
+            compliance to a collaborative Protection Profile, then for purposes of mutual recognition under the CCRA,
+            the CC certificate should be treated as equivalent to Evaluation Assurance Level 2.&nbsp;
+         </p>
+         <p>
+            The CCDB has approved a resolution to limit the validity of mutually recognized CC certificates over
+            time.&nbsp;
+            Certificates will remain on the CPL for five years.&nbsp;
+            Effective 1 June 2019, certificates with an expired validity period (that is, 5 years or more from the date
+            of certificate issuance) will be moved to an Archive list on the CCRA portal, unless the validity period has
+            been extended using the appropriate procedures.&nbsp;
+         </p>
+         <!--
+   <p>
+      The CCDB has approved a resolution to limit the validity of mutually recognized CC certificates over time.&nbsp; 
+      Certificates will remain on the CPL for five years.&nbsp; 
+      Effective 1 June 2019, certificates with an expired validity period (that is, 5 years or more from the date of sample issuance) will be moved to an Archive list on the CCRA portal
+   </p>
+   <p>
+      The CCDB has approved a resolution to limit the validity of mutually recognized CC certificates over time.&nbsp; 
+      Certificates will remain on the CPL for five years.&nbsp; 
+      Effective 1 June 2019, certificates with an expired validity period (that is, 5 years or more from the date of sample issuance) will be moved to an Archive list on the CCRA portal.&nbsp;
+      Certificates fully recognized under the CCRA must claim conformance to either a collaborative Protection Profile (cPP) or EAL1-2.&nbsp; 
+   <p>
+   -->
+
+
+
+
+
+
+         <h4 id="operations">
+            <a href="#" id="toggle">expand/collapse all categories</a>
+         </h4>
+
+
+         <div id="white">
+
+
+
+            <table class="tablesorter gridTable" id="tblAC" style="width:97%;margin-left: 1em;margin-top:-.5em">
+
+               <thead>
+                  <tr>
+                     <!-- zxcv class="title2" -->
+
+                     <th id="col_1" class="text " style=";text-align:center;width:45%;max-width:45%">Product</th>
+
+
+                     <th id="col_2" class="text " style=";text-align:center;width:10%;max-width:10%">Vendor</th>
+
+
+                     <th id="col_3" class="text " style=";text-align:center;width:10%;max-width:10%">
+                        Product<br />Certificate</th>
+
+
+                     <th id="col_4" class="date-iso sortfirstasc " style=";text-align:center;width:10%;max-width:10%">
+                        Date&nbsp;Certificate<br />Issued</th>
+
+
+                     <th id="col_5" class="date-iso sortfirstasc " style=";text-align:center;width:10%;max-width:10%">
+                        Certificate<br />Validity<br />Expiration<br />Date</th>
+
+
+                     <th id="col_6" class="text " style=";text-align:center;width:5%;max-width:5%">Compliance</th>
+
+
+                     <th id="col_7" class="text last_th" style=";text-align:center;width:10%;max-width:10%">Scheme</th>
+
+
+                  </tr>
+               </thead>
+               <!--  2017.09.06 - Copied to CC Portal from NIAP site//KC                    -->
+               <!--  2017.09.06 - Converted tabs to spaces//KC                              -->
+
+               <tfoot class="hilite7">
+                  <!-- hilite1 -->
+                  <tr class="">
+                     <td colspan="7" class="txt1 c i">
+                        This list was generated on Wednesday, November 11, 2020, at 10:47 AM
+                     </td>
+                  </tr>
+               </tfoot>
+
+               <!--  2017.09.06 - Copied to CC Portal from NIAP site + mods//KC             -->
+
+
+               <caption style="font-weight:bold;font-size:larger">
+                  <a name="AC" href="#AC" id="toggleAC" class="toggle"><img src="/assets/images/plusicon.gif" border="0" height="11" width="11" class="toggle" style="margin-right:.5em" />Access Control Devices and
+                     Systems &ndash; 27 Certified Products</a>
+               </caption>
+               <thead>
+
+
+               </thead>
+               <tfoot></tfoot>
+               <tbody>
+
+                  <tr class="">
+                     <td class="b">
+                        <!-- ID:  2020.1111 -->
+                        NetIQ Identity Manager 4.7<a name="2020.1111" style="text-decoration:none;">&nbsp;</a><span title="2020.1111">&nbsp;</span>
+                        <div class="none">
+                           <!-- <a href="https&#x3a;&#x2f;&#x2f;www.netiq.com&#x2f;" title="Vendor's web site" target="_blank">NetIQ Corporation</a> -->
+                           <img src="/assets/images/spacer.gif" width="600" height="1" class="" align="top"> <br />
+                           <!-- ------ ------ ------ Document Links ------ ------ ------ -->
+                           <div style="line-height:2.5em">
+                              <a href="/files/epfiles/Certification Report - NetIQ® Identity Manager 4.7.pdf" title="Certification Report: Certification Report - NetIQ® Identity Manager 4.7.pdf" target="_blank" class="button2">Certification Report</a>
+                              <a href="/files/epfiles/ST - NetIQ Identity Manager 4.7.pdf" title="Security Target: ST - NetIQ Identity Manager 4.7.pdf" target="_blank" class="button2">Security Target</a>
+
+                           </div>
+                           <!-- ------ ------ ------ END Document Links ------ ------ ------ -->
+                           <!-- ------ ------ ------ Product Updates ------ ------ ------ -->
+
+                           <!-- ------ ------ ------ END Product Updates ------ ------ ------ -->
+                        </div>
+                     </td>
+                     <!--end-product-cell-->
+                     <td>
+                        <a href="https&#x3a;&#x2f;&#x2f;www.netiq.com&#x2f;" title="Vendor's web site" target="_blank">NetIQ Corporation</a>
+                     </td>
+                     <td>
+
+                        <a href="/files/epfiles/Certifikat CCRA - NetIQ Identity Manager 4.7_signed.pdf" title="Certifikat CCRA - NetIQ Identity Manager 4.7_signed.pdf" target="_blank" class="button2">CCRA Certificate</a>
+
+                     </td>
+                     <td style="text-align:center"><span title="2020.1111">2020-06-15</span></td>
+
+                     <td style="text-align:center">2025-06-15</td>
+
+
+                     <td>
+
+
+                        EAL3+
+                        <br />ALC_FLR.2
+                     </td>
+
+                     <td style="text-align:center">
+                        <a href="/ccra/members/#SE">
+                           <img src="/assets/images/flags/se.png" alt="SE &ndash; Swedish Certification Body for IT Security FMV/CSEC" title="SE &ndash; Swedish Certification Body for IT Security FMV/CSEC" height="32" width="32" style="margin-bottom:-1em" /><br />SE</a>
+                     </td>
+                  </tr>
+
+                  <tr class="even">
+                     <td class="b">
+                        <!-- ID:  2019.1265 -->
+                        Magic SSO V4.0<a name="2019.1265" style="text-decoration:none;">&nbsp;</a><span title="2019.1265">&nbsp;</span>
+                        <div class="none">
+                           <!-- <a href="https&#x3a;&#x2f;&#x2f;www.dreamsecurity.com&#x2f;" title="Vendor's web site" target="_blank">Dreamsecurity Co., Ltd.</a> -->
+                           <img src="/assets/images/spacer.gif" width="600" height="1" class="" align="top"> <br />
+                           <!-- ------ ------ ------ Document Links ------ ------ ------ -->
+                           <div style="line-height:2.5em">
+                              <a href="/files/epfiles/KECS-CR-19-70 Magic SSO V4.0(eng) V1.0.pdf" title="Certification Report: KECS-CR-19-70 Magic SSO V4.0(eng) V1.0.pdf" target="_blank" class="button2">Certification Report</a>
+                              <a href="/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf" title="Security Target: Magic_SSO_V4.0-ST-v1.4_EN.pdf" target="_blank" class="button2">Security Target</a>
+
+                              <!-- how it was before 2017.09
+                           <a href="/files/ppfiles/KECS-PP-0822-2017 Korean National PP for Single Sign On V1.0(eng).pdf" target="_blank" class="button2" title="PP: Korean National Protection Profile for Single Sign On V1.0">Protection Profile</a> -->
+                              <!-- ------------------------------------ -->
+                              <!-- Set the display text for the link to the PP -->
+
+                              <!-- ------------------------------------ -->
+                              <br /><a href="/files/ppfiles/KECS-PP-0822-2017 Korean National PP for Single Sign On V1.0(eng).pdf" target="_blank" class="button2" title="">Korean National Protection Profile for Single
+                                 Sign On V1.0</a>
+
+                           </div>
+                           <!-- ------ ------ ------ END Document Links ------ ------ ------ -->
+                           <!-- ------ ------ ------ Product Updates ------ ------ ------ -->
+
+                           <!-- ------ ------ ------ END Product Updates ------ ------ ------ -->
+                        </div>
+                     </td>
+                     <!--end-product-cell-->
+                     <td>
+                        <a href="https&#x3a;&#x2f;&#x2f;www.dreamsecurity.com&#x2f;" title="Vendor's web site" target="_blank">Dreamsecurity Co., Ltd.</a>
+                     </td>
+                     <td>
+
+                        &nbsp;
+
+                     </td>
+                     <td style="text-align:center"><span title="2019.1265">2019-11-15</span></td>
+
+                     <td style="text-align:center">2024-11-15</td>
+
+
+                     <td>
+
+
+                        PP&nbsp;Compliant
+                     </td>
+
+                     <td style="text-align:center">
+                        <a href="/ccra/members/#KR">
+                           <img src="/assets/images/flags/kr.png" alt="KR &ndash; IT Security Certification Center&#x28;ITSCC&#x29;" title="KR &ndash; IT Security Certification Center&#x28;ITSCC&#x29;" height="32" width="32" style="margin-bottom:-1em" /><br />KR</a>
+                     </td>
+                  </tr>
+
+               </tbody>
+            </table>
+
+             <table class="tablesorter gridTable" id="tblBP" style="width:97%;margin-left: 1em;margin-top:-.5em">
+      
+<thead>
+   <tr><!-- zxcv class="title2" -->
+      
+         <th id="col_1" class="text " style=";text-align:center;width:45%;max-width:45%">Product</th>
+
+         
+         <th id="col_2" class="text " style=";text-align:center;width:10%;max-width:10%">Vendor</th>
+
+         
+         <th id="col_3" class="text " style=";text-align:center;width:10%;max-width:10%">Product<br />Certificate</th>
+
+         
+         <th id="col_4" class="date-iso sortfirstasc " style=";text-align:center;width:10%;max-width:10%">Date&nbsp;Certificate<br />Issued</th>
+
+         
+         <th id="col_5" class="date-iso sortfirstasc " style=";text-align:center;width:10%;max-width:10%">Certificate<br />Validity<br />Expiration<br />Date</th>
+
+         
+         <th id="col_6" class="text " style=";text-align:center;width:5%;max-width:5%">Compliance</th>
+
+         
+         <th id="col_7" class="text last_th" style=";text-align:center;width:10%;max-width:10%">Scheme</th>
+
+         
+   </tr>
+</thead>
+<!--  2017.09.06 - Copied to CC Portal from NIAP site//KC                    -->
+<!--  2017.09.06 - Converted tabs to spaces//KC                              -->
+
+<tfoot class="hilite7"><!-- hilite1 -->
+   <tr class="">
+      <td colspan="7" class="txt1 c i">
+         This list was generated on Tuesday, October 4, 2022, at 9:32 AM
+      </td>
+   </tr>
+</tfoot>
+
+<!--  2017.09.06 - Copied to CC Portal from NIAP site + mods//KC             -->
+
+
+      <caption style="font-weight:bold;font-size:larger">
+         <a name="DP" href="#DP" id="toggleDP" class="toggle"><img src="/assets/images/plusicon.gif" border="0" height="11" width="11" class="toggle" style="margin-right:.5em"/>Data Protection &ndash; 61 Certified Products</a>
+      </caption>
+      <thead>
+
+      
+		</thead>
+		<tfoot></tfoot>
+		<tbody>
+
+<tr class="even">
+               <td class="b">
+                  <!-- ID:  2019.1102 -->
+                  Fortinet FortiGate w&#x2f; FortiOS v5.6.7<a name="2019.1102" style="text-decoration:none;">&nbsp;</a><span title="2019.1102">&nbsp;</span>
+                  <div class="none">
+                  <!-- <a href="http&#x3a;&#x2f;&#x2f;www.fortinet.com&#x2f;" title="Vendor's web site" target="_blank">Fortinet, Inc.</a> -->
+                  <img src="/assets/images/spacer.gif" width="600" height="1" class="" align="top"> <br />
+                  <!-- ------ ------ ------ Document Links ------ ------ ------ -->
+                  <div style="line-height:2.5em">
+
+                  <a href="/files/epfiles/383-4-450 CR v1.0a.pdf" title="Certification Report: 383-4-450 CR v1.0a.pdf" target="_blank" class="button2">
+                     Certification Report 
+                  </a>
+
+                  &nbsp;
+                  <a href="/files/epfiles/383-4-450 ST v1.3A.pdf" title="Security Target: 383-4-450 ST v1.3A.pdf" target="_blank" class="button2">
+                     Security Target 
+                  </a>
+ 
+                  
+                           <!-- how it was before 2017.09
+                           <a href="/files/ppfiles/CPP_FW_V2.0E.pdf" target="_blank" class="button2" title="PP: collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0 &#x2b; Errata 20180314">Protection Profile</a> -->
+                           <!-- ------------------------------------ -->
+                           <!-- Set the display text for the link to the PP -->
+                           
+                           <!-- ------------------------------------ -->
+                           <br /><a href="/files/ppfiles/CPP_FW_V2.0E.pdf" target="_blank" class="button2" title="">collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0 &#x2b; Errata 20180314</a>
+                           
+                  </div>
+                  <!-- ------ ------ ------ END Document Links ------ ------ ------ -->
+                  <!-- ------ ------ ------ Product Updates ------ ------ ------ -->
+                  
+                     <div style="margin:1em 0 0 0;padding-top:.5em">
+                        <div style="border:2px ridge #fff;border-width:2px 0;padding:.5em 0;font-weight:bold;text-align:center">Maintenance Report(s)</div>
+                        <ol style="margin-top:-1em;margin-left:-1em">
+                           
+                                 <br />
+                                 <li>
+                                    2019-08-26 &ndash; Fortinet FortiGate w&#x2f; FortiOS v5.6.7 Build 6022<br style="margin-bottom:.5em"/>
+                                    <a href="/files/epfiles/383-7-159 MR v1.0e.pdf" title="Maintenance Report: 383-7-159 MR v1.0e.pdf" target="_blank" class="button2">Maintenance Report</a>
+                                    
+                                    <a href="/files/epfiles/383-7-159 ST v1.4 CCRA.pdf" title="Maintenance ST: 383-7-159 ST v1.4 CCRA.pdf" target="_blank" class="button2">Maintenance ST</a>
+                                    
+                                 </li>
+                              
+                        </ol>
+                     </div>
+                  
+                  <!-- ------ ------ ------ END Product Updates ------ ------ ------ -->
+                  </div>
+               </td><!--end-product-cell-->
+               <td>
+                  <a href="http&#x3a;&#x2f;&#x2f;www.fortinet.com&#x2f;" title="Vendor's web site" target="_blank">Fortinet, Inc.</a>
+               </td>
+               <td>
+                  
+                     <a href="/files/epfiles/383-4-450 CT v1.0a.pdf" title="383-4-450 CT v1.0a.pdf" target="_blank" class="button2">CCRA Certificate</a>
+                  
+               </td>
+               <td style="text-align:center"><span title="2019.1102">2019-05-22</span></td>
+               
+               <td style="text-align:center">2024-05-24</td>
+               
+               
+               <td>
+                  
+                  
+                  PP&nbsp;Compliant 
+               </td>
+               
+               <td style="text-align:center">
+                  <a href="/ccra/members/#CA">
+                  <img src="/assets/images/flags/ca.png" alt="CA &ndash; Canadian Common Criteria Scheme" title="CA &ndash; Canadian Common Criteria Scheme" height="32" width="32" style="margin-bottom:-1em"/><br />CA</a>
+               </td>
+            </tr>
+            
+            </tbody>
+            </table>
+        
+         </div><!-- END white, i think -->
+
+
+
+
+
+         <!--  2017.07.10 - Added blurb to active list re. archiving in 2019//KC      -->
+         <!--  2017.09.06 - 2017.09.08 - Big cosmetic changes per NIAP's request//KC  -->
+         <!--  2017.09.06 - Code clean-up in areas I touched//KC                      -->
+         <!--  2017.09.08 - Converted page to one paired CFoutput tag//KC             -->
+         <!--  2018.04.03 - 2018.04.05 - Put compliance column back w a few changes//KC -->
+         <!--  2018.10.04 - Added new text//KC                                        -->
+         <!--  2019.12.16 - Replaced Application.WebRoot w Application.CodeBase//KC   -->
+         <!--  2019.12.19 - Added product ID to comment & span title//KC              -->
+
+
+         <div id="footer" class="copy">
+            <p>&nbsp;</p>
+
+         </div>
+
+
+         <script type="text/javascript" src="/assets/js/searchhi.js"></script>
+
+
+
+
+         <!-- jstablesorter sppt -->
+         <!-- zxcv - Should be w/in JSTableSorter -->
+
+         <script type="text/javascript">
+            $(document).ready(function () {
+               $.tablesorter.defaults.widgets = ['zebra']; // add stripes
+               $.tablesorter.defaults.sortList = [[3, 1]]; // default sort column(s)
+               $('table').tablesorter({ headers: { 5: { sorter: false } } }); // enable sort & disable sort on specific column(s)
+            });
+         </script>
+         <!-- END jstablesorter sppt -->
+
+
+         <!--[if lt IE 8]>
+<script src="/assets/js/ie7-js/IE8.js" type="text/javascript"></script>
+<![endif]-->
+
+
+         <!-- Google Analytics -->
+         <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-1394658-2']);
+            _gaq.push(['_trackPageview']);
+            (function () {
+               var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+               ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+               var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+         </script>
+
+
+
+
+
+         <!-- 2017.09.07 - Added jstablesorter sppt//KC                               -->
+
+
+      </div>
+   </div>
+</body>
+
+</html>

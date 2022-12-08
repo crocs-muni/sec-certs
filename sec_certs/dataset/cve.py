@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import glob
 import itertools
@@ -6,9 +8,8 @@ import logging
 import shutil
 import tempfile
 import zipfile
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Set, Union
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
@@ -16,23 +17,27 @@ import pandas as pd
 import sec_certs.constants as constants
 import sec_certs.utils.helpers as helpers
 from sec_certs.config.configuration import config
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, CustomJSONEncoder
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.parallel_processing import process_parallel
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class CVEDataset(ComplexSerializableType):
-    cves: Dict[str, CVE]
-    cpe_to_cve_ids_lookup: Dict[str, Set[str]] = field(init=False)
-    cve_url: Final[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
-    cpe_match_feed_url: Final[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
+class CVEDataset(JSONPathDataset, ComplexSerializableType):
+    CVE_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-"
+    CPE_MATCH_FEED_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
+
+    def __init__(self, cves: dict[str, CVE], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+        self.cves = cves
+        self.json_path = Path(json_path)
+        self.cpe_to_cve_ids_lookup: dict[str, set[str]] = dict()
 
     @property
-    def serialized_attributes(self) -> List[str]:
+    def serialized_attributes(self) -> list[str]:
         return ["cves"]
 
     def __iter__(self):
@@ -50,7 +55,7 @@ class CVEDataset(ComplexSerializableType):
     def __eq__(self, other: object):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
-    def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Optional[Path] = None):
+    def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Path | None = None):
         """
         Builds look-up dictionary CPE -> Set[CVE]
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
@@ -69,11 +74,11 @@ class CVEDataset(ComplexSerializableType):
             matching_dict = self.get_nist_cpe_matching_dict(nist_matching_filepath)
 
         cve: CVE
-        for cve in helpers.tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
+        for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
                 vulnerable_configurations = list(
-                    itertools.chain.from_iterable([matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes])
+                    itertools.chain.from_iterable(matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes)
                 )
             else:
                 vulnerable_configurations = cve.vulnerable_cpes
@@ -89,31 +94,32 @@ class CVEDataset(ComplexSerializableType):
         if not output_path.exists:
             output_path.mkdir()
 
-        urls = [cls.cve_url + str(x) + ".json.zip" for x in range(start_year, end_year + 1)]
+        urls = [cls.CVE_URL + str(x) + ".json.zip" for x in range(start_year, end_year + 1)]
 
         logger.info(f"Identified {len(urls)} CVE files to fetch from nist.gov. Downloading them into {output_path}")
         with tempfile.TemporaryDirectory() as tmp_dir:
             outpaths = [Path(tmp_dir) / Path(x).name.rstrip(".zip") for x in urls]
-            responses = list(zip(*helpers.download_parallel(list(zip(urls, outpaths)), num_threads=config.n_threads)))[
-                1
-            ]
+            responses = helpers.download_parallel(urls, outpaths, "Downloading CVEs resources from NVD")
 
-            for o, u, r in zip(outpaths, urls, responses):
+            for o, r in zip(outpaths, responses):
                 if r == constants.RESPONSE_OK:
                     with zipfile.ZipFile(o, "r") as zip_handle:
                         zip_handle.extractall(output_path)
-                else:
-                    logger.info(f"Failed to download from {u}, got status code {r}")
 
     @classmethod
-    def from_nist_json(cls, input_path: str) -> "CVEDataset":
+    def from_nist_json(cls, input_path: str) -> CVEDataset:
         with Path(input_path).open("r") as handle:
             data = json.load(handle)
         cves = [CVE.from_nist_dict(x) for x in data["CVE_Items"]]
         return cls({x.cve_id: x for x in cves})
 
     @classmethod
-    def from_web(cls, start_year: int = 2002, end_year: int = datetime.datetime.now().year):
+    def from_web(
+        cls,
+        start_year: int = 2002,
+        end_year: int = datetime.datetime.now().year,
+        json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
+    ):
         logger.info("Building CVE dataset from nist.gov website.")
         with tempfile.TemporaryDirectory() as tmp_dir:
             cls.download_cves(tmp_dir, start_year, end_year)
@@ -131,26 +137,12 @@ class CVEDataset(ComplexSerializableType):
             for r in results:
                 all_cves.update(r.cves)
 
-        return cls(all_cves)
+        return cls(all_cves, json_path)
 
-    def to_json(self, output_path: Optional[Union[str, Path]] = None):
-        if output_path is None:
-            raise RuntimeError(
-                f"You tried to serialize an object ({type(self)}) that does not have implicit json path. Please provide json_path."
-            )
-        with Path(output_path).open("w") as handle:
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
-
-    @classmethod
-    def from_json(cls, input_path: Union[str, Path]):
-        with Path(input_path).open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        return dset
-
-    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> Optional[Set[str]]:
+    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str] | None:
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
 
-    def filter_related_cpes(self, relevant_cpes: Set[CPE]):
+    def filter_related_cpes(self, relevant_cpes: set[CPE]):
         """
         Since each of the CVEs is related to many CPEs, the dataset size explodes (serialized). For certificates,
         only CPEs within sample dataset are relevant. This function modifies all CVE elements. Specifically, it
@@ -177,12 +169,12 @@ class CVEDataset(ComplexSerializableType):
         df.cwe_ids = df.cwe_ids.map(lambda x: x if x else np.nan)
         return df.set_index("cve_id")
 
-    def get_nist_cpe_matching_dict(self, input_filepath: Optional[Path]) -> Dict[CPE, List[CPE]]:
+    def get_nist_cpe_matching_dict(self, input_filepath: Path | None) -> dict[CPE, list[CPE]]:
         """
         Computes dictionary that maps complex CPEs to list of simple CPEs.
         """
 
-        def parse_key_cpe(field: Dict) -> CPE:
+        def parse_key_cpe(field: dict) -> CPE:
             start_version = None
             if "versionStartIncluding" in field:
                 start_version = ("including", field["versionStartIncluding"])
@@ -197,17 +189,17 @@ class CVEDataset(ComplexSerializableType):
 
             return cached_cpe(field["cpe23Uri"], start_version=start_version, end_version=end_version)
 
-        def parse_values_cpe(field: Dict) -> List[CPE]:
+        def parse_values_cpe(field: dict) -> list[CPE]:
             return [cached_cpe(x["cpe23Uri"]) for x in field["cpe_name"]]
 
         logger.debug("Attempting to get NIST mapping file.")
         if not input_filepath or not input_filepath.is_file():
             logger.debug("NIST mapping file not available, going to download.")
             with tempfile.TemporaryDirectory() as tmp_dir:
-                filename = Path(self.cpe_match_feed_url).name
+                filename = Path(self.CPE_MATCH_FEED_URL).name
                 download_path = Path(tmp_dir) / filename
                 unzipped_path = Path(tmp_dir) / filename.rstrip(".zip")
-                helpers.download_file(self.cpe_match_feed_url, download_path)
+                helpers.download_file(self.CPE_MATCH_FEED_URL, download_path)
 
                 with zipfile.ZipFile(download_path, "r") as zip_handle:
                     zip_handle.extractall(tmp_dir)
@@ -221,7 +213,7 @@ class CVEDataset(ComplexSerializableType):
                 match_data = json.load(handle)
 
         mapping_dict = dict()
-        for match in helpers.tqdm(match_data["matches"], desc="parsing cpe matching (by NIST) dictionary"):
+        for match in tqdm(match_data["matches"], desc="parsing cpe matching (by NIST) dictionary"):
             key = parse_key_cpe(match)
             value = parse_values_cpe(match)
             mapping_dict[key] = value if value else [key]

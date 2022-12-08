@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass
-from typing import List, Tuple
 
 
 @dataclass(eq=True, frozen=True)
@@ -26,7 +27,7 @@ class CertificateId:
         return new_cert_id
 
     def _canonical_de(self) -> str:
-        def extract_parts(bsi_parts: List[str]) -> Tuple:
+        def extract_parts(bsi_parts: list[str]) -> tuple:
             cert_num = None
             cert_version = None
             cert_year = None

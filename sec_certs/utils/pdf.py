@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import glob
 import logging
 import subprocess
@@ -5,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from functools import reduce
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import pdftotext
 import pikepdf
@@ -65,7 +67,7 @@ def ocr_pdf_file(pdf_path: Path) -> str:
     return contents
 
 
-def convert_pdf_file(pdf_path: Path, txt_path: Path) -> Tuple[bool, bool]:
+def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
     """
     Convert a PDF tile to text and save it on the `txt_path`.
 
@@ -101,7 +103,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> Tuple[bool, bool]:
     return ocr, ok
 
 
-def parse_pdf_date(dateval: Optional[bytes]) -> Optional[datetime]:
+def parse_pdf_date(dateval: bytes | None) -> datetime | None:
     """
     Parse PDF metadata date format:
 
@@ -142,7 +144,7 @@ def parse_pdf_date(dateval: Optional[bytes]) -> Optional[datetime]:
         return None
 
 
-def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]:  # noqa: C901
+def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  # noqa: C901
     """
     Extract PDF metadata, such as the number of pages, author, title, etc.
 
@@ -179,7 +181,7 @@ def extract_pdf_metadata(filepath: Path) -> Tuple[str, Optional[Dict[str, Any]]]
         else:
             return val
 
-    metadata: Dict[str, Any] = dict()
+    metadata: dict[str, Any] = dict()
 
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size

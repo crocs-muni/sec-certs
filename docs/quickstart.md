@@ -38,13 +38,13 @@ If you insist on processing the whole certificates pipeline, make sure that you 
 ::::{tab-set}
 :::{tab-item} Common Criteria
 ```bash
-$ cc-certs all
+$ sec-certs cc all
 ```
 :::
 
 :::{tab-item} FIPS 140
 ```bash
-$ fips-certs new-run
+$ sec-certs fips all
 ```
 :::
 ::::
@@ -53,7 +53,7 @@ This script takes a long time to run (few hours) and will create `./cc_dset` or 
 
 ## Run sec-certs from docker
 
-If you installed the docker image (see [installation](installation.md)), use `docker run -it sec-certs` to run the container interactively. From there, you can run the `cc-certs` CLI or `fips-certs` CLI. Alternatively, you can serve a Jupyter notebook from the docker to use at your host machine and even write your scripts to some shared folder. Example of both use-cases follow.
+If you installed the docker image (see [installation](installation.md)), use `docker run -it sec-certs` to run the container interactively. From there, you can run the `sec-certs` CLI. Alternatively, you can serve a Jupyter notebook from the docker to use at your host machine and even write your scripts to some shared folder. Example of that use-case follows.
 
 ### Persistent files with docker mounts
 

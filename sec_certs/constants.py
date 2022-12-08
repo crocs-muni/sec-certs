@@ -1,4 +1,7 @@
 import re
+from pathlib import Path
+
+DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 
 RESPONSE_OK = 200
 RETURNCODE_OK = "ok"
@@ -7,11 +10,15 @@ REQUEST_TIMEOUT = 10
 
 MIN_CORRECT_CERT_SIZE = 5000
 
+MIN_FIPS_HTML_SIZE = 64000
+
 MIN_CC_HTML_SIZE = 5000000
 MIN_CC_CSV_SIZE = 700000
 MIN_CC_PP_DATASET_SIZE = 2500000
 
 CPE_VERSION_NA = "-"
+
+RELEASE_CANDIDATE_REGEX: re.Pattern = re.compile(r"rc\d{0,2}$", re.IGNORECASE)
 
 FIPS_BASE_URL = "https://csrc.nist.gov"
 FIPS_CMVP_URL = FIPS_BASE_URL + "/projects/cryptographic-module-validation-program"

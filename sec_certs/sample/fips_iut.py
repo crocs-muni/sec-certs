@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Dict, Iterator, List, Mapping, Optional, Set, Union
+from typing import Iterator, Mapping
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -20,11 +22,11 @@ class IUTEntry(ComplexSerializableType):
     standard: str
     iut_date: date
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         return {**self.__dict__, "iut_date": self.iut_date.isoformat()}
 
     @classmethod
-    def from_dict(cls, dct: Mapping) -> "IUTEntry":
+    def from_dict(cls, dct: Mapping) -> IUTEntry:
         return cls(
             dct["module_name"],
             dct["vendor_name"],
@@ -35,12 +37,12 @@ class IUTEntry(ComplexSerializableType):
 
 @dataclass
 class IUTSnapshot(ComplexSerializableType):
-    entries: Set[IUTEntry]
+    entries: set[IUTEntry]
     timestamp: datetime
     last_updated: date
-    displayed: Optional[int]
-    not_displayed: Optional[int]
-    total: Optional[int]
+    displayed: int | None
+    not_displayed: int | None
+    total: int | None
 
     def __len__(self) -> int:
         return len(self.entries)
@@ -48,7 +50,7 @@ class IUTSnapshot(ComplexSerializableType):
     def __iter__(self) -> Iterator[IUTEntry]:
         yield from self.entries
 
-    def to_dict(self) -> Dict[str, Union[Optional[int], List[IUTEntry], str]]:
+    def to_dict(self) -> dict[str, int | None | list[IUTEntry] | str]:
         return {
             "entries": list(self.entries),
             "timestamp": self.timestamp.isoformat(),
@@ -59,7 +61,7 @@ class IUTSnapshot(ComplexSerializableType):
         }
 
     @classmethod
-    def from_dict(cls, dct: Mapping) -> "IUTSnapshot":
+    def from_dict(cls, dct: Mapping) -> IUTSnapshot:
         return cls(
             set(dct["entries"]),
             datetime.fromisoformat(dct["timestamp"]),
@@ -70,7 +72,7 @@ class IUTSnapshot(ComplexSerializableType):
         )
 
     @classmethod
-    def from_page(cls, content: bytes, snapshot_date: datetime) -> "IUTSnapshot":
+    def from_page(cls, content: bytes, snapshot_date: datetime) -> IUTSnapshot:
         """
         Get an IUT snapshot from a HTML dump of the FIPS website.
         """
@@ -103,9 +105,9 @@ class IUTSnapshot(ComplexSerializableType):
 
         # Parse footer
         footer = soup.find(id="IUTFooter")
-        displayed: Optional[int]
-        not_displayed: Optional[int]
-        total: Optional[int]
+        displayed: int | None
+        not_displayed: int | None
+        total: int | None
 
         if footer:
             footer_lines = footer.find_all("tr")
@@ -125,7 +127,7 @@ class IUTSnapshot(ComplexSerializableType):
         )
 
     @classmethod
-    def from_dump(cls, dump_path: Union[str, Path], snapshot_date: Optional[datetime] = None) -> "IUTSnapshot":
+    def from_dump(cls, dump_path: str | Path, snapshot_date: datetime | None = None) -> IUTSnapshot:
         """
         Get an IUT snapshot from a HTML file dump of the FIPS website.
         """
@@ -140,7 +142,7 @@ class IUTSnapshot(ComplexSerializableType):
         return cls.from_page(content, snapshot_date)
 
     @classmethod
-    def from_web(cls) -> "IUTSnapshot":
+    def from_web(cls) -> IUTSnapshot:
         """
         Get an IUT snapshot from the FIPS website right now.
         """
@@ -152,7 +154,7 @@ class IUTSnapshot(ComplexSerializableType):
         return cls.from_page(iut_resp.content, snapshot_date)
 
     @classmethod
-    def from_web_latest(cls) -> "IUTSnapshot":
+    def from_web_latest(cls) -> IUTSnapshot:
         """
         Get a IUT snapshot from seccerts.org.
         """

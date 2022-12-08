@@ -1,5 +1,8 @@
 # Data
 
+The file [label_studio_interface.txt](label_studio_interface.txt) contains XML-like specification of the labeling interface
+for CPE matching. As such, it was used in the Label studio tool.
+
 ## Certificate ID evaluation
 
 The directory `./cert_id_eval` contains data on a manual evaluation of certificate ID assignment.

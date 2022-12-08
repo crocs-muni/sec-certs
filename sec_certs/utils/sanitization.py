@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import html
 import logging
 from datetime import date
-from typing import Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -10,19 +11,19 @@ from bs4 import NavigableString
 logger = logging.getLogger(__name__)
 
 
-def sanitize_navigable_string(string: Optional[Union[NavigableString, str]]) -> Optional[str]:
+def sanitize_navigable_string(string: NavigableString | str | None) -> str | None:
     if not string:
         return None
     return str(string).strip().replace("\xad", "").replace("\xa0", "")
 
 
-def sanitize_link(record: Optional[str]) -> Optional[str]:
+def sanitize_link(record: str | None) -> str | None:
     if not record:
         return None
     return record.replace(":443", "").replace(" ", "%20").replace("http://", "https://")
 
 
-def sanitize_date(record: Union[pd.Timestamp, date, np.datetime64]) -> Union[date, None]:
+def sanitize_date(record: pd.Timestamp | date | np.datetime64) -> date | None:
     if pd.isnull(record):
         return None
     elif isinstance(record, pd.Timestamp):
@@ -38,7 +39,7 @@ def sanitize_string(record: str) -> str:
     return " ".join(string.split())
 
 
-def sanitize_security_levels(record: Union[str, Set[str]]) -> Set[str]:
+def sanitize_security_levels(record: str | set[str]) -> set[str]:
     if isinstance(record, str):
         record = set(record.split(","))
     return record - {"Basic", "ND-PP", "PP\xa0Compliant", "None", "Medium"}

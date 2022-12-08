@@ -16,3 +16,5 @@ myst-nb>=0.14
 sphinx-book-theme
 sphinx-design
 sphinx-copybutton
+pyupgrade
+flake8-future-annotations

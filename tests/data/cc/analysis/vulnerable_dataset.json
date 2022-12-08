@@ -1,0 +1,73 @@
+{
+    "_type": "sec_certs.dataset.common_criteria.CCDataset",
+    "state": {
+        "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
+        "meta_sources_parsed": true,
+        "artifacts_downloaded": false,
+        "pdfs_converted": false,
+        "auxillary_datasets_processed": true,
+        "certs_analyzed": false
+    },
+    "timestamp": "2021-04-16 15:05:18.386794",
+    "sha256_digest": "not implemented",
+    "name": "cc_full_dataset",
+    "description": "sample dataset description",
+    "n_certs": 1,
+    "certs": [
+        {
+            "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
+            "dgst": "ebd276cca70fd723",
+            "status": "active",
+            "category": "Access Control Devices and Systems",
+            "name": "IBM Security Access Manager for Enterprise Single Sign-On Version 8.2",
+            "manufacturer": "IBM Corporation",
+            "scheme": "DE",
+            "security_level": {
+                "_type": "Set",
+                "elements": [
+                    "ALC_FLR.1",
+                    "EAL3+"
+                ]
+            },
+            "not_valid_before": "2014-12-05",
+            "not_valid_after": null,
+            "report_link": "http://www.commoncriteriaportal.org/files/epfiles/0683a_pdf.pdf",
+            "st_link": "http://www.commoncriteriaportal.org/files/epfiles/0683b_pdf.pdf",
+            "cert_link": null,
+            "manufacturer_web": "http://www.ibm.com",
+            "protection_profiles": [],
+            "maintenance_updates": [],
+            "state": {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
+                "st_download_ok": true,
+                "report_download_ok": true,
+                "st_convert_ok": true,
+                "report_convert_ok": true,
+                "st_extract_ok": true,
+                "report_extract_ok": true
+            },
+            "pdf_data": {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+                "report_metadata": null,
+                "st_metadata": null,
+                "report_frontpage": null,
+                "st_frontpage": null,
+                "report_keywords": null,
+                "st_keywords": null,
+                "report_filename": null,
+                "st_filename": null
+            },
+            "heuristics": {
+                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+                "extracted_versions": [
+                    "8.2"
+                ],
+                "cpe_matches": null,
+                "verified_cpe_matches": null,
+                "related_cves": null,
+                "cert_lab": null,
+                "cert_id": null
+            }
+        }
+    ]
+}

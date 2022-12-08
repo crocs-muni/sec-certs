@@ -1,20 +1,29 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Dict, Iterator, List, Mapping, Union
+from typing import Iterator, Mapping
 
 import requests
 
+from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.dataset import logger
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.serialization.json import ComplexSerializableType
-from sec_certs.utils.helpers import tqdm
+from sec_certs.utils.tqdm import tqdm
 
 
 @dataclass
-class IUTDataset(ComplexSerializableType):
-    snapshots: List[IUTSnapshot]
+class IUTDataset(JSONPathDataset, ComplexSerializableType):
+    snapshots: list[IUTSnapshot]
+    _json_path: Path
+
+    def __init__(self, snapshots: list[IUTSnapshot], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+        self.snapshots = snapshots
+        self.json_path = Path(json_path)
 
     def __iter__(self) -> Iterator[IUTSnapshot]:
         yield from self.snapshots
@@ -26,7 +35,7 @@ class IUTDataset(ComplexSerializableType):
         return len(self.snapshots)
 
     @classmethod
-    def from_dumps(cls, dump_path: Union[str, Path]) -> "IUTDataset":
+    def from_dumps(cls, dump_path: str | Path) -> IUTDataset:
         directory = Path(dump_path)
         fnames = list(directory.glob("*"))
         snapshots = []
@@ -37,15 +46,15 @@ class IUTDataset(ComplexSerializableType):
                 logger.error(e)
         return cls(snapshots)
 
-    def to_dict(self) -> Dict[str, List[IUTSnapshot]]:
+    def to_dict(self) -> dict[str, list[IUTSnapshot]]:
         return {"snapshots": list(self.snapshots)}
 
     @classmethod
-    def from_dict(cls, dct: Mapping) -> "IUTDataset":
+    def from_dict(cls, dct: Mapping) -> IUTDataset:
         return cls(dct["snapshots"])
 
     @classmethod
-    def from_web_latest(cls) -> "IUTDataset":
+    def from_web_latest(cls) -> IUTDataset:
         """
         Get the IUTDataset from seccerts.org
         """

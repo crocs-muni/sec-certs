@@ -31,18 +31,18 @@ However, come CVEs are missed due to omitted vulnerable configurations in [CVEDa
     :members:
 ```
 
-## DependencyFinder
+## ReferenceFinder
 
 ```{eval-rst}
 .. currentmodule:: sec_certs.model
-.. autoclass:: DependencyFinder
+.. autoclass:: ReferenceFinder
     :members:
 ```
 
-## DependencyVulnerabilityFinder
+## TransitiveVulnerabilityFinder
 
 ```{eval-rst}
 .. currentmodule:: sec_certs.model
-.. autoclass:: DependencyVulnerabilityFinder
+.. autoclass:: TransitiveVulnerabilityFinder
     :members:
 ```

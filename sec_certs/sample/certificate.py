@@ -1,35 +1,53 @@
+from __future__ import annotations
+
 import copy
-import json
 import logging
 from abc import ABC, abstractmethod
+from collections import ChainMap
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Dict, Generic, Optional, Set, Type, TypeVar, Union
+from typing import Any, Generic, TypeVar
 
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
+import sec_certs.utils.extract
+from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES
+from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="Certificate")
 H = TypeVar("H", bound="Heuristics")
+P = TypeVar("P", bound="PdfData")
 
 
 @dataclass
 class References(ComplexSerializableType):
-    directly_referenced_by: Optional[Set[str]] = field(default=None)
-    indirectly_referenced_by: Optional[Set[str]] = field(default=None)
-    directly_referencing: Optional[Set[str]] = field(default=None)
-    indirectly_referencing: Optional[Set[str]] = field(default=None)
+    directly_referenced_by: set[str] | None = field(default=None)
+    indirectly_referenced_by: set[str] | None = field(default=None)
+    directly_referencing: set[str] | None = field(default=None)
+    indirectly_referencing: set[str] | None = field(default=None)
 
 
 class Heuristics:
-    cpe_matches: Optional[Set[str]]
-    related_cves: Optional[Set[str]]
+    cpe_matches: set[str] | None
+    related_cves: set[str] | None
 
 
-class Certificate(Generic[T, H], ABC, ComplexSerializableType):
-    manufacturer: Optional[str]
-    name: Optional[str]
+class PdfData:
+    def get_keywords_df_data(self, var: str) -> dict[str, float]:
+        data_dct = getattr(self, var)
+        return dict(
+            ChainMap(
+                *[
+                    sec_certs.utils.extract.get_sums_for_rules_subset(data_dct, cat)
+                    for cat in PANDAS_KEYWORDS_CATEGORIES
+                ]
+            )
+        )
+
+
+class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
+    manufacturer: str | None
+    name: str | None
+    pdf_data: P
     heuristics: H
 
     def __init__(self, *args, **kwargs):
@@ -56,21 +74,16 @@ class Certificate(Generic[T, H], ABC, ComplexSerializableType):
             return False
         return self.dgst == other.dgst
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             **{"dgst": self.dgst},
             **{key: val for key, val in copy.deepcopy(self.__dict__).items() if key in self.serialized_attributes},
         }
 
     @classmethod
-    def from_dict(cls: Type[T], dct: dict) -> T:
+    def from_dict(cls: type[T], dct: dict) -> T:
         dct.pop("dgst")
         return cls(**dct)
-
-    @classmethod
-    def from_json(cls: Type[T], input_path: Union[Path, str]) -> T:
-        with Path(input_path).open("r") as handle:
-            return json.load(handle, cls=CustomJSONDecoder)
 
     @abstractmethod
     def compute_heuristics_version(self) -> None:

@@ -9,7 +9,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Dict, Final, List, Optional, Set, Tuple, Union
+from typing import Any, Final
 
 import numpy as np
 import pandas as pd
@@ -30,19 +30,19 @@ class SecondarySFPCluster:
     children: frozenset[int]
 
     @classmethod
-    def from_xml_id(cls, xml_categories: List[ET.Element], cwe_id: int):
+    def from_xml_id(cls, xml_categories: list[ET.Element], cwe_id: int):
         cat = cls.find_correct_category(xml_categories, cwe_id)
         name = cat.attrib["Name"]
         members = cat.find("{http://cwe.mitre.org/cwe-6}Relationships")
 
         assert members is not None
         member_ids = frozenset(
-            (int(x.attrib["CWE_ID"]) for x in members if x.tag == "{http://cwe.mitre.org/cwe-6}Has_Member")
+            int(x.attrib["CWE_ID"]) for x in members if x.tag == "{http://cwe.mitre.org/cwe-6}Has_Member"
         )
         return cls(name, member_ids)
 
     @staticmethod
-    def find_correct_category(xml_categories: List[ET.Element], cwe_id: int) -> ET.Element:
+    def find_correct_category(xml_categories: list[ET.Element], cwe_id: int) -> ET.Element:
         for cat in xml_categories:
             if cat.attrib["ID"] == str(cwe_id):
                 return cat
@@ -56,7 +56,7 @@ class PrimarySFPCluster:
     cwe_ids: frozenset[int]
 
     @classmethod
-    def from_xml(cls, xml_categories: List[ET.Element], primary_cluster_element: ET.Element):
+    def from_xml(cls, xml_categories: list[ET.Element], primary_cluster_element: ET.Element):
         name = primary_cluster_element.attrib["Name"].split("SFP Primary Cluster: ")[1]
         members = primary_cluster_element.find("{http://cwe.mitre.org/cwe-6}Relationships")
 
@@ -83,7 +83,7 @@ class SFPModel:
         self.primary_clusters = primary_clusters
 
     @classmethod
-    def from_xml(cls, xml_filepath: Union[str, Path]):
+    def from_xml(cls, xml_filepath: str | Path):
         tree = ET.parse(xml_filepath)
         category_tag = tree.getroot().find("{http://cwe.mitre.org/cwe-6}Categories")
 
@@ -93,14 +93,12 @@ class SFPModel:
         # The XML contains two weird primary clusters not specified in https://samate.nist.gov/BF/Enlightenment/SFP.html.
         # After manual inspection, we skip those
         primary_clusters = frozenset(
-            (
-                PrimarySFPCluster.from_xml(categories, x)
-                for x in categories
-                if (
-                    "SFP Primary Cluster" in x.attrib["Name"]
-                    and x.attrib["Name"] != "SFP Primary Cluster: Failure to Release Memory"
-                    and x.attrib["Name"] != "SFP Primary Cluster: Faulty Resource Release"
-                )
+            PrimarySFPCluster.from_xml(categories, x)
+            for x in categories
+            if (
+                "SFP Primary Cluster" in x.attrib["Name"]
+                and x.attrib["Name"] != "SFP Primary Cluster: Failure to Release Memory"
+                and x.attrib["Name"] != "SFP Primary Cluster: Faulty Resource Release"
             )
         )
 
@@ -117,7 +115,7 @@ class SFPModel:
 
             return cls.from_xml(Path(tmp_dir) / cls.XML_FILENAME)
 
-    def search_cwe(self, cwe_id: int) -> Tuple[Optional[str], Optional[str]]:
+    def search_cwe(self, cwe_id: int) -> tuple[str | None, str | None]:
         for primary in self.primary_clusters:
             for secondary in primary.secondary_clusters:
                 if cwe_id in secondary.children:
@@ -127,7 +125,7 @@ class SFPModel:
         return None, None
 
 
-def discover_sar_families(ser: pd.Series) -> List[str]:
+def discover_sar_families(ser: pd.Series) -> list[str]:
     """
     Returns a list of all SAR families that occur in the pandas Series, where each entry is a set of SAR objects.
     """
@@ -138,7 +136,7 @@ def discover_sar_families(ser: pd.Series) -> List[str]:
     return list(families)
 
 
-def get_sar_level_from_set(sars: Set[SAR], sar_family: str) -> Optional[int]:
+def get_sar_level_from_set(sars: set[SAR], sar_family: str) -> int | None:
     """
     Given a set of SARs and a family name, will return level of the seeked SAR from the set.
     """
@@ -151,8 +149,8 @@ def get_sar_level_from_set(sars: Set[SAR], sar_family: str) -> Optional[int]:
 def compute_cve_correlations(
     df: pd.DataFrame,
     exclude_vuln_free_certs: bool = False,
-    sar_families: Optional[List[str]] = None,
-    output_path: Optional[Union[str, Path]] = None,
+    sar_families: list[str] | None = None,
+    output_path: str | Path | None = None,
     filter_nans: bool = True,
 ) -> pd.DataFrame:
     """
@@ -252,11 +250,11 @@ def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEData
     """
 
     def filter_cves(
-        cve_dset: CVEDataset, cves: Set[str], not_valid_before: pd.Timestamp, not_valid_after: pd.Timestamp
-    ) -> Union[Set[str], float]:
+        cve_dset: CVEDataset, cves: set[str], not_valid_before: pd.Timestamp, not_valid_after: pd.Timestamp
+    ) -> set[str] | float:
 
         # Mypy is complaining, but the Optional date is resolved at the beginning of the and condition
-        result: Set[str] = {
+        result: set[str] = {
             x
             for x in cves
             if cve_dset[x].published_date
@@ -313,7 +311,7 @@ def expand_df_with_cve_cols(df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFr
 
 def prepare_cwe_df(
     cc_df: pd.DataFrame, cve_dset: CVEDataset, fine_grained: bool = False
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     This function does the following:
     1. Filter CC DF to columns relevant for CWE examination (eal, related_cves, category)
@@ -458,7 +456,7 @@ def get_coarse_grained_cwes(fine_grained_df: pd.DataFrame, cwe_df: pd.DataFrame)
 
 
 def get_top_n_cwes(
-    df: pd.DataFrame, cwe_df: pd.DataFrame, category: Optional[str] = None, eal: Optional[str] = None, n_cwes: int = 10
+    df: pd.DataFrame, cwe_df: pd.DataFrame, category: str | None = None, eal: str | None = None, n_cwes: int = 10
 ) -> pd.DataFrame:
     """Fetches top-n CWEs, overall, per category, or per EAL"""
     top_n = df.copy()
@@ -495,7 +493,7 @@ def compute_maintenances_that_come_after_vulns(df: pd.DataFrame) -> pd.DataFrame
 
 
 def move_fixing_mu_to_directory(
-    df_fixed: pd.DataFrame, main_df: pd.DataFrame, outdir: Union[str, Path], inpath: Union[str, Path]
+    df_fixed: pd.DataFrame, main_df: pd.DataFrame, outdir: str | Path, inpath: str | Path
 ) -> pd.DataFrame:
     """
     Localizes reports of maintenance updates that should fix some vulnerability and copies them into a directory.
@@ -523,7 +521,7 @@ def move_fixing_mu_to_directory(
 
 
 def plot_dataframe_graph(
-    data: Dict,
+    data: dict,
     label: str,
     file_name: str,
     density: bool = False,

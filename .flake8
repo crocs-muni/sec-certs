@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 120
-exclude = 
+exclude =
     .git,
     __pycache__,
     build,
@@ -13,10 +13,13 @@ max-complexity = 10
 
 # Ignore complexity for CLI
 per-file-ignores =
-    cc_cli.py: C901, 
+    cc_cli.py: C901,
     fips_cli.py: C901
 
-ignore = 
-    E501,  # line length, should be handleded by black
-    W503,  # line break before binary operator, depracated
-    E203,  # whitespace before :, not PEP8 compliant
+ignore =
+    # line length, should be handleded by black
+    E501,
+    # line break before binary operator, depracated
+    W503,
+    # whitespace before :, not PEP8 compliant
+    E203,

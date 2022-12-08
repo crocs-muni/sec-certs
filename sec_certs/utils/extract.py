@@ -6,7 +6,7 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator
 
 import numpy as np
 
@@ -354,7 +354,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
             for m in re.finditer(rule_and_sep, whole_text):
                 # check if previous rules had at least one match
                 if constants.TAG_CERT_ID not in items_found.keys():
-                    logger.error("ERROR: front page not found for file: {}".format(filepath))
+                    logger.error(f"ERROR: front page not found for file: {filepath}")
 
                 match_groups = m.groups()
                 ref_protection_profiles = match_groups[0]
@@ -585,7 +585,7 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-def search_files(folder: Union[str, Path]) -> Iterator[str]:
+def search_files(folder: str | Path) -> Iterator[str]:
     for root, _, files in os.walk(str(folder)):
         yield from [os.path.join(root, x) for x in files]
 
@@ -648,7 +648,7 @@ def prune_matches(dct: dict) -> dict:
     return walk(dct, 0)
 
 
-def extract_keywords(filepath: Path, search_rules) -> Optional[dict[str, dict[str, int]]]:
+def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] | None:
     """
     Extract keywords from filepath using the search rules.
 
@@ -697,8 +697,8 @@ def normalize_match_string(match: str) -> str:
 
 
 def load_text_file(
-    file_name: Union[str, Path], limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
-) -> Tuple[str, str, bool]:
+    file_name: str | Path, limit_max_lines: int = -1, line_separator: str = LINE_SEPARATOR
+) -> tuple[str, str, bool]:
     """
     Load the text contents of a file at `file_name`, upto `limit_max_lines` of lines, replace
     newlines in the text with `line_separator`.
@@ -747,17 +747,17 @@ def load_text_file(
 
 
 def load_cert_html_file(file_name: str) -> str:
-    with open(file_name, "r", errors=FILE_ERRORS_STRATEGY) as f:
+    with open(file_name, errors=FILE_ERRORS_STRATEGY) as f:
         try:
             return f.read()
         except UnicodeDecodeError:
             logger.warning("UnicodeDecodeError, opening as utf8")
 
-    with open(file_name, "r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+    with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
         try:
             return f2.read()
         except UnicodeDecodeError:
-            logger.error("Failed to read file {}".format(file_name))
+            logger.error(f"Failed to read file {file_name}")
     return ""
 
 
@@ -772,7 +772,7 @@ def rules_get_subset(desired_path: str) -> dict:
     return dct
 
 
-def extract_key_paths(dct: dict, current_path: str) -> List[str]:
+def extract_key_paths(dct: dict, current_path: str) -> list[str]:
     """
     Given subset of cc_rules dictionary, will compute full paths to all leafs
     in the dictionaries, s.t. the final value of each path is a list of regex
@@ -787,7 +787,7 @@ def extract_key_paths(dct: dict, current_path: str) -> List[str]:
     return paths
 
 
-def get_sum_of_values_from_dict_path(dct: Optional[dict], path: str, default: float = np.nan) -> float:
+def get_sum_of_values_from_dict_path(dct: dict | None, path: str, default: float = np.nan) -> float:
     """
     Given dictionary and path, will compute sum of occurences of values in the inner-most layer
     of that path. If the key is missing from dict, return default value.
@@ -806,7 +806,7 @@ def get_sum_of_values_from_dict_path(dct: Optional[dict], path: str, default: fl
     return sum(res.values())
 
 
-def get_sums_for_rules_subset(dct: Optional[dict], path: str) -> dict[str, float]:
+def get_sums_for_rules_subset(dct: dict | None, path: str) -> dict[str, float]:
     """
     Given path to search in cc_rules (e.g., "symmetric_crypto"),
     will get the finest resolution and count occurences of the keys in the

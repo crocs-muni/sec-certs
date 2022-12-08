@@ -1,0 +1,29 @@
+{
+    "_type": "sec_certs.dataset.fips_algorithm.FIPSAlgorithmDataset",
+    "algs": {
+        "AES5331": {
+            "_type": "sec_certs.sample.fips_algorithm.FIPSAlgorithm",
+            "alg_number": "5331",
+            "algorithm_type": "AES",
+            "vendor": "Juniper Networks, Inc.",
+            "implementation_name": "OpenSSL - EX4300",
+            "validation_date": "3/23/2018"
+        },
+        "AES779": {
+            "_type": "sec_certs.sample.fips_algorithm.FIPSAlgorithm",
+            "alg_number": "779",
+            "algorithm_type": "AES",
+            "vendor": "NetLogic Microsystems, Inc.",
+            "implementation_name": "XLS Processor",
+            "validation_date": "5/13/2008"
+        },
+        "AES2902": {
+            "_type": "sec_certs.sample.fips_algorithm.FIPSAlgorithm",
+            "alg_number": "2902",
+            "algorithm_type": "AES",
+            "vendor": "Hewlett-Packard Development Company, L.P.",
+            "implementation_name": "HP Secure Encryption Engine v1.0",
+            "validation_date": "7/10/2014"
+        }
+    }
+}

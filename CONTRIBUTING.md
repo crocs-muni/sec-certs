@@ -49,6 +49,7 @@ All commits shall pass the lint pipeline of the following tools:
 - Black (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 - isort (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 - Flake8 (see [.flake8](https://github.com/crocs-muni/sec-certs/blob/main/.flake8) for settings)
+- PyUpgrade
 
 These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
@@ -65,6 +66,7 @@ To ivoke the tools manually, you can, in the repository root, use:
 - Black: `black --check .` (without the flag to reformat)
 - isort: `isort --check-only .` (without the flag to actually fix the issue)
 - Flake8: `flake8 .`
+- PyUpgrade: `pyupgrade --py38-plus 'find ./sec_certs/ -name "*.py" -type f'`
 
 ## Documentation
 

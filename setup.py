@@ -22,14 +22,14 @@ setup(
         "Intended Audience :: Science/Research",
     ],
     python_requires=">=3.8",
-    install_requires=open("requirements/requirements.in", "r").read().splitlines(),
+    install_requires=open("requirements/requirements.in").read().splitlines(),
     extras_require={
-        "dev": open("requirements/dev_requirements.in", "r").read().splitlines(),
-        "test": open("requirements/test_requirements.in", "r").read().splitlines(),
+        "dev": open("requirements/dev_requirements.in").read().splitlines(),
+        "test": open("requirements/test_requirements.in").read().splitlines(),
     },
     include_package_data=True,
     package_data={"sec_certs": ["settings.yaml", "settings-schema.json", "rules.yaml"]},
-    entry_points={"console_scripts": ["cc-certs=cc_cli:main", "fips-certs=fips_cli:main"]},
+    entry_points={"console_scripts": ["sec-certs=sec_certs.cli:main"]},
     project_urls={
         "Project homepage": "https://seccerts.org",
         "GitHub repository": "https://github.com/crocs-muni/sec-certs/",

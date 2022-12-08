@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Iterable, List, Optional, Set, Tuple, cast
+from typing import Dict, Iterable, cast
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -27,7 +27,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         """
         return self
 
-    def transform(self, certificates: Iterable[CommonCriteriaCert]) -> List[Optional[Set[SAR]]]:
+    def transform(self, certificates: Iterable[CommonCriteriaCert]) -> list[set[SAR] | None]:
         """
         Just a wrapper around transform_single_cert() called on an iterable of CommonCriteriaCert.
 
@@ -36,7 +36,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         """
         return [self.transform_single_cert(cert) for cert in certificates]
 
-    def transform_single_cert(self, cert: CommonCriteriaCert) -> Optional[Set[SAR]]:
+    def transform_single_cert(self, cert: CommonCriteriaCert) -> set[SAR] | None:
         """
         Given CommonCriteriaCert, will transform SAR keywords extracted from txt files
         into a set of SAR objects. Also handles extractin of correct SAR levels, duplicities and filtering.
@@ -50,7 +50,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         return self._resolve_candidate_conflicts(sec_level_candidates, st_candidates, report_candidates, cert.dgst)
 
     @staticmethod
-    def _collect_sar_candidates_from_all_sources(cert: CommonCriteriaCert) -> Tuple[Set[SAR], Set[SAR], Set[SAR]]:
+    def _collect_sar_candidates_from_all_sources(cert: CommonCriteriaCert) -> tuple[set[SAR], set[SAR], set[SAR]]:
         """
         Parses SARs from three distinct sources and returns the results as a three tuple:
         - Security level from CSV scan
@@ -67,13 +67,13 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         sec_level_sars = SARTransformer._parse_sars_from_security_level_list(cert.security_level)
 
         if st_keywords_may_have_sars(cert):
-            st_dict: Dict = cast(Dict, cert.pdf_data.st_keywords)
+            st_dict: dict = cast(Dict, cert.pdf_data.st_keywords)
             st_sars = SARTransformer._parse_sar_dict(st_dict[SAR_DICT_KEY], cert.dgst)
         else:
             st_sars = set()
 
         if report_keywords_may_have_sars(cert):
-            report_dict: Dict = cast(Dict, cert.pdf_data.report_keywords)
+            report_dict: dict = cast(Dict, cert.pdf_data.report_keywords)
             report_sars = SARTransformer._parse_sar_dict(report_dict[SAR_DICT_KEY], cert.dgst)
         else:
             report_sars = set()
@@ -82,9 +82,9 @@ class SARTransformer(BaseEstimator, TransformerMixin):
 
     @staticmethod
     def _resolve_candidate_conflicts(
-        sec_level_candidates: Set[SAR], st_candidates: Set[SAR], report_candidates: Set[SAR], cert_dgst: str
-    ) -> Optional[Set[SAR]]:
-        final_candidates: Dict[str, SAR] = {x.family: x for x in sec_level_candidates}
+        sec_level_candidates: set[SAR], st_candidates: set[SAR], report_candidates: set[SAR], cert_dgst: str
+    ) -> set[SAR] | None:
+        final_candidates: dict[str, SAR] = {x.family: x for x in sec_level_candidates}
         """
         Given three parameters (SAR candidates from csv scan, ST and cert. report), builds final list of SARs in cert.
         This is done as follows:
@@ -115,7 +115,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         return set(final_candidates.values()) if final_candidates else None
 
     @staticmethod
-    def _parse_sar_dict(dct: Dict[str, Dict[str, int]], dgst: str) -> Set[SAR]:
+    def _parse_sar_dict(dct: dict[str, dict[str, int]], dgst: str) -> set[SAR]:
         """
         Accepts st_keywords or report_keywords dictionary. Will reconstruct SAR objects from it. Each SAR family can
         appear multiple times in the dictionary (due to conflicts) with different levels. Iterated item will replace
@@ -128,7 +128,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         :param dgst: DIgest of the processed certificate.
         :return: _description_
         """
-        sars: Dict[str, Tuple[SAR, int]] = dict()
+        sars: dict[str, tuple[SAR, int]] = dict()
         for sar_class, class_matches in dct.items():
             for sar_string, n_occurences in class_matches.items():
                 try:
@@ -149,7 +149,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         return {x[0] for x in sars.values()} if sars else set()
 
     @staticmethod
-    def _parse_sars_from_security_level_list(lst: Iterable[str]) -> Set[SAR]:
+    def _parse_sars_from_security_level_list(lst: Iterable[str]) -> set[SAR]:
         sars = set()
         for element in lst:
             try:

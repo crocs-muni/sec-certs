@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import logging
 import re
@@ -5,31 +7,24 @@ import time
 from contextlib import nullcontext
 from datetime import datetime
 from functools import partial
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Collection
 
 import numpy as np
 import pkgconfig
 import requests
-from tqdm import tqdm as tqdm_original
 
 import sec_certs.constants as constants
 from sec_certs.config.configuration import config
+from sec_certs.utils import parallel_processing
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: Once typehints in tqdm are implemented, we should use them: https://github.com/tqdm/tqdm/issues/260
-def tqdm(*args, **kwargs):
-    if "disable" in kwargs:
-        return tqdm_original(*args, **kwargs)
-    return tqdm_original(*args, **kwargs, disable=not config.enable_progress_bars)
-
-
 def download_file(
-    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: Optional[str] = None
-) -> Union[str, int]:
+    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: str | None = None
+) -> str | int:
     try:
         time.sleep(delay)
         # See https://github.com/psf/requests/issues/3953 for header justification
@@ -66,23 +61,23 @@ def download_file(
     return constants.RETURNCODE_NOK
 
 
-def download_parallel(items: Sequence[Tuple[str, Path]], num_threads: int) -> Sequence[Tuple[str, int]]:
-    def download(url_output):
-        url, output = url_output
-        return url, download_file(url, output)
+def download_parallel(
+    urls: Collection[str], paths: Collection[Path], progress_bar_desc: str | None = None
+) -> list[int]:
+    exit_codes = parallel_processing.process_parallel(
+        download_file, list(zip(urls, paths)), config.n_threads, unpack=True, progress_bar_desc=progress_bar_desc
+    )
+    n_successful = len([e for e in exit_codes if e == requests.codes.ok])
+    logger.info(f"Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.")
 
-    pool = ThreadPool(num_threads)
-    responses = []
-    with tqdm(total=len(items)) as progress:
-        for response in pool.imap(download, items):
-            progress.update(1)
-            responses.append(response)
-    pool.close()
-    pool.join()
-    return responses
+    for url, e in zip(urls, exit_codes):
+        if e != requests.codes.ok:
+            logger.error(f"Failed to download {url}, exit code: {e}")
+
+    return exit_codes
 
 
-def fips_dgst(cert_id: Union[int, str]) -> str:
+def fips_dgst(cert_id: int | str) -> str:
     return get_first_16_bytes_sha256(str(cert_id))
 
 
@@ -90,7 +85,7 @@ def get_first_16_bytes_sha256(string: str) -> str:
     return hashlib.sha256(string.encode("utf-8")).hexdigest()[:16]
 
 
-def get_sha256_filepath(filepath: Union[str, Path]) -> str:
+def get_sha256_filepath(filepath: str | Path) -> str:
     hash_sha256 = hashlib.sha256()
     with Path(filepath).open("rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -107,7 +102,7 @@ def to_utc(timestamp: datetime) -> datetime:
     return timestamp
 
 
-def is_in_dict(target_dict: Dict, path: str) -> bool:
+def is_in_dict(target_dict: dict, path: str) -> bool:
     current_level = target_dict
     for item in path:
         if item not in current_level:
@@ -117,7 +112,7 @@ def is_in_dict(target_dict: Dict, path: str) -> bool:
     return True
 
 
-def compute_heuristics_version(cert_name: str) -> Set[str]:
+def compute_heuristics_version(cert_name: str) -> set[str]:
     """
     Will extract possible versions from the name of sample
     """
@@ -148,16 +143,28 @@ def compute_heuristics_version(cert_name: str) -> Set[str]:
     return {x.group() for x in matched if x is not None}
 
 
-def tokenize_dataset(dset: List[str], keywords: Set[str]) -> np.ndarray:
+def tokenize_dataset(dset: list[str], keywords: set[str]) -> np.ndarray:
     return np.array([tokenize(x, keywords) for x in dset])
 
 
-def tokenize(string: str, keywords: Set[str]) -> str:
+def tokenize(string: str, keywords: set[str]) -> str:
     return " ".join([x for x in string.split() if x.lower() in keywords])
 
 
+def normalize_fips_vendor(string: str) -> str:
+    """
+    "Normalizes" FIPS vendor. Precisely:
+    - Removes some punctuation and non-alphanumerical symbols
+    - Returns only first 5 tokens
+    # TODO: The rationale of the steps outlined above should be investigatated
+    """
+    return " ".join(
+        string.replace("(R)", "").replace(",", "").replace("®", "").replace("-", " ").replace("+", " ").split()[:4]
+    )
+
+
 # Credit: https://stackoverflow.com/questions/18092354/
-def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> List[str]:
+def split_unescape(s: str, delim: str, escape: str = "\\", unescape: bool = True) -> list[str]:
     """
     >>> split_unescape('foo,bar', ',')
     ['foo', 'bar']
@@ -202,19 +209,8 @@ def warn_if_missing_poppler() -> None:
             logger.warning(
                 "Attempting to run pipeline with pdf->txt conversion, but poppler-cpp dependency was not found."
             )
-    except EnvironmentError:
+    except OSError:
         logger.warning("Attempting to find poppler-cpp, but pkg-config was not found.")
-
-
-def warn_if_missing_graphviz() -> None:
-    """
-    Warns user if he misses a graphviz dependency
-    """
-    try:
-        if not pkgconfig.installed("libcgraph", ">=2.0.0"):
-            logger.warning("Attempting to run pipeline that requires graphviz, but graphviz was not found.")
-    except EnvironmentError:
-        logger.warning("Attempting to find graphviz, but pkg-config was not found.")
 
 
 def warn_if_missing_tesseract() -> None:
@@ -226,11 +222,11 @@ def warn_if_missing_tesseract() -> None:
             logger.warning(
                 "Attempting to run pipeline with pdf->txt conversion, that requires tesseract, but tesseract was not found."
             )
-    except EnvironmentError:
+    except OSError:
         logger.warning("Attempting to find tesseract, but pkg-config was not found.")
 
 
-def choose_lowest_eal(eals: Optional[Set[str]]) -> Optional[str]:
+def choose_lowest_eal(eals: set[str] | None) -> str | None:
     """
     Given a set of EAL strings, chooses the lowest one.
     """
