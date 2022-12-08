@@ -195,14 +195,14 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML.keys()]
         helpers.download_parallel(html_urls, html_paths)
 
-    def _get_all_certs_from_html_sources(self) -> set[FIPSCertificate]:
-        return set(
+    def _get_all_certs_from_html_sources(self) -> list[FIPSCertificate]:
+        return list(
             itertools.chain.from_iterable(
                 self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()
             )
         )
 
-    def _get_certificates_from_html(self, html_file: Path) -> set[FIPSCertificate]:
+    def _get_certificates_from_html(self, html_file: Path) -> list[FIPSCertificate]:
         with open(html_file, encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html5lib")
 
@@ -216,7 +216,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             if cert_id not in cert_ids:
                 cert_ids.add(cert_id)
 
-        return {FIPSCertificate(cert_id) for cert_id in cert_ids}
+        return [FIPSCertificate(cert_id) for cert_id in cert_ids]
 
     @classmethod
     def from_web_latest(cls) -> FIPSDataset:

@@ -88,12 +88,12 @@ def processed_dataset(
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
     toy_static_dataset.copy_dataset(tmp_dir)
 
-    tested_certs = {
+    tested_certs = [
         toy_static_dataset["3095"],
         toy_static_dataset["3093"],
         toy_static_dataset["3197"],
         toy_static_dataset["2441"],
-    }
+    ]
     toy_static_dataset.certs = {x.dgst: x for x in tested_certs}
 
     toy_static_dataset.download_all_artifacts()

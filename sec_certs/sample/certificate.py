@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 import copy
-import json
 import logging
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Generic, TypeVar
 
 import sec_certs.utils.extract
 from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder
+from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +74,6 @@ class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
             return False
         return self.dgst == other.dgst
 
-    def __hash__(self) -> int:
-        return hash(self.dgst)
-
     def to_dict(self) -> dict[str, Any]:
         return {
             **{"dgst": self.dgst},
@@ -89,11 +84,6 @@ class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
     def from_dict(cls: type[T], dct: dict) -> T:
         dct.pop("dgst")
         return cls(**dct)
-
-    @classmethod
-    def from_json(cls: type[T], input_path: Path | str) -> T:
-        with Path(input_path).open("r") as handle:
-            return json.load(handle, cls=CustomJSONDecoder)
 
     @abstractmethod
     def compute_heuristics_version(self) -> None:
