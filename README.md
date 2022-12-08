@@ -5,11 +5,13 @@
 A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks. This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic.
 
 [![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org)](https://seccerts.org)
-[![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org/docs/index.html)](https://seccerts.org/docs/index.html)
+[![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org/docs/index.html)](https://seccerts.org/docs/index.html)
 [![PyPI](https://img.shields.io/pypi/v/sec-certs?style=flat-square)](https://pypi.org/project/sec-certs/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml)
+
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/Docker%20Image%20CI?label=Docker%20build&style=flat-square)](https://hub.docker.com/repository/docker/seccerts/sec-certs)
+[![Codecov](https://img.shields.io/codecov/c/github/crocs-muni/sec-certs?style=flat-square)](https://app.codecov.io/gh/crocs-muni/sec-certs)
 
 ## Installation
 
