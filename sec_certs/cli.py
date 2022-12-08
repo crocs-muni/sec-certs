@@ -17,6 +17,9 @@ from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tes
 
 logger = logging.getLogger(__name__)
 
+EXIT_CODE_NOK: int = 1
+EXIT_CODE_OK: int = 0
+
 
 @dataclass
 class ProcessingStep:
@@ -34,8 +37,8 @@ class ProcessingStep:
                     if self.precondition_error_msg
                     else f"Error, precondition to run {self.name} not met, exiting."
                 )
-                print(err_msg)
-                sys.exit(1)
+                click.echo(err_msg, err=True)
+                sys.exit(EXIT_CODE_NOK)
         if self.pre_callback_func:
             self.pre_callback_func()
 
@@ -77,10 +80,11 @@ def build_or_load_dataset(
                 )
                 dset.copy_dataset(outputpath)
         else:
-            print(
-                "Error: If you do not use 'build' action, you must provide --input parameter to point to an existing dataset."
+            click.echo(
+                "Error: If you do not use 'build' action, you must provide --input parameter to point to an existing dataset.",
+                err=True,
             )
-            sys.exit(1)
+            sys.exit(EXIT_CODE_NOK)
 
     return dset
 
@@ -144,10 +148,11 @@ def main(
             try:
                 config.load(Path(configpath))
             except FileNotFoundError:
-                print("Error: Bad path to configuration file")
-                sys.exit(1)
+                click.echo("Error: Bad path to configuration file", err=True)
+                sys.exit(EXIT_CODE_NOK)
             except ValueError as e:
-                print(f"Error: Bad format of configuration file: {e}")
+                click.echo(f"Error: Bad format of configuration file: {e}", err=True)
+                sys.exit(EXIT_CODE_NOK)
 
         actions_set = (
             {"build", "process-aux-dsets", "download", "convert", "analyze", "maintenances"}
@@ -198,8 +203,8 @@ def main(
         end = datetime.now()
         logger.info(f"The computation took {(end-start)} seconds.")
     except Exception:
-        return 1
-    return 0
+        return EXIT_CODE_NOK
+    return EXIT_CODE_OK
 
 
 if __name__ == "__main__":
