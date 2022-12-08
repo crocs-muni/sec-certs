@@ -9,14 +9,8 @@ jobs:
   run-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Poppler 21.06
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo apt-get update
-          sudo add-apt-repository ppa:hlprasu/poppler
-          sudo apt-get update
-          sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
+      - name: Install Poppler
+        run: sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
       - uses: actions/checkout@v3
       - name: Setup python
         uses: actions/setup-python@v4
