@@ -6,7 +6,7 @@ env:
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
-  run-test:
+  test:
     runs-on: ubuntu-22.04
     steps:
       - name: Install Poppler
@@ -22,3 +22,5 @@ jobs:
           pip install -r requirements/test_requirements.txt
       - name: Run tests
         run: pytest --cov=sec_certs tests
+      - name: Code coverage upload
+        uses: codecov/codecov-action@v3

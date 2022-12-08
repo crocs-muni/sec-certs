@@ -3,7 +3,7 @@ on:
   push:
   workflow_dispatch:
 jobs:
-  run-mypy:
+  mypy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
