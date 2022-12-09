@@ -6,7 +6,7 @@
 results*/
 
 # version file by setuptools-scm
-sec_certs/_version.py
+src/sec_certs/_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -116,20 +116,9 @@ virt/
 # mypy
 .mypy_cache/
 
-# fips dataset
-fips_dataset/
-fips_test_dataset/
-
-# output pdfs
-*connections*
-*single*
-
 # log
 cert_processing_log.txt
 ./cc_processing_log.txt
-
-# Example script may dump classification report into the folder
-examples/classification_report.json
 
 # Experiment results produced by notebooks
 notebooks/cc/results/

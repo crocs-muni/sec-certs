@@ -14,7 +14,7 @@ The examples related to this package can be found at [common criteria notebook](
 ## CCDataset
 
 ```{eval-rst}
-.. currentmodule:: sec_certs.dataset
+.. currentmodule:: sec_certs.dataset.dataset
 .. autoclass:: Dataset
     :members:
 ```

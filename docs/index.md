@@ -46,6 +46,8 @@ configuration.md
 notebooks/examples/common_criteria.ipynb
 notebooks/examples/fips.ipynb
 notebooks/examples/model.ipynb
+notebooks/examples/fips_iut.ipynb
+notebooks/examples/fips_mip.ipynb
 ```
 
 ```{toctree}

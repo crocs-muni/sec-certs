@@ -1,172 +1,300 @@
 alabaster==0.7.12
     # via sphinx
-asttokens==2.0.5
+appnope==0.1.3
+    # via
+    #   ipykernel
+    #   ipython
+asttokens==2.2.1
     # via stack-data
-attrs==21.4.0
+attrs==22.1.0
     # via
     #   jsonschema
     #   jupyter-cache
-    #   markdown-it-py
     #   pytest
-babel==2.10.1
+babel==2.11.0
     # via sphinx
 backcall==0.2.0
     # via ipython
 beautifulsoup4==4.11.1
-    # via pydata-sphinx-theme
-black==22.3.0
-    # via -r dev_requirements.in
+    # via
+    #   pydata-sphinx-theme
+    #   sec-certs (./../pyproject.toml)
+billiard==4.0.2
+    # via sec-certs (./../pyproject.toml)
+black==22.10.0
+    # via sec-certs (./../pyproject.toml)
+blis==0.7.9
+    # via thinc
+build==0.9.0
+    # via pip-tools
+catalogue==2.0.8
+    # via
+    #   spacy
+    #   srsly
+    #   thinc
 certifi==2022.12.7
     # via requests
 cfgv==3.3.1
     # via pre-commit
-charset-normalizer==2.0.12
+charset-normalizer==2.1.1
     # via requests
-click==8.1.2
+click==8.1.3
     # via
     #   black
     #   jupyter-cache
     #   pip-tools
-coverage[toml]==6.3.2
+    #   sec-certs (./../pyproject.toml)
+    #   typer
+comm==0.1.2
+    # via ipykernel
+confection==0.0.3
+    # via thinc
+contourpy==1.0.6
+    # via matplotlib
+coverage[toml]==6.5.0
     # via pytest-cov
-debugpy==1.6.0
+cycler==0.11.0
+    # via matplotlib
+cymem==2.0.7
+    # via
+    #   preshed
+    #   spacy
+    #   thinc
+debugpy==1.6.4
     # via ipykernel
 decorator==5.1.1
     # via ipython
-distlib==0.3.4
+deprecation==2.1.0
+    # via pikepdf
+distlib==0.3.6
     # via virtualenv
+distro==1.8.0
+    # via tabula-py
 docutils==0.17.1
     # via
-    #   myst-nb
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
-    #   sphinx-togglebutton
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz
+    # via sec-certs (./../pyproject.toml)
 entrypoints==0.4
     # via jupyter-client
-executing==0.8.3
+exceptiongroup==1.0.4
+    # via pytest
+executing==1.2.0
     # via stack-data
-fastjsonschema==2.15.3
+fastjsonschema==2.16.2
     # via nbformat
-filelock==3.6.0
+filelock==3.8.2
     # via virtualenv
-flake8==4.0.1
+flake8==6.0.0
     # via
-    #   -r dev_requirements.in
     #   flake8-future-annotations
+    #   sec-certs (./../pyproject.toml)
 flake8-future-annotations==1.0.0
-    # via -r dev_requirements.in
-gprof2dot==2021.2.21
+    # via sec-certs (./../pyproject.toml)
+fonttools==4.38.0
+    # via matplotlib
+gprof2dot==2022.7.29
     # via pytest-profiling
-greenlet==1.1.2
+greenlet==2.0.1
     # via sqlalchemy
-identify==2.4.12
+html5lib==1.1
+    # via sec-certs (./../pyproject.toml)
+identify==2.5.9
     # via pre-commit
-idna==3.3
+idna==3.4
     # via requests
-imagesize==1.3.0
+imagesize==1.4.1
     # via sphinx
-importlib-metadata==4.11.3
+importlib-metadata==5.1.0
     # via
     #   jupyter-cache
     #   myst-nb
+    #   sphinx
+importlib-resources==5.10.1
+    # via jsonschema
 iniconfig==1.1.1
     # via pytest
-ipykernel==6.13.0
-    # via myst-nb
-ipython==8.2.0
+ipykernel==6.19.1
+    # via
+    #   ipywidgets
+    #   myst-nb
+    #   sec-certs (./../pyproject.toml)
+ipython==8.6.0
     # via
     #   ipykernel
+    #   ipywidgets
     #   myst-nb
+    #   sec-certs (./../pyproject.toml)
+ipywidgets==8.0.3
+    # via sec-certs (./../pyproject.toml)
 isort==5.10.1
-    # via -r dev_requirements.in
-jedi==0.18.1
+    # via sec-certs (./../pyproject.toml)
+jedi==0.18.2
     # via ipython
-jinja2==3.1.1
+jinja2==3.1.2
     # via
     #   myst-parser
+    #   spacy
     #   sphinx
-jsonschema==4.4.0
-    # via nbformat
+joblib==1.2.0
+    # via scikit-learn
+jsonschema==4.17.3
+    # via
+    #   nbformat
+    #   sec-certs (./../pyproject.toml)
 jupyter-cache==0.5.0
     # via myst-nb
-jupyter-client==7.2.2
+jupyter-client==7.4.8
     # via
     #   ipykernel
     #   nbclient
-jupyter-core==4.10.0
+jupyter-core==5.1.0
     # via
     #   jupyter-client
     #   nbformat
-markdown-it-py==1.1.0
+jupyterlab-widgets==3.0.4
+    # via ipywidgets
+kiwisolver==1.4.4
+    # via matplotlib
+langcodes==3.3.0
+    # via spacy
+lxml==4.9.1
+    # via
+    #   pikepdf
+    #   sec-certs (./../pyproject.toml)
+markdown-it-py==2.1.0
     # via
     #   mdit-py-plugins
     #   myst-parser
 markupsafe==2.1.1
     # via jinja2
-matplotlib-inline==0.1.3
+matplotlib==3.6.2
+    # via
+    #   pysankeybeta
+    #   seaborn
+    #   sec-certs (./../pyproject.toml)
+matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-mccabe==0.6.1
+mccabe==0.7.0
     # via flake8
-mdit-py-plugins==0.3.0
+mdit-py-plugins==0.3.3
     # via myst-parser
-memory-profiler==0.60.0
+mdurl==0.1.2
+    # via markdown-it-py
+memory-profiler==0.61.0
     # via pytest-monitor
-mypy==0.942
-    # via -r dev_requirements.in
+murmurhash==1.0.9
+    # via
+    #   preshed
+    #   spacy
+    #   thinc
+mypy==0.991
+    # via sec-certs (./../pyproject.toml)
 mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-myst-nb==0.14.0
-    # via -r dev_requirements.in
-myst-parser==0.17.2
+myst-nb==0.17.1
+    # via sec-certs (./../pyproject.toml)
+myst-parser==0.18.1
     # via myst-nb
 nbclient==0.5.13
-    # via jupyter-cache
-nbformat==5.3.0
+    # via
+    #   jupyter-cache
+    #   myst-nb
+nbformat==5.7.0
     # via
     #   jupyter-cache
     #   myst-nb
     #   nbclient
-nest-asyncio==1.5.5
+nest-asyncio==1.5.6
     # via
     #   ipykernel
     #   jupyter-client
     #   nbclient
-nodeenv==1.6.0
+networkx==2.8.8
+    # via sec-certs (./../pyproject.toml)
+nodeenv==1.7.0
     # via pre-commit
-packaging==21.3
+numpy==1.23.5
     # via
+    #   blis
+    #   contourpy
+    #   matplotlib
+    #   pandas
+    #   pysankeybeta
+    #   scikit-learn
+    #   scipy
+    #   seaborn
+    #   sec-certs (./../pyproject.toml)
+    #   spacy
+    #   tabula-py
+    #   thinc
+packaging==22.0
+    # via
+    #   build
+    #   deprecation
     #   ipykernel
+    #   matplotlib
+    #   pikepdf
     #   pydata-sphinx-theme
     #   pytest
+    #   setuptools-scm
+    #   spacy
     #   sphinx
+pandas==1.5.2
+    # via
+    #   pysankeybeta
+    #   seaborn
+    #   sec-certs (./../pyproject.toml)
+    #   tabula-py
 parso==0.8.3
     # via jedi
-pathspec==0.9.0
+pathspec==0.10.2
     # via black
-pep517==0.12.0
-    # via pip-tools
+pathy==0.10.1
+    # via spacy
+pdftotext==2.2.2
+    # via sec-certs (./../pyproject.toml)
+pep517==0.13.0
+    # via build
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pip-tools==6.5.1
-    # via -r dev_requirements.in
-platformdirs==2.5.1
+pikepdf==6.2.5
+    # via sec-certs (./../pyproject.toml)
+pillow==9.3.0
+    # via
+    #   matplotlib
+    #   pikepdf
+    #   sec-certs (./../pyproject.toml)
+pip-tools==6.11.0
+    # via sec-certs (./../pyproject.toml)
+pkgconfig==1.5.5
+    # via sec-certs (./../pyproject.toml)
+pkgutil-resolve-name==1.3.10
+    # via jsonschema
+platformdirs==2.6.0
     # via
     #   black
+    #   jupyter-core
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-pre-commit==2.18.1
-    # via -r dev_requirements.in
-prompt-toolkit==3.0.29
+pre-commit==2.20.0
+    # via sec-certs (./../pyproject.toml)
+preshed==3.0.8
+    # via
+    #   spacy
+    #   thinc
+prompt-toolkit==3.0.36
     # via ipython
-psutil==5.9.0
+psutil==5.9.4
     # via
     #   ipykernel
     #   memory-profiler
@@ -175,81 +303,120 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-py==1.11.0
-    # via pytest
-pycodestyle==2.8.0
+pycodestyle==2.10.0
     # via flake8
+pydantic==1.10.2
+    # via
+    #   confection
+    #   spacy
+    #   thinc
 pydata-sphinx-theme==0.8.1
     # via sphinx-book-theme
-pyflakes==2.4.0
+pyflakes==3.0.1
     # via flake8
-pygments==2.12.0
+pygments==2.13.0
     # via
     #   ipython
     #   sphinx
-pyparsing==3.0.7
-    # via packaging
-pyrsistent==0.18.1
+pyparsing==3.0.9
+    # via matplotlib
+pypdf2==2.11.2
+    # via sec-certs (./../pyproject.toml)
+pyrsistent==0.19.2
     # via jsonschema
-pytest==7.1.1
+pysankeybeta==1.4.0
+    # via sec-certs (./../pyproject.toml)
+pytest==7.2.0
     # via
-    #   -r dev_requirements.in
     #   pytest-cov
     #   pytest-monitor
     #   pytest-profiling
-pytest-cov==3.0.0
-    # via -r dev_requirements.in
-pytest-monitor==1.6.3
-    # via -r dev_requirements.in
+    #   sec-certs (./../pyproject.toml)
+pytest-cov==4.0.0
+    # via sec-certs (./../pyproject.toml)
+pytest-monitor==1.6.5
+    # via sec-certs (./../pyproject.toml)
 pytest-profiling==1.7.0
-    # via -r dev_requirements.in
+    # via sec-certs (./../pyproject.toml)
 python-dateutil==2.8.2
-    # via jupyter-client
-pytz==2022.1
-    # via babel
-pyupgrade==3.2.3
-    # via -r dev_requirements.in
+    # via
+    #   jupyter-client
+    #   matplotlib
+    #   pandas
+    #   sec-certs (./../pyproject.toml)
+pytz==2022.6
+    # via
+    #   babel
+    #   pandas
+pyupgrade==3.3.1
+    # via sec-certs (./../pyproject.toml)
 pyyaml==6.0
     # via
     #   jupyter-cache
     #   myst-nb
     #   myst-parser
     #   pre-commit
+    #   sec-certs (./../pyproject.toml)
     #   sphinx-book-theme
-pyzmq==22.3.0
-    # via jupyter-client
-requests==2.27.1
+pyzmq==24.0.1
+    # via
+    #   ipykernel
+    #   jupyter-client
+rapidfuzz==2.13.3
+    # via sec-certs (./../pyproject.toml)
+requests==2.28.1
     # via
     #   pytest-monitor
+    #   sec-certs (./../pyproject.toml)
+    #   spacy
     #   sphinx
+scikit-learn==1.2.0
+    # via sec-certs (./../pyproject.toml)
+scipy==1.9.3
+    # via
+    #   scikit-learn
+    #   sec-certs (./../pyproject.toml)
+seaborn==0.12.1
+    # via
+    #   pysankeybeta
+    #   sec-certs (./../pyproject.toml)
+setuptools-scm==7.0.5
+    # via sec-certs (./../pyproject.toml)
 six==1.16.0
     # via
     #   asttokens
+    #   html5lib
     #   pytest-profiling
     #   python-dateutil
-    #   virtualenv
+smart-open==6.2.0
+    # via pathy
 snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.3.2.post1
     # via beautifulsoup4
+spacy==3.4.3
+    # via
+    #   en-core-web-sm
+    #   sec-certs (./../pyproject.toml)
+spacy-legacy==3.0.10
+    # via spacy
+spacy-loggers==1.0.4
+    # via spacy
 sphinx==4.5.0
     # via
-    #   -r dev_requirements.in
     #   myst-nb
     #   myst-parser
     #   pydata-sphinx-theme
+    #   sec-certs (./../pyproject.toml)
     #   sphinx-book-theme
     #   sphinx-copybutton
     #   sphinx-design
-    #   sphinx-togglebutton
-sphinx-book-theme==0.3.2
-    # via -r dev_requirements.in
-sphinx-copybutton==0.5.0
-    # via -r dev_requirements.in
-sphinx-design==0.1.0
-    # via -r dev_requirements.in
-sphinx-togglebutton==0.3.1
-    # via myst-nb
+sphinx-book-theme==0.3.3
+    # via sec-certs (./../pyproject.toml)
+sphinx-copybutton==0.5.1
+    # via sec-certs (./../pyproject.toml)
+sphinx-design==0.3.0
+    # via sec-certs (./../pyproject.toml)
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
@@ -262,61 +429,97 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sqlalchemy==1.4.35
+sqlalchemy==1.4.44
     # via jupyter-cache
-stack-data==0.2.0
+srsly==2.4.5
+    # via
+    #   confection
+    #   spacy
+    #   thinc
+stack-data==0.6.2
     # via ipython
-tabulate==0.8.9
+tabula-py==2.6.0
+    # via sec-certs (./../pyproject.toml)
+tabulate==0.9.0
     # via jupyter-cache
+thinc==8.1.5
+    # via spacy
+threadpoolctl==3.1.0
+    # via scikit-learn
 tokenize-rt==5.0.0
     # via pyupgrade
 toml==0.10.2
     # via pre-commit
 tomli==2.0.1
     # via
+    #   black
+    #   build
     #   coverage
     #   mypy
     #   pep517
     #   pytest
-tornado==6.1
+    #   setuptools-scm
+tornado==6.2
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.1.1
+tqdm==4.64.1
     # via
+    #   sec-certs (./../pyproject.toml)
+    #   spacy
+traitlets==5.6.0
+    # via
+    #   comm
     #   ipykernel
     #   ipython
+    #   ipywidgets
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
     #   nbclient
     #   nbformat
-types-python-dateutil==2.8.10
-    # via -r dev_requirements.in
-types-pyyaml==6.0.5
-    # via -r dev_requirements.in
-types-requests==2.27.16
-    # via -r dev_requirements.in
-types-urllib3==1.26.11
+typer==0.7.0
+    # via
+    #   pathy
+    #   spacy
+types-python-dateutil==2.8.19.4
+    # via sec-certs (./../pyproject.toml)
+types-pyyaml==6.0.12.2
+    # via sec-certs (./../pyproject.toml)
+types-requests==2.28.11.5
+    # via sec-certs (./../pyproject.toml)
+types-urllib3==1.26.25.4
     # via types-requests
-typing-extensions==4.1.1
+typing-extensions==4.4.0
     # via
     #   mypy
     #   myst-nb
     #   myst-parser
-urllib3==1.26.9
+    #   pydantic
+    #   pypdf2
+    #   setuptools-scm
+urllib3==1.26.13
     # via requests
-virtualenv==20.14.0
+virtualenv==20.17.1
     # via pre-commit
+wasabi==0.10.1
+    # via
+    #   spacy
+    #   thinc
 wcwidth==0.2.5
     # via prompt-toolkit
-wheel==0.37.1
+webencodings==0.5.1
+    # via html5lib
+wheel==0.38.4
     # via
     #   pip-tools
     #   pytest-monitor
-    #   sphinx-togglebutton
-zipp==3.8.0
-    # via importlib-metadata
+widgetsnbextension==4.0.4
+    # via ipywidgets
+zipp==3.11.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
