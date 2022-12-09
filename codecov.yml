@@ -5,4 +5,3 @@ coverage:
 
 ignore:
   - "test/**/*.py"
-  - "setup.py"

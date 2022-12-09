@@ -44,7 +44,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         certs: dict[str, FIPSCertificate] = dict(),
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
-        description: str = None,
+        description: str = "",
         state: Dataset.DatasetInternalState | None = None,
         auxillary_datasets: FIPSAuxillaryDatasets | None = None,
     ):

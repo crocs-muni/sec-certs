@@ -61,7 +61,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         certs: dict[str, CertSubType] = dict(),
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
-        description: str = None,
+        description: str = "",
         state: DatasetInternalState | None = None,
         auxillary_datasets: AuxillaryDatasetsSubType | None = None,
     ):
