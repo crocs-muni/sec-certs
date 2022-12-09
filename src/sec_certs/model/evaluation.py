@@ -8,7 +8,7 @@ import numpy as np
 
 import sec_certs.utils.helpers as helpers
 from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CommonCriteriaCert
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import CustomJSONEncoder
 

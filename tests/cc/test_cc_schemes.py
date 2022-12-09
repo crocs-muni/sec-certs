@@ -1,6 +1,6 @@
 import pytest
 
-from sec_certs.dataset.common_criteria import CCSchemeDataset
+from sec_certs.dataset import CCSchemeDataset
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.")

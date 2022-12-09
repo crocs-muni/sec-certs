@@ -1,5 +1,5 @@
 {
-  "_type": "sec_certs.dataset.common_criteria.CCDataset",
+  "_type": "sec_certs.dataset.cc.CCDataset",
   "state": {
     "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
     "meta_sources_parsed": false,
@@ -14,7 +14,7 @@
   "n_certs": 3,
   "certs": [
     {
-      "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
+      "_type": "sec_certs.sample.cc.CommonCriteriaCert",
       "dgst": "c30de3192d2e8ec2",
       "status": "archived",
       "category": "Other Devices and Systems",
@@ -43,7 +43,7 @@
         "elements": []
       },
       "state": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -56,7 +56,7 @@
         "report_txt_hash": "460e8010dbc8f5de5b87bf96fd45c71cfd9f3869f34ca6ac1ab02cbd70d2523f"
       },
       "pdf_data": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.PdfData",
         "report_metadata": {
           "pdf_file_size_bytes": 393439,
           "pdf_is_encrypted": false,
@@ -468,7 +468,7 @@
         }
       },
       "heuristics": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.Heuristics",
         "extracted_versions": {
           "_type": "Set",
           "elements": [
@@ -573,7 +573,7 @@
       }
     },
     {
-      "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
+      "_type": "sec_certs.sample.cc.CommonCriteriaCert",
       "dgst": "53fe111411edfa45",
       "status": "archived",
       "category": "Other Devices and Systems",
@@ -602,7 +602,7 @@
         "elements": []
       },
       "state": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -615,7 +615,7 @@
         "report_txt_hash": "0535df1c56fb4f87153cbffee51ba4d77fac47a6f17f024aa7d9df461028bc65"
       },
       "pdf_data": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.PdfData",
         "report_metadata": {
           "pdf_file_size_bytes": 296713,
           "pdf_is_encrypted": false,
@@ -1056,7 +1056,7 @@
         }
       },
       "heuristics": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.Heuristics",
         "extracted_versions": {
           "_type": "Set",
           "elements": [
@@ -1210,7 +1210,7 @@
       }
     },
     {
-      "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
+      "_type": "sec_certs.sample.cc.CommonCriteriaCert",
       "dgst": "692e91451741ef49",
       "status": "archived",
       "category": "Other Devices and Systems",
@@ -1239,7 +1239,7 @@
         "elements": []
       },
       "state": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.InternalState",
         "st_download_ok": true,
         "report_download_ok": true,
         "st_convert_ok": true,
@@ -1252,7 +1252,7 @@
         "report_txt_hash": "11e1262fd8f5df1b140f5e8813883b71447503781399427b35adbbecd00b4d63"
       },
       "pdf_data": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.PdfData",
         "report_metadata": {
           "pdf_file_size_bytes": 628533,
           "pdf_is_encrypted": false,
@@ -1687,7 +1687,7 @@
         }
       },
       "heuristics": {
-        "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+        "_type": "sec_certs.sample.cc.CommonCriteriaCert.Heuristics",
         "extracted_versions": {
           "_type": "Set",
           "elements": [

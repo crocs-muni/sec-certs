@@ -62,7 +62,7 @@ Most probably, you don't want to process fresh snapshot of Common Criteria certi
 In Python, run
 
 ```python
-from sec_certs.dataset.common_criteria import CCDataset
+from sec_certs.dataset import CCDataset
 import pandas as pd
 
 dset = CCDataset.from_web_latest()  # now you can inspect the object, certificates are held in dset.certs

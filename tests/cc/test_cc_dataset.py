@@ -9,7 +9,7 @@ import pytest
 import tests.data.cc.dataset
 from sec_certs import constants
 from sec_certs.dataset import CCDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CommonCriteriaCert
 
 
 @pytest.fixture(scope="module")

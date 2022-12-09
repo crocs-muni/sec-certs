@@ -5,7 +5,7 @@ from datetime import date
 from typing import ClassVar
 
 import sec_certs.utils.helpers as helpers
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CommonCriteriaCert
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)

@@ -5,7 +5,7 @@ from typing import Dict, Iterable, cast
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CommonCriteriaCert
 from sec_certs.sample.sar import SAR, SAR_DICT_KEY
 
 logger = logging.getLogger(__name__)

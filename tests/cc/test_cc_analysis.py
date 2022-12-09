@@ -10,7 +10,7 @@ from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.dataset import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CommonCriteriaCert
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.protection_profile import ProtectionProfile
