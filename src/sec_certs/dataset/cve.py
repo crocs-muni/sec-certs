@@ -91,7 +91,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     @classmethod
     def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
         output_path = Path(output_path_str)
-        if not output_path.exists:
+        if not output_path.exists():
             output_path.mkdir()
 
         urls = [cls.CVE_URL + str(x) + ".json.zip" for x in range(start_year, end_year + 1)]

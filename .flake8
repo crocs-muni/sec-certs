@@ -11,11 +11,6 @@ exclude =
     scratches,
 max-complexity = 10
 
-# Ignore complexity for CLI
-per-file-ignores =
-    cc_cli.py: C901,
-    fips_cli.py: C901
-
 ignore =
     # line length, should be handleded by black
     E501,

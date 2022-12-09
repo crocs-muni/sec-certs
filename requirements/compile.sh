@@ -2,6 +2,6 @@
 
 # See CONTRIBUTING.md for description
 
-pip-compile requirements.in --no-header
-pip-compile dev_requirements.in --no-header
-pip-compile test_requirements.in --no-header
+pip-compile --no-header --resolver=backtracking --output-file=requirements.txt ./../pyproject.toml
+pip-compile --no-header --resolver=backtracking --extra dev -o dev_requirements.txt ./../pyproject.toml
+pip-compile --no-header --resolver=backtracking --extra test -o test_requirements.txt ./../pyproject.toml

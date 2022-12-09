@@ -15,8 +15,7 @@ For complete list of system dependencies, see [docs/installation](https://seccer
 ### Requirements
 
 Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-tools). The main ideas are:
-- List actual dependencies in `.in` files inside [requirements](https://github.com/crocs-muni/sec-certs/blob/main/requirements) folder without pinning them.
-- Those dependencies are loaded into [setup.py](https://github.com/crocs-muni/sec-certs/blob/main/setup.py) file.
+- List actual dependencies in [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) without pinning them.
 - Additionally, [compile.sh](https://github.com/crocs-muni/sec-certs/blob/main/requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
 - Tests, linting and Docker all run against this reproducible environment of pinned requirements.
 

@@ -1,13 +1,111 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+  requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2", "wheel"]
+  build-backend = "setuptools.build_meta"
+
+[project]
+  name = "sec-certs"
+  authors = [
+    { name = "Adam Janovsky", email = "adamjanovsky@mail.muni.cz" },
+    { name = "Jan Jancar" },
+    { name = "Petr Svenda" },
+    { name = "Jiri Michalik" },
+    { name = "Stanislav Bobon" },
+  ]
+  description = "A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks"
+  readme = "README.md"
+  license = { "text" = "MIT" }
+  classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+  ]
+  requires-python = ">=3.8"
+  dynamic = ["version"]
+  dependencies = [
+    "beautifulsoup4",
+    "billiard",
+    "click",
+    "html5lib",
+    "jsonschema",
+    "lxml",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pdftotext",
+    "pikepdf",
+    "Pillow>=9.2.0",
+    "PyPDF2",
+    "python-dateutil",
+    "PyYAML",
+    "rapidfuzz",
+    "requests",
+    "scikit-learn",
+    "tabula-py",
+    "tqdm",
+    "setuptools-scm",
+    "ipykernel",
+    "ipywidgets",
+    "spacy",
+    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz",
+    "pkgconfig",
+    "seaborn",
+    "pySankeyBeta",
+    "scipy>=1.9.0",
+    "networkx",
+  ]
+
+  [project.optional-dependencies]
+    dev = [
+      "mypy",
+      "types-PyYAML",
+      "types-python-dateutil",
+      "types-requests",
+      "pytest",
+      "pytest-cov",
+      "pytest-monitor",
+      "pytest-profiling",
+      "black",
+      "isort",
+      "flake8",
+      "pre-commit",
+      "pip-tools",
+      "sphinx",
+      "myst-nb>=0.14",
+      "sphinx-book-theme",
+      "sphinx-design",
+      "sphinx-copybutton",
+      "pyupgrade",
+      "flake8-future-annotations",
+      "ipython!=8.7.0",
+    ]
+    test = ["pytest", "coverage", "pytest-cov"]
+
+  [project.urls]
+    Homepage = "https://seccerts.org"
+    GitHub = "https://github.com/crocs-muni/sec-certs/"
+    Documentation = "https://seccerts.org/docs"
+
+  [project.scripts]
+    sec-certs = "sec_certs.cli:main"
+
+[tool.setuptools.package-data]
+  "*" = ["*.yaml", "*.json"]
+
 
 [tool.setuptools_scm]
-write_to = "sec_certs/_version.py"
-version_scheme = "no-guess-dev"
+  write_to = "src/sec_certs/_version.py"
+  version_scheme = "no-guess-dev"
 
 [tool.black]
-line-length = 120
-exclude = '''
+  line-length = 120
+  exclude = '''
 /(
     \.git
   | \.mypy_cache
@@ -19,23 +117,24 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | src/sec_certs/_version.py
 )/
 '''
 
 [tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-line_length = 120
-skip = ["certsvenv", "build"]
+  multi_line_output = 3
+  include_trailing_comma = true
+  force_grid_wrap = 0
+  use_parentheses = true
+  ensure_newline_before_comments = true
+  line_length = 120
+  skip = ["certsvenv", "build"]
 
 [tool.mypy]
-plugins = ["numpy.typing.mypy_plugin"]
-ignore_missing_imports = true
-exclude = "build/"
+  plugins = ["numpy.typing.mypy_plugin"]
+  ignore_missing_imports = true
+  exclude = "build/"
 
 [tool.pytest.ini_options]
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
-addopts = "--cov sec_certs"
+  markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+  addopts = "--cov sec_certs"

@@ -55,7 +55,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         certs: dict[str, CommonCriteriaCert] = dict(),
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
-        description: str = None,
+        description: str = "",
         state: Dataset.DatasetInternalState | None = None,
         auxillary_datasets: CCAuxillaryDatasets | None = None,
     ):
