@@ -15,7 +15,7 @@
     "n_certs": 1,
     "certs": [
         {
-            "_type": "sec_certs.sample.cc_maintenance_update.CommonCriteriaMaintenanceUpdate",
+            "_type": "sec_certs.sample.cc_maintenance_update.CCMaintenanceUpdate",
             "dgst": "cert_8a5e6bcda602920c_update_559ed93dd80320b5",
             "name": "Fortinet FortiGate w/ FortiOS v5.6.7 Build 6022",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20MR%20v1.0e.pdf",

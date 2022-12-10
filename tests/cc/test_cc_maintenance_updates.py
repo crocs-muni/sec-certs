@@ -5,7 +5,7 @@ import pytest
 
 import tests.data.cc.dataset
 from sec_certs.dataset import CCDataset, CCDatasetMaintenanceUpdates
-from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
+from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 
 
 @pytest.fixture(scope="module")
@@ -74,9 +74,9 @@ def test_dataset_from_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path)
 
 def test_to_pandas(mu_dset: CCDatasetMaintenanceUpdates):
     df = mu_dset.to_pandas()
-    assert df.shape == (len(mu_dset), len(CommonCriteriaMaintenanceUpdate.pandas_columns) - 1)
+    assert df.shape == (len(mu_dset), len(CCMaintenanceUpdate.pandas_columns) - 1)
     assert df.index.name == "dgst"
-    assert set(df.columns) == set(CommonCriteriaMaintenanceUpdate.pandas_columns) - {"dgst"}
+    assert set(df.columns) == set(CCMaintenanceUpdate.pandas_columns) - {"dgst"}
 
 
 @pytest.mark.skip(reason="Will work only with fresh snapshot on seccerts.org")

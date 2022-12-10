@@ -11,7 +11,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 logger = logging.getLogger(__name__)
 
 
-class CommonCriteriaMaintenanceUpdate(CCCertificate, ComplexSerializableType):
+class CCMaintenanceUpdate(CCCertificate, ComplexSerializableType):
     pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "name",
@@ -66,15 +66,15 @@ class CommonCriteriaMaintenanceUpdate(CCCertificate, ComplexSerializableType):
 
     @property
     def pandas_tuple(self) -> tuple:
-        return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])
+        return tuple([getattr(self, x) for x in CCMaintenanceUpdate.pandas_columns])
 
     @classmethod
-    def from_dict(cls, dct: dict) -> CommonCriteriaMaintenanceUpdate:
+    def from_dict(cls, dct: dict) -> CCMaintenanceUpdate:
         dct.pop("dgst")
         return cls(*(tuple(dct.values())))
 
     @classmethod
-    def get_updates_from_cc_cert(cls, cert: CCCertificate) -> list[CommonCriteriaMaintenanceUpdate]:
+    def get_updates_from_cc_cert(cls, cert: CCCertificate) -> list[CCMaintenanceUpdate]:
         if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 

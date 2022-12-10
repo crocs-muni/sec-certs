@@ -28,7 +28,7 @@ from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
-from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
+from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
 from sec_certs.utils import helpers as helpers
@@ -802,9 +802,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         if to_download or not self.mu_dataset_path.exists():
             maintained_certs: list[CCCertificate] = [x for x in self if x.maintenance_updates]
             updates = list(
-                itertools.chain.from_iterable(
-                    CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs
-                )
+                itertools.chain.from_iterable(CCMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs)
             )
             update_dset = CCDatasetMaintenanceUpdates(
                 {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="maintenance_updates"
@@ -831,7 +829,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: dict[str, CommonCriteriaMaintenanceUpdate] = dict(),  # type: ignore
+        certs: dict[str, CCMaintenanceUpdate] = dict(),  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
@@ -844,7 +842,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def certs_dir(self) -> Path:
         return self.root_dir
 
-    def __iter__(self) -> Iterator[CommonCriteriaMaintenanceUpdate]:
+    def __iter__(self) -> Iterator[CCMaintenanceUpdate]:
         yield from self.certs.values()  # type: ignore
 
     def _compute_heuristics(self) -> None:
@@ -873,9 +871,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         return dset
 
     def to_pandas(self) -> pd.DataFrame:
-        df = pd.DataFrame(
-            [x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaMaintenanceUpdate.pandas_columns
-        )
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CCMaintenanceUpdate.pandas_columns)
         df = df.set_index("dgst")
         df.index.name = "dgst"
 
