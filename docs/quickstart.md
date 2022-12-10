@@ -12,7 +12,7 @@ dset = CCDataset.from_web_latest()
 ```
 to obtain to obtain freshly processed dataset from [seccerts.org](https://seccerts.org).
 
-3. Play with the dataset. See [example notebook](./notebooks/examples/common_criteria.ipynb).
+3. Play with the dataset. See [example notebook](./notebooks/examples/cc.ipynb).
 :::
 
 :::{tab-item} FIPS 140
@@ -30,7 +30,7 @@ to obtain to obtain freshly processed dataset from [seccerts.org](https://seccer
 ::::
 
 ```{hint}
-You can work with those with the help of the [common criteria notebook](notebooks/examples/common_criteria.ipynb) or [fips notebook](notebooks/examples/fips.ipynb) and even launch them in MyBinder without installing anything. Just use the 🚀 icon (top-right corner).
+You can work with those with the help of the [common criteria notebook](notebooks/examples/cc.ipynb) or [fips notebook](notebooks/examples/fips.ipynb) and even launch them in MyBinder without installing anything. Just use the 🚀 icon (top-right corner).
 ```
 
 If you insist on processing the whole certificates pipeline, make sure that you installed all [dependencies](installation.md#dependencies). Then, run

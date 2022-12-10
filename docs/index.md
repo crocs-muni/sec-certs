@@ -43,7 +43,7 @@ configuration.md
 :caption: Notebook examples
 :hidden: True
 :maxdepth: 1
-notebooks/examples/common_criteria.ipynb
+notebooks/examples/cc.ipynb
 notebooks/examples/fips.ipynb
 notebooks/examples/model.ipynb
 notebooks/examples/fips_iut.ipynb
