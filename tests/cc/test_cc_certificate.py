@@ -8,7 +8,7 @@ import pytest
 import tests.data.cc.analysis
 import tests.data.cc.certificate
 from sec_certs.dataset import CCDataset
-from sec_certs.sample import CommonCriteriaCert
+from sec_certs.sample import CCCertificate
 from sec_certs.sample.protection_profile import ProtectionProfile
 
 
@@ -18,7 +18,7 @@ def data_dir() -> Path:
 
 
 @pytest.fixture(scope="module")
-def vulnerable_certificate(tmp_path_factory) -> CommonCriteriaCert:
+def vulnerable_certificate(tmp_path_factory) -> CCCertificate:
     tmp_dir = tmp_path_factory.mktemp("dset")
     dset_json_path = Path(tests.data.cc.analysis.__path__[0]) / "vulnerable_dataset.json"
     data_dir_path = dset_json_path.parent
@@ -31,8 +31,8 @@ def vulnerable_certificate(tmp_path_factory) -> CommonCriteriaCert:
 
 
 @pytest.fixture(scope="module")
-def cert_one() -> CommonCriteriaCert:
-    return CommonCriteriaCert(
+def cert_one() -> CCCertificate:
+    return CCCertificate(
         "active",
         "Access Control Devices and Systems",
         "NetIQ Identity Manager 4.7",
@@ -54,13 +54,13 @@ def cert_one() -> CommonCriteriaCert:
 
 
 @pytest.fixture(scope="module")
-def cert_two() -> CommonCriteriaCert:
+def cert_two() -> CCCertificate:
     pp = ProtectionProfile("sample_pp", None, pp_link="https://sample.pp")
-    update = CommonCriteriaCert.MaintenanceReport(
+    update = CCCertificate.MaintenanceReport(
         date(1900, 1, 1), "Sample maintenance", "https://maintenance.up", "https://maintenance.up"
     )
 
-    return CommonCriteriaCert(
+    return CCCertificate(
         "archived",
         "Sample category",
         "Sample certificate name",
@@ -81,44 +81,44 @@ def cert_two() -> CommonCriteriaCert:
     )
 
 
-def test_extract_metadata(vulnerable_certificate: CommonCriteriaCert):
+def test_extract_metadata(vulnerable_certificate: CCCertificate):
     vulnerable_certificate.state.st_extract_ok = True
-    CommonCriteriaCert.extract_st_pdf_metadata(vulnerable_certificate)
+    CCCertificate.extract_st_pdf_metadata(vulnerable_certificate)
     assert vulnerable_certificate.state.st_extract_ok
 
     vulnerable_certificate.state.report_extract_ok = True
-    CommonCriteriaCert.extract_report_pdf_metadata(vulnerable_certificate)
+    CCCertificate.extract_report_pdf_metadata(vulnerable_certificate)
     assert vulnerable_certificate.state.report_extract_ok
 
 
-def test_extract_frontpage(vulnerable_certificate: CommonCriteriaCert):
+def test_extract_frontpage(vulnerable_certificate: CCCertificate):
     vulnerable_certificate.state.st_extract_ok = True
-    CommonCriteriaCert.extract_st_pdf_frontpage(vulnerable_certificate)
+    CCCertificate.extract_st_pdf_frontpage(vulnerable_certificate)
     assert vulnerable_certificate.state.st_extract_ok
 
     vulnerable_certificate.state.report_extract_ok = True
-    CommonCriteriaCert.extract_report_pdf_frontpage(vulnerable_certificate)
+    CCCertificate.extract_report_pdf_frontpage(vulnerable_certificate)
     assert vulnerable_certificate.state.report_extract_ok
 
 
-def test_keyword_extraction(vulnerable_certificate: CommonCriteriaCert):
+def test_keyword_extraction(vulnerable_certificate: CCCertificate):
     vulnerable_certificate.state.st_extract_ok = True
-    CommonCriteriaCert.extract_st_pdf_keywords(vulnerable_certificate)
+    CCCertificate.extract_st_pdf_keywords(vulnerable_certificate)
     assert vulnerable_certificate.state.st_extract_ok
 
     vulnerable_certificate.state.report_extract_ok = True
-    CommonCriteriaCert.extract_report_pdf_keywords(vulnerable_certificate)
+    CCCertificate.extract_report_pdf_keywords(vulnerable_certificate)
     assert vulnerable_certificate.state.report_extract_ok
 
 
-def test_cert_link_escaping(cert_one: CommonCriteriaCert):
+def test_cert_link_escaping(cert_one: CCCertificate):
     assert (
         cert_one.report_link
         == "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf"
     )
 
 
-def test_cert_to_json(cert_two: CommonCriteriaCert, tmp_path: Path, data_dir: Path):
+def test_cert_to_json(cert_two: CCCertificate, tmp_path: Path, data_dir: Path):
     cert_two.to_json(tmp_path / "crt_two.json")
 
     with (tmp_path / "crt_two.json").open("r") as handle:
@@ -130,6 +130,6 @@ def test_cert_to_json(cert_two: CommonCriteriaCert, tmp_path: Path, data_dir: Pa
     assert data == template_data
 
 
-def test_cert_from_json(cert_two: CommonCriteriaCert, data_dir: Path):
-    crt = CommonCriteriaCert.from_json(data_dir / "fictional_cert.json")
+def test_cert_from_json(cert_two: CCCertificate, data_dir: Path):
+    crt = CCCertificate.from_json(data_dir / "fictional_cert.json")
     assert cert_two == crt

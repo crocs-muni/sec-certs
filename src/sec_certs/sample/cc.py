@@ -45,8 +45,8 @@ class ReferenceType(Enum):
     INDIRECT = "indirect"
 
 
-class CommonCriteriaCert(
-    Certificate["CommonCriteriaCert", "CommonCriteriaCert.Heuristics", "CommonCriteriaCert.PdfData"],
+class CCCertificate(
+    Certificate["CCCertificate", "CCCertificate.Heuristics", "CCCertificate.PdfData"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -84,7 +84,7 @@ class CommonCriteriaCert(
             super().__setattr__("maintenance_date", sec_certs.utils.sanitization.sanitize_date(self.maintenance_date))
 
         @classmethod
-        def from_dict(cls, dct: dict) -> CommonCriteriaCert.MaintenanceReport:
+        def from_dict(cls, dct: dict) -> CCCertificate.MaintenanceReport:
             new_dct = dct.copy()
             new_dct["maintenance_date"] = (
                 date.fromisoformat(dct["maintenance_date"])
@@ -384,7 +384,7 @@ class CommonCriteriaCert(
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
         """
-        Class for various heuristics related to CommonCriteriaCert
+        Class for various heuristics related to CCCertificate
         """
 
         extracted_versions: set[str] | None = field(default=None)
@@ -474,7 +474,7 @@ class CommonCriteriaCert(
         self.maintenance_updates = maintenance_updates
         self.state = self.InternalState() if not state else state
         self.pdf_data = self.PdfData() if not pdf_data else pdf_data
-        self.heuristics: CommonCriteriaCert.Heuristics = self.Heuristics() if not heuristics else heuristics
+        self.heuristics: CCCertificate.Heuristics = self.Heuristics() if not heuristics else heuristics
 
     @property
     def dgst(self) -> str:
@@ -560,7 +560,7 @@ class CommonCriteriaCert(
         printed_manufacturer = self.manufacturer if self.manufacturer else "Unknown manufacturer"
         return str(printed_manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
 
-    def merge(self, other: CommonCriteriaCert, other_source: str | None = None) -> None:
+    def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info
@@ -587,9 +587,9 @@ class CommonCriteriaCert(
                     )
 
     @classmethod
-    def from_dict(cls, dct: dict) -> CommonCriteriaCert:
+    def from_dict(cls, dct: dict) -> CCCertificate:
         """
-        Deserializes dictionary into `CommonCriteriaCert`
+        Deserializes dictionary into `CCCertificate`
         """
         new_dct = dct.copy()
         new_dct["maintenance_updates"] = set(dct["maintenance_updates"])
@@ -604,7 +604,7 @@ class CommonCriteriaCert(
             if isinstance(dct["not_valid_after"], str)
             else dct["not_valid_after"]
         )
-        return super(cls, CommonCriteriaCert).from_dict(new_dct)
+        return super(cls, CCCertificate).from_dict(new_dct)
 
     @staticmethod
     def _html_row_get_name(cell: Tag) -> str:
@@ -639,7 +639,7 @@ class CommonCriteriaCert(
             if link.get("href") is not None and "/ppfiles/" in link.get("href"):
                 protection_profiles.add(
                     ProtectionProfile(
-                        pp_name=str(link.contents[0]), pp_eal=None, pp_link=CommonCriteriaCert.cc_url + link.get("href")
+                        pp_name=str(link.contents[0]), pp_eal=None, pp_link=CCCertificate.cc_url + link.get("href")
                     )
                 )
         return protection_profiles
@@ -656,15 +656,15 @@ class CommonCriteriaCert(
         assert links[1].get("title").startswith("Certification Report")
         assert links[2].get("title").startswith("Security Target")
 
-        report_link = CommonCriteriaCert.cc_url + links[1].get("href")
-        security_target_link = CommonCriteriaCert.cc_url + links[2].get("href")
+        report_link = CCCertificate.cc_url + links[1].get("href")
+        security_target_link = CCCertificate.cc_url + links[2].get("href")
 
         return report_link, security_target_link
 
     @staticmethod
     def _html_row_get_cert_link(cell: Tag) -> str | None:
         links = cell.find_all("a")
-        return CommonCriteriaCert.cc_url + links[0].get("href") if links else None
+        return CCCertificate.cc_url + links[0].get("href") if links else None
 
     @staticmethod
     def _html_row_get_maintenance_div(cell: Tag) -> Tag | None:
@@ -675,7 +675,7 @@ class CommonCriteriaCert(
         return None
 
     @staticmethod
-    def _html_row_get_maintenance_updates(main_div: Tag) -> set[CommonCriteriaCert.MaintenanceReport]:
+    def _html_row_get_maintenance_updates(main_div: Tag) -> set[CCCertificate.MaintenanceReport]:
         possible_updates = list(main_div.find_all("li"))
         maintenance_updates = set()
         for u in possible_updates:
@@ -687,18 +687,18 @@ class CommonCriteriaCert(
             links = u.find_all("a")
             for link in links:
                 if link.get("title").startswith("Maintenance Report:"):
-                    main_report_link = CommonCriteriaCert.cc_url + link.get("href")
+                    main_report_link = CCCertificate.cc_url + link.get("href")
                 elif link.get("title").startswith("Maintenance ST"):
-                    main_st_link = CommonCriteriaCert.cc_url + link.get("href")
+                    main_st_link = CCCertificate.cc_url + link.get("href")
                 else:
                     logger.error("Unknown link in Maintenance part!")
             maintenance_updates.add(
-                CommonCriteriaCert.MaintenanceReport(main_date, main_title, main_report_link, main_st_link)
+                CCCertificate.MaintenanceReport(main_date, main_title, main_report_link, main_st_link)
             )
         return maintenance_updates
 
     @classmethod
-    def from_html_row(cls, row: Tag, status: str, category: str) -> CommonCriteriaCert:
+    def from_html_row(cls, row: Tag, status: str, category: str) -> CCCertificate:
         """
         Creates a CC sample from html row of commoncriteria.org webpage.
         """
@@ -707,20 +707,18 @@ class CommonCriteriaCert(
         if len(cells) != 7:
             raise ValueError(f"Unexpected number of <td> elements in CC html row. Expected: 7, actual: {len(cells)}")
 
-        name = CommonCriteriaCert._html_row_get_name(cells[0])
-        manufacturer = CommonCriteriaCert._html_row_get_manufacturer(cells[1])
-        manufacturer_web = CommonCriteriaCert._html_row_get_manufacturer_web(cells[1])
-        scheme = CommonCriteriaCert._html_row_get_scheme(cells[6])
-        security_level = CommonCriteriaCert._html_row_get_security_level(cells[5])
-        protection_profiles = CommonCriteriaCert._html_row_get_protection_profiles(cells[0])
-        not_valid_before = CommonCriteriaCert._html_row_get_date(cells[3])
-        not_valid_after = CommonCriteriaCert._html_row_get_date(cells[4])
-        report_link, st_link = CommonCriteriaCert._html_row_get_report_st_links(cells[0])
-        cert_link = CommonCriteriaCert._html_row_get_cert_link(cells[2])
-        maintenance_div = CommonCriteriaCert._html_row_get_maintenance_div(cells[0])
-        maintenances = (
-            CommonCriteriaCert._html_row_get_maintenance_updates(maintenance_div) if maintenance_div else set()
-        )
+        name = CCCertificate._html_row_get_name(cells[0])
+        manufacturer = CCCertificate._html_row_get_manufacturer(cells[1])
+        manufacturer_web = CCCertificate._html_row_get_manufacturer_web(cells[1])
+        scheme = CCCertificate._html_row_get_scheme(cells[6])
+        security_level = CCCertificate._html_row_get_security_level(cells[5])
+        protection_profiles = CCCertificate._html_row_get_protection_profiles(cells[0])
+        not_valid_before = CCCertificate._html_row_get_date(cells[3])
+        not_valid_after = CCCertificate._html_row_get_date(cells[4])
+        report_link, st_link = CCCertificate._html_row_get_report_st_links(cells[0])
+        cert_link = CCCertificate._html_row_get_cert_link(cells[2])
+        maintenance_div = CCCertificate._html_row_get_maintenance_div(cells[0])
+        maintenances = CCCertificate._html_row_get_maintenance_updates(maintenance_div) if maintenance_div else set()
 
         return cls(
             status,
@@ -767,12 +765,12 @@ class CommonCriteriaCert(
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
 
     @staticmethod
-    def download_pdf_report(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def download_pdf_report(cert: CCCertificate) -> CCCertificate:
         """
         Downloads pdf of certification report given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to download the pdf report for
-        :return CommonCriteriaCert: returns the modified certificate with updated state
+        :param CCCertificate cert: cert to download the pdf report for
+        :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int
         if not cert.report_link:
@@ -790,12 +788,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def download_pdf_st(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def download_pdf_st(cert: CCCertificate) -> CCCertificate:
         """
         Downloads pdf of security target given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to download the pdf security target for
-        :return CommonCriteriaCert: returns the modified certificate with updated state
+        :param CCCertificate cert: cert to download the pdf security target for
+        :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int
         if not cert.st_link:
@@ -813,12 +811,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def convert_report_pdf(cert: CCCertificate) -> CCCertificate:
         """
         Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to download the pdf report for
-        :return CommonCriteriaCert: the modified certificate with updated state
+        :param CCCertificate cert: cert to download the pdf report for
+        :return CCCertificate: the modified certificate with updated state
         """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
             cert.state.report_pdf_path, cert.state.report_txt_path
@@ -835,12 +833,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def convert_st_pdf(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def convert_st_pdf(cert: CCCertificate) -> CCCertificate:
         """
         Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to download the pdf security target for
-        :return CommonCriteriaCert: the modified certificate with updated state
+        :param CCCertificate cert: cert to download the pdf security target for
+        :return CCCertificate: the modified certificate with updated state
         """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
         # If OCR was done the result was garbage
@@ -855,12 +853,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_st_pdf_metadata(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
         """
         Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to extract the metadata for.
-        :return CommonCriteriaCert: the modified certificate with updated state
+        :param CCCertificate cert: cert to extract the metadata for.
+        :return CCCertificate: the modified certificate with updated state
         """
         response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st_pdf_path)
         if response != constants.RETURNCODE_OK:
@@ -870,12 +868,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_report_pdf_metadata(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def extract_report_pdf_metadata(cert: CCCertificate) -> CCCertificate:
         """
         Extracts metadata from certification report pdf given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to extract the metadata for.
-        :return CommonCriteriaCert: the modified certificate with updated state
+        :param CCCertificate cert: cert to extract the metadata for.
+        :return CCCertificate: the modified certificate with updated state
         """
         response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report_pdf_path)
         if response != constants.RETURNCODE_OK:
@@ -885,12 +883,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_st_pdf_frontpage(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def extract_st_pdf_frontpage(cert: CCCertificate) -> CCCertificate:
         """
         Extracts data from security target pdf frontpage given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to extract the frontpage data for.
-        :return CommonCriteriaCert: the modified certificate with updated state
+        :param CCCertificate cert: cert to extract the frontpage data for.
+        :return CCCertificate: the modified certificate with updated state
         """
         cert.pdf_data.st_frontpage = {}
 
@@ -902,12 +900,12 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_report_pdf_frontpage(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def extract_report_pdf_frontpage(cert: CCCertificate) -> CCCertificate:
         """
         Extracts data from certification report pdf frontpage given the certificate. Staticmethod to allow for parallelization.
 
-        :param CommonCriteriaCert cert: cert to extract the frontpage data for.
-        :return CommonCriteriaCert: the modified certificate with updated state
+        :param CCCertificate cert: cert to extract the frontpage data for.
+        :return CCCertificate: the modified certificate with updated state
         """
         cert.pdf_data.report_frontpage = {}
 
@@ -919,13 +917,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_report_pdf_keywords(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def extract_report_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
         Matches regular expresions in txt obtained from certification report and extracts the matches into attribute.
         Static method to allow for parallelization
 
-        :param CommonCriteriaCert cert: certificate to extract the keywords for.
-        :return CommonCriteriaCert: the modified certificate with extracted keywords.
+        :param CCCertificate cert: certificate to extract the keywords for.
+        :return CCCertificate: the modified certificate with extracted keywords.
         """
         report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report_txt_path, cc_rules)
         if report_keywords is None:
@@ -935,13 +933,13 @@ class CommonCriteriaCert(
         return cert
 
     @staticmethod
-    def extract_st_pdf_keywords(cert: CommonCriteriaCert) -> CommonCriteriaCert:
+    def extract_st_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
         Matches regular expresions in txt obtained from security target and extracts the matches into attribute.
         Static method to allow for parallelization
 
-        :param CommonCriteriaCert cert: certificate to extract the keywords for.
-        :return CommonCriteriaCert: the modified certificate with extracted keywords.
+        :param CCCertificate cert: certificate to extract the keywords for.
+        :return CCCertificate: the modified certificate with extracted keywords.
         """
         st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st_txt_path, cc_rules)
         if st_keywords is None:

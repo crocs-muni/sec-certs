@@ -1,5 +1,5 @@
 {
-    "_type": "sec_certs.dataset.common_criteria.CCDataset",
+    "_type": "sec_certs.dataset.cc.CCDataset",
     "state": {
         "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
         "meta_sources_parsed": true,
@@ -15,7 +15,7 @@
     "n_certs": 1,
     "certs": [
         {
-            "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
+            "_type": "sec_certs.sample.cc.CCCertificate",
             "dgst": "ebd276cca70fd723",
             "status": "active",
             "category": "Access Control Devices and Systems",
@@ -38,7 +38,7 @@
             "protection_profiles": [],
             "maintenance_updates": [],
             "state": {
-                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
+                "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "st_download_ok": true,
                 "report_download_ok": true,
                 "st_convert_ok": true,
@@ -47,7 +47,7 @@
                 "report_extract_ok": true
             },
             "pdf_data": {
-                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+                "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
                 "report_metadata": null,
                 "st_metadata": null,
                 "report_frontpage": null,
@@ -58,7 +58,7 @@
                 "st_filename": null
             },
             "heuristics": {
-                "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+                "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
                 "extracted_versions": [
                     "8.2"
                 ],

@@ -565,7 +565,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
     def update_with_certs(self, certs: list[CertSubType]) -> None:
         """
         Enriches the dataset with `certs`
-        :param List[CommonCriteriaCert] certs: new certs to include into the dataset.
+        :param List[Certificate] certs: new certs to include into the dataset.
         """
         if any([x not in self for x in certs]):
             logger.warning("Updating dataset with certificates outside of the dataset!")

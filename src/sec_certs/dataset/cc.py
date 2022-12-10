@@ -26,9 +26,9 @@ from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
-from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
 from sec_certs.utils import helpers as helpers
@@ -44,15 +44,15 @@ class CCAuxillaryDatasets(AuxillaryDatasets):
     mu_dset: CCDatasetMaintenanceUpdates | None = None
 
 
-class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSerializableType):
+class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializableType):
     """
-    Class that holds CommonCriteriaCert. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
+    Class that holds CCCertificate. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
     """
 
     def __init__(
         self,
-        certs: dict[str, CommonCriteriaCert] = dict(),
+        certs: dict[str, CCCertificate] = dict(),
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
@@ -76,7 +76,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         """
         Return self serialized into pandas DataFrame
         """
-        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaCert.pandas_columns)
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CCCertificate.pandas_columns)
         df = df.set_index("dgst")
 
         df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True)
@@ -230,7 +230,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
         # TODO: This forgets to set local paths for other auxillary datasets
 
-    def _merge_certs(self, certs: dict[str, CommonCriteriaCert], cert_source: str | None = None) -> None:
+    def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
@@ -268,7 +268,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
     ) -> None:
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
-        and constructs CommonCriteriaCert objects, fills the dataset with those.
+        and constructs CCCertificate objects, fills the dataset with those.
 
         :param bool to_download: If CSV and HTML files shall be downloaded (or existing files utilized), defaults to True
         :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
@@ -295,7 +295,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
-    def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> dict[str, CommonCriteriaCert]:
+    def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
         """
         Creates dictionary of new certificates from csv sources.
         """
@@ -311,7 +311,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return new_certs
 
     @staticmethod
-    def _parse_single_csv(file: Path) -> dict[str, CommonCriteriaCert]:
+    def _parse_single_csv(file: Path) -> dict[str, CCCertificate]:
         """
         Using pandas, this parses a single CSV file.
         """
@@ -389,13 +389,13 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         updates: dict[str, set] = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
             updates[x.dgst].add(
-                CommonCriteriaCert.MaintenanceReport(
+                CCCertificate.MaintenanceReport(
                     x.maintenance_date.date(), x.maintenance_title, x.maintenance_report_link, x.maintenance_st_link
                 )
             )
 
         certs = {
-            x.dgst: CommonCriteriaCert(
+            x.dgst: CCCertificate(
                 cert_status,
                 x.category,
                 x.cert_name,
@@ -418,7 +418,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         }
         return certs
 
-    def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> dict[str, CommonCriteriaCert]:
+    def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
         """
         Prepares dictionary of certificates from all html files.
         """
@@ -436,7 +436,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         return new_certs
 
     @staticmethod
-    def _parse_single_html(file: Path) -> dict[str, CommonCriteriaCert]:
+    def _parse_single_html(file: Path) -> dict[str, CCCertificate]:
         """
         Prepares a dictionary of certificates from a single html file.
         """
@@ -451,7 +451,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
         def _parse_table(
             soup: BeautifulSoup, cert_status: str, table_id: str, category_string: str
-        ) -> dict[str, CommonCriteriaCert]:
+        ) -> dict[str, CCCertificate]:
             tables = soup.find_all("table", id=table_id)
 
             if not len(tables) <= 1:
@@ -476,8 +476,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
 
             try:
                 table_certs = {
-                    x.dgst: x
-                    for x in [CommonCriteriaCert.from_html_row(row, cert_status, category_string) for row in body]
+                    x.dgst: x for x in [CCCertificate.from_html_row(row, cert_status, category_string) for row in body]
                 }
             except ValueError as e:
                 raise ValueError(f"Bad html file: {file.name} ({str(e)})") from e
@@ -534,7 +533,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             )
 
         cert_processing.process_parallel(
-            CommonCriteriaCert.download_pdf_report,
+            CCCertificate.download_pdf_report,
             certs_to_process,
             config.n_threads,
             progress_bar_desc="Downloading PDFs of CC certification reports",
@@ -552,7 +551,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             )
 
         cert_processing.process_parallel(
-            CommonCriteriaCert.download_pdf_st,
+            CCCertificate.download_pdf_st,
             certs_to_process,
             config.n_threads,
             progress_bar_desc="Downloading PDFs of CC security targets",
@@ -570,7 +569,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             )
 
         cert_processing.process_parallel(
-            CommonCriteriaCert.convert_report_pdf,
+            CCCertificate.convert_report_pdf,
             certs_to_process,
             config.n_threads,
             progress_bar_desc="Converting PDFs of certification reports to txt",
@@ -588,7 +587,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
             )
 
         cert_processing.process_parallel(
-            CommonCriteriaCert.convert_st_pdf,
+            CCCertificate.convert_st_pdf,
             certs_to_process,
             config.n_threads,
             progress_bar_desc="Converting PDFs of security targets to txt",
@@ -602,7 +601,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Extracting report metadata")
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
-            CommonCriteriaCert.extract_report_pdf_metadata,
+            CCCertificate.extract_report_pdf_metadata,
             certs_to_process,
             config.n_threads,
             use_threading=False,
@@ -614,7 +613,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Extracting target metadata")
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
-            CommonCriteriaCert.extract_st_pdf_metadata,
+            CCCertificate.extract_st_pdf_metadata,
             certs_to_process,
             config.n_threads,
             use_threading=False,
@@ -630,7 +629,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Extracting report frontpages")
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
-            CommonCriteriaCert.extract_report_pdf_frontpage,
+            CCCertificate.extract_report_pdf_frontpage,
             certs_to_process,
             config.n_threads,
             use_threading=False,
@@ -642,7 +641,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Extracting target frontpages")
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
-            CommonCriteriaCert.extract_st_pdf_frontpage,
+            CCCertificate.extract_st_pdf_frontpage,
             certs_to_process,
             config.n_threads,
             use_threading=False,
@@ -658,7 +657,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Extracting report keywords")
         certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
-            CommonCriteriaCert.extract_report_pdf_keywords,
+            CCCertificate.extract_report_pdf_keywords,
             certs_to_process,
             config.n_threads,
             use_threading=False,
@@ -670,7 +669,7 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         logger.info("Extracting target keywords")
         certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
-            CommonCriteriaCert.extract_st_pdf_keywords,
+            CCCertificate.extract_st_pdf_keywords,
             certs_to_process,
             config.n_threads,
             use_threading=False,
@@ -801,11 +800,9 @@ class CCDataset(Dataset[CommonCriteriaCert, CCAuxillaryDatasets], ComplexSeriali
         self.mu_dataset_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download or not self.mu_dataset_path.exists():
-            maintained_certs: list[CommonCriteriaCert] = [x for x in self if x.maintenance_updates]
+            maintained_certs: list[CCCertificate] = [x for x in self if x.maintenance_updates]
             updates = list(
-                itertools.chain.from_iterable(
-                    CommonCriteriaMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs
-                )
+                itertools.chain.from_iterable(CCMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs)
             )
             update_dset = CCDatasetMaintenanceUpdates(
                 {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="maintenance_updates"
@@ -832,7 +829,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: dict[str, CommonCriteriaMaintenanceUpdate] = dict(),  # type: ignore
+        certs: dict[str, CCMaintenanceUpdate] = dict(),  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
@@ -845,7 +842,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def certs_dir(self) -> Path:
         return self.root_dir
 
-    def __iter__(self) -> Iterator[CommonCriteriaMaintenanceUpdate]:
+    def __iter__(self) -> Iterator[CCMaintenanceUpdate]:
         yield from self.certs.values()  # type: ignore
 
     def _compute_heuristics(self) -> None:
@@ -874,9 +871,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         return dset
 
     def to_pandas(self) -> pd.DataFrame:
-        df = pd.DataFrame(
-            [x.pandas_tuple for x in self.certs.values()], columns=CommonCriteriaMaintenanceUpdate.pandas_columns
-        )
+        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CCMaintenanceUpdate.pandas_columns)
         df = df.set_index("dgst")
         df.index.name = "dgst"
 
@@ -894,7 +889,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
     def get_n_maintenances_df(self) -> pd.DataFrame:
         """
-        Returns a DataFrame with CommonCriteriaCert digest as an index, and number of registered maintenances as a value
+        Returns a DataFrame with CCCertificate digest as an index, and number of registered maintenances as a value
         """
         main_df = self.to_pandas()
         main_df.maintenance_date = main_df.maintenance_date.dt.date
@@ -907,7 +902,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
     def get_maintenance_dates_df(self) -> pd.DataFrame:
         """
-        Returns a DataFrame with CommonCriteriaCert digest as an index, and all the maintenance dates as a value.
+        Returns a DataFrame with CCCertificate digest as an index, and all the maintenance dates as a value.
         """
         main_dates = self.to_pandas()
         main_dates.maintenance_date = main_dates.maintenance_date.map(lambda x: [x])

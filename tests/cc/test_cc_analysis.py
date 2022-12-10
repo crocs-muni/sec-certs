@@ -10,7 +10,7 @@ from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.dataset import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -105,26 +105,26 @@ def transitive_vulnerability_dataset(data_dir) -> CCDataset:
 
 
 @pytest.fixture
-def random_certificate(cc_dset: CCDataset) -> CommonCriteriaCert:
+def random_certificate(cc_dset: CCDataset) -> CCCertificate:
     return cc_dset["ebd276cca70fd723"]
 
 
-def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CommonCriteriaCert):
+def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CCCertificate):
     assert {cpe_single_sign_on.uri} == random_certificate.heuristics.cpe_matches
 
 
 def test_find_related_cves(
-    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE], random_certificate: CommonCriteriaCert
+    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE], random_certificate: CCCertificate
 ):
     random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
     cc_dset.compute_related_cves()
     assert {x.cve_id for x in cves} == random_certificate.heuristics.related_cves
 
 
-def test_version_extraction(random_certificate: CommonCriteriaCert):
+def test_version_extraction(random_certificate: CCCertificate):
     assert random_certificate.heuristics.extracted_versions == {"8.2"}
 
-    new_cert = CommonCriteriaCert(
+    new_cert = CCCertificate(
         "",
         "",
         "IDOneClassIC Card : ID-One Cosmo 64 RSA v5.4 and applet IDOneClassIC v1.0 embedded on P5CT072VOP",
@@ -147,15 +147,15 @@ def test_version_extraction(random_certificate: CommonCriteriaCert):
     assert new_cert.heuristics.extracted_versions == {"5.4", "1.0"}
 
 
-def test_cert_lab_heuristics(random_certificate: CommonCriteriaCert):
+def test_cert_lab_heuristics(random_certificate: CCCertificate):
     assert random_certificate.heuristics.cert_lab == ["BSI"]
 
 
-def test_cert_id_heuristics(random_certificate: CommonCriteriaCert):
+def test_cert_id_heuristics(random_certificate: CCCertificate):
     assert random_certificate.heuristics.cert_id == "BSI-DSZ-CC-0683-2014"
 
 
-def test_keywords_heuristics(random_certificate: CommonCriteriaCert):
+def test_keywords_heuristics(random_certificate: CCCertificate):
     assert random_certificate.pdf_data.st_keywords
     extracted_keywords: dict = random_certificate.pdf_data.st_keywords
 
@@ -174,7 +174,7 @@ def test_keywords_heuristics(random_certificate: CommonCriteriaCert):
     assert extracted_keywords["cipher_mode"]["CBC"]["CBC"] == 2
 
 
-def test_protection_profile_matching(cc_dset: CCDataset, random_certificate: CommonCriteriaCert):
+def test_protection_profile_matching(cc_dset: CCDataset, random_certificate: CCCertificate):
     artificial_pp: ProtectionProfile = ProtectionProfile(
         "Korean National Protection Profile for Single Sign On V1.0",
         "EAL1+",
@@ -194,7 +194,7 @@ def test_protection_profile_matching(cc_dset: CCDataset, random_certificate: Com
     assert random_certificate.protection_profiles == {expected_pp}
 
 
-def test_single_record_references_heuristics(random_certificate: CommonCriteriaCert):
+def test_single_record_references_heuristics(random_certificate: CCCertificate):
     # Single record in daset is not affecting nor affected by other records
     assert not random_certificate.heuristics.report_references.directly_referenced_by
     assert not random_certificate.heuristics.report_references.indirectly_referenced_by
@@ -242,7 +242,7 @@ def test_sar_object():
         SAR.from_string("XALC_FLR")
 
 
-def test_sar_transformation(random_certificate: CommonCriteriaCert):
+def test_sar_transformation(random_certificate: CCCertificate):
     assert random_certificate.heuristics.extracted_sars
 
     # This one should be taken from security level and not overwritten by stronger SARs in ST
@@ -254,7 +254,7 @@ def test_sar_transformation(random_certificate: CommonCriteriaCert):
     assert SAR("ADV_FSP", 6) not in random_certificate.heuristics.extracted_sars
 
 
-def test_eal_implied_sar_inference(random_certificate: CommonCriteriaCert):
+def test_eal_implied_sar_inference(random_certificate: CCCertificate):
     assert random_certificate.actual_sars
 
     actual_sars = random_certificate.actual_sars

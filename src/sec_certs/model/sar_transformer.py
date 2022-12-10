@@ -5,7 +5,7 @@ from typing import Dict, Iterable, cast
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR, SAR_DICT_KEY
 
 logger = logging.getLogger(__name__)
@@ -18,39 +18,39 @@ class SARTransformer(BaseEstimator, TransformerMixin):
     This class implements sklearn transformer interface, so fit_transform() can be called on it.
     """
 
-    def fit(self, certificates: Iterable[CommonCriteriaCert]) -> SARTransformer:
+    def fit(self, certificates: Iterable[CCCertificate]) -> SARTransformer:
         """
         Just returns self, no fitting needed
 
-        :param Iterable[CommonCriteriaCert] certificates: Unused parameter
+        :param Iterable[CCCertificate] certificates: Unused parameter
         :return SARTransformer: return self
         """
         return self
 
-    def transform(self, certificates: Iterable[CommonCriteriaCert]) -> list[set[SAR] | None]:
+    def transform(self, certificates: Iterable[CCCertificate]) -> list[set[SAR] | None]:
         """
-        Just a wrapper around transform_single_cert() called on an iterable of CommonCriteriaCert.
+        Just a wrapper around transform_single_cert() called on an iterable of CCCertificate.
 
-        :param Iterable[CommonCriteriaCert] certificates: Iterable of CommonCriteriaCert objects to perform the extraction on.
+        :param Iterable[CCCertificate] certificates: Iterable of CCCertificate objects to perform the extraction on.
         :return List[Optional[Set[SAR]]]: Returns List of results from transform_single_cert().
         """
         return [self.transform_single_cert(cert) for cert in certificates]
 
-    def transform_single_cert(self, cert: CommonCriteriaCert) -> set[SAR] | None:
+    def transform_single_cert(self, cert: CCCertificate) -> set[SAR] | None:
         """
-        Given CommonCriteriaCert, will transform SAR keywords extracted from txt files
+        Given CCCertificate, will transform SAR keywords extracted from txt files
         into a set of SAR objects. Also handles extractin of correct SAR levels, duplicities and filtering.
         Uses three sources: CSV scan, security target, and certification report.
         The caller should assure that the certificates have the keywords extracted.
 
-        :param CommonCriteriaCert cert: Certificate to extract SARs from
+        :param CCCertificate cert: Certificate to extract SARs from
         :return Optional[Set[SAR]]: Set of SARs, None if none were identified.
         """
         sec_level_candidates, st_candidates, report_candidates = self._collect_sar_candidates_from_all_sources(cert)
         return self._resolve_candidate_conflicts(sec_level_candidates, st_candidates, report_candidates, cert.dgst)
 
     @staticmethod
-    def _collect_sar_candidates_from_all_sources(cert: CommonCriteriaCert) -> tuple[set[SAR], set[SAR], set[SAR]]:
+    def _collect_sar_candidates_from_all_sources(cert: CCCertificate) -> tuple[set[SAR], set[SAR], set[SAR]]:
         """
         Parses SARs from three distinct sources and returns the results as a three tuple:
         - Security level from CSV scan
@@ -58,10 +58,10 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         - Keywords from Certification report
         """
 
-        def st_keywords_may_have_sars(sample: CommonCriteriaCert):
+        def st_keywords_may_have_sars(sample: CCCertificate):
             return sample.pdf_data.st_keywords and SAR_DICT_KEY in sample.pdf_data.st_keywords
 
-        def report_keywords_may_have_sars(sample: CommonCriteriaCert):
+        def report_keywords_may_have_sars(sample: CCCertificate):
             return sample.pdf_data.report_keywords and SAR_DICT_KEY in sample.pdf_data.report_keywords
 
         sec_level_sars = SARTransformer._parse_sars_from_security_level_list(cert.security_level)

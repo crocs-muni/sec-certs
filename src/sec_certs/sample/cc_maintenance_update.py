@@ -5,13 +5,13 @@ from datetime import date
 from typing import ClassVar
 
 import sec_certs.utils.helpers as helpers
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
 
-class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableType):
+class CCMaintenanceUpdate(CCCertificate, ComplexSerializableType):
     pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "name",
@@ -26,9 +26,9 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         name: str,
         report_link: str,
         st_link: str,
-        state: CommonCriteriaCert.InternalState | None,
-        pdf_data: CommonCriteriaCert.PdfData | None,
-        heuristics: CommonCriteriaCert.Heuristics | None,
+        state: CCCertificate.InternalState | None,
+        pdf_data: CCCertificate.PdfData | None,
+        heuristics: CCCertificate.Heuristics | None,
         related_cert_digest: str,
         maintenance_date: date,
     ):
@@ -66,15 +66,15 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
 
     @property
     def pandas_tuple(self) -> tuple:
-        return tuple([getattr(self, x) for x in CommonCriteriaMaintenanceUpdate.pandas_columns])
+        return tuple([getattr(self, x) for x in CCMaintenanceUpdate.pandas_columns])
 
     @classmethod
-    def from_dict(cls, dct: dict) -> CommonCriteriaMaintenanceUpdate:
+    def from_dict(cls, dct: dict) -> CCMaintenanceUpdate:
         dct.pop("dgst")
         return cls(*(tuple(dct.values())))
 
     @classmethod
-    def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert) -> list[CommonCriteriaMaintenanceUpdate]:
+    def get_updates_from_cc_cert(cls, cert: CCCertificate) -> list[CCMaintenanceUpdate]:
         if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 

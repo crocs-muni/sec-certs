@@ -9,7 +9,7 @@ import pytest
 import tests.data.cc.dataset
 from sec_certs import constants
 from sec_certs.dataset import CCDataset
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 
 
 @pytest.fixture(scope="module")
@@ -18,8 +18,8 @@ def data_dir() -> Path:
 
 
 @pytest.fixture(scope="module")
-def crt() -> CommonCriteriaCert:
-    return CommonCriteriaCert(
+def crt() -> CCCertificate:
+    return CCCertificate(
         "active",
         "Access Control Devices and Systems",
         "NetIQ Identity Manager 4.7",
@@ -128,7 +128,7 @@ def test_build_empty_dataset():
     assert not dset.state.certs_analyzed
 
 
-def test_build_dataset(data_dir: Path, crt: CommonCriteriaCert, toy_dataset: CCDataset):
+def test_build_dataset(data_dir: Path, crt: CCCertificate, toy_dataset: CCDataset):
     with TemporaryDirectory() as tmp_dir:
         dataset_path = Path(tmp_dir)
         (dataset_path / "web").mkdir()
@@ -170,6 +170,6 @@ def test_download_csv_html_files():
 
 def test_to_pandas(toy_dataset: CCDataset):
     df = toy_dataset.to_pandas()
-    assert df.shape == (len(toy_dataset), len(CommonCriteriaCert.pandas_columns))
+    assert df.shape == (len(toy_dataset), len(CCCertificate.pandas_columns))
     assert df.index.name == "dgst"
-    assert set(df.columns) == (set(CommonCriteriaCert.pandas_columns).union({"year_from"})) - {"dgst"}
+    assert set(df.columns) == (set(CCCertificate.pandas_columns).union({"year_from"})) - {"dgst"}
