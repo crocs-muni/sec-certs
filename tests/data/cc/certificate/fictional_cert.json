@@ -1,5 +1,5 @@
 {
-    "_type": "sec_certs.sample.cc.CommonCriteriaCert",
+    "_type": "sec_certs.sample.cc.CCCertificate",
     "dgst": "a9ccb81a92e547dc",
     "status": "archived",
     "category": "Sample category",
@@ -31,7 +31,7 @@
         "_type": "Set",
         "elements": [
             {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.MaintenanceReport",
+                "_type": "sec_certs.sample.cc.CCCertificate.MaintenanceReport",
                 "maintenance_date": "1900-01-01",
                 "maintenance_title": "Sample maintenance",
                 "maintenance_report_link": "https://maintenance.up",
@@ -40,7 +40,7 @@
         ]
     },
     "state": {
-        "_type": "sec_certs.sample.cc.CommonCriteriaCert.InternalState",
+        "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "st_download_ok": false,
         "report_download_ok": false,
         "st_convert_garbage": false,
@@ -55,7 +55,7 @@
         "report_txt_hash": null
     },
     "pdf_data": {
-        "_type": "sec_certs.sample.cc.CommonCriteriaCert.PdfData",
+        "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
         "report_metadata": null,
         "st_metadata": null,
         "report_frontpage": null,
@@ -66,7 +66,7 @@
         "st_filename": null
     },
     "heuristics": {
-        "_type": "sec_certs.sample.cc.CommonCriteriaCert.Heuristics",
+        "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
         "extracted_versions": null,
         "cpe_matches": null,
         "verified_cpe_matches": null,

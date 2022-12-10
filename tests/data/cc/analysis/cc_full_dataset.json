@@ -15,7 +15,7 @@
     "n_certs": 1,
     "certs": [
         {
-            "_type": "sec_certs.sample.cc.CommonCriteriaCert",
+            "_type": "sec_certs.sample.cc.CCCertificate",
             "dgst": "ebd276cca70fd723",
             "status": "active",
             "category": "Access Control Devices and Systems",
@@ -54,7 +54,7 @@
                 "elements": []
             },
             "state": {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.InternalState",
+                "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "st_download_ok": true,
                 "report_download_ok": true,
                 "st_convert_garbage": false,
@@ -69,7 +69,7 @@
                 "report_txt_hash": "35627594d3806ac3926ec47f466503fe27781533da12beb6f8705882fccf125e"
             },
             "pdf_data": {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.PdfData",
+                "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
                 "report_metadata": {
                     "pdf_file_size_bytes": 1174271,
                     "pdf_is_encrypted": false,
@@ -512,7 +512,7 @@
                 "st_filename": "0683b_pdf.pdf"
             },
             "heuristics": {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.Heuristics",
+                "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
                 "extracted_versions": {
                     "_type": "Set",
                     "elements": [

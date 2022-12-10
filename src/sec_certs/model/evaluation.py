@@ -8,7 +8,7 @@ import numpy as np
 
 import sec_certs.utils.helpers as helpers
 from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.sample.cc import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import CustomJSONEncoder
 
@@ -33,7 +33,7 @@ def compute_precision(y: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
 
 
 def evaluate(
-    x_valid: list[CommonCriteriaCert | FIPSCertificate],
+    x_valid: list[CCCertificate | FIPSCertificate],
     y_valid: list[set[str] | None],
     outpath: Path | str | None,
     cpe_dset: CPEDataset,
@@ -56,8 +56,8 @@ def evaluate(
             predicted_cpes = set()
         predicted_cpes_dict = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes}
 
-        cert_name = cert.name if isinstance(cert, CommonCriteriaCert) else cert.web_data.module_name
-        vendor = cert.manufacturer if isinstance(cert, CommonCriteriaCert) else cert.web_data.vendor
+        cert_name = cert.name if isinstance(cert, CCCertificate) else cert.web_data.module_name
+        vendor = cert.manufacturer if isinstance(cert, CCCertificate) else cert.web_data.vendor
 
         should_be_removed = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in predicted_cpes - verified_cpes}
         should_be_added = {x: cpe_dset[x].title if cpe_dset[x].title else x for x in verified_cpes - predicted_cpes}

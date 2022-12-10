@@ -21,7 +21,7 @@
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20MR%20v1.0e.pdf",
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20ST%20v1.4%20CCRA.pdf",
             "state": {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.InternalState",
+                "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "st_download_ok": true,
                 "report_download_ok": true,
                 "st_convert_garbage": false,
@@ -36,7 +36,7 @@
                 "report_txt_hash": null
             },
             "pdf_data": {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.PdfData",
+                "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
                 "report_metadata": null,
                 "st_metadata": null,
                 "report_frontpage": null,
@@ -47,7 +47,7 @@
                 "st_filename": "383-7-159 ST v1.4 CCRA.pdf"
             },
             "heuristics": {
-                "_type": "sec_certs.sample.cc.CommonCriteriaCert.Heuristics",
+                "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
                 "extracted_versions": null,
                 "cpe_matches": null,
                 "verified_cpe_matches": null,

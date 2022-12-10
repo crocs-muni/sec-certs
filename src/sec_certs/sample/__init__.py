@@ -2,7 +2,7 @@
 like CPE, CVE, etc. The objects mostly hold data and allow for serialization, but can also perform some basic transformations.
 """
 
-from sec_certs.sample.cc import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CommonCriteriaMaintenanceUpdate
 from sec_certs.sample.cpe import CPE, cached_cpe
@@ -17,7 +17,7 @@ from sec_certs.sample.sar import SAR
 __all__ = [
     "CertificateId",
     "CommonCriteriaMaintenanceUpdate",
-    "CommonCriteriaCert",
+    "CCCertificate",
     "CPE",
     "cached_cpe",
     "CVE",

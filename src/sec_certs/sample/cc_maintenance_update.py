@@ -5,13 +5,13 @@ from datetime import date
 from typing import ClassVar
 
 import sec_certs.utils.helpers as helpers
-from sec_certs.sample.cc import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
 
-class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableType):
+class CommonCriteriaMaintenanceUpdate(CCCertificate, ComplexSerializableType):
     pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "name",
@@ -26,9 +26,9 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         name: str,
         report_link: str,
         st_link: str,
-        state: CommonCriteriaCert.InternalState | None,
-        pdf_data: CommonCriteriaCert.PdfData | None,
-        heuristics: CommonCriteriaCert.Heuristics | None,
+        state: CCCertificate.InternalState | None,
+        pdf_data: CCCertificate.PdfData | None,
+        heuristics: CCCertificate.Heuristics | None,
         related_cert_digest: str,
         maintenance_date: date,
     ):
@@ -74,7 +74,7 @@ class CommonCriteriaMaintenanceUpdate(CommonCriteriaCert, ComplexSerializableTyp
         return cls(*(tuple(dct.values())))
 
     @classmethod
-    def get_updates_from_cc_cert(cls, cert: CommonCriteriaCert) -> list[CommonCriteriaMaintenanceUpdate]:
+    def get_updates_from_cc_cert(cls, cert: CCCertificate) -> list[CommonCriteriaMaintenanceUpdate]:
         if cert.maintenance_updates is None:
             raise RuntimeError("Dataset was probably not built correctly - this should not be happening.")
 
