@@ -14,7 +14,7 @@ A tool for data scraping and analysis of security certificates from Common Crite
 
 ## Installation
 
-Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs`. For more elaborate description, see [docs](https://seccerts.org/docs/installation.html).
+Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://seccerts.org/docs/installation.html).
 
 ## Usage
 
