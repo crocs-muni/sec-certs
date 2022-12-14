@@ -25,8 +25,6 @@ Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-too
 
 ## Releases and version strings
 
-- On each revision pushed onto `main` that has `*.*.*` tag, a draft release is created with prepared changelog (this step can be skipped and the Release created right from the GitHub GUI).
-- This draft release is to be published manually by the maintainer.
 - Version string is not indexed in `git` but can be retreived maintained by `setuptools-scm` from git tags instead.
 - `setuptools-scm` will automatically, upon editable/real install of a package, infer its version and write it to `sec_certs/_version.py`. This file is not indexed as well. See more at [setuptools-scm GitHub](https://github.com/pypa/setuptools_scm)
 - On publishing a release, the tool is automatically published to [PyPi](https://pypi.org/project/sec-certs/) and [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs).
@@ -35,9 +33,8 @@ Note on single-sourcing the package version: More can be read [here](https://pac
 
 ### Currently, the release process is as follows
 
-1. (skip this optionally) Tag a revision with `*.*.*` tag -- this will create a draft release in GitHub.
-2. Modify changelog and publish the release (or create it from scratch with new tag).
-3. This will automatically update PyPi and DockerHub packages.
+1. Create a release from GitHub UI. Include release notes, add proper version tag and publish the release (or create it from scratch with new tag).
+2. This will automatically update PyPi and DockerHub packages.
 
 
 ## Quality assurance
