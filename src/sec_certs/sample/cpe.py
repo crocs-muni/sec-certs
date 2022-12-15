@@ -27,6 +27,7 @@ class CPEConfiguration(ComplexSerializableType):
     def match(self, set_of_cpes: set[str]) -> bool:
         return self.platform in set_of_cpes and any([cpe for cpe in set_of_cpes])
 
+
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
     uri: str

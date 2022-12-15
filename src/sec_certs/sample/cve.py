@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from dateutil.parser import isoparse
+
 from sec_certs.sample.cpe import CPE, CPEConfiguration, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
@@ -66,7 +67,13 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     ]
 
     def __init__(
-        self, cve_id: str, vulnerable_cpes: list[CPE], vulnerable_cpe_configurations: list[CPEConfiguration], impact: Impact, published_date: str, cwe_ids: set[str] | None
+        self,
+        cve_id: str,
+        vulnerable_cpes: list[CPE],
+        vulnerable_cpe_configurations: list[CPEConfiguration],
+        impact: Impact,
+        published_date: str,
+        cwe_ids: set[str] | None,
     ):
         super().__init__()
         self.cve_id = cve_id
@@ -122,8 +129,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
         for x in lst:
             cpe_uri = x["cpe23Uri"]
-            version_start: Optional[Tuple[str, str]]
-            version_end: Optional[Tuple[str, str]]
+            version_start: tuple[str, str] | None
+            version_end: tuple[str, str] | None
             if "versionStartIncluding" in x and x["versionStartIncluding"]:
                 version_start = ("including", x["versionStartIncluding"])
             elif "versionStartExcluding" in x and x["versionStartExcluding"]:
@@ -176,10 +183,11 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
         def get_vulnerable_cpes_from_nist_dict(dct: dict) -> tuple[list[CPE], list[CPEConfiguration]]:
             def get_vulnerable_cpes_and_cpe_configurations(
-                node: Dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]
+                node: dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]
             ) -> tuple[list[CPE], list[CPEConfiguration]]:
                 if node["operator"] == "AND":
                     cpe_configurations.extend(get_cpe_configurations_from_and_cpe_dict(node["children"]))
+                    return cpes, cpe_configurations
 
                 if "children" in node:
                     for child in node["children"]:
