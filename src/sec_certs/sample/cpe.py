@@ -14,15 +14,13 @@ class CPEConfiguration(ComplexSerializableType):
 
     __slots__ = ["platform", "cpes"]
 
-    def __init__(self, platform: str, cpes: list[str]) -> None:
+    def __init__(self, platform: str, cpes: set[str]) -> None:
         super().__init__()
         self.platform: str = platform
-        self.cpes: list[str] = cpes
+        self.cpes: set[str] = cpes
 
-    def __eq__(self, other) -> bool:
-        return (
-            isinstance(other, self.__class__) and self.platform == other.platform and set(self.cpes) == set(other.cpes)
-        )
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, self.__class__) and self.platform == other.platform and self.cpes == other.cpes
 
     def match(self, set_of_cpes: set[str]) -> bool:
         return self.platform in set_of_cpes and any([cpe for cpe in set_of_cpes])

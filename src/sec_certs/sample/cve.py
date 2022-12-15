@@ -171,7 +171,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
                 return configurations
 
             cpes = CVE._parse_nist_dict(children[0]["cpe_match"], True)
-            vulnerable_cpe_uris = [cpe.uri for cpe in cpes]
+            vulnerable_cpe_uris = {cpe.uri for cpe in cpes}
 
             if not cpes:
                 return configurations
