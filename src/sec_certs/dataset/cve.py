@@ -55,9 +55,15 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     def __eq__(self, other: object):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
+    def _filter_cves_with_cpe_configurations(self) -> None:
+        """
+        Method filters the subset of CVEs, which contain at least one CPE configuration.
+        """
+        self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
+
     def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Path | None = None):
         """
-        Builds look-up dictionary CPE -> Set[CVE]
+        Builds look-up dictionary CPE -> Set[CVE] and filter the CVEs which contain CPE configurations.
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
         feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
         to add corner cases and manual fixes. According to our investigation, the suffereing CPEs are:
@@ -87,6 +93,8 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                     self.cpe_to_cve_ids_lookup[cpe.uri] = {cve.cve_id}
                 else:
                     self.cpe_to_cve_ids_lookup[cpe.uri].add(cve.cve_id)
+
+        self._filter_cves_with_cpe_configurations()
 
     @classmethod
     def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
