@@ -538,14 +538,10 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
         cert: Certificate
         for cert in tqdm(cpe_rich_certs, desc="Computing related CVES"):
             if cert.heuristics.cpe_matches:
-                related_cves = [
-                    self.auxillary_datasets.cve_dset.get_cve_ids_for_cpe_uri(x) for x in cert.heuristics.cpe_matches
-                ]
-                related_cves = list(filter(lambda x: x is not None, related_cves))
+                related_cves = self.auxillary_datasets.cve_dset.get_cves_from_matched_cpes(cert.heuristics.cpe_matches)
+
                 if related_cves:
-                    cert.heuristics.related_cves = set(
-                        itertools.chain.from_iterable(x for x in related_cves if x is not None)
-                    )
+                    cert.heuristics.related_cves = related_cves
             else:
                 cert.heuristics.related_cves = None
 

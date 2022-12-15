@@ -6,8 +6,7 @@ from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from dateutil.parser import isoparse
-
-from sec_certs.sample.cpe import CPE, cached_cpe
+from sec_certs.sample.cpe import CPE, CPEConfiguration, cached_cpe
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -48,11 +47,12 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
     cve_id: str
     vulnerable_cpes: list[CPE]
+    vulnerable_cpe_configurations: list[CPEConfiguration]
     impact: Impact
     published_date: datetime.datetime | None
     cwe_ids: set[str] | None
 
-    __slots__ = ["cve_id", "vulnerable_cpes", "impact", "published_date", "cwe_ids"]
+    __slots__ = ["cve_id", "vulnerable_cpes", "vulnerable_cpe_configurations", "impact", "published_date", "cwe_ids"]
 
     pandas_columns: ClassVar[list[str]] = [
         "cve_id",
@@ -66,11 +66,12 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     ]
 
     def __init__(
-        self, cve_id: str, vulnerable_cpes: list[CPE], impact: Impact, published_date: str, cwe_ids: set[str] | None
+        self, cve_id: str, vulnerable_cpes: list[CPE], vulnerable_cpe_configurations: list[CPEConfiguration], impact: Impact, published_date: str, cwe_ids: set[str] | None
     ):
         super().__init__()
         self.cve_id = cve_id
         self.vulnerable_cpes = vulnerable_cpes
+        self.vulnerable_cpe_configurations = vulnerable_cpe_configurations
         self.impact = impact
         self.published_date = isoparse(published_date)
         self.cwe_ids = cwe_ids
@@ -116,31 +117,39 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         }
 
     @staticmethod
-    def _parse_nist_dict(lst: list) -> list[CPE]:
+    def _parse_nist_cpe_dicts(lst: list[dict[str, Any]]) -> list[CPE]:
         cpes: list[CPE] = []
 
         for x in lst:
-            if x["vulnerable"]:
-                cpe_uri = x["cpe23Uri"]
-                version_start: tuple[str, str] | None
-                version_end: tuple[str, str] | None
-                if "versionStartIncluding" in x and x["versionStartIncluding"]:
-                    version_start = ("including", x["versionStartIncluding"])
-                elif "versionStartExcluding" in x and x["versionStartExcluding"]:
-                    version_start = ("excluding", x["versionStartExcluding"])
-                else:
-                    version_start = None
+            cpe_uri = x["cpe23Uri"]
+            version_start: Optional[Tuple[str, str]]
+            version_end: Optional[Tuple[str, str]]
+            if "versionStartIncluding" in x and x["versionStartIncluding"]:
+                version_start = ("including", x["versionStartIncluding"])
+            elif "versionStartExcluding" in x and x["versionStartExcluding"]:
+                version_start = ("excluding", x["versionStartExcluding"])
+            else:
+                version_start = None
 
-                if "versionEndIncluding" in x and x["versionEndIncluding"]:
-                    version_end = ("including", x["versionEndIncluding"])
-                elif "versionEndExcluding" in x and x["versionEndExcluding"]:
-                    version_end = ("excluding", x["versionEndExcluding"])
-                else:
-                    version_end = None
+            if "versionEndIncluding" in x and x["versionEndIncluding"]:
+                version_end = ("including", x["versionEndIncluding"])
+            elif "versionEndExcluding" in x and x["versionEndExcluding"]:
+                version_end = ("excluding", x["versionEndExcluding"])
+            else:
+                version_end = None
 
-                cpes.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
+            cpes.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
 
         return cpes
+
+    @staticmethod
+    def _parse_nist_dict(cpe_list: list[dict[str, Any]], parse_only_vulnerable_cpes: bool) -> list[CPE]:
+        cpe_dicts_to_be_parsed = cpe_list
+
+        if parse_only_vulnerable_cpes:
+            cpe_dicts_to_be_parsed = [dct for dct in cpe_list if dct["vulnerable"]]
+
+        return CVE._parse_nist_cpe_dicts(cpe_dicts_to_be_parsed)
 
     @classmethod
     def from_nist_dict(cls, dct: dict) -> CVE:
@@ -148,36 +157,59 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         Will load CVE from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
         """
 
-        def get_vulnerable_cpes_from_nist_dict(dct: dict) -> list[CPE]:
-            def get_vulnerable_cpes_from_node(node: dict) -> list[CPE]:
-                cpes: list[CPE] = []
+        def get_cpe_configurations_from_and_cpe_dict(children: list[dict]) -> list[CPEConfiguration]:
+            configurations: list[CPEConfiguration] = []
 
+            if not children or len(children) != 2:
+                return configurations
+
+            cpes = CVE._parse_nist_dict(children[0]["cpe_match"], True)
+            vulnerable_cpe_uris = [cpe.uri for cpe in cpes]
+
+            if not cpes:
+                return configurations
+
+            # Platform does not have to be vulnerable necessarily
+            platforms = CVE._parse_nist_dict(children[1]["cpe_match"], False)
+
+            return [CPEConfiguration(platform.uri, vulnerable_cpe_uris) for platform in platforms]
+
+        def get_vulnerable_cpes_from_nist_dict(dct: dict) -> tuple[list[CPE], list[CPEConfiguration]]:
+            def get_vulnerable_cpes_and_cpe_configurations(
+                node: Dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]
+            ) -> tuple[list[CPE], list[CPEConfiguration]]:
                 if node["operator"] == "AND":
-                    return cpes
+                    cpe_configurations.extend(get_cpe_configurations_from_and_cpe_dict(node["children"]))
 
                 if "children" in node:
                     for child in node["children"]:
-                        cpes += get_vulnerable_cpes_from_node(child)
+                        get_vulnerable_cpes_and_cpe_configurations(child, cpes, cpe_configurations)
 
                 if "cpe_match" not in node:
-                    return cpes
+                    return cpes, cpe_configurations
 
                 candidates = node["cpe_match"]
-                cpes += CVE._parse_nist_dict(candidates)
+                cpes.extend(CVE._parse_nist_dict(candidates, True))
 
-                return cpes
+                return cpes, cpe_configurations
 
-            return list(
-                itertools.chain.from_iterable(get_vulnerable_cpes_from_node(x) for x in dct["configurations"]["nodes"])
+            cpes_and_cpe_configurations = [
+                get_vulnerable_cpes_and_cpe_configurations(x, [], []) for x in dct["configurations"]["nodes"]
+            ]
+            vulnerable_cpes = list(itertools.chain.from_iterable(map(lambda x: x[0], cpes_and_cpe_configurations)))
+            vulnerable_cpe_configurations = list(
+                itertools.chain.from_iterable(map(lambda x: x[1], cpes_and_cpe_configurations))
             )
+
+            return vulnerable_cpes, vulnerable_cpe_configurations
 
         cve_id = dct["cve"]["CVE_data_meta"]["ID"]
         impact = cls.Impact.from_nist_dict(dct)
-        vulnerable_cpes = get_vulnerable_cpes_from_nist_dict(dct)
+        vulnerable_cpes, vulnerable_cpe_configurations = get_vulnerable_cpes_from_nist_dict(dct)
         published_date = dct["publishedDate"]
         cwe_ids = cls.parse_cwe_data(dct)
 
-        return cls(cve_id, vulnerable_cpes, impact, published_date, cwe_ids)
+        return cls(cve_id, vulnerable_cpes, vulnerable_cpe_configurations, impact, published_date, cwe_ids)
 
     @staticmethod
     def parse_cwe_data(dct: dict) -> set[str] | None:

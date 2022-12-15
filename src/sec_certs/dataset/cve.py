@@ -139,8 +139,30 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
         return cls(all_cves, json_path)
 
-    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str] | None:
-        return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
+    def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str]:
+        return self.cpe_to_cve_ids_lookup.get(cpe_uri, set())
+
+    def _get_cves_from_exactly_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
+        return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_matches]))
+
+    def _get_cves_from_cpe_configurations(self, cpe_matches: set[str]) -> set[str]:
+        def do_cve_configurations_match_cpe_matches(cve: CVE, cpe_matches: set[str]) -> bool:
+            return any(
+                [cpe_configuration.match(cpe_matches) for cpe_configuration in cve.vulnerable_cpe_configurations]
+            )
+
+        return {
+            cve.cve_id
+            for cve in self.cves_with_vulnerable_configurations
+            if do_cve_configurations_match_cpe_matches(cve, cpe_matches)
+        }
+
+    def get_cves_from_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
+        cves = self._get_cves_from_exactly_matched_cpes(cpe_matches)
+        cves_matched_by_configurations = self._get_cves_from_cpe_configurations(cpe_matches)
+        cves.update(cves_matched_by_configurations)
+
+        return cves
 
     def filter_related_cpes(self, relevant_cpes: set[CPE]):
         """

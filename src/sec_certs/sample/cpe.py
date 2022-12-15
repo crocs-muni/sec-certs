@@ -10,6 +10,23 @@ from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers
 
 
+class CPEConfiguration(ComplexSerializableType):
+
+    __slots__ = ["platform", "cpes"]
+
+    def __init__(self, platform: str, cpes: list[str]) -> None:
+        super().__init__()
+        self.platform: str = platform
+        self.cpes: list[str] = cpes
+
+    def __eq__(self, other) -> bool:
+        return (
+            isinstance(other, self.__class__) and self.platform == other.platform and set(self.cpes) == set(other.cpes)
+        )
+
+    def match(self, set_of_cpes: set[str]) -> bool:
+        return self.platform in set_of_cpes and any([cpe for cpe in set_of_cpes])
+
 @dataclass(init=False)
 class CPE(PandasSerializableType, ComplexSerializableType):
     uri: str
