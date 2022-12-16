@@ -46,6 +46,7 @@ def cve_dict() -> dict[str, Any]:
                 "end_version": None,
             }
         ],
+        "vulnerable_cpe_configurations": [],
         "impact": {
             "_type": "Impact",
             "base_score": 5,

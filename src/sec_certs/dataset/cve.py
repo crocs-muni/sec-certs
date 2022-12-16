@@ -166,6 +166,11 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         }
 
     def get_cves_from_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
+        """
+        Method returns the set of CVEs which are matched to the set of CPEs.
+        First are matched the classic CPEs to CVEs with lookup dict and then are matched the
+        'AND' type CPEs containing platform.
+        """
         cves = self._get_cves_from_exactly_matched_cpes(cpe_matches)
         cves_matched_by_configurations = self._get_cves_from_cpe_configurations(cpe_matches)
         cves.update(cves_matched_by_configurations)

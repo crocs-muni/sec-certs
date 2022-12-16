@@ -23,6 +23,10 @@ class CPEConfiguration(ComplexSerializableType):
         return isinstance(other, self.__class__) and self.platform == other.platform and self.cpes == other.cpes
 
     def match(self, set_of_cpes: set[str]) -> bool:
+        """
+        For a given set of CPEs method returns boolean if the CPE configuration is
+        matched or not.
+        """
         return self.platform in set_of_cpes and any([cpe for cpe in set_of_cpes])
 
 

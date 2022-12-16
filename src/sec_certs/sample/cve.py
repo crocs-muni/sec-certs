@@ -118,6 +118,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         return {
             "cve_id": self.cve_id,
             "vulnerable_cpes": self.vulnerable_cpes,
+            "vulnerable_cpe_configurations": self.vulnerable_cpe_configurations,
             "impact": self.impact,
             "published_date": self.published_date.isoformat() if self.published_date else None,
             "cwe_ids": self.cwe_ids,
@@ -151,6 +152,11 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
     @staticmethod
     def _parse_nist_dict(cpe_list: list[dict[str, Any]], parse_only_vulnerable_cpes: bool) -> list[CPE]:
+        """
+        Method parses list of CPE dicts to the list of CPE objects.
+        The <parse_only_vulnerable_cpes> parameter specifies if we want to
+        parse only vulnerable CPEs or not.
+        """
         cpe_dicts_to_be_parsed = cpe_list
 
         if parse_only_vulnerable_cpes:
@@ -185,6 +191,10 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             def get_vulnerable_cpes_and_cpe_configurations(
                 node: dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]
             ) -> tuple[list[CPE], list[CPEConfiguration]]:
+                """
+                Method traverses node of CPE tree and returns the list of CPEs and CPE configuratios,
+                which depends on if the parent node is OR/AND type.
+                """
                 if node["operator"] == "AND":
                     cpe_configurations.extend(get_cpe_configurations_from_and_cpe_dict(node["children"]))
                     return cpes, cpe_configurations
