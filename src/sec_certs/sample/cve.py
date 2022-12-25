@@ -187,7 +187,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
             return [CPEConfiguration(platform.uri, vulnerable_cpe_uris) for platform in platforms]
 
-        def get_vulnerable_cpes_from_nist_dict(dct: dict) -> tuple[list[CPE], list[CPEConfiguration]]:
+        def get_vulnerable_cpes_from_nist_dict(dct: dict) -> list[list]:
             def get_vulnerable_cpes_and_cpe_configurations(
                 node: dict, cpes: list[CPE], cpe_configurations: list[CPEConfiguration]
             ) -> tuple[list[CPE], list[CPEConfiguration]]:
@@ -214,16 +214,14 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             cpes_and_cpe_configurations = [
                 get_vulnerable_cpes_and_cpe_configurations(x, [], []) for x in dct["configurations"]["nodes"]
             ]
-            vulnerable_cpes = list(itertools.chain.from_iterable(map(lambda x: x[0], cpes_and_cpe_configurations)))
-            vulnerable_cpe_configurations = list(
-                itertools.chain.from_iterable(map(lambda x: x[1], cpes_and_cpe_configurations))
-            )
 
-            return vulnerable_cpes, vulnerable_cpe_configurations
+            return [list(t) for t in zip(*cpes_and_cpe_configurations)]
 
         cve_id = dct["cve"]["CVE_data_meta"]["ID"]
         impact = cls.Impact.from_nist_dict(dct)
-        vulnerable_cpes, vulnerable_cpe_configurations = get_vulnerable_cpes_from_nist_dict(dct)
+        cpe_and_cpe_configurations = get_vulnerable_cpes_from_nist_dict(dct)
+        vulnerable_cpes = list(itertools.chain.from_iterable(cpe_and_cpe_configurations[0]))
+        vulnerable_cpe_configurations = list(itertools.chain.from_iterable(cpe_and_cpe_configurations[1]))
         published_date = dct["publishedDate"]
         cwe_ids = cls.parse_cwe_data(dct)
 
