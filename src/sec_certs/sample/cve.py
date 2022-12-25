@@ -221,8 +221,12 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         impact = cls.Impact.from_nist_dict(dct)
         cpe_and_cpe_configurations = get_vulnerable_cpes_from_nist_dict(dct)
         # There exist CVEs such as (CVE-2022-0177) which are rejected and do not contain any assinged CPEs
-        vulnerable_cpes = set(itertools.chain.from_iterable(cpe_and_cpe_configurations[0])) if cpe_and_cpe_configurations else set()
-        vulnerable_cpe_configurations = set(itertools.chain.from_iterable(cpe_and_cpe_configurations[1])) if cpe_and_cpe_configurations else set()
+        vulnerable_cpes = (
+            set(itertools.chain.from_iterable(cpe_and_cpe_configurations[0])) if cpe_and_cpe_configurations else set()
+        )
+        vulnerable_cpe_configurations = (
+            set(itertools.chain.from_iterable(cpe_and_cpe_configurations[1])) if cpe_and_cpe_configurations else set()
+        )
         published_date = dct["publishedDate"]
         cwe_ids = cls.parse_cwe_data(dct)
 

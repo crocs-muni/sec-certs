@@ -151,7 +151,7 @@ def test_serialization_missing_path():
 
 
 def test_single_platform_config_cpe(cve_dset_with_cpe_configs: CVEDataset):
-    tested_cpe_config = cve_dset_with_cpe_configs["CVE-2010-2325"].vulnerable_cpe_configurations[0]
+    tested_cpe_config = cve_dset_with_cpe_configs["CVE-2010-2325"].vulnerable_cpe_configurations
     cpe_set = {
         "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
         "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
@@ -169,7 +169,7 @@ def test_single_platform_config_cpe(cve_dset_with_cpe_configs: CVEDataset):
         platform="cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
         cpes=cpe_set,
     )
-    assert cpe_config == tested_cpe_config
+    assert cpe_config in tested_cpe_config
 
 
 def test_multiple_platform_config_cpe(cve_dset_with_cpe_configs: CVEDataset):

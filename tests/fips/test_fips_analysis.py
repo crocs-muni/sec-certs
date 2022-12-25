@@ -33,8 +33,8 @@ def some_random_cpe() -> CPE:
 def cve(vulnerable_cpe: CPE) -> CVE:
     return CVE(
         "CVE-1234-123456",
-        [vulnerable_cpe],
-        [],
+        {vulnerable_cpe},
+        set(),
         CVE.Impact(10, "HIGH", 10, 10),
         "2021-05-26T04:15Z",
         {"CWE-200"},
@@ -45,8 +45,8 @@ def cve(vulnerable_cpe: CPE) -> CVE:
 def some_other_cve(some_random_cpe: CPE) -> CVE:
     return CVE(
         "CVE-2019-4513",
-        [some_random_cpe],
-        [],
+        {some_random_cpe},
+        set(),
         CVE.Impact(8.2, "HIGH", 3.9, 4.2),
         "2000-05-26T04:15Z",
         {"CVE-611"},

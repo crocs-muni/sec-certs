@@ -84,7 +84,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
-                vulnerable_configurations = list(
+                vulnerable_configurations = set(
                     itertools.chain.from_iterable(matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes)
                 )
             else:
