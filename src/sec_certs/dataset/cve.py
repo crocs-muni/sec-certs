@@ -35,6 +35,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         self.cves = cves
         self.json_path = Path(json_path)
         self.cpe_to_cve_ids_lookup: dict[str, set[str]] = dict()
+        self.cves_with_vulnerable_configurations: list[CVE] = []
 
     @property
     def serialized_attributes(self) -> list[str]:

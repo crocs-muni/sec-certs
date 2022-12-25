@@ -19,6 +19,12 @@ class CPEConfiguration(ComplexSerializableType):
         self.platform: str = platform
         self.cpes: set[str] = cpes
 
+    def __hash__(self) -> int:
+        return hash(self.platform) + sum([hash(cpe) for cpe in self.cpes])
+
+    def __lt__(self, other: CPEConfiguration) -> bool:
+        return self.platform < other.platform
+
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, self.__class__) and self.platform == other.platform and self.cpes == other.cpes
 
