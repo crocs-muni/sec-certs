@@ -105,6 +105,45 @@ def reference_dataset(data_dir) -> CCDataset:
 def transitive_vulnerability_dataset(data_dir) -> CCDataset:
     return CCDataset.from_json(data_dir / "transitive_vulnerability_dataset.json")
 
+@pytest.fixture(scope="module")
+def ibm_cpe_configuration() -> CPEConfiguration:
+    return CPEConfiguration(
+        "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
+        {
+            "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+            "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+        },
+    )
+
+
+@pytest.fixture(scope="module")
+def ibm_xss_cve(ibm_cpe_configuration) -> CVE:
+    return CVE(
+        "CVE-2010-2325",
+        set(),
+        {ibm_cpe_configuration},
+        CVE.Impact(4.3, "MEDIUM", 2.9, 8.6),
+        "2000-06-18T04:15Z",
+        {"CWE-79"},
+    )
+
+
+@pytest.fixture(scope="module")
+def cpes_ibm_websphere_app_with_platform() -> set[CPE]:
+    return {
+        CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*", "IBM zOS"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", "IBM WebSphere Application Server"),
+    }
+
 
 @pytest.fixture
 def random_certificate(cc_dset: CCDataset) -> CCCertificate:

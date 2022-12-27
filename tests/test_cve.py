@@ -81,7 +81,7 @@ def cves() -> list[CVE]:
             set(),
             CVE.Impact(8.2, "HIGH", 3.9, 4.2),
             "2000-05-26T04:15Z",
-            {"CVE-611"},
+            {"CWE-611"},
         ),
     ]
 
