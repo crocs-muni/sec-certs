@@ -7,9 +7,9 @@ A tool for data scraping and analysis of security certificates from Common Crite
 [![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org)](https://seccerts.org)
 [![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org/docs/index.html)](https://seccerts.org/docs/index.html)
 [![PyPI](https://img.shields.io/pypi/v/sec-certs?style=flat-square)](https://pypi.org/project/sec-certs/)
-![DockerHub](https://img.shields.io/docker/v/seccerts/sec-certs/latest?label=DockerHub&style=flat-square)
+[![DockerHub](https://img.shields.io/docker/v/seccerts/sec-certs/latest?label=DockerHub&style=flat-square)](https://hub.docker.com/r/seccerts/sec-certs/tags)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
-[![Tests](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)
+[![Tests](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml?query=branch%3Amain)
 [![Codecov](https://img.shields.io/codecov/c/github/crocs-muni/sec-certs?style=flat-square)](https://app.codecov.io/gh/crocs-muni/sec-certs)
 
 ## Installation
