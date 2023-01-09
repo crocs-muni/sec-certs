@@ -198,7 +198,7 @@ def main(
         ]
 
         processing_step: ProcessingStep
-        for processing_step in [x for x in steps if x in actions_set]:
+        for processing_step in [x for x in steps if x.name in actions_set]:
             processing_step.run(dset)
 
         end = datetime.now()
