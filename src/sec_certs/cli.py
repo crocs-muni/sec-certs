@@ -105,6 +105,7 @@ def build_or_load_dataset(
 @click.option(
     "-o",
     "--output",
+    "outputpath",
     type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True, resolve_path=True),
     help="Path where the output of the experiment will be stored. May overwrite existing content.",
     default=Path("./dataset/"),
@@ -132,7 +133,7 @@ def main(
     outputpath: Path,
     configpath: str | None,
     inputpath: Path | None,
-    silent: bool,
+    quiet: bool,
 ):
     try:
         file_handler = logging.FileHandler(config.log_filepath)
@@ -140,7 +141,7 @@ def main(
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(formatter)
         stream_handler.setFormatter(formatter)
-        handlers: list[logging.StreamHandler] = [file_handler] if silent else [file_handler, stream_handler]
+        handlers: list[logging.StreamHandler] = [file_handler] if quiet else [file_handler, stream_handler]
         logging.basicConfig(level=logging.INFO, handlers=handlers)
         start = datetime.now()
 
