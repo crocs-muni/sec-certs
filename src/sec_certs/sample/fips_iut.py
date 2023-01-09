@@ -85,10 +85,11 @@ class IUTSnapshot(ComplexSerializableType):
 
         last_updated_elem = next(
             filter(
-                lambda e: isinstance(e, Tag) and e.name == "p",
+                lambda e: isinstance(e, Tag) and e.name == "p" and "Last Updated" in str(e.string),
                 soup.find(id="content").next_siblings,
             )
         )
+
         last_updated_text = str(last_updated_elem.string).strip()
         last_updated = datetime.strptime(last_updated_text, "Last Updated: %m/%d/%Y").date()
         table = tables[0].find("tbody")
