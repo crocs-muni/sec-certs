@@ -13,6 +13,7 @@ import click
 from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset, FIPSDataset
+from sec_certs.dataset.dataset import Dataset
 from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tesseract
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,11 @@ class ProcessingStep:
     preconditions: list[str] = field(default_factory=list)
     precondition_error_msg: str | None = field(default=None)
     pre_callback_func: Callable | None = field(default=None)
+
+    def __post_init__(self) -> None:
+        for condition in self.preconditions:
+            if not hasattr(Dataset.DatasetInternalState, condition):
+                raise ValueError(f"Precondition attribute {condition} is not member of `Dataset.DatasetInternalState`.")
 
     def run(self, dset: CCDataset | FIPSDataset) -> None:
         for condition in self.preconditions:
@@ -87,6 +93,38 @@ def build_or_load_dataset(
             sys.exit(EXIT_CODE_NOK)
 
     return dset
+
+
+steps = [
+    ProcessingStep(
+        "process-aux-dsets",
+        "process_auxillary_datasets",
+        preconditions=["meta_sources_parsed"],
+        precondition_error_msg="Error: You want to process the auxillary datasets, but the data from cert. framework website was not parsed. You must use 'build' action first.",
+        pre_callback_func=None,
+    ),
+    ProcessingStep(
+        "download",
+        "download_all_artifacts",
+        preconditions=["meta_sources_parsed"],
+        precondition_error_msg="Error: You want to download all artifacts, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
+        pre_callback_func=None,
+    ),
+    ProcessingStep(
+        "convert",
+        "convert_all_pdfs",
+        preconditions=["artifacts_downloaded"],
+        precondition_error_msg="Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first.",
+        pre_callback_func=warn_missing_libs,
+    ),
+    ProcessingStep(
+        "analyze",
+        "analyze_certificates",
+        preconditions=["pdfs_converted", "auxillary_datasets_processed"],
+        precondition_error_msg="Error: You want to process txt documents of certificates, but pdfs were not converted. You must use 'convert' action first.",
+        pre_callback_func=None,
+    ),
+]
 
 
 @click.command()
@@ -156,46 +194,12 @@ def main(
                 sys.exit(EXIT_CODE_NOK)
 
         actions_set = (
-            {"build", "process-aux-dsets", "download", "convert", "analyze", "maintenances"}
-            if "all" in actions
-            else set(actions)
+            {"build", "process-aux-dsets", "download", "convert", "analyze"} if "all" in actions else set(actions)
         )
 
         dset = build_or_load_dataset(framework, inputpath, "build" in actions_set, outputpath)
         aux_dsets_to_handle = "PP, Maintenance updates" if framework == "cc" else "Algorithms"
         aux_dsets_to_handle += "CPE, CVE"
-        analysis_pre_callback = None
-
-        steps = [
-            ProcessingStep(
-                "process-aux-dsets",
-                "process_auxillary_datasets",
-                preconditions=["meta_sources_parsed"],
-                precondition_error_msg=f"Error: You want to process the auxillary datasets: {aux_dsets_to_handle} , but the data from cert. framework website was not parsed. You must use 'build' action first.",
-                pre_callback_func=None,
-            ),
-            ProcessingStep(
-                "download",
-                "download_all_artifacts",
-                preconditions=["meta_sources_parsed"],
-                precondition_error_msg="Error: You want to download all artifacts, but the data from the cert. framework website was not parsed. You must use 'build' action first.",
-                pre_callback_func=None,
-            ),
-            ProcessingStep(
-                "convert",
-                "convert_all_pdfs",
-                preconditions=["pdfs_downloaded"],
-                precondition_error_msg="Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first.",
-                pre_callback_func=warn_missing_libs,
-            ),
-            ProcessingStep(
-                "analyze",
-                "analyze_certificates",
-                preconditions=["pdfs_converted", "auxillary_datasets_processed"],
-                precondition_error_msg="Error: You want to process txt documents of certificates, but pdfs were not converted. You must use 'convert' action first.",
-                pre_callback_func=analysis_pre_callback,
-            ),
-        ]
 
         processing_step: ProcessingStep
         for processing_step in [x for x in steps if x.name in actions_set]:
