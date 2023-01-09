@@ -59,8 +59,8 @@ html_theme = "sphinx_book_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_logo = "_static/logo.svg"
-html_favicon = "_static/logo_badge.svg"
+html_logo = "_static/logo.png"
+html_favicon = "_static/logo_badge.png"
 
 html_theme_options = {
     "repository_url": "https://anonymous.4open.science/r/sec-certs-7A92",

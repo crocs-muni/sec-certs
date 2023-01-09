@@ -1,6 +1,6 @@
 # Sec-certs
 
-![](docs/_static/logo.svg)
+![](docs/_static/logo.png)
 
 A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks. This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic.
 
