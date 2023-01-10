@@ -54,8 +54,6 @@ deprecation==2.1.0
     # via pikepdf
 distro==1.8.0
     # via tabula-py
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz
-    # via sec-certs (./../pyproject.toml)
 entrypoints==0.4
     # via jupyter-client
 exceptiongroup==1.0.4
@@ -192,6 +190,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
+pycryptodome==3.16.0
+    # via pypdf
 pydantic==1.10.2
     # via
     #   confection
@@ -201,7 +201,7 @@ pygments==2.13.0
     # via ipython
 pyparsing==3.0.9
     # via matplotlib
-pypdf2==2.11.2
+pypdf[crypto]==3.2.1
     # via sec-certs (./../pyproject.toml)
 pyrsistent==0.19.2
     # via jsonschema
@@ -255,9 +255,7 @@ smart-open==6.2.0
 soupsieve==2.3.2.post1
     # via beautifulsoup4
 spacy==3.4.3
-    # via
-    #   en-core-web-sm
-    #   sec-certs (./../pyproject.toml)
+    # via sec-certs (./../pyproject.toml)
 spacy-legacy==3.0.10
     # via spacy
 spacy-loggers==1.0.4
@@ -304,7 +302,7 @@ typer==0.7.0
 typing-extensions==4.4.0
     # via
     #   pydantic
-    #   pypdf2
+    #   pypdf
     #   setuptools-scm
 urllib3==1.26.13
     # via requests

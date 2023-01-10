@@ -10,7 +10,6 @@ from typing import Callable
 
 import click
 
-from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset import CCDataset, FIPSDataset
 from sec_certs.dataset.dataset import Dataset
@@ -20,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 EXIT_CODE_NOK: int = 1
 EXIT_CODE_OK: int = 0
+
+DEFAULT_OUTPUTPATH: Path = Path("./dataset").resolve()
 
 
 @dataclass
@@ -60,12 +61,15 @@ def build_or_load_dataset(
     framework: str,
     inputpath: Path | None,
     to_build: bool,
-    outputpath: Path = constants.DUMMY_NONEXISTING_PATH,
+    outputpath: Path | None,
 ) -> CCDataset | FIPSDataset:
+
     constructor: type[CCDataset] | type[FIPSDataset] = CCDataset if framework == "cc" else FIPSDataset
     dset: CCDataset | FIPSDataset
 
     if to_build:
+        if not outputpath:
+            outputpath = DEFAULT_OUTPUTPATH
         if inputpath:
             print(
                 f"Warning: you wanted to build a dataset but you provided one in JSON -- that will be ignored. New one will be constructed at: {outputpath}"
@@ -78,19 +82,20 @@ def build_or_load_dataset(
         )
         dset.get_certs_from_web()
     else:
-        if inputpath:
-            dset = constructor.from_json(inputpath)
-            if outputpath and dset.root_dir != outputpath:
-                print(
-                    "Warning: you provided both input and output paths. The dataset from input path will get copied to output path."
-                )
-                dset.copy_dataset(outputpath)
-        else:
+        if not inputpath:
             click.echo(
                 "Error: If you do not use 'build' action, you must provide --input parameter to point to an existing dataset.",
                 err=True,
             )
             sys.exit(EXIT_CODE_NOK)
+
+        dset = constructor.from_json(inputpath)
+
+        if outputpath and dset.root_dir != outputpath:
+            print(
+                "Warning: you provided both input and output paths. The dataset from input path will get copied to output path."
+            )
+            dset.copy_dataset(outputpath)
 
     return dset
 
@@ -146,8 +151,6 @@ steps = [
     "outputpath",
     type=click.Path(file_okay=False, dir_okay=True, writable=True, readable=True, resolve_path=True),
     help="Path where the output of the experiment will be stored. May overwrite existing content.",
-    default=Path("./dataset/"),
-    show_default=True,
 )
 @click.option(
     "-c",
@@ -168,8 +171,8 @@ steps = [
 def main(
     framework: str,
     actions: list[str],
-    outputpath: Path,
-    configpath: str | None,
+    outputpath: Path | None,
+    configpath: Path | None,
     inputpath: Path | None,
     quiet: bool,
 ):
@@ -185,7 +188,7 @@ def main(
 
         if configpath:
             try:
-                config.load(Path(configpath))
+                config.load(configpath)
             except FileNotFoundError:
                 click.echo("Error: Bad path to configuration file", err=True)
                 sys.exit(EXIT_CODE_NOK)
@@ -207,7 +210,11 @@ def main(
 
         end = datetime.now()
         logger.info(f"The computation took {(end-start)} seconds.")
-    except Exception:
+    except Exception as e:
+        click.echo(
+            f"Unhandled exception: {e}",
+            err=True,
+        )
         return EXIT_CODE_NOK
     return EXIT_CODE_OK
 

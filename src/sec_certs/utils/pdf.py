@@ -11,8 +11,8 @@ from typing import Any
 
 import pdftotext
 import pikepdf
-from PyPDF2 import PdfFileReader
-from PyPDF2.generic import BooleanObject, ByteStringObject, FloatObject, IndirectObject, NumberObject, TextStringObject
+from pypdf import PdfReader
+from pypdf.generic import BooleanObject, ByteStringObject, FloatObject, IndirectObject, NumberObject, TextStringObject
 
 from sec_certs import constants as constants
 from sec_certs.constants import (
@@ -24,6 +24,7 @@ from sec_certs.constants import (
 )
 
 logger = logging.getLogger(__name__)
+logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 
 def repair_pdf(file: Path) -> None:
@@ -165,7 +166,7 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
             val = int(val)
         elif isinstance(val, IndirectObject) and not nope_out:
             # Let's make sure to nope out in case of cycles
-            val = map_metadata_value(val.getObject(), nope_out=True)
+            val = map_metadata_value(val.get_object(), nope_out=True)
         elif isinstance(val, TextStringObject):
             val = str(val)
         elif isinstance(val, ByteStringObject):
@@ -181,7 +182,7 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
         if isinstance(val, list) and bound:
             return [resolve_indirect(v, bound - 1) for v in val]
         elif isinstance(val, IndirectObject) and bound:
-            return resolve_indirect(val.getObject(), bound - 1)
+            return resolve_indirect(val.get_object(), bound - 1)
         else:
             return val
 
@@ -190,17 +191,17 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size
         with filepath.open("rb") as handle:
-            pdf = PdfFileReader(handle, strict=False)
-            metadata["pdf_is_encrypted"] = pdf.getIsEncrypted()
+            pdf = PdfReader(handle, strict=False)
+            metadata["pdf_is_encrypted"] = pdf.is_encrypted
 
         # see https://stackoverflow.com/questions/26242952/pypdf-2-decrypt-not-working
         if metadata["pdf_is_encrypted"]:
             pikepdf.open(filepath, allow_overwriting_input=True).save()
 
         with filepath.open("rb") as handle:
-            pdf = PdfFileReader(handle, strict=False)
-            metadata["pdf_number_of_pages"] = pdf.getNumPages()
-            pdf_document_info = pdf.getDocumentInfo()
+            pdf = PdfReader(handle, strict=False)
+            metadata["pdf_number_of_pages"] = len(pdf.pages)
+            pdf_document_info = pdf.metadata
 
             if pdf_document_info is None:
                 raise ValueError("PDF metadata unavailable")

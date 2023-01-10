@@ -102,7 +102,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.parse_html_module,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting data from html modules",
         )
@@ -126,7 +125,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_keywords,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting keywords from policy pdfs",
         )
@@ -148,7 +146,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         cert_processing.process_parallel(
             FIPSCertificate.download_module,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Downloading HTML modules",
         )
 
@@ -164,7 +161,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         cert_processing.process_parallel(
             FIPSCertificate.download_policy,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Downloading PDF security policies",
         )
 
@@ -185,7 +181,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         cert_processing.process_parallel(
             FIPSCertificate.convert_policy_pdf,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Converting policies to pdf",
         )
 
@@ -272,7 +267,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
@@ -283,7 +277,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_metadata,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting security policy metadata",
         )
