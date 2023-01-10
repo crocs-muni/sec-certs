@@ -535,7 +535,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.download_pdf_report,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Downloading PDFs of CC certification reports",
         )
 
@@ -553,7 +552,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.download_pdf_st,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Downloading PDFs of CC security targets",
         )
 
@@ -571,7 +569,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.convert_report_pdf,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Converting PDFs of certification reports to txt",
         )
 
@@ -589,7 +586,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.convert_st_pdf,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Converting PDFs of security targets to txt",
         )
 
@@ -603,7 +599,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_metadata,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting report metadata",
         )
@@ -615,7 +610,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_metadata,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting target metadata",
         )
@@ -631,7 +625,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_frontpage,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting report frontpages",
         )
@@ -643,7 +636,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_frontpage,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting target frontpages",
         )
@@ -659,7 +651,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_keywords,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting report keywords",
         )
@@ -671,7 +662,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_keywords,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting target keywords",
         )

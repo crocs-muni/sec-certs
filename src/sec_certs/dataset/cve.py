@@ -16,7 +16,6 @@ import pandas as pd
 
 import sec_certs.constants as constants
 import sec_certs.utils.helpers as helpers
-from sec_certs.config.configuration import config
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
@@ -130,7 +129,6 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             results = process_parallel(
                 cls.from_nist_json,
                 json_files,
-                config.n_threads,
                 use_threading=False,
                 progress_bar_desc="Building CVEDataset from jsons",
             )

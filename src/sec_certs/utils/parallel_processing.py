@@ -1,24 +1,29 @@
 from __future__ import annotations
 
 import time
+from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Any, Callable, Iterable
 
 from billiard.pool import Pool
 
+from sec_certs.config.configuration import config
 from sec_certs.utils.tqdm import tqdm
 
 
 def process_parallel(
     func: Callable,
     items: Iterable,
-    max_workers: int,
+    max_workers: int = config.n_threads,
     callback: Callable | None = None,
     use_threading: bool = True,
     progress_bar: bool = True,
     unpack: bool = False,
     progress_bar_desc: str | None = None,
 ) -> list[Any]:
+
+    if max_workers == -1:
+        max_workers = cpu_count()
 
     pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = (

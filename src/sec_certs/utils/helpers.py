@@ -15,7 +15,6 @@ import pkgconfig
 import requests
 
 import sec_certs.constants as constants
-from sec_certs.config.configuration import config
 from sec_certs.utils import parallel_processing
 from sec_certs.utils.tqdm import tqdm
 
@@ -65,7 +64,7 @@ def download_parallel(
     urls: Collection[str], paths: Collection[Path], progress_bar_desc: str | None = None
 ) -> list[int]:
     exit_codes = parallel_processing.process_parallel(
-        download_file, list(zip(urls, paths)), config.n_threads, unpack=True, progress_bar_desc=progress_bar_desc
+        download_file, list(zip(urls, paths)), unpack=True, progress_bar_desc=progress_bar_desc
     )
     n_successful = len([e for e in exit_codes if e == requests.codes.ok])
     logger.info(f"Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.")
