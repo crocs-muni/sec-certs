@@ -3,9 +3,9 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 import tests.data.fips.certificate
 import tests.data.fips.dataset
+
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
 

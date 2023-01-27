@@ -1,4 +1,4 @@
-name: Lint (MyPy, Black, isort, Flake8)
+name: Lint (MyPy, Black, Ruff, Flake8)
 on:
   push:
   workflow_dispatch:
@@ -24,16 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
-  isort:
+  ruff:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - uses: isort/isort-action@master
-        with:
-          requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruf
+      - name: Run Ruff
+        run: ruff --format=github .
   pyupgrade:
     runs-on: ubuntu-latest
     steps:

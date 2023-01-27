@@ -22,10 +22,9 @@ import sec_certs.utils.pdf as pdf
 import sec_certs.utils.tables as tables
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.config.configuration import config
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
-from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
