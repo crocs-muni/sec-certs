@@ -1,4 +1,4 @@
-name: Lint (MyPy, Black, Ruff, Flake8)
+name: Lint (MyPy, Black, Ruff)
 on:
   push:
   workflow_dispatch:
@@ -53,17 +53,3 @@ jobs:
           pip install -r requirements/dev_requirements.txt
       - name: Run pyupgrade
         run: pre-commit run pyupgrade --all-files
-  flake8-lint:
-    runs-on: ubuntu-latest
-    name: Flake8
-    steps:
-      - name: Check out source repository
-        uses: actions/checkout@v3
-      - name: Set up Python environment
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      - name: flake8 Lint
-        uses: py-actions/flake8@v2
-        with:
-          plugins: "flake8-future-annotations"

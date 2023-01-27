@@ -71,7 +71,6 @@
       "pytest-monitor",
       "pytest-profiling",
       "black",
-      "flake8",
       "pre-commit",
       "pip-tools",
       "sphinx",
@@ -80,7 +79,6 @@
       "sphinx-design",
       "sphinx-copybutton",
       "pyupgrade",
-      "flake8-future-annotations",
       "ipython!=8.7.0",
       "ruff",
     ]
@@ -95,15 +93,24 @@
     sec-certs = "sec_certs.cli:main"
 
 [tool.ruff]
-  select = ["I"]
+  select = [
+    "I",   # isort
+    "E",   # pycodestyle
+    "W",   # pycodestyle
+    "F",   # pyflakes
+    "C90", # mccabe
+  ]
   ignore = [
     "E501", # line-length, should be handled by black
   ]
   src = ["src", "tests"]
   line-length = 120
 
-[tool.setuptools.package-data]
-  "*" = ["*.yaml", "*.json"]
+  [tool.ruff.mccabe]
+    max-complexity = 10
+
+  [tool.setuptools.package-data]
+    "*" = ["*.yaml", "*.json"]
 
 
 [tool.setuptools_scm]
