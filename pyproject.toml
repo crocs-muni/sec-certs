@@ -78,7 +78,6 @@
       "sphinx-book-theme",
       "sphinx-design",
       "sphinx-copybutton",
-      "pyupgrade",
       "ipython!=8.7.0",
       "ruff",
     ]
@@ -99,12 +98,14 @@
     "W",   # pycodestyle
     "F",   # pyflakes
     "C90", # mccabe
+    "UP",  # pyupgrade
   ]
   ignore = [
     "E501", # line-length, should be handled by black
   ]
   src = ["src", "tests"]
   line-length = 120
+  target-version = "py38"
 
   [tool.ruff.mccabe]
     max-complexity = 10

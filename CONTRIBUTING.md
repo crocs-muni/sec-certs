@@ -59,8 +59,7 @@ pre-commit run --all-files
 To ivoke the tools manually, you can, in the repository root, use:
 - Mypy: `mypy .`
 - Black: `black --check .` (without the flag to reformat)
-- isort: `ruff ." (or with `--fix` flag to apply fixes)
-- PyUpgrade: `pyupgrade --py38-plus 'find ./sec_certs/ -name "*.py" -type f'`
+- Ruff: `ruff ." (or with `--fix` flag to apply fixes)
 
 ## Documentation
 

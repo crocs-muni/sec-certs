@@ -37,19 +37,3 @@ jobs:
           pip install ruf
       - name: Run Ruff
         run: ruff --format=github .
-  pyupgrade:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      - name: Install external dependencies
-        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
-      - name: Install python dependencies
-        run: |
-          pip install -r requirements/requirements.txt
-          pip install -r requirements/dev_requirements.txt
-      - name: Run pyupgrade
-        run: pre-commit run pyupgrade --all-files
