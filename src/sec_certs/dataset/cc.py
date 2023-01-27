@@ -31,7 +31,7 @@ from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
-from sec_certs.utils import helpers as helpers
+from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 

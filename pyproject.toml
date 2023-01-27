@@ -99,9 +99,11 @@
     "F",   # pyflakes
     "C90", # mccabe
     "UP",  # pyupgrade
+    "PL",  # pylint
   ]
   ignore = [
-    "E501", # line-length, should be handled by black
+    "E501",    # line-length, should be handled by black
+    "PLR2004", # magic numbers, what would a project be without them...
   ]
   src = ["src", "tests"]
   line-length = 120

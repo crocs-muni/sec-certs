@@ -17,7 +17,7 @@ from bs4 import Tag
 import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
-from sec_certs import constants as constants
+from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
 from sec_certs.sample.cc_certificate_id import canonicalize
 from sec_certs.sample.certificate import Certificate, References, logger

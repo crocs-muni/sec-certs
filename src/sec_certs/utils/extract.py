@@ -10,7 +10,7 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from sec_certs import constants as constants
+from sec_certs import constants
 from sec_certs.cert_rules import REGEXEC_SEP, cc_rules
 from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
 

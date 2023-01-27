@@ -14,8 +14,7 @@ from typing import Any, Generic, Iterator, TypeVar, cast
 
 import pandas as pd
 
-import sec_certs.constants as constants
-import sec_certs.utils.helpers as helpers
+from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
@@ -23,6 +22,7 @@ from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname, serialize
+from sec_certs.utils import helpers
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)

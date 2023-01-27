@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import pytest
 import tests.data.fips.dataset
 
-import sec_certs.constants as constants
+from sec_certs import constants
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
 

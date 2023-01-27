@@ -14,12 +14,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 from tabula import read_pdf
 
-import sec_certs.constants as constants
-import sec_certs.utils.extract
-import sec_certs.utils.helpers as helpers
-import sec_certs.utils.pdf
-import sec_certs.utils.pdf as pdf
-import sec_certs.utils.tables as tables
+from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.config.configuration import config
 from sec_certs.sample.certificate import Certificate, References, logger
@@ -28,6 +23,7 @@ from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+from sec_certs.utils import extract, helpers, pdf, tables
 from sec_certs.utils.helpers import fips_dgst
 
 
@@ -542,9 +538,7 @@ class FIPSCertificate(
         """
         Converts policy pdf -> txt
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
-            cert.state.policy_pdf_path, cert.state.policy_txt_path
-        )
+        ocr_done, ok_result = pdf.convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path)
 
         # If OCR was done and the result was garbage
         cert.state.policy_convert_garbage = ocr_done
@@ -564,7 +558,7 @@ class FIPSCertificate(
         """
         Extract the PDF metadata from the security policy.
         """
-        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
+        _, metadata = pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
 
         if metadata:
             cert.pdf_data.policy_metadata = metadata
@@ -578,7 +572,7 @@ class FIPSCertificate(
         """
         Extract keywords from policy document
         """
-        keywords = sec_certs.utils.extract.extract_keywords(cert.state.policy_txt_path, fips_rules)
+        keywords = extract.extract_keywords(cert.state.policy_txt_path, fips_rules)
         if not keywords:
             cert.state.policy_extract_ok = False
         else:

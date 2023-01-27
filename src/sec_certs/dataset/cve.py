@@ -14,12 +14,12 @@ from typing import ClassVar
 import numpy as np
 import pandas as pd
 
-import sec_certs.constants as constants
-import sec_certs.utils.helpers as helpers
+from sec_certs import constants
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE, cached_cpe
 from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils import helpers
 from sec_certs.utils.parallel_processing import process_parallel
 from sec_certs.utils.tqdm import tqdm
 

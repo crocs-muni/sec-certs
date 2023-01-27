@@ -14,7 +14,7 @@ import numpy as np
 import pkgconfig
 import requests
 
-import sec_certs.constants as constants
+from sec_certs import constants
 from sec_certs.utils import parallel_processing
 from sec_certs.utils.tqdm import tqdm
 
