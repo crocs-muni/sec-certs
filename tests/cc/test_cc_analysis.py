@@ -11,7 +11,7 @@ from sec_certs.dataset import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cpe import CPE, CPEConfiguration
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
@@ -105,6 +105,7 @@ def reference_dataset(data_dir) -> CCDataset:
 def transitive_vulnerability_dataset(data_dir) -> CCDataset:
     return CCDataset.from_json(data_dir / "transitive_vulnerability_dataset.json")
 
+
 @pytest.fixture(scope="module")
 def ibm_cpe_configuration() -> CPEConfiguration:
     return CPEConfiguration(
@@ -143,6 +144,17 @@ def cpes_ibm_websphere_app_with_platform() -> set[CPE]:
         CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*", "IBM zOS"),
         CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", "IBM WebSphere Application Server"),
     }
+
+
+def test_find_related_cves_for_cpe_configuration(
+    cc_dset: CCDataset,
+    cpes_ibm_websphere_app_with_platform: set[CPE],
+    ibm_xss_cve: CVE,
+    random_certificate: CCCertificate,
+):
+    random_certificate.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
+    cc_dset.compute_related_cves()
+    assert ibm_xss_cve.cve_id == random_certificate.heuristics.related_cves
 
 
 @pytest.fixture
