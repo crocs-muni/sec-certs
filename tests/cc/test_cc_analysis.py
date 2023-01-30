@@ -93,7 +93,28 @@ def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset
     cc_dset.extract_data()
     cc_dset.auxillary_datasets.cve_dset = cve_dset
     cc_dset._compute_heuristics()
+
     return cc_dset
+
+
+@pytest.fixture(scope="module")
+def cc_config_dset(data_dir: Path, cve_config_dset: CVEDataset, tmp_path_factory) -> CCDataset:
+    tmp_dir = tmp_path_factory.mktemp("cc_config_dset")
+    shutil.copytree(data_dir, tmp_dir, dirs_exist_ok=True)
+    cc_config_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
+    cc_config_dset.process_protection_profiles()
+    cc_config_dset.extract_data()
+    cc_config_dset.auxillary_datasets.cve_dset = cve_config_dset
+    cc_config_dset._compute_heuristics()
+
+    return cc_config_dset
+
+
+@pytest.fixture(scope="module")
+def cve_config_dset(ibm_xss_cve):
+    cve_dset = CVEDataset({ibm_xss_cve.cve_id: ibm_xss_cve})
+    cve_dset.build_lookup_dict(use_nist_mapping=False)
+    return cve_dset
 
 
 @pytest.fixture
@@ -147,19 +168,24 @@ def cpes_ibm_websphere_app_with_platform() -> set[CPE]:
 
 
 def test_find_related_cves_for_cpe_configuration(
-    cc_dset: CCDataset,
+    cc_config_dset: CCDataset,
     cpes_ibm_websphere_app_with_platform: set[CPE],
     ibm_xss_cve: CVE,
-    random_certificate: CCCertificate,
+    random_config_certificate: CCCertificate,
 ):
-    random_certificate.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
-    cc_dset.compute_related_cves()
-    assert ibm_xss_cve.cve_id == random_certificate.heuristics.related_cves
+    random_config_certificate.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
+    cc_config_dset.compute_related_cves()
+    assert {ibm_xss_cve.cve_id} == random_config_certificate.heuristics.related_cves
 
 
 @pytest.fixture
 def random_certificate(cc_dset: CCDataset) -> CCCertificate:
     return cc_dset["ebd276cca70fd723"]
+
+
+@pytest.fixture
+def random_config_certificate(cc_config_dset: CCDataset) -> CCCertificate:
+    return cc_config_dset["ebd276cca70fd723"]
 
 
 def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CCCertificate):

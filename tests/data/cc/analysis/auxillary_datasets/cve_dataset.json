@@ -56,6 +56,47 @@
                     "CWE-611"
                 ]
             }
+        },
+        "CVE-2010-2325": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2010-2325",
+            "vulnerable_cpes": [],
+            "vulnerable_cpe_configurations": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEConfiguration",
+                    "platform": "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
+                    "cpes": {
+                        "_type": "Set",
+                        "elements": [
+                            "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+                            "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"
+                        ]
+                    }
+                }
+            ],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Impact",
+                "base_score": 4.3,
+                "severity": "MEDIUM",
+                "exploitability_score": 8.6,
+                "impact_score": 2.9
+            },
+            "published_date": "2010-06-18T18:30:00+00:00",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-79"
+                ]
+            }
         }
     }
 }
