@@ -198,7 +198,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         )
 
     def _get_certificates_from_html(self, html_file: Path) -> list[FIPSCertificate]:
-        with open(html_file, encoding="utf-8") as handle:
+        with html_file.open("r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html5lib")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]

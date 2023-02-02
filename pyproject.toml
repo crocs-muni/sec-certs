@@ -100,6 +100,7 @@
     "C90", # mccabe
     "UP",  # pyupgrade
     "PL",  # pylint
+    "PTH", # enforce pathlib usage
   ]
   ignore = [
     "E501",    # line-length, should be handled by black
