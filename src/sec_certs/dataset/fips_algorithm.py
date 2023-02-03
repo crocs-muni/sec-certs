@@ -107,9 +107,7 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         return set(df["alg"])
 
     def to_pandas(self) -> pd.DataFrame:
-        df = pd.DataFrame([x.pandas_tuple for x in self], columns=FIPSAlgorithm.pandas_columns)
-        df = df.set_index("dgst")
-        return df
+        return pd.DataFrame([x.pandas_tuple for x in self], columns=FIPSAlgorithm.pandas_columns).set_index("dgst")
 
     def _build_lookup_dicts(self) -> None:
         for alg in self:

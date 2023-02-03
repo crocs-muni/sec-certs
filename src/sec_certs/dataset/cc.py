@@ -324,8 +324,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             return CCDataset.BASE_URL + relative_path
 
         def _get_primary_key_str(row: Tag):
-            prim_key = row["category"] + row["cert_name"] + row["report_link"]
-            return prim_key
+            return row["category"] + row["cert_name"] + row["report_link"]
 
         if "active" in str(file):
             cert_status = "active"
@@ -394,7 +393,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                 )
             )
 
-        certs = {
+        return {
             x.dgst: CCCertificate(
                 cert_status,
                 x.category,
@@ -416,7 +415,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             )
             for x in df_base.itertuples()
         }
-        return certs
 
     def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
         """
@@ -866,9 +864,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         df.index.name = "dgst"
 
         df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
-        df = df.fillna(value=np.nan)
-
-        return df
+        return df.fillna(value=np.nan)
 
     @classmethod
     def from_web_latest(cls) -> CCDatasetMaintenanceUpdates:

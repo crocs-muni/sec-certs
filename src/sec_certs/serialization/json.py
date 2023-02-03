@@ -67,8 +67,7 @@ class ComplexSerializableType:
     def from_json(cls: type[T], input_path: str | Path) -> T:
         input_path = Path(input_path)
         with input_path.open("r") as handle:
-            obj = json.load(handle, cls=CustomJSONDecoder)
-        return obj
+            return json.load(handle, cls=CustomJSONDecoder)
 
 
 # Decorator for serialization
@@ -139,7 +138,7 @@ class CustomJSONDecoder(json.JSONDecoder):
         if "_type" in obj and obj["_type"] in self.serializable_complex_types.keys():
             complex_type = obj.pop("_type")
             return self.serializable_complex_types[complex_type].from_dict(obj)
-        elif "_type" in obj:
+        if "_type" in obj:
             raise SerializationError(f"JSONDecoder doesn't know how to handle {obj}")
 
         return obj

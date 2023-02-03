@@ -141,9 +141,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
 
         :return pd.DataFrame: the resulting DataFrame
         """
-        df = pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns)
-        df = df.set_index("uri")
-        return df
+        return pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns).set_index("uri")
 
     @serialize
     def enhance_with_cpes_from_cve_dataset(self, cve_dset: CVEDataset | str | Path) -> None:
@@ -165,7 +163,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
                 and (considered_cpe.vendor, considered_cpe.item_name) not in vndr_item_lookup
             ):
                 return True
-            elif (
+            if (
                 considered_cpe.version != constants.CPE_VERSION_NA
                 and (considered_cpe.vendor, considered_cpe.item_name, considered_cpe.version)
                 not in vndr_item_version_lookup

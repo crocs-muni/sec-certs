@@ -392,16 +392,16 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 and not any(char.isdigit() for char in cpe.title)
             ):
                 return False
-            elif (
+            if (
                 not cpe.title
                 and cpe.item_name
                 and (cpe.version == "-" or cpe.version == "*")
                 and not any(char.isdigit() for char in cpe.item_name)
             ):
                 return False
-            elif re.match(constants.RELEASE_CANDIDATE_REGEX, cpe.update):
+            if re.match(constants.RELEASE_CANDIDATE_REGEX, cpe.update):
                 return False
-            elif cpe in WINDOWS_WEAK_CPES:
+            if cpe in WINDOWS_WEAK_CPES:
                 return False
             return True
 

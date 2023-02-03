@@ -150,14 +150,12 @@ class MIPSnapshot(ComplexSerializableType):
     @classmethod
     def _extract_entries(cls, lines, snapshot_date):
         if snapshot_date <= datetime(2020, 10, 28):
-            entries = cls._extract_entries_1(lines)
-        elif snapshot_date <= datetime(2021, 4, 20):
-            entries = cls._extract_entries_2(lines)
-        elif snapshot_date <= datetime(2022, 3, 23):
-            entries = cls._extract_entries_3(lines)
-        else:
-            entries = cls._extract_entries_4(lines)
-        return entries
+            return cls._extract_entries_1(lines)
+        if snapshot_date <= datetime(2021, 4, 20):
+            return cls._extract_entries_2(lines)
+        if snapshot_date <= datetime(2022, 3, 23):
+            return cls._extract_entries_3(lines)
+        return cls._extract_entries_4(lines)
 
     @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> MIPSnapshot:

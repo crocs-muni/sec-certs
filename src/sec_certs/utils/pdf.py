@@ -181,10 +181,9 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
     def resolve_indirect(val, bound=10):
         if isinstance(val, list) and bound:
             return [resolve_indirect(v, bound - 1) for v in val]
-        elif isinstance(val, IndirectObject) and bound:
+        if isinstance(val, IndirectObject) and bound:
             return resolve_indirect(val.get_object(), bound - 1)
-        else:
-            return val
+        return val
 
     metadata: dict[str, Any] = {}
 

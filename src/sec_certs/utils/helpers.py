@@ -97,8 +97,7 @@ def to_utc(timestamp: datetime) -> datetime:
     if offset is None:
         return timestamp
     timestamp -= offset
-    timestamp = timestamp.replace(tzinfo=None)
-    return timestamp
+    return timestamp.replace(tzinfo=None)
 
 
 def is_in_dict(target_dict: dict, path: str) -> bool:
@@ -106,8 +105,7 @@ def is_in_dict(target_dict: dict, path: str) -> bool:
     for item in path:
         if item not in current_level:
             return False
-        else:
-            current_level = current_level[item]
+        current_level = current_level[item]
     return True
 
 

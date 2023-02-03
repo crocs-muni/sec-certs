@@ -642,6 +642,6 @@ class FIPSCertificate(
         prunned = {x for x in attribute_to_prune if x != self.cert_id}
         prunned = {x for x in prunned if int(x) > config.always_false_positive_fips_cert_id_threshold}
         prunned = {x for x in prunned if x not in self.heuristics.algorithm_numbers}
-        prunned = {x for x in prunned if x not in self.pdf_data.certlike_algorithm_numbers}
+        return {x for x in prunned if x not in self.pdf_data.certlike_algorithm_numbers}
 
         return prunned

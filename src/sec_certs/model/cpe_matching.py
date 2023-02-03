@@ -161,7 +161,7 @@ class CPEClassifier(BaseEstimator):
         return cpes
 
     def _filter_candidates_by_platform(self, cpes: list[CPE], cert_title: str) -> list[CPE]:
-        def filter_condition(cpe: CPE, cert_platforms: set[str]):
+        def filter_condition(cpe: CPE, cert_platforms: set[str]) -> bool:
             if not cert_platforms and cpe.target_hw == "*":
                 return True
             if cert_platforms and cpe.target_hw == "*":
@@ -180,8 +180,9 @@ class CPEClassifier(BaseEstimator):
                 )
                 if not target_hw_platforms:
                     return can_return_true
-                else:
-                    return can_return_true and target_hw_platforms[0] in cert_platforms
+
+                return can_return_true and target_hw_platforms[0] in cert_platforms
+            return True
 
         crt_platforms = {
             platform for platform, regex in cert_rules.PLATFORM_REGEXES.items() if re.search(regex, cert_title)
@@ -347,10 +348,7 @@ class CPEClassifier(BaseEstimator):
             def simple_startswith(seeked_version: str, checked_string: str) -> bool:
                 if seeked_version == checked_string:
                     return True
-                else:
-                    return (
-                        checked_string.startswith(seeked_version) and not checked_string[len(seeked_version)].isdigit()
-                    )
+                return checked_string.startswith(seeked_version) and not checked_string[len(seeked_version)].isdigit()
 
             if not cpe_version:
                 return False

@@ -658,13 +658,13 @@ def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] 
         def extract(rules):
             if isinstance(rules, dict):
                 return {k: extract(v) for k, v in rules.items()}
-            elif isinstance(rules, list):
+            if isinstance(rules, list):
                 matches = [extract(rule) for rule in rules]
                 c = Counter()
                 for match_list in matches:
                     c += Counter(match_list)
                 return dict(c)
-            elif isinstance(rules, re.Pattern):
+            if isinstance(rules, re.Pattern):
                 rule = rules
                 matches = []
                 for match in rule.finditer(whole_text):
