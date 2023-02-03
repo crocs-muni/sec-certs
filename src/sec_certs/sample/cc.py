@@ -506,7 +506,7 @@ class CCCertificate(
         Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs
         :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
         """
-        sars = dict()
+        sars = {}
         if self.eal:
             sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.eal[:4]]}
 

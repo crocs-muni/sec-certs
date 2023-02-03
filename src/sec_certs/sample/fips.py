@@ -126,7 +126,7 @@ class FIPSHTMLParser:
     @staticmethod
     def parse_algorithms(algorithms_div: Tag) -> dict[str, set[str]]:
         rows = algorithms_div.find("tbody").find_all("tr")
-        dct: dict[str, set[str]] = dict()
+        dct: dict[str, set[str]] = {}
         for row in rows:
             cells = row.find_all("td")
             dct[cells[0].text] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
@@ -384,7 +384,7 @@ class FIPSCertificate(
         def certlike_algorithm_numbers(self) -> set[str]:
             """Returns numbers of certificates from keywords["fips_certlike"]["Certlike"]"""
             if self.keywords and "fips_certlike" in self.keywords:
-                fips_certlike = self.keywords["fips_certlike"].get("Certlike", dict())
+                fips_certlike = self.keywords["fips_certlike"].get("Certlike", {})
                 matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike.keys()}
                 return {"".join([x for x in match.group() if x.isdigit()]) for match in matches if match}
             else:
@@ -563,7 +563,7 @@ class FIPSCertificate(
         if metadata:
             cert.pdf_data.policy_metadata = metadata
         else:
-            cert.pdf_data.policy_metadata = dict()
+            cert.pdf_data.policy_metadata = {}
             cert.state.policy_extract_ok = False
         return cert
 
@@ -611,7 +611,7 @@ class FIPSCertificate(
         self.heuristics.module_prunned_references = self._prune_reference_ids_variable(html_module_ids)
 
         if self.pdf_data.keywords:
-            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict()).keys())
+            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", {}).keys())
             pdf_policy_ids = {"".join([y for y in x if y.isdigit()]) for x in pdf_policy_ids}
         else:
             pdf_policy_ids = set()

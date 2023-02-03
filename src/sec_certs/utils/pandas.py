@@ -140,7 +140,7 @@ def get_sar_level_from_set(sars: set[SAR], sar_family: str) -> int | None:
     """
     Given a set of SARs and a family name, will return level of the seeked SAR from the set.
     """
-    family_sars_dict = {x.family: x for x in sars} if (sars and not pd.isnull(sars)) else dict()
+    family_sars_dict = {x.family: x for x in sars} if (sars and not pd.isnull(sars)) else {}
     if sar_family not in family_sars_dict.keys():
         return None
     return family_sars_dict[sar_family].level

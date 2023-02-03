@@ -66,7 +66,7 @@ class CPEClassifier(BaseEstimator):
         sufficiently_long_cpes = self._filter_short_cpes(X)
         self.vendor_to_versions_ = {x.vendor: set() for x in sufficiently_long_cpes}
         self.vendors_ = set(self.vendor_to_versions_.keys())
-        self.vendor_version_to_cpe_ = dict()
+        self.vendor_version_to_cpe_ = {}
 
         for cpe in tqdm(sufficiently_long_cpes, desc="Fitting the CPE classifier"):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
@@ -323,7 +323,7 @@ class CPEClassifier(BaseEstimator):
                 itertools.chain.from_iterable([x.strip() for x in manufacturer.split(s)] for s in splits)
             )
             result_aux = [self._get_candidate_list_of_vendors(x) for x in vendor_tokens]
-            result_used = set(set(itertools.chain.from_iterable(x for x in result_aux if x)))
+            result_used = set(itertools.chain.from_iterable(x for x in result_aux if x))
             return result_used if result_used else set()
 
         if manufacturer in self.vendors_:

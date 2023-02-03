@@ -58,7 +58,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     def __init__(
         self,
-        certs: dict[str, CertSubType] = dict(),
+        certs: dict[str, CertSubType] = {},
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",

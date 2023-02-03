@@ -112,9 +112,9 @@ class CustomJSONEncoder(json.JSONEncoder):
         if isinstance(obj, dict):
             return obj
         if isinstance(obj, set):
-            return {"_type": "Set", "elements": sorted(list(obj))}
+            return {"_type": "Set", "elements": sorted(obj)}
         if isinstance(obj, frozenset):
-            return sorted(list(obj))
+            return sorted(obj)
         if isinstance(obj, date):
             return str(obj)
         if isinstance(obj, Path):

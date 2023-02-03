@@ -114,7 +114,7 @@ class MIPSnapshot(ComplexSerializableType):
             MIPEntry(
                 str(line[0].string), str(line[1].string), str(line[2].string), MIPStatus(str(line[3].string)), None
             )
-            for line in map(lambda tr: tr.find_all("td"), lines)
+            for line in (tr.find_all("td") for tr in lines)
         }
 
     @classmethod
@@ -128,14 +128,14 @@ class MIPSnapshot(ComplexSerializableType):
                 MIPStatus(str(line[3].string)),
                 None,
             )
-            for line in map(lambda tr: tr.find_all("td"), lines)
+            for line in (tr.find_all("td") for tr in lines)
         }
 
     @classmethod
     def _extract_entries_4(cls, lines):
         """Works now."""
         entries = set()
-        for line in map(lambda tr: tr.find_all("td"), lines):
+        for line in (tr.find_all("td") for tr in lines):
             module_name = str(line[0].string)
             vendor_name = str(" ".join(line[1].find_all(text=True, recursive=False)).strip())
             standard = str(line[2].string)

@@ -52,7 +52,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
 
     def __init__(
         self,
-        certs: dict[str, CCCertificate] = dict(),
+        certs: dict[str, CCCertificate] = {},
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
@@ -819,7 +819,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: dict[str, CCMaintenanceUpdate] = dict(),  # type: ignore
+        certs: dict[str, CCMaintenanceUpdate] = {},  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",

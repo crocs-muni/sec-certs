@@ -20,12 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
-    def __init__(
-        self, algs: dict[str, FIPSAlgorithm] = dict(), json_path: str | Path = constants.DUMMY_NONEXISTING_PATH
-    ):
+    def __init__(self, algs: dict[str, FIPSAlgorithm] = {}, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
         self.algs = algs
         self.json_path = Path(json_path)
-        self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = dict()
+        self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = {}
 
         self._build_lookup_dicts()
 

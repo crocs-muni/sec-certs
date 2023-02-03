@@ -101,10 +101,12 @@
     "UP",  # pyupgrade
     "PL",  # pylint
     "PTH", # enforce pathlib usage
+    "C4",  # comprehensions
   ]
   ignore = [
     "E501",    # line-length, should be handled by black
     "PLR2004", # magic numbers, what would a project be without them...
+    "PLR0913", # too many func arguments
   ]
   src = ["src", "tests"]
   line-length = 120

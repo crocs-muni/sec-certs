@@ -186,7 +186,7 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
         else:
             return val
 
-    metadata: dict[str, Any] = dict()
+    metadata: dict[str, Any] = {}
 
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size

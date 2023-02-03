@@ -33,7 +33,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     def __init__(self, cves: dict[str, CVE], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
         self.cves = cves
         self.json_path = Path(json_path)
-        self.cpe_to_cve_ids_lookup: dict[str, set[str]] = dict()
+        self.cpe_to_cve_ids_lookup: dict[str, set[str]] = {}
 
     @property
     def serialized_attributes(self) -> list[str]:
@@ -64,7 +64,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             - CPE(uri='cpe:2.3:a:bayashi:dopvcomet\\*:0009:b:*:*:*:*:*:*', title=None, version='0009', vendor='bayashi', item_name='dopvcomet\\*', start_version=None, end_version=None)
             - CPE(uri='cpe:2.3:a:bayashi:dopvstar\\*:0091:*:*:*:*:*:*:*', title=None, version='0091', vendor='bayashi', item_name='dopvstar\\*', start_version=None, end_version=None)
         """
-        self.cpe_to_cve_ids_lookup = dict()
+        self.cpe_to_cve_ids_lookup = {}
         self.cves = {x.cve_id.upper(): x for x in self}
 
         logger.info("Getting CPE matching dictionary from NIST.gov")
@@ -124,7 +124,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             cls.download_cves(tmp_dir, start_year, end_year)
             json_files = glob.glob(tmp_dir + "/*.json")
 
-            all_cves = dict()
+            all_cves = {}
             logger.info("Downloaded required resources. Building CVEDataset from jsons.")
             results = process_parallel(
                 cls.from_nist_json,
@@ -210,7 +210,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             with input_filepath.open("r") as handle:
                 match_data = json.load(handle)
 
-        mapping_dict = dict()
+        mapping_dict = {}
         for match in tqdm(match_data["matches"], desc="parsing cpe matching (by NIST) dictionary"):
             key = parse_key_cpe(match)
             value = parse_values_cpe(match)

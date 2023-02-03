@@ -40,9 +40,9 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         self.cpes = cpes
         self.json_path = Path(json_path)
 
-        self.vendor_to_versions: dict[str, set[str]] = dict()
-        self.vendor_version_to_cpe: dict[tuple[str, str], set[CPE]] = dict()
-        self.title_to_cpes: dict[str, set[CPE]] = dict()
+        self.vendor_to_versions: dict[str, set[str]] = {}
+        self.vendor_version_to_cpe: dict[tuple[str, str], set[CPE]] = {}
+        self.title_to_cpes: dict[str, set[CPE]] = {}
         self.vendors: set[str] = set()
 
         self.build_lookup_dicts()
@@ -77,8 +77,8 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         """
         logger.info("CPE dataset: building lookup dictionaries.")
         self.vendor_to_versions = {x.vendor: set() for x in self}
-        self.vendor_version_to_cpe = dict()
-        self.title_to_cpes = dict()
+        self.vendor_version_to_cpe = {}
+        self.title_to_cpes = {}
         self.vendors = set(self.vendor_to_versions.keys())
         for cpe in self:
             self.vendor_to_versions[cpe.vendor].add(cpe.version)
