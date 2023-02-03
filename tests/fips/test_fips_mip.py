@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-
 import tests.data.fips.mip
+
 from sec_certs.dataset import MIPDataset
 from sec_certs.sample import MIPSnapshot
 

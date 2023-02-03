@@ -31,7 +31,7 @@ from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
-from sec_certs.utils import helpers as helpers
+from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
@@ -52,7 +52,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
 
     def __init__(
         self,
-        certs: dict[str, CCCertificate] = dict(),
+        certs: dict[str, CCCertificate] = {},
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
@@ -324,13 +324,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             return CCDataset.BASE_URL + relative_path
 
         def _get_primary_key_str(row: Tag):
-            prim_key = row["category"] + row["cert_name"] + row["report_link"]
-            return prim_key
+            return row["category"] + row["cert_name"] + row["report_link"]
 
-        if "active" in str(file):
-            cert_status = "active"
-        else:
-            cert_status = "archived"
+        cert_status = "active" if "active" in str(file) else "archived"
 
         csv_header = [
             "category",
@@ -394,7 +390,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                 )
             )
 
-        certs = {
+        return {
             x.dgst: CCCertificate(
                 cert_status,
                 x.category,
@@ -416,7 +412,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             )
             for x in df_base.itertuples()
         }
-        return certs
 
     def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
         """
@@ -483,10 +478,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
 
             return table_certs
 
-        if "active" in str(file):
-            cert_status = "active"
-        else:
-            cert_status = "archived"
+        cert_status = "active" if "active" in str(file) else "archived"
 
         cc_cat_abbreviations = ["AC", "BP", "DP", "DB", "DD", "IC", "KM", "MD", "MF", "NS", "OS", "OD", "DG", "TC"]
         cc_table_ids = ["tbl" + x for x in cc_cat_abbreviations]
@@ -719,7 +711,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                     return set()
                 res = set()
                 for scheme, matches in kws["cc_cert_id"].items():
-                    for match in matches.keys():
+                    for match in matches:
                         try:
                             canonical = CertificateId(scheme, match).canonical
                             res.add(canonical)
@@ -819,7 +811,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: dict[str, CCMaintenanceUpdate] = dict(),  # type: ignore
+        certs: dict[str, CCMaintenanceUpdate] = {},  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
@@ -866,9 +858,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         df.index.name = "dgst"
 
         df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
-        df = df.fillna(value=np.nan)
-
-        return df
+        return df.fillna(value=np.nan)
 
     @classmethod
     def from_web_latest(cls) -> CCDatasetMaintenanceUpdates:
@@ -903,10 +893,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 class CCSchemeDataset:
     @staticmethod
     def _download_page(url, session=None):
-        if session:
-            conn = session
-        else:
-            conn = requests
+        conn = session if session else requests
         resp = conn.get(url, headers={"User-Agent": "seccerts.org"})
         if resp.status_code != requests.codes.ok:
             raise ValueError(f"Unable to download: status={resp.status_code}")

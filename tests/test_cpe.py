@@ -135,6 +135,6 @@ def test_to_pandas(cpe_dset: CPEDataset):
 
 
 def test_serialization_missing_path():
-    dummy_dset = CPEDataset(False, dict())
+    dummy_dset = CPEDataset(False, {})
     with pytest.raises(SerializationError):
         dummy_dset.to_json()

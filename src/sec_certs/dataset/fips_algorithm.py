@@ -20,12 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
-    def __init__(
-        self, algs: dict[str, FIPSAlgorithm] = dict(), json_path: str | Path = constants.DUMMY_NONEXISTING_PATH
-    ):
+    def __init__(self, algs: dict[str, FIPSAlgorithm] = {}, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
         self.algs = algs
         self.json_path = Path(json_path)
-        self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = dict()
+        self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = {}
 
         self._build_lookup_dicts()
 
@@ -48,7 +46,7 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
     def __contains__(self, item: FIPSAlgorithm) -> bool:
         if not isinstance(item, FIPSAlgorithm):
             raise ValueError(f"{item} is not of FIPSAlgorithm class")
-        return item.dgst in self.algs.keys() and self.algs[item.dgst] == item
+        return item.dgst in self.algs and self.algs[item.dgst] == item
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FIPSAlgorithmDataset) and self.algs == other.algs
@@ -109,9 +107,7 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         return set(df["alg"])
 
     def to_pandas(self) -> pd.DataFrame:
-        df = pd.DataFrame([x.pandas_tuple for x in self], columns=FIPSAlgorithm.pandas_columns)
-        df = df.set_index("dgst")
-        return df
+        return pd.DataFrame([x.pandas_tuple for x in self], columns=FIPSAlgorithm.pandas_columns).set_index("dgst")
 
     def _build_lookup_dicts(self) -> None:
         for alg in self:

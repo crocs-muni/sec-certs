@@ -101,7 +101,7 @@ class IUTSnapshot(ComplexSerializableType):
                 str(line[2].string),
                 datetime.strptime(str(line[3].string), "%m/%d/%Y").date(),
             )
-            for line in map(lambda tr: tr.find_all("td"), lines)
+            for line in (tr.find_all("td") for tr in lines)
         }
 
         # Parse footer

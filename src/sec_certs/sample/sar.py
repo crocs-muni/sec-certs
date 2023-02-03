@@ -18,7 +18,7 @@ SAR_CLASS_MAPPING = {
     "ACO": "Comoposition",
 }
 
-SAR_CLASSES = {x for x in SAR_CLASS_MAPPING}
+SAR_CLASSES = set(SAR_CLASS_MAPPING)
 SAR_DICT_KEY = "cc_sar"
 
 

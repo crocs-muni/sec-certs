@@ -4,9 +4,9 @@ import logging
 from datetime import date
 from typing import ClassVar
 
-import sec_certs.utils.helpers as helpers
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils import helpers
 
 logger = logging.getLogger(__name__)
 

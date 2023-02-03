@@ -7,11 +7,11 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-import sec_certs.utils.helpers as helpers
 from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import get_class_fullname
+from sec_certs.utils import helpers
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,6 @@ class ProtectionProfileDataset:
 
     @classmethod
     def from_web(cls, store_dataset_path: Path | None = None):
-
         logger.info(f"Downloading static PP dataset from: {config.pp_latest_snapshot}")
         if not store_dataset_path:
             tmp = tempfile.TemporaryDirectory()

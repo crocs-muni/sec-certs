@@ -5,8 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
-
 import tests.data.cc.dataset
+
 from sec_certs import constants
 from sec_certs.dataset import CCDataset
 from sec_certs.sample.cc import CCCertificate

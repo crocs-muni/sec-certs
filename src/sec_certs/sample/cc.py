@@ -17,13 +17,12 @@ from bs4 import Tag
 import sec_certs.utils.extract
 import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
-from sec_certs import constants as constants
+from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
 from sec_certs.sample.cc_certificate_id import canonicalize
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
-from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
@@ -472,9 +471,9 @@ class CCCertificate(
         self.manufacturer_web = sec_certs.utils.sanitization.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintenance_updates = maintenance_updates
-        self.state = self.InternalState() if not state else state
-        self.pdf_data = self.PdfData() if not pdf_data else pdf_data
-        self.heuristics: CCCertificate.Heuristics = self.Heuristics() if not heuristics else heuristics
+        self.state = state if state else self.InternalState()
+        self.pdf_data = pdf_data if pdf_data else self.PdfData()
+        self.heuristics: CCCertificate.Heuristics = heuristics if heuristics else self.Heuristics()
 
     @property
     def dgst(self) -> str:
@@ -507,7 +506,7 @@ class CCCertificate(
         Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs
         :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
         """
-        sars = dict()
+        sars = {}
         if self.eal:
             sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.eal[:4]]}
 
@@ -795,11 +794,10 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf security target for
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int
-        if not cert.st_link:
-            exit_code = "No link"
-        else:
-            exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        exit_code: str | int = (
+            helpers.download_file(cert.st_link, cert.state.st_pdf_path) if cert.st_link else "No link"
+        )
+
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)

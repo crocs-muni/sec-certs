@@ -41,7 +41,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     def __init__(
         self,
-        certs: dict[str, FIPSCertificate] = dict(),
+        certs: dict[str, FIPSCertificate] = {},
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
@@ -187,18 +187,18 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
     def _download_html_resources(self) -> None:
         logger.info("Downloading HTML files that list FIPS certificates.")
         html_urls = list(FIPSDataset.LIST_OF_CERTS_HTML.values())
-        html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML.keys()]
+        html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML]
         helpers.download_parallel(html_urls, html_paths)
 
     def _get_all_certs_from_html_sources(self) -> list[FIPSCertificate]:
         return list(
             itertools.chain.from_iterable(
-                self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()
+                self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML
             )
         )
 
     def _get_certificates_from_html(self, html_file: Path) -> list[FIPSCertificate]:
-        with open(html_file, encoding="utf-8") as handle:
+        with html_file.open("r", encoding="utf-8") as handle:
             html = BeautifulSoup(handle.read(), "html5lib")
 
         table = [x for x in html.find(id="searchResultsTable").tbody.contents if x != "\n"]

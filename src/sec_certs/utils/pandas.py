@@ -140,7 +140,7 @@ def get_sar_level_from_set(sars: set[SAR], sar_family: str) -> int | None:
     """
     Given a set of SARs and a family name, will return level of the seeked SAR from the set.
     """
-    family_sars_dict = {x.family: x for x in sars} if (sars and not pd.isnull(sars)) else dict()
+    family_sars_dict = {x.family: x for x in sars} if (sars and not pd.isnull(sars)) else {}
     if sar_family not in family_sars_dict.keys():
         return None
     return family_sars_dict[sar_family].level
@@ -252,7 +252,6 @@ def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEData
     def filter_cves(
         cve_dset: CVEDataset, cves: set[str], not_valid_before: pd.Timestamp, not_valid_after: pd.Timestamp
     ) -> set[str] | float:
-
         # Mypy is complaining, but the Optional date is resolved at the beginning of the and condition
         result: set[str] = {
             x

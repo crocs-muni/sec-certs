@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-
 import tests.data.fips.iut
+
 from sec_certs.dataset import IUTDataset
 from sec_certs.sample import IUTSnapshot
 

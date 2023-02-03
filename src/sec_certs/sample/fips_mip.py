@@ -114,7 +114,7 @@ class MIPSnapshot(ComplexSerializableType):
             MIPEntry(
                 str(line[0].string), str(line[1].string), str(line[2].string), MIPStatus(str(line[3].string)), None
             )
-            for line in map(lambda tr: tr.find_all("td"), lines)
+            for line in (tr.find_all("td") for tr in lines)
         }
 
     @classmethod
@@ -128,14 +128,14 @@ class MIPSnapshot(ComplexSerializableType):
                 MIPStatus(str(line[3].string)),
                 None,
             )
-            for line in map(lambda tr: tr.find_all("td"), lines)
+            for line in (tr.find_all("td") for tr in lines)
         }
 
     @classmethod
     def _extract_entries_4(cls, lines):
         """Works now."""
         entries = set()
-        for line in map(lambda tr: tr.find_all("td"), lines):
+        for line in (tr.find_all("td") for tr in lines):
             module_name = str(line[0].string)
             vendor_name = str(" ".join(line[1].find_all(text=True, recursive=False)).strip())
             standard = str(line[2].string)
@@ -150,14 +150,12 @@ class MIPSnapshot(ComplexSerializableType):
     @classmethod
     def _extract_entries(cls, lines, snapshot_date):
         if snapshot_date <= datetime(2020, 10, 28):
-            entries = cls._extract_entries_1(lines)
-        elif snapshot_date <= datetime(2021, 4, 20):
-            entries = cls._extract_entries_2(lines)
-        elif snapshot_date <= datetime(2022, 3, 23):
-            entries = cls._extract_entries_3(lines)
-        else:
-            entries = cls._extract_entries_4(lines)
-        return entries
+            return cls._extract_entries_1(lines)
+        if snapshot_date <= datetime(2021, 4, 20):
+            return cls._extract_entries_2(lines)
+        if snapshot_date <= datetime(2022, 3, 23):
+            return cls._extract_entries_3(lines)
+        return cls._extract_entries_4(lines)
 
     @classmethod
     def from_page(cls, content: bytes, snapshot_date: datetime) -> MIPSnapshot:

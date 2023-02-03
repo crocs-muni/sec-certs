@@ -14,7 +14,7 @@ import numpy as np
 import pkgconfig
 import requests
 
-import sec_certs.constants as constants
+from sec_certs import constants
 from sec_certs.utils import parallel_processing
 from sec_certs.utils.tqdm import tqdm
 
@@ -44,12 +44,11 @@ def download_file(
             ctx = nullcontext
 
         if r.status_code == requests.codes.ok:
-            with ctx() as pbar:
-                with output.open("wb") as f:
-                    for data in r.iter_content(1024):
-                        f.write(data)
-                        if show_progress_bar:
-                            pbar.update(len(data))
+            with ctx() as pbar, output.open("wb") as f:
+                for data in r.iter_content(1024):
+                    f.write(data)
+                    if show_progress_bar:
+                        pbar.update(len(data))
 
             return r.status_code
     except requests.exceptions.Timeout:
@@ -97,8 +96,7 @@ def to_utc(timestamp: datetime) -> datetime:
     if offset is None:
         return timestamp
     timestamp -= offset
-    timestamp = timestamp.replace(tzinfo=None)
-    return timestamp
+    return timestamp.replace(tzinfo=None)
 
 
 def is_in_dict(target_dict: dict, path: str) -> bool:
@@ -106,8 +104,7 @@ def is_in_dict(target_dict: dict, path: str) -> bool:
     for item in path:
         if item not in current_level:
             return False
-        else:
-            current_level = current_level[item]
+        current_level = current_level[item]
     return True
 
 

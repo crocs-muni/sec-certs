@@ -128,7 +128,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         :param dgst: DIgest of the processed certificate.
         :return: _description_
         """
-        sars: dict[str, tuple[SAR, int]] = dict()
+        sars: dict[str, tuple[SAR, int]] = {}
         for sar_class, class_matches in dct.items():
             for sar_string, n_occurences in class_matches.items():
                 try:

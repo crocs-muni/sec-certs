@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 import tests.data.fips.dataset
+
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.serialization.json import SerializationError

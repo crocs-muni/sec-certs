@@ -6,11 +6,11 @@ from pathlib import Path
 
 import numpy as np
 
-import sec_certs.utils.helpers as helpers
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import CustomJSONEncoder
+from sec_certs.utils import helpers
 
 logger = logging.getLogger(__name__)
 

@@ -14,8 +14,7 @@ from typing import Any, Generic, Iterator, TypeVar, cast
 
 import pandas as pd
 
-import sec_certs.constants as constants
-import sec_certs.utils.helpers as helpers
+from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
@@ -23,6 +22,7 @@ from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname, serialize
+from sec_certs.utils import helpers
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
     def __init__(
         self,
-        certs: dict[str, CertSubType] = dict(),
+        certs: dict[str, CertSubType] = {},
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
@@ -392,16 +392,16 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
                 and not any(char.isdigit() for char in cpe.title)
             ):
                 return False
-            elif (
+            if (
                 not cpe.title
                 and cpe.item_name
                 and (cpe.version == "-" or cpe.version == "*")
                 and not any(char.isdigit() for char in cpe.item_name)
             ):
                 return False
-            elif re.match(constants.RELEASE_CANDIDATE_REGEX, cpe.update):
+            if re.match(constants.RELEASE_CANDIDATE_REGEX, cpe.update):
                 return False
-            elif cpe in WINDOWS_WEAK_CPES:
+            if cpe in WINDOWS_WEAK_CPES:
                 return False
             return True
 
@@ -456,9 +456,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
         logger.info("Translating label studio matches into their CPE representations and assigning to certificates.")
         for annotation in tqdm(data, desc="Translating label studio matches"):
-            cpe_candidate_keys = {
-                key for key in annotation.keys() if "option_" in key and annotation[key] != "No good match"
-            }
+            cpe_candidate_keys = {key for key in annotation if "option_" in key and annotation[key] != "No good match"}
 
             if "verified_cpe_match" not in annotation:
                 incorrect_keys: set[str] = set()
