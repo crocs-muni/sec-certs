@@ -21,7 +21,7 @@ beautifulsoup4==4.11.1
     #   sec-certs (./../pyproject.toml)
 billiard==4.0.2
     # via sec-certs (./../pyproject.toml)
-black==22.10.0
+black==23.1.0
     # via sec-certs (./../pyproject.toml)
 blis==0.7.9
     # via thinc
@@ -224,6 +224,7 @@ numpy==1.23.5
     #   thinc
 packaging==22.0
     # via
+    #   black
     #   build
     #   deprecation
     #   ipykernel
@@ -354,7 +355,7 @@ requests==2.28.1
     #   sec-certs (./../pyproject.toml)
     #   spacy
     #   sphinx
-ruff==0.0.236
+ruff==0.0.239
     # via sec-certs (./../pyproject.toml)
 scikit-learn==1.2.0
     # via sec-certs (./../pyproject.toml)

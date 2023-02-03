@@ -21,7 +21,6 @@ def process_parallel(
     unpack: bool = False,
     progress_bar_desc: str | None = None,
 ) -> list[Any]:
-
     if max_workers == -1:
         max_workers = cpu_count()
 

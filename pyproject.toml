@@ -62,7 +62,9 @@
 
   [project.optional-dependencies]
     dev = [
-      "mypy",
+      "mypy==0.991",
+      "black==23.1.0",
+      "ruff==0.0.239",
       "types-PyYAML",
       "types-python-dateutil",
       "types-requests",
@@ -70,7 +72,6 @@
       "pytest-cov",
       "pytest-monitor",
       "pytest-profiling",
-      "black",
       "pre-commit",
       "pip-tools",
       "sphinx",
@@ -79,7 +80,6 @@
       "sphinx-design",
       "sphinx-copybutton",
       "ipython!=8.7.0",
-      "ruff",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
 

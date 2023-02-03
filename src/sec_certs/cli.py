@@ -63,7 +63,6 @@ def build_or_load_dataset(
     to_build: bool,
     outputpath: Path | None,
 ) -> CCDataset | FIPSDataset:
-
     constructor: type[CCDataset] | type[FIPSDataset] = CCDataset if framework == "cc" else FIPSDataset
     dset: CCDataset | FIPSDataset
 
