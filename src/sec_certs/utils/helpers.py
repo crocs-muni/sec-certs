@@ -44,12 +44,11 @@ def download_file(
             ctx = nullcontext
 
         if r.status_code == requests.codes.ok:
-            with ctx() as pbar:
-                with output.open("wb") as f:
-                    for data in r.iter_content(1024):
-                        f.write(data)
-                        if show_progress_bar:
-                            pbar.update(len(data))
+            with ctx() as pbar, output.open("wb") as f:
+                for data in r.iter_content(1024):
+                    f.write(data)
+                    if show_progress_bar:
+                        pbar.update(len(data))
 
             return r.status_code
     except requests.exceptions.Timeout:

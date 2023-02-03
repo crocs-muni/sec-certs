@@ -46,7 +46,7 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
     def __contains__(self, item: FIPSAlgorithm) -> bool:
         if not isinstance(item, FIPSAlgorithm):
             raise ValueError(f"{item} is not of FIPSAlgorithm class")
-        return item.dgst in self.algs.keys() and self.algs[item.dgst] == item
+        return item.dgst in self.algs and self.algs[item.dgst] == item
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FIPSAlgorithmDataset) and self.algs == other.algs

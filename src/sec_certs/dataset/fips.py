@@ -187,13 +187,13 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
     def _download_html_resources(self) -> None:
         logger.info("Downloading HTML files that list FIPS certificates.")
         html_urls = list(FIPSDataset.LIST_OF_CERTS_HTML.values())
-        html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML.keys()]
+        html_paths = [self.web_dir / x for x in FIPSDataset.LIST_OF_CERTS_HTML]
         helpers.download_parallel(html_urls, html_paths)
 
     def _get_all_certs_from_html_sources(self) -> list[FIPSCertificate]:
         return list(
             itertools.chain.from_iterable(
-                self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML.keys()
+                self._get_certificates_from_html(self.web_dir / x) for x in self.LIST_OF_CERTS_HTML
             )
         )
 

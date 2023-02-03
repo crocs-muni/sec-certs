@@ -94,10 +94,7 @@ def serialize(func: Callable):
 
 
 def get_class_fullname(obj: Any) -> str:
-    if isinstance(obj, type):
-        klass = obj
-    else:
-        klass = obj.__class__
+    klass = obj if isinstance(obj, type) else obj.__class__
     module = klass.__module__
     if module == "builtins":
         return klass.__qualname__
@@ -135,7 +132,7 @@ class CustomJSONDecoder(json.JSONDecoder):
     def object_hook(self, obj):
         if "_type" in obj and obj["_type"] == "Set":
             return set(obj["elements"])
-        if "_type" in obj and obj["_type"] in self.serializable_complex_types.keys():
+        if "_type" in obj and obj["_type"] in self.serializable_complex_types:
             complex_type = obj.pop("_type")
             return self.serializable_complex_types[complex_type].from_dict(obj)
         if "_type" in obj:

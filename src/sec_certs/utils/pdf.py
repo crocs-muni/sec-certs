@@ -251,14 +251,8 @@ def text_is_garbage(text: str) -> bool:
         if len(set(line[1::2])) > 1:
             every_second += 1
 
-    if lines:
-        avg_line_len = content_len / lines
-    else:
-        avg_line_len = 0
-    if size:
-        alpha = alpha_len / size
-    else:
-        alpha = 0
+    avg_line_len = content_len / lines if lines else 0
+    alpha = alpha_len / size if size else 0
 
     # If number of lines is small, this is garbage.
     if lines < GARBAGE_LINES_THRESHOLD:

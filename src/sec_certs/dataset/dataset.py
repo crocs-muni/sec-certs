@@ -456,9 +456,7 @@ class Dataset(Generic[CertSubType, AuxillaryDatasetsSubType], ComplexSerializabl
 
         logger.info("Translating label studio matches into their CPE representations and assigning to certificates.")
         for annotation in tqdm(data, desc="Translating label studio matches"):
-            cpe_candidate_keys = {
-                key for key in annotation.keys() if "option_" in key and annotation[key] != "No good match"
-            }
+            cpe_candidate_keys = {key for key in annotation if "option_" in key and annotation[key] != "No good match"}
 
             if "verified_cpe_match" not in annotation:
                 incorrect_keys: set[str] = set()

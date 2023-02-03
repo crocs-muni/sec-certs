@@ -326,10 +326,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         def _get_primary_key_str(row: Tag):
             return row["category"] + row["cert_name"] + row["report_link"]
 
-        if "active" in str(file):
-            cert_status = "active"
-        else:
-            cert_status = "archived"
+        cert_status = "active" if "active" in str(file) else "archived"
 
         csv_header = [
             "category",
@@ -481,10 +478,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
 
             return table_certs
 
-        if "active" in str(file):
-            cert_status = "active"
-        else:
-            cert_status = "archived"
+        cert_status = "active" if "active" in str(file) else "archived"
 
         cc_cat_abbreviations = ["AC", "BP", "DP", "DB", "DD", "IC", "KM", "MD", "MF", "NS", "OS", "OD", "DG", "TC"]
         cc_table_ids = ["tbl" + x for x in cc_cat_abbreviations]
@@ -717,7 +711,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                     return set()
                 res = set()
                 for scheme, matches in kws["cc_cert_id"].items():
-                    for match in matches.keys():
+                    for match in matches:
                         try:
                             canonical = CertificateId(scheme, match).canonical
                             res.add(canonical)
@@ -899,10 +893,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 class CCSchemeDataset:
     @staticmethod
     def _download_page(url, session=None):
-        if session:
-            conn = session
-        else:
-            conn = requests
+        conn = session if session else requests
         resp = conn.get(url, headers={"User-Agent": "seccerts.org"})
         if resp.status_code != requests.codes.ok:
             raise ValueError(f"Unable to download: status={resp.status_code}")

@@ -471,9 +471,9 @@ class CCCertificate(
         self.manufacturer_web = sec_certs.utils.sanitization.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintenance_updates = maintenance_updates
-        self.state = self.InternalState() if not state else state
-        self.pdf_data = self.PdfData() if not pdf_data else pdf_data
-        self.heuristics: CCCertificate.Heuristics = self.Heuristics() if not heuristics else heuristics
+        self.state = state if state else self.InternalState()
+        self.pdf_data = pdf_data if pdf_data else self.PdfData()
+        self.heuristics: CCCertificate.Heuristics = heuristics if heuristics else self.Heuristics()
 
     @property
     def dgst(self) -> str:
@@ -794,11 +794,10 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf security target for
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int
-        if not cert.st_link:
-            exit_code = "No link"
-        else:
-            exit_code = helpers.download_file(cert.st_link, cert.state.st_pdf_path)
+        exit_code: str | int = (
+            helpers.download_file(cert.st_link, cert.state.st_pdf_path) if cert.st_link else "No link"
+        )
+
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)

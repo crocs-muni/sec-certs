@@ -148,7 +148,7 @@ class CPEClassifier(BaseEstimator):
         def filter_condition(regex: Pattern, cpe: CPE, min_value: int, soft: bool = True):
             if matches := re.findall(regex, cpe.update):
                 return int(re.findall(r"\d+", matches[0])[0]) >= min_value
-            return True if soft else False
+            return soft
 
         update_regexes = [cert_rules.SERVICE_PACK_RE, cert_rules.RELEASE_RE]
 

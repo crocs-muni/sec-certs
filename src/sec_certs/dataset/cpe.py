@@ -62,7 +62,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
     def __contains__(self, item: CPE) -> bool:
         if not isinstance(item, CPE):
             raise ValueError(f"{item} is not of CPE class")
-        return item.uri in self.cpes.keys() and self.cpes[item.uri] == item
+        return item.uri in self.cpes and self.cpes[item.uri] == item
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, CPEDataset) and self.cpes == other.cpes

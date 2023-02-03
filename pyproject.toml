@@ -102,6 +102,7 @@
     "PL",  # pylint
     "PTH", # enforce pathlib usage
     "C4",  # comprehensions
+    "SIM",
   ]
   ignore = [
     "E501",    # line-length, should be handled by black
