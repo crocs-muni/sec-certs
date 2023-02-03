@@ -5,8 +5,7 @@ repos:
       - id: black
         args: ["--check", "--target-version", "py38"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    # Ruff version.
-    rev: "v0.0.239"
+    rev: "v0.0.240"
     hooks:
       - id: ruff
   - repo: https://github.com/pre-commit/mirrors-mypy

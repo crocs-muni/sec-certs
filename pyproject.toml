@@ -62,12 +62,6 @@
 
   [project.optional-dependencies]
     dev = [
-      "mypy==0.991",
-      "black==23.1.0",
-      "ruff==0.0.239",
-      "types-PyYAML",
-      "types-python-dateutil",
-      "types-requests",
       "pytest",
       "pytest-cov",
       "pytest-monitor",
