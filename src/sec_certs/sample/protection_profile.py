@@ -5,8 +5,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-import sec_certs.utils.sanitization as sanitization
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils import sanitization
 
 logger = logging.getLogger(__name__)
 

@@ -67,8 +67,7 @@ class ComplexSerializableType:
     def from_json(cls: type[T], input_path: str | Path) -> T:
         input_path = Path(input_path)
         with input_path.open("r") as handle:
-            obj = json.load(handle, cls=CustomJSONDecoder)
-        return obj
+            return json.load(handle, cls=CustomJSONDecoder)
 
 
 # Decorator for serialization
@@ -95,10 +94,7 @@ def serialize(func: Callable):
 
 
 def get_class_fullname(obj: Any) -> str:
-    if isinstance(obj, type):
-        klass = obj
-    else:
-        klass = obj.__class__
+    klass = obj if isinstance(obj, type) else obj.__class__
     module = klass.__module__
     if module == "builtins":
         return klass.__qualname__
@@ -112,9 +108,9 @@ class CustomJSONEncoder(json.JSONEncoder):
         if isinstance(obj, dict):
             return obj
         if isinstance(obj, set):
-            return {"_type": "Set", "elements": sorted(list(obj))}
+            return {"_type": "Set", "elements": sorted(obj)}
         if isinstance(obj, frozenset):
-            return sorted(list(obj))
+            return sorted(obj)
         if isinstance(obj, date):
             return str(obj)
         if isinstance(obj, Path):
@@ -136,10 +132,10 @@ class CustomJSONDecoder(json.JSONDecoder):
     def object_hook(self, obj):
         if "_type" in obj and obj["_type"] == "Set":
             return set(obj["elements"])
-        if "_type" in obj and obj["_type"] in self.serializable_complex_types.keys():
+        if "_type" in obj and obj["_type"] in self.serializable_complex_types:
             complex_type = obj.pop("_type")
             return self.serializable_complex_types[complex_type].from_dict(obj)
-        elif "_type" in obj:
+        if "_type" in obj:
             raise SerializationError(f"JSONDecoder doesn't know how to handle {obj}")
 
         return obj

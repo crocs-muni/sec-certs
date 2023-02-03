@@ -6,11 +6,11 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import numpy as np
 
-from sec_certs import constants as constants
+from sec_certs import constants
 from sec_certs.cert_rules import REGEXEC_SEP, cc_rules
 from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
 
@@ -585,11 +585,6 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     return constants.RETURNCODE_OK, items_found
 
 
-def search_files(folder: str | Path) -> Iterator[str]:
-    for root, _, files in os.walk(str(folder)):
-        yield from [os.path.join(root, x) for x in files]
-
-
 def flatten_matches(dct: dict) -> dict:
     """
     Function to flatten dictionary of matches.
@@ -663,13 +658,13 @@ def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] 
         def extract(rules):
             if isinstance(rules, dict):
                 return {k: extract(v) for k, v in rules.items()}
-            elif isinstance(rules, list):
+            if isinstance(rules, list):
                 matches = [extract(rule) for rule in rules]
                 c = Counter()
                 for match_list in matches:
                     c += Counter(match_list)
                 return dict(c)
-            elif isinstance(rules, re.Pattern):
+            if isinstance(rules, re.Pattern):
                 rule = rules
                 matches = []
                 for match in rule.finditer(whole_text):
@@ -719,7 +714,7 @@ def load_text_file(
             logger.warning("UnicodeDecodeError, opening as utf8")
 
     if was_unicode_decode_error:
-        with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
+        with Path(file_name).open("r", encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
             # coding failure, try line by line
             line = " "
             while line:
@@ -746,23 +741,31 @@ def load_text_file(
     return whole_text, whole_text_with_newlines, was_unicode_decode_error
 
 
-def load_cert_html_file(file_name: str) -> str:
-    with open(file_name, errors=FILE_ERRORS_STRATEGY) as f:
-        try:
-            return f.read()
-        except UnicodeDecodeError:
-            logger.warning("UnicodeDecodeError, opening as utf8")
-
-    with open(file_name, encoding="utf8", errors=FILE_ERRORS_STRATEGY) as f2:
-        try:
-            return f2.read()
-        except UnicodeDecodeError:
-            logger.error(f"Failed to read file {file_name}")
-    return ""
-
-
 def rules_get_subset(desired_path: str) -> dict:
     """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Recursively applies cc_certs.get(key) on tokens from desired_path,
     returns the keys of the inner-most layer.
     """

@@ -26,9 +26,9 @@ def sanitize_link(record: str | None) -> str | None:
 def sanitize_date(record: pd.Timestamp | date | np.datetime64) -> date | None:
     if pd.isnull(record):
         return None
-    elif isinstance(record, pd.Timestamp):
+    if isinstance(record, pd.Timestamp):
         return record.date()
-    elif isinstance(record, (date, type(None))):
+    if isinstance(record, (date, type(None))):
         return record
     raise ValueError("Unsupported type given as input")
 

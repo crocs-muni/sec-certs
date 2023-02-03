@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 import tests.data.fips.dataset
+
 from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.cpe import CPE

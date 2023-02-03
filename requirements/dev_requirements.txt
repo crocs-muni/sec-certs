@@ -21,7 +21,7 @@ beautifulsoup4==4.11.1
     #   sec-certs (./../pyproject.toml)
 billiard==4.0.2
     # via sec-certs (./../pyproject.toml)
-black==22.10.0
+black==23.1.0
     # via sec-certs (./../pyproject.toml)
 blis==0.7.9
     # via thinc
@@ -85,12 +85,6 @@ fastjsonschema==2.16.2
     # via nbformat
 filelock==3.8.2
     # via virtualenv
-flake8==6.0.0
-    # via
-    #   flake8-future-annotations
-    #   sec-certs (./../pyproject.toml)
-flake8-future-annotations==1.0.0
-    # via sec-certs (./../pyproject.toml)
 fonttools==4.38.0
     # via matplotlib
 gprof2dot==2022.7.29
@@ -126,8 +120,6 @@ ipython==8.6.0
     #   myst-nb
     #   sec-certs (./../pyproject.toml)
 ipywidgets==8.0.3
-    # via sec-certs (./../pyproject.toml)
-isort==5.10.1
     # via sec-certs (./../pyproject.toml)
 jedi==0.18.2
     # via ipython
@@ -177,8 +169,6 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-mccabe==0.7.0
-    # via flake8
 mdit-py-plugins==0.3.3
     # via myst-parser
 mdurl==0.1.2
@@ -234,6 +224,7 @@ numpy==1.23.5
     #   thinc
 packaging==22.0
     # via
+    #   black
     #   build
     #   deprecation
     #   ipykernel
@@ -301,8 +292,6 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pycodestyle==2.10.0
-    # via flake8
 pycryptodome==3.16.0
     # via pypdf
 pydantic==1.10.2
@@ -312,8 +301,6 @@ pydantic==1.10.2
     #   thinc
 pydata-sphinx-theme==0.8.1
     # via sphinx-book-theme
-pyflakes==3.0.1
-    # via flake8
 pygments==2.13.0
     # via
     #   ipython
@@ -348,8 +335,6 @@ pytz==2022.6
     # via
     #   babel
     #   pandas
-pyupgrade==3.3.1
-    # via sec-certs (./../pyproject.toml)
 pyyaml==6.0
     # via
     #   jupyter-cache
@@ -370,6 +355,8 @@ requests==2.28.1
     #   sec-certs (./../pyproject.toml)
     #   spacy
     #   sphinx
+ruff==0.0.239
+    # via sec-certs (./../pyproject.toml)
 scikit-learn==1.2.0
     # via sec-certs (./../pyproject.toml)
 scipy==1.9.3
@@ -444,8 +431,6 @@ thinc==8.1.5
     # via spacy
 threadpoolctl==3.1.0
     # via scikit-learn
-tokenize-rt==5.0.0
-    # via pyupgrade
 toml==0.10.2
     # via pre-commit
 tomli==2.0.1

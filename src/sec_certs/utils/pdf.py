@@ -14,7 +14,7 @@ import pikepdf
 from pypdf import PdfReader
 from pypdf.generic import BooleanObject, ByteStringObject, FloatObject, IndirectObject, NumberObject, TextStringObject
 
-from sec_certs import constants as constants
+from sec_certs import constants
 from sec_certs.constants import (
     GARBAGE_ALPHA_CHARS_THRESHOLD,
     GARBAGE_AVG_LLEN_THRESHOLD,
@@ -181,12 +181,11 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
     def resolve_indirect(val, bound=10):
         if isinstance(val, list) and bound:
             return [resolve_indirect(v, bound - 1) for v in val]
-        elif isinstance(val, IndirectObject) and bound:
+        if isinstance(val, IndirectObject) and bound:
             return resolve_indirect(val.get_object(), bound - 1)
-        else:
-            return val
+        return val
 
-    metadata: dict[str, Any] = dict()
+    metadata: dict[str, Any] = {}
 
     try:
         metadata["pdf_file_size_bytes"] = filepath.stat().st_size
@@ -252,14 +251,8 @@ def text_is_garbage(text: str) -> bool:
         if len(set(line[1::2])) > 1:
             every_second += 1
 
-    if lines:
-        avg_line_len = content_len / lines
-    else:
-        avg_line_len = 0
-    if size:
-        alpha = alpha_len / size
-    else:
-        alpha = 0
+    avg_line_len = content_len / lines if lines else 0
+    alpha = alpha_len / size if size else 0
 
     # If number of lines is small, this is garbage.
     if lines < GARBAGE_LINES_THRESHOLD:

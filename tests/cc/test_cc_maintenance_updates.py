@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 
 import pytest
-
 import tests.data.cc.dataset
+
 from sec_certs.dataset import CCDataset, CCDatasetMaintenanceUpdates
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 

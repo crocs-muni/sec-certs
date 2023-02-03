@@ -66,7 +66,7 @@ class CPEClassifier(BaseEstimator):
         sufficiently_long_cpes = self._filter_short_cpes(X)
         self.vendor_to_versions_ = {x.vendor: set() for x in sufficiently_long_cpes}
         self.vendors_ = set(self.vendor_to_versions_.keys())
-        self.vendor_version_to_cpe_ = dict()
+        self.vendor_version_to_cpe_ = {}
 
         for cpe in tqdm(sufficiently_long_cpes, desc="Fitting the CPE classifier"):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
@@ -148,7 +148,7 @@ class CPEClassifier(BaseEstimator):
         def filter_condition(regex: Pattern, cpe: CPE, min_value: int, soft: bool = True):
             if matches := re.findall(regex, cpe.update):
                 return int(re.findall(r"\d+", matches[0])[0]) >= min_value
-            return True if soft else False
+            return soft
 
         update_regexes = [cert_rules.SERVICE_PACK_RE, cert_rules.RELEASE_RE]
 
@@ -161,7 +161,7 @@ class CPEClassifier(BaseEstimator):
         return cpes
 
     def _filter_candidates_by_platform(self, cpes: list[CPE], cert_title: str) -> list[CPE]:
-        def filter_condition(cpe: CPE, cert_platforms: set[str]):
+        def filter_condition(cpe: CPE, cert_platforms: set[str]) -> bool:
             if not cert_platforms and cpe.target_hw == "*":
                 return True
             if cert_platforms and cpe.target_hw == "*":
@@ -180,8 +180,9 @@ class CPEClassifier(BaseEstimator):
                 )
                 if not target_hw_platforms:
                     return can_return_true
-                else:
-                    return can_return_true and target_hw_platforms[0] in cert_platforms
+
+                return can_return_true and target_hw_platforms[0] in cert_platforms
+            return True
 
         crt_platforms = {
             platform for platform, regex in cert_rules.PLATFORM_REGEXES.items() if re.search(regex, cert_title)
@@ -323,7 +324,7 @@ class CPEClassifier(BaseEstimator):
                 itertools.chain.from_iterable([x.strip() for x in manufacturer.split(s)] for s in splits)
             )
             result_aux = [self._get_candidate_list_of_vendors(x) for x in vendor_tokens]
-            result_used = set(set(itertools.chain.from_iterable(x for x in result_aux if x)))
+            result_used = set(itertools.chain.from_iterable(x for x in result_aux if x))
             return result_used if result_used else set()
 
         if manufacturer in self.vendors_:
@@ -347,10 +348,7 @@ class CPEClassifier(BaseEstimator):
             def simple_startswith(seeked_version: str, checked_string: str) -> bool:
                 if seeked_version == checked_string:
                     return True
-                else:
-                    return (
-                        checked_string.startswith(seeked_version) and not checked_string[len(seeked_version)].isdigit()
-                    )
+                return checked_string.startswith(seeked_version) and not checked_string[len(seeked_version)].isdigit()
 
             if not cpe_version:
                 return False

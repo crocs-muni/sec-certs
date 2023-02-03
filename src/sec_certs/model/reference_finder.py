@@ -23,7 +23,7 @@ class ReferenceFinder:
     The fit is called on a dictionary of certificates, builds a hashmap of references, and assigns references for each certificate in the dictionary.
     """
 
-    def __init__(self):
+    def __init__(self: ReferenceFinder) -> None:
         self.references: ReferencesType = {}
         self.id_mapping: IDMapping = {}
         self._fitted: bool = False

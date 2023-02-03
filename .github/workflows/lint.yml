@@ -1,4 +1,4 @@
-name: Lint (MyPy, Black, isort, Flake8)
+name: Lint (MyPy, Black, Ruff)
 on:
   push:
   workflow_dispatch:
@@ -24,43 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
-  isort:
+        with:
+          version: "23.1.0"
+          options: "--check --target-version py38"
+  ruff:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - uses: isort/isort-action@master
-        with:
-          requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
-  pyupgrade:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      - name: Install external dependencies
-        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
-      - name: Install python dependencies
+      - name: Install dependencies
         run: |
-          pip install -r requirements/requirements.txt
-          pip install -r requirements/dev_requirements.txt
-      - name: Run pyupgrade
-        run: pre-commit run pyupgrade --all-files
-  flake8-lint:
-    runs-on: ubuntu-latest
-    name: Flake8
-    steps:
-      - name: Check out source repository
-        uses: actions/checkout@v3
-      - name: Set up Python environment
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      - name: flake8 Lint
-        uses: py-actions/flake8@v2
-        with:
-          plugins: "flake8-future-annotations"
+          python -m pip install --upgrade pip
+          pip install ruff==v0.0.239
+      - name: Run Ruff
+        run: ruff --format=github .
