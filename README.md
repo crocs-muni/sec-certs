@@ -57,3 +57,7 @@ df_2015_and_newer = df.loc[df.year_from > 2014]
 # Plot distribution of years of certification
 df.year_from.value_counts().sort_index().plot.line()
 ```
+
+## Authors
+
+This work is being done at [CRoCS MUNI](https://crocs.fi.muni.cz/) by Adam Janovsky, Jan Jancar, Petr Svenda, Jiri Michalik, Lukasz Chmielewski and other contributors. This work was supported by the Internal grant agency of Masaryk University, CZ.02.2.69/0.0/0.0/19_073/0016943.
