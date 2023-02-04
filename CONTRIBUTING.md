@@ -33,8 +33,9 @@ Note on single-sourcing the package version: More can be read [here](https://pac
 
 ### Currently, the release process is as follows
 
-1. Create a release from GitHub UI. Include release notes, add proper version tag and publish the release (or create it from scratch with new tag).
-2. This will automatically update PyPi and DockerHub packages.
+1. Update dependencies with `pre-commit autoupdate`, pin new versions of linters into `pyproject.toml` and run `cd requirements && ./compile.sh`.
+2. Create a release from GitHub UI. Include release notes, add proper version tag and publish the release (or create it from scratch with new tag).
+3. This will automatically update PyPi and DockerHub packages.
 
 
 ## Quality assurance
@@ -46,7 +47,7 @@ All commits shall pass the lint pipeline of the following tools:
 - Ruff (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 - PyUpgrade
 
-These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
+These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool to register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
 It should thus suffice to:
 
