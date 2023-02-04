@@ -12,7 +12,7 @@ jobs:
           python-version: "3.8"
       - name: Install dependencies
         run: |
-          run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+          sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
           pip install -r requirements/dev_requirements.txt
       - name: Run Black
         run: black . --check --target-version py38
