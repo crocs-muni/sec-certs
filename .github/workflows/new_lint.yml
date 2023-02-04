@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: "3.8"
       - name: Install dependencies
-        run: pip install -r requirements/dev_requirements.txt
+        run: |
+          sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+          pip install -r requirements/dev_requirements.txt
       - name: Run Ruff
         run: ruff . --format=github
   mypy:
@@ -35,6 +37,8 @@ jobs:
         with:
           python-version: "3.8"
       - name: Install dependencies
-        run: pip install -r requirements/dev_requirements.txt
+        run: |
+          sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+          pip install -r requirements/dev_requirements.txt
       - name: Run Mypy
         run: mypy .
