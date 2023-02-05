@@ -116,10 +116,10 @@ class CCCertificate(
         st_txt_hash: str | None
         report_txt_hash: str | None
 
-        st_pdf_path: Path
-        report_pdf_path: Path
-        st_txt_path: Path
-        report_txt_path: Path
+        _st_pdf_path: Path | None = None
+        _report_pdf_path: Path | None = None
+        _st_txt_path: Path | None = None
+        _report_txt_path: Path | None = None
 
         def __init__(
             self,
@@ -149,6 +149,46 @@ class CCCertificate(
             self.report_pdf_hash = report_pdf_hash
             self.st_txt_hash = st_txt_hash
             self.report_txt_hash = report_txt_hash
+
+        @property
+        def st_pdf_path(self) -> Path:
+            if not self._st_pdf_path:
+                raise ValueError(f"st_pdf_path not set on {type(self)}")
+            return self._st_pdf_path
+
+        @st_pdf_path.setter
+        def st_pdf_path(self, pth: str | Path | None) -> None:
+            self._st_pdf_path = Path(pth) if pth else None
+
+        @property
+        def report_pdf_path(self) -> Path:
+            if not self._report_pdf_path:
+                raise ValueError(f"report_pdf_path not set on {type(self)}")
+            return self._report_pdf_path
+
+        @report_pdf_path.setter
+        def report_pdf_path(self, pth: str | Path | None) -> None:
+            self._report_pdf_path = Path(pth) if pth else None
+
+        @property
+        def st_txt_path(self) -> Path:
+            if not self._st_txt_path:
+                raise ValueError(f"st_txt_path not set on {type(self)}")
+            return self._st_txt_path
+
+        @st_txt_path.setter
+        def st_txt_path(self, pth: str | Path | None) -> None:
+            self._st_txt_path = Path(pth) if pth else None
+
+        @property
+        def report_txt_path(self) -> Path:
+            if not self._report_txt_path:
+                raise ValueError(f"report_txt_path not set on {type(self)}")
+            return self._report_txt_path
+
+        @report_txt_path.setter
+        def report_txt_path(self, pth: str | Path | None) -> None:
+            self._report_txt_path = Path(pth) if pth else None
 
         @property
         def serialized_attributes(self) -> list[str]:
@@ -754,13 +794,13 @@ class CCCertificate(
         :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
         :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
         """
-        if report_pdf_dir is not None:
+        if report_pdf_dir:
             self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
-        if st_pdf_dir is not None:
+        if st_pdf_dir:
             self.state.st_pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
-        if report_txt_dir is not None:
+        if report_txt_dir:
             self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
-        if st_txt_dir is not None:
+        if st_txt_dir:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
 
     @staticmethod

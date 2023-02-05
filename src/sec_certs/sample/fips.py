@@ -243,9 +243,9 @@ class FIPSCertificate(
         policy_pdf_hash: str | None
         policy_txt_hash: str | None
 
-        policy_pdf_path: Path
-        policy_txt_path: Path
-        module_html_path: Path
+        _policy_pdf_path: Path | None = None
+        _policy_txt_path: Path | None = None
+        _module_html_path: Path | None = None
 
         def __init__(
             self,
@@ -266,6 +266,36 @@ class FIPSCertificate(
             self.policy_extract_ok = policy_extract_ok
             self.policy_pdf_hash = policy_pdf_hash
             self.policy_txt_hash = policy_txt_hash
+
+        @property
+        def policy_pdf_path(self) -> Path:
+            if not self._policy_pdf_path:
+                raise ValueError(f"policy_pdf_path not set on {type(self)}")
+            return self._policy_pdf_path
+
+        @policy_pdf_path.setter
+        def policy_pdf_path(self, pth: str | Path | None) -> None:
+            self._policy_pdf_path = Path(pth) if pth else None
+
+        @property
+        def policy_txt_path(self) -> Path:
+            if not self._policy_txt_path:
+                raise ValueError(f"policy_txt_path not set on {type(self)}")
+            return self._policy_txt_path
+
+        @policy_txt_path.setter
+        def policy_txt_path(self, pth: str | Path | None) -> None:
+            self._policy_txt_path = Path(pth) if pth else None
+
+        @property
+        def module_html_path(self) -> Path:
+            if not self._module_html_path:
+                raise ValueError(f"module_html_path not set on {type(self)}")
+            return self._module_html_path
+
+        @module_html_path.setter
+        def module_html_path(self, pth: str | Path | None) -> None:
+            self._module_html_path = Path(pth) if pth else None
 
         @property
         def serialized_attributes(self) -> list[str]:
