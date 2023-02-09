@@ -125,11 +125,22 @@ class FIPSHTMLParser:
 
     @staticmethod
     def parse_algorithms(algorithms_div: Tag) -> dict[str, set[str]]:
-        rows = algorithms_div.find("tbody").find_all("tr")
         dct: dict[str, set[str]] = {}
-        for row in rows:
-            cells = row.find_all("td")
-            dct[cells[0].text] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
+        table = algorithms_div.find("tbody")
+        # Two types of organization on the CMVP website:
+        #  - One is a table with algo references in text
+        #  - Other is just divs for rows, one per algo
+        if table:
+            rows = table.find_all("tr")
+            for row in rows:
+                cells = row.find_all("td")
+                dct[str(cells[0].text)] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
+        else:
+            rows = algorithms_div.find_all("div", class_="col-md-12")
+            for row in rows:
+                dct[str(row.find("div", class_="col-md-3").text)] = {
+                    str(row.find("div", class_="col-md-4").text).strip()
+                }
         return dct
 
     @staticmethod
