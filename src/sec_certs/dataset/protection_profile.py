@@ -83,7 +83,6 @@ class ProtectionProfileDataset:
 
     @classmethod
     def from_web(cls, store_dataset_path: Path | None = None):
-
         logger.info(f"Downloading static PP dataset from: {config.pp_latest_snapshot}")
         if not store_dataset_path:
             tmp = tempfile.TemporaryDirectory()

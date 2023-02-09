@@ -252,7 +252,6 @@ def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEData
     def filter_cves(
         cve_dset: CVEDataset, cves: set[str], not_valid_before: pd.Timestamp, not_valid_after: pd.Timestamp
     ) -> set[str] | float:
-
         # Mypy is complaining, but the Optional date is resolved at the beginning of the and condition
         result: set[str] = {
             x

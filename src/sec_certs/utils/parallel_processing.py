@@ -19,7 +19,6 @@ def process_parallel(
     unpack: bool = False,
     progress_bar_desc: str | None = None,
 ) -> list[Any]:
-
     pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = (
         [pool.apply_async(func, (*i,), callback=callback) for i in items]

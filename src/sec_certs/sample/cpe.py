@@ -11,7 +11,6 @@ from sec_certs.utils import helpers
 
 
 class CPEConfiguration(ComplexSerializableType):
-
     __slots__ = ["platform", "cpes"]
 
     def __init__(self, platform: str, cpes: set[str]) -> None:
