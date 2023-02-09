@@ -51,7 +51,9 @@ def updates():
 def updates_cc():
     page = int(request.args.get("page", 1))
     per_page = 20
-    cc_log = list(mongo.db.cc_log.find().sort([("_id", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page])
+    cc_log = list(
+        mongo.db.cc_log.find().sort([("start_time", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page]
+    )
     for log_entry in cc_log:
         if "stats" in log_entry:
             log_entry["stats"]["changed_ids"] = mongo.db.cc_diff.count_documents(
@@ -78,7 +80,7 @@ def updates_fips():
     page = int(request.args.get("page", 1))
     per_page = 20
     fips_log = list(
-        mongo.db.fips_log.find().sort([("_id", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page]
+        mongo.db.fips_log.find().sort([("start_time", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page]
     )
     for log_entry in fips_log:
         if "stats" in log_entry:

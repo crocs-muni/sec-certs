@@ -7,7 +7,7 @@ from itertools import product
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
-from typing import Type
+from typing import List, Set, Tuple, Type
 
 import sec_certs
 import sentry_sdk
@@ -19,7 +19,7 @@ from flask import current_app, render_template
 from flask_mail import Message
 from jsondiff import diff, symbols
 from pkg_resources import get_distribution
-from pymongo import DESCENDING
+from pymongo import DESCENDING, InsertOne, ReplaceOne
 from sec_certs.dataset.dataset import Dataset
 
 from .. import mail, mongo, redis, whoosh_index
@@ -82,25 +82,36 @@ class Updater:  # pragma: no cover
 
         return res
 
-    def process_new_certs(self, dset, new_ids, run_id, timestamp):  # pragma: no cover
+    def process_new_certs(
+        self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
+    ) -> Tuple[List[object], List[object]]:  # pragma: no cover
+        res_col = []
+        res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.new", description="Process new certs."):
             logger.info(f"Processing {len(new_ids)} new certificates.")
             for id in new_ids:
                 # Add a cert to DB
                 cert_data = ObjFormat(dset[id]).to_raw_format().to_working_format().to_storage_format().get()
                 cert_data["_id"] = cert_data["dgst"]
-                mongo.db[self.collection].insert_one(cert_data)
-                mongo.db[self.diff_collection].insert_one(
-                    {
-                        "run_id": run_id,
-                        "dgst": id,
-                        "timestamp": timestamp,
-                        "type": "new",
-                        "diff": cert_data,
-                    }
+                res_col.append(InsertOne(cert_data))
+                res_diff_col.append(
+                    InsertOne(
+                        {
+                            "run_id": run_id,
+                            "dgst": id,
+                            "timestamp": timestamp,
+                            "type": "new",
+                            "diff": cert_data,
+                        }
+                    )
                 )
+        return res_col, res_diff_col
 
-    def process_updated_certs(self, dset, updated_ids, run_id, timestamp):  # pragma: no cover
+    def process_updated_certs(
+        self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
+    ) -> Tuple[List[object], List[object]]:  # pragma: no cover
+        res_col = []
+        res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.updated", description="Process updated certs."):
             logger.info(f"Processing {len(updated_ids)} updated certificates.")
             diffs = 0
@@ -119,33 +130,41 @@ class Updater:  # pragma: no cover
                     storage_cert = working_cert.to_storage_format().get()
                     storage_cert["_id"] = id
                     # The cert changed, issue an update
-                    mongo.db[self.collection].replace_one({"_id": id}, storage_cert)
-                    mongo.db[self.diff_collection].insert_one(
-                        {
-                            "run_id": run_id,
-                            "dgst": id,
-                            "timestamp": timestamp,
-                            "type": "change",
-                            "diff": working_diff.to_storage_format().get(),
-                        }
+                    res_col.append(ReplaceOne({"_id": id}, storage_cert))
+                    res_diff_col.append(
+                        InsertOne(
+                            {
+                                "run_id": run_id,
+                                "dgst": id,
+                                "timestamp": timestamp,
+                                "type": "change",
+                                "diff": working_diff.to_storage_format().get(),
+                            }
+                        )
                     )
                     diffs += 1
                 elif last_diff and last_diff["type"] == "remove":
                     # The cert did not change but came back from being marked removed
-                    mongo.db[self.diff_collection].insert_one(
-                        {
-                            "run_id": run_id,
-                            "dgst": id,
-                            "timestamp": timestamp,
-                            "type": "back",
-                        }
+                    res_diff_col.append(
+                        InsertOne(
+                            {
+                                "run_id": run_id,
+                                "dgst": id,
+                                "timestamp": timestamp,
+                                "type": "back",
+                            }
+                        )
                     )
                     appearances += 1
             logger.info(
                 f"Processed {diffs} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids) - diffs - appearances} unchanged."
             )
+        return res_col, res_diff_col
 
-    def process_removed_certs(self, dset, removed_ids, run_id, timestamp):  # pragma: no cover
+    def process_removed_certs(
+        self, dset: Dataset, removed_ids: Set[str], run_id, timestamp: datetime
+    ) -> List[object]:  # pragma: no cover
+        res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.removed", description="Process removed certs."):
             logger.info(f"Processing {len(removed_ids)} removed certificates.")
             for id in removed_ids:
@@ -154,14 +173,17 @@ class Updater:  # pragma: no cover
                 if last_diff and last_diff["type"] == "remove":
                     continue
                 # Mark the removal (but only once)
-                mongo.db[self.diff_collection].insert_one(
-                    {
-                        "run_id": run_id,
-                        "dgst": id,
-                        "timestamp": timestamp,
-                        "type": "remove",
-                    }
+                res_diff_col.append(
+                    InsertOne(
+                        {
+                            "run_id": run_id,
+                            "dgst": id,
+                            "timestamp": timestamp,
+                            "type": "remove",
+                        }
+                    )
                 )
+        return res_diff_col
 
     @abstractmethod
     def process(self, dset, paths):
@@ -244,9 +266,16 @@ class Updater:  # pragma: no cover
                 lock = redis.lock(self.lock_name, blocking_timeout=30)
                 acquired = lock.acquire()
                 try:
-                    self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
-                    self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
-                    self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+                    res, res_diff = self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
+                    mongo.db[self.collection].bulk_write(res, ordered=False)
+                    mongo.db[self.diff_collection].bulk_write(res_diff, ordered=False)
+
+                    res, res_diff = self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
+                    mongo.db[self.collection].bulk_write(res, ordered=False)
+                    mongo.db[self.diff_collection].bulk_write(res_diff, ordered=False)
+
+                    res_diff = self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+                    mongo.db[self.diff_collection].bulk_write(res_diff, ordered=False)
                 finally:
                     if acquired:
                         lock.release()
