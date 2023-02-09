@@ -1,16 +1,16 @@
 {
-  "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert",
+  "_type": "sec_certs.sample.cc.CCCertificate",
   "category": "Biometric Systems and Devices",
   "cert_link": null,
   "dgst": "6a2eb69f2caf5268",
   "heuristics": {
-    "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.Heuristics",
+    "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
     "cert_id": "BSI-DSZ-CC-0511-2008",
     "cert_lab": [
       "BSI"
     ],
     "cpe_matches": null,
-    "direct_dependency_cves": null,
+    "direct_transitive_cves": null,
     "extracted_sars": {
       "_type": "Set",
       "elements": [
@@ -187,7 +187,7 @@
         "24"
       ]
     },
-    "indirect_dependency_cves": null,
+    "indirect_transitive_cves": null,
     "related_cves": null,
     "report_references": {
       "_type": "sec_certs.sample.certificate.References",
@@ -215,7 +215,7 @@
   "not_valid_after": "2019-09-01",
   "not_valid_before": "2008-12-30",
   "pdf_data": {
-    "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.PdfData",
+    "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
     "report_frontpage": {
       "anssi": {},
       "bsi": {
@@ -625,11 +625,7 @@
   },
   "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0511b.pdf",
   "state": {
-    "_type": "sec_certs.sample.common_criteria.CommonCriteriaCert.InternalState",
-    "errors": [
-      "Failed to read metadata of certs/targets/pdf/6a2eb69f2caf5268.pdf, error: unsupported operand type(s) for +: 'IndirectObject' and 'list'",
-      "Failed to read metadata of certs/targets/pdf/6a2eb69f2caf5268.pdf, error: unsupported operand type(s) for +: 'IndirectObject' and 'list'"
-    ],
+    "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
     "report_convert_ok": true,
     "report_download_ok": true,
     "report_extract_ok": true,

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from bson.objectid import ObjectId
 from jsondiff.symbols import Symbol, _all_symbols_
-from sec_certs.serialization.json import ComplexSerializableType, _class_fullname
+from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname
 
 from .frozendict import frozendict
 
@@ -14,7 +14,7 @@ _sct = None
 def serializable_complex_types():
     global _sct
     if _sct is None:
-        _sct = {_class_fullname(x): x for x in ComplexSerializableType.__subclasses__()}
+        _sct = {get_class_fullname(x): x for x in ComplexSerializableType.__subclasses__()}
     return _sct
 
 
@@ -193,7 +193,7 @@ class ObjFormat(Format):
     def to_raw_format(self) -> "RawFormat":
         def walk(obj):
             if isinstance(obj, ComplexSerializableType):
-                return frozendict({"_type": _class_fullname(obj), **walk(obj.to_dict())})
+                return frozendict({"_type": get_class_fullname(obj), **walk(obj.to_dict())})
             elif isinstance(obj, dict):
                 return frozendict({key: walk(value) for key, value in obj.items()})
             elif isinstance(obj, list):

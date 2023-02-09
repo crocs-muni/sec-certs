@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 from jsondiff import diff
-from sec_certs.sample.common_criteria import CommonCriteriaCert
+from sec_certs.sample.cc import CCCertificate
 
 from sec_certs_page.common.objformats import ObjFormat, WorkingFormat, freeze, unfreeze
 
@@ -24,7 +24,7 @@ def cert2():
 
 def test_load_cert(cert1):
     test_path, cert_data = cert1
-    cert = CommonCriteriaCert.from_json(test_path)
+    cert = CCCertificate.from_json(test_path)
     storage_format = ObjFormat(cert).to_raw_format().to_working_format().to_storage_format()
     obj_format = storage_format.to_working_format().to_raw_format().to_obj_format()
     assert cert == obj_format.get()

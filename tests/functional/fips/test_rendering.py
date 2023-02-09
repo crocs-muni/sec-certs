@@ -1,3 +1,5 @@
+from operator import itemgetter
+
 import pytest
 from flask.testing import FlaskClient
 
@@ -131,10 +133,10 @@ def test_entry_graph(client: FlaskClient):
     resp = client.get("/fips/226f76b55acb4970/graph.json")
     assert resp.is_json
     nodes = resp.json["nodes"]
-    assert len(nodes) == 1
-    assert nodes[0]["id"] == "226f76b55acb4970"
+    ids = set(map(itemgetter("id"), nodes))
+    assert "226f76b55acb4970" in ids
     links = resp.json["links"]
-    assert len(links) == 0
+    assert len(links) >= 1
 
 
 @pytest.mark.remote

@@ -4,7 +4,7 @@ import sentry_sdk
 from bson.objectid import ObjectId
 from celery.utils.log import get_task_logger
 from flask import current_app
-from sec_certs.dataset.common_criteria import CCDataset, CCSchemeDataset
+from sec_certs.dataset.cc import CCDataset, CCSchemeDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import celery, mongo

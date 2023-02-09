@@ -111,7 +111,7 @@ regex
 requests
 scikit-learn
 scipy
--e git+ssh://git@github.com/crocs-muni/sec-certs.git@b84b03a57c81636bc617eccc1d03f9b6ad6a15ac#egg=sec_certs
+-e git+ssh://git@github.com/crocs-muni/sec-certs.git@a13e085b06cb2772ec812e4bd364a7fe938c806f#egg=sec_certs
 sentry-sdk
 six
 soupsieve
