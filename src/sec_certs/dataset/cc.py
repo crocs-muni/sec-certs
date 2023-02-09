@@ -894,7 +894,7 @@ class CCSchemeDataset:
     @staticmethod
     def _download_page(url, session=None):
         conn = session if session else requests
-        resp = conn.get(url, headers={"User-Agent": "seccerts.org"})
+        resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False)
         if resp.status_code != requests.codes.ok:
             raise ValueError(f"Unable to download: status={resp.status_code}")
         return BeautifulSoup(resp.content, "html5lib")
@@ -1033,14 +1033,14 @@ class CCSchemeDataset:
             pager = soup.find("ul", class_="pager")
             for li in pager.find_all("li"):
                 try:
-                    new_page = int(li.text)
+                    new_page = int(li.text) - 1
                 except Exception:
                     continue
                 if new_page not in seen_pages:
                     pages.add(new_page)
 
             # Parse table
-            tbody = soup.find("div", class_="content").find("table").find("tbody")
+            tbody = soup.find("div", class_="view-content").find("table").find("tbody")
             for tr in tbody.find_all("tr"):
                 tds = tr.find_all("td")
                 if not tds:
@@ -1077,16 +1077,17 @@ class CCSchemeDataset:
 
             # Update pages
             pager = soup.find("ul", class_="pager")
-            for li in pager.find_all("li"):
-                try:
-                    new_page = int(li.text)
-                except Exception:
-                    continue
-                if new_page not in seen_pages:
-                    pages.add(new_page)
+            if pager:
+                for li in pager.find_all("li"):
+                    try:
+                        new_page = int(li.text) - 1
+                    except Exception:
+                        continue
+                    if new_page not in seen_pages:
+                        pages.add(new_page)
 
             # Parse table
-            tbody = soup.find("div", class_="content").find("table").find("tbody")
+            tbody = soup.find("div", class_="view-content").find("table").find("tbody")
             for tr in tbody.find_all("tr"):
                 tds = tr.find_all("td")
                 if not tds:
