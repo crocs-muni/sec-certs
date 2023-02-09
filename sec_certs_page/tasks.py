@@ -5,6 +5,7 @@ import sentry_sdk
 from celery import chain
 from celery.utils.log import get_task_logger
 from flask import current_app
+from pymongo import ReplaceOne
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 
@@ -34,10 +35,15 @@ def update_cve_data():  # pragma: no cover
 
     logger.info("Inserting CVEs.")
     with sentry_sdk.start_span(op="cve.insert", description="Insert CVEs into DB."):
-        for cve in cve_dset:
-            cve_data = ObjFormat(cve).to_raw_format().to_working_format().to_storage_format().get()
-            cve_data["_id"] = cve.cve_id
-            mongo.db.cve.replace_one({"_id": cve.cve_id}, cve_data, upsert=True)
+        cves = list(cve_dset)
+        for i in range(0, len(cve_dset), 10000):
+            chunk = []
+            for cve in cves[i : i + 10000]:
+                cve_data = ObjFormat(cve).to_raw_format().to_working_format().to_storage_format().get()
+                cve_data["_id"] = cve.cve_id
+                chunk.append(ReplaceOne({"_id": cve.cve_id}, cve_data, upsert=True))
+            res = mongo.db.cve.bulk_write(chunk, ordered=False)
+            logger.info(f"Inserted chunk: {res.bulk_api_result}")
 
 
 @celery.task(ignore_result=True)
@@ -62,10 +68,15 @@ def update_cpe_data():  # pragma: no cover
 
     logger.info("Inserting CPEs.")
     with sentry_sdk.start_span(op="cpe.insert", description="Insert CPEs into DB."):
-        for cpe in cpe_dset:
-            cpe_data = ObjFormat(cpe).to_raw_format().to_working_format().to_storage_format().get()
-            cpe_data["_id"] = cpe.uri
-            mongo.db.cpe.replace_one({"_id": cpe.uri}, cpe_data, upsert=True)
+        cpes = list(cpe_dset)
+        for i in range(0, len(cpe_dset), 10000):
+            chunk = []
+            for cpe in cpes[i : i + 10000]:
+                cpe_data = ObjFormat(cpe).to_raw_format().to_working_format().to_storage_format().get()
+                cpe_data["_id"] = cpe.uri
+                chunk.append(ReplaceOne({"_id": cpe.uri}, cpe_data, upsert=True))
+        res = mongo.db.cpe.bulk_write(chunk, ordered=False)
+        logger.info(f"Inserted chunk: {res.bulk_api_result}")
 
 
 @celery.task(ignore_result=True)
