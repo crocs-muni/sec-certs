@@ -59,7 +59,6 @@ def cve_dict() -> dict[str, Any]:
     }
 
 
-
 @pytest.fixture(scope="module")
 def cve_2010_2325_cpe_configs():
     return {
@@ -73,8 +72,9 @@ def cve_2010_2325_cpe_configs():
         "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
         "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
         "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
-        "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"
+        "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
     }
+
 
 @pytest.fixture(scope="module")
 def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
@@ -106,8 +106,8 @@ def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
             cve_2010_2325_cpe_configs,
             CVE.Impact(4.3, "MEDIUM", 8.6, 2.9),
             "2010-06-18T18:30",
-            {"CWE-79"}
-        )
+            {"CWE-79"},
+        ),
     ]
 
 
@@ -115,7 +115,8 @@ def test_cve_dset_lookup_dicts(cves: list[CVE], cve_dset: CVEDataset):
     alt_lookup = {x: set(y) for x, y in cve_dset.cpe_to_cve_ids_lookup.items()}
     assert alt_lookup == {
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*": {
-            "CVE-2017-1732", "CVE-2019-4513"
+            "CVE-2017-1732",
+            "CVE-2019-4513",
         }
     }
 
