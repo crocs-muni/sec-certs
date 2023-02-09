@@ -7,7 +7,7 @@ from itertools import product
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
-from typing import Mapping, Tuple, Type
+from typing import Type
 
 import sec_certs
 import sentry_sdk
@@ -193,7 +193,6 @@ class Updater:  # pragma: no cover
         if skip_update:
             dset = self.dset_class.from_json(paths["output_path"])
             dset.root_dir = paths["dset_path"]
-            dset.set_local_paths()
         else:
             dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
 

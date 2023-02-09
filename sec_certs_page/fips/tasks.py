@@ -95,40 +95,34 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"):
                     dset.get_certs_from_web(update_json=False)
+                with sentry_sdk.start_span(op="fips.download_artifacts", description="Download artifacts"):
+                    dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"):
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(op="fips.scan_pdfs", description="Scan pdfs"):
-                    dset.pdf_scan(update_json=False)
-                with sentry_sdk.start_span(op="fips.tables", description="Extract tables"):
-                    dset.extract_certs_from_tables(high_precision=False, update_json=False)
-                with sentry_sdk.start_span(op="fips.algorithms", description="Process algorithms"):
-                    try:
-                        dset.process_algorithms(update_json=False)
-                    except FileNotFoundError:
-                        logger.warn("FIPS algos could not be downloaded.")
-                with sentry_sdk.start_span(op="fips.finalize_results", description="Finalize results"):
-                    dset.finalize_results(update_json=False)
+                with sentry_sdk.start_span(
+                    op="fips.auxilliary_datasets", description="Process auxilliary datasets (CVE, CPE, Algo)"
+                ):
+                    dset.process_auxillary_datasets(update_json=False)
+                with sentry_sdk.start_span(op="fips.analyze", description="Analyze certificates"):
+                    dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"):
                     dset.to_json(paths["output_path"])
 
             with sentry_sdk.start_span(op="fips.move", description="Move files"):
                 for cert in dset:
-                    if cert.state.sp_path:
-                        pdf_path = cert.state.sp_path
-                        if pdf_path.exists():
-                            pdf_dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                            if not pdf_dst.exists() or get_sha256_filepath(pdf_dst) != get_sha256_filepath(pdf_path):
-                                pdf_path.replace(pdf_dst)
-                        txt_path = pdf_path.with_suffix(".pdf.txt")
-                        if txt_path.exists():
-                            txt_dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                            if not txt_dst.exists() or get_sha256_filepath(txt_dst) != get_sha256_filepath(txt_path):
-                                txt_path.replace(txt_dst)
-                                to_reindex.add((cert.dgst, "target"))
+                    if cert.state.policy_pdf_path and cert.state.policy_pdf_path.exists():
+                        dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy_pdf_hash:
+                            cert.state.policy_pdf_path.replace(dst)
+                    if cert.state.policy_txt_path and cert.state.policy_txt_path.exists():
+                        dst = paths["target_txt"] / f"{cert.dgst}.txt"
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy_txt_hash:
+                            cert.state.policy_txt_path.replace(dst)
+                            to_reindex.add((cert.dgst, "target"))
         return to_reindex
 
     def dataset_state(self, dset):
-        return None
+        return dset.state.to_dict()
 
     def notify(self, run_id):
         notify.delay(str(run_id))
