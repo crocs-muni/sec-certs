@@ -8,7 +8,6 @@ from typing import Pattern
 
 import spacy
 from rapidfuzz import fuzz
-from sklearn.base import BaseEstimator
 
 from sec_certs import cert_rules, constants
 from sec_certs.sample.cpe import CPE
@@ -17,10 +16,10 @@ from sec_certs.utils.tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
-class CPEClassifier(BaseEstimator):
+class CPEClassifier:
     """
     Class that can predict CPE matches for certificate instances.
-    Adheres to sklearn BaseEstimator interface.
+    Adheres to sklearn `sklearn.base.BaseEstimator` interface.
     Fit method is called on list of CPEs and build two look-up dictionaries, see description of attributes.
     """
 
