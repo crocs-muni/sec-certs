@@ -29,7 +29,8 @@
                             the <a href="https://cybersec4europe.eu/" target="_blank" rel="noopener">CyberSec4Europe</a>
                             project,
                             <a href="https://research.redhat.com/" target="_blank" rel="noopener">Red Hat Research</a>
-                            as well as the Internal grant agency of Masaryk University, project CZ.02.2.69/0.0/0.0/19_073/0016943.
+                            as well as the Internal grant agency of Masaryk University, project
+                            CZ.02.2.69/0.0/0.0/19_073/0016943.
                         </p>
                         <ul class="name-list">
                             <li>Petr Svenda</li>
@@ -39,10 +40,12 @@
                             <li>Jan Jancar</li>
                             <li>Łukasz Chmielewski</li>
                         </ul>
-                        <p>A thanks goes to Jaroslav Řezník for their insight into the security certification landscape.</p>
+                        <p>A thanks goes to Jaroslav Řezník for their insight into the security certification
+                            landscape.</p>
                         <p>If you would like to contact us, you can do so at <a
                                 href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.</p>
                     </div>
+
                     {% if config["ANONYMOUS"] %}
                         <div id="about-toggle">
                             <p>The site is in anonymized mode for review. Clicking the button below will show the
@@ -61,6 +64,16 @@
                             </script>
                         </div>
                     {% endif %}
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <img class="w-25 m-5" style="background-color: #0E4294"
+                             src="{{ url_for("static", filename="img/csfe_logo.png") }}" alt=""/>
+                        <img class="w-25 m-5" src="{{ url_for("static", filename="img/redhat_logo.svg") }}" alt=""/>
+                    </div>
+                    <div class="row">
+                        <img class="w-100" src="{{ url_for("static", filename="img/eu_logo.jpg") }}" alt=""/>
+                    </div>
                 </div>
             </div>
             <div class="row my-5">
