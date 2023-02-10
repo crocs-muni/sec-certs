@@ -13,6 +13,7 @@ from ..common.views import create_graph
 cc: Blueprint = Blueprint("cc", __name__, url_prefix="/cc")
 cc.cli.short_help = "Common Criteria commands."
 
+cc_mem_init: ContextVar = ContextVar("cc_init")
 cc_mem_graphs: ContextVar = ContextVar("cc_graphs")
 cc_mem_analysis: ContextVar = ContextVar("cc_analysis")
 cc_mem_map: ContextVar = ContextVar("cc_map")
@@ -36,6 +37,7 @@ cc_searcher: ContextVar = ContextVar("cc_searcher")
 
 def load_cc_data():
     with sentry_sdk.start_span(op="cc.load", description="Load CC data"):
+        cc_mem_init.set(True)
         # Extract references
         data = mongo.db.cc.find(
             {},
@@ -114,6 +116,10 @@ def load_cc_data():
 
 
 def _update_cc_data():
+    if not cc_mem_init.get(False):
+        load_cc_data()
+        return
+
     with sentry_sdk.start_span(op="cc.check", description="Check CC staleness"):
         do_update = False
         lock = redis.lock("cc_update", blocking=False)
@@ -167,9 +173,8 @@ def get_cc_searcher():
     return searcher
 
 
-@cc.before_app_first_request
-def init_cc():
-    load_cc_data()
+@cc.record_once
+def init_cc(state):
     get_cc_searcher()
 
 

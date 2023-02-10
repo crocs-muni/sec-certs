@@ -12,6 +12,7 @@ from ..common.views import create_graph
 fips: Blueprint = Blueprint("fips", __name__, url_prefix="/fips")
 fips.cli.short_help = "FIPS 140 commands."
 
+fips_mem_init: ContextVar = ContextVar("fips_init")
 fips_mem_graphs: ContextVar = ContextVar("fips_graphs")
 fips_mem_map: ContextVar = ContextVar("fips_map")
 fips_mem_changes: ContextVar = ContextVar("fips_changes")
@@ -28,6 +29,8 @@ fips_searcher: ContextVar = ContextVar("fips_searcher")
 
 def load_fips_data():
     with sentry_sdk.start_span(op="fips.load", description="Load FIPS data"):
+        fips_mem_init.set(True)
+
         data = mongo.db.fips.find(
             {},
             {
@@ -68,6 +71,10 @@ def load_fips_data():
 
 
 def _update_fips_data():
+    if not fips_mem_init.get(False):
+        load_fips_data()
+        return
+
     with sentry_sdk.start_span(op="fips.check", description="Check FIPS staleness"):
         do_update = False
         lock = redis.lock("fips_update", blocking=False)
@@ -113,9 +120,8 @@ def get_fips_searcher():
     return searcher
 
 
-@fips.before_app_first_request
-def init_fips():
-    load_fips_data()
+@fips.record_once
+def init_fips(state):
     get_fips_searcher()
 
 

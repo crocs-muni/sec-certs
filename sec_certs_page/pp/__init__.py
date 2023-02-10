@@ -4,8 +4,8 @@ pp: Blueprint = Blueprint("pp", __name__, url_prefix="/pp")
 pp.cli.short_help = "Protection Profile commands."
 
 
-@pp.before_app_first_request
-def load_pp_data():
+@pp.record_once
+def load_pp_data(state):
     pass
 
 
