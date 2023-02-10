@@ -36,18 +36,18 @@ def load_fips_data():
                 "web_data.module_name": 1,
                 "web_data.module_type": 1,
                 "web_data.status": 1,
-                "heuristics.st_references.directly_referencing": 1,
-                "heuristics.web_references.directly_referencing": 1,
+                "heuristics.policy_processed_references.directly_referencing": 1,
+                "heuristics.module_processed_references.directly_referencing": 1,
             },
         )
         fips_references = {}
         for cert in data:
             cert = load(cert)
             refs = {}
-            if cert["heuristics"]["st_references"]["directly_referencing"]:
-                refs["st"] = cert["heuristics"]["st_references"]["directly_referencing"]
-            if cert["heuristics"]["web_references"]["directly_referencing"]:
-                refs["web"] = cert["heuristics"]["web_references"]["directly_referencing"]
+            if cert["heuristics"]["policy_processed_references"]["directly_referencing"]:
+                refs["st"] = cert["heuristics"]["policy_processed_references"]["directly_referencing"]
+            if cert["heuristics"]["module_processed_references"]["directly_referencing"]:
+                refs["web"] = cert["heuristics"]["module_processed_references"]["directly_referencing"]
             reference = {
                 "hashid": cert["_id"],
                 "name": cert["web_data"]["module_name"],

@@ -99,7 +99,7 @@
                 {% set vendor = cert["web_data"]["vendor"] %}
                 {% set status = cert["web_data"]["status"] %}
                 {% set hashid = cert["_id"] %}
-                {% set cert_dates = cert["web_data"]["date_validation"] %}
+                {% set cert_dates = cert["web_data"]["validation_history"] %}
                 {% set sunset_date = cert["web_data"]["date_sunset"] %}
                 {% set type = cert["web_data"]["module_type"] %}
                 <tr>
@@ -109,7 +109,7 @@
                     <td>{{ render_status(status) }}</td>
                     <td>{{ level }}</td>
                     <td>{{ vendor }}</td>
-                    <td>{% for date in cert_dates %}{{ date|strftime("%d.%m.%Y") }}<br/>{% endfor %}</td>
+                    <td>{% for entry in cert_dates %}{{ entry["date"]|strftime("%d.%m.%Y") }}<br/>{% endfor %}</td>
                     <td>{% if sunset_date %}{{ sunset_date|strftime("%d.%m.%Y") }}{% endif %}</td>
                 </tr>
             {% endfor %}

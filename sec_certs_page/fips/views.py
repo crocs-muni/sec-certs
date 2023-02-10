@@ -13,6 +13,7 @@ from flask import abort, current_app, redirect, render_template, request, send_f
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from networkx import node_link_data
+from pymongo.collation import Collation
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 from whoosh import highlight
@@ -112,7 +113,7 @@ def select_certs(q, cat, status, sort):
         "web_data.level": 1,
         "web_data.vendor": 1,
         "web_data.module_type": 1,
-        "web_data.date_validation": 1,
+        "web_data.validation_history": 1,
         "web_data.date_sunset": 1,
     }
 
@@ -154,9 +155,9 @@ def select_certs(q, cat, status, sort):
     elif sort == "number":
         cursor.sort([("cert_id", pymongo.ASCENDING)])
     elif sort == "first_cert_date":
-        cursor.sort([("web_data.date_validation.0", pymongo.ASCENDING)])
+        cursor.sort([("web_data.validation_history.0.date._value", pymongo.ASCENDING)])
     elif sort == "last_cert_date":
-        cursor.sort([("web_data.date_validation", pymongo.ASCENDING)])
+        cursor.sort([("web_data.validation_history", pymongo.ASCENDING)])
     elif sort == "sunset_date":
         cursor.sort([("web_data.date_sunset", pymongo.ASCENDING)])
     elif sort == "level":

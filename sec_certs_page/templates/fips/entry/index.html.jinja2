@@ -97,8 +97,8 @@
                         <tr data-cs-name="Validation dates">
                             <th scope="row">Validation dates</th>
                             <td>
-                                {% for date in cert["web_data"]["date_validation"] %}
-                                    {{ date|strftime("%d.%m.%Y") }}
+                                {% for entry in cert["web_data"]["validation_history"] %}
+                                    {{ entry["date"]|strftime("%d.%m.%Y") }}
                                     {{ ", " if not loop.last else "" }}{% endfor %}</td>
                         </tr>
                         {% if cert["web_data"]["date_sunset"] %}
@@ -203,10 +203,10 @@
                         <tr>
                             <th scope="row">References</th>
                             <td><p>This certificate's webpage directly references
-                                {{ cert["heuristics"]["web_references"]["directly_referencing"]|default("", true)|length }}
+                                {{ cert["heuristics"]["module_processed_references"]["directly_referencing"]|default("", true)|length }}
                                 certificates,
                                 transitively this expands
-                                into {{ cert["heuristics"]["web_references"]["indirectly_referencing"]|default("", true)|length }}
+                                into {{ cert["heuristics"]["module_processed_references"]["indirectly_referencing"]|default("", true)|length }}
                                 certificates.</p></td>
                         </tr>
                         </tbody>
@@ -246,10 +246,10 @@
 
                     <h3 class="mt-3">References</h3>
                     <p>This certificate's security target directly references
-                        {{ cert["heuristics"]["st_references"]["directly_referencing"]|default("", true)|length }}
+                        {{ cert["heuristics"]["policy_processed_references"]["directly_referencing"]|default("", true)|length }}
                         certificates,
                         transitively this expands
-                        into {{ cert["heuristics"]["st_references"]["indirectly_referencing"]|default("", true)|length }}
+                        into {{ cert["heuristics"]["policy_processed_references"]["indirectly_referencing"]|default("", true)|length }}
                         certificates.</p>
                 </div>
             </div>
