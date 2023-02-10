@@ -732,6 +732,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             for dgst in self.certs:
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
 
+    @serialize
     def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
         """
         Processes all auxillary datasets needed during computation. On top of base-class processing,
@@ -741,7 +742,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         self.auxillary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
         self.auxillary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
 
-    @serialize
     def process_protection_profiles(
         self, to_download: bool = True, keep_metadata: bool = True
     ) -> ProtectionProfileDataset:
