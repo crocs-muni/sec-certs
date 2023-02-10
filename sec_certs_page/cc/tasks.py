@@ -86,14 +86,14 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"):
                     dset.get_certs_from_web(update_json=False)
+                with sentry_sdk.start_span(
+                    op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU)"
+                ):
+                    dset.process_auxillary_datasets(update_json=False)
                 with sentry_sdk.start_span(op="cc.download_artifacts", description="Download artifacts"):
                     dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="cc.convert_pdfs", description="Convert pdfs"):
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(
-                    op="cc.auxilliary_datasets", description="Process auxilliary datasets (CVE, CPE, PP, MU)"
-                ):
-                    dset.process_auxillary_datasets(update_json=False)
                 with sentry_sdk.start_span(op="cc.analyze", description="Analyze certificates"):
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"):

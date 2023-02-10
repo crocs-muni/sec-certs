@@ -185,6 +185,10 @@ class Updater:  # pragma: no cover
                 )
         return res_diff_col
 
+    def insert_certs(self, collection: str, requests: List[object], ordered: bool = False):
+        if requests:
+            mongo.db[collection].bulk_write(requests, ordered=ordered)
+
     @abstractmethod
     def process(self, dset, paths):
         ...
@@ -267,15 +271,15 @@ class Updater:  # pragma: no cover
                 acquired = lock.acquire()
                 try:
                     res, res_diff = self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
-                    mongo.db[self.collection].bulk_write(res, ordered=False)
-                    mongo.db[self.diff_collection].bulk_write(res_diff, ordered=False)
+                    self.insert_certs(self.collection, res, ordered=False)
+                    self.insert_certs(self.diff_collection, res_diff, ordered=False)
 
                     res, res_diff = self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
-                    mongo.db[self.collection].bulk_write(res, ordered=False)
-                    mongo.db[self.diff_collection].bulk_write(res_diff, ordered=False)
+                    self.insert_certs(self.collection, res, ordered=False)
+                    self.insert_certs(self.diff_collection, res_diff, ordered=False)
 
                     res_diff = self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
-                    mongo.db[self.diff_collection].bulk_write(res_diff, ordered=False)
+                    self.insert_certs(self.diff_collection, res_diff, ordered=False)
                 finally:
                     if acquired:
                         lock.release()

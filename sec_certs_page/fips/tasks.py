@@ -95,14 +95,14 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"):
                     dset.get_certs_from_web(update_json=False)
+                with sentry_sdk.start_span(
+                    op="fips.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, Algo)"
+                ):
+                    dset.process_auxillary_datasets(update_json=False)
                 with sentry_sdk.start_span(op="fips.download_artifacts", description="Download artifacts"):
                     dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"):
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(
-                    op="fips.auxilliary_datasets", description="Process auxilliary datasets (CVE, CPE, Algo)"
-                ):
-                    dset.process_auxillary_datasets(update_json=False)
                 with sentry_sdk.start_span(op="fips.analyze", description="Analyze certificates"):
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"):

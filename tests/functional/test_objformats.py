@@ -34,7 +34,7 @@ def test_load_cert(cert1):
     # assert json_mapping == cert_data
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(reason="Storage format is lossy for non-str dict keys.")
 def test_diff(cert1, cert2):
     d = diff(cert1[1], cert2[1], syntax="explicit")
     working = WorkingFormat(d)

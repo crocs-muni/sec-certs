@@ -33,7 +33,7 @@ class StorageFormat(Format):
     """
     The format used for storage in MongoDB.
     It is a dict with only MongoDB valid types (so no sets or dates, or Paths).
-    Dictionary keys don't have dots.
+    Dictionary keys don't have dots (and are strings, no ints).
     """
 
     def to_working_format(self) -> "WorkingFormat":
@@ -92,6 +92,7 @@ class WorkingFormat(Format):
         def map_key(key):
             if isinstance(key, Symbol):
                 return f"__{key.label}__"
+            # TODO: This is lossy, the type of the key is lost.
             if not isinstance(key, str):
                 return str(key)
             elif "." in key:
