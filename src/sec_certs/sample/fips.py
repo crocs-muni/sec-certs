@@ -499,7 +499,7 @@ class FIPSCertificate(
 
     def __init__(
         self,
-        cert_id: str,
+        cert_id: int,
         web_data: FIPSCertificate.WebData | None = None,
         pdf_data: FIPSCertificate.PdfData | None = None,
         heuristics: FIPSCertificate.Heuristics | None = None,
@@ -680,9 +680,7 @@ class FIPSCertificate(
             2. Consider only ids s.t. they don't appear in self.heuristics.algorithms
             3. Consider only ids s.t. they don't appear in self.pdf_data.keywords["fips_certlike"]["Certlike"]
         """
-        prunned = {x for x in attribute_to_prune if x != self.cert_id}
+        prunned = {x for x in attribute_to_prune if x != str(self.cert_id)}
         prunned = {x for x in prunned if int(x) > config.always_false_positive_fips_cert_id_threshold}
         prunned = {x for x in prunned if x not in self.heuristics.algorithm_numbers}
         return {x for x in prunned if x not in self.pdf_data.certlike_algorithm_numbers}
-
-        return prunned

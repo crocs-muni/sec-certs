@@ -211,7 +211,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             if cert_id not in cert_ids:
                 cert_ids.add(cert_id)
 
-        return [FIPSCertificate(cert_id) for cert_id in cert_ids]
+        return [FIPSCertificate(int(cert_id)) for cert_id in cert_ids]
 
     @classmethod
     def from_web_latest(cls) -> FIPSDataset:
@@ -284,7 +284,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     def _compute_transitive_vulnerabilities(self) -> None:
         logger.info("Computing heuristics: Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
-        transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: cert.cert_id)
+        transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: str(cert.cert_id))
         transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.policy_processed_references)
 
         for dgst in self.certs:
@@ -309,12 +309,12 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
         policy_reference_finder = ReferenceFinder()
         policy_reference_finder.fit(
-            self.certs, lambda cert: cert.cert_id, lambda cert: cert.heuristics.policy_prunned_references
+            self.certs, lambda cert: str(cert.cert_id), lambda cert: cert.heuristics.policy_prunned_references
         )
 
         module_reference_finder = ReferenceFinder()
         module_reference_finder.fit(
-            self.certs, lambda cert: cert.cert_id, lambda cert: cert.heuristics.module_prunned_references
+            self.certs, lambda cert: str(cert.cert_id), lambda cert: cert.heuristics.module_prunned_references
         )
 
         for cert in self:

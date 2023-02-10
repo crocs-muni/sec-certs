@@ -17,7 +17,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "69d9200c309f5f97",
-            "cert_id": "2590",
+            "cert_id": 2590,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -101,7 +101,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "3b05cf67849835e3",
-            "cert_id": "2997",
+            "cert_id": 2997,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -185,7 +185,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "618102f275d5649a",
-            "cert_id": "3495",
+            "cert_id": 3495,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -269,7 +269,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "5b00a7bb92c1cb19",
-            "cert_id": "2721",
+            "cert_id": 2721,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -353,7 +353,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "e1ff7d9997726782",
-            "cert_id": "3090",
+            "cert_id": 3090,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -437,7 +437,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "ed16d272044ed81f",
-            "cert_id": "2860",
+            "cert_id": 2860,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -521,7 +521,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "73e7f3f802b0e919",
-            "cert_id": "3176",
+            "cert_id": 3176,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -605,7 +605,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "756a6524cdb2d4ea",
-            "cert_id": "3850",
+            "cert_id": 3850,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -689,7 +689,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "0e8b7a7f79b3098b",
-            "cert_id": "2665",
+            "cert_id": 2665,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -773,7 +773,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "f7df34ce0a0ad316",
-            "cert_id": "3093",
+            "cert_id": 3093,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -857,7 +857,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "0df59fd6c41cadd2",
-            "cert_id": "3711",
+            "cert_id": 3711,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -941,7 +941,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "24a05f4d1305d667",
-            "cert_id": "3493",
+            "cert_id": 3493,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1025,7 +1025,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "51c94a510b50e68f",
-            "cert_id": "3141",
+            "cert_id": 3141,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1109,7 +1109,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "75ca28395bfc9ad1",
-            "cert_id": "2630",
+            "cert_id": 2630,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1193,7 +1193,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "cd0666cdd7ce0244",
-            "cert_id": "3095",
+            "cert_id": 3095,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1277,7 +1277,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "ceab64951a30f684",
-            "cert_id": "3197",
+            "cert_id": 3197,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1361,7 +1361,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "0ab77c56eece2d24",
-            "cert_id": "3651",
+            "cert_id": 3651,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1445,7 +1445,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "9ca7b8be590113b8",
-            "cert_id": "2711",
+            "cert_id": 2711,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1529,7 +1529,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "184097a88a9b4ad9",
-            "cert_id": "3518",
+            "cert_id": 3518,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1613,7 +1613,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "c333a75353784177",
-            "cert_id": "2779",
+            "cert_id": 2779,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1697,7 +1697,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "ad1e075215267a28",
-            "cert_id": "2441",
+            "cert_id": 2441,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
@@ -1781,7 +1781,7 @@
         {
             "_type": "sec_certs.sample.fips.FIPSCertificate",
             "dgst": "2aec3694418f35d8",
-            "cert_id": "3488",
+            "cert_id": 3488,
             "web_data": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
                 "module_name": null,
