@@ -21,7 +21,7 @@ def cc_dset(data_dir: Path) -> CCDataset:
 @pytest.fixture
 def mu_dset(data_dir: Path, tmp_path_factory) -> CCDatasetMaintenanceUpdates:
     tmp_dir = tmp_path_factory.mktemp("mu_dset")
-    dset = CCDatasetMaintenanceUpdates.from_json(data_dir / "auxillary_datasets/maintenances/maintenance_updates.json")
+    dset = CCDatasetMaintenanceUpdates.from_json(data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json")
     dset.copy_dataset(tmp_dir)
     return dset
 
@@ -33,7 +33,7 @@ def test_methods_not_meant_to_be_implemented():
     with pytest.raises(NotImplementedError):
         dset._compute_heuristics()
     with pytest.raises(NotImplementedError):
-        dset.process_auxillary_datasets()
+        dset.process_auxiliary_datasets()
     with pytest.raises(NotImplementedError):
         dset.compute_related_cves()
     with pytest.raises(NotImplementedError):
@@ -58,7 +58,7 @@ def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path, t
     with (tmp_path / "dset.json").open("r") as handle:
         data = json.load(handle)
 
-    with (data_dir / "auxillary_datasets/maintenances/maintenance_updates.json").open("r") as handle:
+    with (data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json").open("r") as handle:
         template_data = json.load(handle)
 
     del template_data["timestamp"]
@@ -68,7 +68,7 @@ def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path, t
 
 def test_dataset_from_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path):
     assert mu_dset == CCDatasetMaintenanceUpdates.from_json(
-        data_dir / "auxillary_datasets/maintenances/maintenance_updates.json"
+        data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json"
     )
 
 

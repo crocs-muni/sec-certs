@@ -101,8 +101,8 @@ def processed_dataset(
     toy_static_dataset.extract_data()
     toy_static_dataset._compute_references(keep_unknowns=True)
 
-    toy_static_dataset.auxillary_datasets.cpe_dset = cpe_dataset
-    toy_static_dataset.auxillary_datasets.cve_dset = cve_dataset
+    toy_static_dataset.auxiliary_datasets.cpe_dset = cpe_dataset
+    toy_static_dataset.auxiliary_datasets.cve_dset = cve_dataset
     toy_static_dataset.compute_cpe_heuristics()
     toy_static_dataset.compute_related_cves()
     toy_static_dataset._compute_transitive_vulnerabilities()

@@ -21,7 +21,7 @@ from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset, logger
+from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.sar_transformer import SARTransformer
@@ -37,14 +37,14 @@ from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 
 @dataclass
-class CCAuxillaryDatasets(AuxillaryDatasets):
+class CCAuxiliaryDatasets(AuxiliaryDatasets):
     cpe_dset: CPEDataset | None = None
     cve_dset: CVEDataset | None = None
     pp_dset: ProtectionProfileDataset | None = None
     mu_dset: CCDatasetMaintenanceUpdates | None = None
 
 
-class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializableType):
+class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializableType):
     """
     Class that holds CCCertificate. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
@@ -57,7 +57,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        auxillary_datasets: CCAuxillaryDatasets | None = None,
+        auxiliary_datasets: CCAuxiliaryDatasets | None = None,
     ):
         self.certs = certs
         self.timestamp = datetime.now()
@@ -66,8 +66,8 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
 
-        self.auxillary_datasets: CCAuxillaryDatasets = (
-            auxillary_datasets if auxillary_datasets else CCAuxillaryDatasets()
+        self.auxiliary_datasets: CCAuxiliaryDatasets = (
+            auxiliary_datasets if auxiliary_datasets else CCAuxiliaryDatasets()
         )
 
         self.root_dir = Path(root_dir)
@@ -144,14 +144,14 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         """
         Returns directory that holds files associated with Protection profiles
         """
-        return self.auxillary_datasets_dir / "pp_dataset.json"
+        return self.auxiliary_datasets_dir / "pp_dataset.json"
 
     @property
     def mu_dataset_dir(self) -> Path:
         """
         Returns directory that holds dataset of maintenance updates
         """
-        return self.auxillary_datasets_dir / "maintenances"
+        return self.auxiliary_datasets_dir / "maintenances"
 
     @property
     def mu_dataset_path(self) -> Path:
@@ -220,15 +220,15 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
     def _set_local_paths(self):
         super()._set_local_paths()
 
-        if self.auxillary_datasets.pp_dset:
-            self.auxillary_datasets.pp_dset.json_path = self.pp_dataset_path
+        if self.auxiliary_datasets.pp_dset:
+            self.auxiliary_datasets.pp_dset.json_path = self.pp_dataset_path
 
-        if self.auxillary_datasets.mu_dset:
-            self.auxillary_datasets.mu_dset.root_dir = self.mu_dataset_dir
+        if self.auxiliary_datasets.mu_dset:
+            self.auxiliary_datasets.mu_dset.root_dir = self.mu_dataset_dir
 
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
-        # TODO: This forgets to set local paths for other auxillary datasets
+        # TODO: This forgets to set local paths for other auxiliary datasets
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
@@ -733,14 +733,14 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
 
     @serialize
-    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
         """
-        Processes all auxillary datasets needed during computation. On top of base-class processing,
+        Processes all auxiliary datasets needed during computation. On top of base-class processing,
         CC handles protection profiles and maintenance updates.
         """
-        super().process_auxillary_datasets(download_fresh)
-        self.auxillary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
-        self.auxillary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
+        super().process_auxiliary_datasets(download_fresh)
+        self.auxiliary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
+        self.auxiliary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
 
     def process_protection_profiles(
         self, to_download: bool = True, keep_metadata: bool = True
@@ -755,7 +755,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         """
         logger.info("Processing protection profiles.")
 
-        self.auxillary_datasets_dir.mkdir(parents=True, exist_ok=True)
+        self.auxiliary_datasets_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download or not self.pp_dataset_path.exists():
             pp_dataset = ProtectionProfileDataset.from_web(self.pp_dataset_path)
@@ -833,7 +833,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def compute_related_cves(self) -> None:
         raise NotImplementedError
 
-    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
         raise NotImplementedError
 
     def analyze_certificates(self) -> None:

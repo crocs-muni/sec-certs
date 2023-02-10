@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-import tests.data.cc.analysis.auxillary_datasets
+import tests.data.cc.analysis.auxiliary_datasets
 from sec_certs import constants
 from sec_certs.dataset import CPEDataset
 from sec_certs.sample import CPE
@@ -14,7 +14,7 @@ from sec_certs.serialization.json import SerializationError
 
 @pytest.fixture(scope="module")
 def cpe_dset_path() -> Path:
-    return Path(tests.data.cc.analysis.auxillary_datasets.__path__[0]) / "cpe_dataset.json"
+    return Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cpe_dataset.json"
 
 
 @pytest.fixture(scope="module")

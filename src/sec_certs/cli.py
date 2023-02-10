@@ -102,9 +102,9 @@ def build_or_load_dataset(
 steps = [
     ProcessingStep(
         "process-aux-dsets",
-        "process_auxillary_datasets",
+        "process_auxiliary_datasets",
         preconditions=["meta_sources_parsed"],
-        precondition_error_msg="Error: You want to process the auxillary datasets, but the data from cert. framework website was not parsed. You must use 'build' action first.",
+        precondition_error_msg="Error: You want to process the auxiliary datasets, but the data from cert. framework website was not parsed. You must use 'build' action first.",
         pre_callback_func=None,
     ),
     ProcessingStep(
@@ -124,7 +124,7 @@ steps = [
     ProcessingStep(
         "analyze",
         "analyze_certificates",
-        preconditions=["pdfs_converted", "auxillary_datasets_processed"],
+        preconditions=["pdfs_converted", "auxiliary_datasets_processed"],
         precondition_error_msg="Error: You want to process txt documents of certificates, but pdfs were not converted. You must use 'convert' action first.",
         pre_callback_func=None,
     ),

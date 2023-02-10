@@ -15,7 +15,7 @@ from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset
+from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
@@ -28,13 +28,13 @@ from sec_certs.utils.helpers import fips_dgst
 logger = logging.getLogger(__name__)
 
 
-class FIPSAuxillaryDatasets(AuxillaryDatasets):
+class FIPSAuxiliaryDatasets(AuxiliaryDatasets):
     cpe_dset: CPEDataset | None = None
     cve_dset: CVEDataset | None = None
     algorithm_dset: FIPSAlgorithmDataset | None = None
 
 
-class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerializableType):
+class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerializableType):
     """
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
@@ -46,7 +46,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        auxillary_datasets: FIPSAuxillaryDatasets | None = None,
+        auxiliary_datasets: FIPSAuxiliaryDatasets | None = None,
     ):
         self.certs = certs
         self.timestamp = datetime.datetime.now()
@@ -54,8 +54,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.name = name if name else type(self).__name__ + " dataset"
         self.description = description if description else datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
-        self.auxillary_datasets: FIPSAuxillaryDatasets = (
-            auxillary_datasets if auxillary_datasets else FIPSAuxillaryDatasets()
+        self.auxiliary_datasets: FIPSAuxiliaryDatasets = (
+            auxiliary_datasets if auxiliary_datasets else FIPSAuxiliaryDatasets()
         )
 
         self.root_dir = Path(root_dir)
@@ -84,7 +84,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     @property
     def algorithm_dataset_path(self) -> Path:
-        return self.auxillary_datasets_dir / "algorithms.json"
+        return self.auxiliary_datasets_dir / "algorithms.json"
 
     def __getitem__(self, item: str) -> FIPSCertificate:
         try:
@@ -222,8 +222,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
 
     def _set_local_paths(self) -> None:
         super()._set_local_paths()
-        if self.auxillary_datasets.algorithm_dset:
-            self.auxillary_datasets.algorithm_dset.json_path = self.algorithm_dataset_path
+        if self.auxiliary_datasets.algorithm_dset:
+            self.auxiliary_datasets.algorithm_dset.json_path = self.algorithm_dataset_path
 
         cert: FIPSCertificate
         for cert in self.certs.values():
@@ -247,9 +247,9 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
         self.state.meta_sources_parsed = True
 
     @serialize
-    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
-        super().process_auxillary_datasets(download_fresh)
-        self.auxillary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
+    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
+        super().process_auxiliary_datasets(download_fresh)
+        self.auxiliary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
 
     def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
         logger.info("Preparing FIPSAlgorithm dataset.")
@@ -297,7 +297,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxillaryDatasets], ComplexSerial
             cert.prune_referenced_cert_ids()
 
         # Previously, a following procedure was used to prune reference_candidates:
-        #   - A set of algorithms was obtained via self.auxillary_datasets.algorithm_dset.get_algorithms_by_id(reference_candidate)
+        #   - A set of algorithms was obtained via self.auxiliary_datasets.algorithm_dset.get_algorithms_by_id(reference_candidate)
         #   - If any of these algorithms had the same vendor as the reference_candidate, the candidate was rejected
         #   - The rationale is that if an ID appears in a certificate s.t. an algorithm with the same ID was produced by the same vendor, the reference likely refers to alg.
         #   - Such reference should then be discarded.
