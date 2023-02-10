@@ -222,8 +222,8 @@ class Updater:  # pragma: no cover
         else:
             dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
 
-        if not dset.auxillary_datasets_dir.exists():
-            dset.auxillary_datasets_dir.mkdir(parents=True)
+        if not dset.auxiliary_datasets_dir.exists():
+            dset.auxiliary_datasets_dir.mkdir(parents=True)
         if paths["cve_path"].exists():
             if dset.cve_dataset_path.exists():
                 dset.cve_dataset_path.unlink()

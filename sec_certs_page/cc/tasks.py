@@ -89,7 +89,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                 with sentry_sdk.start_span(
                     op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU)"
                 ):
-                    dset.process_auxillary_datasets(update_json=False)
+                    dset.process_auxiliary_datasets(update_json=False)
                 with sentry_sdk.start_span(op="cc.download_artifacts", description="Download artifacts"):
                     dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="cc.convert_pdfs", description="Convert pdfs"):
@@ -98,7 +98,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"):
                     dset.to_json(paths["output_path"])
-                    dset.maintenance_updates.to_json(paths["output_path_mu"])
+                    dset.auxiliary_datasets.mu_dset.to_json(paths["output_path_mu"])
 
             with sentry_sdk.start_span(op="cc.move", description="Move files"):
                 for cert in dset:

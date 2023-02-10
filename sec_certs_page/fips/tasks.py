@@ -98,7 +98,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                 with sentry_sdk.start_span(
                     op="fips.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, Algo)"
                 ):
-                    dset.process_auxillary_datasets(update_json=False)
+                    dset.process_auxiliary_datasets(update_json=False)
                 with sentry_sdk.start_span(op="fips.download_artifacts", description="Download artifacts"):
                     dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"):
