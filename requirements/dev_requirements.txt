@@ -113,7 +113,7 @@ ipykernel==6.19.1
     #   ipywidgets
     #   myst-nb
     #   sec-certs (./../pyproject.toml)
-ipython==8.6.0
+ipython==8.10.0
     # via
     #   ipykernel
     #   ipywidgets

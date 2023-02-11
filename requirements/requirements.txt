@@ -64,7 +64,7 @@ ipykernel==6.19.1
     # via
     #   ipywidgets
     #   sec-certs (./../pyproject.toml)
-ipython==8.7.0
+ipython==8.10.0
     # via
     #   ipykernel
     #   ipywidgets
