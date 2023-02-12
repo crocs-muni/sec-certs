@@ -12,11 +12,11 @@ exclude =
 max-complexity = 10
 
 ignore =
-    E501,  # line length, should be handled by black
-    W503,  # line break before binary operator, deprecated
-    E203,  # whitespace before :, not PEP8 compliant
-    E402,  # Not Flasky
-    F403,  #
-    F401,  #
+    E501,
+    W503,
+    E203,
+    E402,
+    F403,
+    F401,
     C901
 

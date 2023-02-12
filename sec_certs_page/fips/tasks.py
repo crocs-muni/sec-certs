@@ -9,6 +9,7 @@ from sec_certs.utils.helpers import get_sha256_filepath
 from .. import celery, mongo
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
+from ..common.sentry import suppress_child_spans
 from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import fips_types
 
@@ -93,22 +94,28 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
         to_reindex = set()
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
             if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"):
+                with sentry_sdk.start_span(
+                    op="fips.get_certs", description="Get certs from web"
+                ), suppress_child_spans():
                     dset.get_certs_from_web(update_json=False)
                 with sentry_sdk.start_span(
                     op="fips.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, Algo)"
-                ):
+                ), suppress_child_spans():
                     dset.process_auxiliary_datasets(update_json=False)
-                with sentry_sdk.start_span(op="fips.download_artifacts", description="Download artifacts"):
+                with sentry_sdk.start_span(
+                    op="fips.download_artifacts", description="Download artifacts"
+                ), suppress_child_spans():
                     dset.download_all_artifacts(update_json=False)
-                with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"):
+                with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(op="fips.analyze", description="Analyze certificates"):
+                with sentry_sdk.start_span(
+                    op="fips.analyze", description="Analyze certificates"
+                ), suppress_child_spans():
                     dset.analyze_certificates(update_json=False)
-                with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"):
+                with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
 
-            with sentry_sdk.start_span(op="fips.move", description="Move files"):
+            with sentry_sdk.start_span(op="fips.move", description="Move files"), suppress_child_spans():
                 for cert in dset:
                     if cert.state.policy_pdf_path and cert.state.policy_pdf_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"

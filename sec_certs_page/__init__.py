@@ -230,6 +230,7 @@ from .views import *
 
 @worker_process_init.connect
 def setup_celery_worker(sender, **kwargs):
+    # Make sure that celery workers have their own MongoDB connection.
     mongo.init_app(app)
 
 
