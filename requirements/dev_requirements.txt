@@ -180,7 +180,7 @@ murmurhash==1.0.9
     #   preshed
     #   spacy
     #   thinc
-mypy==0.991
+mypy==1.0.0
     # via sec-certs (./../pyproject.toml)
 mypy-extensions==0.4.3
     # via
