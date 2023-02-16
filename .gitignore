@@ -116,6 +116,9 @@ virt/
 # mypy
 .mypy_cache/
 
+# ruff
+.ruff_cache
+
 # log
 cert_processing_log.txt
 ./cc_processing_log.txt
