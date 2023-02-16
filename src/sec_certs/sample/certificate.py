@@ -25,6 +25,9 @@ class References(ComplexSerializableType):
     directly_referencing: set[str] | None = field(default=None)
     indirectly_referencing: set[str] | None = field(default=None)
 
+    def __bool__(self):
+        return any(getattr(self, x) for x in vars(self))
+
 
 class Heuristics:
     cpe_matches: set[str] | None

@@ -53,9 +53,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         auxiliary_datasets_processed: bool = False
         certs_analyzed: bool = False
 
-        def __bool__(self):
-            return any(vars(self))
-
     def __init__(
         self,
         certs: dict[str, CertSubType] = {},
