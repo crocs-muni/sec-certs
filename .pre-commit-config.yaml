@@ -18,3 +18,4 @@ repos:
           - "types-PyYAML"
           - "types-python-dateutil"
           - "types-requests"
+          - "datasets"

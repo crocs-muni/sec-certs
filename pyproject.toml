@@ -68,6 +68,7 @@
       "types-PyYAML",
       "types-python-dateutil",
       "types-requests",
+      "datasets",
       "pytest",
       "pytest-cov",
       "pytest-monitor",
@@ -82,6 +83,7 @@
       "ipython!=8.7.0",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
+    nlp = ["setfit"]
 
   [project.urls]
     Homepage = "https://seccerts.org"
