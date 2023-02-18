@@ -52,6 +52,7 @@ def some_other_cve(some_random_cpe: CPE) -> CVE:
         {"CVE-611"},
     )
 
+
 @pytest.fixture(scope="module")
 def ibm_cpe_configurations() -> CPEConfiguration:
     return CPEConfiguration(
@@ -93,7 +94,9 @@ def ibm_xss_cve(ibm_cpe_configurations) -> CVE:
 
 
 @pytest.fixture(scope="module")
-def cpe_dataset(vulnerable_cpe: CPE, some_random_cpe: CPE, cpes_ibm_websphere_app_with_platform: set[CPE]) -> CPEDataset:
+def cpe_dataset(
+    vulnerable_cpe: CPE, some_random_cpe: CPE, cpes_ibm_websphere_app_with_platform: set[CPE]
+) -> CPEDataset:
     cpes = {
         vulnerable_cpe,
         some_random_cpe,
@@ -113,6 +116,14 @@ def cpe_dataset(vulnerable_cpe: CPE, some_random_cpe: CPE, cpes_ibm_websphere_ap
 
 @pytest.fixture(scope="module")
 def cve_dataset(cve: CVE, some_other_cve: CVE, ibm_xss_cve: CVE) -> CVEDataset:
+    cves = {cve, some_other_cve, ibm_xss_cve}
+    cve_dset = CVEDataset({x.cve_id: x for x in cves})
+    cve_dset.build_lookup_dict(use_nist_mapping=False)
+    return cve_dset
+
+
+@pytest.fixture(scope="module")
+def cve_dataset2(cve: CVE, some_other_cve: CVE, ibm_xss_cve: CVE) -> CVEDataset:
     cves = {cve, some_other_cve, ibm_xss_cve}
     cve_dset = CVEDataset({x.cve_id: x for x in cves})
     cve_dset.build_lookup_dict(use_nist_mapping=False)
@@ -259,13 +270,17 @@ def test_find_related_cves(processed_dataset: FIPSDataset, cve: CVE, some_other_
     assert some_other_cve not in processed_dataset["2441"].heuristics.related_cves
 
 
-def test_find_related_cves_for_cpe_configuration(processed_dataset: FIPSDataset, cpes_ibm_websphere_app_with_platform: set[CPE]):
+def test_find_related_cves_for_cpe_configuration(
+    processed_dataset: FIPSDataset,
+    cve_dataset2: CVEDataset,
+    ibm_xss_cve: CVE,
+    cpes_ibm_websphere_app_with_platform: set[CPE],
+):
     cert = processed_dataset["2441"]
     cert.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
+    processed_dataset.auxillary_datasets.cve_dset = cve_dataset2
     processed_dataset.compute_related_cves()
-    assert {ibm_xss_cve.cve_id} == random_config_certificate.heuristics.related_cves
-
-
+    assert {ibm_xss_cve.cve_id} == cert.heuristics.related_cves
 
 
 def test_keywords_heuristics(processed_dataset: FIPSDataset):
