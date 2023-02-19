@@ -224,7 +224,7 @@ with app.app_context():
     app.register_blueprint(vuln)
     app.register_blueprint(docs)
 
-from .tasks import run_updates
+from .tasks import run_updates_daily, run_updates_weekly
 from .views import *
 
 
@@ -236,9 +236,13 @@ def setup_celery_worker(sender, **kwargs):
 
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    if app.config["UPDATE_TASK_SCHEDULE"]:
-        sender.add_periodic_task(
-            crontab(*app.config["UPDATE_TASK_SCHEDULE"]),
-            run_updates.s(),
-            name="Update data.",
-        )
+    sender.add_periodic_task(
+        crontab(minute=0, hour=12),
+        run_updates_daily.s(),
+        name="Update data (daily).",
+    )
+    sender.add_periodic_task(
+        crontab(minute=0, hour=0, day="sun"),
+        run_updates_weekly.s(),
+        name="Update data (weekly).",
+    )

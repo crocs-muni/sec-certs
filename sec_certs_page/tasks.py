@@ -80,13 +80,10 @@ def update_cpe_data():  # pragma: no cover
 
 
 @celery.task(ignore_result=True)
-def run_updates():  # pragma: no cover
-    chain(
-        update_cve_data.si(),
-        update_cpe_data.si(),
-        update_cc_data.si(),
-        update_cc_scheme_data.si(),
-        update_iut_data.si(),
-        update_mip_data.si(),
-        update_fips_data.si(),
-    ).delay()
+def run_updates_weekly():  # pragma: no cover
+    chain(update_cc_data.si(), update_cc_scheme_data.si(), update_fips_data.si()).delay()
+
+
+@celery.task(ignore_result=True)
+def run_updates_daily():  # pragma: no cover
+    chain(update_cve_data.si(), update_cpe_data.si(), update_iut_data.si(), update_mip_data.si()).delay()
