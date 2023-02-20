@@ -21,7 +21,7 @@ from sec_certs import constants
 from sec_certs.config.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.dataset.dataset import AuxillaryDatasets, Dataset, logger
+from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.sar_transformer import SARTransformer
@@ -31,20 +31,20 @@ from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
-from sec_certs.utils import helpers as helpers
+from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 
 @dataclass
-class CCAuxillaryDatasets(AuxillaryDatasets):
+class CCAuxiliaryDatasets(AuxiliaryDatasets):
     cpe_dset: CPEDataset | None = None
     cve_dset: CVEDataset | None = None
     pp_dset: ProtectionProfileDataset | None = None
     mu_dset: CCDatasetMaintenanceUpdates | None = None
 
 
-class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializableType):
+class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializableType):
     """
     Class that holds CCCertificate. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
@@ -52,12 +52,12 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
 
     def __init__(
         self,
-        certs: dict[str, CCCertificate] = dict(),
+        certs: dict[str, CCCertificate] = {},
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        auxillary_datasets: CCAuxillaryDatasets | None = None,
+        auxiliary_datasets: CCAuxiliaryDatasets | None = None,
     ):
         self.certs = certs
         self.timestamp = datetime.now()
@@ -66,8 +66,8 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
 
-        self.auxillary_datasets: CCAuxillaryDatasets = (
-            auxillary_datasets if auxillary_datasets else CCAuxillaryDatasets()
+        self.auxiliary_datasets: CCAuxiliaryDatasets = (
+            auxiliary_datasets if auxiliary_datasets else CCAuxiliaryDatasets()
         )
 
         self.root_dir = Path(root_dir)
@@ -144,14 +144,14 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         """
         Returns directory that holds files associated with Protection profiles
         """
-        return self.auxillary_datasets_dir / "pp_dataset.json"
+        return self.auxiliary_datasets_dir / "pp_dataset.json"
 
     @property
     def mu_dataset_dir(self) -> Path:
         """
         Returns directory that holds dataset of maintenance updates
         """
-        return self.auxillary_datasets_dir / "maintenances"
+        return self.auxiliary_datasets_dir / "maintenances"
 
     @property
     def mu_dataset_path(self) -> Path:
@@ -220,15 +220,15 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
     def _set_local_paths(self):
         super()._set_local_paths()
 
-        if self.auxillary_datasets.pp_dset:
-            self.auxillary_datasets.pp_dset.json_path = self.pp_dataset_path
+        if self.auxiliary_datasets.pp_dset:
+            self.auxiliary_datasets.pp_dset.json_path = self.pp_dataset_path
 
-        if self.auxillary_datasets.mu_dset:
-            self.auxillary_datasets.mu_dset.root_dir = self.mu_dataset_dir
+        if self.auxiliary_datasets.mu_dset:
+            self.auxiliary_datasets.mu_dset.root_dir = self.mu_dataset_dir
 
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
-        # TODO: This forgets to set local paths for other auxillary datasets
+        # TODO: This forgets to set local paths for other auxiliary datasets
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
@@ -324,13 +324,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             return CCDataset.BASE_URL + relative_path
 
         def _get_primary_key_str(row: Tag):
-            prim_key = row["category"] + row["cert_name"] + row["report_link"]
-            return prim_key
+            return row["category"] + row["cert_name"] + row["report_link"]
 
-        if "active" in str(file):
-            cert_status = "active"
-        else:
-            cert_status = "archived"
+        cert_status = "active" if "active" in str(file) else "archived"
 
         csv_header = [
             "category",
@@ -394,7 +390,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                 )
             )
 
-        certs = {
+        return {
             x.dgst: CCCertificate(
                 cert_status,
                 x.category,
@@ -416,7 +412,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             )
             for x in df_base.itertuples()
         }
-        return certs
 
     def _get_all_certs_from_html(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
         """
@@ -483,10 +478,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
 
             return table_certs
 
-        if "active" in str(file):
-            cert_status = "active"
-        else:
-            cert_status = "archived"
+        cert_status = "active" if "active" in str(file) else "archived"
 
         cc_cat_abbreviations = ["AC", "BP", "DP", "DB", "DD", "IC", "KM", "MD", "MF", "NS", "OS", "OD", "DG", "TC"]
         cc_table_ids = ["tbl" + x for x in cc_cat_abbreviations]
@@ -535,7 +527,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.download_pdf_report,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Downloading PDFs of CC certification reports",
         )
 
@@ -553,7 +544,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.download_pdf_st,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Downloading PDFs of CC security targets",
         )
 
@@ -571,7 +561,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.convert_report_pdf,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Converting PDFs of certification reports to txt",
         )
 
@@ -589,7 +578,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.convert_st_pdf,
             certs_to_process,
-            config.n_threads,
             progress_bar_desc="Converting PDFs of security targets to txt",
         )
 
@@ -603,7 +591,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_metadata,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting report metadata",
         )
@@ -615,7 +602,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_metadata,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting target metadata",
         )
@@ -631,7 +617,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_frontpage,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting report frontpages",
         )
@@ -643,7 +628,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_frontpage,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting target frontpages",
         )
@@ -659,7 +643,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_keywords,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting report keywords",
         )
@@ -671,7 +654,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_keywords,
             certs_to_process,
-            config.n_threads,
             use_threading=False,
             progress_bar_desc="Extracting target keywords",
         )
@@ -729,7 +711,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
                     return set()
                 res = set()
                 for scheme, matches in kws["cc_cert_id"].items():
-                    for match in matches.keys():
+                    for match in matches:
                         try:
                             canonical = CertificateId(scheme, match).canonical
                             res.add(canonical)
@@ -750,16 +732,16 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
             for dgst in self.certs:
                 setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
 
-    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+    @serialize
+    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
         """
-        Processes all auxillary datasets needed during computation. On top of base-class processing,
+        Processes all auxiliary datasets needed during computation. On top of base-class processing,
         CC handles protection profiles and maintenance updates.
         """
-        super().process_auxillary_datasets(download_fresh)
-        self.auxillary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
-        self.auxillary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
+        super().process_auxiliary_datasets(download_fresh)
+        self.auxiliary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
+        self.auxiliary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
 
-    @serialize
     def process_protection_profiles(
         self, to_download: bool = True, keep_metadata: bool = True
     ) -> ProtectionProfileDataset:
@@ -773,7 +755,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxillaryDatasets], ComplexSerializable
         """
         logger.info("Processing protection profiles.")
 
-        self.auxillary_datasets_dir.mkdir(parents=True, exist_ok=True)
+        self.auxiliary_datasets_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download or not self.pp_dataset_path.exists():
             pp_dataset = ProtectionProfileDataset.from_web(self.pp_dataset_path)
@@ -829,7 +811,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: dict[str, CCMaintenanceUpdate] = dict(),  # type: ignore
+        certs: dict[str, CCMaintenanceUpdate] = {},  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
@@ -851,7 +833,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def compute_related_cves(self) -> None:
         raise NotImplementedError
 
-    def process_auxillary_datasets(self, download_fresh: bool = False) -> None:
+    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
         raise NotImplementedError
 
     def analyze_certificates(self) -> None:
@@ -876,9 +858,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         df.index.name = "dgst"
 
         df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True)
-        df = df.fillna(value=np.nan)
-
-        return df
+        return df.fillna(value=np.nan)
 
     @classmethod
     def from_web_latest(cls) -> CCDatasetMaintenanceUpdates:
@@ -913,11 +893,8 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 class CCSchemeDataset:
     @staticmethod
     def _download_page(url, session=None):
-        if session:
-            conn = session
-        else:
-            conn = requests
-        resp = conn.get(url, headers={"User-Agent": "seccerts.org"})
+        conn = session if session else requests
+        resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False)
         if resp.status_code != requests.codes.ok:
             raise ValueError(f"Unable to download: status={resp.status_code}")
         return BeautifulSoup(resp.content, "html5lib")
@@ -1056,14 +1033,14 @@ class CCSchemeDataset:
             pager = soup.find("ul", class_="pager")
             for li in pager.find_all("li"):
                 try:
-                    new_page = int(li.text)
+                    new_page = int(li.text) - 1
                 except Exception:
                     continue
                 if new_page not in seen_pages:
                     pages.add(new_page)
 
             # Parse table
-            tbody = soup.find("div", class_="content").find("table").find("tbody")
+            tbody = soup.find("div", class_="view-content").find("table").find("tbody")
             for tr in tbody.find_all("tr"):
                 tds = tr.find_all("td")
                 if not tds:
@@ -1100,16 +1077,17 @@ class CCSchemeDataset:
 
             # Update pages
             pager = soup.find("ul", class_="pager")
-            for li in pager.find_all("li"):
-                try:
-                    new_page = int(li.text)
-                except Exception:
-                    continue
-                if new_page not in seen_pages:
-                    pages.add(new_page)
+            if pager:
+                for li in pager.find_all("li"):
+                    try:
+                        new_page = int(li.text) - 1
+                    except Exception:
+                        continue
+                    if new_page not in seen_pages:
+                        pages.add(new_page)
 
             # Parse table
-            tbody = soup.find("div", class_="content").find("table").find("tbody")
+            tbody = soup.find("div", class_="view-content").find("table").find("tbody")
             for tr in tbody.find_all("tr"):
                 tds = tr.find_all("td")
                 if not tds:

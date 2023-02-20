@@ -1,7 +1,7 @@
 {
     "_type": "sec_certs.sample.fips.FIPSCertificate",
     "dgst": "184097a88a9b4ad9",
-    "cert_id": "3518",
+    "cert_id": 3518,
     "web_data": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
         "module_name": null,

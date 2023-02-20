@@ -3,8 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Dict, Iterable, cast
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR, SAR_DICT_KEY
 
@@ -12,10 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: Right now we ignore number of ocurrences for final SAR selection. If we keep it this way, we can discard that variable
-class SARTransformer(BaseEstimator, TransformerMixin):
+class SARTransformer:
     """
     Class for transforming SARs defined in st_keywords and report_keywords dictionaries into SAR objects.
-    This class implements sklearn transformer interface, so fit_transform() can be called on it.
+    This class implements `sklearn.base.Transformer` interface, so fit_transform() can be called on it.
     """
 
     def fit(self, certificates: Iterable[CCCertificate]) -> SARTransformer:
@@ -26,6 +24,9 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         :return SARTransformer: return self
         """
         return self
+
+    def fit_transform(self, X, y=None, **fit_params):
+        return self.fit(X).transform(X)
 
     def transform(self, certificates: Iterable[CCCertificate]) -> list[set[SAR] | None]:
         """
@@ -128,7 +129,7 @@ class SARTransformer(BaseEstimator, TransformerMixin):
         :param dgst: DIgest of the processed certificate.
         :return: _description_
         """
-        sars: dict[str, tuple[SAR, int]] = dict()
+        sars: dict[str, tuple[SAR, int]] = {}
         for sar_class, class_matches in dct.items():
             for sar_string, n_occurences in class_matches.items():
                 try:

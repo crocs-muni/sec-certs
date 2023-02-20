@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 import tests.data.fips.dataset
+
 from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.cpe import CPE, CPEConfiguration
@@ -147,8 +147,8 @@ def processed_dataset(
     toy_static_dataset.extract_data()
     toy_static_dataset._compute_references(keep_unknowns=True)
 
-    toy_static_dataset.auxillary_datasets.cpe_dset = cpe_dataset
-    toy_static_dataset.auxillary_datasets.cve_dset = cve_dataset
+    toy_static_dataset.auxiliary_datasets.cpe_dset = cpe_dataset
+    toy_static_dataset.auxiliary_datasets.cve_dset = cve_dataset
     toy_static_dataset.compute_cpe_heuristics()
     toy_static_dataset.compute_related_cves()
     toy_static_dataset._compute_transitive_vulnerabilities()
@@ -271,7 +271,7 @@ def test_find_related_cves_for_cpe_configuration(
     cve_dataset.cves = {ibm_xss_cve.cve_id: ibm_xss_cve}
     cert = processed_dataset["2441"]
     cert.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
-    processed_dataset.auxillary_datasets.cve_dset = cve_dataset
+    processed_dataset.auxiliary_datasets.cve_dset = cve_dataset
     processed_dataset.compute_related_cves()
     assert {ibm_xss_cve.cve_id} == cert.heuristics.related_cves
 

@@ -1,15 +1,15 @@
 # Sec-certs
 
-![](docs/_static/logo.svg)
+![](docs/_static/logo.png)
 
 A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks. This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic.
 
 [![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org)](https://seccerts.org)
 [![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org/docs/index.html)](https://seccerts.org/docs/index.html)
 [![PyPI](https://img.shields.io/pypi/v/sec-certs?style=flat-square)](https://pypi.org/project/sec-certs/)
+[![DockerHub](https://img.shields.io/docker/v/seccerts/sec-certs/latest?label=DockerHub&style=flat-square)](https://hub.docker.com/r/seccerts/sec-certs/tags)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/tests?label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/crocs-muni/sec-certs/Docker%20Image%20CI?label=Docker%20build&style=flat-square)](https://hub.docker.com/repository/docker/seccerts/sec-certs)
+[![Tests](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml?query=branch%3Amain)
 [![Codecov](https://img.shields.io/codecov/c/github/crocs-muni/sec-certs?style=flat-square)](https://app.codecov.io/gh/crocs-muni/sec-certs)
 
 ## Installation
@@ -57,3 +57,9 @@ df_2015_and_newer = df.loc[df.year_from > 2014]
 # Plot distribution of years of certification
 df.year_from.value_counts().sort_index().plot.line()
 ```
+
+## Authors
+
+This work is being done at [CRoCS MUNI](https://crocs.fi.muni.cz/) by Adam Janovsky, Jan Jancar, Petr Svenda, Jiri Michalik, Lukasz Chmielewski and other contributors. This work was supported by the Internal grant agency of Masaryk University, CZ.02.2.69/0.0/0.0/19_073/0016943.
+
+![](docs/_static/logolink_OP_VVV_hor_barva_eng.jpg)

@@ -205,21 +205,19 @@ def _load():
     script_dir = Path(__file__).parent
     filepath = script_dir / "rules.yaml"
     with Path(filepath).open("r") as file:
-        loaded = yaml.load(file, Loader=yaml.FullLoader)
-    return loaded
+        return yaml.load(file, Loader=yaml.FullLoader)
 
 
-def _process(obj):
+def _process(obj: dict | list):
     if isinstance(obj, dict):
         return {k: _process(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [
-            re.compile(
-                REGEXEC_SEP_START + MATCH_START + rule + MATCH_END + REGEXEC_SEP_END,
-                re.MULTILINE,
-            )
-            for rule in obj
-        ]
+    return [
+        re.compile(
+            REGEXEC_SEP_START + MATCH_START + rule + MATCH_END + REGEXEC_SEP_END,
+            re.MULTILINE,
+        )
+        for rule in obj
+    ]
 
 
 rules = _load()

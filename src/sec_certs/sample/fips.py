@@ -14,21 +14,16 @@ import requests
 from bs4 import BeautifulSoup, Tag
 from tabula import read_pdf
 
-import sec_certs.constants as constants
-import sec_certs.utils.extract
-import sec_certs.utils.helpers as helpers
-import sec_certs.utils.pdf
-import sec_certs.utils.pdf as pdf
-import sec_certs.utils.tables as tables
+from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.config.configuration import config
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
-from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
+from sec_certs.utils import extract, helpers, pdf, tables
 from sec_certs.utils.helpers import fips_dgst
 
 
@@ -69,7 +64,7 @@ class FIPSHTMLParser:
             [x.find("div", class_="col-md-3") for x in entries], [x.find("div", class_="col-md-9") for x in entries]
         )
         entries = [(FIPSHTMLParser.normalize_string(key.text), entry) for key, entry in entries]
-        entries = [parse_single_detail_entry(*x) for x in entries if x[0] in DETAILS_KEY_NORMALIZATION_DICT.keys()]
+        entries = [parse_single_detail_entry(*x) for x in entries if x[0] in DETAILS_KEY_NORMALIZATION_DICT]
         entries = {x: y for x, y in entries}
 
         if "caveat" in entries:
@@ -130,11 +125,22 @@ class FIPSHTMLParser:
 
     @staticmethod
     def parse_algorithms(algorithms_div: Tag) -> dict[str, set[str]]:
-        rows = algorithms_div.find("tbody").find_all("tr")
-        dct: dict[str, set[str]] = dict()
-        for row in rows:
-            cells = row.find_all("td")
-            dct[cells[0].text] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
+        dct: dict[str, set[str]] = {}
+        table = algorithms_div.find("tbody")
+        # Two types of organization on the CMVP website:
+        #  - One is a table with algo references in text
+        #  - Other is just divs for rows, one per algo
+        if table:
+            rows = table.find_all("tr")
+            for row in rows:
+                cells = row.find_all("td")
+                dct[str(cells[0].text)] = {m.group() for m in re.finditer(FIPS_ALGS_IN_TABLE, cells[1].text)}
+        else:
+            rows = algorithms_div.find_all("div", class_="col-md-12")
+            for row in rows:
+                dct[str(row.find("div", class_="col-md-3").text)] = {
+                    str(row.find("div", class_="col-md-4").text).strip()
+                }
         return dct
 
     @staticmethod
@@ -144,7 +150,7 @@ class FIPSHTMLParser:
     @staticmethod
     def parse_tested_configurations(tested_configurations: Tag) -> list[str] | None:
         configurations = [y.text for y in tested_configurations.find_all("li")]
-        return configurations if not configurations == ["N/A"] else None
+        return None if configurations == ["N/A"] else configurations
 
     @staticmethod
     def normalize_embodiment(embodiment_element: Tag) -> str:
@@ -248,9 +254,9 @@ class FIPSCertificate(
         policy_pdf_hash: str | None
         policy_txt_hash: str | None
 
-        policy_pdf_path: Path
-        policy_txt_path: Path
-        module_html_path: Path
+        _policy_pdf_path: Path | None = None
+        _policy_txt_path: Path | None = None
+        _module_html_path: Path | None = None
 
         def __init__(
             self,
@@ -271,6 +277,36 @@ class FIPSCertificate(
             self.policy_extract_ok = policy_extract_ok
             self.policy_pdf_hash = policy_pdf_hash
             self.policy_txt_hash = policy_txt_hash
+
+        @property
+        def policy_pdf_path(self) -> Path:
+            if not self._policy_pdf_path:
+                raise ValueError(f"policy_pdf_path not set on {type(self)}")
+            return self._policy_pdf_path
+
+        @policy_pdf_path.setter
+        def policy_pdf_path(self, pth: str | Path | None) -> None:
+            self._policy_pdf_path = Path(pth) if pth else None
+
+        @property
+        def policy_txt_path(self) -> Path:
+            if not self._policy_txt_path:
+                raise ValueError(f"policy_txt_path not set on {type(self)}")
+            return self._policy_txt_path
+
+        @policy_txt_path.setter
+        def policy_txt_path(self, pth: str | Path | None) -> None:
+            self._policy_txt_path = Path(pth) if pth else None
+
+        @property
+        def module_html_path(self) -> Path:
+            if not self._module_html_path:
+                raise ValueError(f"module_html_path not set on {type(self)}")
+            return self._module_html_path
+
+        @module_html_path.setter
+        def module_html_path(self, pth: str | Path | None) -> None:
+            self._module_html_path = Path(pth) if pth else None
 
         @property
         def serialized_attributes(self) -> list[str]:
@@ -389,8 +425,8 @@ class FIPSCertificate(
         def certlike_algorithm_numbers(self) -> set[str]:
             """Returns numbers of certificates from keywords["fips_certlike"]["Certlike"]"""
             if self.keywords and "fips_certlike" in self.keywords:
-                fips_certlike = self.keywords["fips_certlike"].get("Certlike", dict())
-                matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike.keys()}
+                fips_certlike = self.keywords["fips_certlike"].get("Certlike", {})
+                matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike}
                 return {"".join([x for x in match.group() if x.isdigit()]) for match in matches if match}
             else:
                 return set()
@@ -463,7 +499,7 @@ class FIPSCertificate(
 
     def __init__(
         self,
-        cert_id: str,
+        cert_id: int,
         web_data: FIPSCertificate.WebData | None = None,
         pdf_data: FIPSCertificate.PdfData | None = None,
         heuristics: FIPSCertificate.Heuristics | None = None,
@@ -543,9 +579,7 @@ class FIPSCertificate(
         """
         Converts policy pdf -> txt
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
-            cert.state.policy_pdf_path, cert.state.policy_txt_path
-        )
+        ocr_done, ok_result = pdf.convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path)
 
         # If OCR was done and the result was garbage
         cert.state.policy_convert_garbage = ocr_done
@@ -565,12 +599,12 @@ class FIPSCertificate(
         """
         Extract the PDF metadata from the security policy.
         """
-        _, metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
+        _, metadata = pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
 
         if metadata:
             cert.pdf_data.policy_metadata = metadata
         else:
-            cert.pdf_data.policy_metadata = dict()
+            cert.pdf_data.policy_metadata = {}
             cert.state.policy_extract_ok = False
         return cert
 
@@ -579,7 +613,7 @@ class FIPSCertificate(
         """
         Extract keywords from policy document
         """
-        keywords = sec_certs.utils.extract.extract_keywords(cert.state.policy_txt_path, fips_rules)
+        keywords = extract.extract_keywords(cert.state.policy_txt_path, fips_rules)
         if not keywords:
             cert.state.policy_extract_ok = False
         else:
@@ -618,7 +652,7 @@ class FIPSCertificate(
         self.heuristics.module_prunned_references = self._prune_reference_ids_variable(html_module_ids)
 
         if self.pdf_data.keywords:
-            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", dict()).keys())
+            pdf_policy_ids = set(self.pdf_data.keywords["fips_cert_id"].get("Cert", {}).keys())
             pdf_policy_ids = {"".join([y for y in x if y.isdigit()]) for x in pdf_policy_ids}
         else:
             pdf_policy_ids = set()
@@ -646,9 +680,7 @@ class FIPSCertificate(
             2. Consider only ids s.t. they don't appear in self.heuristics.algorithms
             3. Consider only ids s.t. they don't appear in self.pdf_data.keywords["fips_certlike"]["Certlike"]
         """
-        prunned = {x for x in attribute_to_prune if x != self.cert_id}
+        prunned = {x for x in attribute_to_prune if x != str(self.cert_id)}
         prunned = {x for x in prunned if int(x) > config.always_false_positive_fips_cert_id_threshold}
         prunned = {x for x in prunned if x not in self.heuristics.algorithm_numbers}
-        prunned = {x for x in prunned if x not in self.pdf_data.certlike_algorithm_numbers}
-
-        return prunned
+        return {x for x in prunned if x not in self.pdf_data.certlike_algorithm_numbers}

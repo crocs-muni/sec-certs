@@ -1,66 +1,44 @@
-name: Lint (MyPy, Black, isort, Flake8)
+name: Lint (MyPy, Black, Ruff)
 on:
   push:
   workflow_dispatch:
 jobs:
-  mypy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-      - name: Install external dependencies
-        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
-      - name: Install python dependencies
-        run: |
-          pip install -r requirements/requirements.txt
-          pip install -r requirements/dev_requirements.txt
-      - name: Run mypy
-        run: mypy .
   black:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable
-  isort:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.8
-      - uses: isort/isort-action@master
-        with:
-          requirementsFiles: "requirements/requirements.txt requirements/dev_requirements.txt"
-  pyupgrade:
+          python-version: "3.8"
+      - name: Install dependencies
+        run: |
+          sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+          pip install -r requirements/dev_requirements.txt
+      - name: Run Black
+        run: black . --check --target-version py38
+  ruff:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-      - name: Install external dependencies
-        run: sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
-      - name: Install python dependencies
+      - name: Install dependencies
         run: |
-          pip install -r requirements/requirements.txt
+          sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
           pip install -r requirements/dev_requirements.txt
-      - name: Run pyupgrade
-        run: pre-commit run pyupgrade --all-files
-  flake8-lint:
+      - name: Run Ruff
+        run: ruff . --format=github
+  mypy:
     runs-on: ubuntu-latest
-    name: Flake8
     steps:
-      - name: Check out source repository
-        uses: actions/checkout@v3
-      - name: Set up Python environment
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-      - name: flake8 Lint
-        uses: py-actions/flake8@v2
-        with:
-          plugins: "flake8-future-annotations"
+      - name: Install dependencies
+        run: |
+          sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev -y
+          pip install -r requirements/dev_requirements.txt
+      - name: Run Mypy
+        run: mypy .

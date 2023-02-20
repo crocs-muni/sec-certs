@@ -74,7 +74,10 @@ CC_CANADA_INEVAL_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteri
 CC_ANSSI_BASE_URL = "https://www.ssi.gouv.fr"
 CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/en/products/certified-products/"
 CC_BSI_BASE_URL = "https://www.bsi.bund.de/"
-CC_BSI_CERTIFIED_URL = CC_BSI_BASE_URL + "EN2021/Topics/Certification/certified_products/certified_products_node.html"
+CC_BSI_CERTIFIED_URL = (
+    CC_BSI_BASE_URL
+    + "EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Zertifizierung-und-Anerkennung/Listen/Zertifizierte-Produkte-nach-CC/zertifizierte-produkte-nach-cc_node.html"
+)
 CC_INDIA_CERTIFIED_URL = "https://www.commoncriteria-india.gov.in/product-certified"
 CC_INDIA_ARCHIVED_URL = "https://www.commoncriteria-india.gov.in/archived-prod-cer"
 CC_ITALY_BASE_URL = "https://www.ocsi.gov.it"

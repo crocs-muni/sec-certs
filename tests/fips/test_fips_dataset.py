@@ -4,9 +4,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
-
-import sec_certs.constants as constants
 import tests.data.fips.dataset
+
+from sec_certs import constants
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
 
@@ -70,6 +70,7 @@ def test_build_dataset(data_dir: Path, toy_dataset: FIPSDataset):
 def test_download_meta_html_files():
     with TemporaryDirectory() as tmp_dir:
         dset = FIPSDataset(root_dir=Path(tmp_dir))
+        dset.web_dir.mkdir()
         dset._download_html_resources()
 
         assert (dset.web_dir / "fips_modules_active.html").exists()

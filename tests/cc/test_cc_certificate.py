@@ -4,9 +4,9 @@ from datetime import date
 from pathlib import Path
 
 import pytest
-
 import tests.data.cc.analysis
 import tests.data.cc.certificate
+
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CCCertificate
 from sec_certs.sample.protection_profile import ProtectionProfile

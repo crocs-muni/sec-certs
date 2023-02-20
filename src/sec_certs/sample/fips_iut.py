@@ -85,10 +85,11 @@ class IUTSnapshot(ComplexSerializableType):
 
         last_updated_elem = next(
             filter(
-                lambda e: isinstance(e, Tag) and e.name == "p",
+                lambda e: isinstance(e, Tag) and e.name == "p" and "Last Updated" in str(e.string),
                 soup.find(id="content").next_siblings,
             )
         )
+
         last_updated_text = str(last_updated_elem.string).strip()
         last_updated = datetime.strptime(last_updated_text, "Last Updated: %m/%d/%Y").date()
         table = tables[0].find("tbody")
@@ -100,7 +101,7 @@ class IUTSnapshot(ComplexSerializableType):
                 str(line[2].string),
                 datetime.strptime(str(line[3].string), "%m/%d/%Y").date(),
             )
-            for line in map(lambda tr: tr.find_all("td"), lines)
+            for line in (tr.find_all("td") for tr in lines)
         }
 
         # Parse footer

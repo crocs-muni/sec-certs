@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-import tests.data.cc.analysis.auxillary_datasets
+import tests.data.cc.analysis.auxiliary_datasets
 from sec_certs.dataset import CVEDataset
 from sec_certs.sample import CVE
 from sec_certs.sample.cpe import CPE
@@ -24,7 +24,7 @@ def test_from_web():
 
 @pytest.fixture(scope="module")
 def cve_dataset_path() -> Path:
-    return Path(tests.data.cc.analysis.auxillary_datasets.__path__[0]) / "cve_dataset.json"
+    return Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cve_dataset.json"
 
 
 @pytest.fixture(scope="module")

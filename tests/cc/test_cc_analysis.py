@@ -4,8 +4,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 import tests.data.cc.analysis
+
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.dataset import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
@@ -91,7 +91,7 @@ def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.process_protection_profiles()
     cc_dset.extract_data()
-    cc_dset.auxillary_datasets.cve_dset = cve_dset
+    cc_dset.auxiliary_datasets.cve_dset = cve_dset
     cc_dset._compute_heuristics()
 
     return cc_dset
@@ -104,7 +104,7 @@ def cc_config_dset(data_dir: Path, cve_config_dset: CVEDataset, tmp_path_factory
     cc_config_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_config_dset.process_protection_profiles()
     cc_config_dset.extract_data()
-    cc_config_dset.auxillary_datasets.cve_dset = cve_config_dset
+    cc_config_dset.auxiliary_datasets.cve_dset = cve_config_dset
     cc_config_dset._compute_heuristics()
 
     return cc_config_dset

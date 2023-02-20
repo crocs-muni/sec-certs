@@ -6,4 +6,4 @@ def test_rules():
     assert "fips_cert_id" in fips_rules
     for rule_group in rules:
         if rule_group not in ("cc_rules", "fips_rules"):
-            assert rule_group in cc_rules.keys() or rule_group in fips_rules.keys()
+            assert rule_group in cc_rules or rule_group in fips_rules

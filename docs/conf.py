@@ -18,7 +18,7 @@ from importlib.metadata import version as get_version
 # -- Project information -----------------------------------------------------
 
 project = "sec-certs"
-copyright = "2020-2022"
+copyright = "CRoCS MUNI | 2020-2023"
 
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
 release = ".".join(get_version("sec-certs").split(".")[:3])
@@ -59,11 +59,11 @@ html_theme = "sphinx_book_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_logo = "_static/logo.svg"
-html_favicon = "_static/logo_badge.svg"
+html_logo = "_static/logo.png"
+html_favicon = "_static/logo_badge.png"
 
 html_theme_options = {
-    "repository_url": "https://anonymous.4open.science/r/sec-certs-7A92",
+    "repository_url": "https://github.com/crocs-muni/sec-certs",
     "repository_branch": "main",
     "launch_buttons": {"binderhub_url": "https://mybinder.org"},
     "use_fullscreen_button": False,

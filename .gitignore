@@ -116,9 +116,15 @@ virt/
 # mypy
 .mypy_cache/
 
+# ruff
+.ruff_cache
+
 # log
 cert_processing_log.txt
 ./cc_processing_log.txt
 
 # Experiment results produced by notebooks
 notebooks/cc/results/
+
+# Default directory for dataset
+/dataset
