@@ -242,7 +242,7 @@ def setup_periodic_tasks(sender, **kwargs):
         name="Update data (daily).",
     )
     sender.add_periodic_task(
-        crontab(minute=0, hour=0, day="sun"),
+        crontab(minute=0, hour=0, day_of_week="sun"),
         run_updates_weekly.s(),
         name="Update data (weekly).",
     )
