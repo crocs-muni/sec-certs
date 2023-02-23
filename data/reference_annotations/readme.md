@@ -28,6 +28,12 @@ After manually inspecting random certificates, we have identified the following 
 4. Label all references in [manual_annotations](manual_annotations/) as follows:
     - The reference meaning is recovered based on certification report and security target pdf.
     - The annotator should visit certification report first. If data in certification report is ambigous or does not allow precise annotation, the annotator should further visit the security target pdf.
+    - The annotator should set `None` label on instances that he/she was unable to decide.
+    - The annotator should label the `source` as:
+        - `report` if he/she decided purely based on the data from certification report
+        - `target` if he/she decided purely based on the data from security target
+        - `report+target` if both artifacts were needed for resolution
+        - Note that this label is only internal, not intended to be used for research
     - Artifacts of the referenced certificate are not examined.
     - The labeling is done by a pair of co-authors, the inter-annotator agreement is measured with Cohen's Kappa
 

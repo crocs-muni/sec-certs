@@ -1,4 +1,4 @@
-dgst,referenced_cert_id,location,label,comment
+dgst,referenced_cert_id,source,label,comment
 e676143c80802a59,BSI-DSZ-CC-0891-V4-2019,None,None,None
 0bf7a19b22163465,ANSSI-CC-2016/44,None,None,None
 ab3af998dff7a2ef,ANSSI-CC-2017/47,None,None,None
