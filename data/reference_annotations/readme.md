@@ -15,6 +15,7 @@ After manually inspecting random certificates, we have identified the following 
 - **Recertification**: The examined certificate is a re-certification of the referenced certificate.
 - **Previous version**: The product in the referenced certificate is a previous version of the product in the examined certificate and the recertification is not explicitly mentioned.
 - **On platform**: The examined certificate runs on a platform that is certified in the referenced certificate.
+- **Self**: The referenced certificate is the same as the examined certificate.
 
 
 ### Reference classification methodology
@@ -34,6 +35,7 @@ After manually inspecting random certificates, we have identified the following 
         - `target` if he/she decided purely based on the data from security target
         - `report+target` if both artifacts were needed for resolution
         - Note that this label is only internal, not intended to be used for research
+        - The label should be in lowercase letters with underscore, e.g., `evaluation_reused`.
     - Artifacts of the referenced certificate are not examined.
     - The labeling is done by a pair of co-authors, the inter-annotator agreement is measured with Cohen's Kappa
 
