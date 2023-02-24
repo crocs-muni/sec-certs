@@ -62,7 +62,7 @@ class ReferenceClassifierTrainer:
         features = Features(
             {
                 "dgst": Value("string"),
-                "cert_id": Value("string"),
+                "referenced_cert_id": Value("string"),
                 "sentence": Value("string"),
                 "label": ClassLabel(names=list(df_to_use.label.unique())),
             }
