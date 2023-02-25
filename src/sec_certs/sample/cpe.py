@@ -32,7 +32,7 @@ class CPEConfiguration(ComplexSerializableType):
         For a given set of CPEs method returns boolean if the CPE configuration is
         matched or not.
         """
-        return self.platform in set_of_cpes and any([cpe for cpe in set_of_cpes])
+        return self.platform in set_of_cpes and any(list(set_of_cpes))
 
 
 @dataclass(init=False)
