@@ -159,12 +159,12 @@ def test_find_related_cves_for_cpe_configuration(
     cpes_ibm_websphere_app_with_platform: set[CPE],
     ibm_xss_cve: CVE,
     cve_config_dset: CVEDataset,
-    random_certificate: CCCertificate,
 ):
-    random_certificate.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
+    cert = cc_dset["37e1b22e5933b0ed"]
+    cert.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
     cc_dset.auxiliary_datasets.cve_dset = cve_config_dset
     cc_dset.compute_related_cves()
-    assert {ibm_xss_cve.cve_id} == random_certificate.heuristics.related_cves
+    assert {ibm_xss_cve.cve_id} == cert.heuristics.related_cves
 
 
 @pytest.fixture
@@ -176,11 +176,12 @@ def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CCCertificate):
     assert {cpe_single_sign_on.uri} == random_certificate.heuristics.cpe_matches
 
 
-def test_find_related_cves(cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE]):
-    cert = cc_dset["37e1b22e5933b0ed"]
-    cert.heuristics.cpe_matches = {cpe_single_sign_on.uri}
+def test_find_related_cves(
+    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE], random_certificate: CCCertificate
+):
+    random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
     cc_dset.compute_related_cves()
-    assert {x.cve_id for x in cves} == cert.heuristics.related_cves
+    assert {x.cve_id for x in cves} == random_certificate.heuristics.related_cves
 
 
 def test_version_extraction(random_certificate: CCCertificate):
