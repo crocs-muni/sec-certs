@@ -176,12 +176,11 @@ def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CCCertificate):
     assert {cpe_single_sign_on.uri} == random_certificate.heuristics.cpe_matches
 
 
-def test_find_related_cves(
-    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE], random_certificate: CCCertificate
-):
-    random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
+def test_find_related_cves(cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE]):
+    cert = cc_dset["37e1b22e5933b0ed"]
+    cert.heuristics.cpe_matches = {cpe_single_sign_on.uri}
     cc_dset.compute_related_cves()
-    assert {x.cve_id for x in cves} == random_certificate.heuristics.related_cves
+    assert {x.cve_id for x in cves} == cert.heuristics.related_cves
 
 
 def test_version_extraction(random_certificate: CCCertificate):
