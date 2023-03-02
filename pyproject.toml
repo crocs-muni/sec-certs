@@ -83,7 +83,7 @@
       "ipython!=8.7.0",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
-    nlp = ["setfit"]
+    nlp = ["setfit", "langdetect"]
 
   [project.urls]
     Homepage = "https://seccerts.org"

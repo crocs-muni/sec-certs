@@ -4,10 +4,6 @@ aiohttp==3.8.4
     #   fsspec
 aiosignal==1.3.1
     # via aiohttp
-appnope==0.1.3
-    # via
-    #   ipykernel
-    #   ipython
 asttokens==2.2.1
     # via stack-data
 async-timeout==4.0.2
@@ -138,6 +134,8 @@ kiwisolver==1.4.4
     # via matplotlib
 langcodes==3.3.0
     # via spacy
+langdetect==1.0.9
+    # via sec-certs (./../pyproject.toml)
 lxml==4.9.2
     # via
     #   pikepdf
@@ -192,6 +190,16 @@ numpy==1.24.2
     #   thinc
     #   torchvision
     #   transformers
+nvidia-cublas-cu11==11.10.3.66
+    # via
+    #   nvidia-cudnn-cu11
+    #   torch
+nvidia-cuda-nvrtc-cu11==11.7.99
+    # via torch
+nvidia-cuda-runtime-cu11==11.7.99
+    # via torch
+nvidia-cudnn-cu11==8.5.0.96
+    # via torch
 packaging==23.0
     # via
     #   datasets
@@ -332,6 +340,7 @@ six==1.16.0
     # via
     #   asttokens
     #   html5lib
+    #   langdetect
     #   python-dateutil
 smart-open==6.3.0
     # via
@@ -417,6 +426,10 @@ wcwidth==0.2.6
     # via prompt-toolkit
 webencodings==0.5.1
     # via html5lib
+wheel==0.38.4
+    # via
+    #   nvidia-cublas-cu11
+    #   nvidia-cuda-runtime-cu11
 widgetsnbextension==4.0.5
     # via ipywidgets
 xxhash==3.2.0
