@@ -23,9 +23,14 @@ from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.model.reference_finder import ReferenceFinder
-from sec_certs.model.sar_transformer import SARTransformer
-from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
+from sec_certs.model import (
+    ReferenceAnnotator,
+    ReferenceAnnotatorTrainer,
+    ReferenceFinder,
+    SARTransformer,
+    TransitiveVulnerabilityFinder,
+)
+from sec_certs.model.references.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
@@ -33,6 +38,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.nlp import prec_recall_metric
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 
@@ -159,6 +165,10 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         Returns json that holds the datase of maintenance updates
         """
         return self.mu_dataset_dir / "maintenance_updates.json"
+
+    @property
+    def reference_annotator_dir(self) -> Path:
+        return self.root_dir / "reference_annotator"
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -800,6 +810,27 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             update_dset.extract_data()
 
         return update_dset
+
+    def annotate_references(self, fresh: bool = True):
+        df = ReferenceSegmentExtractor().prepare_df_from_cc_certs(list(self.certs.values()))
+        if fresh:
+            annotator = self._train_reference_annotator(df)
+        else:
+            annotator = ReferenceAnnotator.from_pretrained(self.reference_annotator_dir)
+
+        df = annotator.predict_df(df)
+
+        # TODO: Now iterate over DF, fill-in references
+
+    def _train_reference_annotator(self, df: pd.DataFrame, save_model: bool = True) -> ReferenceAnnotator:
+        trainer = ReferenceAnnotatorTrainer.from_df(df, prec_recall_metric, "transformer", "production")
+        trainer.train()
+        logger.info(trainer.evaluate())
+
+        if save_model:
+            trainer.slf.save_pretrained(self.reference_annotator_dir)
+
+        return trainer.clf
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
