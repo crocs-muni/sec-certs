@@ -116,7 +116,12 @@
     max-complexity = 10
 
   [tool.setuptools.package-data]
-    "*" = ["*.yaml", "*.json"]
+    'sec_certs' = ["rules.yaml"]
+    'sec_certs.config' = ["settings.yaml", "settings-schema.json"]
+    'sec_certs.data' = [
+      "reference_annotations/split/*.json",
+      "reference_annotations/manual_annotations/*.csv",
+    ]
 
 
 [tool.setuptools_scm]
