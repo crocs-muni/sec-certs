@@ -51,7 +51,7 @@ class ReferenceAnnotator:
         self._model.save_pretrained(str(model_dir))
 
     def train(self, train_dataset: pd.DataFrame):
-        pass
+        raise NotImplementedError("ReferenceAnnotatorTrainer shall be used for training")
 
     def predict(self, X: list[list[str]]) -> list[str]:
         return [self._predict_single(x) for x in X]

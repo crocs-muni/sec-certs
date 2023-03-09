@@ -43,8 +43,10 @@ class ReferenceRecord:
             data = handle.read()
 
         record.segments = {sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text}
+
         if not record.segments:
             record.segments = None
+
         return record
 
     def to_pandas_tuple(self) -> tuple[str, str, str, set[str] | None]:
@@ -68,18 +70,16 @@ class ReferenceSegmentExtractor:
         - Loads manually annotated samples
         - Combines all of that into single dataframe
         """
-        df_targets = self._build_df(
-            [x for x in certs if x.heuristics.st_references.directly_referencing and x.state.st_txt_path], "target"
-        )
-        df_reports = self._build_df(
-            [x for x in certs if x.heuristics.report_references.directly_referencing and x.state.report_txt_path],
-            "report",
-        )
-        df = pd.concat([df_targets, df_reports])
-        return self._process_df(df)
+
+        target_certs = [x for x in certs if x.heuristics.st_references.directly_referencing and x.state.st_txt_path]
+        report_certs = [
+            x for x in certs if x.heuristics.report_references.directly_referencing and x.state.report_txt_path
+        ]
+        df_targets = self._build_df(target_certs, "target")
+        df_reports = self._build_df(report_certs, "report")
+        return self._process_df(pd.concat([df_targets, df_reports]))
 
     def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
-        """ """
         attribute_mapping = {"target": "st_references", "report": "report_references"}
         records = [
             ReferenceRecord(x, y, source)
@@ -87,7 +87,6 @@ class ReferenceSegmentExtractor:
             for y in getattr(x.heuristics, attribute_mapping[source]).directly_referencing
         ]
 
-        # results = [ReferenceRecord.fill_reference_segments(x) for x in tqdm.tqdm(records)]
         results = parallel_processing.process_parallel(
             ReferenceRecord.fill_reference_segments,
             records,
@@ -137,7 +136,7 @@ class ReferenceSegmentExtractor:
                 load_single_df(annotations_directory / "valid.csv", "valid"),
                 load_single_df(annotations_directory / "test.csv", "test"),
             ]
-        )[["dgst", "referenced_cert_id", "source", "label", "comment"]]
+        )
 
         return (
             df_annot[["dgst", "referenced_cert_id", "label"]].set_index(["dgst", "referenced_cert_id"]).label.to_dict()

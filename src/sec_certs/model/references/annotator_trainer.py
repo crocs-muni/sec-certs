@@ -72,12 +72,12 @@ class ReferenceAnnotatorTrainer:
         mode: Literal["training", "production"] = "training",
     ):
         df = prepare_reference_annotations_df(df)
-        processing_method = {
+        dataset_generation_method = {
             "training": ReferenceAnnotatorTrainer.split_df_for_training,
             "production": ReferenceAnnotatorTrainer.split_df_for_production,
         }
 
-        train_dataset, eval_dataset = processing_method[mode](df)
+        train_dataset, eval_dataset = dataset_generation_method[mode](df)
         return cls(train_dataset, eval_dataset, metric, method)
 
     @staticmethod
