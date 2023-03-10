@@ -4,22 +4,13 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from dateutil.parser import isoparse
 
 import tests.data.cc.analysis.auxiliary_datasets
 from sec_certs.dataset import CVEDataset
 from sec_certs.sample import CVE
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import SerializationError
-
-
-@pytest.mark.slow
-@pytest.mark.monitor_test
-@pytest.mark.xfail(reason="May fail due to errors on NIST server.")
-def test_from_web():
-    dset = CVEDataset.from_web()
-    assert dset is not None
-    assert "CVE-2019-15809" in dset.cves
-    assert "CVE-2017-15361" in dset.cves
 
 
 @pytest.fixture(scope="module")
@@ -46,6 +37,7 @@ def cve_dict() -> dict[str, Any]:
                 "end_version": None,
             }
         ],
+        "vulnerable_cpe_configurations": [],
         "impact": {
             "_type": "Impact",
             "base_score": 5,
@@ -59,7 +51,24 @@ def cve_dict() -> dict[str, Any]:
 
 
 @pytest.fixture(scope="module")
-def cves() -> list[CVE]:
+def cve_2010_2325_cpe_configs() -> list[CPE]:
+    return [
+        CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
+        CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
+    ]
+
+
+@pytest.fixture(scope="module")
+def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
     cpe_single_sign_on = CPE(
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
         "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
@@ -69,32 +78,53 @@ def cves() -> list[CVE]:
         CVE(
             "CVE-2017-1732",
             [cpe_single_sign_on],
+            [],
             CVE.Impact(5.3, "MEDIUM", 3.9, 1.4),
-            "2021-05-26T04:15Z",
+            isoparse("2021-05-26T04:15Z"),
             {"CWE-200"},
         ),
         CVE(
             "CVE-2019-4513",
             [cpe_single_sign_on],
+            [],
             CVE.Impact(8.2, "HIGH", 3.9, 4.2),
-            "2000-05-26T04:15Z",
-            {"CVE-611"},
+            isoparse("2000-05-26T04:15Z"),
+            {"CWE-611"},
+        ),
+        CVE(
+            "CVE-2010-2325",
+            [],
+            cve_2010_2325_cpe_configs,
+            CVE.Impact(4.3, "MEDIUM", 8.6, 2.9),
+            isoparse("2010-06-18T18:30"),
+            {"CWE-79"},
         ),
     ]
 
 
-def test_cve_dset_lookup_dicts(cves: list[CVE], cve_dset: CVEDataset):
+@pytest.mark.slow
+@pytest.mark.monitor_test
+@pytest.mark.xfail(reason="May fail due to errors on NIST server.")
+def test_from_web():
+    dset = CVEDataset.from_web()
+    assert dset is not None
+    assert "CVE-2019-15809" in dset.cves
+    assert "CVE-2017-15361" in dset.cves
+
+
+def test_cve_dset_lookup_dicts(cve_dset: CVEDataset):
     alt_lookup = {x: set(y) for x, y in cve_dset.cpe_to_cve_ids_lookup.items()}
     assert alt_lookup == {
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*": {
-            x.cve_id for x in cves
+            "CVE-2017-1732",
+            "CVE-2019-4513",
         }
     }
 
 
 def test_cve_dset_from_json(cve_dataset_path: Path, cve_dset: CVEDataset):
     dset = CVEDataset.from_json(cve_dataset_path)
-    assert dset == cve_dset
+    assert all(x in dset for x in cve_dset)
 
 
 def test_cve_from_to_dict(cve_dict: dict[str, Any]):

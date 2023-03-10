@@ -285,15 +285,14 @@ def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEData
 
 def expand_df_with_cve_cols(df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFrame:
     df = df.copy()
-
-    df["n_cves"] = df.related_cves.map(lambda x: len(x) if x is not np.nan else 0)
+    df["n_cves"] = df.related_cves.map(lambda x: 0 if pd.isna(x) else len(x))
     df["cve_published_dates"] = df.related_cves.map(
-        lambda x: [cve_dset[y].published_date.date() for y in x] if x is not np.nan else np.nan  # type: ignore
+        lambda x: [cve_dset[y].published_date.date() for y in x] if not pd.isna(x) else np.nan  # type: ignore
     )
 
     df["earliest_cve"] = df.cve_published_dates.map(lambda x: min(x) if isinstance(x, list) else np.nan)
     df["worst_cve_score"] = df.related_cves.map(
-        lambda x: max([cve_dset[cve].impact.base_score for cve in x]) if x is not np.nan else np.nan
+        lambda x: max([cve_dset[cve].impact.base_score for cve in x]) if not pd.isna(x) else np.nan
     )
 
     """
@@ -303,7 +302,7 @@ def expand_df_with_cve_cols(df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFr
     To properly treat this, the average should be taken across CVEs with >0 base_socre.
     """
     df["avg_cve_score"] = df.related_cves.map(
-        lambda x: np.mean([cve_dset[cve].impact.base_score for cve in x]) if x is not np.nan else np.nan
+        lambda x: np.mean([cve_dset[cve].impact.base_score for cve in x]) if not pd.isna(x) else np.nan
     )
     return df
 

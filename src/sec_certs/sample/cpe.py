@@ -10,7 +10,33 @@ from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers
 
 
-@dataclass(init=False)
+@dataclass
+class CPEConfiguration(ComplexSerializableType):
+    __slots__ = ["platform", "cpes"]
+
+    platform: CPE
+    cpes: list[CPE]
+
+    def __hash__(self) -> int:
+        return hash(self.platform) + sum([hash(cpe) for cpe in self.cpes])
+
+    def __lt__(self, other: CPEConfiguration) -> bool:
+        return self.platform < other.platform
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, self.__class__) and self.platform == other.platform and set(self.cpes) == set(other.cpes)
+        )
+
+    def matches(self, other_cpe_uris: set[str]) -> bool:
+        """
+        For a given set of CPEs method returns boolean if the CPE configuration is
+        matched or not.
+        """
+        return self.platform.uri in other_cpe_uris and any(x.uri in other_cpe_uris for x in self.cpes)
+
+
+@dataclass
 class CPE(PandasSerializableType, ComplexSerializableType):
     uri: str
     version: str
@@ -88,6 +114,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     def pandas_tuple(self) -> tuple:
         return self.uri, self.vendor, self.item_name, self.version, self.title
 
+    # We cannot use frozen=True. It does not work with __slots__ prior to Python 3.10 dataclasses
+    # Hence we manually provide __hash__ and __eq__ despite not guaranteeing immutability
     def __hash__(self) -> int:
         return hash((self.uri, self.start_version, self.end_version))
 

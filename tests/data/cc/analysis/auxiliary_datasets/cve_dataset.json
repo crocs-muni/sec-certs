@@ -8,11 +8,12 @@
                 {
                     "_type": "sec_certs.sample.cpe.CPE",
                     "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
-                    "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
+                    "title": null,
                     "start_version": null,
                     "end_version": null
                 }
             ],
+            "vulnerable_cpe_configurations": [],
             "impact": {
                 "_type": "sec_certs.sample.cve.CVE.Impact",
                 "base_score": 5.3,
@@ -20,7 +21,7 @@
                 "exploitability_score": 3.9,
                 "impact_score": 1.4
             },
-            "published_date": "2021-05-26T04:15Z",
+            "published_date": "2018-08-17T16:29:00+00:00",
             "cwe_ids": {
                 "_type": "Set",
                 "elements": [
@@ -35,11 +36,12 @@
                 {
                     "_type": "sec_certs.sample.cpe.CPE",
                     "uri": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
-                    "title": "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
+                    "title": null,
                     "start_version": null,
                     "end_version": null
                 }
             ],
+            "vulnerable_cpe_configurations": [],
             "impact": {
                 "_type": "sec_certs.sample.cve.CVE.Impact",
                 "base_score": 8.2,
@@ -47,11 +49,507 @@
                 "exploitability_score": 3.9,
                 "impact_score": 4.2
             },
-            "published_date": "2000-05-26T04:15Z",
+            "published_date": "2019-08-26T15:15:00+00:00",
             "cwe_ids": {
                 "_type": "Set",
                 "elements": [
                     "CWE-611"
+                ]
+            }
+        },
+        "CVE-2010-2325": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2010-2325",
+            "vulnerable_cpes": [],
+            "vulnerable_cpe_configurations": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEConfiguration",
+                    "platform": {
+                        "_type": "sec_certs.sample.cpe.CPE",
+                        "uri": "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
+                        "title": null,
+                        "start_version": null,
+                        "end_version": null
+                    },
+                    "cpes": [
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": [
+                                "including",
+                                "7.0.0.10"
+                            ]
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        }
+                    ]
+                }
+            ],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Impact",
+                "base_score": 4.3,
+                "severity": "MEDIUM",
+                "exploitability_score": 8.6,
+                "impact_score": 2.9
+            },
+            "published_date": "2010-06-18T18:30:00+00:00",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-79"
+                ]
+            }
+        },
+        "CVE-2003-0001": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2003-0001",
+            "vulnerable_cpes": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.15:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:netbsd:netbsd:1.5.3:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:sp1:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:netbsd:netbsd:1.6:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.11:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:netbsd:netbsd:1.5:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.12:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.13:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:microsoft:windows_2000:*:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:freebsd:freebsd:4.7:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.16:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.5:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:microsoft:windows_2000:*:sp1:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:freebsd:freebsd:4.2:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.19:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.2:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.9:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:microsoft:windows_2000:*:sp2:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:netbsd:netbsd:1.5.1:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.10:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.17:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.7:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.8:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:freebsd:freebsd:4.4:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:freebsd:freebsd:4.5:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.14:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:netbsd:netbsd:1.5.2:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.1:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:freebsd:freebsd:4.6:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.4:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.6:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:freebsd:freebsd:4.3:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.18:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:sp2:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.20:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPE",
+                    "uri": "cpe:2.3:o:linux:linux_kernel:2.4.3:*:*:*:*:*:*:*",
+                    "title": null,
+                    "start_version": null,
+                    "end_version": null
+                }
+            ],
+            "vulnerable_cpe_configurations": [],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Impact",
+                "base_score": 5.0,
+                "severity": "MEDIUM",
+                "exploitability_score": 10.0,
+                "impact_score": 2.9
+            },
+            "published_date": "2003-01-17T05:00:00+00:00",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-200"
+                ]
+            }
+        },
+        "CVE-2003-0070": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2003-0070",
+            "vulnerable_cpes": [],
+            "vulnerable_cpe_configurations": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEConfiguration",
+                    "platform": {
+                        "_type": "sec_certs.sample.cpe.CPE",
+                        "uri": "cpe:2.3:a:gnome:gnome-terminal:2.0:*:*:*:*:*:*:*",
+                        "title": null,
+                        "start_version": null,
+                        "end_version": null
+                    },
+                    "cpes": [
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.15.0:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.14.2:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.17.4:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.12.2:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.24.3:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.22.5:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.16.14:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.11.21:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.20.5:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        },
+                        {
+                            "_type": "sec_certs.sample.cpe.CPE",
+                            "uri": "cpe:2.3:a:nalin_dahyabhai:vte:0.25.1:*:*:*:*:*:*:*",
+                            "title": null,
+                            "start_version": null,
+                            "end_version": null
+                        }
+                    ]
+                }
+            ],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Impact",
+                "base_score": 6.8,
+                "severity": "MEDIUM",
+                "exploitability_score": 8.6,
+                "impact_score": 6.4
+            },
+            "published_date": "2003-03-03T05:00:00+00:00",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "NVD-CWE-Other"
                 ]
             }
         }

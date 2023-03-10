@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 import json
 import logging
 import re
@@ -527,22 +526,14 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             )
             return
 
-        relevant_cpes = set(itertools.chain.from_iterable(x.heuristics.cpe_matches for x in cpe_rich_certs))
-        self.auxiliary_datasets.cve_dset.filter_related_cpes(relevant_cpes)
+        # The following lines don't bring any speed-up. They may potentially save memory if rest of CVEs is cleaned explicitly
+        # relevant_cpes = set(itertools.chain.from_iterable(x.heuristics.cpe_matches for x in cpe_rich_certs))
+        # self.auxiliary_datasets.cve_dset.filter_related_cpes(relevant_cpes)
 
         cert: Certificate
         for cert in tqdm(cpe_rich_certs, desc="Computing related CVES"):
-            if cert.heuristics.cpe_matches:
-                related_cves = [
-                    self.auxiliary_datasets.cve_dset.get_cve_ids_for_cpe_uri(x) for x in cert.heuristics.cpe_matches
-                ]
-                related_cves = list(filter(lambda x: x is not None, related_cves))
-                if related_cves:
-                    cert.heuristics.related_cves = set(
-                        itertools.chain.from_iterable(x for x in related_cves if x is not None)
-                    )
-            else:
-                cert.heuristics.related_cves = None
+            related_cves = self.auxiliary_datasets.cve_dset.get_cves_from_matched_cpes(cert.heuristics.cpe_matches)
+            cert.heuristics.related_cves = related_cves if related_cves else None
 
         n_vulnerable = len([x for x in cpe_rich_certs if x.heuristics.related_cves])
         n_vulnerabilities = sum([len(x.heuristics.related_cves) for x in cpe_rich_certs if x.heuristics.related_cves])
