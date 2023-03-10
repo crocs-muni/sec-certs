@@ -5,13 +5,14 @@ from pathlib import Path
 
 import pytest
 import tests.data.cc.analysis
+from dateutil.parser import isoparse
 
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.dataset import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cpe import CPE, CPEConfiguration
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
@@ -55,22 +56,25 @@ def cpe_dset(cpes: set[CPE]) -> CPEDataset:
 
 
 @pytest.fixture(scope="module")
-def cves(cpe_single_sign_on) -> set[CVE]:
+def cves(cpe_single_sign_on: CPE, ibm_xss_cve: CVE) -> set[CVE]:
     return {
         CVE(
             "CVE-2017-1732",
             [cpe_single_sign_on],
+            [],
             CVE.Impact(5.3, "MEDIUM", 3.9, 1.4),
-            "2021-05-26T04:15Z",
+            isoparse("2021-05-26T04:15Z"),
             {"CWE-200"},
         ),
         CVE(
             "CVE-2019-4513",
             [cpe_single_sign_on],
+            [],
             CVE.Impact(8.2, "HIGH", 3.9, 4.2),
-            "2000-05-26T04:15Z",
+            isoparse("2000-05-26T04:15Z"),
             {"CVE-611"},
         ),
+        ibm_xss_cve,
     }
 
 
@@ -91,6 +95,7 @@ def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset
     cc_dset.extract_data()
     cc_dset.auxiliary_datasets.cve_dset = cve_dset
     cc_dset._compute_heuristics()
+
     return cc_dset
 
 
@@ -102,6 +107,51 @@ def reference_dataset(data_dir) -> CCDataset:
 @pytest.fixture
 def transitive_vulnerability_dataset(data_dir) -> CCDataset:
     return CCDataset.from_json(data_dir / "transitive_vulnerability_dataset.json")
+
+
+@pytest.fixture(scope="module")
+def ibm_cpe_configuration() -> CPEConfiguration:
+    return CPEConfiguration(
+        CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
+        [
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*"),
+        ],
+    )
+
+
+@pytest.fixture(scope="module")
+def ibm_xss_cve(ibm_cpe_configuration) -> CVE:
+    return CVE(
+        "CVE-2010-2325",
+        [],
+        [ibm_cpe_configuration],
+        CVE.Impact(4.3, "MEDIUM", 2.9, 8.6),
+        isoparse("2000-06-18T04:15Z"),
+        {"CWE-79"},
+    )
+
+
+def test_find_related_cves_for_cpe_configuration(
+    cc_dset: CCDataset,
+    ibm_xss_cve: CVE,
+):
+    cert = cc_dset["37e1b22e5933b0ed"]
+    cert.heuristics.cpe_matches = {
+        "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
+        "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+    }
+    cc_dset.compute_related_cves()
+    assert cert.heuristics.related_cves == {ibm_xss_cve.cve_id}
 
 
 @pytest.fixture
@@ -118,7 +168,7 @@ def test_find_related_cves(
 ):
     random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
     cc_dset.compute_related_cves()
-    assert {x.cve_id for x in cves} == random_certificate.heuristics.related_cves
+    assert {"CVE-2017-1732", "CVE-2019-4513"} == random_certificate.heuristics.related_cves
 
 
 def test_version_extraction(random_certificate: CCCertificate):

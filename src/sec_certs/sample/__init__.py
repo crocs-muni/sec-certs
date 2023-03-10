@@ -5,7 +5,7 @@ like CPE, CVE, etc. The objects mostly hold data and allow for serialization, bu
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
-from sec_certs.sample.cpe import CPE, cached_cpe
+from sec_certs.sample.cpe import CPE, CPEConfiguration, cached_cpe
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.sample.fips_algorithm import FIPSAlgorithm
@@ -19,6 +19,7 @@ __all__ = [
     "CCMaintenanceUpdate",
     "CCCertificate",
     "CPE",
+    "CPEConfiguration",
     "cached_cpe",
     "CVE",
     "FIPSCertificate",

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections
 import datetime
 import glob
 import itertools
@@ -34,6 +35,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         self.cves = cves
         self.json_path = Path(json_path)
         self.cpe_to_cve_ids_lookup: dict[str, set[str]] = {}
+        self.cves_with_vulnerable_configurations: list[CVE] = []
 
     @property
     def serialized_attributes(self) -> list[str]:
@@ -54,9 +56,15 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     def __eq__(self, other: object):
         return isinstance(other, CVEDataset) and self.cves == other.cves
 
+    def _filter_cves_with_cpe_configurations(self) -> None:
+        """
+        Method filters the subset of CVE dataset thah contain at least one CPE configuration in the CVE.
+        """
+        self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
+
     def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Path | None = None):
         """
-        Builds look-up dictionary CPE -> Set[CVE]
+        Builds look-up dictionary CPE -> Set[CVE] and filter the CVEs which contain CPE configurations.
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
         feed, in which case they won't be found as a key in the dictionary. We intentionally ignore those. Feel free
         to add corner cases and manual fixes. According to our investigation, the suffereing CPEs are:
@@ -86,6 +94,8 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                     self.cpe_to_cve_ids_lookup[cpe.uri] = {cve.cve_id}
                 else:
                     self.cpe_to_cve_ids_lookup[cpe.uri].add(cve.cve_id)
+
+        self._filter_cves_with_cpe_configurations()
 
     @classmethod
     def download_cves(cls, output_path_str: str, start_year: int, end_year: int):
@@ -124,7 +134,6 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             cls.download_cves(tmp_dir, start_year, end_year)
             json_files = glob.glob(tmp_dir + "/*.json")
 
-            all_cves = {}
             logger.info("Downloaded required resources. Building CVEDataset from jsons.")
             results = process_parallel(
                 cls.from_nist_json,
@@ -132,13 +141,31 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                 use_threading=False,
                 progress_bar_desc="Building CVEDataset from jsons",
             )
-            for r in results:
-                all_cves.update(r.cves)
+        return cls(dict(collections.ChainMap(*(x.cves for x in results))), json_path)
 
-        return cls(all_cves, json_path)
+    def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str]:
+        return self.cpe_to_cve_ids_lookup.get(cpe_uri, set())
 
-    def get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str] | None:
-        return self.cpe_to_cve_ids_lookup.get(cpe_uri, None)
+    def _get_cves_from_exactly_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
+        return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_uris]))
+
+    def _get_cves_from_cpe_configurations(self, cpe_uris: set[str]) -> set[str]:
+        return {
+            cve.cve_id
+            for cve in self.cves_with_vulnerable_configurations
+            if any(configuration.matches(cpe_uris) for configuration in cve.vulnerable_cpe_configurations)
+        }
+
+    def get_cves_from_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
+        """
+        Method returns the set of CVEs which are matched to the set of CPEs.
+        First are matched the classic CPEs to CVEs with lookup dict and then are matched the
+        'AND' type CPEs containing platform.
+        """
+        return {
+            *self._get_cves_from_exactly_matched_cpes(cpe_uris),
+            *self._get_cves_from_cpe_configurations(cpe_uris),
+        }
 
     def filter_related_cpes(self, relevant_cpes: set[CPE]):
         """
@@ -151,7 +178,13 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         cve_ids_to_delete = []
         for cve in self:
             n_cpes_orig = len(cve.vulnerable_cpes)
-            cve.vulnerable_cpes = list(filter(lambda x: x in relevant_cpes, cve.vulnerable_cpes))
+            cve.vulnerable_cpes = [x for x in cve.vulnerable_cpes if x in relevant_cpes]
+            cve.vulnerable_cpe_configurations = [
+                x
+                for x in cve.vulnerable_cpe_configurations
+                if x.platform.uri in relevant_cpes and any(y.uri in relevant_cpes for y in x.cpes)
+            ]
+
             total_deleted_cpes += n_cpes_orig - len(cve.vulnerable_cpes)
             if not cve.vulnerable_cpes:
                 cve_ids_to_delete.append(cve.cve_id)

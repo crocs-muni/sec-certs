@@ -7,8 +7,8 @@ import pytest
 
 import tests.data.cc.analysis.auxiliary_datasets
 from sec_certs import constants
-from sec_certs.dataset import CPEDataset
-from sec_certs.sample import CPE
+from sec_certs.dataset import CPEDataset, CVEDataset
+from sec_certs.sample import CPE, CPEConfiguration
 from sec_certs.serialization.json import SerializationError
 
 
@@ -20,6 +20,11 @@ def cpe_dset_path() -> Path:
 @pytest.fixture(scope="module")
 def cpe_dset(cpe_dset_path: Path) -> CPEDataset:
     return CPEDataset.from_json(cpe_dset_path)
+
+
+@pytest.fixture(scope="module")
+def cve_dataset() -> CVEDataset:
+    return CVEDataset.from_json(Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cve_dataset.json")
 
 
 @pytest.fixture(scope="module")
@@ -138,3 +143,29 @@ def test_serialization_missing_path():
     dummy_dset = CPEDataset(False, {})
     with pytest.raises(SerializationError):
         dummy_dset.to_json()
+
+
+def test_single_platform_config_cpe(cve_dataset: CVEDataset):
+    tested_cpe_config = cve_dataset["CVE-2010-2325"].vulnerable_cpe_configurations
+    cpe_configuration = CPEConfiguration(
+        platform=CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
+        cpes=[
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", end_version=("including", "7.0.0.10")),
+        ],
+    )
+
+    assert cpe_configuration in tested_cpe_config
+
+
+def test_no_cpe_configuration(cve_dataset: CVEDataset):
+    assert not cve_dataset["CVE-2003-0001"].vulnerable_cpe_configurations
