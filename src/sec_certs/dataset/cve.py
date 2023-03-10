@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections
 import datetime
 import glob
 import itertools
@@ -57,7 +58,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
     def _filter_cves_with_cpe_configurations(self) -> None:
         """
-        Method filters the subset of CVEs, which contain at least one CPE configuration.
+        Method filters the subset of CVE dataset thah contain at least one CPE configuration in the CVE.
         """
         self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
 
@@ -83,7 +84,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
-                vulnerable_configurations = set(
+                vulnerable_configurations = list(
                     itertools.chain.from_iterable(matching_dict.get(cpe, []) for cpe in cve.vulnerable_cpes)
                 )
             else:
@@ -133,7 +134,6 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             cls.download_cves(tmp_dir, start_year, end_year)
             json_files = glob.glob(tmp_dir + "/*.json")
 
-            all_cves = {}
             logger.info("Downloaded required resources. Building CVEDataset from jsons.")
             results = process_parallel(
                 cls.from_nist_json,
@@ -141,38 +141,30 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                 use_threading=False,
                 progress_bar_desc="Building CVEDataset from jsons",
             )
-            for r in results:
-                all_cves.update(r.cves)
-
-        return cls(all_cves, json_path)
+        return cls(dict(collections.ChainMap(*(x.cves for x in results))), json_path)
 
     def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str]:
         return self.cpe_to_cve_ids_lookup.get(cpe_uri, set())
 
-    def _get_cves_from_exactly_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
-        return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_matches]))
+    def _get_cves_from_exactly_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
+        return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_uris]))
 
-    def _get_cves_from_cpe_configurations(self, cpe_matches: set[str]) -> set[str]:
-        def do_cve_configurations_match_cpe_matches(cve: CVE, cpe_matches: set[str]) -> bool:
-            return any(
-                [cpe_configuration.match(cpe_matches) for cpe_configuration in cve.vulnerable_cpe_configurations]
-            )
-
+    def _get_cves_from_cpe_configurations(self, cpe_uris: set[str]) -> set[str]:
         return {
             cve.cve_id
             for cve in self.cves_with_vulnerable_configurations
-            if do_cve_configurations_match_cpe_matches(cve, cpe_matches)
+            if any(configuration.matches(cpe_uris) for configuration in cve.vulnerable_cpe_configurations)
         }
 
-    def get_cves_from_matched_cpes(self, cpe_matches: set[str]) -> set[str]:
+    def get_cves_from_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
         """
         Method returns the set of CVEs which are matched to the set of CPEs.
         First are matched the classic CPEs to CVEs with lookup dict and then are matched the
         'AND' type CPEs containing platform.
         """
         return {
-            *self._get_cves_from_exactly_matched_cpes(cpe_matches),
-            *self._get_cves_from_cpe_configurations(cpe_matches),
+            *self._get_cves_from_exactly_matched_cpes(cpe_uris),
+            *self._get_cves_from_cpe_configurations(cpe_uris),
         }
 
     def filter_related_cpes(self, relevant_cpes: set[CPE]):
@@ -186,7 +178,13 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         cve_ids_to_delete = []
         for cve in self:
             n_cpes_orig = len(cve.vulnerable_cpes)
-            cve.vulnerable_cpes = list(filter(lambda x: x in relevant_cpes, cve.vulnerable_cpes))
+            cve.vulnerable_cpes = [x for x in cve.vulnerable_cpes if x in relevant_cpes]
+            cve.vulnerable_cpe_configurations = [
+                x
+                for x in cve.vulnerable_cpe_configurations
+                if x.platform.uri in relevant_cpes and any(y.uri in relevant_cpes for y in x.cpes)
+            ]
+
             total_deleted_cpes += n_cpes_orig - len(cve.vulnerable_cpes)
             if not cve.vulnerable_cpes:
                 cve_ids_to_delete.append(cve.cve_id)

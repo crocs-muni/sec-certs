@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 import tests.data.fips.dataset
+from dateutil.parser import isoparse
 
 from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
@@ -33,10 +34,10 @@ def some_random_cpe() -> CPE:
 def cve(vulnerable_cpe: CPE) -> CVE:
     return CVE(
         "CVE-1234-123456",
-        {vulnerable_cpe},
-        set(),
+        [vulnerable_cpe],
+        [],
         CVE.Impact(10, "HIGH", 10, 10),
-        "2021-05-26T04:15Z",
+        isoparse("2021-05-26T04:15Z"),
         {"CWE-200"},
     )
 
@@ -45,31 +46,31 @@ def cve(vulnerable_cpe: CPE) -> CVE:
 def some_other_cve(some_random_cpe: CPE) -> CVE:
     return CVE(
         "CVE-2019-4513",
-        {some_random_cpe},
-        set(),
+        [some_random_cpe],
+        [],
         CVE.Impact(8.2, "HIGH", 3.9, 4.2),
-        "2000-05-26T04:15Z",
+        isoparse("2000-05-26T04:15Z"),
         {"CVE-611"},
     )
 
 
 @pytest.fixture(scope="module")
-def ibm_cpe_configurations() -> CPEConfiguration:
+def ibm_cpe_configuration() -> CPEConfiguration:
     return CPEConfiguration(
-        "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
-        {
-            "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
-            "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
-        },
+        CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
+        [
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
+            CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*"),
+        ],
     )
 
 
@@ -82,13 +83,13 @@ def cpes_ibm_websphere_app_with_platform() -> set[CPE]:
 
 
 @pytest.fixture(scope="module")
-def ibm_xss_cve(ibm_cpe_configurations) -> CVE:
+def ibm_xss_cve(ibm_cpe_configuration: CPEConfiguration) -> CVE:
     return CVE(
         "CVE-2010-2325",
-        set(),
-        {ibm_cpe_configurations},
+        [],
+        [ibm_cpe_configuration],
         CVE.Impact(4.3, "MEDIUM", 2.9, 8.6),
-        "2000-06-18T04:15Z",
+        isoparse("2000-06-18T04:15Z"),
         {"CWE-79"},
     )
 
@@ -131,7 +132,7 @@ def toy_static_dataset(data_dir: Path) -> FIPSDataset:
 def processed_dataset(
     toy_static_dataset: FIPSDataset, cpe_dataset: CPEDataset, cve_dataset: CVEDataset, tmp_path_factory
 ) -> FIPSDataset:
-    tmp_dir = tmp_path_factory.mktemp("cc_dset")
+    tmp_dir = tmp_path_factory.mktemp("fips_dset")
     toy_static_dataset.copy_dataset(tmp_dir)
 
     tested_certs = [
@@ -270,10 +271,10 @@ def test_find_related_cves_for_cpe_configuration(
 ):
     cve_dataset.cves = {ibm_xss_cve.cve_id: ibm_xss_cve}
     cert = processed_dataset["2441"]
-    cert.heuristics.cpe_matches = {cve.uri for cve in cpes_ibm_websphere_app_with_platform}
+    cert.heuristics.cpe_matches = {cpe.uri for cpe in cpes_ibm_websphere_app_with_platform}
     processed_dataset.auxiliary_datasets.cve_dset = cve_dataset
     processed_dataset.compute_related_cves()
-    assert {ibm_xss_cve.cve_id} == cert.heuristics.related_cves
+    assert cert.heuristics.related_cves == {ibm_xss_cve.cve_id}
 
 
 def test_keywords_heuristics(processed_dataset: FIPSDataset):
