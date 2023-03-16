@@ -62,7 +62,12 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         """
         self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
 
-    def build_lookup_dict(self, use_nist_mapping: bool = True, nist_matching_filepath: Path | None = None):
+    def build_lookup_dict(
+        self,
+        use_nist_mapping: bool = True,
+        nist_matching_filepath: Path | None = None,
+        limit_to_cpes: set[CPE] | None = None,
+    ):
         """
         Builds look-up dictionary CPE -> Set[CVE] and filter the CVEs which contain CPE configurations.
         Developer's note: There are 3 CPEs that are present in the cpe matching feed, but are badly processed by CVE
@@ -82,6 +87,14 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
         cve: CVE
         for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
+            # Filter to CVEs that contain relevant CPEs
+            if limit_to_cpes and not (
+                set(cve.vulnerable_cpes).union(
+                    set(itertools.chain.from_iterable(x.get_all_cpes() for x in cve.vulnerable_cpe_configurations))
+                )
+            ).intersection(limit_to_cpes):
+                continue
+
             # See note above, we use matching_dict.get(cpe, []) instead of matching_dict[cpe] as would be expected
             if use_nist_mapping:
                 vulnerable_configurations = list(
