@@ -10,17 +10,6 @@ from setfit import SetFitModel, SetFitTrainer
 from sec_certs.model.references.annotator import ReferenceAnnotator
 from sec_certs.utils.nlp import prepare_reference_annotations_df
 
-# from enum import Enum, Unique
-# TODO: Do we have any use for the enum below?
-# @Unique
-# class ReferenceMeaning(Enum):
-#     ON_PLATFORM = 0
-#     COMPONENT_USED = 1
-#     PREVIOUS_VERSION = 2
-#     EVALUATION_REUSED = 3
-#     COMPONENT_SHARED = 4
-#     RECERTIFICATION = 5
-
 """
 Production workflow:
 

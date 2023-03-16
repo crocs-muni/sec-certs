@@ -20,8 +20,6 @@ P = TypeVar("P", bound="PdfData")
 
 @dataclass
 class References(ComplexSerializableType):
-    # TODO: Refactor me to contain reference labels.
-    # Only direct references will have labels.
     directly_referenced_by: set[str] | None = field(default=None)
     indirectly_referenced_by: set[str] | None = field(default=None)
     directly_referencing: set[str] | None = field(default=None)

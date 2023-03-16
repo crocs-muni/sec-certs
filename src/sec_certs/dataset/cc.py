@@ -706,6 +706,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         super()._compute_heuristics()
         self._compute_cert_labs()
         self._compute_sars()
+        self.annotate_references()
 
     def _compute_sars(self) -> None:
         logger.info("Computing heuristics: Computing SARs")
@@ -811,12 +812,31 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
         return update_dset
 
-    def annotate_references(self, fresh: bool = True):
+    def annotate_references(self):
+        if not self.state.pdfs_converted:
+            logger.info(
+                "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
+            )
+            return
+        if not self.state.auxiliary_datasets_processed:
+            logger.info(
+                "Attempting to run analysis of certifies while not having the auxiliary datasets processed. Returning."
+            )
+
+        if not config.cc_reference_annotator_should_train:
+            model_dir = (
+                config.cc_reference_annotator_dir if config.cc_reference_annotator_dir else self.reference_annotator_dir
+            )
+            try:
+                annotator = ReferenceAnnotator.from_pretrained(model_dir)
+            except Exception:
+                logger.error(
+                    f"annotate_references() method was called with `config.cc_reference_annotator_should_train=False`. Further, the model was not found either at `config.cc_reference_annotator_dir={config.cc_reference_annotator_dir}` nor at {self.reference_annotator_dir}. Either: (a) allow training with `config.cc_reference_annotator_should_train=False`; (b) set path to model with `config.cc_reference_annotator_path`; (c) paste the model into {self.reference_annotator_dir}. Returning."
+                )
+
         df = ReferenceSegmentExtractor().prepare_df_from_cc_certs(list(self.certs.values()))
-        if fresh:
+        if config.cc_reference_annotator_should_train:
             annotator = self._train_reference_annotator(df)
-        else:
-            annotator = ReferenceAnnotator.from_pretrained(self.reference_annotator_dir)
 
         df = annotator.predict_df(df)
 

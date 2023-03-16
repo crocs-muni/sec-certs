@@ -57,3 +57,9 @@ minimal_token_length:
 enable_progress_bars:
   description: Whether to enable pretty-printed progress bars while processing.
   value: true
+cc_reference_annotator_dir:
+  description: Path to directory with serialized reference annotator model. If set to `null`, tool will search default directory for the given dataset.
+  value: null
+cc_reference_annotator_should_train:
+  description: True if new reference annotator model shall be build, False otherwise
+  value: false

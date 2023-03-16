@@ -17,6 +17,21 @@
                 }
             }
         },
+        "settings_null_entry": {
+            "required": [
+                "description",
+                "value"
+            ],
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "null"
+                }
+            }
+        },
         "settings_boolean_entry": {
             "type": "object",
             "required": [
@@ -162,6 +177,19 @@
         },
         "enable_progress_bars": {
             "$ref": "#/definitions/settings_boolean_entry"
+        },
+        "cc_reference_annotator_dir": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/settings_string_entry"
+                },
+                {
+                    "$ref": "#/definitions/settings_null_entry"
+                }
+            ]
+        },
+        "cc_reference_annotator_should_train": {
+            "$ref": "#/definitions/settings/boolean_entry"
         }
     },
     "required": [
@@ -177,6 +205,8 @@
         "ignore_first_page",
         "cert_threshold",
         "fips_latest_snapshot",
-        "enable_progress_bars"
+        "enable_progress_bars",
+        "cc_reference_annotator_dir",
+        "cc_reference_annotator_should_train"
     ]
 }
