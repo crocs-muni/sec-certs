@@ -35,6 +35,9 @@ class CPEConfiguration(ComplexSerializableType):
         """
         return self.platform.uri in other_cpe_uris and any(x.uri in other_cpe_uris for x in self.cpes)
 
+    def get_all_cpes(self) -> set[CPE]:
+        return {self.platform}.union(self.cpes)
+
 
 @dataclass
 class CPE(PandasSerializableType, ComplexSerializableType):
