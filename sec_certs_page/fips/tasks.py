@@ -49,12 +49,14 @@ class FIPSNotifier(Notifier, FIPSRenderer):
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("fips_notify", abort=True)
 def notify(run_id):  # pragma: no cover
     notifier = FIPSNotifier()
     notifier.notify(run_id)
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("fips_iut_update", abort=True)
 def update_iut_data():  # pragma: no cover
     snapshot = IUTSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
@@ -62,6 +64,7 @@ def update_iut_data():  # pragma: no cover
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("fips_mip_update", abort=True)
 def update_mip_data():  # pragma: no cover
     snapshot = MIPSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()

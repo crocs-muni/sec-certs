@@ -1,3 +1,4 @@
+import time
 from logging import Logger
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from . import celery, mongo
 from .cc.tasks import update_data as update_cc_data
 from .cc.tasks import update_scheme_data as update_cc_scheme_data
 from .common.objformats import ObjFormat
+from .common.tasks import no_simultaneous_execution
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
 
@@ -20,6 +22,7 @@ logger: Logger = get_task_logger(__name__)
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("cve_update", abort=True)
 def update_cve_data():  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
@@ -47,6 +50,7 @@ def update_cve_data():  # pragma: no cover
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("cpe_update", abort=True)
 def update_cpe_data():  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
@@ -81,9 +85,13 @@ def update_cpe_data():  # pragma: no cover
 
 @celery.task(ignore_result=True)
 def run_updates_weekly():  # pragma: no cover
+    # Try to fix the broken celery scheduler.
+    time.sleep(61)
     chain(update_cc_data.si(), update_cc_scheme_data.si(), update_fips_data.si()).delay()
 
 
 @celery.task(ignore_result=True)
 def run_updates_daily():  # pragma: no cover
+    # Try to fix the broken celery scheduler.
+    time.sleep(61)
     chain(update_cve_data.si(), update_cpe_data.si(), update_iut_data.si(), update_mip_data.si()).delay()

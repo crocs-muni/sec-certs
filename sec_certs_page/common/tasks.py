@@ -206,6 +206,11 @@ class Updater:  # pragma: no cover
         ...
 
     def update(self):
+        lock = redis.lock(self.lock_name, sleep=1, timeout=3600 * 8, blocking_timeout=30)
+        acquired = lock.acquire()
+        if not acquired:
+            return
+
         try:
             from setuptools_scm import get_version
 
@@ -271,22 +276,16 @@ class Updater:  # pragma: no cover
             # TODO: Take dataset and certificate state into account when processing into DB.
 
             with sentry_sdk.start_span(op=f"{self.collection}.db", description="Process certs into DB."):
-                lock = redis.lock(self.lock_name, blocking_timeout=30)
-                acquired = lock.acquire()
-                try:
-                    res, res_diff = self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
-                    self.insert_certs(self.collection, res, ordered=False)
-                    self.insert_certs(self.diff_collection, res_diff, ordered=False)
+                res, res_diff = self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
+                self.insert_certs(self.collection, res, ordered=False)
+                self.insert_certs(self.diff_collection, res_diff, ordered=False)
 
-                    res, res_diff = self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
-                    self.insert_certs(self.collection, res, ordered=False)
-                    self.insert_certs(self.diff_collection, res_diff, ordered=False)
+                res, res_diff = self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
+                self.insert_certs(self.collection, res, ordered=False)
+                self.insert_certs(self.diff_collection, res_diff, ordered=False)
 
-                    res_diff = self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
-                    self.insert_certs(self.diff_collection, res_diff, ordered=False)
-                finally:
-                    if acquired:
-                        lock.release()
+                res_diff = self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
+                self.insert_certs(self.diff_collection, res_diff, ordered=False)
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
@@ -312,6 +311,8 @@ class Updater:  # pragma: no cover
             raise e
         finally:
             rmtree(paths["dset_path"], ignore_errors=True)
+            if acquired:
+                lock.release()
 
 
 class Notifier(DiffRenderer):
@@ -392,10 +393,11 @@ class Notifier(DiffRenderer):
             mail.send(msg)
 
 
-def no_simultaneous_execution(lock_name: str):
+def no_simultaneous_execution(lock_name: str, abort=False):
     """
 
     :param lock_name:
+    :param abort: Whether to abort task if lock cannot be acquired immediately.
     :return:
     """
 
@@ -403,7 +405,9 @@ def no_simultaneous_execution(lock_name: str):
         @wraps(f)
         def wrapper(*args, **kwargs):
             lock = redis.lock(lock_name, sleep=1, timeout=3600 * 8)
-            lock.acquire()
+            acq = lock.acquire(blocking=not abort)
+            if not acq:
+                return
             try:
                 return f(*args, **kwargs)
             finally:

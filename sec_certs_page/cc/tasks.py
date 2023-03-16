@@ -54,6 +54,7 @@ class CCNotifier(Notifier, CCRenderer):
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("cc_notify", abort=True)
 def notify(run_id):
     notifier = CCNotifier()
     notifier.notify(run_id)
@@ -142,6 +143,7 @@ def update_data():  # pragma: no cover
 
 
 @celery.task(ignore_result=True)
+@no_simultaneous_execution("cc_scheme_update", abort=True)
 def update_scheme_data():  # pragma: no cover
     schemes = {
         "AU": [{"type": "ineval", "method": CCSchemeDataset.get_australia_in_evaluation}],
