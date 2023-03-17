@@ -42,7 +42,7 @@ if os.environ.get("TESTING", False):
     app.testing = True
     del app.config["DRAMATIQ_BROKER_URL"]
 
-if not app.testing:  # pragma: no cover
+if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
     sentry_sdk.init(
         dsn=app.config["SENTRY_INGEST"],
         integrations=[FlaskIntegration(), RedisIntegration()],  # DramatiqIntegration()

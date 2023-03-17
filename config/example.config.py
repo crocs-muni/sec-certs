@@ -4,7 +4,7 @@
 SECRET_KEY = "some proper randomness here"
 SESSION_PROTECTION = "strong"
 PREFERRED_URL_SCHEME = "https"
-SERVER_NAME = "example.com:5000"
+SERVER_NAME = "localhost:5000"
 
 # Sentry
 # SENTRY_INGEST is the URL of your Sentry ingest endpoint.
@@ -30,17 +30,16 @@ MAIL_DEFAULT_SENDER = "seccerts@example.com"  # The sender address
 # MongoDB
 MONGO_URI = "mongodb://localhost:27017/seccerts"
 
-# Redis (for Flask-Redis, Celery and Flask-Caching)
+# Redis (for Flask-Redis, dramatiq and Flask-Caching)
 # Redis databases are split up like this:
 #  0 -> Flask-Redis
-#  1 -> Celery
+#  1 -> dramatiq
 #  2 -> Flask-Caching
 REDIS_BASE = "redis://localhost:6379/"
 REDIS_URL = REDIS_BASE + "0"
 
-# Celery
-CELERY_BROKER_URL = REDIS_BASE + "1"
-CELERY_RESULT_BACKEND = REDIS_BASE + "1"
+# dramatiq
+DRAMATIQ_BROKER_URL = REDIS_BASE + "1"
 
 # Cache
 CACHE_TYPE = "RedisCache"
@@ -57,10 +56,6 @@ CC_GRAPH = "CERT_ONLY"
 
 # Number of items per page in the search listing.
 SEARCH_ITEMS_PER_PAGE = 20
-
-# Schedule for the periodic update tasks.
-# minute, hour, day_of_week, day_of_month, month_of_year
-UPDATE_TASK_SCHEDULE = (0, 0, "*", "*", "*")
 
 # Paths inside the instance directory where the CVE and CPE dataset will be stored.
 DATASET_PATH_CVE = "cve.json"

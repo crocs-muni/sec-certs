@@ -2,7 +2,7 @@
 log_filepath:
   description: Path to the file, relative to working directory, where the log will be stored
   value: ./cert_processing_log.txt
-smallest_certificate_id_to_connect:
+always_false_positive_fips_cert_id_threshold:
   description: During validation we don't connect certificates with number lower than
     _this_ to connections
   value: 40
@@ -18,16 +18,19 @@ n_threads:
   value: 8
 cpe_matching_threshold:
   description: Level of required string similarity between CPE and certificate name on CC CPE matching, 0-100. Lower values yield more false negatives, higher values more false positives
-  value: 100
+  value: 92
 cpe_n_max_matches:
   description: Maximum number of candidate CPE items that may be related to given certificate, >0
-  value: 100
+  value: 99
 cc_latest_snapshot:
-  description: Url from where to fetch the latest snapshot of fully processed CC dataset
-  value: https://www.ajanovsky.cz/cc_latest_snapshot.json
+  description: URL from where to fetch the latest snapshot of fully processed CC dataset
+  value: https://seccerts.org/cc/dataset.json
 cc_maintenances_latest_snapshot:
-  description: Url from where to fetch the latest snapshot of CC maintenance updates
-  value: https://www.ajanovsky.cz/cc_maintenances_latest_snapshot.json
+  description: URL from where to fetch the latest snapshot of CC maintenance updates
+  value: https://seccerts.org/cc/maintenance_updates.json
+pp_latest_snapshot:
+  description: URL from where to fetch the latest snapshot of the PP dataset
+  value: https://seccerts.org/static/pp.json
 ignore_first_page:
   description: During keyword search, first page usually contains addresses - ignore it.
   value: true
@@ -35,8 +38,20 @@ cert_threshold:
   description: Used with --higher-precision-results. Determines the amount of mismatched algorithms to be considered faulty.
   value: 5
 fips_latest_snapshot:
-  description: Url for the latest snapshot of FIPS dataset
-  value: https://seccerts.org/static/fips_dset_ad8734a39b856ca1a1b7b073713872359bae7545.json
+  description: URL for the latest snapshot of FIPS dataset
+  value: https://seccerts.org/fips/dataset.json
+fips_iut_dataset:
+  description: URL for the dataset of FIPS IUT data
+  value: https://seccerts.org/fips/iut/dataset.json
+fips_iut_latest_snapshot:
+  description: URL for the latest snapshot of FIPS IUT data
+  value: https://seccerts.org/fips/iut/latest.json
+fips_mip_dataset:
+  description: URL for the dataset of FIPS MIP data
+  value: https://seccerts.org/fips/mip/dataset.json
+fips_mip_latest_snapshot:
+  description: URL for the latest snapshot of FIPS MIP data
+  value: https://seccerts.org/fips/mip/latest.json
 minimal_token_length:
   description: Minimal length of a string that will be considered as a token during keyword extraction in CVE matching
   value: 3
