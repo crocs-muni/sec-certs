@@ -20,7 +20,7 @@ task queue.
    ```
 2. Create the `instance` directory.
    ```shell
-   mkdir src/instance 
+   mkdir instance 
    ```
 3. Create a `config.py` file in the `instance` directory, based on the `example.config.py` file in the repository.
 4. Create a `settings.yaml` file in the `instance` directory, based on the `example.settings.yaml` file in the repository.
@@ -31,7 +31,16 @@ task queue.
    ```shell
    flask -A sec_certs_page run
    ```
+7. Run the dramatiq and periodiq workers.
+   ```shell
+   dramatiq sec_certs_page:broker -p 2 -t 1
+   periodiq sec_certs_page:broker -p 2 -t 1
+   ```
 
 ### Deployment
+Production deployment should use [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) and [nginx](https://nginx.org/en/).
 
 ## Docker
+
+There is a rudimentary Dockerfile available that currently lacks MongoDB and redis,
+and the task queue setup.

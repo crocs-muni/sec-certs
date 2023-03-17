@@ -11,5 +11,5 @@ __pycache__/
 *.pyc
 *.egg-info/
 
-/src/instance/
-/src/sec_certs_page/static/gen/
+/instance/
+/sec_certs_page/static/gen/

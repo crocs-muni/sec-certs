@@ -87,6 +87,11 @@ test = [
 ]
 
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sec_certs_page*"]
+namespaces = false
+
 [tool.black]
     line-length = 120
     exclude = '''
