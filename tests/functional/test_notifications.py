@@ -4,7 +4,6 @@ from flask.testing import FlaskClient
 from pytest_mock import MockerFixture
 
 from sec_certs_page import mongo
-from sec_certs_page.notifications.views import send_confirmation_email, send_unsubscription_email
 
 
 @pytest.fixture()

@@ -31,7 +31,7 @@ def subscribe():
     if set(data.keys()) != {"email", "selected", "updates", "captcha"}:
         return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
     try:
-        email = validate_email(data["email"])
+        email = validate_email(data["email"], check_deliverability=False)
     except EmailNotValidError:
         return jsonify({"error": "Invalid email address.", "status": "NOK"}), 400
     if data["updates"] not in ("vuln", "all"):
@@ -161,7 +161,7 @@ def unsubscribe_request():
         return render_template("notifications/unsubscribe.html.jinja2", form=form)
     else:
         try:
-            email = validate_email(form.email.data)
+            email = validate_email(form.email.data, check_deliverability=False)
         except EmailNotValidError:
             return abort(400)
         subscriptions = list(mongo.db.subs.find({"email": email.email}))

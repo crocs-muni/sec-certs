@@ -1,29 +1,152 @@
+[build-system]
+  requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
+  build-backend = "setuptools.build_meta"
+
+[project]
+  name = "sec-certs-page"
+  version = "0.0.1"
+  authors = [
+    { name = "Jan Jancar", email = "445358@mail.muni.cz" }
+  ]
+  description = "A web for the sec-certs project."
+  readme = "README.md"
+  urls = { homepage = "https://seccerts.org", documentation = "https://seccerts.org/docs/", repository = "https://github.com/crocs-muni/sec-certs" }
+  license = { "text" = "MIT" }
+  classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+  ]
+  requires-python = ">=3.8"
+  dependencies = [
+    # Base tool
+    "sec-certs >= 0.1.3",
+
+    # Flask
+    "Flask",
+    "Flask-Assets",
+    "Flask-Breadcrumbs",
+    "Flask-CacheControl",
+    "Flask-Caching",
+    "Flask-Cors",
+    "Flask-DebugToolbar",
+    "Flask-Login",
+    "Flask-Mail",
+    "Flask-Melodramatiq",
+    "Flask-Menu",
+    "flask-paginate",
+    "Flask-Principal",
+    "Flask-PyMongo",
+    "flask-redis",
+    "flask-shell-ipython",
+    "Flask-Sitemap",
+    "Flask-WTF",
+
+    # Web utils
+    "filtercss",
+    "Whoosh",
+    "email-validator",
+    "MarkupSafe",
+    "Werkzeug",
+    "WTForms",
+
+    # Tasks
+    "dramatiq[redis]",
+    "periodiq",
+    "redis",
+
+    # Misc
+    "sentry-sdk[flask,redis]",
+    "fabric",
+    "networkx",
+    "atpublic",
+    "jsondiff",
+    "emoji-country-flag",
+    "tqdm",
+    "click",
+    "requests",
+  ]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+]
+test = [
+    "pytest",
+    "coverage[toml]",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-env",
+]
+
+
 [tool.black]
-line-length = 120
-exclude = '''
-/(
-    \.git
-  | \.mypy_cache
-  | \.tox
-  | venv
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+    line-length = 120
+    exclude = '''
+    /(
+        \.git
+      | \.mypy_cache
+      | \.tox
+      | venv
+      | \.venv
+      | _build
+      | buck-out
+      | build
+      | dist
+    )/
+    '''
+
+[tool.flake8]
+    max-line-length = 120
+    exclude = [
+        ".git",
+        "__pycache__",
+        "build",
+        "dist",
+        "virt",
+        ".eggs",
+    ]
+    max-complexity = 10
+    ignore = [
+        "E501",
+        "W503",
+        "E203",
+        "E402",
+        "F403",
+        "F401",
+        "C901",
+    ]
+
 
 [tool.isort]
-multi_line_output=3
-include_trailing_comma=true
-force_grid_wrap=0
-use_parentheses=true
-ensure_newline_before_comments=true
-line_length=120
-skip=["certsvenv", "build"]
+    multi_line_output=3
+    include_trailing_comma=true
+    force_grid_wrap=0
+    use_parentheses=true
+    ensure_newline_before_comments=true
+    line_length=120
 
 [tool.mypy]
-plugins = ["numpy.typing.mypy_plugin"]
-ignore_missing_imports = true
-exclude="build/"
+    plugins = ["numpy.typing.mypy_plugin"]
+    ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+    markers = [
+        "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+        "remote: Test that can be done against a remote server.",
+    ]
+    #addopts = "--cov sec_certs_page"
+    env = ["TESTING=true"]
+
+[tool.coverage.run]
+    branch = true
+
+[tool.coverage.report]
+    exclude_lines = ["pragma: no cover"]

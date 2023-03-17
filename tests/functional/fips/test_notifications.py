@@ -34,7 +34,7 @@ def sub_obj(certificate, request):
 def unconfirmed_subscription(client: FlaskClient, mocker: MockerFixture, sub_obj):
     mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    mocker.patch.object(send_confirmation_email, "send")
+    mocker.patch("dramatiq.Actor.send")
     client.post("/notify/subscribe/", json=sub_obj)
     subscription = mongo.db.subs.find_one({"email": sub_obj["email"]})
     yield subscription

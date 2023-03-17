@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import abort, jsonify, render_template, request, url_for, make_response
+from flask import abort, jsonify, make_response, render_template, request, url_for
 from flask_breadcrumbs import register_breadcrumb
 from werkzeug.exceptions import HTTPException
 

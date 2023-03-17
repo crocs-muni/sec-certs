@@ -18,7 +18,6 @@ task queue.
    . virt/bin/activate                # Activates it.
    pip install -r requirements.txt    # Installs the requirements
    ```
-   Note that this requires the pure python version of [python-frozendict](https://github.com/Marco-Sulla/python-frozendict).
 2. Create the `instance` directory.
    ```shell
    mkdir instance 

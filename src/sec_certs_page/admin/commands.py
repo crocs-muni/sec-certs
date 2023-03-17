@@ -2,11 +2,9 @@ import click
 import pymongo
 from flask.cli import AppGroup
 from tqdm import tqdm
-from whoosh.index import EmptyIndexError
 
 from .. import app, mongo
 from ..cc.tasks import reindex_collection as reindex_cc
-from ..common.search import create_index, get_index
 from ..fips.tasks import reindex_collection as reindex_fips
 from .user import User, hash_password
 

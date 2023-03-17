@@ -24,7 +24,7 @@ logger: Logger = logging.getLogger(__name__)
 
 @dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("cve_update", abort=True)
-def update_cve_data():  # pragma: no cover
+def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
 
@@ -53,7 +53,7 @@ def update_cve_data():  # pragma: no cover
 
 @dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("cpe_update", abort=True)
-def update_cpe_data():  # pragma: no cover
+def update_cpe_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
@@ -87,7 +87,7 @@ def update_cpe_data():  # pragma: no cover
 
 
 @dramatiq.actor(periodic=cron("@weekly"))
-def run_updates_weekly():  # pragma: no cover
+def run_updates_weekly() -> None:  # pragma: no cover
     (
         update_cc_data.message_with_options(pipe_ignore=True)
         | update_cc_scheme_data.message_with_options(pipe_ignore=True)
@@ -96,7 +96,7 @@ def run_updates_weekly():  # pragma: no cover
 
 
 @dramatiq.actor(periodic=cron("@daily"))
-def run_updates_daily():  # pragma: no cover
+def run_updates_daily() -> None:  # pragma: no cover
     (
         cleanup_subscriptions.message_with_options(pipe_ignore=True)
         | update_cve_data.message_with_options(pipe_ignore=True)
