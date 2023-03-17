@@ -44,15 +44,6 @@ class ReferenceType(Enum):
     INDIRECT = "indirect"
 
 
-class ReferenceMeaning(Enum):
-    ON_PLATFORM = "on_platform"
-    COMPONENT_USED = "component_used"
-    PREVIOUS_VERSION = "previous_version"
-    EVALUATION_REUSED = "evaluation_reused"
-    COMPONENT_SHARED = "component_shared"
-    RECERTIFICATION = "recertification"
-
-
 class CCCertificate(
     Certificate["CCCertificate", "CCCertificate.Heuristics", "CCCertificate.PdfData"],
     PandasSerializableType,
@@ -445,7 +436,8 @@ class CCCertificate(
         report_references: References = field(default_factory=References)
 
         # Contains direct outward references merged from both st, and report sources, annotated with ReferenceAnnotator
-        annotated_references: dict[str, ReferenceMeaning | None] | None = field(default=None)
+        # TODO: Reference meanings as Enum if we work with it further.
+        annotated_references: dict[str, str] | None = field(default=None)
         extracted_sars: set[SAR] | None = field(default=None)
         direct_transitive_cves: set[str] | None = field(default=None)
         indirect_transitive_cves: set[str] | None = field(default=None)

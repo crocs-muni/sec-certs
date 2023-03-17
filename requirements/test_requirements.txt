@@ -8,8 +8,6 @@ backcall==0.2.0
     # via ipython
 beautifulsoup4==4.11.1
     # via sec-certs (./../pyproject.toml)
-billiard==4.0.2
-    # via sec-certs (./../pyproject.toml)
 blis==0.7.9
     # via thinc
 catalogue==2.0.8

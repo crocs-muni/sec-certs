@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -10,6 +11,8 @@ import pandas as pd
 from setfit import SetFitModel
 
 from sec_certs.utils.nlp import softmax
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -32,6 +35,7 @@ class ReferenceAnnotator:
         :param str | Path model_dir: path to directory to search for model and label mapping
         :return RerefenceClassifier: classifier with SetFitModel and label mapping
         """
+        logger.info(f"Loading pre-trained reference annotator from: {model_dir}")
         model = SetFitModel.from_pretrained(str(model_dir))
         with (Path(model_dir) / "label_mapping.json").open("r") as handle:
             label_mapping = json.load(handle)
@@ -43,12 +47,13 @@ class ReferenceAnnotator:
         """
         Will dump _model and _label_mapping into a directory.
         """
+        logger.info(f"Saving ReferenceAnnotator to {model_dir}")
         model_dir = Path(model_dir)
         model_dir.mkdir(exist_ok=True, parents=True)
-
+        logger.info
         with (model_dir / "label_mapping.json").open("w") as handle:
             json.dump(self._label_mapping, handle, indent=4)
-        self._model.save_pretrained(str(model_dir))
+        self._model._save_pretrained(str(model_dir))
 
     def train(self, train_dataset: pd.DataFrame):
         raise NotImplementedError("ReferenceAnnotatorTrainer shall be used for training")
@@ -64,11 +69,12 @@ class ReferenceAnnotator:
 
     def _predict_proba_single(self, sample: list[str]) -> list[float]:
         """
-        1. Get predictions for each segment
+        1. Get predictions for each segment, convert pytorch tensor to numpy
         2. Square every prediction to reward confidence
         3. Sum probabilities for each label
+        4. softmax
         """
-        return softmax(np.power(self._model.predict_proba(sample), 2).sum(axis=0))
+        return softmax(np.power(self._model.predict_proba(sample, as_numpy=True), 2).sum(axis=0))
 
     def predict_df(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -78,5 +84,7 @@ class ReferenceAnnotator:
         y_proba = self.predict_proba(df.segments)
         df_new["y_proba"] = y_proba
         df_new["y_pred"] = df_new.y_proba.map(lambda x: self._label_mapping[int(np.argmax(x))])
-        df_new["correct"] = df_new.label == df_new.y_pred
+        df_new["correct"] = df_new.apply(
+            lambda row: row["y_pred"] == row["label"] if not pd.isnull(row["label"]) else np.NaN, axis=1
+        )
         return df_new

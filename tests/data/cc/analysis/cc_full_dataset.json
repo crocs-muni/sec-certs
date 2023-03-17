@@ -551,6 +551,7 @@
                     "directly_referencing": null,
                     "indirectly_referencing": null
                 },
+                "annotated_references": null,
                 "extracted_sars": {
                     "_type": "Set",
                     "elements": [

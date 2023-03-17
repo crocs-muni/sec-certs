@@ -18,8 +18,8 @@ def softmax(x):
     return np.exp(x - np.max(x)) / np.exp(x - np.max(x)).sum()
 
 
-def eval_strings(series):
-    return [list(literal_eval(x)) for x in series]
+def eval_strings_if_necessary(series: pd.Series) -> pd.Series:
+    return series.map(literal_eval) if isinstance(series.iloc[0], str) else series
 
 
 def filter_short_sentences(sentences, cert_id):
@@ -29,7 +29,7 @@ def filter_short_sentences(sentences, cert_id):
 def prepare_reference_annotations_df(df: pd.DataFrame):
     df = (
         df.loc[lambda df_: (df_.label != "SELF") & (df_.label.notnull())]
-        .assign(segments=lambda df_: eval_strings(df_.segments))
+        .assign(segments=lambda df_: eval_strings_if_necessary(df_.segments))
         .drop(columns="lang")
     )
     df.segments = df.apply(lambda row: filter_short_sentences(row["segments"], row["referenced_cert_id"]), axis=1)

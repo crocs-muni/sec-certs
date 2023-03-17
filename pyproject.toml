@@ -30,7 +30,6 @@
   dynamic = ["version"]
   dependencies = [
     "beautifulsoup4",
-    "billiard",
     "click",
     "html5lib",
     "jsonschema",
@@ -81,9 +80,10 @@
       "sphinx-design",
       "sphinx-copybutton",
       "ipython!=8.7.0",
+      "setfit",
+      "langdetect",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
-    nlp = ["setfit", "langdetect"]
 
   [project.urls]
     Homepage = "https://seccerts.org"

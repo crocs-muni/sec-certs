@@ -8,7 +8,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Iterator
+from typing import ClassVar, Iterator, Literal
 
 import numpy as np
 import pandas as pd
@@ -812,7 +812,14 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
         return update_dset
 
-    def annotate_references(self):
+    def annotate_references(self, mode: Literal["training", "production"] = "production"):
+        """
+        Fills in `cert.heuristics.annotated_references` with reference labels.
+        This requires (a) a pre-trained `ReferenceAnnotator` or (b) to train a `ReferenceAnnotator`.
+        The behaviour is controlled by config keys `config.cc_reference_annotator_should_train` and
+        `config.cc_reference_annotator_path`. If should_train is False and path is provided, a pre-trained annotator
+        will be loaded and used.
+        """
         if not self.state.pdfs_converted:
             logger.info(
                 "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
@@ -831,24 +838,39 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
                 annotator = ReferenceAnnotator.from_pretrained(model_dir)
             except Exception:
                 logger.error(
-                    f"annotate_references() method was called with `config.cc_reference_annotator_should_train=False`. Further, the model was not found either at `config.cc_reference_annotator_dir={config.cc_reference_annotator_dir}` nor at {self.reference_annotator_dir}. Either: (a) allow training with `config.cc_reference_annotator_should_train=False`; (b) set path to model with `config.cc_reference_annotator_path`; (c) paste the model into {self.reference_annotator_dir}. Returning."
+                    "annotate_references() method was called with `config.cc_reference_annotator_should_train=False`."
+                    f"Further, the model was not found either at `config.cc_reference_annotator_dir={config.cc_reference_annotator_dir}`"
+                    f"nor at {self.reference_annotator_dir}. Either: (a) allow training with `config.cc_reference_annotator_should_train=True`;"
+                    "(b) set path to model with `config.cc_reference_annotator_path`; (c) paste the model into {self.reference_annotator_dir}. Returning."
                 )
+                return
 
+        logger.info("Extracting segments of text relevant for reference annotations.")
         df = ReferenceSegmentExtractor().prepare_df_from_cc_certs(list(self.certs.values()))
         if config.cc_reference_annotator_should_train:
-            annotator = self._train_reference_annotator(df)
+            annotator = self._train_reference_annotator(df, mode=mode)
 
+        logger.info("Predicting reference labels")
         df = annotator.predict_df(df)
+        refs: dict[str, dict[str, str]] = dict.fromkeys(df.dgst, {})
+        for dgst, cert_id, label in zip(df.dgst, df.referenced_cert_id, df.y_pred):
+            refs[dgst][cert_id] = label
 
-        # TODO: Now iterate over DF, fill-in references
+        for dgst, value in refs.items():
+            self[dgst].heuristics.annotated_references = value
 
-    def _train_reference_annotator(self, df: pd.DataFrame, save_model: bool = True) -> ReferenceAnnotator:
-        trainer = ReferenceAnnotatorTrainer.from_df(df, prec_recall_metric, "transformer", "production")
+    def _train_reference_annotator(
+        self, df: pd.DataFrame, save_model: bool = True, mode: Literal["training", "production"] = "production"
+    ) -> ReferenceAnnotator:
+        trainer = ReferenceAnnotatorTrainer.from_df(df, prec_recall_metric, "transformer", mode)
+        logger.info(
+            "Training ReferenceAnnotator on {df.shape[0]} samples ({df.loc[df.split == 'train'].shape[0]}/{df.loc[df.split == 'valid'].shape[0]}/{df.loc[df.split == 'test'].shape[0]}) (train/valid/test)."
+        )
         trainer.train()
         logger.info(trainer.evaluate())
 
         if save_model:
-            trainer.slf.save_pretrained(self.reference_annotator_dir)
+            trainer.clf.save_pretrained(self.reference_annotator_dir)
 
         return trainer.clf
 

@@ -22,7 +22,9 @@ class ReferenceRecord:
     Data structure to hold objects when extracting text segments from txt files relevant for reference annotations.
     """
 
-    certificate: CCCertificate
+    certificate_dgst: str
+    certificate_st_path: Path
+    certificate_report_path: Path
     referenced_cert_id: str
     source: str
     segments: set[str] | None = None
@@ -33,12 +35,7 @@ class ReferenceRecord:
         Open file, read text and extract sentences with `referenced_cert_id` match.
         Static method to allow for parallelization
         """
-        pth_to_read = (
-            record.certificate.state.st_txt_path
-            if record.source == "target"
-            else record.certificate.state.report_txt_path
-        )
-
+        pth_to_read = record.certificate_st_path if record.source == "target" else record.certificate_report_path
         with pth_to_read.open("r") as handle:
             data = handle.read()
 
@@ -50,7 +47,7 @@ class ReferenceRecord:
         return record
 
     def to_pandas_tuple(self) -> tuple[str, str, str, set[str] | None]:
-        return self.certificate.dgst, self.referenced_cert_id, self.source, self.segments
+        return self.certificate_dgst, self.referenced_cert_id, self.source, self.segments
 
 
 class ReferenceSegmentExtractor:
@@ -77,12 +74,12 @@ class ReferenceSegmentExtractor:
         ]
         df_targets = self._build_df(target_certs, "target")
         df_reports = self._build_df(report_certs, "report")
-        return self._process_df(pd.concat([df_targets, df_reports]))
+        return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]))
 
     def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
         attribute_mapping = {"target": "st_references", "report": "report_references"}
         records = [
-            ReferenceRecord(x, y, source)
+            ReferenceRecord(x.dgst, x.state.st_txt_path, x.state.report_txt_path, y, source)
             for x in certs
             for y in getattr(x.heuristics, attribute_mapping[source]).directly_referencing
         ]
@@ -100,7 +97,8 @@ class ReferenceSegmentExtractor:
             columns=["dgst", "referenced_cert_id", "source", "segments"],
         )
 
-    def _get_split_dict(self) -> dict[str, str]:
+    @staticmethod
+    def _get_split_dict() -> dict[str, str]:
         """
         Returns dictionary that maps dgst: split, where split in `train`, `valid`, `test`
         """
@@ -116,7 +114,8 @@ class ReferenceSegmentExtractor:
             **get_single_dct(split_directory / "test.json", "test"),
         }
 
-    def _get_annotations_dict(self) -> dict[tuple[str, str], str]:
+    @staticmethod
+    def _get_annotations_dict() -> dict[tuple[str, str], str]:
         """
         Returns dictionary mapping tuples `(dgst, referenced_cert_id) -> label`
         """
@@ -142,12 +141,13 @@ class ReferenceSegmentExtractor:
             df_annot[["dgst", "referenced_cert_id", "label"]].set_index(["dgst", "referenced_cert_id"]).label.to_dict()
         )
 
-    def _process_df(self, df: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _process_df(df: pd.DataFrame) -> pd.DataFrame:
         """
         Fully processes the dataframe.
         """
-        annotations_dict = self._get_annotations_dict()
-        split_dct = self._get_split_dict()
+        annotations_dict = ReferenceSegmentExtractor._get_annotations_dict()
+        split_dct = ReferenceSegmentExtractor._get_split_dict()
 
         return (
             df.loc[df.segments.notnull()]

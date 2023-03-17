@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import time
 from multiprocessing import cpu_count
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import Pool, ThreadPool
 from typing import Any, Callable, Iterable
-
-from billiard.pool import Pool
 
 from sec_certs.config.configuration import config
 from sec_certs.utils.tqdm import tqdm

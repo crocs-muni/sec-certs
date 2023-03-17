@@ -189,7 +189,7 @@
             ]
         },
         "cc_reference_annotator_should_train": {
-            "$ref": "#/definitions/settings/boolean_entry"
+            "$ref": "#/definitions/settings_boolean_entry"
         }
     },
     "required": [

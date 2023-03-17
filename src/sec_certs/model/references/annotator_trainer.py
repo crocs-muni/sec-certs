@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Callable, Literal
 
 import pandas as pd
@@ -10,32 +11,7 @@ from setfit import SetFitModel, SetFitTrainer
 from sec_certs.model.references.annotator import ReferenceAnnotator
 from sec_certs.utils.nlp import prepare_reference_annotations_df
 
-"""
-Production workflow:
-
-df = ReferenceClassifierTrainer.prepare_df_from_cc_dataset([cert for cert in cc_dset])
-trainer = ReferenceClassifierTrainer.from_df(precision_recall, df, "transformer", "production")
-trainer.train()
-trainer.evaluate()
-
-# Print how great we are on test set
-
-trainer.clf.save_pretrained(/some/directory)
-
-... 48 hours later
-
-cc_dset.annotate_references(/path/to/model)
-
-where
-
-def annotate_references(self, model_directory):
-    clf = ReferenceClassifier.from_pretrained(model_directory)
-    df = ReferenceClassifierTrainer.prepare_df_from_cc_dataset([x for x in self])
-    df = clf.predict_df(df)
-
-    Now iterate over df, take each pair (dgst, referenced_cert_id) and fill_in dictionary in self[dgst].heuristics.references ...
-
-"""
+logger = logging.getLogger(__name__)
 
 
 class ReferenceAnnotatorTrainer:
@@ -76,6 +52,8 @@ class ReferenceAnnotatorTrainer:
     @staticmethod
     def split_df_for_production(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         df.split = df.split.map({"test": "test", "train": "train", "valid": "train"})
+        if df.loc[df.split == "test"].empty:
+            logger.warning("`test` split for annotator dataset is empty -> model can be trained, but not evaluated.")
         return df.loc[df.split == "train"].drop(columns="split"), df.loc[df.split == "test"].drop(columns="split")
 
     def _init_trainer(self, method: Literal["transformer", "baseline"]):
@@ -136,6 +114,9 @@ class ReferenceAnnotatorTrainer:
         print(self._evaluate_stacked())
 
     def _evaluate_raw(self):
+        if self._eval_dataset.empty:
+            logger.error("Evaluation dataset is empty, cannot evaluate, returning.")
+            return
         return self._trainer.evaluate()
 
     def _evaluate_stacked(self):
