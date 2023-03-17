@@ -1,19 +1,20 @@
+import logging
 from datetime import datetime
 
+import dramatiq
 import sentry_sdk
 from bson.objectid import ObjectId
-from celery.utils.log import get_task_logger
 from flask import current_app
 from sec_certs.dataset.cc import CCDataset, CCSchemeDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
-from .. import celery, mongo
+from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import cc_categories
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CCMixin:
@@ -25,7 +26,6 @@ class CCMixin:
         self.dset_class = CCDataset
         self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
         self.cert_schema = "cc"
-        self.lock_name = "cc_update"
 
 
 class CCRenderer(DiffRenderer, CCMixin):
@@ -53,7 +53,7 @@ class CCNotifier(Notifier, CCRenderer):
     pass
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("cc_notify", abort=True)
 def notify(run_id):
     notifier = CCNotifier()
@@ -74,7 +74,7 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
         }
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = CCIndexer()
@@ -130,19 +130,20 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
         return dset.state.to_dict()
 
     def notify(self, run_id):
-        notify.delay(str(run_id))
+        notify.send(str(run_id))
 
     def reindex(self, to_reindex):
-        reindex_collection.delay(list(to_reindex))
+        reindex_collection.send(list(to_reindex))
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
+@no_simultaneous_execution("cc_update", abort=True)
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("cc_scheme_update", abort=True)
 def update_scheme_data():  # pragma: no cover
     schemes = {

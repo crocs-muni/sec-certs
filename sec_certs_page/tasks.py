@@ -1,27 +1,28 @@
-import time
+import logging
 from logging import Logger
 from pathlib import Path
 
+import dramatiq
 import sentry_sdk
-from celery import chain
-from celery.utils.log import get_task_logger
 from flask import current_app
+from periodiq import cron
 from pymongo import ReplaceOne
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 
-from . import celery, mongo
+from . import mongo
 from .cc.tasks import update_data as update_cc_data
 from .cc.tasks import update_scheme_data as update_cc_scheme_data
 from .common.objformats import ObjFormat
 from .common.tasks import no_simultaneous_execution
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
+from .notifications.tasks import cleanup_subscriptions
 
-logger: Logger = get_task_logger(__name__)
+logger: Logger = logging.getLogger(__name__)
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("cve_update", abort=True)
 def update_cve_data():  # pragma: no cover
     instance_path = Path(current_app.instance_path)
@@ -46,10 +47,11 @@ def update_cve_data():  # pragma: no cover
                 cve_data["_id"] = cve.cve_id
                 chunk.append(ReplaceOne({"_id": cve.cve_id}, cve_data, upsert=True))
             res = mongo.db.cve.bulk_write(chunk, ordered=False)
-            logger.info(f"Inserted chunk: {res.bulk_api_result}")
+            res_vals = ", ".join(f"{k} = {v}" for k, v in res.bulk_api_result.items() if k != "upserted")
+            logger.info(f"Inserted chunk: {res_vals}")
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("cpe_update", abort=True)
 def update_cpe_data():  # pragma: no cover
     instance_path = Path(current_app.instance_path)
@@ -80,18 +82,25 @@ def update_cpe_data():  # pragma: no cover
                 cpe_data["_id"] = cpe.uri
                 chunk.append(ReplaceOne({"_id": cpe.uri}, cpe_data, upsert=True))
         res = mongo.db.cpe.bulk_write(chunk, ordered=False)
-        logger.info(f"Inserted chunk: {res.bulk_api_result}")
+        res_vals = ", ".join(f"{k} = {v}" for k, v in res.bulk_api_result.items() if k != "upserted")
+        logger.info(f"Inserted chunk: {res_vals}")
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(periodic=cron("@weekly"))
 def run_updates_weekly():  # pragma: no cover
-    # Try to fix the broken celery scheduler.
-    time.sleep(61)
-    chain(update_cc_data.si(), update_cc_scheme_data.si(), update_fips_data.si()).delay()
+    (
+        update_cc_data.message_with_options(pipe_ignore=True)
+        | update_cc_scheme_data.message_with_options(pipe_ignore=True)
+        | update_fips_data.message()
+    ).run()
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(periodic=cron("@daily"))
 def run_updates_daily():  # pragma: no cover
-    # Try to fix the broken celery scheduler.
-    time.sleep(61)
-    chain(update_cve_data.si(), update_cpe_data.si(), update_iut_data.si(), update_mip_data.si()).delay()
+    (
+        cleanup_subscriptions.message_with_options(pipe_ignore=True)
+        | update_cve_data.message_with_options(pipe_ignore=True)
+        | update_cpe_data.message_with_options(pipe_ignore=True)
+        | update_iut_data.message_with_options(pipe_ignore=True)
+        | update_mip_data.message()
+    ).run()

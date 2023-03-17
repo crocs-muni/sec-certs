@@ -62,7 +62,7 @@ def subscribe():
         for cert in data["selected"]
     ]
     mongo.db.subs.insert_many(subscriptions)
-    send_confirmation_email.delay(token)
+    send_confirmation_email.send(token)
     return jsonify({"status": "OK"})
 
 
@@ -166,7 +166,7 @@ def unsubscribe_request():
             return abort(400)
         subscriptions = list(mongo.db.subs.find({"email": email.email}))
         if subscriptions:  # Timing attack but I don't care.
-            send_unsubscription_email.delay(email.email)
+            send_unsubscription_email.send(email.email)
         return render_template(
             "message.html.jinja2",
             heading="Unsubscription request processed",

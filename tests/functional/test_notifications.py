@@ -4,7 +4,7 @@ from flask.testing import FlaskClient
 from pytest_mock import MockerFixture
 
 from sec_certs_page import mongo
-from sec_certs_page.notifications.tasks import send_confirmation_email, send_unsubscription_email
+from sec_certs_page.notifications.views import send_confirmation_email, send_unsubscription_email
 
 
 @pytest.fixture()
@@ -33,7 +33,7 @@ def sub_obj(certificate):
 def unconfirmed_subscription(client: FlaskClient, mocker: MockerFixture, sub_obj):
     mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    mocker.patch.object(send_confirmation_email, "delay")
+    mocker.patch("dramatiq.Actor.send")
     client.post("/notify/subscribe/", json=sub_obj)
     subscription = mongo.db.subs.find_one({"email": sub_obj["email"]})
     yield subscription
@@ -51,7 +51,7 @@ def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
 def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
     mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    task = mocker.patch.object(send_confirmation_email, "delay")
+    at = mocker.patch("dramatiq.Actor.send")
     resp = client.post("/notify/subscribe/", json=sub_obj)
     assert resp.status_code == 200
     assert resp.is_json
@@ -60,34 +60,34 @@ def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
     assert subscription
     assert subscription["token"]
     assert subscription["timestamp"]
-    task.assert_called_once_with(subscription["token"])
+    at.assert_called_once_with(subscription["token"])
     mongo.db.subs.delete_one({"email": sub_obj["email"]})
 
 
 def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
     mocker.patch("sec_certs_page.common.views.validate_captcha")
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    task = mocker.patch.object(send_confirmation_email, "delay")
+    at = mocker.patch("dramatiq.Actor.send")
     resp = client.post("/notify/subscribe/", json={"email": "..."})
     assert resp.status_code == 400
-    task.assert_not_called()
+    at.assert_not_called()
     resp = client.post(
         "/notify/subscribe/", json={"email": "bad-email", "selected": "...", "updates": "...", "captcha": "..."}
     )
     assert resp.status_code == 400
-    task.assert_not_called()
+    at.assert_not_called()
     resp = client.post(
         "/notify/subscribe/",
         json={"email": "example@example.com", "selected": "...", "updates": "bad", "captcha": "..."},
     )
     assert resp.status_code == 400
-    task.assert_not_called()
+    at.assert_not_called()
     resp = client.post(
         "/notify/subscribe/",
         json={"email": "example@example.com", "selected": [{"some": "bad"}], "updates": "all", "captcha": "..."},
     )
     assert resp.status_code == 400
-    task.assert_not_called()
+    at.assert_not_called()
     resp = client.post(
         "/notify/subscribe/",
         json={
@@ -98,7 +98,7 @@ def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
         },
     )
     assert resp.status_code == 400
-    task.assert_not_called()
+    at.assert_not_called()
     resp = client.post(
         "/notify/subscribe/",
         json={
@@ -109,7 +109,7 @@ def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
         },
     )
     assert resp.status_code == 400
-    task.assert_not_called()
+    at.assert_not_called()
 
 
 def test_confirm(client: FlaskClient, unconfirmed_subscription):
@@ -155,13 +155,13 @@ def test_unsubscribe_all(client: FlaskClient, confirmed_subscription):
 
 def test_unsubscribe_request(client: FlaskClient, confirmed_subscription, mocker: MockerFixture):
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    m = mocker.patch.object(send_unsubscription_email, "delay")
+    at = mocker.patch("dramatiq.Actor.send")
     resp = client.get("/notify/unsubscribe/request/")
     assert resp.status_code == 200
     resp = client.post("/notify/unsubscribe/request/", data={"email": confirmed_subscription["email"]})
     exists_content = resp.data
     assert resp.status_code == 200
-    m.assert_called_once_with(confirmed_subscription["email"])
+    at.assert_called_once_with(confirmed_subscription["email"])
     resp = client.post("/notify/unsubscribe/request/", data={"email": "aaaa@bbbb.com"})
     doesnt_exist_content = resp.data
     assert resp.status_code == 200

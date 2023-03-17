@@ -1,19 +1,20 @@
+import dramatiq
 import sentry_sdk
-from celery.utils.log import get_task_logger
+from dramatiq.logging import get_logger
 from flask import current_app
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 from sec_certs.utils.helpers import get_sha256_filepath
 
-from .. import celery, mongo
+from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
 from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
 from . import fips_types
 
-logger = get_task_logger(__name__)
+logger = get_logger(__name__)
 
 
 class FIPSMixin:
@@ -25,7 +26,6 @@ class FIPSMixin:
         self.dset_class = FIPSDataset
         self.dataset_path = current_app.config["DATASET_PATH_FIPS_DIR"]
         self.cert_schema = "fips"
-        self.lock_name = "fips_update"
 
 
 class FIPSRenderer(DiffRenderer, FIPSMixin):
@@ -48,14 +48,14 @@ class FIPSNotifier(Notifier, FIPSRenderer):
     pass
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("fips_notify", abort=True)
 def notify(run_id):  # pragma: no cover
     notifier = FIPSNotifier()
     notifier.notify(run_id)
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("fips_iut_update", abort=True)
 def update_iut_data():  # pragma: no cover
     snapshot = IUTSnapshot.from_web()
@@ -63,7 +63,7 @@ def update_iut_data():  # pragma: no cover
     mongo.db.fips_iut.insert_one(snap_data)
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("fips_mip_update", abort=True)
 def update_mip_data():  # pragma: no cover
     snapshot = MIPSnapshot.from_web()
@@ -85,7 +85,7 @@ class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
         }
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = FIPSIndexer()
@@ -135,13 +135,14 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
         return dset.state.to_dict()
 
     def notify(self, run_id):
-        notify.delay(str(run_id))
+        notify.send(str(run_id))
 
     def reindex(self, to_reindex):
-        reindex_collection.delay(list(to_reindex))
+        reindex_collection.send(list(to_reindex))
 
 
-@celery.task(ignore_result=True)
+@dramatiq.actor(max_retries=0)
+@no_simultaneous_execution("fips_update", abort=True)
 def update_data():  # pragma: no cover
     updater = FIPSUpdater()
     updater.update()

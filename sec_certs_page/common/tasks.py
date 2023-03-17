@@ -1,3 +1,4 @@
+import logging
 import os
 from abc import abstractmethod
 from collections import Counter
@@ -13,7 +14,6 @@ import sec_certs
 import sentry_sdk
 from bs4 import BeautifulSoup
 from bson import ObjectId
-from celery.utils.log import get_task_logger
 from filtercss import filter_css, parse_css
 from flask import current_app, render_template
 from flask_mail import Message
@@ -27,7 +27,7 @@ from .diffs import DiffRenderer, has_symbols
 from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Indexer:  # pragma: no cover
@@ -58,7 +58,6 @@ class Updater:  # pragma: no cover
     log_collection: str
     skip_update: bool
     dset_class: Type[Dataset]
-    lock_name: str
 
     def make_dataset_paths(self):  # pragma: no cover
         instance_path = Path(current_app.instance_path)
@@ -206,11 +205,6 @@ class Updater:  # pragma: no cover
         ...
 
     def update(self):
-        lock = redis.lock(self.lock_name, sleep=1, timeout=3600 * 8, blocking_timeout=30)
-        acquired = lock.acquire()
-        if not acquired:
-            return
-
         try:
             from setuptools_scm import get_version
 
@@ -311,8 +305,6 @@ class Updater:  # pragma: no cover
             raise e
         finally:
             rmtree(paths["dset_path"], ignore_errors=True)
-            if acquired:
-                lock.release()
 
 
 class Notifier(DiffRenderer):
