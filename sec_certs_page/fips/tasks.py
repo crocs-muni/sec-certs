@@ -73,7 +73,12 @@ def update_mip_data():  # pragma: no cover
 
 class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
     def create_document(self, dgst, document, cert, content):
-        category_id = fips_types[cert["web_data"]["module_type"]]["id"]
+        mod_type = cert["web_data"]["module_type"]
+        try:
+            category_id = fips_types[mod_type]["id"]
+        except KeyError:
+            logger.error(f"Could not find FIPS type: {mod_type}.")
+            category_id = None
         return {
             "dgst": dgst,
             "name": cert["web_data"]["module_name"],

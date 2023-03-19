@@ -36,11 +36,11 @@
 {%- endmacro %}
 
 {% macro render_status(status) %}
-    {% if status == "Active" %}
+    {% if status == "active" %}
         <span class="text-success"><i class="fas fa-check-square"></i> active</span>
-    {% elif status == "Historical" %}
+    {% elif status == "historical" %}
         <span class="text-warning"><i class="fas fa-times-circle"></i> historical</span>
-    {% elif status == "Revoked" %}
+    {% elif status == "revoked" %}
         <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> revoked</span>
     {% else %}
         <span>{{ status }}</span>
