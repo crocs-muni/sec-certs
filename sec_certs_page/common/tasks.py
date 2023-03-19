@@ -281,6 +281,13 @@ class Updater:  # pragma: no cover
                 res_diff = self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
                 self.insert_certs(self.diff_collection, res_diff, ordered=False)
 
+            changed_ids = mongo.db[self.diff_collection].count_documents(
+                {"run_id": update_result.inserted_id, "type": "change"}
+            )
+            mongo.db[self.log_collection].update_one(
+                {"_id": update_result.inserted_id}, {"$set": {"stats.changed_ids": changed_ids}}
+            )
+
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
         except Exception as e:
