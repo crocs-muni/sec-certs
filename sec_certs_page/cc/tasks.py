@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import dramatiq
 import sentry_sdk
@@ -136,8 +136,8 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
         reindex_collection.send(list(to_reindex))
 
 
-@dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("cc_update", abort=True, timeout=3600 * 12)
+@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000)
+@no_simultaneous_execution("cc_update", abort=True, timeout=timedelta(hours=12).total_seconds())
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()

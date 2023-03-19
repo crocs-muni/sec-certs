@@ -3,6 +3,7 @@ from pathlib import Path
 
 import sentry_sdk
 from dramatiq import Middleware
+from dramatiq.middleware import AgeLimit, Callbacks, Pipelines, Retries, ShutdownNotifications, TimeLimit
 from dramatiq.results import Results
 from dramatiq.results.backends import RedisBackend, StubBackend
 from flask import Flask
@@ -72,12 +73,18 @@ class MongoMiddleware(Middleware):
         mongo.init_app(app)
 
 
-broker: Broker = RedisBroker(app) if not app.testing else StubBroker(app)
-broker.add_middleware(PeriodiqMiddleware())
-broker.add_middleware(MongoMiddleware())
-broker.add_middleware(
-    Results(backend=RedisBackend(url=app.config["DRAMATIQ_BROKER_URL"]) if not app.testing else StubBackend())
-)
+broker_middleware = [
+    AgeLimit(),
+    TimeLimit(time_limit=60 * 1000 * 30),
+    ShutdownNotifications(),
+    Callbacks(),
+    Pipelines(),
+    Retries(),
+    PeriodiqMiddleware(),
+    MongoMiddleware(),
+    Results(backend=RedisBackend(url=app.config["DRAMATIQ_BROKER_URL"]) if not app.testing else StubBackend()),
+]
+broker: Broker = RedisBroker(app, broker_middleware) if not app.testing else StubBroker(app, broker_middleware)
 broker.set_default()
 public(broker=broker)
 

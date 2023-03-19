@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import dramatiq
 import sentry_sdk
 from dramatiq.logging import get_logger
@@ -146,8 +148,8 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
         reindex_collection.send(list(to_reindex))
 
 
-@dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("fips_update", abort=True, timeout=3600 * 12)
+@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000)
+@no_simultaneous_execution("fips_update", abort=True, timeout=timedelta(hours=12).total_seconds())
 def update_data():  # pragma: no cover
     updater = FIPSUpdater()
     updater.update()
