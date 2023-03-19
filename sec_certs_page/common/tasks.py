@@ -385,18 +385,19 @@ class Notifier(DiffRenderer):
             mail.send(msg)
 
 
-def no_simultaneous_execution(lock_name: str, abort=False):
+def no_simultaneous_execution(lock_name: str, abort=False, timeout=60 * 10):
     """
 
     :param lock_name:
     :param abort: Whether to abort task if lock cannot be acquired immediately.
+    :param timeout: Lock timeout (in seconds). The lock will be automatically released after.
     :return:
     """
 
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            lock = redis.lock(lock_name, sleep=1, timeout=3600 * 8)
+            lock = redis.lock(lock_name, timeout=timeout)
             acq = lock.acquire(blocking=not abort)
             if not acq:
                 return

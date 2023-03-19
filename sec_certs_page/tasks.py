@@ -23,7 +23,7 @@ logger: Logger = logging.getLogger(__name__)
 
 
 @dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("cve_update", abort=True)
+@no_simultaneous_execution("cve_update", abort=True, timeout=3600)
 def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
@@ -52,7 +52,7 @@ def update_cve_data() -> None:  # pragma: no cover
 
 
 @dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("cpe_update", abort=True)
+@no_simultaneous_execution("cpe_update", abort=True, timeout=3600)
 def update_cpe_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]

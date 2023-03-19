@@ -137,14 +137,14 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
 
 
 @dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("cc_update", abort=True)
+@no_simultaneous_execution("cc_update", abort=True, timeout=3600 * 12)
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()
 
 
 @dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("cc_scheme_update", abort=True)
+@no_simultaneous_execution("cc_scheme_update", abort=True, timeout=3600 * 12)
 def update_scheme_data():  # pragma: no cover
     schemes = {
         "AU": [{"type": "ineval", "method": CCSchemeDataset.get_australia_in_evaluation}],

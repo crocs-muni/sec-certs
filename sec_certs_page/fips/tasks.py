@@ -142,7 +142,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
 
 
 @dramatiq.actor(max_retries=0)
-@no_simultaneous_execution("fips_update", abort=True)
+@no_simultaneous_execution("fips_update", abort=True, timeout=3600 * 12)
 def update_data():  # pragma: no cover
     updater = FIPSUpdater()
     updater.update()
