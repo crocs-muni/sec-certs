@@ -84,7 +84,9 @@ broker_middleware = [
     MongoMiddleware(),
     Results(backend=RedisBackend(url=app.config["DRAMATIQ_BROKER_URL"]) if not app.testing else StubBackend()),
 ]
-broker: Broker = RedisBroker(app, broker_middleware) if not app.testing else StubBroker(app, broker_middleware)
+broker: Broker = (
+    RedisBroker(app, middleware=broker_middleware) if not app.testing else StubBroker(app, middleware=broker_middleware)
+)
 broker.set_default()
 public(broker=broker)
 
