@@ -91,7 +91,7 @@ def run_updates_weekly() -> None:  # pragma: no cover
     (
         update_cc_data.message_with_options(pipe_ignore=True)
         | update_cc_scheme_data.message_with_options(pipe_ignore=True)
-        | update_fips_data.message()
+        | update_fips_data.message_with_options(pipe_ignore=True)
     ).run()
 
 
@@ -102,5 +102,5 @@ def run_updates_daily() -> None:  # pragma: no cover
         | update_cve_data.message_with_options(pipe_ignore=True)
         | update_cpe_data.message_with_options(pipe_ignore=True)
         | update_iut_data.message_with_options(pipe_ignore=True)
-        | update_mip_data.message()
+        | update_mip_data.message_with_options(pipe_ignore=True)
     ).run()
