@@ -50,14 +50,14 @@ class FIPSNotifier(Notifier, FIPSRenderer):
     pass
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="fips_notify")
 @no_simultaneous_execution("fips_notify", abort=True)
 def notify(run_id):  # pragma: no cover
     notifier = FIPSNotifier()
     notifier.notify(run_id)
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="fips_iut_update")
 @no_simultaneous_execution("fips_iut_update", abort=True)
 def update_iut_data():  # pragma: no cover
     snapshot = IUTSnapshot.from_web()
@@ -65,7 +65,7 @@ def update_iut_data():  # pragma: no cover
     mongo.db.fips_iut.insert_one(snap_data)
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="fips_mip_update")
 @no_simultaneous_execution("fips_mip_update", abort=True)
 def update_mip_data():  # pragma: no cover
     snapshot = MIPSnapshot.from_web()
@@ -92,7 +92,7 @@ class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
         }
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="fips_reindex_collection")
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = FIPSIndexer()
@@ -148,7 +148,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
         reindex_collection.send(list(to_reindex))
 
 
-@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000)
+@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000, actor_name="fips_update")
 @no_simultaneous_execution("fips_update", abort=True, timeout=timedelta(hours=12).total_seconds())
 def update_data():  # pragma: no cover
     updater = FIPSUpdater()

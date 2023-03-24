@@ -22,7 +22,7 @@ from .notifications.tasks import cleanup_subscriptions
 logger: Logger = logging.getLogger(__name__)
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="cve_update")
 @no_simultaneous_execution("cve_update", abort=True, timeout=3600)
 def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
@@ -51,7 +51,7 @@ def update_cve_data() -> None:  # pragma: no cover
             logger.info(f"Inserted chunk: {res_vals}")
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="cpe_update")
 @no_simultaneous_execution("cpe_update", abort=True, timeout=3600)
 def update_cpe_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)

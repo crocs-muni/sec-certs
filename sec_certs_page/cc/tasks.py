@@ -53,7 +53,7 @@ class CCNotifier(Notifier, CCRenderer):
     pass
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="cc_notify")
 @no_simultaneous_execution("cc_notify", abort=True)
 def notify(run_id):
     notifier = CCNotifier()
@@ -74,7 +74,7 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
         }
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="cc_reindex_collection")
 @no_simultaneous_execution("reindex_collection")
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = CCIndexer()
@@ -136,14 +136,14 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
         reindex_collection.send(list(to_reindex))
 
 
-@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000)
+@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000, actor_name="cc_update")
 @no_simultaneous_execution("cc_update", abort=True, timeout=timedelta(hours=12).total_seconds())
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()
 
 
-@dramatiq.actor(max_retries=0)
+@dramatiq.actor(max_retries=0, actor_name="cc_scheme_update")
 @no_simultaneous_execution("cc_scheme_update", abort=True, timeout=3600 * 12)
 def update_scheme_data():  # pragma: no cover
     schemes = {

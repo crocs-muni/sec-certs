@@ -8,7 +8,7 @@ from flask_mail import Message
 from .. import mail, mongo
 
 
-@dramatiq.actor(max_retries=3)
+@dramatiq.actor(max_retries=3, actor_name="send_confirmation_email")
 def send_confirmation_email(token):  # pragma: no cover
     subscription_requests = list(mongo.db.subs.find({"token": token}))
     if not subscription_requests:
@@ -31,7 +31,7 @@ def send_confirmation_email(token):  # pragma: no cover
     send_confirmation_email.logger.info(f"Sent confirmation email for token = {token}")
 
 
-@dramatiq.actor(max_retries=3)
+@dramatiq.actor(max_retries=3, actor_name="send_unsubscription_email")
 def send_unsubscription_email(email):  # pragma: no cover
     subscription_requests = list(mongo.db.subs.find({"email": email}))
     if not subscription_requests:
@@ -44,7 +44,7 @@ def send_unsubscription_email(email):  # pragma: no cover
     send_unsubscription_email.logger.info(f"Sent unsubscription email for email_token = {email_token}")
 
 
-@dramatiq.actor(max_retries=3)
+@dramatiq.actor(max_retries=3, actor_name="cleanup_subscriptions")
 def cleanup_subscriptions():  # pragma: no cover
     old = datetime.now() - timedelta(days=7)
     res = mongo.db.subs.delete_many({"confirmed": False, "timestamp": {"$lt": old}})
