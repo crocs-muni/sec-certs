@@ -144,6 +144,11 @@ class FIPSHTMLParser:
         return dct
 
     @staticmethod
+    def normalize_type(mod_type: Tag) -> str:
+        tag_text = str(mod_type.text).strip()
+        return "-".join(s.capitalize() for s in tag_text.split("-"))
+
+    @staticmethod
     def normalize_string(string: str) -> str:
         return " ".join(string.split())
 
@@ -195,6 +200,7 @@ DETAILS_KEY_TO_NORMALIZATION_FUNCTION: dict[str, Callable] = {
     "status": lambda x: FIPSHTMLParser.normalize_string(x.text).lower(),
     "level": lambda x: int(FIPSHTMLParser.normalize_string(x.text)),
     "embodiment": getattr(FIPSHTMLParser, "normalize_embodiment"),
+    "module_type": getattr(FIPSHTMLParser, "normalize_type"),
 }
 
 
