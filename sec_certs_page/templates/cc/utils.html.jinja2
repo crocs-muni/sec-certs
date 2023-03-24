@@ -11,31 +11,6 @@
 																		"Certification process": "certification_process"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro opt_line(name, key, obj, title) %}
-    {% if key in obj and obj[key] %}
-        <tr data-cs-name="{{ title }} - {{ name }}">
-            <th scope="row">{{ name }}:</th>
-            <td>{{ obj[key] }}</td>
-        </tr>
-    {% endif %}
-{%- endmacro %}
-
-{% macro render_pdf_meta(pdf_meta, title) %}
-    <table class="table table-sm table-borderless table-dark w-auto">
-        <tbody>
-        {{ opt_line("Title", "/Title", pdf_meta, title) }}
-        {{ opt_line("Subject", "/Subject", pdf_meta, title) }}
-        {{ opt_line("Keywords", "/Keywords", pdf_meta, title) }}
-        {{ opt_line("Author", "/Author", pdf_meta, title) }}
-        {{ opt_line("Creation date", "/CreationDate", pdf_meta, title) }}
-        {{ opt_line("Modification date", "/ModDate", pdf_meta, title) }}
-        {{ opt_line("Pages", "pdf_number_of_pages", pdf_meta, title) }}
-        {{ opt_line("Creator", "/Creator", pdf_meta, title) }}
-        {{ opt_line("Producer", "/Producer", pdf_meta, title) }}
-        </tbody>
-    </table>
-{%- endmacro %}
-
 {% macro render_frontpage(cert, doc_type, title) %}
     {% if cert["pdf_data"][doc_type] %}
         {% if cert["pdf_data"][doc_type]["anssi"] %}

@@ -2,7 +2,7 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "common/entry.html.jinja2" import render_local_files, render_cves %}
+{% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves %}
 {% block title %}
     <title>
         {{ cert["web_data"]["module_name"]|default("", true) + " | seccerts.org" }}
@@ -90,7 +90,8 @@
                                 <th scope="row">Revoked reason</th>
                                 <td>{{ cert["web_data"]["revoked_reason"] }}
                                     {% if cert["web_data"]["revoked_link"] %}
-                                        <a href="{{ cert["web_data"]["revoked_link"] }}" target="_blank" rel="noopener">{{ cert["web_data"]["revoked_link"] }}</a>
+                                        <a href="{{ cert["web_data"]["revoked_link"] }}" target="_blank"
+                                           rel="noopener">{{ cert["web_data"]["revoked_link"] }}</a>
                                     {% endif %}</td>
                             </tr>
                         {% endif %}
@@ -175,7 +176,8 @@
                             <th scope="row">Vendor</th>
                             <td>
                                 {{ cert["web_data"]["vendor"] }} <a
-                                    href="{{ cert["web_data"]['vendor_www'] }}" target="_blank" rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>
+                                    href="{{ cert["web_data"]['vendor_www'] }}" target="_blank"
+                                    rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>
                             </td>
                         </tr>
                         {% if cert["web_data"]["lab"] %}
@@ -192,8 +194,10 @@
                                 <td>
                                     <ul>
                                         {% for algo in cert["web_data"]["algorithms"] %}
-                                            <li><a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["algorithm_type"] }}&number={{ algo["cert_id"].replace("#", "") }}"
-                                                   target="_blank" rel="noopener">{{ algo["algorithm_type"] }}{{ algo["cert_id"] }}</a>
+                                            <li>
+                                                <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["algorithm_type"] }}&number={{ algo["cert_id"].replace("#", "") }}"
+                                                   target="_blank" rel="noopener">
+                                                    {{ algo["algorithm_type"] }}{{ algo["cert_id"] }}</a>
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -213,7 +217,7 @@
                     </table>
 
                     <div class="mt-2 mb-2">
-                        {{ render_local_files(hashid, local_files, cert["web_data"]["certificate_www"], None, cert["web_data"]["security_policy_www"]) }}
+                        {{ render_local_files(hashid, local_files, cert["web_data"]["certificate_pdf_url"], None, None) }}
                         <a class="btn btn-outline-primary" role="button"
                            href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}"
                            data-bs-toggle="tooltip" data-bs-placement="bottom"
@@ -228,21 +232,47 @@
             <div class="col-10 mx-auto p-3 py-md-5 text-light">
                 <div class="mb-3">
                     <h2 id="doc-info" class="anchor">Document information
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge bg-secondary"
                               data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information automatically extracted from the security policy document. Might contain errors.">?</span>
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge rounded-pill {% if cert["state"]["policy_download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="{% if cert["state"]["policy_download_ok"] %}Security policy was downloaded successfully.{% else %}Security policy download failed, it is probably unavailable.{% endif %}">
+                                <i class="fas fa-download"></i>
+                        </span>
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge rounded-pill {% if cert["state"]["policy_convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="{% if cert["state"]["policy_convert_ok"] %}Security policy was successfully converted from PDF to text.{% else %}Security policy conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
+                                <i class="fas fa-file-import"></i>
+                        </span>
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge rounded-pill {% if cert["state"]["policy_extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="{% if cert["state"]["policy_extract_ok"] %}Keywords and metadata were successfully extracted from the security policy text.{% else %}Keyword or metadata extraction from security policy text failed.{% endif %}">
+                                <i class="fas fa-spell-check"></i>
+                        </span>
                     </h2>
 
-                    <h3 class="mt-4">Security policy
-                        {% if cert["web_data"]["security_policy_www"] and False %}
-                            <a role="button" href="{{ cert["web_data"]["security_policy_www"] }}"
-                               style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                               data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i
-                                    class="fas fa-fw fa-download"></i></a>{% endif %}</h3>
-                    {{ cryptography_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                    {{ device_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                    {{ security_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                    {{ other_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                    <h3 class="mt-4">Security policy</h3>
+
+                    <div class="mt-3 mb-3">
+                        {{ render_local_files(hashid, local_files, None, None, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                    </div>
+
+                    {% if cert["pdf_data"]["keywords"] %}
+                        {{ cryptography_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                        {{ device_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                        {{ security_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                        {{ other_keywords(cert["pdf_data"]["keywords"], "policy") }}
+                    {% endif %}
+
+                    {% if cert["pdf_data"]["policy_metadata"] %}
+                        <h3 class="mt-3">File metadata</h3>
+                        {{ render_pdf_meta(cert["pdf_data"]["policy_metadata"], "Security policy") }}
+                    {% endif %}
 
                     <h3 class="mt-3">References</h3>
                     <p>This certificate's security target directly references
@@ -333,9 +363,10 @@
                                         data-bs-target="#diff-data{{ loop.index }}"
                                         tabindex="0"
                                         class="btn btn-outline-primary btn-sm"
-                                        title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff</button>
+                                        title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff
+                                </button>
                                 <div id="diff-data{{ loop.index }}" class="collapse py-3">
-                                {{ diff_render|safe }}
+                                    {{ diff_render|safe }}
                                 </div>
                                 {# <pre id="diff-data{{ loop.index }}"
                                      class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>

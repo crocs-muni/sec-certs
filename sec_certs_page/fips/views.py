@@ -14,6 +14,7 @@ from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from networkx import node_link_data
 from pymongo.collation import Collation
+from sec_certs import constants
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 from whoosh import highlight
@@ -577,6 +578,7 @@ def entry(hashid):
             cpes=cpes,
             local_files=local_files,
             json=StorageFormat(raw_doc).to_json_mapping(),
+            policy_link=constants.FIPS_SP_URL.format(doc["cert_id"]),
         )
     else:
         return abort(404)
