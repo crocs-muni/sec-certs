@@ -12,8 +12,8 @@ from whoosh import highlight
 from whoosh.qparser import QueryParser, query
 from whoosh.searching import Results, ResultsPage
 
-from .. import mongo
-from ..cc import cc_categories, get_cc_searcher
+from .. import get_searcher, mongo
+from ..cc import cc_categories
 from ..common.objformats import load
 from ..common.search import index_schema
 from ..common.views import Pagination, entry_file_path
@@ -171,8 +171,8 @@ class FulltextSearch:
         parser = QueryParser("content", schema=index_schema)
         qr = parser.parse(q)
         with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
-            searcher = get_cc_searcher()
-        with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
+            searcher = get_searcher()
+        with sentry_sdk.start_span(op="whoosh.search", description="Search"):
             if page is None:
                 res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
             else:

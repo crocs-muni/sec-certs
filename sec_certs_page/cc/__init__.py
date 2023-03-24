@@ -6,7 +6,7 @@ import sentry_sdk
 from flask import Blueprint, current_app, url_for
 from pymongo.errors import OperationFailure
 
-from .. import mongo, redis, whoosh_index
+from .. import mongo, redis
 from ..common.objformats import load
 from ..common.views import create_graph
 
@@ -31,8 +31,6 @@ with cc.open_resource("resources/status.json") as f:
     cc_status = json.load(f)
 with cc.open_resource("resources/reference_types.json") as f:
     cc_reference_types = json.load(f)
-
-cc_searcher: ContextVar = ContextVar("cc_searcher")
 
 
 def load_cc_data():
@@ -161,21 +159,6 @@ def get_cc_analysis():
     """Get Common Criteria analysis results."""
     _update_cc_data()
     return cc_mem_analysis.get()
-
-
-def get_cc_searcher():
-    try:
-        searcher = cc_searcher.get()
-        searcher = searcher.refresh()
-    except LookupError:
-        searcher = whoosh_index.searcher()
-    cc_searcher.set(searcher)
-    return searcher
-
-
-@cc.record_once
-def init_cc(state):
-    get_cc_searcher()
 
 
 from .commands import *

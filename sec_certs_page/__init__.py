@@ -1,4 +1,5 @@
 import os
+from contextvars import ContextVar
 from pathlib import Path
 
 import sentry_sdk
@@ -134,6 +135,21 @@ with app.app_context():
     except EmptyIndexError:
         whoosh_index = create_index()
 public(whoosh_index=whoosh_index)
+
+whoosh_searcher: ContextVar = ContextVar("whoosh_searcher")
+
+
+def get_searcher():
+    try:
+        searcher = whoosh_searcher.get()
+        searcher = searcher.refresh()
+    except LookupError:
+        searcher = whoosh_index.searcher()
+    whoosh_searcher.set(searcher)
+    return searcher
+
+
+public(whoosh_searcher=whoosh_searcher)
 
 from .admin import admin
 from .cc import cc

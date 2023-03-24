@@ -1,4 +1,4 @@
-{% from "common/entry.html.jinja2" import keywords_card %}
+{% from "common/entry.html.jinja2" import keywords_card, opt_line %}
 
 {% macro cc_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "common-criteria", "Common Criteria", {"Security level": "cc_security_level",

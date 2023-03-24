@@ -13,14 +13,13 @@ from flask import abort, current_app, redirect, render_template, request, send_f
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from networkx import node_link_data
-from pymongo.collation import Collation
 from sec_certs import constants
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 from whoosh import highlight
 from whoosh.qparser import QueryParser, query
 
-from .. import cache, mongo, sitemap
+from .. import cache, get_searcher, mongo, sitemap
 from ..common.objformats import StorageFormat, load
 from ..common.search import index_schema
 from ..common.views import (
@@ -32,7 +31,7 @@ from ..common.views import (
     network_graph_func,
     send_json_attachment,
 )
-from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map, get_fips_searcher
+from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
 from .tasks import FIPSRenderer
 
 
@@ -272,8 +271,8 @@ def fulltext_search():
     qr = parser.parse(q)
     results = []
     with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
-        searcher = get_fips_searcher()
-    with sentry_sdk.start_span(op="whoosh.search", description=f"Search {qr}"):
+        searcher = get_searcher()
+    with sentry_sdk.start_span(op="whoosh.search", description="Search"):
         res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
     res.results.fragmenter.charlimit = None
     res.results.fragmenter.maxchars = 300
