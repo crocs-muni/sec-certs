@@ -16,23 +16,27 @@
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
-																	"JavaCard": "rules_javacard",
-																	"OS": "rules_os",
-																	"CPLC": "rules_cplc",
-																	"IC data groups": "rules_IC_data_groups",
-																	"Vendor": "rules_vendor"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device models": "device_model",
+																	"JavaCard versions": "javacard_version",
+																	"JavaCard API constants": "javacard_api_const",
+																	"JavaCard packages": "javacard_package",
+																	"Operating System name": "os_name",
+																	"CPLC": "cplc_data",
+																	"IC data groups": "ic_data_group",
+																	"Trusted Execution Environments": "tee_name",
+																	"Vendor": "vendor"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "rules_security_level",
-	                                                                    "Defenses": "rules_defenses",
-																		"Vulnerabilities": "rules_vulnerabilities"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Security level": "fips_security_level",
+	                                                                    "Side-channel analysis": "side_channel_analysis",
+																		"Vulnerabilities": "vulnerability",
+																		"Certification process": "certification_process"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
-	                                                              "Certificate IDs": "rules_cert_id"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "standard_id",
+                                                                  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro render_status(status) %}
