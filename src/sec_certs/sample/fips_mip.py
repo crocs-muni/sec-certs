@@ -12,7 +12,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from sec_certs import constants
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.constants import FIPS_MIP_STATUS_RE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.helpers import to_utc

@@ -8,7 +8,7 @@ from typing import Iterator, Mapping
 import requests
 
 from sec_certs import constants
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.dataset.dataset import logger
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.fips_mip import MIPSnapshot

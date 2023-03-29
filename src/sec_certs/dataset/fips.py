@@ -12,7 +12,7 @@ import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
 
 from sec_certs import constants
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset
