@@ -88,6 +88,7 @@ class Configuration(BaseSettings):
     enable_progress_bars: bool = Field(
         True, description="If true, progress bars will be printed to stdout during computation."
     )
+    nist_api_key: Optional[str] = Field(None, description="NIST API key for access to CVEs and CPEs.")  # noqa: UP007
 
     def _get_nondefault_keys(self) -> set[str]:
         """
