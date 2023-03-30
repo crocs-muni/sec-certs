@@ -9,8 +9,9 @@ from pathlib import Path
 from typing import Callable
 
 import click
+from pydantic import ValidationError
 
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.dataset import CCDataset, FIPSDataset
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tesseract
@@ -157,7 +158,7 @@ steps = [
     "configpath",
     default=None,
     type=click.Path(file_okay=True, dir_okay=False, writable=True, readable=True),
-    help="Path to your own config yaml file that will override the default one.",
+    help="Path to your own config yaml file that will override the default config.",
 )
 @click.option(
     "-i",
@@ -176,6 +177,16 @@ def main(
     quiet: bool,
 ):
     try:
+        if configpath:
+            try:
+                config.load_from_yaml(configpath)
+            except FileNotFoundError:
+                click.echo("Error: Bad path to configuration file", err=True)
+                sys.exit(EXIT_CODE_NOK)
+            except (ValueError, ValidationError) as e:
+                click.echo(f"Error: Bad format of configuration file: {e}", err=True)
+                sys.exit(EXIT_CODE_NOK)
+
         file_handler = logging.FileHandler(config.log_filepath)
         stream_handler = logging.StreamHandler(sys.stderr)
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -184,16 +195,6 @@ def main(
         handlers: list[logging.StreamHandler] = [file_handler] if quiet else [file_handler, stream_handler]
         logging.basicConfig(level=logging.INFO, handlers=handlers)
         start = datetime.now()
-
-        if configpath:
-            try:
-                config.load(configpath)
-            except FileNotFoundError:
-                click.echo("Error: Bad path to configuration file", err=True)
-                sys.exit(EXIT_CODE_NOK)
-            except ValueError as e:
-                click.echo(f"Error: Bad format of configuration file: {e}", err=True)
-                sys.exit(EXIT_CODE_NOK)
 
         actions_set = (
             {"build", "process-aux-dsets", "download", "convert", "analyze"} if "all" in actions else set(actions)

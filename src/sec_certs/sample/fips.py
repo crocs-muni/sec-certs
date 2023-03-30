@@ -16,7 +16,7 @@ from tabula import read_pdf
 
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData

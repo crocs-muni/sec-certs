@@ -1,6 +1,6 @@
 from tqdm import tqdm as tqdm_original
 
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 
 
 def tqdm(*args, **kwargs):

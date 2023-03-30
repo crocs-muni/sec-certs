@@ -15,7 +15,7 @@ from typing import Any, Generic, Iterator, TypeVar, cast
 import pandas as pd
 
 from sec_certs import constants
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
