@@ -1,5 +1,6 @@
 import logging
 from logging import Logger
+from operator import itemgetter
 from pathlib import Path
 
 import dramatiq
@@ -39,16 +40,24 @@ def update_cve_data() -> None:  # pragma: no cover
 
     logger.info("Inserting CVEs.")
     with sentry_sdk.start_span(op="cve.insert", description="Insert CVEs into DB."):
+        old_ids = set(map(itemgetter("_id"), mongo.db.cve.find({}, ["_id"])))
+        new_ids = set()
         cves = list(cve_dset)
         for i in range(0, len(cve_dset), 10000):
             chunk = []
             for cve in cves[i : i + 10000]:
                 cve_data = ObjFormat(cve).to_raw_format().to_working_format().to_storage_format().get()
                 cve_data["_id"] = cve.cve_id
+                new_ids.add(cve.cve_id)
                 chunk.append(ReplaceOne({"_id": cve.cve_id}, cve_data, upsert=True))
             res = mongo.db.cve.bulk_write(chunk, ordered=False)
             res_vals = ", ".join(f"{k} = {v}" for k, v in res.bulk_api_result.items() if k != "upserted")
             logger.info(f"Inserted chunk: {res_vals}")
+
+    logger.info("Cleaning up old CVEs.")
+    with sentry_sdk.start_span(op="cve.cleanup", description="Cleanup CVEs from DB."):
+        res = mongo.db.cve.delete_many({"_id": {"$in": list(old_ids - new_ids)}})
+        logger.info(f"Cleaned up {res.deleted_count} CVEs.")
 
 
 @dramatiq.actor(max_retries=0, actor_name="cpe_update")
@@ -74,16 +83,24 @@ def update_cpe_data() -> None:  # pragma: no cover
 
     logger.info("Inserting CPEs.")
     with sentry_sdk.start_span(op="cpe.insert", description="Insert CPEs into DB."):
+        old_uris = set(map(itemgetter("_id"), mongo.db.cpe.find({}, ["_id"])))
+        new_uris = set()
         cpes = list(cpe_dset)
         for i in range(0, len(cpe_dset), 10000):
             chunk = []
             for cpe in cpes[i : i + 10000]:
                 cpe_data = ObjFormat(cpe).to_raw_format().to_working_format().to_storage_format().get()
                 cpe_data["_id"] = cpe.uri
+                new_uris.add(cpe.uri)
                 chunk.append(ReplaceOne({"_id": cpe.uri}, cpe_data, upsert=True))
         res = mongo.db.cpe.bulk_write(chunk, ordered=False)
         res_vals = ", ".join(f"{k} = {v}" for k, v in res.bulk_api_result.items() if k != "upserted")
         logger.info(f"Inserted chunk: {res_vals}")
+
+    logger.info("Cleaning up old CPEs.")
+    with sentry_sdk.start_span(op="cpe.cleanup", description="Cleanup CPEs from DB."):
+        res = mongo.db.cpe.delete_many({"_id": {"$in": list(old_uris - new_uris)}})
+        logger.info(f"Cleaned up {res.deleted_count} CPEs.")
 
 
 @dramatiq.actor(periodic=cron("@weekly"))
