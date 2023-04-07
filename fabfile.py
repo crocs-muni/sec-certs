@@ -73,7 +73,7 @@ def reload_uwsgi(c):
         pid = resp.stdout.strip()
         if c.run(f"test -d /proc/{pid}"):
             print(f"Reloading uwsgi {pid}")
-            c.sudo(f"kill {pid}")
+            c.sudo(f"kill -1 {pid}")
             print("Reloaded uwsgi")
         else:
             print("uwsgi pidfile found but not running.")
