@@ -68,7 +68,17 @@ def tail_uwsgi(c):
 @task
 def reload_uwsgi(c):
     """Reload the uWSGI master."""
-    c.sudo("systemctl reload uwsgi")
+    if c.run("test -f /run/uwsgi/app/certs/pid"):
+        resp = c.run("cat /run/uwsgi/app/certs/pid")
+        pid = resp.stdout.strip()
+        if c.run(f"test -d /proc/{pid}"):
+            print(f"Reloading uwsgi {pid}")
+            c.sudo(f"kill {pid}")
+            print("Reloaded uwsgi")
+        else:
+            print("uwsgi pidfile found but not running.")
+    else:
+        print("uwsgi pidfile not found")
 
 
 @task
