@@ -21,6 +21,7 @@ repos:
           - 'types-setuptools'
           - 'types-frozendict'
           - 'types-redis'
+          - 'types-pytz'
   - repo: https://github.com/pycqa/flake8
     rev: '6.0.0'
     hooks:

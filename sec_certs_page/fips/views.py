@@ -9,10 +9,12 @@ from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import abort, current_app, redirect, render_template, request, send_file, url_for
+from feedgen.feed import FeedGenerator
+from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from networkx import node_link_data
+from pytz import timezone
 from sec_certs import constants
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
@@ -615,6 +617,54 @@ def entry_json(hashid):
         doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
+    else:
+        return abort(404)
+
+
+@fips.route("/<string(length=16):hashid>/feed.xml")
+def entry_feed(hashid):
+    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+        raw_doc = mongo.db.fips.find_one({"_id": hashid})
+    if raw_doc:
+        tz = timezone("Europe/Prague")
+        doc = load(raw_doc)
+        entry_url = url_for(".entry", hashid=hashid, _external=True)
+        renderer = FIPSRenderer()
+        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
+            diffs = list(map(load, mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])))
+            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=True), diffs))
+        fg = FeedGenerator()
+        fg.id(request.base_url)
+        fg.title(doc["name"])
+        fg.author({"name": "sec-certs", "email": "webmaster@seccerts.org"})
+        fg.link({"href": entry_url, "rel": "alternate"})
+        fg.link({"href": request.base_url, "rel": "self"})
+        fg.icon(url_for("static", filename="img/favicon.png", _external=True))
+        fg.logo(url_for("static", filename="img/fips_card.png", _external=True))
+        fg.language("en")
+        last_update = None
+        for diff, render in zip(diffs, diff_renders):
+            date = tz.localize(diff["timestamp"])
+            fe = fg.add_entry()
+            fe.author({"name": "sec-certs", "email": "webmaster@seccerts.org"})
+            fe.title(
+                {
+                    "back": "Certificate reappeared",
+                    "change": "Certificate changed",
+                    "new": "New certificate",
+                    "remove": "Certificate removed",
+                }[diff["type"]]
+            )
+            fe.id(entry_url + "/" + str(diff["_id"]))
+            fe.content(str(render), type="html")
+            fe.published(date)
+            fe.updated(date)
+            if last_update is None or date > last_update:
+                last_update = date
+
+        fg.lastBuildDate(last_update)
+        fg.updated(last_update)
+        return Response(fg.atom_str(pretty=True), mimetype="application/atom+xml")
     else:
         return abort(404)
 

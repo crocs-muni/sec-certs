@@ -9,9 +9,9 @@
                         Security certification frameworks like Common Criteria and FIPS 140 form a large landscape
                         of thousands of certificates, security targets and protection profiles.
                         This site presents ongoing research on this landscape
-                        {%- if not config["ANONYMOUS"] -%}done by the
-                        <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">Centre for Research on
-                            Cryptography and Security</a>{%- endif -%}.
+                        {%- if not config["ANONYMOUS"] -%} done by the
+                            <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">Centre for Research on
+                                Cryptography and Security</a>{%- endif -%}.
                     </p>
                 </div>
                 <div class="col-12 col-sm-7 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
@@ -147,6 +147,13 @@
                                     notifications about changes in the certificates or vulnerabilities affecting the
                                     certificates.
                                 </p>
+                                <p>Alternatively, use the update feed button <span class="fa-stack fa-2x" style="font-size: 0.8rem">
+                                    <i class="fas fa-square fa-stack-2x text-secondary"
+                                       style="vertical-align: middle"></i>
+                                    <i class="fas fa-feed fa-stack-1x text-light"
+                                       style="vertical-align: middle"></i>
+                                </span> to get an ATOM feed of updates to a certificate.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -244,7 +251,8 @@
                 <div class="col-12 col-md-6">
                     <h3>Do it yourself!</h3>
                     <p>The tools used to create the datasets on this website as well as the datasets themselves are
-                        open-source and available on <a href="{% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}">GitHub</a>.
+                        open-source and available on <a href="
+                                {% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}">GitHub</a>.
                         Documentation, including a quick-start guide, can be found on
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">this site</a>.
                     </p>

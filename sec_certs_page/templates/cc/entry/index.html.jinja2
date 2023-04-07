@@ -271,7 +271,8 @@
                                     {% set child_node = network.nodes[edge[1]] %}
                                     {% if "report" in network.edges[edge]["type"] %}
                                         <li>
-                                            <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a> - {{ child_node["name"] }}
+                                            <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a>
+                                            - {{ child_node["name"] }}
                                         </li>
                                     {% endif %}
                                 {% endfor %}
@@ -285,7 +286,8 @@
                                     {% set parent_node = network.nodes[edge[0]] %}
                                     {% if "report" in network.edges[edge]["type"] %}
                                         <li>
-                                            <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a> - {{ parent_node["name"] }}
+                                            <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a>
+                                            - {{ parent_node["name"] }}
                                         </li>
                                     {% endif %}
                                 {% endfor %}
@@ -454,6 +456,10 @@
                     <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                           data-bs-toggle="tooltip" data-bs-placement="top"
                           title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
+                    <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
+                       style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                       data-bs-toggle="tooltip" data-bs-placement="top"
+                       title="ATOM feed"><i class="fas fa-fw fa-feed"></i></a>
                 </h2>
                 <ul>
                     {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
