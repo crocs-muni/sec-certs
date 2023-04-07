@@ -18,7 +18,7 @@ def as_www_data(command, virtual=True):
     # NOTE: not a nice solution, but we need to source the virtual only after
     # we sudo as www-data
     if virtual:
-        command = ["source", "/var/www/sec-certs/virt/bin/activate.fish", "&&"] + command
+        command = ["source", "/var/www/sec-certs/virt11/bin/activate.fish", "&&"] + command
     joined_command = " ".join(command)
     www_data_shell.append(f'"{joined_command}"')
     return " ".join(www_data_shell)
@@ -38,25 +38,25 @@ def pull(c):
 
 
 @task
-def tail_celery(c):
-    """Tail the celery log."""
-    c.run("tail -f /var/log/celery/certs.log")
+def tail_dramatiq(c):
+    """Tail the dramatiq log."""
+    c.run("tail -f /var/log/dramatiq/certs.log")
 
 
 @task
-def reload_celery(c):
-    """Reload the celery worker."""
-    if c.run("test -f /run/celery/certs.pid"):
-        resp = c.run("cat /run/celery/certs.pid")
+def reload_dramatiq(c):
+    """Reload the dramatiq worker."""
+    if c.run("test -f /run/uwsgi/app/certs/dramatiq.pid"):
+        resp = c.run("cat /run/uwsgi/app/certs/dramatiq.pid")
         pid = resp.stdout.strip()
         if c.run(f"test -d /proc/{pid}"):
-            print(f"Reloading celery {pid}")
+            print(f"Reloading dramatiq {pid}")
             c.sudo(f"kill {pid}")
-            print("Reloaded celery")
+            print("Reloaded dramatiq")
         else:
-            print("Celery pidfile found but not running.")
+            print("Dramatiq pidfile found but not running.")
     else:
-        print("Celery pidfile not found")
+        print("Dramatiq pidfile not found")
 
 
 @task
@@ -96,9 +96,9 @@ def deploy(c):
     """Deploy the whole thing, does a reload-only deploy."""
     print("Pulling...")
     pull(c)
-    print("Reloading celery...")
-    reload_celery(c)
-    print("Reloading uWSGI...")
+    print("Reloading dramatiq...")
+    reload_dramatiq(c)
+    print("Reloading uWSGI (reloads periodiq)...")
     reload_uwsgi(c)
     ps(c)
     c.local("curl https://seccerts.org")

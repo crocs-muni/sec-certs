@@ -22,12 +22,12 @@ task queue.
    ```shell
    mkdir instance 
    ```
-3. Create a `config.py` file in the `instance` directory, based on the `example.config.py` file in the repository.
-4. Create a `settings.yaml` file in the `instance` directory, based on the `example.settings.yaml` file in the repository.
+3. Create a `config.py` file in the `instance` directory, based on the [`example.config.py`](config/example.config.py) file in the repository.
+4. Create a `settings.yaml` file in the `instance` directory, based on the [`example.settings.yaml`](config/example.settings.yaml) file in the repository.
    It is quite important to keep the progress bar setting disabled to not pollute the logs of the webapp.
 5. Start MongoDB and Redis.
 6. Run the Flask app (in production you should likely use [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) 
-   and [nginx](https://nginx.org/en/)).
+   and [nginx](https://nginx.org/en/), see the [example config file](config/example.uwsgi.ini)).
    ```shell
    flask -A sec_certs_page run
    ```
