@@ -12,7 +12,7 @@ from sec_certs.sample.fips_mip import MIPSnapshot
 from tqdm import tqdm
 
 from .. import mongo
-from ..commands import _create, _drop, _query, _status
+from ..common.commands import _create, _drop, _query, _status
 from ..common.objformats import ObjFormat
 from . import fips
 

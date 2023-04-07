@@ -8,8 +8,8 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from tqdm import tqdm
 
-from . import mongo
-from .common.objformats import StorageFormat, WorkingFormat
+from .. import mongo
+from ..common.objformats import StorageFormat, WorkingFormat
 
 
 def _load_certs(file, certs_path, mapper):  # pragma: no cover

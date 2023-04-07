@@ -9,7 +9,7 @@ from sec_certs.utils.sanitization import sanitize_link, sanitize_string
 from tqdm import tqdm
 
 from .. import mongo
-from ..commands import _create, _drop, _query, _status
+from ..common.commands import _create, _drop, _query, _status
 from . import cc
 
 

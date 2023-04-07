@@ -5,7 +5,7 @@ from datetime import datetime
 import click
 
 from .. import mongo
-from ..commands import _add, _create, _drop, _query, _status, _update
+from ..common.commands import _add, _create, _drop, _query, _status, _update
 from . import pp
 
 
