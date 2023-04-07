@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import itertools
 import logging
+import shutil
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
+from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Iterator
+from typing import Any, ClassVar, Iterator
 
 import pandas as pd
 
+import sec_certs.configuration as config_module
 from sec_certs import constants
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
@@ -27,18 +31,17 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
     Dataset of CPE records. Includes look-up dictionaries for fast search.
     """
 
-    CPE_XML_BASENAME: ClassVar[str] = "official-cpe-dictionary_v2.3.xml"
-    CPE_URL: ClassVar[str] = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/" + CPE_XML_BASENAME + ".zip"
-
     def __init__(
         self,
-        was_enhanced_with_vuln_cpes: bool,
-        cpes: dict[str, CPE],
+        was_enhanced_with_vuln_cpes: bool = False,
+        cpes: dict[str, CPE] = {},
         json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        last_update_timestamp: datetime = datetime.fromtimestamp(0),
     ):
         self.was_enhanced_with_vuln_cpes = was_enhanced_with_vuln_cpes
         self.cpes = cpes
         self.json_path = Path(json_path)
+        self.last_update_timestamp = last_update_timestamp
 
         self.vendor_to_versions: dict[str, set[str]] = {}
         self.vendor_version_to_cpe: dict[tuple[str, str], set[CPE]] = {}
@@ -56,6 +59,9 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
     def __setitem__(self, key: str, value: CPE) -> None:
         self.cpes.__setitem__(key.lower(), value)
 
+    def __delitem__(self, key: str) -> None:
+        self.cpes.__delitem__[key]
+
     def __len__(self) -> int:
         return len(self.cpes)
 
@@ -69,7 +75,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
 
     @property
     def serialized_attributes(self) -> list[str]:
-        return ["was_enhanced_with_vuln_cpes", "cpes"]
+        return ["last_update_timestamp", "was_enhanced_with_vuln_cpes", "cpes"]
 
     def build_lookup_dicts(self) -> None:
         """
@@ -94,6 +100,11 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
                     self.title_to_cpes[cpe.title].add(cpe)
 
     @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> CPEDataset:
+        dct["last_update_timestamp"] = datetime.fromisoformat(dct["last_update_timestamp"])
+        return cls(**dct)
+
+    @classmethod
     def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CPEDataset:
         """
         Creates CPEDataset from NIST resources published on-line
@@ -102,38 +113,35 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         :return CPEDataset: The resulting dataset
         """
         with tempfile.TemporaryDirectory() as tmp_dir:
-            xml_path = Path(tmp_dir) / cls.CPE_XML_BASENAME
-            zip_path = Path(tmp_dir) / (cls.CPE_XML_BASENAME + ".zip")
-            helpers.download_file(cls.CPE_URL, zip_path)
+            dset_path = Path(tmp_dir) / "cpe_dataset.json.gz"
+            helpers.download_file(
+                config_module.config.cpe_latest_snapshot, dset_path, progress_bar_desc="Downloading CPEDataset from web"
+            )
+            dset = cls.from_json(dset_path, is_compressed=True)
 
-            with zipfile.ZipFile(zip_path, "r") as zip_ref:
-                zip_ref.extractall(tmp_dir)
+        dset.json_path = json_path
+        dset.to_json()
+        return dset
 
-            return cls._from_xml(xml_path, json_path)
+    def enhance_with_nvd_data(self, nvd_data: dict[Any, Any]) -> None:
+        self.last_update_timestamp = datetime.fromisoformat(nvd_data["timestamp"])
+        cpes_to_deprecate: set[str] = set()
 
-    @classmethod
-    def _from_xml(cls, xml_path: str | Path, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CPEDataset:
-        logger.info("Loading CPE dataset from XML.")
-        root = ET.parse(xml_path).getroot()
-        dct = {}
-        for cpe_item in root.findall("{http://cpe.mitre.org/dictionary/2.0}cpe-item"):
-            found_title = cpe_item.find("{http://cpe.mitre.org/dictionary/2.0}title")
-            if found_title is None:
-                raise RuntimeError(
-                    "Title is not found during building CPE dataset from xml - this should not be happening"
-                )
-            title = found_title.text
+        for cpe in nvd_data["products"]:
+            if cpe["cpe"]["deprecated"]:
+                cpes_to_deprecate.add(cpe["cpe"]["cpeNameId"])
+            else:
+                new_cpe = CPE.from_nvd_dict(cpe["cpe"])
+                self.cpes[new_cpe.uri] = new_cpe
 
-            found_cpe_uri = cpe_item.find("{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item")
-            if found_cpe_uri is None:
-                raise RuntimeError(
-                    "CPE uri is not found during building CPE dataset from xml - this should not be happening"
-                )
-            cpe_uri = found_cpe_uri.attrib["name"]
+        uris_to_delete = self._find_uris_for_ids(cpes_to_deprecate)
+        for uri in uris_to_delete:
+            del self[uri]
 
-            dct[cpe_uri] = cached_cpe(cpe_uri, title)
+        self.build_lookup_dicts()
 
-        return cls(False, dct, json_path)
+    def _find_uris_for_ids(self, ids: set[str]) -> set[str]:
+        return {x.uri for x in self if x.uri in ids}
 
     def to_pandas(self) -> pd.DataFrame:
         """

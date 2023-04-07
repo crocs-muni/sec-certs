@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import itertools
 import json
 import logging
@@ -23,6 +24,7 @@ from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname, serialize
 from sec_certs.utils import helpers
+from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -123,6 +125,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         return self.auxiliary_datasets_dir / "cpe_dataset.json"
 
     @property
+    def cpe_match_json_path(self) -> Path:
+        return self.auxiliary_datasets / "cpe_match_feed.json"
+
+    @property
     def cve_dataset_path(self) -> Path:
         return self.auxiliary_datasets_dir / "cve_dataset.json"
 
@@ -195,8 +201,8 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         return dset
 
     @classmethod
-    def from_json(cls: type[DatasetSubType], input_path: str | Path) -> DatasetSubType:
-        dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path))
+    def from_json(cls: type[DatasetSubType], input_path: str | Path, is_compressed: bool = False) -> DatasetSubType:
+        dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path, is_compressed))
         dset._root_dir = Path(input_path).parent.absolute()
         dset._set_local_paths()
         return dset
@@ -253,9 +259,11 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         logger.info("Processing auxiliary datasets.")
         self.auxiliary_datasets_dir.mkdir(parents=True, exist_ok=True)
         self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh)
-        self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset(
-            download_fresh_cves=download_fresh, build_lookup_dict=False
-        )
+        self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh)
+
+        if download_fresh or not self.cpe_match_json_path.exists():
+            self._prepare_cpe_match_dict(download_fresh=True)
+
         self.state.auxiliary_datasets_processed = True
 
     @serialize
@@ -334,18 +342,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
 
         self.compute_cpe_heuristics()
-
-        cpe_rich = [
-            set(map(self.auxiliary_datasets.cpe_dset.cpes.get, x.heuristics.cpe_matches))
-            for x in self
-            if x.heuristics.cpe_matches is not None
-        ]
-        all_cpes = set(itertools.chain.from_iterable(cpe_rich))
-
-        if not self.auxiliary_datasets.cve_dset:
-            self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset(build_lookup_dict=False)
-        self.auxiliary_datasets.cve_dset.build_lookup_dict(use_nist_mapping=True, limit_to_cpes=all_cpes)  # type: ignore
-
         self.compute_related_cves()
         self._compute_references()
         self._compute_transitive_vulnerabilities()
@@ -358,35 +354,78 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
     def _compute_transitive_vulnerabilities(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    def _prepare_cpe_dataset(self, download_fresh_cpes: bool = False) -> CPEDataset:
-        logger.info("Preparing CPE dataset.")
+    def _prepare_cpe_dataset(self, download_fresh: bool = False) -> CPEDataset:
         if not self.auxiliary_datasets_dir.exists():
             self.auxiliary_datasets_dir.mkdir(parents=True)
 
-        if not self.cpe_dataset_path.exists() or download_fresh_cpes is True:
-            cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
-            cpe_dataset.to_json()
+        if self.cpe_dataset_path.exists():
+            logger.info("Loading CPEDataset from json.")
+            cpe_dataset = CPEDataset.from_json(self.cpe_dataset_path)
         else:
-            cpe_dataset = CPEDataset.from_json(str(self.cpe_dataset_path))
+            cpe_dataset = CPEDataset(json_path=self.cpe_dataset_path)
+            download_fresh = True
+
+        if download_fresh:
+            if config.preferred_source_nvd_datasets == "api":
+                logger.info("Fetching new CPE records from NVD API.")
+                with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+                    cpe_dataset = builder.build_dataset(cpe_dataset)
+            else:
+                logger.info("Preparing CPEDataset from seccerts.org.")
+                cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
+            cpe_dataset.to_json()
 
         return cpe_dataset
 
-    def _prepare_cve_dataset(
-        self, download_fresh_cves: bool = False, use_nist_cpe_matching_dict: bool = True, build_lookup_dict: bool = True
-    ) -> CVEDataset:
-        logger.info("Preparing CVE dataset.")
+    def _prepare_cve_dataset(self, download_fresh: bool = False) -> CVEDataset:
         if not self.auxiliary_datasets_dir.exists():
+            logger.info("Loading CVEDataset from json.")
             self.auxiliary_datasets_dir.mkdir(parents=True)
 
-        if not self.cve_dataset_path.exists() or download_fresh_cves is True:
-            cve_dataset = CVEDataset.from_web(json_path=self.cve_dataset_path)
-            cve_dataset.to_json()
-        else:
+        if self.cve_dataset_path.exists():
             cve_dataset = CVEDataset.from_json(self.cve_dataset_path)
+        else:
+            cve_dataset = CVEDataset(json_path=self.cve_dataset_path)
+            download_fresh = True
 
-        if build_lookup_dict:
-            cve_dataset.build_lookup_dict(use_nist_cpe_matching_dict, self.nist_cve_cpe_matching_dset_path)
+        if download_fresh:
+            if config.preferred_source_nvd_datasets == "api":
+                logger.info("Fetching new CVE records from NVD API.")
+                with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+                    cve_dataset = builder.build_dataset(cve_dataset)
+            else:
+                logger.info("Preparing CVEDataset from seccerts.org")
+                cve_dataset = CVEDataset.from_web(self.cve_dataset_path)
+
         return cve_dataset
+
+    def _prepare_cpe_match_dict(self, download_fresh: bool = False) -> dict:
+        if self.cpe_match_json_path.exists():
+            with self.cpe_match_json_path.open("r") as handle:
+                cpe_match_dict = json.load(handle)
+        else:
+            cpe_match_dict = CpeMatchNvdDatasetBuilder._init_new_dataset()
+            download_fresh = True
+
+        if download_fresh:
+            if config.preferred_source_nvd_datasets == "api":
+                logger.info("Fetchnig CPE Match feed from NVD APi.")
+                with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+                    cpe_match_dict = builder.build_dataset(cpe_match_dict)
+            else:
+                logger.info("Preparing CPE Match feed from seccerts.org")
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    dset_path = Path(tmp_dir) / "cpe_match_feed.json.gz"
+                    helpers.download_file(
+                        config.cpe_match_latest_snapshot,
+                        dset_path,
+                        progress_bar_desc="Downloading CPE Match feed from web",
+                    )
+                    with gzip.open(str(dset_path)) as handle:
+                        json_str = handle.read().decode("utf-8")
+                        cpe_match_dict = json.loads(json_str)
+
+        return cpe_match_dict
 
     @serialize
     def compute_cpe_heuristics(self, download_fresh_cpes: bool = False) -> CPEClassifier:
@@ -521,20 +560,29 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                     set(cert.heuristics.verified_cpe_matches)
                 )
 
+    def _get_all_cpes_in_dataset(self) -> set[CPE]:
+        cpe_rich: list[set[CPE]] = [
+            set(map(self.auxiliary_datasets.cpe_dset.cpes.get, x.heuristics.cpe_matches))
+            for x in self
+            if x.heuristics.cpe_matches
+        ]
+        return set(itertools.chain.from_iterable(cpe_rich))
+
     @serialize
-    def compute_related_cves(
-        self,
-        download_fresh_cves: bool = False,
-        use_nist_cpe_matching_dict: bool = True,
-    ) -> None:
+    def compute_related_cves(self) -> None:
         """
         Computes CVEs for the certificates, given their CPE matches.
         """
         logger.info("Retrieving related CVEs to verified CPE matches")
-        if download_fresh_cves or not self.auxiliary_datasets.cve_dset:
-            self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset(
-                download_fresh_cves, use_nist_cpe_matching_dict
-            )
+        if not self.auxiliary_datasets.cve_dset:
+            self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset()
+
+        if not self.auxiliary_datasets.cpe_dset:
+            self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
+
+        all_cpes = self._get_all_cpes_in_dataset()
+        cpe_match_dict = self._prepare_cpe_match_dict()
+        self.auxiliary_datasets.cve_dset.build_lookup_dict(cpe_match_dict, all_cpes)
 
         logger.info("Computing heuristics: CVEs in certificates.")
         self.enrich_automated_cpes_with_manual_labels()

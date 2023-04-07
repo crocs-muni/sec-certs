@@ -47,8 +47,13 @@ def test_cpe_dset_from_web(tmp_path: Path):
     assert "cpe:2.3:o:infineon:trusted_platform_firmware:6.40:*:*:*:*:*:*:*" in dset.cpes
 
 
-def test_cpe_dset_from_json(cpe_dset_path: Path, cpe_dset: CPEDataset):
+def test_cpe_dset_from_json(cpe_dset_path: Path, cpe_dset: CPEDataset, tmp_path: Path):
     assert CPEDataset.from_json(cpe_dset_path) == cpe_dset
+
+    compressed_path = tmp_path / "dset.json.gz"
+    cpe_dset.to_json(compressed_path, compress=True)
+    decompressed_dataset = CPEDataset.from_json(compressed_path, is_compressed=True)
+    assert cpe_dset == decompressed_dataset
 
 
 def test_cpe_dset_vendor_lookup_dict(cpe_dset: CPEDataset):

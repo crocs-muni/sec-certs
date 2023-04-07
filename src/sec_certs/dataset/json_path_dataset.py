@@ -39,8 +39,7 @@ class JSONPathDataset(ComplexSerializableType, ABC):
             self.to_json()
 
     @classmethod
-    def from_json(cls, input_path: str | Path):
-        with Path(input_path).open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
+    def from_json(cls, input_path: str | Path, is_compressed: bool = False):
+        dset = super().from_json(input_path, is_compressed)
         dset.json_path = Path(input_path)
         return dset

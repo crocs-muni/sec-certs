@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import yaml
 from pydantic import AnyHttpUrl, BaseSettings, Field
@@ -69,6 +69,16 @@ class Configuration(BaseSettings):
     fips_mip_latest_snapshot: AnyHttpUrl = Field(
         "https://seccerts.org/fips/mip/latest.json", description="URL for the latest snapshot of FIPS MIP data"
     )
+    cpe_latest_snapshot: AnyHttpUrl = Field(
+        "https://seccerts.org/cpe/cpe_dataset.json.gz", description="URL for the latest snapshot of CPEDataset."
+    )
+    cve_latest_snapshot: AnyHttpUrl = Field(
+        "https://seccerts.org/cve/cve_dataset.json.gz", description="URL for the latest snapshot of CVEDataset."
+    )
+    cpe_match_latest_snapshot: AnyHttpUrl = Field(
+        "https://seccerts.org/cpe/cpe_match_dataset.json.gz",
+        description="URL for the latest snapshot of cpe match json.",
+    )
     minimal_token_length: int = Field(
         3,
         description="Minimal length of a string that will be considered as a token during keyword extraction in CVE matching",
@@ -88,7 +98,13 @@ class Configuration(BaseSettings):
     enable_progress_bars: bool = Field(
         True, description="If true, progress bars will be printed to stdout during computation."
     )
-    nist_api_key: Optional[str] = Field(None, description="NIST API key for access to CVEs and CPEs.")  # noqa: UP007
+    nvd_api_key: Optional[str] = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
+    preferred_source_nvd_datasets: Literal["sec-certs", "api"] = Field(
+        "sec-certs",
+        description="If set to `sec-certs`, will fetch CPE and CVE datasets from seccerts.org."
+        + " If set to `api`, will fetch these resources from NVD API. It is advised to set an"
+        + " `nvd_api_key` when setting this to `nvd`.",
+    )
 
     def _get_nondefault_keys(self) -> set[str]:
         """

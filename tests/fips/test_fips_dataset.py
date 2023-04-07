@@ -35,8 +35,13 @@ def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Pat
     assert data == template_data
 
 
-def test_dataset_from_json(toy_dataset: FIPSDataset, data_dir: Path):
+def test_dataset_from_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):
     assert toy_dataset == FIPSDataset.from_json(data_dir / "toy_dataset.json")
+
+    compressed_path = tmp_path / "dset.json.gz"
+    toy_dataset.to_json(compressed_path, compress=True)
+    decompressed_dataset = FIPSDataset.from_json(compressed_path, is_compressed=True)
+    assert toy_dataset == decompressed_dataset
 
 
 def test_build_empty_dataset():

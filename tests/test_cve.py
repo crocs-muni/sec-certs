@@ -79,7 +79,7 @@ def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
             "CVE-2017-1732",
             [cpe_single_sign_on],
             [],
-            CVE.Impact(5.3, "MEDIUM", 3.9, 1.4),
+            CVE.Metrics(5.3, "MEDIUM", 3.9, 1.4),
             isoparse("2021-05-26T04:15Z"),
             {"CWE-200"},
         ),
@@ -87,7 +87,7 @@ def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
             "CVE-2019-4513",
             [cpe_single_sign_on],
             [],
-            CVE.Impact(8.2, "HIGH", 3.9, 4.2),
+            CVE.Metrics(8.2, "HIGH", 3.9, 4.2),
             isoparse("2000-05-26T04:15Z"),
             {"CWE-611"},
         ),
@@ -95,7 +95,7 @@ def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
             "CVE-2010-2325",
             [],
             cve_2010_2325_cpe_configs,
-            CVE.Impact(4.3, "MEDIUM", 8.6, 2.9),
+            CVE.Metrics(4.3, "MEDIUM", 8.6, 2.9),
             isoparse("2010-06-18T18:30"),
             {"CWE-79"},
         ),
@@ -122,9 +122,14 @@ def test_cve_dset_lookup_dicts(cve_dset: CVEDataset):
     }
 
 
-def test_cve_dset_from_json(cve_dataset_path: Path, cve_dset: CVEDataset):
+def test_cve_dset_from_json(cve_dataset_path: Path, cve_dset: CVEDataset, tmp_path: Path):
     dset = CVEDataset.from_json(cve_dataset_path)
     assert all(x in dset for x in cve_dset)
+
+    compressed_path = tmp_path / "dset.json.gz"
+    cve_dset.to_json(compressed_path, compress=True)
+    decompressed_dataset = CVEDataset.from_json(compressed_path, is_compressed=True)
+    assert all(x in decompressed_dataset for x in cve_dset)
 
 
 def test_cve_from_to_dict(cve_dict: dict[str, Any]):
