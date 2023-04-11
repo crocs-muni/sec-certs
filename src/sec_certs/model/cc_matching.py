@@ -5,6 +5,7 @@ from typing import Mapping
 from rapidfuzz import fuzz
 
 from sec_certs.sample import CCCertificate, CertificateId
+from sec_certs.utils.strings import fully_sanitize_string, lemmatize_product_name, load_spacy_model
 
 
 class CCSchemeMatcher:
@@ -21,8 +22,10 @@ class CCSchemeMatcher:
     def _prepare(self):
         if cert_id := (self.entry.get("cert_id") or self.entry.get("id")):
             self._canonical_cert_id = CertificateId(self.scheme, cert_id).canonical
-        self._product = self.entry.get("product") or self.entry.get("title")
-        self._vendor = (
+        else:
+            self._canonical_cert_id = None
+        self._product = lemmatize_product_name(load_spacy_model(), self.entry.get("product") or self.entry.get("title"))
+        self._vendor = fully_sanitize_string(
             self.entry.get("vendor")
             or self.entry.get("developer")
             or self.entry.get("manufacturer")
@@ -46,17 +49,19 @@ class CCSchemeMatcher:
             if cert.heuristics.cert_id == self._canonical_cert_id:
                 return 100
             debuff = 0.5
-        if self._product is None or self._vendor is None:
+        if self._product is None or self._vendor is None or cert.name is None or cert.manufacturer is None:
             return 0
+        cert_name = fully_sanitize_string(cert.name)
+        cert_manufacturer = fully_sanitize_string(cert.manufacturer)
         if self._product == cert.name and self._vendor == cert.manufacturer:
             return 99
 
         product_ratings = [
-            fuzz.token_set_ratio(self._product, cert.name),
-            fuzz.partial_token_sort_ratio(self._product, cert.name, score_cutoff=100),
+            fuzz.token_set_ratio(self._product, cert_name),
+            fuzz.partial_token_sort_ratio(self._product, cert_name, score_cutoff=100),
         ]
         vendor_ratings = [
-            fuzz.token_set_ratio(self._vendor, cert.manufacturer),
-            fuzz.partial_token_sort_ratio(self._vendor, cert.manufacturer, score_cutoff=100),
+            fuzz.token_set_ratio(self._vendor, cert_manufacturer),
+            fuzz.partial_token_sort_ratio(self._vendor, cert_manufacturer, score_cutoff=100),
         ]
         return max((0, max(product_ratings) * 0.5 + max(vendor_ratings) * 0.5 - 2)) * (1 - debuff)
