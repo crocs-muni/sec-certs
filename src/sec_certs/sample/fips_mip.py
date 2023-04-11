@@ -35,18 +35,18 @@ class MIPStatus(Enum):
         raise NotImplementedError
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class MIPEntry(ComplexSerializableType):
     module_name: str
     vendor_name: str
     standard: str
-    status: MIPStatus | None
+    status: MIPStatus
     status_since: date | None
 
-    def to_dict(self) -> dict[str, str | MIPStatus | None | date | None]:
+    def to_dict(self) -> dict[str, str | MIPStatus | date | None]:
         return {
             **self.__dict__,
-            "status": self.status.value if self.status else None,
+            "status": self.status.value,
             "status_since": self.status_since.isoformat() if self.status_since else None,
         }
 
@@ -56,8 +56,28 @@ class MIPEntry(ComplexSerializableType):
             dct["module_name"],
             dct["vendor_name"],
             dct["standard"],
-            MIPStatus(dct["status"]) if dct["status"] else None,
+            MIPStatus(dct["status"]),
             date.fromisoformat(dct["status_since"]) if dct.get("status_since") else None,
+        )
+
+
+@dataclass
+class MIPFlow(ComplexSerializableType):
+    module_name: str
+    vendor_name: str
+    standard: str
+    state_changes: list[tuple[date, MIPStatus]]
+
+    def to_dict(self) -> dict[str, str | list]:
+        return {**self.__dict__, "state_changes": [(dt.isoformat(), status.value) for dt, status in self.state_changes]}
+
+    @classmethod
+    def from_dict(cls, dct: Mapping) -> MIPFlow:
+        return cls(
+            dct["module_name"],
+            dct["vendor_name"],
+            dct["standard"],
+            [(date.fromisoformat(dt), MIPStatus(status)) for dt, status in dct["state_changes"]],
         )
 
 
@@ -103,7 +123,6 @@ class MIPSnapshot(ComplexSerializableType):
         entries = set()
         for tr in lines:
             tds = tr.find_all("td")
-            status = None
             if "mip-highlight" in tds[-1]["class"]:
                 status = MIPStatus.FINALIZATION
             elif "mip-highlight" in tds[-2]["class"]:
@@ -112,6 +131,8 @@ class MIPSnapshot(ComplexSerializableType):
                 status = MIPStatus.REVIEW_PENDING
             elif "mip-highlight" in tds[-4]["class"]:
                 status = MIPStatus.IN_REVIEW
+            else:
+                raise ValueError("Cannot parse MIP status line.")
             entries.add(MIPEntry(str(tds[0].string), str(tds[1].string), str(tds[2].string), status, None))
         return entries
 

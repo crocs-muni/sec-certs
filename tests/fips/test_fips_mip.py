@@ -27,8 +27,9 @@ def test_mip_dataset_from_dumps(data_dir: Path):
     assert len(dset) == 3
 
 
-def test_mip_dataset_from_dataset_latest():
-    assert MIPDataset.from_web_latest()
+def test_mip_flows():
+    dset = MIPDataset.from_web_latest()
+    assert dset.compute_flows()
 
 
 def test_mip_snapshot_from_dump(data_dump_path: Path):
