@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import typing
 from typing import Mapping
 
 from rapidfuzz import fuzz
 
-from sec_certs.sample import CCCertificate, CertificateId
+if typing.TYPE_CHECKING:
+    from sec_certs.dataset import CCDataset
+    from sec_certs.sample import CCCertificate
+
+from sec_certs.sample import CertificateId
 from sec_certs.utils.strings import fully_sanitize_string
 
 
@@ -65,3 +70,7 @@ class CCSchemeMatcher:
             fuzz.partial_token_sort_ratio(self._vendor, cert_manufacturer, score_cutoff=100),
         ]
         return max((0, max(product_ratings) * 0.5 + max(vendor_ratings) * 0.5 - 2)) * (1 - debuff)
+
+    @classmethod
+    def match_all(cls, entries: list[dict], scheme: str, dset: CCDataset):
+        pass
