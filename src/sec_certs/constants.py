@@ -78,23 +78,24 @@ CC_BSI_CERTIFIED_URL = (
     CC_BSI_BASE_URL
     + "EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Zertifizierung-und-Anerkennung/Listen/Zertifizierte-Produkte-nach-CC/zertifizierte-produkte-nach-cc_node.html"
 )
-CC_INDIA_CERTIFIED_URL = "https://www.commoncriteria-india.gov.in/product-certified"
-CC_INDIA_ARCHIVED_URL = "https://www.commoncriteria-india.gov.in/archived-prod-cer"
+CC_INDIA_CERTIFIED_URL = "https://www.commoncriteria-india.gov.in/Products-Certified"
+CC_INDIA_ARCHIVED_URL = "https://www.commoncriteria-india.gov.in/Products-Archived"
 CC_ITALY_BASE_URL = "https://www.ocsi.gov.it"
 CC_ITALY_CERTIFIED_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/prodotti-certificati.html"
 CC_ITALY_INEVAL_URL = CC_ITALY_BASE_URL + "/index.php/elenchi-certificazioni/in-corso-di-valutazione.html"
-CC_JAPAN_BASE_URL = "https://www.ipa.go.jp/security/jisec/jisec_e"
+CC_JAPAN_BASE_URL = "https://www.ipa.go.jp/en/security/jisec"
 CC_JAPAN_CERT_BASE_URL = CC_JAPAN_BASE_URL + "/certified_products"
-CC_JAPAN_CERTIFIED_URL = CC_JAPAN_BASE_URL + "/certified_products/certfy_list_e31.html"
-CC_JAPAN_ARCHIVED_URL = CC_JAPAN_BASE_URL + "/certified_products/certfy_list_e_archive.html"
-CC_JAPAN_INEVAL_URL = CC_JAPAN_BASE_URL + "/prdct_in_eval.html"
+CC_JAPAN_CERTIFIED_SW_URL = CC_JAPAN_BASE_URL + "/software/certified-cert/index.html"
+CC_JAPAN_CERTIFIED_HW_URL = CC_JAPAN_BASE_URL + "/hardware/certified-cert/index.html"
+CC_JAPAN_ARCHIVED_SW_URL = CC_JAPAN_BASE_URL + "/software/certified-cert/archive.html"
+CC_JAPAN_INEVAL_URL = CC_JAPAN_BASE_URL + "/prdct-in-eval/in_eval_list.html"
 CC_MALAYSIA_BASE_URL = "https://iscb.cybersecurity.my"
 CC_MALAYSIA_CERTIFIED_URL = (
-    CC_MALAYSIA_BASE_URL + "/en/index.php/certification/product-certification/mycc/certified-products-and-systems"
+    CC_MALAYSIA_BASE_URL + "/index.php/certification/product-certification/mycc/certified-products-and-systems"
 )
 CC_MALAYSIA_INEVAL_URL = (
     CC_MALAYSIA_BASE_URL
-    + "/en/index.php/certification/product-certification/mycc/list-of-products-and-systems-under-evaluation-or-maintenance"
+    + "/index.php/certification/product-certification/mycc/list-of-products-and-systems-under-evaluation-or-maintenance"
 )
 CC_NETHERLANDS_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
 CC_NETHERLANDS_CERTIFIED_URL = CC_NETHERLANDS_BASE_URL + "/certificates.html"
@@ -110,6 +111,11 @@ CC_SINGAPORE_CERTIFIED_URL = (
 )
 CC_SINGAPORE_ARCHIVED_URL = (
     CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-archives"
+)
+CC_SINGAPORE_API_URL = CC_SINGAPORE_BASE_URL + "/api/CsaCommonProductCriteria/getProduct"
+CC_SINGAPORE_INEVAL_URL = (
+    CC_SINGAPORE_BASE_URL
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list/in-evaluation"
 )
 CC_SPAIN_BASE_URL = "https://oc.ccn.cni.es"
 CC_SPAIN_CERTIFIED_URL = CC_SPAIN_BASE_URL + "/en/certified-products/certified-products"

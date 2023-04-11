@@ -149,7 +149,7 @@ class CCSchemeDataset:
             soup = CCSchemeDataset._download_page(url)
 
             # Update pages
-            pager = soup.find("ul", class_="pager")
+            pager = soup.find("ul", class_="pager__items")
             for li in pager.find_all("li"):
                 try:
                     new_page = int(li.text) - 1
@@ -164,15 +164,16 @@ class CCSchemeDataset:
                 tds = tr.find_all("td")
                 if not tds:
                     continue
-                report_a = tds[5].find("a")
-                target_a = tds[6].find("a")
-                cert_a = tds[7].find("a")
+                report_a = tds[6].find("a")
+                target_a = tds[7].find("a")
+                cert_a = tds[8].find("a")
                 cert = {
                     "serial_number": sns(tds[0].text),
                     "product": sns(tds[1].text),
                     "sponsor": sns(tds[2].text),
                     "developer": sns(tds[3].text),
                     "level": sns(tds[4].text),
+                    "issuance_date": sns(tds[5].text),
                     "report_link": report_a["href"],
                     "report_name": sns(report_a.text),
                     "target_link": target_a["href"],
@@ -195,7 +196,7 @@ class CCSchemeDataset:
             soup = CCSchemeDataset._download_page(url)
 
             # Update pages
-            pager = soup.find("ul", class_="pager")
+            pager = soup.find("ul", class_="pager__items")
             if pager:
                 for li in pager.find_all("li"):
                     try:
@@ -220,14 +221,15 @@ class CCSchemeDataset:
                     "sponsor": sns(tds[2].text),
                     "developer": sns(tds[3].text),
                     "level": sns(tds[4].text),
-                    "report_link": report_a["href"],
-                    "report_name": sns(report_a.text),
                     "target_link": target_a["href"],
                     "target_name": sns(target_a.text),
                     "cert_link": cert_a["href"],
                     "cert_name": sns(cert_a.text),
                     "certification_date": sns(tds[8].text),
                 }
+                if report_a:
+                    cert["report_link"] = report_a["href"]
+                    cert["report_name"] = sns(report_a.text)
                 results.append(cert)
         return results
 
@@ -293,10 +295,10 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_japan_certified():
+    def _get_japan(url):
         # TODO: Information could be expanded by following toe link.
-        soup = CCSchemeDataset._download_page(constants.CC_JAPAN_CERTIFIED_URL)
-        table = soup.find("div", id="cert_list").find("table")
+        soup = CCSchemeDataset._download_page(url)
+        table = soup.find("table", class_="cert-table")
         results = []
         trs = list(table.find_all("tr"))
         for tr in trs:
@@ -324,35 +326,14 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
+    def get_japan_certified():
+        japan_hw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_HW_URL)
+        japan_sw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_SW_URL)
+        return japan_sw + japan_hw
+
+    @staticmethod
     def get_japan_archived():
-        # TODO: Information could be expanded by following toe link.
-        soup = CCSchemeDataset._download_page(constants.CC_JAPAN_ARCHIVED_URL)
-        table = soup.find("table")
-        results = []
-        trs = list(table.find_all("tr"))
-        for tr in trs:
-            tds = tr.find_all("td")
-            if not tds:
-                continue
-            if len(tds) == 6:
-                cert = {
-                    "cert_id": sns(tds[0].text),
-                    "supplier": sns(tds[1].text),
-                    "toe_overseas_name": sns(tds[2].text),
-                    "certification_date": sns(tds[3].text),
-                    "claim": sns(tds[4].text),
-                }
-                toe_a = tds[2].find("a")
-                if toe_a and "href" in toe_a.attrs:
-                    cert["toe_overseas_link"] = constants.CC_JAPAN_CERT_BASE_URL + "/" + toe_a["href"]
-                results.append(cert)
-            if len(tds) == 1:
-                cert = results[-1]
-                cert["toe_japan_name"] = sns(tds[0].text)
-                toe_a = tds[0].find("a")
-                if toe_a and "href" in toe_a.attrs:
-                    cert["toe_japan_link"] = constants.CC_JAPAN_CERT_BASE_URL + "/" + toe_a["href"]
-        return results
+        return CCSchemeDataset._get_japan(constants.CC_JAPAN_ARCHIVED_SW_URL)
 
     @staticmethod
     def get_japan_in_evaluation():
@@ -377,13 +358,19 @@ class CCSchemeDataset:
     @staticmethod
     def get_malaysia_certified():
         soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_CERTIFIED_URL)
-        main_div = soup.find("div", attrs={"itemprop": "articleBody"})
-        tables = main_div.find_all("table", recursive=False)
+        sections = soup.find("div", attrs={"itemprop": "articleBody"}).find_all("section", class_="sppb-section")
         results = []
-        for table in tables:
-            category_name = sns(table.find_previous_sibling("h3").text)
-            for tr in table.find_all("tr")[1:]:
-                tds = tr.find_all("td")
+        for section in sections:
+            table = section.find("table")
+            if table is None:
+                continue
+            heading = section.find("h5")
+            if heading is None:
+                continue
+            category_name = sns(heading.text)
+            tbody = table.find("tbody")
+            for tr in tbody.find_all("tr", recursive=False):
+                tds = tr.find_all("td", recursive=False)
                 if len(tds) != 6:
                     continue
                 cert = {
@@ -401,23 +388,20 @@ class CCSchemeDataset:
     def get_malaysia_in_evaluation():
         soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_INEVAL_URL)
         main_div = soup.find("div", attrs={"itemprop": "articleBody"})
-        tables = main_div.find_all("table", recursive=False)
+        table = main_div.find("table")
         results = []
-        for table in tables:
-            category_name = sns(table.find_previous_sibling("h3").text)
-            for tr in table.find_all("tr")[1:]:
-                tds = tr.find_all("td")
-                if len(tds) != 5:
-                    continue
-                cert = {
-                    "category": category_name,
-                    "level": sns(tds[0].text),
-                    "project_id": sns(tds[1].text),
-                    "toe_name": sns(tds[2].text),
-                    "developer": sns(tds[3].text),
-                    "expected_completion": sns(tds[4].text),
-                }
-                results.append(cert)
+        for tr in table.find_all("tr")[1:]:
+            tds = tr.find_all("td")
+            if len(tds) != 5:
+                continue
+            cert = {
+                "level": sns(tds[0].text),
+                "project_id": sns(tds[1].text),
+                "toe_name": sns(tds[2].text),
+                "developer": sns(tds[3].text),
+                "expected_completion": sns(tds[4].text),
+            }
+            results.append(cert)
         return results
 
     @staticmethod
@@ -555,37 +539,51 @@ class CCSchemeDataset:
     @staticmethod
     def _get_singapore(url):
         soup = CCSchemeDataset._download_page(url)
-        table = soup.find("table")
-        skip = False
+        page_id = str(soup.find("input", id="CurrentPageId").value)
+        page = 1
+        api_call = requests.post(
+            constants.CC_SINGAPORE_API_URL,
+            data={
+                "PassSortFilter": False,
+                "currentPageId": page_id,
+                "page": page,
+                "limit": 15,
+                "ProductDeveloperName": "",
+            },
+        )
+        api_json = api_call.json()
+        total = api_json["total"]
         results = []
-        category_name = None
-        for tr in table.find_all("tr"):
-            if skip:
-                skip = False
-                continue
-            tds = tr.find_all("td")
-            if len(tds) == 1:
-                category_name = sns(tds[0].text)
-                skip = True
-                continue
-
-            cert = {
-                "product": sns(tds[0].text.split()[0]),
-                "vendor": sns(tds[1].text),
-                "level": sns(tds[2].text),
-                "certification_date": sns(tds[3].text),
-                "expiration_date": sns(tds[4].text),
-                "category": category_name,
-            }
-            for link in tds[0].find_all("a"):
-                link_text = sns(link.text)
-                if link_text == "Certificate":
-                    cert["cert_link"] = constants.CC_SINGAPORE_BASE_URL + link["href"]
-                elif link_text in ("Certificate Report", "Certification Report"):
-                    cert["report_link"] = constants.CC_SINGAPORE_BASE_URL + link["href"]
-                elif link_text == "Security Target":
-                    cert["target_link"] = constants.CC_SINGAPORE_BASE_URL + link["href"]
-            results.append(cert)
+        while len(results) != total:
+            for obj in api_json["objects"]:
+                cert = {
+                    "level": obj["assuranceLevel"],
+                    "product": obj["productName"],
+                    "vendor": obj["productDeveloper"],
+                    "url": constants.CC_SINGAPORE_BASE_URL + obj["productUrl"],
+                    "certification_date": obj["dateOfIssuance"],
+                    "expiration_date": obj["dateOfExpiry"],
+                    "category": obj["productCategory"]["title"],
+                    "cert_title": obj["certificate"]["title"],
+                    "cert_link": constants.CC_SINGAPORE_BASE_URL + obj["certificate"]["mediaUrl"],
+                    "report_title": obj["certificationReport"]["title"],
+                    "report_link": constants.CC_SINGAPORE_BASE_URL + obj["certificationReport"]["mediaUrl"],
+                    "target_title": obj["securityTarget"]["title"],
+                    "target_link": constants.CC_SINGAPORE_BASE_URL + obj["securityTarget"]["mediaUrl"],
+                }
+                results.append(cert)
+            page += 1
+            api_call = requests.post(
+                constants.CC_SINGAPORE_API_URL,
+                data={
+                    "PassSortFilter": False,
+                    "currentPageId": page_id,
+                    "page": page,
+                    "limit": 15,
+                    "ProductDeveloperName": "",
+                },
+            )
+            api_json = api_call.json()
         return results
 
     @staticmethod
@@ -594,9 +592,14 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_singapore_in_evaluation():
-        soup = CCSchemeDataset._download_page(constants.CC_SINGAPORE_CERTIFIED_URL)
-        header = soup.find(lambda x: x.name == "h3" and x.text == "In Evaluation")
-        table = header.find_next("table")
+        soup = CCSchemeDataset._download_page(constants.CC_SINGAPORE_INEVAL_URL)
+        blocks = soup.find_all("div", class_="sfContentBlock")
+        for block in blocks:
+            table = block.find("table")
+            if table:
+                break
+        else:
+            raise ValueError("Cannot find table.")
         results = []
         for tr in table.find_all("tr")[1:]:
             tds = tr.find_all("td")
