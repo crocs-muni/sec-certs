@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
+from functools import total_ordering
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Iterator, Mapping
@@ -20,11 +21,18 @@ from sec_certs.utils.helpers import to_utc
 logger = logging.getLogger(__name__)
 
 
+@total_ordering
 class MIPStatus(Enum):
     IN_REVIEW = "In Review"
     REVIEW_PENDING = "Review Pending"
     COORDINATION = "Coordination"
     FINALIZATION = "Finalization"
+
+    def __lt__(self, other):
+        if self.__class__ == other.__class__:
+            mb = list(MIPStatus.__members__.keys())
+            return mb.index(self.name) < mb.index(other.name)
+        raise NotImplementedError
 
 
 @dataclass(frozen=True)

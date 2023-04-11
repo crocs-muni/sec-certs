@@ -69,6 +69,12 @@ class Configuration(BaseSettings):
     fips_mip_latest_snapshot: AnyHttpUrl = Field(
         "https://seccerts.org/fips/mip/latest.json", description="URL for the latest snapshot of FIPS MIP data"
     )
+    fips_matching_threshold: int = Field(
+        90,
+        description="Level of required similarity before FIPS IUT/MIP entry is considered to match a FIPS certificate.",
+        ge=0,
+        le=100,
+    )
     minimal_token_length: int = Field(
         3,
         description="Minimal length of a string that will be considered as a token during keyword extraction in CVE matching",
