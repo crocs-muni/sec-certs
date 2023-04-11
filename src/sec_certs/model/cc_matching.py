@@ -5,7 +5,7 @@ from typing import Mapping
 from rapidfuzz import fuzz
 
 from sec_certs.sample import CCCertificate, CertificateId
-from sec_certs.utils.strings import fully_sanitize_string, lemmatize_product_name, load_spacy_model
+from sec_certs.utils.strings import fully_sanitize_string
 
 
 class CCSchemeMatcher:
@@ -24,7 +24,7 @@ class CCSchemeMatcher:
             self._canonical_cert_id = CertificateId(self.scheme, cert_id).canonical
         else:
             self._canonical_cert_id = None
-        self._product = lemmatize_product_name(load_spacy_model(), self.entry.get("product") or self.entry.get("title"))
+        self._product = fully_sanitize_string(self.entry.get("product") or self.entry.get("title"))
         self._vendor = fully_sanitize_string(
             self.entry.get("vendor")
             or self.entry.get("developer")

@@ -7,7 +7,7 @@ from typing import Mapping, MutableMapping
 from rapidfuzz import fuzz
 
 from sec_certs.configuration import config
-from sec_certs.utils.strings import fully_sanitize_string, lemmatize_product_name, load_spacy_model
+from sec_certs.utils.strings import fully_sanitize_string
 
 if typing.TYPE_CHECKING:
     from sec_certs.dataset.fips import FIPSDataset
@@ -27,10 +27,9 @@ class FIPSProcessMatcher:
         self._prepare()
 
     def _prepare(self):
-        self._product = lemmatize_product_name(load_spacy_model(), self.entry.module_name)
+        self._product = fully_sanitize_string(self.entry.module_name)
         self._vendor = fully_sanitize_string(self.entry.vendor_name)
         self._standard = self.entry.standard
-        # self._date = getattr(self.entry, "status_since", None) or getattr(self.entry, "iut_date", None)
 
     def match(self, cert: FIPSCertificate) -> float:
         """
