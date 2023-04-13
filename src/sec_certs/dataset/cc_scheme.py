@@ -1,3 +1,5 @@
+# This code is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.
+# What follows is a repulsive wall of BeautifulSoup garbage parsing code.
 from __future__ import annotations
 
 import hashlib
@@ -1006,42 +1008,95 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _get_sweden(url):
-        # TODO: Information could be expanded by following product link.
+    def _get_sweden(url, enhanced, artifacts):  # noqa: C901
         soup = CCSchemeDataset._get_page(url)
         nav = soup.find("main").find("nav", class_="component-nav-box__list")
         results = []
         for link in nav.find_all("a"):
-            cert = {"product": sns(link.text), "product_link": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"])}
+            cert = {"product": sns(link.text), "url": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"])}
+            if enhanced:
+                e = {}
+                cert_page = CCSchemeDataset._get_page(cert["url"])
+                content = cert_page.find("section", class_="container-article")
+                head = content.find("h1")
+                e["title"] = sns(head.text)
+                table = content.find("table")
+                if table:
+                    for tr in table.find_all("tr"):
+                        tds = tr.find_all("td")
+                        if len(tds) != 2:
+                            continue
+                        title = sns(tds[0].text)
+                        value = sns(tds[1].text)
+                        a = tds[1].find("a")
+                        if not title:
+                            continue
+                        if "Certifierings ID" in title:
+                            e["cert_id"] = value
+                        elif "Giltighet" in title:
+                            e["mutual_recognition"] = value
+                        elif "Produktnamn" in title:
+                            e["product"] = value
+                        elif "Produktkategori" in title:
+                            e["category"] = value
+                        elif "Assuranspaket" in title:
+                            e["assurance_level"] = value
+                        elif "Certifieringsdatum" in title:
+                            e["certification_date"] = value
+                        elif "Sponsor" in title:
+                            e["sponsor"] = value
+                        elif "Utvecklare" in title:
+                            e["developer"] = value
+                        elif "Evalueringsföretag" in title:
+                            e["evaluation_facility"] = value
+                        elif "Security Target" in title and a:
+                            e["target_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
+                            if artifacts:
+                                e["target_hash"] = CCSchemeDataset._get_hash(e["target_link"]).hex()
+                        elif "Certifieringsrapport" in title and a:
+                            e["report_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
+                            if artifacts:
+                                e["report_hash"] = CCSchemeDataset._get_hash(e["report_hash"]).hex()
+                        elif "Certifikat" in title and a:
+                            e["cert_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
+                            if artifacts:
+                                e["cert_hash"] = CCSchemeDataset._get_hash(e["cert_link"]).hex()
+                cert["enhanced"] = e
             results.append(cert)
         return results
 
     @staticmethod
-    def get_sweden_certified():
+    def get_sweden_certified(enhanced: bool = True, artifacts: bool = False):
         """
         Get Swedish "certified product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_CERTIFIED_URL)
+        return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_CERTIFIED_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_sweden_in_evaluation():
+    def get_sweden_in_evaluation(enhanced: bool = True, artifacts: bool = False):
         """
         Get Swedish "product in evaluation" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_INEVAL_URL)
+        return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_INEVAL_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_sweden_archived():
+    def get_sweden_archived(enhanced: bool = True, artifacts: bool = False):
         """
         Get Swedish "archived product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_ARCHIVED_URL)
+        return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_ARCHIVED_URL, enhanced, artifacts)
 
     @staticmethod
     def get_turkey_certified():
