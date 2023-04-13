@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import tempfile
 from pathlib import Path
@@ -6,7 +8,7 @@ from urllib.parse import urljoin
 
 import requests
 import tabula
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup, NavigableString, Tag
 from requests import Response
 
 from sec_certs import constants
@@ -40,7 +42,7 @@ class CCSchemeDataset:
         header = soup.find("h2", text="Products in evaluation")
         table = header.find_next_sibling("table")
         results = []
-        for tr in tqdm(table.find_all("tr"), desc="Get AU in evaluation."):
+        for tr in tqdm(table.find_all("tr"), desc="Get AU scheme in evaluation."):
             tds = tr.find_all("td")
             if not tds:
                 continue
@@ -97,7 +99,7 @@ class CCSchemeDataset:
         soup = CCSchemeDataset._get_page(constants.CC_CANADA_CERTIFIED_URL)
         tbody = soup.find("table").find("tbody")
         results = []
-        for tr in tqdm(tbody.find_all("tr"), desc="Get CA certified."):
+        for tr in tqdm(tbody.find_all("tr"), desc="Get CA scheme certified."):
             tds = tr.find_all("td")
             if not tds:
                 continue
@@ -115,7 +117,7 @@ class CCSchemeDataset:
         soup = CCSchemeDataset._get_page(constants.CC_CANADA_INEVAL_URL)
         tbody = soup.find("table").find("tbody")
         results = []
-        for tr in tqdm(tbody.find_all("tr"), desc="Get CA in evaluation."):
+        for tr in tqdm(tbody.find_all("tr"), desc="Get CA scheme in evaluation."):
             tds = tr.find_all("td")
             if not tds:
                 continue
@@ -212,25 +214,24 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_germany_certified():
-        # TODO: Information could be expanded by following url.
+    def get_germany_certified(enhanced: bool = True):  # noqa: C901
         base_soup = CCSchemeDataset._get_page(constants.CC_BSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="no-bullet row")
         results = []
-        for li in category_nav.find_all("li"):
+        for li in tqdm(category_nav.find_all("li"), desc="Get DE scheme certified."):
             a = li.find("a")
             url = a["href"]
             category_name = sns(a.text)
             soup = CCSchemeDataset._get_page(urljoin(constants.CC_BSI_BASE_URL, url))
             content = soup.find("div", class_="content").find("div", class_="column")
-            for table in content.find_all("table"):
+            for table in tqdm(content.find_all("table")):
                 tbody = table.find("tbody")
                 header = table.find_parent("div", class_="wrapperTable").find_previous_sibling("h2")
-                for tr in tbody.find_all("tr"):
+                for tr in tqdm(tbody.find_all("tr")):
                     tds = tr.find_all("td")
                     if len(tds) != 4:
                         continue
-                    cert = {
+                    cert: dict[str, Any] = {
                         "cert_id": sns(tds[0].text),
                         "product": sns(tds[1].text),
                         "vendor": sns(tds[2].text),
@@ -238,6 +239,68 @@ class CCSchemeDataset:
                         "category": category_name,
                         "url": urljoin(constants.CC_BSI_BASE_URL, tds[0].find("a")["href"]),
                     }
+                    if enhanced:
+                        e: dict[str, Any] = {}
+                        cert_page = CCSchemeDataset._get_page(cert["url"])
+                        content = cert_page.find("div", id="content").find("div", class_="column")
+                        head = content.find("h1", class_="c-intro__headline")
+                        e["product"] = sns(head.next_sibling.text)
+                        details = content.find("table")
+                        for details_tr in details.find_all("tr"):
+                            details_tds = details_tr.find_all("td")
+                            title = sns(details_tds[0].find("span", attrs={"lang": "en-GB"}).text)
+                            if not title:
+                                continue
+                            value = sns(details_tds[1].text)
+                            if "Applicant" in title:
+                                e["applicant"] = value
+                            elif "Evaluation Facility" in title:
+                                e["evaluation_facility"] = value
+                            elif "Assurance" in title:
+                                e["assurance_level"] = value
+                            elif "Protection Profile" in title:
+                                e["protection_profile"] = value
+                            elif "Certification Date" in title:
+                                e["certification_date"] = value
+                            elif "valid until" in title:
+                                e["expiration_date"] = value
+                        links = content.find("ul")
+                        if links:
+                            # has multiple entries/recertifications
+                            e["entries"] = []
+                            for link_li in links.find_all("li"):
+                                first_child = next(iter(link_li.children))
+                                if isinstance(first_child, Tag):
+                                    link_id = sns(first_child.text)
+                                elif isinstance(first_child, NavigableString):
+                                    link_id = sns(first_child.text).split(" ")[0]  # type: ignore
+                                else:
+                                    link_id = None
+                                entry = {"id": link_id}
+                                en_spans = link_li.find_all("span", attrs={"lang": "en-GB"})
+                                if en_spans:
+                                    entry["description"] = sns(en_spans[-1].text)
+                                # TODO: Could parse the links to documents here
+                                e["entries"].append(entry)
+                        doc_links = content.find_all("a", lambda title: cert["cert_id"] in title)
+                        for doc_link in doc_links:
+                            href = urljoin(constants.CC_BSI_BASE_URL, doc_link["href"])
+                            title = sns(doc_link["title"])
+                            if not title:
+                                continue
+                            if "Certification Report" in title:
+                                e["report_link"] = href
+                                e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
+                            elif "Security Target" in title:
+                                e["target_link"] = href
+                                e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
+                            elif "Certificate" in title:
+                                e["cert_link"] = href
+                                e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
+                        description = content.find("div", attrs={"lang": "en"})
+                        if description:
+                            e["description"] = sns(description.text)
+                        cert["enhanced"] = e
                     if header is not None:
                         cert["subcategory"] = sns(header.text)
                     results.append(cert)

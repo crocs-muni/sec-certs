@@ -1,3 +1,4 @@
+from pprint import pp
 from urllib.parse import urlparse
 
 import pytest
@@ -43,6 +44,8 @@ def test_anssi():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_bsi():
     certified = CCSchemeDataset.get_germany_certified()
+    for r in certified:
+        pp(r)
     assert len(certified) != 0
     assert absolute_urls(certified)
 
