@@ -1,3 +1,4 @@
+import hashlib
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -6,18 +7,32 @@ from urllib.parse import urljoin
 import requests
 import tabula
 from bs4 import BeautifulSoup, NavigableString
+from requests import Response
 
 from sec_certs import constants
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
+from sec_certs.utils.tqdm import tqdm
 
 
 class CCSchemeDataset:
     @staticmethod
-    def _get_page(url, session=None):
+    def _get(url, session, **kwargs) -> Response:
         conn = session if session else requests
-        resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False)
+        resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False, **kwargs)
         resp.raise_for_status()
-        return BeautifulSoup(resp.content, "html5lib")
+        return resp
+
+    @staticmethod
+    def _get_page(url, session=None) -> BeautifulSoup:
+        return BeautifulSoup(CCSchemeDataset._get(url, session).content, "html5lib")
+
+    @staticmethod
+    def _get_hash(url, session=None) -> bytes:
+        resp = CCSchemeDataset._get(url, session)
+        h = hashlib.sha256()
+        for chunk in resp.iter_content():
+            h.update(chunk)
+        return h.digest()
 
     @staticmethod
     def get_australia_in_evaluation(enhanced: bool = True):  # noqa: C901
@@ -25,7 +40,7 @@ class CCSchemeDataset:
         header = soup.find("h2", text="Products in evaluation")
         table = header.find_next_sibling("table")
         results = []
-        for tr in table.find_all("tr"):
+        for tr in tqdm(table.find_all("tr"), desc="Get AU in evaluation."):
             tds = tr.find_all("td")
             if not tds:
                 continue
@@ -82,7 +97,7 @@ class CCSchemeDataset:
         soup = CCSchemeDataset._get_page(constants.CC_CANADA_CERTIFIED_URL)
         tbody = soup.find("table").find("tbody")
         results = []
-        for tr in tbody.find_all("tr"):
+        for tr in tqdm(tbody.find_all("tr"), desc="Get CA certified."):
             tds = tr.find_all("td")
             if not tds:
                 continue
@@ -100,7 +115,7 @@ class CCSchemeDataset:
         soup = CCSchemeDataset._get_page(constants.CC_CANADA_INEVAL_URL)
         tbody = soup.find("table").find("tbody")
         results = []
-        for tr in tbody.find_all("tr"):
+        for tr in tqdm(tbody.find_all("tr"), desc="Get CA in evaluation."):
             tds = tr.find_all("td")
             if not tds:
                 continue
@@ -114,12 +129,11 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_france_certified():
-        # TODO: Information could be expanded by following product link.
+    def get_france_certified(enhanced: bool = True):  # noqa: C901
         base_soup = CCSchemeDataset._get_page(constants.CC_ANSSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="nav-categories")
         results = []
-        for li in category_nav.find_all("li"):
+        for li in tqdm(category_nav.find_all("li"), desc="Get FR scheme certified."):
             a = li.find("a")
             url = a["href"]
             category_name = sns(a.text)
@@ -128,11 +142,11 @@ class CCSchemeDataset:
             if not table:
                 continue
             tbody = table.find("tbody")
-            for tr in tbody.find_all("tr"):
+            for tr in tqdm(tbody.find_all("tr")):
                 tds = tr.find_all("td")
                 if not tds:
                     continue
-                cert = {
+                cert: dict[str, Any] = {
                     "product": sns(tds[0].text),
                     "vendor": sns(tds[1].text),
                     "level": sns(tds[2].text),
@@ -141,6 +155,59 @@ class CCSchemeDataset:
                     "category": category_name,
                     "url": urljoin(constants.CC_ANSSI_BASE_URL, tds[0].find("a")["href"]),
                 }
+                if enhanced:
+                    e: dict[str, Any] = {}
+                    cert_page = CCSchemeDataset._get_page(cert["url"])
+                    ref = cert_page.find("div", class_="ref-date")
+                    for ref_li in ref.find_all("li"):
+                        title, value = (sns(span.text) for span in ref_li.find_all("span", recursive=False))
+                        if not title:
+                            continue
+                        if "Référence" in title:
+                            e["id"] = value
+                        elif "Date de certification" in title:
+                            e["certification_date"] = value
+                        elif "Date de fin de validité" in title:
+                            e["expiration_date"] = value
+                    details = cert_page.find("div", class_="details")
+                    for detail_li in details.find_all("li"):
+                        title, value = (sns(span.text) for span in detail_li.find_all("span", recursive=False))
+                        if not title:
+                            continue
+                        if "Catégorie" in title:
+                            e["category"] = value
+                        elif "Référentiel" in title:
+                            e["cc_version"] = value
+                        elif "Niveau" in title:
+                            e["level"] = value
+                        elif "Augmentations" in title:
+                            e["augmentations"] = value
+                        elif "Profil de protection" in title:
+                            e["protection_profile"] = value
+                        elif "Développeur" in title:
+                            e["developer"] = value
+                        elif "Centre d'évaluation" in title:
+                            e["evaluation_facility"] = value
+                        elif "Accords de reconnaissance" in title:
+                            e["recognition"] = value
+                    e["description"] = sns(cert_page.find("div", class_="box-produit-descriptif").text)
+                    links = cert_page.find("div", class_="box-produit-telechargements")
+                    for link_li in links.find_all("li"):
+                        a = link_li.find("a")
+                        href = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                        title = sns(a.text)
+                        if not title:
+                            continue
+                        if "Rapport de certification" in title:
+                            e["report_link"] = href
+                            e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
+                        elif "Security target" in title:
+                            e["target_link"] = href
+                            e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
+                        elif "Certificat" in title:
+                            e["cert_link"] = href
+                            e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
+                    cert["enhanced"] = e
                 results.append(cert)
         return results
 

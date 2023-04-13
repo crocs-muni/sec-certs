@@ -33,6 +33,7 @@ def test_canada():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.slow
 def test_anssi():
     certified = CCSchemeDataset.get_france_certified()
     assert len(certified) != 0
