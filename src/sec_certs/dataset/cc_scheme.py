@@ -1,5 +1,6 @@
 import tempfile
 from pathlib import Path
+from urllib.parse import urljoin
 
 import requests
 import tabula
@@ -11,17 +12,16 @@ from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 
 class CCSchemeDataset:
     @staticmethod
-    def _download_page(url, session=None):
+    def _get_page(url, session=None):
         conn = session if session else requests
         resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False)
-        if resp.status_code != requests.codes.ok:
-            raise ValueError(f"Unable to download: status={resp.status_code}")
+        resp.raise_for_status()
         return BeautifulSoup(resp.content, "html5lib")
 
     @staticmethod
     def get_australia_in_evaluation():
         # TODO: Information could be expanded by following url.
-        soup = CCSchemeDataset._download_page(constants.CC_AUSTRALIA_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_AUSTRALIA_INEVAL_URL)
         header = soup.find("h2", text="Products in evaluation")
         table = header.find_next_sibling("table")
         results = []
@@ -29,18 +29,20 @@ class CCSchemeDataset:
             tds = tr.find_all("td")
             if not tds:
                 continue
+            cert_url = urljoin(constants.CC_AUSTRALIA_BASE_URL, tds[1].find("a")["href"])
             cert = {
                 "vendor": sns(tds[0].text),
                 "product": sns(tds[1].text),
-                "url": constants.CC_AUSTRALIA_BASE_URL + tds[1].find("a")["href"],
+                "url": cert_url,
                 "level": sns(tds[2].text),
             }
+            print(cert)
             results.append(cert)
         return results
 
     @staticmethod
     def get_canada_certified():
-        soup = CCSchemeDataset._download_page(constants.CC_CANADA_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_CANADA_CERTIFIED_URL)
         tbody = soup.find("table").find("tbody")
         results = []
         for tr in tbody.find_all("tr"):
@@ -58,7 +60,7 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_canada_in_evaluation():
-        soup = CCSchemeDataset._download_page(constants.CC_CANADA_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_CANADA_INEVAL_URL)
         tbody = soup.find("table").find("tbody")
         results = []
         for tr in tbody.find_all("tr"):
@@ -77,14 +79,14 @@ class CCSchemeDataset:
     @staticmethod
     def get_france_certified():
         # TODO: Information could be expanded by following product link.
-        base_soup = CCSchemeDataset._download_page(constants.CC_ANSSI_CERTIFIED_URL)
+        base_soup = CCSchemeDataset._get_page(constants.CC_ANSSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="nav-categories")
         results = []
         for li in category_nav.find_all("li"):
             a = li.find("a")
             url = a["href"]
             category_name = sns(a.text)
-            soup = CCSchemeDataset._download_page(constants.CC_ANSSI_BASE_URL + url)
+            soup = CCSchemeDataset._get_page(urljoin(constants.CC_ANSSI_BASE_URL, url))
             table = soup.find("table", class_="produits-liste cc")
             if not table:
                 continue
@@ -100,7 +102,7 @@ class CCSchemeDataset:
                     "id": sns(tds[3].text),
                     "certification_date": sns(tds[4].text),
                     "category": category_name,
-                    "url": constants.CC_ANSSI_BASE_URL + tds[0].find("a")["href"],
+                    "url": urljoin(constants.CC_ANSSI_BASE_URL, tds[0].find("a")["href"]),
                 }
                 results.append(cert)
         return results
@@ -108,14 +110,14 @@ class CCSchemeDataset:
     @staticmethod
     def get_germany_certified():
         # TODO: Information could be expanded by following url.
-        base_soup = CCSchemeDataset._download_page(constants.CC_BSI_CERTIFIED_URL)
+        base_soup = CCSchemeDataset._get_page(constants.CC_BSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="no-bullet row")
         results = []
         for li in category_nav.find_all("li"):
             a = li.find("a")
             url = a["href"]
             category_name = sns(a.text)
-            soup = CCSchemeDataset._download_page(constants.CC_BSI_BASE_URL + url)
+            soup = CCSchemeDataset._get_page(urljoin(constants.CC_BSI_BASE_URL, url))
             content = soup.find("div", class_="content").find("div", class_="column")
             for table in content.find_all("table"):
                 tbody = table.find("tbody")
@@ -130,12 +132,16 @@ class CCSchemeDataset:
                         "vendor": sns(tds[2].text),
                         "certification_date": sns(tds[3].text),
                         "category": category_name,
-                        "url": constants.CC_BSI_BASE_URL + tds[0].find("a")["href"],
+                        "url": urljoin(constants.CC_BSI_BASE_URL, tds[0].find("a")["href"]),
                     }
                     if header is not None:
                         cert["subcategory"] = sns(header.text)
                     results.append(cert)
         return results
+
+    @staticmethod
+    def _fix_india_link(link):
+        return link.replace("/index.php", "")
 
     @staticmethod
     def get_india_certified():
@@ -146,7 +152,7 @@ class CCSchemeDataset:
             page = pages.pop()
             seen_pages.add(page)
             url = constants.CC_INDIA_CERTIFIED_URL + f"?page={page}"
-            soup = CCSchemeDataset._download_page(url)
+            soup = CCSchemeDataset._get_page(url)
 
             # Update pages
             pager = soup.find("ul", class_="pager__items")
@@ -174,11 +180,15 @@ class CCSchemeDataset:
                     "developer": sns(tds[3].text),
                     "level": sns(tds[4].text),
                     "issuance_date": sns(tds[5].text),
-                    "report_link": report_a["href"],
+                    "report_link": urljoin(
+                        constants.CC_INDIA_BASE_URL, CCSchemeDataset._fix_india_link(report_a["href"])
+                    ),
                     "report_name": sns(report_a.text),
-                    "target_link": target_a["href"],
+                    "target_link": urljoin(
+                        constants.CC_INDIA_BASE_URL, CCSchemeDataset._fix_india_link(target_a["href"])
+                    ),
                     "target_name": sns(target_a.text),
-                    "cert_link": cert_a["href"],
+                    "cert_link": urljoin(constants.CC_INDIA_BASE_URL, CCSchemeDataset._fix_india_link(cert_a["href"])),
                     "cert_name": sns(cert_a.text),
                 }
                 results.append(cert)
@@ -193,7 +203,7 @@ class CCSchemeDataset:
             page = pages.pop()
             seen_pages.add(page)
             url = constants.CC_INDIA_ARCHIVED_URL + f"?page={page}"
-            soup = CCSchemeDataset._download_page(url)
+            soup = CCSchemeDataset._get_page(url)
 
             # Update pages
             pager = soup.find("ul", class_="pager__items")
@@ -221,21 +231,25 @@ class CCSchemeDataset:
                     "sponsor": sns(tds[2].text),
                     "developer": sns(tds[3].text),
                     "level": sns(tds[4].text),
-                    "target_link": target_a["href"],
+                    "target_link": urljoin(
+                        constants.CC_INDIA_BASE_URL, CCSchemeDataset._fix_india_link(target_a["href"])
+                    ),
                     "target_name": sns(target_a.text),
-                    "cert_link": cert_a["href"],
+                    "cert_link": urljoin(constants.CC_INDIA_BASE_URL, CCSchemeDataset._fix_india_link(cert_a["href"])),
                     "cert_name": sns(cert_a.text),
                     "certification_date": sns(tds[8].text),
                 }
                 if report_a:
-                    cert["report_link"] = report_a["href"]
+                    cert["report_link"] = urljoin(
+                        constants.CC_INDIA_BASE_URL, CCSchemeDataset._fix_india_link(report_a["href"])
+                    )
                     cert["report_name"] = sns(report_a.text)
                 results.append(cert)
         return results
 
     @staticmethod
     def get_italy_certified():  # noqa: C901
-        soup = CCSchemeDataset._download_page(constants.CC_ITALY_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_ITALY_CERTIFIED_URL)
         div = soup.find("div", class_="certificati")
         results = []
         for cert_div in div.find_all("div", recursive=False):
@@ -258,21 +272,21 @@ class CCSchemeDataset:
                 elif "Data revisione" in p_name:
                     cert["revision_date"] = p_data
                 elif "Rapporto di Certificazione" in p_name and p_link:
-                    cert["report_link_it"] = constants.CC_ITALY_BASE_URL + p_link["href"]
+                    cert["report_link_it"] = urljoin(constants.CC_ITALY_BASE_URL, p_link["href"])
                 elif "Certification Report" in p_name and p_link:
-                    cert["report_link_en"] = constants.CC_ITALY_BASE_URL + p_link["href"]
+                    cert["report_link_en"] = urljoin(constants.CC_ITALY_BASE_URL, p_link["href"])
                 elif "Traguardo di Sicurezza" in p_name and p_link:
-                    cert["target_link"] = constants.CC_ITALY_BASE_URL + p_link["href"]
+                    cert["target_link"] = urljoin(constants.CC_ITALY_BASE_URL, p_link["href"])
                 elif "Nota su" in p_name and p_link:
-                    cert["vulnerability_note_link"] = constants.CC_ITALY_BASE_URL + p_link["href"]
+                    cert["vulnerability_note_link"] = urljoin(constants.CC_ITALY_BASE_URL, p_link["href"])
                 elif "Nota di chiarimento" in p_name and p_link:
-                    cert["clarification_note_link"] = constants.CC_ITALY_BASE_URL + p_link["href"]
+                    cert["clarification_note_link"] = urljoin(constants.CC_ITALY_BASE_URL, p_link["href"])
             results.append(cert)
         return results
 
     @staticmethod
     def get_italy_in_evaluation():
-        soup = CCSchemeDataset._download_page(constants.CC_ITALY_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_ITALY_INEVAL_URL)
         div = soup.find("div", class_="valutazioni")
         results = []
         for cert_div in div.find_all("div", recursive=False):
@@ -297,7 +311,7 @@ class CCSchemeDataset:
     @staticmethod
     def _get_japan(url):
         # TODO: Information could be expanded by following toe link.
-        soup = CCSchemeDataset._download_page(url)
+        soup = CCSchemeDataset._get_page(url)
         table = soup.find("table", class_="cert-table")
         results = []
         trs = list(table.find_all("tr"))
@@ -315,14 +329,14 @@ class CCSchemeDataset:
                 }
                 toe_a = tds[2].find("a")
                 if toe_a and "href" in toe_a.attrs:
-                    cert["toe_overseas_link"] = constants.CC_JAPAN_CERT_BASE_URL + "/" + toe_a["href"]
+                    cert["toe_overseas_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, "/" + toe_a["href"])
                 results.append(cert)
             if len(tds) == 1:
                 cert = results[-1]
                 cert["toe_japan_name"] = sns(tds[0].text)
                 toe_a = tds[0].find("a")
                 if toe_a and "href" in toe_a.attrs:
-                    cert["toe_japan_link"] = constants.CC_JAPAN_CERT_BASE_URL + "/" + toe_a["href"]
+                    cert["toe_japan_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, "/" + toe_a["href"])
         return results
 
     @staticmethod
@@ -338,7 +352,7 @@ class CCSchemeDataset:
     @staticmethod
     def get_japan_in_evaluation():
         # TODO: Information could be expanded by following toe link.
-        soup = CCSchemeDataset._download_page(constants.CC_JAPAN_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_JAPAN_INEVAL_URL)
         table = soup.find("table")
         results = []
         for tr in table.find_all("tr"):
@@ -349,7 +363,7 @@ class CCSchemeDataset:
             cert = {
                 "supplier": sns(tds[0].text),
                 "toe_name": sns(toe_a.text),
-                "toe_link": constants.CC_JAPAN_BASE_URL + "/" + toe_a["href"],
+                "toe_link": urljoin(constants.CC_JAPAN_BASE_URL, "/" + toe_a["href"]),
                 "claim": sns(tds[2].text),
             }
             results.append(cert)
@@ -357,7 +371,7 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_malaysia_certified():
-        soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_MALAYSIA_CERTIFIED_URL)
         sections = soup.find("div", attrs={"itemprop": "articleBody"}).find_all("section", class_="sppb-section")
         results = []
         for section in sections:
@@ -386,7 +400,7 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_malaysia_in_evaluation():
-        soup = CCSchemeDataset._download_page(constants.CC_MALAYSIA_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_MALAYSIA_INEVAL_URL)
         main_div = soup.find("div", attrs={"itemprop": "articleBody"})
         table = main_div.find("table")
         results = []
@@ -406,7 +420,7 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_netherlands_certified():
-        soup = CCSchemeDataset._download_page(constants.CC_NETHERLANDS_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_NETHERLANDS_CERTIFIED_URL)
         main_div = soup.select("body > main > div > div > div > div:nth-child(2) > div.col-lg-9 > div:nth-child(3)")[0]
         rows = main_div.find_all("div", class_="row", recursive=False)
         modals = main_div.find_all("div", class_="modal", recursive=False)
@@ -428,19 +442,19 @@ class CCSchemeDataset:
                 elif "Assurancelevel" in th_text:
                     cert["level"] = sns(td.text)
                 elif "Certificate" in th_text:
-                    cert["cert_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                    cert["cert_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
                 elif "Certificationreport" in th_text:
-                    cert["report_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                    cert["report_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
                 elif "Securitytarget" in th_text:
-                    cert["target_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                    cert["target_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
                 elif "Maintenance report" in th_text:
-                    cert["maintenance_link"] = constants.CC_NETHERLANDS_BASE_URL + td.find("a")["href"]
+                    cert["maintenance_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
             results.append(cert)
         return results
 
     @staticmethod
     def get_netherlands_in_evaluation():
-        soup = CCSchemeDataset._download_page(constants.CC_NETHERLANDS_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_NETHERLANDS_INEVAL_URL)
         table = soup.find("table")
         results = []
         for tr in table.find_all("tr")[1:]:
@@ -458,7 +472,7 @@ class CCSchemeDataset:
     @staticmethod
     def _get_norway(url):
         # TODO: Information could be expanded by following product link.
-        soup = CCSchemeDataset._download_page(url)
+        soup = CCSchemeDataset._get_page(url)
         results = []
         for tr in soup.find_all("tr", class_="certified-product"):
             tds = tr.find_all("td")
@@ -487,7 +501,7 @@ class CCSchemeDataset:
         session.get(constants.CC_KOREA_EN_URL)
         # Get base page
         url = constants.CC_KOREA_CERTIFIED_URL + f"?product_class={product_class}"
-        soup = CCSchemeDataset._download_page(url, session=session)
+        soup = CCSchemeDataset._get_page(url, session=session)
         seen_pages = set()
         pages = {1}
         results = []
@@ -538,7 +552,7 @@ class CCSchemeDataset:
 
     @staticmethod
     def _get_singapore(url):
-        soup = CCSchemeDataset._download_page(url)
+        soup = CCSchemeDataset._get_page(url)
         page_id = str(soup.find("input", id="CurrentPageId").value)
         page = 1
         api_call = requests.post(
@@ -560,16 +574,16 @@ class CCSchemeDataset:
                     "level": obj["assuranceLevel"],
                     "product": obj["productName"],
                     "vendor": obj["productDeveloper"],
-                    "url": constants.CC_SINGAPORE_BASE_URL + obj["productUrl"],
+                    "url": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["productUrl"]),
                     "certification_date": obj["dateOfIssuance"],
                     "expiration_date": obj["dateOfExpiry"],
                     "category": obj["productCategory"]["title"],
                     "cert_title": obj["certificate"]["title"],
-                    "cert_link": constants.CC_SINGAPORE_BASE_URL + obj["certificate"]["mediaUrl"],
+                    "cert_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["certificate"]["mediaUrl"]),
                     "report_title": obj["certificationReport"]["title"],
-                    "report_link": constants.CC_SINGAPORE_BASE_URL + obj["certificationReport"]["mediaUrl"],
+                    "report_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["certificationReport"]["mediaUrl"]),
                     "target_title": obj["securityTarget"]["title"],
-                    "target_link": constants.CC_SINGAPORE_BASE_URL + obj["securityTarget"]["mediaUrl"],
+                    "target_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["securityTarget"]["mediaUrl"]),
                 }
                 results.append(cert)
             page += 1
@@ -592,7 +606,7 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_singapore_in_evaluation():
-        soup = CCSchemeDataset._download_page(constants.CC_SINGAPORE_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_SINGAPORE_INEVAL_URL)
         blocks = soup.find_all("div", class_="sfContentBlock")
         for block in blocks:
             table = block.find("table")
@@ -617,14 +631,14 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_spain_certified():
-        soup = CCSchemeDataset._download_page(constants.CC_SPAIN_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_SPAIN_CERTIFIED_URL)
         tbody = soup.find("table", class_="djc_items_table").find("tbody")
         results = []
         for tr in tbody.find_all("tr", recursive=False):
             tds = tr.find_all("td")
             cert = {
                 "product": sns(tds[0].text),
-                "product_link": constants.CC_SPAIN_BASE_URL + tds[0].find("a")["href"],
+                "product_link": urljoin(constants.CC_SPAIN_BASE_URL, tds[0].find("a")["href"]),
                 "category": sns(tds[1].text),
                 "manufacturer": sns(tds[2].text),
                 "certification_date": sns(tds[3].find("td", class_="djc_value").text),
@@ -635,11 +649,11 @@ class CCSchemeDataset:
     @staticmethod
     def _get_sweden(url):
         # TODO: Information could be expanded by following product link.
-        soup = CCSchemeDataset._download_page(url)
+        soup = CCSchemeDataset._get_page(url)
         nav = soup.find("main").find("nav", class_="component-nav-box__list")
         results = []
         for link in nav.find_all("a"):
-            cert = {"product": sns(link.text), "product_link": constants.CC_SWEDEN_BASE_URL + link["href"]}
+            cert = {"product": sns(link.text), "product_link": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"])}
             results.append(cert)
         return results
 
@@ -688,7 +702,7 @@ class CCSchemeDataset:
     def get_usa_certified():
         # TODO: Information could be expanded by following product link.
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
-        soup = CCSchemeDataset._download_page(constants.CC_USA_CERTIFIED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_USA_CERTIFIED_URL)
         tbody = soup.find("table", class_="tablesorter").find("tbody")
         results = []
         for tr in tbody.find_all("tr"):
@@ -702,7 +716,7 @@ class CCSchemeDataset:
             cert = {
                 "product": sns(product_link.text),
                 "vendor": sns(vendor_span.text),
-                "product_link": product_link["href"],
+                "product_link": urljoin(constants.CC_USA_PRODUCT_URL, product_link["href"]),
                 "id": sns(tds[1].text),
                 "cc_claim": sns(tds[2].text),
                 "cert_lab": sns(tds[3].text),
@@ -715,7 +729,7 @@ class CCSchemeDataset:
     @staticmethod
     def get_usa_in_evaluation():
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
-        soup = CCSchemeDataset._download_page(constants.CC_USA_INEVAL_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_USA_INEVAL_URL)
         tbody = soup.find("table", class_="tablesorter").find("tbody")
         results = []
         for tr in tbody.find_all("tr"):
@@ -741,7 +755,7 @@ class CCSchemeDataset:
     @staticmethod
     def get_usa_archived():
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
-        soup = CCSchemeDataset._download_page(constants.CC_USA_ARCHIVED_URL)
+        soup = CCSchemeDataset._get_page(constants.CC_USA_ARCHIVED_URL)
         tbody = soup.find("table", class_="tablesorter").find("tbody")
         results = []
         for tr in tbody.find_all("tr"):
