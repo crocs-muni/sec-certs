@@ -18,18 +18,18 @@ from sec_certs.utils.tqdm import tqdm
 
 class CCSchemeDataset:
     @staticmethod
-    def _get(url, session, **kwargs) -> Response:
+    def _get(url: str, session, **kwargs) -> Response:
         conn = session if session else requests
         resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False, **kwargs)
         resp.raise_for_status()
         return resp
 
     @staticmethod
-    def _get_page(url, session=None) -> BeautifulSoup:
+    def _get_page(url: str, session=None) -> BeautifulSoup:
         return BeautifulSoup(CCSchemeDataset._get(url, session).content, "html5lib")
 
     @staticmethod
-    def _get_hash(url, session=None) -> bytes:
+    def _get_hash(url: str, session=None) -> bytes:
         resp = CCSchemeDataset._get(url, session)
         h = hashlib.sha256()
         for chunk in resp.iter_content():
@@ -131,7 +131,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_france_certified(enhanced: bool = True):  # noqa: C901
+    def get_france_certified(enhanced: bool = True, artifacts: bool = False):  # noqa: C901
         base_soup = CCSchemeDataset._get_page(constants.CC_ANSSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="nav-categories")
         results = []
@@ -202,19 +202,23 @@ class CCSchemeDataset:
                             continue
                         if "Rapport de certification" in title:
                             e["report_link"] = href
-                            e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
+                            if artifacts:
+                                e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
                         elif "Security target" in title:
                             e["target_link"] = href
-                            e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
+                            if artifacts:
+                                e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
                         elif "Certificat" in title:
                             e["cert_link"] = href
-                            e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
+                            if artifacts:
+                                e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
                     cert["enhanced"] = e
                 results.append(cert)
         return results
 
     @staticmethod
-    def get_germany_certified(enhanced: bool = True):  # noqa: C901
+    def get_germany_certified(enhanced: bool = True, artifacts: bool = False):  # noqa: C901
+        """ """
         base_soup = CCSchemeDataset._get_page(constants.CC_BSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="no-bullet row")
         results = []
@@ -282,7 +286,7 @@ class CCSchemeDataset:
                                     entry["description"] = sns(en_spans[-1].text)
                                 # TODO: Could parse the links to documents here
                                 e["entries"].append(entry)
-                        doc_links = content.find_all("a", lambda title: cert["cert_id"] in title)
+                        doc_links = content.find_all("a", title=lambda title: cert["cert_id"] in title)
                         for doc_link in doc_links:
                             href = urljoin(constants.CC_BSI_BASE_URL, doc_link["href"])
                             title = sns(doc_link["title"])
@@ -290,13 +294,16 @@ class CCSchemeDataset:
                                 continue
                             if "Certification Report" in title:
                                 e["report_link"] = href
-                                e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
+                                if artifacts:
+                                    e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
                             elif "Security Target" in title:
                                 e["target_link"] = href
-                                e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
+                                if artifacts:
+                                    e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
                             elif "Certificate" in title:
                                 e["cert_link"] = href
-                                e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
+                                if artifacts:
+                                    e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
                         description = content.find("div", attrs={"lang": "en"})
                         if description:
                             e["description"] = sns(description.text)
@@ -637,29 +644,87 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _get_norway(url):
-        # TODO: Information could be expanded by following product link.
+    def _get_norway(url: str, enhanced: bool, artifacts: bool):  # noqa: C901
         soup = CCSchemeDataset._get_page(url)
         results = []
         for tr in soup.find_all("tr", class_="certified-product"):
             tds = tr.find_all("td")
-            cert = {
+            cert: dict[str, Any] = {
                 "product": sns(tds[0].text),
-                "product_link": tds[0].find("a")["href"],
+                "url": tds[0].find("a")["href"],
                 "category": sns(tds[1].find("p", class_="value").text),
                 "developer": sns(tds[2].find("p", class_="value").text),
                 "certification_date": sns(tds[3].find("time").text),
             }
+            if enhanced:
+                e: dict[str, Any] = {}
+                cert_page = CCSchemeDataset._get_page(cert["url"])
+                content = cert_page.find("div", class_="main-content")
+                body = content.find("div", class_="articleelement")
+                if body:
+                    e["description"] = sns(body.text)
+                specs = content.find("div", class_="specifications")
+                for row in specs.find_all("div", class_="row"):
+                    title = sns(row.find("div", class_="label").text)
+                    value = sns(row.find("div", class_="value").text)
+                    if not title:
+                        continue
+                    if "Certificate No." in title:
+                        e["id"] = value
+                    elif "Mutual Recognition" in title:
+                        e["mutual_recognition"] = value
+                    elif "Product" in title:
+                        e["product"] = value
+                    elif "Category" in title:
+                        e["category"] = value
+                    elif "Sponsor" in title:
+                        e["sponsor"] = value
+                    elif "Developer" in title:
+                        e["developer"] = value
+                    elif "Evaluation Facility" in title:
+                        e["evaluation_facility"] = value
+                    elif "Certification Date" in title:
+                        e["certification_date"] = value
+                    elif "Evaluation Level" in title:
+                        e["level"] = value
+                    elif "Protection Profile" in title:
+                        e["protection_profile"] = value
+                docs = content.find("div", class_="documents").find("div", class_="card-body")
+                e["documents"] = {}
+                for doc_collection in docs.find_all("div", class_="document-collection"):
+                    head = sns(doc_collection.find("div", class_="header").text)
+                    links = doc_collection.find_all("li")
+                    if not head:
+                        continue
+                    if "Certificates" in head:
+                        doc_type = "cert"
+                    elif "Security targets" in head:
+                        doc_type = "target"
+                    elif "Certification reports" in head:
+                        doc_type = "report"
+                    elif "Maintenance report" in head:
+                        doc_type = "maintenance"
+                    else:
+                        continue
+                    entries = []
+                    for link in links:
+                        a = link.find("a")
+                        entry = {"href": urljoin(constants.CC_NORWAY_BASE_URL, a["href"])}
+                        if artifacts:
+                            entry["hash"] = CCSchemeDataset._get_hash(entry["href"]).hex()
+                        entries.append(entry)
+                    e["documents"][doc_type] = entries
+                cert["enhanced"] = e
             results.append(cert)
         return results
 
     @staticmethod
-    def get_norway_certified():
-        return CCSchemeDataset._get_norway(constants.CC_NORWAY_CERTIFIED_URL)
+    def get_norway_certified(enhanced: bool = True, artifacts: bool = False):
+        return CCSchemeDataset._get_norway(constants.CC_NORWAY_CERTIFIED_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_norway_archived():
-        return CCSchemeDataset._get_norway(constants.CC_NORWAY_ARCHIVED_URL)
+    def get_norway_archived(enhanced: bool = True, artifacts: bool = False):
+        return CCSchemeDataset._get_norway(constants.CC_NORWAY_ARCHIVED_URL, enhanced, artifacts)
 
     @staticmethod
     def _get_korea(product_class):
