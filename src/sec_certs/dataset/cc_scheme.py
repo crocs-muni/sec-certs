@@ -1,5 +1,6 @@
 import tempfile
 from pathlib import Path
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -19,8 +20,7 @@ class CCSchemeDataset:
         return BeautifulSoup(resp.content, "html5lib")
 
     @staticmethod
-    def get_australia_in_evaluation():
-        # TODO: Information could be expanded by following url.
+    def get_australia_in_evaluation(enhanced: bool = True):  # noqa: C901
         soup = CCSchemeDataset._get_page(constants.CC_AUSTRALIA_INEVAL_URL)
         header = soup.find("h2", text="Products in evaluation")
         table = header.find_next_sibling("table")
@@ -29,14 +29,51 @@ class CCSchemeDataset:
             tds = tr.find_all("td")
             if not tds:
                 continue
-            cert_url = urljoin(constants.CC_AUSTRALIA_BASE_URL, tds[1].find("a")["href"])
-            cert = {
+            cert: dict[str, Any] = {
                 "vendor": sns(tds[0].text),
                 "product": sns(tds[1].text),
-                "url": cert_url,
+                "url": urljoin(constants.CC_AUSTRALIA_BASE_URL, tds[1].find("a")["href"]),
                 "level": sns(tds[2].text),
             }
-            print(cert)
+            if enhanced:
+                e: dict[str, Any] = {}
+                cert_page = CCSchemeDataset._get_page(cert["url"])
+                article = cert_page.find("article", attrs={"role": "article"})
+                blocks = article.find("div").find_all("div", class_="flex", recursive=False)
+                for h2 in blocks[0].find_all("h2"):
+                    val = sns(h2.find_next_sibling("span").text)
+                    h_text = sns(h2.text)
+                    if not h_text:
+                        continue
+                    if "Version:" in h_text:
+                        e["version"] = val
+                    elif "Product type:" in h_text:
+                        e["product_type"] = val
+                    elif "Product status:" in h_text:
+                        e["product_status"] = val
+                    elif "Assurance level:" in h_text:
+                        e["assurance_level"] = val
+                sides = blocks[1].find_all("div", recursive=False)
+                for div in sides[0].find_all("div", recursive=False):
+                    h2 = div.find("h2")
+                    h_text = sns(h2.text)
+                    if not h_text:
+                        continue
+                    if "epl-vendor-token" in div.get("class"):
+                        vendor_address = [h_text]
+                        vendor_address.extend([sns(elem.text) for elem in h2.find_next_siblings("div")])  # type: ignore
+                        e["vendor"] = "\n".join(vendor_address)
+                    else:
+                        val = sns(h2.find_next_sibling("span").text)
+                        if "Evaluation Facility:" in h_text:
+                            e["evaluation_facility"] = val
+                        elif "Certification Progress:" in h_text:
+                            e["certification_progress"] = val
+                        elif "Estimated Approval" in h_text:
+                            e["estimated_approval"] = val
+                e["contacts"] = [sns(p.text) for p in sides[1].find_all("p")]
+                e["description"] = sns(blocks[2].find("span").text)
+                cert["enhanced"] = e
             results.append(cert)
         return results
 
