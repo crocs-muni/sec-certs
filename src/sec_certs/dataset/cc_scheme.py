@@ -17,6 +17,14 @@ from sec_certs.utils.tqdm import tqdm
 
 
 class CCSchemeDataset:
+    """
+    Not really a dataset of data from CC scheme websites.
+
+    Each `.get_*` method returns a list of dict entries from the given scheme.
+    The entries do not share many keys, but each one has at least some form
+    of a product name and most have a vendor/developer/manufacturer field.
+    """
+
     @staticmethod
     def _get(url: str, session, **kwargs) -> Response:
         conn = session if session else requests
@@ -38,6 +46,12 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_australia_in_evaluation(enhanced: bool = True):  # noqa: C901
+        """
+        Get Australia "products in evaluation" entries.
+
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_AUSTRALIA_INEVAL_URL)
         header = soup.find("h2", text="Products in evaluation")
         table = header.find_next_sibling("table")
@@ -96,6 +110,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_canada_certified():
+        """
+        Get Canada "certified product" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_CANADA_CERTIFIED_URL)
         tbody = soup.find("table").find("tbody")
         results = []
@@ -114,6 +133,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_canada_in_evaluation():
+        """
+        Get Canada "products in evaluation" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_CANADA_INEVAL_URL)
         tbody = soup.find("table").find("tbody")
         results = []
@@ -132,6 +156,13 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_france_certified(enhanced: bool = True, artifacts: bool = False):  # noqa: C901
+        """
+        Get French "certified product" entries.
+
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+        :return: The entries.
+        """
         base_soup = CCSchemeDataset._get_page(constants.CC_ANSSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="nav-categories")
         results = []
@@ -218,7 +249,13 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_germany_certified(enhanced: bool = True, artifacts: bool = False):  # noqa: C901
-        """ """
+        """
+        Get German "certified product" entries.
+
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+        :return: The entries.
+        """
         base_soup = CCSchemeDataset._get_page(constants.CC_BSI_CERTIFIED_URL)
         category_nav = base_soup.find("ul", class_="no-bullet row")
         results = []
@@ -319,6 +356,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_india_certified():
+        """
+        Get Indian "certified product" entries.
+
+        :return: The entries.
+        """
         pages = {0}
         seen_pages = set()
         results = []
@@ -370,6 +412,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_india_archived():
+        """
+        Get Indian "archived product" entries.
+
+        :return: The entries.
+        """
         pages = {0}
         seen_pages = set()
         results = []
@@ -460,6 +507,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_italy_in_evaluation():
+        """
+        Get Italian "product in evaluation" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_ITALY_INEVAL_URL)
         div = soup.find("div", class_="valutazioni")
         results = []
@@ -515,16 +567,31 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_japan_certified():
+        """
+        Get Japanese "certified product" entries.
+
+        :return: The entries.
+        """
         japan_hw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_HW_URL)
         japan_sw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_SW_URL)
         return japan_sw + japan_hw
 
     @staticmethod
     def get_japan_archived():
+        """
+        Get Japanese "archived product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_japan(constants.CC_JAPAN_ARCHIVED_SW_URL)
 
     @staticmethod
     def get_japan_in_evaluation():
+        """
+        Get Japanese "product in evaluation" entries.
+
+        :return: The entries.
+        """
         # TODO: Information could be expanded by following toe link.
         soup = CCSchemeDataset._get_page(constants.CC_JAPAN_INEVAL_URL)
         table = soup.find("table")
@@ -545,6 +612,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_malaysia_certified():
+        """
+        Get Malaysian "certified product" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_MALAYSIA_CERTIFIED_URL)
         sections = soup.find("div", attrs={"itemprop": "articleBody"}).find_all("section", class_="sppb-section")
         results = []
@@ -574,6 +646,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_malaysia_in_evaluation():
+        """
+        Get Malaysian "product in evaluation" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_MALAYSIA_INEVAL_URL)
         main_div = soup.find("div", attrs={"itemprop": "articleBody"})
         table = main_div.find("table")
@@ -594,6 +671,12 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_netherlands_certified():
+        """
+        Get Dutch "certified product" entries.
+
+        :return: The entries.
+        """
+        # TODO: Could download the artifacts
         soup = CCSchemeDataset._get_page(constants.CC_NETHERLANDS_CERTIFIED_URL)
         main_div = soup.select("body > main > div > div > div > div:nth-child(2) > div.col-lg-9 > div:nth-child(3)")[0]
         rows = main_div.find_all("div", class_="row", recursive=False)
@@ -628,6 +711,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_netherlands_in_evaluation():
+        """
+        Get Dutch "product in evaluation" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_NETHERLANDS_INEVAL_URL)
         table = soup.find("table")
         results = []
@@ -720,10 +808,24 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_norway_certified(enhanced: bool = True, artifacts: bool = False):
+        """
+        Get Norwegian "certified product" entries.
+
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+        :return: The entries.
+        """
         return CCSchemeDataset._get_norway(constants.CC_NORWAY_CERTIFIED_URL, enhanced, artifacts)
 
     @staticmethod
     def get_norway_archived(enhanced: bool = True, artifacts: bool = False):
+        """
+        Get Norwegian "archived product" entries.
+
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+        :return: The entries.
+        """
         return CCSchemeDataset._get_norway(constants.CC_NORWAY_ARCHIVED_URL, enhanced, artifacts)
 
     @staticmethod
@@ -772,14 +874,29 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_korea_certified():
+        """
+        Get Korean "certified product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_korea(product_class=1)
 
     @staticmethod
     def get_korea_suspended():
+        """
+        Get Korean "suspended product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_korea(product_class=2)
 
     @staticmethod
     def get_korea_archived():
+        """
+        Get Korean "product in evaluation" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_korea(product_class=4)
 
     @staticmethod
@@ -834,10 +951,20 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_singapore_certified():
+        """
+        Get Singaporean "certified product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_CERTIFIED_URL)
 
     @staticmethod
     def get_singapore_in_evaluation():
+        """
+        Get Singaporean "product in evaluation" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_SINGAPORE_INEVAL_URL)
         blocks = soup.find_all("div", class_="sfContentBlock")
         for block in blocks:
@@ -891,18 +1018,38 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_sweden_certified():
+        """
+        Get Swedish "certified product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_CERTIFIED_URL)
 
     @staticmethod
     def get_sweden_in_evaluation():
+        """
+        Get Swedish "product in evaluation" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_INEVAL_URL)
 
     @staticmethod
     def get_sweden_archived():
+        """
+        Get Swedish "archived product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_ARCHIVED_URL)
 
     @staticmethod
     def get_turkey_certified():
+        """
+        Get Turkish "certified product" entries.
+
+        :return: The entries.
+        """
         results = []
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = Path(tmpdir) / "turkey.pdf"
@@ -932,6 +1079,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_usa_certified():
+        """
+        Get American "certified product" entries.
+
+        :return: The entries.
+        """
         # TODO: Information could be expanded by following product link.
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
         soup = CCSchemeDataset._get_page(constants.CC_USA_CERTIFIED_URL)
@@ -960,6 +1112,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_usa_in_evaluation():
+        """
+        Get American "product in evaluation" entries.
+
+        :return: The entries.
+        """
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
         soup = CCSchemeDataset._get_page(constants.CC_USA_INEVAL_URL)
         tbody = soup.find("table", class_="tablesorter").find("tbody")
@@ -986,6 +1143,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_usa_archived():
+        """
+        Get American "archived product" entries.
+
+        :return: The entries.
+        """
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
         soup = CCSchemeDataset._get_page(constants.CC_USA_ARCHIVED_URL)
         tbody = soup.find("table", class_="tablesorter").find("tbody")
