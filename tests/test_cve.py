@@ -113,7 +113,7 @@ def test_from_web():
 
 
 def test_cve_dset_lookup_dicts(cve_dset: CVEDataset):
-    alt_lookup = {x: set(y) for x, y in cve_dset.cpe_to_cve_ids_lookup.items()}
+    alt_lookup = {x: set(y) for x, y in cve_dset.cpe_uri_to_cve_ids_lookup.items()}
     assert alt_lookup == {
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*": {
             "CVE-2017-1732",

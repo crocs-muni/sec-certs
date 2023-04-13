@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-import collections
-import glob
 import itertools
-import json
 import logging
-import shutil
 import tempfile
-import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any, ClassVar
@@ -18,11 +13,10 @@ import pandas as pd
 import sec_certs.configuration as config_module
 from sec_certs import constants
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
-from sec_certs.sample.cpe import CPE, cached_cpe
+from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
-from sec_certs.utils.parallel_processing import process_parallel
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -40,7 +34,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     ):
         self.cves = cves
         self.json_path = Path(json_path)
-        self.cpe_to_cve_ids_lookup: dict[str, set[str]] = {}
+        self.cpe_uri_to_cve_ids_lookup: dict[str, set[str]] = {}
         self.cves_with_vulnerable_configurations: list[CVE] = []
         self.last_update_timestamp = last_update_timestamp
 
@@ -84,89 +78,81 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
     def _get_cves_with_criteria_configurations(self) -> None:
         """
-        Method filters the subset of CVE dataset thah contain at least one CPE configuration in the CVE.
+        Method filters the subset of CVE dataset thah contain at least one CPE criteria configuration in the CVE.
         """
-        self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_cpe_configurations]
+        self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_criteria_configurations]
+
+    def _expand_criteria_configurations(self, matching_dict: dict, relevant_cpe_uris: set[str] | None = None) -> None:
+        indices_to_delete = []
+        cve: CVE
+        for index, cve in enumerate(
+            tqdm(self.cves_with_vulnerable_configurations, desc="Expanding and filtering criteria configurations")
+        ):
+            can_be_matched = []
+            for configuration in cve.vulnerable_criteria_configurations:
+                configuration.expand_and_filter(matching_dict, relevant_cpe_uris)
+                can_be_matched.append(not any(len(component) == 0 for component in configuration._expanded_components))
+            if not any(can_be_matched):
+                indices_to_delete.append(index)
+
+        for index in sorted(indices_to_delete, reverse=True):
+            del self.cves_with_vulnerable_configurations[index]
 
     def build_lookup_dict(
         self,
         cpe_match_dict: dict,
-        limit_to_cpes: set[CPE],
+        limit_to_cpes: set[CPE] | None = None,
     ):
-        """
-        Builds look-up dictionary CPE -> Set[CVE] and filter the CVEs which contain CPE configurations.
-        """
-        self.cpe_to_cve_ids_lookup = dict.fromkeys([x.uri for x in limit_to_cpes], set())
+        self.cpe_uri_to_cve_ids_lookup = {}
+        cpe_uris_of_interest = {x.uri for x in limit_to_cpes} if limit_to_cpes else None
+        self._get_cves_with_criteria_configurations()
+        self._expand_criteria_configurations(cpe_match_dict, cpe_uris_of_interest)
 
+        logger.info("Building lookup dictionaries.")
         cve: CVE
         for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
-            vulnerable_cpes = set(
-                itertools.chain.from_iterable([cpe_match_dict[x]["matches"] for x in cve.vulnerable_criteria])
-            )
-            if not cve.vulnerable_criteria_configurations and not any(x in limit_to_cpes for x in vulnerable_cpes):
+            vulnerable_cpe_uris: set[str] = set()
+            for x in cve.vulnerable_criteria:
+                if x.criteria_id not in cpe_match_dict["match_strings"]:
+                    # This happens when there's no `matches` key in the original dict. In such case, the whole key got
+                    # discarded. Statistically, approx. 13% of criteria match to no CPEs and are used solely as criteria.
+                    continue
+                matches = cpe_match_dict["match_strings"][x.criteria_id]["matches"]
+                vulnerable_cpe_uris = vulnerable_cpe_uris.union(x["cpeName"] for x in matches)
+
+            if (
+                cpe_uris_of_interest
+                and not cve.vulnerable_criteria_configurations
+                and not any(x in cpe_uris_of_interest for x in vulnerable_cpe_uris)
+            ):
                 continue
 
-            for cpe in vulnerable_cpes:
-                self.cpe_to_cve_ids_lookup[cpe.uri].add(cve.cve_id)
-
-        self._get_cves_with_criteria_configurations()
-
-    def _get_cve_ids_for_cpe_uri(self, cpe_uri: str) -> set[str]:
-        # TODO: Refactor me
-        return self.cpe_to_cve_ids_lookup.get(cpe_uri, set())
+            for cpe_uri in vulnerable_cpe_uris:
+                if cpe_uri in self.cpe_uri_to_cve_ids_lookup:
+                    self.cpe_uri_to_cve_ids_lookup[cpe_uri].add(cve.cve_id)
+                else:
+                    self.cpe_uri_to_cve_ids_lookup[cpe_uri] = {cve.cve_id}
 
     def _get_cves_from_exactly_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
-        # TODO: Refactor me
-        return set(itertools.chain.from_iterable([self._get_cve_ids_for_cpe_uri(cpe_uri) for cpe_uri in cpe_uris]))
+        return set(
+            itertools.chain.from_iterable([self.cpe_uri_to_cve_ids_lookup.get(cpe_uri, set()) for cpe_uri in cpe_uris])
+        )
 
-    def _get_cves_from_cpe_configurations(self, cpe_uris: set[str]) -> set[str]:
-        # TODO: refactor me
+    def _get_cves_from_criteria_configurations(self, cpe_uris: set[str]) -> set[str]:
         return {
             cve.cve_id
             for cve in self.cves_with_vulnerable_configurations
-            if any(configuration.matches(cpe_uris) for configuration in cve.vulnerable_cpe_configurations)
+            if any(configuration.matches(cpe_uris) for configuration in cve.vulnerable_criteria_configurations)
         }
 
-    def get_cves_from_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
-        # TODO: refactor me
+    def get_cves_from_matched_cpe_uris(self, cpe_uris: set[str]) -> set[str]:
         """
-        Method returns the set of CVEs which are matched to the set of CPEs.
-        First are matched the classic CPEs to CVEs with lookup dict and then are matched the
-        'AND' type CPEs containing platform.
+        Method returns the set of CVEs which are matched to the set of CPE uris.
         """
         return {
             *self._get_cves_from_exactly_matched_cpes(cpe_uris),
-            *self._get_cves_from_cpe_configurations(cpe_uris),
+            *self._get_cves_from_criteria_configurations(cpe_uris),
         }
-
-    def filter_related_cpes(self, relevant_cpes: set[CPE]):
-        # TODO: Refactor me
-        """
-        Since each of the CVEs is related to many CPEs, the dataset size explodes (serialized). For certificates,
-        only CPEs within sample dataset are relevant. This function modifies all CVE elements. Specifically, it
-        deletes all CPE records unless they are part of relevant_cpe_uris.
-        :param relevant_cpes: List of relevant CPEs to keep in CVE dataset.
-        """
-        total_deleted_cpes = 0
-        cve_ids_to_delete = []
-        for cve in self:
-            n_cpes_orig = len(cve.vulnerable_cpes)
-            cve.vulnerable_cpes = [x for x in cve.vulnerable_cpes if x in relevant_cpes]
-            cve.vulnerable_cpe_configurations = [
-                x
-                for x in cve.vulnerable_cpe_configurations
-                if x.platform.uri in relevant_cpes and any(y.uri in relevant_cpes for y in x.cpes)
-            ]
-
-            total_deleted_cpes += n_cpes_orig - len(cve.vulnerable_cpes)
-            if not cve.vulnerable_cpes:
-                cve_ids_to_delete.append(cve.cve_id)
-
-        for cve_id in cve_ids_to_delete:
-            del self.cves[cve_id]
-        logger.info(
-            f"Totally deleted {total_deleted_cpes} irrelevant CPEs and {len(cve_ids_to_delete)} CVEs from CVEDataset."
-        )
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame([x.pandas_tuple for x in self], columns=CVE.pandas_columns)

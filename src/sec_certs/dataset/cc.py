@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import itertools
-import json
 import locale
 import shutil
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Iterator
+from typing import ClassVar, Iterator, cast
 
 import numpy as np
 import pandas as pd
@@ -30,7 +29,7 @@ from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
@@ -845,11 +844,9 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         raise NotImplementedError
 
     @classmethod
-    def from_json(cls, input_path: str | Path) -> CCDatasetMaintenanceUpdates:
-        input_path = Path(input_path)
-        with input_path.open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        dset._root_dir = Path(input_path).parent
+    def from_json(cls, input_path: str | Path, is_compressed: bool = False) -> CCDatasetMaintenanceUpdates:
+        dset = cast(CCDatasetMaintenanceUpdates, ComplexSerializableType.from_json(input_path, is_compressed))
+        dset._root_dir = Path(input_path).parent.absolute()
         return dset
 
     def to_pandas(self) -> pd.DataFrame:

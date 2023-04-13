@@ -126,7 +126,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
     @property
     def cpe_match_json_path(self) -> Path:
-        return self.auxiliary_datasets / "cpe_match_feed.json"
+        return self.auxiliary_datasets_dir / "cpe_match_feed.json"
 
     @property
     def cve_dataset_path(self) -> Path:
@@ -262,7 +262,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh)
 
         if download_fresh or not self.cpe_match_json_path.exists():
-            self._prepare_cpe_match_dict(download_fresh=True)
+            self._prepare_cpe_match_dict(download_fresh=download_fresh)
 
         self.state.auxiliary_datasets_processed = True
 
@@ -337,10 +337,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
     def _compute_heuristics(self) -> None:
         logger.info("Computing various heuristics from the certificates.")
-
-        if not self.auxiliary_datasets.cpe_dset:
-            self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
-
         self.compute_cpe_heuristics()
         self.compute_related_cves()
         self._compute_references()
@@ -359,7 +355,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             self.auxiliary_datasets_dir.mkdir(parents=True)
 
         if self.cpe_dataset_path.exists():
-            logger.info("Loading CPEDataset from json.")
+            logger.info("Preparing CPEDataset from json.")
             cpe_dataset = CPEDataset.from_json(self.cpe_dataset_path)
         else:
             cpe_dataset = CPEDataset(json_path=self.cpe_dataset_path)
@@ -383,6 +379,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             self.auxiliary_datasets_dir.mkdir(parents=True)
 
         if self.cve_dataset_path.exists():
+            logger.info("Preparing CVEDataset from json.")
             cve_dataset = CVEDataset.from_json(self.cve_dataset_path)
         else:
             cve_dataset = CVEDataset(json_path=self.cve_dataset_path)
@@ -396,11 +393,13 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             else:
                 logger.info("Preparing CVEDataset from seccerts.org")
                 cve_dataset = CVEDataset.from_web(self.cve_dataset_path)
+            cve_dataset.to_json()
 
         return cve_dataset
 
     def _prepare_cpe_match_dict(self, download_fresh: bool = False) -> dict:
         if self.cpe_match_json_path.exists():
+            logger.info("Preparing CPE Match feed from json.")
             with self.cpe_match_json_path.open("r") as handle:
                 cpe_match_dict = json.load(handle)
         else:
@@ -413,7 +412,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cpe_match_dict = builder.build_dataset(cpe_match_dict)
             else:
-                logger.info("Preparing CPE Match feed from seccerts.org")
+                logger.info("Preparing CPE Match feed from seccerts.org.")
                 with tempfile.TemporaryDirectory() as tmp_dir:
                     dset_path = Path(tmp_dir) / "cpe_match_feed.json.gz"
                     helpers.download_file(
@@ -428,13 +427,13 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         return cpe_match_dict
 
     @serialize
-    def compute_cpe_heuristics(self, download_fresh_cpes: bool = False) -> CPEClassifier:
+    def compute_cpe_heuristics(self) -> CPEClassifier:
         """
         Computes matching CPEs for the certificates.
         """
         WINDOWS_WEAK_CPES: set[CPE] = {
-            CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64", None, None),
-            CPE("cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86", None, None),
+            CPE("", "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64"),
+            CPE("", "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86"),
         }
 
         def filter_condition(cpe: CPE) -> bool:
@@ -461,15 +460,8 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             return True
 
         logger.info("Computing heuristics: Finding CPE matches for certificates")
-        if not self.auxiliary_datasets.cpe_dset or download_fresh_cpes:
-            self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset(download_fresh_cpes)
-
-        # Temporarily disabled, see: https://github.com/crocs-muni/sec-certs/issues/173
-        # if not cpe_dset.was_enhanced_with_vuln_cpes:
-        #     self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset(download_fresh_cves=False)
-        #     self.auxiliary_datasets.cpe_dset.enhance_with_cpes_from_cve_dataset(cve_dset)  # this also calls build_lookup_dicts() on cpe_dset
-        # else:
-        #     self.auxiliary_datasets.cpe_dset.build_lookup_dicts()
+        if not self.auxiliary_datasets.cpe_dset:
+            self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
 
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
         clf.fit([x for x in self.auxiliary_datasets.cpe_dset if filter_condition(x)])
@@ -561,30 +553,36 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 )
 
     def _get_all_cpes_in_dataset(self) -> set[CPE]:
-        cpe_rich: list[set[CPE]] = [
-            set(map(self.auxiliary_datasets.cpe_dset.cpes.get, x.heuristics.cpe_matches))
+        if not self.auxiliary_datasets.cpe_dset:
+            raise ValueError(
+                "Cannot retrieve all cpes in dataset when cpe_dset is not set. You can prepare it with obj._prepare_cpe_dataset()"
+            )
+
+        cpe_matches = [
+            [self.auxiliary_datasets.cpe_dset.cpes[y] for y in x.heuristics.cpe_matches]
             for x in self
             if x.heuristics.cpe_matches
         ]
-        return set(itertools.chain.from_iterable(cpe_rich))
+        return set(itertools.chain.from_iterable(cpe_matches))
 
     @serialize
     def compute_related_cves(self) -> None:
         """
         Computes CVEs for the certificates, given their CPE matches.
         """
-        logger.info("Retrieving related CVEs to verified CPE matches")
-        if not self.auxiliary_datasets.cve_dset:
-            self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset()
+        logger.info("Computing heuristics: CVEs in certificates.")
 
         if not self.auxiliary_datasets.cpe_dset:
             self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
 
-        all_cpes = self._get_all_cpes_in_dataset()
+        if not self.auxiliary_datasets.cve_dset:
+            self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset()
+
         cpe_match_dict = self._prepare_cpe_match_dict()
+
+        all_cpes = self._get_all_cpes_in_dataset()
         self.auxiliary_datasets.cve_dset.build_lookup_dict(cpe_match_dict, all_cpes)
 
-        logger.info("Computing heuristics: CVEs in certificates.")
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]
 
@@ -594,13 +592,9 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             )
             return
 
-        # The following lines don't bring any speed-up. They may potentially save memory if rest of CVEs is cleaned explicitly
-        # relevant_cpes = set(itertools.chain.from_iterable(x.heuristics.cpe_matches for x in cpe_rich_certs))
-        # self.auxiliary_datasets.cve_dset.filter_related_cpes(relevant_cpes)
-
         cert: Certificate
         for cert in tqdm(cpe_rich_certs, desc="Computing related CVES"):
-            related_cves = self.auxiliary_datasets.cve_dset.get_cves_from_matched_cpes(cert.heuristics.cpe_matches)
+            related_cves = self.auxiliary_datasets.cve_dset.get_cves_from_matched_cpe_uris(cert.heuristics.cpe_matches)
             cert.heuristics.related_cves = related_cves if related_cves else None
 
         n_vulnerable = len([x for x in cpe_rich_certs if x.heuristics.related_cves])

@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 import copy
-import gzip
 import itertools
 import logging
-import shutil
 import tempfile
-import xml.etree.ElementTree as ET
-import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, Iterator
+from typing import Any, Iterator
 
 import pandas as pd
 
@@ -18,7 +14,7 @@ import sec_certs.configuration as config_module
 from sec_certs import constants
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
-from sec_certs.sample.cpe import CPE, cached_cpe
+from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils.tqdm import tqdm
@@ -60,7 +56,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         self.cpes.__setitem__(key.lower(), value)
 
     def __delitem__(self, key: str) -> None:
-        self.cpes.__delitem__[key]
+        del self.cpes[key]
 
     def __len__(self) -> int:
         return len(self.cpes)
@@ -86,7 +82,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         self.vendor_version_to_cpe = {}
         self.title_to_cpes = {}
         self.vendors = set(self.vendor_to_versions.keys())
-        for cpe in self:
+        for cpe in tqdm(self, desc="Building CPE look-up dictionaries for fast CPE matching"):
             self.vendor_to_versions[cpe.vendor].add(cpe.version)
             if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe:
                 self.vendor_version_to_cpe[(cpe.vendor, cpe.version)] = {cpe}

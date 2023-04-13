@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import json
 import logging
 import shutil
 from abc import ABC
 from pathlib import Path
 
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, get_class_fullname
+from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from functools import lru_cache
+from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
 from sec_certs import constants
@@ -54,42 +53,38 @@ class CPEMatchCriteria(ComplexSerializableType):
 class CPEMatchCriteriaConfiguration(ComplexSerializableType):
     """
     This class represents a set of sets of `CPEMatchCriteria` objects, where there's an OR relation between the
-    elements of the set.
+    elements of the inner set and AND relation between the elements of the outer set.
     Our experiments confirm that there are only 3 distinct CVEs in the database that allow AND configuration between
     the elements. Simplyfing to ORs enables much more simple implementation.
     """
 
     components: list[list[CPEMatchCriteria]]
-    __slots__ = ["components"]
+    _expanded_components: list[list[str]] = field(default_factory=list)
 
+    def matches(self, cpe_ids: set[str]) -> bool:
+        if not self._expanded_components:
+            raise ValueError(
+                "Cannot match to CPEMatchConfiguration when attribute _expanded_components was not filled-in. That attribute is prepared by `CVEDataset.build_lookup_dict()`."
+            )
+        return all(any(x in component for x in cpe_ids) for component in self.components)
 
-@dataclass
-class CPEConfiguration(ComplexSerializableType):
-    __slots__ = ["platform", "cpes"]
+    @property
+    def serialized_attributes(self) -> list[str]:
+        return ["components"]
 
-    platform: CPE
-    cpes: list[CPE]
-
-    def __hash__(self) -> int:
-        return hash(self.platform) + sum([hash(cpe) for cpe in self.cpes])
-
-    def __lt__(self, other: CPEConfiguration) -> bool:
-        return self.platform < other.platform
-
-    def __eq__(self, other: Any) -> bool:
-        return (
-            isinstance(other, self.__class__) and self.platform == other.platform and set(self.cpes) == set(other.cpes)
-        )
-
-    def matches(self, other_cpe_uris: set[str]) -> bool:
-        """
-        For a given set of CPEs method returns boolean if the CPE configuration is
-        matched or not.
-        """
-        return self.platform.uri in other_cpe_uris and any(x.uri in other_cpe_uris for x in self.cpes)
-
-    def get_all_cpes(self) -> set[CPE]:
-        return {self.platform}.union(self.cpes)
+    def expand_and_filter(self, match_dict: dict, relevant_cpe_uris: set[str] | None):
+        self._expanded_components = []
+        for component in self.components:
+            expanded_component: list[str] = []
+            for criteria in component:
+                if criteria.criteria_id not in match_dict["match_strings"]:
+                    continue
+                expanded_component.extend(
+                    x["cpeName"] for x in match_dict["match_strings"][criteria.criteria_id]["matches"]
+                )
+            if relevant_cpe_uris:
+                expanded_component = [x for x in expanded_component if x in relevant_cpe_uris]
+            self._expanded_components.append(expanded_component)
 
 
 @dataclass
@@ -100,10 +95,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     vendor: str
     item_name: str
     title: str | None
-    start_version: tuple[str, str] | None
-    end_version: tuple[str, str] | None
 
-    __slots__ = ["cpe_id", "uri", "version", "vendor", "item_name", "title", "start_version", "end_version"]
+    __slots__ = ["cpe_id", "uri", "version", "vendor", "item_name", "title"]
 
     pandas_columns: ClassVar[list[str]] = [
         "cpe_id" "uri",
@@ -118,8 +111,6 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         cpe_id: str,
         uri: str,
         title: str | None = None,
-        start_version: tuple[str, str] | None = None,
-        end_version: tuple[str, str] | None = None,
     ):
         super().__init__()
         self.cpe_id = cpe_id
@@ -130,8 +121,6 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         self.item_name = " ".join(splitted[4].split("_"))
         self.version = self.normalize_version(" ".join(splitted[5].split("_")))
         self.title = title
-        self.start_version = start_version
-        self.end_version = end_version
 
     def __lt__(self, other: CPE) -> bool:
         return self.uri < other.uri
@@ -146,21 +135,13 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         return version
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> CPE:
-        if isinstance(dct["start_version"], list):
-            dct["start_version"] = tuple(dct["start_version"])
-        if isinstance(dct["end_version"], list):
-            dct["end_version"] = tuple(dct["end_version"])
-        return super().from_dict(dct)
-
-    @classmethod
     def from_nvd_dict(cls, dct: dict[str, Any]) -> CPE:
         title = [x for x in dct["titles"] if x["lang"] == "en"][0]["title"]
-        return cls(dct["cpeNameId"], dct["cpeName"], title, None, None)
+        return cls(dct["cpeNameId"], dct["cpeName"], title)
 
     @property
     def serialized_attributes(self) -> list[str]:
-        return ["cpe_id", "uri", "title", "start_version", "end_version"]
+        return ["cpe_id", "uri", "title"]
 
     @property
     def update(self) -> str:
@@ -181,12 +162,7 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     # We cannot use frozen=True. It does not work with __slots__ prior to Python 3.10 dataclasses
     # Hence we manually provide __hash__ and __eq__ despite not guaranteeing immutability
     def __hash__(self) -> int:
-        return hash((self.uri, self.start_version, self.end_version))
+        return hash(self.uri)
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.uri == other.uri
-
-
-@lru_cache(maxsize=4096)
-def cached_cpe(*args, **kwargs):
-    return CPE(*args, **kwargs)
