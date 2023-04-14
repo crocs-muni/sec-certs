@@ -1,22 +1,22 @@
 from __future__ import annotations
 
 import typing
-from operator import itemgetter
-from typing import Mapping, MutableMapping
+from typing import Mapping
 
 from rapidfuzz import fuzz
 
 from sec_certs.configuration import config
+from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.model.matching import AbstractMatcher
+from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.utils.strings import fully_sanitize_string
 
 if typing.TYPE_CHECKING:
-    from sec_certs.dataset.fips import FIPSDataset
-    from sec_certs.sample.fips import FIPSCertificate
     from sec_certs.sample.fips_iut import IUTEntry, IUTSnapshot
     from sec_certs.sample.fips_mip import MIPEntry, MIPSnapshot
 
 
-class FIPSProcessMatcher:
+class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate, FIPSDataset]):
     """
     A heuristic matcher between entries on the FIPS IUT/MIP lists and
     the FIPS certificates.
@@ -64,31 +64,10 @@ class FIPSProcessMatcher:
         """
         Match a whole snapshot of IUT/MIP entries to a FIPS certificate dataset.
 
-        Duplicates may occur.
-
         :param snapshot: The snapshot to match the entries of.
-        :param dset: The dataset tot match to.
-        :return: The matching.
+        :param dset: The dataset to match to.
+        :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
-        matches: MutableMapping[IUTEntry | MIPEntry, FIPSCertificate | None] = {}
-        for entry in snapshot:
-            matcher = FIPSProcessMatcher(entry)
-            scores = sorted(((matcher.match(cert), cert) for cert in dset), key=itemgetter(0), reverse=True)
-            found = False
-            for score, cert in scores:
-                if score < config.fips_matching_threshold:
-                    break
-                validations = cert.web_data.validation_history
-                if not validations:
-                    continue
-                for validation in validations:
-                    if validation.date >= snapshot.timestamp.date():
-                        # It could be this cert, so take it
-                        found = True
-                        matches[entry] = cert
-                        break
-                if found:
-                    break
-                else:
-                    matches[entry] = None
-        return matches
+        certs: list[FIPSCertificate] = list(dset)
+        matchers = [FIPSProcessMatcher(entry) for entry in snapshot]
+        return cls._match_all(matchers, certs, config.fips_matching_threshold)

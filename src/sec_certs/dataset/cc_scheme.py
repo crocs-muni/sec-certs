@@ -59,7 +59,7 @@ class CCSchemeDataset:
         :return: The entries.
         """
         soup = CCSchemeDataset._get_page(constants.CC_AUSTRALIA_INEVAL_URL)
-        header = soup.find("h2", text="Products in evaluation")
+        header = soup.find("h2", string="Products in evaluation")
         table = header.find_next_sibling("table")
         results = []
         for tr in tqdm(table.find_all("tr"), desc="Get AU scheme in evaluation."):
@@ -983,7 +983,7 @@ class CCSchemeDataset:
                             v["product"] = value
                         elif "Common Criteria" in title:
                             v["cc_version"] = value
-                        elif "Date of Certification" in title or "Date issued":
+                        elif "Date of Certification" in title or "Date issued" in title:
                             v["certification_date"] = value
                         elif "EvaluationAssurance Level" in title:
                             v["assurance_level"] = value
