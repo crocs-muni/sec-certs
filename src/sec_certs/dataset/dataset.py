@@ -491,7 +491,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         cpe_dset = self._prepare_cpe_dataset()
 
         lst = []
-        for cert in [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]:
+        for cert in [x for x in self if x.heuristics.cpe_matches]:
             dct = {"text": cert.label_studio_title}
             candidates = [cpe_dset[x].title for x in cert.heuristics.cpe_matches]
             candidates += ["No good match"] * (config.cpe_n_max_matches - len(candidates))
