@@ -52,8 +52,8 @@ class CPEMatchCriteria(ComplexSerializableType):
 @dataclass
 class CPEMatchCriteriaConfiguration(ComplexSerializableType):
     """
-    This class represents a set of sets of `CPEMatchCriteria` objects, where there's an OR relation between the
-    elements of the inner set and AND relation between the elements of the outer set.
+    This class represents a list of lists of `CPEMatchCriteria` objects, where there's an OR relation between the
+    elements of the inner list and AND relation between the elements of the outer list.
     Our experiments confirm that there are only 3 distinct CVEs in the database that allow AND configuration between
     the elements. Simplyfing to ORs enables much more simple implementation.
     """
@@ -62,6 +62,9 @@ class CPEMatchCriteriaConfiguration(ComplexSerializableType):
     _expanded_components: list[list[str]] = field(default_factory=list)
 
     def matches(self, cpe_ids: set[str]) -> bool:
+        """
+        Returns if given set of cpe_ids matches this configuration.
+        """
         if not self._expanded_components:
             raise ValueError(
                 "Cannot match to CPEMatchConfiguration when attribute _expanded_components was not filled-in. That attribute is prepared by `CVEDataset.build_lookup_dict()`."
@@ -73,6 +76,11 @@ class CPEMatchCriteriaConfiguration(ComplexSerializableType):
         return ["components"]
 
     def expand_and_filter(self, match_dict: dict, relevant_cpe_uris: set[str] | None):
+        """
+        Expands the components to actual CPE records that are held in `_expanded_components` attribute.
+        Additionally, this filters the elements of the expanded components only to `relevant_cpe_uris`, which speeds-up
+        the computation.
+        """
         self._expanded_components = []
         for component in self.components:
             expanded_component: list[str] = []

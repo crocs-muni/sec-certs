@@ -53,10 +53,14 @@ titan_expected_matches = [
 @pytest.mark.parametrize("dgst,expected_cves", roca_expected_matches)
 @pytest.mark.skip(reason="Slow end-to-end test meant to be run when CVE/CPE matching changes.")
 def test_roca_matches(processed_cc_dataset: CCDataset, dgst: str, expected_cves: set[str]):
-    assert processed_cc_dataset[dgst].heuristics.related_cves.issuperset(expected_cves)
+    related_cves = processed_cc_dataset[dgst].heuristics.related_cves
+    assert related_cves
+    assert related_cves.issuperset(expected_cves)
 
 
 @pytest.mark.parametrize("dgst,expected_cves", titan_expected_matches)
 @pytest.mark.skip(reason="Slow end-to-end test meant to be run when CVE/CPE matching changes.")
 def test_titan_matches(processed_cc_dataset: CCDataset, dgst: str, expected_cves: set[str]):
-    assert processed_cc_dataset[dgst].heuristics.related_cves.issuperset(expected_cves)
+    related_cves = processed_cc_dataset[dgst].heuristics.related_cves
+    assert related_cves
+    assert related_cves.issuperset(expected_cves)
