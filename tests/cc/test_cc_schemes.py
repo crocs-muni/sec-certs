@@ -9,7 +9,7 @@ from sec_certs.dataset import CCSchemeDataset
 def absolute_urls(results):
     for result in results:
         for key, value in result.items():
-            if "url" in key or "link" in key:
+            if "url" in key or "link" in key and value is not None:
                 parsed = urlparse(value)
                 assert bool(parsed.netloc)
     return True

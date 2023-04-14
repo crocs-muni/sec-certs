@@ -542,7 +542,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _get_japan(url):
+    def _get_japan(url, enhanced, artifacts):  # noqa: C901
         # TODO: Information could be expanded by following toe link.
         soup = CCSchemeDataset._get_page(url)
         table = soup.find("table", class_="cert-table")
@@ -557,46 +557,130 @@ class CCSchemeDataset:
                     "cert_id": sns(tds[0].text),
                     "supplier": sns(tds[1].text),
                     "toe_overseas_name": sns(tds[2].text),
-                    "certification_date": sns(tds[3].text),
                     "claim": sns(tds[4].text),
                 }
+                cert_date = sns(tds[3].text)
                 toe_a = tds[2].find("a")
                 if toe_a and "href" in toe_a.attrs:
-                    cert["toe_overseas_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, "/" + toe_a["href"])
+                    toe_link = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
+                else:
+                    toe_link = None
+                if "Assurance Continuity" in cert_date:
+                    cert["revalidations"] = [{"date": cert_date.split("(")[0], "link": toe_link}]
+                else:
+                    cert["certification_date"] = cert_date
+                    cert["toe_overseas_link"] = toe_link
                 results.append(cert)
             if len(tds) == 1:
                 cert = results[-1]
                 cert["toe_japan_name"] = sns(tds[0].text)
                 toe_a = tds[0].find("a")
                 if toe_a and "href" in toe_a.attrs:
-                    cert["toe_japan_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, "/" + toe_a["href"])
+                    cert["toe_japan_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
+            if len(tds) == 2:
+                cert = results[-1]
+                cert["certification_date"] = sns(tds[1].text)
+                toe_a = tds[0].find("a")
+                if toe_a and "href" in toe_a.attrs:
+                    toe_link = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
+                else:
+                    toe_link = None
+                cert["toe_overseas_link"] = toe_link
+        if enhanced:
+            for cert in results:
+                e: dict[str, Any] = {}
+                cert_link = cert.get("toe_overseas_link") or cert.get("toe_japan_link")
+                if not cert_link:
+                    continue
+                cert_page = CCSchemeDataset._get_page(cert_link)
+                main = cert_page.find("div", id="main")
+                left = main.find("div", id="left")
+                for dl in left.find_all("dl"):
+                    dt = dl.find("dt")
+                    title = sns(dt.text)
+                    value = sns(dt.find_next_sibling().text)
+                    if not title:
+                        continue
+                    if "Product Name" in title:
+                        e["product"] = value
+                    elif "Version of TOE" in title:
+                        e["toe_version"] = value
+                    elif "Product Type" in title:
+                        e["product_type"] = value
+                    elif "Certification Identification" in title:
+                        e["cert_id"] = value
+                    elif "Version of Common Criteria" in title:
+                        e["cc_version"] = value
+                    elif "Date" in title:
+                        e["certification_date"] = value
+                    elif "Conformance Claim" in title:
+                        e["assurance_level"] = value
+                    elif "PP Identifier" in title and value != "None":
+                        e["protection_profile"] = value
+                right = main.find("div", id="right")
+                for dl in right.find_all("dl", recursive=False):
+                    title = sns(dl.find("dt").text)
+                    value = sns(dl.find("dd").text)
+                    if not title:
+                        continue
+                    if "Vendor" in title:
+                        e["vendor"] = value
+                    elif "Evaluation Facility" in title:
+                        e["evaluation_facility"] = value
+                pdfbox = main.find("div", id="pdfbox")
+                if pdfbox:
+                    for li in pdfbox.find_all("li"):
+                        li_a = li.find("a")
+                        name = sns(li_a.text)
+                        if not name:
+                            continue
+                        if "Report" in name:
+                            e["report_link"] = urljoin(constants.CC_JAPAN_BASE_URL, li_a["href"])
+                            if artifacts:
+                                e["report_hash"] = CCSchemeDataset._get_hash(e["report_link"]).hex()
+                        elif "Certificate" in name:
+                            e["cert_link"] = urljoin(constants.CC_JAPAN_BASE_URL, li_a["href"])
+                            if artifacts:
+                                e["cert_hash"] = CCSchemeDataset._get_hash(e["cert_link"]).hex()
+                        elif "Target" in name:
+                            e["target_link"] = urljoin(constants.CC_JAPAN_BASE_URL, li_a["href"])
+                            if artifacts:
+                                e["target_hash"] = CCSchemeDataset._get_hash(e["target_link"]).hex()
+                e["description"] = sns(main.find("div", id="overviewsbox").text)
+                cert["enhanced"] = e
         return results
 
     @staticmethod
-    def get_japan_certified():
+    def get_japan_certified(enhanced: bool = True, artifacts: bool = False):
         """
         Get Japanese "certified product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        japan_hw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_HW_URL)
-        japan_sw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_SW_URL)
+        japan_hw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_HW_URL, enhanced, artifacts)
+        japan_sw = CCSchemeDataset._get_japan(constants.CC_JAPAN_CERTIFIED_SW_URL, enhanced, artifacts)
         return japan_sw + japan_hw
 
     @staticmethod
-    def get_japan_archived():
+    def get_japan_archived(enhanced: bool = True, artifacts: bool = False):
         """
         Get Japanese "archived product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_japan(constants.CC_JAPAN_ARCHIVED_SW_URL)
+        return CCSchemeDataset._get_japan(constants.CC_JAPAN_ARCHIVED_SW_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_japan_in_evaluation():
+    def get_japan_in_evaluation(enhanced: bool = True, artifacts: bool = False):
         """
         Get Japanese "product in evaluation" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
         # TODO: Information could be expanded by following toe link.
