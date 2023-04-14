@@ -67,9 +67,15 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         """
         with tempfile.TemporaryDirectory() as tmp_dir:
             dset_path = Path(tmp_dir) / "cve_dataset.json.gz"
-            helpers.download_file(
-                config_module.config.cve_latest_snapshot, dset_path, progress_bar_desc="Downloading CVEDataset from web"
-            )
+            if (
+                not helpers.download_file(
+                    config_module.config.cve_latest_snapshot,
+                    dset_path,
+                    progress_bar_desc="Downloading CVEDataset from web",
+                )
+                == constants.RESPONSE_OK
+            ):
+                raise RuntimeError(f"Could not download CVEDataset from {config_module.config.cve_latest_snapshot}.")
             dset = cls.from_json(dset_path, is_compressed=True)
 
         dset.json_path = json_path

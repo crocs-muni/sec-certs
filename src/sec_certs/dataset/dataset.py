@@ -415,11 +415,17 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 logger.info("Preparing CPE Match feed from seccerts.org.")
                 with tempfile.TemporaryDirectory() as tmp_dir:
                     dset_path = Path(tmp_dir) / "cpe_match_feed.json.gz"
-                    helpers.download_file(
-                        config.cpe_match_latest_snapshot,
-                        dset_path,
-                        progress_bar_desc="Downloading CPE Match feed from web",
-                    )
+                    if (
+                        not helpers.download_file(
+                            config.cpe_match_latest_snapshot,
+                            dset_path,
+                            progress_bar_desc="Downloading CPE Match feed from web",
+                        )
+                        == constants.RESPONSE_OK
+                    ):
+                        raise RuntimeError(
+                            f"Could not download CPE Match feed from {config.cpe_match_latest_snapshot}."
+                        )
                     with gzip.open(str(dset_path)) as handle:
                         json_str = handle.read().decode("utf-8")
                         cpe_match_dict = json.loads(json_str)
@@ -480,6 +486,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         return clf
 
+    @serialize
     def to_label_studio_json(self, output_path: str | Path) -> None:
         cpe_dset = self._prepare_cpe_dataset()
 
@@ -501,6 +508,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             data = json.load(handle)
 
         cpe_dset = self._prepare_cpe_dataset()
+        title_to_cpes_dict = cpe_dset.get_title_to_cpes_dict()
         labeled_cert_digests: set[str] = set()
 
         logger.info("Translating label studio matches into their CPE representations and assigning to certificates.")
@@ -519,10 +527,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
             cpes: set[CPE] = set()
             for x in predicted_annotations:
-                if x not in cpe_dset.title_to_cpes:
+                if x not in title_to_cpes_dict:
                     logger.error(f"{x} not in dataset")
                 else:
-                    to_update = cpe_dset.title_to_cpes[x]
+                    to_update = title_to_cpes_dict[x]
                     if to_update and not cpes:
                         cpes = to_update
                     elif to_update and cpes:
