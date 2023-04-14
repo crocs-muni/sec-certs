@@ -166,7 +166,7 @@ class MIPSnapshot(ComplexSerializableType):
         entries = set()
         for line in (tr.find_all("td") for tr in lines):
             module_name = str(line[0].string)
-            vendor_name = str(" ".join(line[1].find_all(text=True, recursive=False)).strip())
+            vendor_name = str(" ".join(line[1].find_all(string=True, recursive=False)).strip())
             standard = str(line[2].string)
             status_line = FIPS_MIP_STATUS_RE.match(str(line[3].string))
             if status_line is None:
