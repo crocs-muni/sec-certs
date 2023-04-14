@@ -16,13 +16,13 @@ class CertificateId:
     def _canonical_fr(self) -> str:
         new_cert_id = self.clean
         rules = [
-            "(?:Rapport de certification|Certification Report) ([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
-            "(?:ANSS[Ii]|DCSSI)(?:-CC)?[- ]([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
-            "([0-9]+[/-_][0-9]+(?:v[1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "(?:Rapport de certification|Certification Report) ([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "(?:ANSS[Ii]|DCSSI)(?:-CC)?[- ]([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
+            "([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
         ]
         for rule in rules:
             if match := re.match(rule, new_cert_id):
-                return "ANSSI-CC-" + match.group(1).replace("_", "/")
+                return "ANSSI-CC-" + match.group(1).replace("_", "/").replace("V", "v")
 
         return new_cert_id
 

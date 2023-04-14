@@ -4,7 +4,9 @@ from urllib.parse import urlparse
 import pytest
 from requests import RequestException
 
-from sec_certs.dataset import CCSchemeDataset
+from sec_certs.dataset import CCDataset, CCSchemeDataset
+from sec_certs.model import CCSchemeMatcher
+from sec_certs.sample import CCCertificate
 
 
 def absolute_urls(results):
@@ -188,3 +190,34 @@ def test_usa():
     ineval = CCSchemeDataset.get_usa_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
+
+
+def test_single_match(cert_one: CCCertificate):
+    entry = {
+        "product": "NetIQ Identity Manager 4.7",
+        "url": "https://www.fmv.se/verksamhet/ovrig-verksamhet/csec/certifikat-utgivna-av-csec/netiq-identity-manager-4.7/",
+        "enhanced": {
+            "title": "NetIQ Identity Manager 4.7",
+            "cert_id": "CSEC2018013",
+            "mutual_recognition": "CCRA, SOGIS-MRA, EA-MLA",
+            "product": "NetIQ Identity Manager 4.7Software Version: Identity Applications (RBPM) 4.7.3.0.1109, Identity Manager Engine 4.7.3.0.AE, Identity Reporting Module 6.5.0. F14508F, Sentinel Log Management for Identity Governance and Administration 8.2.2.0_5415, One SSO Provider (OSP) 6.3.3.0, Self Service Password Reset (SSPR) 4.4.0.2 B366 r39762",
+            "category": "Identity Manager",
+            "target_link": "https://www.fmv.se/globalassets/csec/netiq-identity-manager-4.7/st---netiq-identity-manager-4.7.pdf",
+            "assurance_level": "EAL3 + ALC_FLR.2",
+            "certification_date": "2020-06-15",
+            "report_link": "https://www.fmv.se/globalassets/csec/netiq-identity-manager-4.7/certification-report---netiq-identity-manager-4.7.pdf",
+            "cert_link": "https://www.fmv.se/globalassets/csec/netiq-identity-manager-4.7/certifikat-ccra---netiq-identity-manager-4.7.pdf",
+            "sponsor": "NetIQ Corporation",
+            "developer": "NetIQ Corporation",
+            "evaluation_facility": "Combitech AB and EWA-Canada",
+        },
+    }
+    matcher = CCSchemeMatcher(entry, "SE")
+    assert matcher.match(cert_one) > 95
+
+
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+def test_matching(toy_dataset: CCDataset):
+    certified = CCSchemeDataset.get_canada_certified()
+    matches = CCSchemeMatcher.match_all(certified, "CA", toy_dataset)
+    assert len(matches) == 1
