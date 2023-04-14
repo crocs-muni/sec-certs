@@ -49,7 +49,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         return self.cves.__getitem__(item.upper())
 
     def __setitem__(self, key: str, value: CVE):
-        self.cves.__setitem__(key.lower(), value)
+        self.cves.__setitem__(key.upper(), value)
 
     def __len__(self) -> int:
         return len(self.cves)
