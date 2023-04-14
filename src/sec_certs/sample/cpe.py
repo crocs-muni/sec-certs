@@ -107,7 +107,6 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     __slots__ = ["cpe_id", "uri", "version", "vendor", "item_name", "title"]
 
     pandas_columns: ClassVar[list[str]] = [
-        "cpe_id",
         "uri",
         "vendor",
         "item_name",
@@ -130,6 +129,14 @@ class CPE(PandasSerializableType, ComplexSerializableType):
         self.item_name = " ".join(splitted[4].split("_"))
         self.version = self.normalize_version(" ".join(splitted[5].split("_")))
         self.title = title
+
+    # We cannot use frozen=True. It does not work with __slots__ prior to Python 3.10 dataclasses
+    # Hence we manually provide __hash__ and __eq__ despite not guaranteeing immutability
+    def __hash__(self) -> int:
+        return hash(self.uri)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, self.__class__) and self.uri == other.uri
 
     def __lt__(self, other: CPE) -> bool:
         return self.uri < other.uri
@@ -167,11 +174,3 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     @property
     def pandas_tuple(self) -> tuple:
         return self.uri, self.vendor, self.item_name, self.version, self.title
-
-    # We cannot use frozen=True. It does not work with __slots__ prior to Python 3.10 dataclasses
-    # Hence we manually provide __hash__ and __eq__ despite not guaranteeing immutability
-    def __hash__(self) -> int:
-        return hash(self.uri)
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, self.__class__) and self.uri == other.uri

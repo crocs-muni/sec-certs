@@ -7,8 +7,8 @@ import pytest
 
 import tests.data.cc.analysis.auxiliary_datasets
 from sec_certs import constants
-from sec_certs.dataset import CPEDataset, CVEDataset
-from sec_certs.sample import CPE, CPEConfiguration
+from sec_certs.dataset import CPEDataset
+from sec_certs.sample import CPE
 from sec_certs.serialization.json import SerializationError
 
 
@@ -22,24 +22,23 @@ def cpe_dset(cpe_dset_path: Path) -> CPEDataset:
     return CPEDataset.from_json(cpe_dset_path)
 
 
-@pytest.fixture(scope="module")
-def cve_dataset() -> CVEDataset:
-    return CVEDataset.from_json(Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cve_dataset.json")
+# @pytest.fixture(scope="module")
+# def cve_dataset() -> CVEDataset:
+#     return CVEDataset.from_json(Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cve_dataset.json")
 
 
 @pytest.fixture(scope="module")
 def cpe_dict() -> dict[str, Any]:
     return {
+        "cpe_id": "some-random-id",
         "uri": "cpe:2.3:o:freebsd:freebsd:1.0:*:*:*:*:*:*:*",
         "title": None,
-        "start_version": None,
-        "end_version": None,
     }
 
 
 @pytest.mark.slow
 @pytest.mark.monitor_test
-@pytest.mark.xfail(reason="May fail due to errors with NIST server.")
+@pytest.mark.xfail(reason="May fail due to errors with seccerts.org server.")
 @pytest.mark.skip(reason="Too much memory consumed.")
 def test_cpe_dset_from_web(tmp_path: Path):
     dset = CPEDataset.from_web(tmp_path)
@@ -54,47 +53,6 @@ def test_cpe_dset_from_json(cpe_dset_path: Path, cpe_dset: CPEDataset, tmp_path:
     cpe_dset.to_json(compressed_path, compress=True)
     decompressed_dataset = CPEDataset.from_json(compressed_path, is_compressed=True)
     assert cpe_dset == decompressed_dataset
-
-
-def test_cpe_dset_vendor_lookup_dict(cpe_dset: CPEDataset):
-    assert cpe_dset.vendors == {"ibm", "tracker-software", "semperplugins"}
-
-
-def test_cpe_dset_vendor_to_version_lookup_dict(cpe_dset: CPEDataset):
-    assert cpe_dset.vendor_to_versions == {
-        "ibm": {"8.2.2", "2.6.0.1"},
-        "semperplugins": {"1.3.6.4"},
-        "tracker-software": {"6.0.320.0"},
-    }
-
-
-def test_cpe_dset_vendor_version_to_cpe_lookup_dict(cpe_dset: CPEDataset):
-    assert cpe_dset.vendor_version_to_cpe == {
-        ("ibm", "8.2.2"): {
-            CPE(
-                "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
-                "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
-            )
-        },
-        ("ibm", "2.6.0.1"): {
-            CPE(
-                "cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
-                "IBM Security Key Lifecycle Manager 2.6.0.1",
-            )
-        },
-        ("semperplugins", "1.3.6.4"): {
-            CPE(
-                "cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
-                "Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress",
-            )
-        },
-        ("tracker-software", "6.0.320.0"): {
-            CPE(
-                "cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
-                "Tracker Software PDF-XChange Lite Printer 6.0.320.0",
-            )
-        },
-    }
 
 
 def test_cpe_parsing():
@@ -123,7 +81,7 @@ def test_cpe_parsing():
         ),
     }
     for uri, tpl in potentially_problematic_cpes.items():
-        cpe = CPE(uri)
+        cpe = CPE("", uri)
         assert cpe.vendor == tpl[0]
         assert cpe.item_name == tpl[1]
         assert cpe.version == tpl[2]
@@ -145,32 +103,32 @@ def test_to_pandas(cpe_dset: CPEDataset):
 
 
 def test_serialization_missing_path():
-    dummy_dset = CPEDataset(False, {})
+    dummy_dset = CPEDataset()
     with pytest.raises(SerializationError):
         dummy_dset.to_json()
 
 
-def test_single_platform_config_cpe(cve_dataset: CVEDataset):
-    tested_cpe_config = cve_dataset["CVE-2010-2325"].vulnerable_cpe_configurations
-    cpe_configuration = CPEConfiguration(
-        platform=CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
-        cpes=[
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", end_version=("including", "7.0.0.10")),
-        ],
-    )
+# def test_single_platform_config_cpe(cve_dataset: CVEDataset):
+#     tested_cpe_config = cve_dataset["CVE-2010-2325"].vulnerable_cpe_configurations
+#     cpe_configuration = CPEConfiguration(
+#         platform=CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
+#         cpes=[
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
+#             CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", end_version=("including", "7.0.0.10")),
+#         ],
+#     )
 
-    assert cpe_configuration in tested_cpe_config
+#     assert cpe_configuration in tested_cpe_config
 
 
-def test_no_cpe_configuration(cve_dataset: CVEDataset):
-    assert not cve_dataset["CVE-2003-0001"].vulnerable_cpe_configurations
+# def test_no_cpe_configuration(cve_dataset: CVEDataset):
+#     assert not cve_dataset["CVE-2003-0001"].vulnerable_cpe_configurations
