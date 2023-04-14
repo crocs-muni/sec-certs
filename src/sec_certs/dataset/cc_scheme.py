@@ -472,6 +472,11 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_italy_certified():  # noqa: C901
+        """
+        Get Italian "certified product" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_ITALY_CERTIFIED_URL)
         div = soup.find("div", class_="certificati")
         results = []
@@ -672,13 +677,13 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_netherlands_certified():
+    def get_netherlands_certified(artifacts: bool = False):  # noqa: C901
         """
         Get Dutch "certified product" entries.
 
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        # TODO: Could download the artifacts
         soup = CCSchemeDataset._get_page(constants.CC_NETHERLANDS_CERTIFIED_URL)
         main_div = soup.select("body > main > div > div > div > div:nth-child(2) > div.col-lg-9 > div:nth-child(3)")[0]
         rows = main_div.find_all("div", class_="row", recursive=False)
@@ -687,7 +692,7 @@ class CCSchemeDataset:
         for row, modal in zip(rows, modals):
             row_entries = row.find_all("a")
             modal_trs = modal.find_all("tr")
-            cert = {
+            cert: dict[str, Any] = {
                 "manufacturer": sns(row_entries[0].text),
                 "product": sns(row_entries[1].text),
                 "scheme": sns(row_entries[2].text),
@@ -702,12 +707,20 @@ class CCSchemeDataset:
                     cert["level"] = sns(td.text)
                 elif "Certificate" in th_text:
                     cert["cert_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                    if artifacts:
+                        cert["cert_hash"] = CCSchemeDataset._get_hash(cert["cert_link"]).hex()
                 elif "Certificationreport" in th_text:
                     cert["report_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                    if artifacts:
+                        cert["report_hash"] = CCSchemeDataset._get_hash(cert["report_link"]).hex()
                 elif "Securitytarget" in th_text:
                     cert["target_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                    if artifacts:
+                        cert["target_hash"] = CCSchemeDataset._get_hash(cert["target_link"]).hex()
                 elif "Maintenance report" in th_text:
                     cert["maintenance_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                    if artifacts:
+                        cert["maintenance_hash"] = CCSchemeDataset._get_hash(cert["maintenance_link"]).hex()
             results.append(cert)
         return results
 
@@ -988,10 +1001,20 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_singapore_archived():
+        """
+        Get Singaporean "archived product" entries.
+
+        :return: The entries.
+        """
         return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_ARCHIVED_URL)
 
     @staticmethod
     def get_spain_certified():
+        """
+        Get Spanish "certified product" entries.
+
+        :return: The entries.
+        """
         soup = CCSchemeDataset._get_page(constants.CC_SPAIN_CERTIFIED_URL)
         tbody = soup.find("table", class_="djc_items_table").find("tbody")
         results = []
