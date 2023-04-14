@@ -183,8 +183,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     ) -> tuple[list[CPEMatchCriteria], list[CPEMatchCriteriaConfiguration]]:
         criteria = []
         criteria_configurations = []
-
         configurations = dct.get("configurations", [])
+
         for conf in configurations:
             new_criteria, new_criteria_configuration = CVE.parse_single_configuration(conf)
             criteria.extend(new_criteria)
@@ -196,17 +196,43 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     def parse_single_configuration(
         configuration: dict[str, Any]
     ) -> tuple[list[CPEMatchCriteria], CPEMatchCriteriaConfiguration | None]:
-        if "operator" not in configuration or configuration["operator"] == "OR":
-            assert len(configuration["nodes"]) == 1 and "cpeMatch" in configuration["nodes"][0]
-            return CVE.get_criteria_from_node(configuration["nodes"][0]["cpeMatch"]), None
-
-        return [], CVE.get_configuration_criteria_from_nodes(configuration["nodes"])
-
-    @staticmethod
-    def get_configuration_criteria_from_nodes(nodes) -> CPEMatchCriteriaConfiguration:
-        assert all("cpeMatch" in x for x in nodes)  # the next layer are matches
-        return CPEMatchCriteriaConfiguration([CVE.get_criteria_from_node(x["cpeMatch"]) for x in nodes])
+        if CVE.configuration_is_simple(configuration):
+            return CVE.get_simple_criteria_from_cpe_matches(configuration["nodes"][0]["cpeMatch"]), None
+        else:
+            return [], CVE.get_configuration_criteria_from_configuration_nodes(configuration["nodes"])
 
     @staticmethod
-    def get_criteria_from_node(cpe_matches: list[dict[str, Any]]) -> list[CPEMatchCriteria]:
+    def configuration_is_simple(configuration: dict) -> bool:
+        return (
+            len(configuration["nodes"]) == 1
+            and "cpeMatch" in configuration["nodes"][0]
+            and (configuration.get("operator", "OR") == "OR" or len(configuration["nodes"][0]["cpeMatch"]) == 1)
+        )
+
+    @staticmethod
+    def get_configuration_criteria_from_configuration_nodes(
+        configuration_nodes: dict,
+    ) -> CPEMatchCriteriaConfiguration | None:
+        """
+        Retrieves complex configuration criteria from a dictionary of configuration nodes.
+        It is aasserted that the dictionary has two layers at most, that the top-level children are in AND relationship,
+        and that the individual elements are in OR relationship (otherwise, they would be parsed by different method.)
+
+        We cannot process configuration when elements of a single component are in AND relationship.
+        Out of all configurations in dataset as of April 2023, only 3 were detected in the dataset.
+        We ignore those on purpose.
+
+        :param dict configuration_nodes: _description_
+        :return CPEMatchCriteriaConfiguration | None: _description_
+        """
+        assert all("cpeMatch" in x for x in configuration_nodes)  # the next layer are matches
+        nodes = [x for x in configuration_nodes if "operator" not in x or x["operator"] == "OR"]
+        if nodes:
+            return CPEMatchCriteriaConfiguration(
+                [CVE.get_simple_criteria_from_cpe_matches(x["cpeMatch"]) for x in nodes]
+            )
+        return None
+
+    @staticmethod
+    def get_simple_criteria_from_cpe_matches(cpe_matches: list[dict[str, Any]]) -> list[CPEMatchCriteria]:
         return [CPEMatchCriteria.from_nist_dict(x) for x in cpe_matches]

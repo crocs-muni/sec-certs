@@ -99,7 +99,8 @@ class CPE(PandasSerializableType, ComplexSerializableType):
     __slots__ = ["cpe_id", "uri", "version", "vendor", "item_name", "title"]
 
     pandas_columns: ClassVar[list[str]] = [
-        "cpe_id" "uri",
+        "cpe_id",
+        "uri",
         "vendor",
         "item_name",
         "version",

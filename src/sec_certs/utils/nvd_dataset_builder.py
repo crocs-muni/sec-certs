@@ -324,8 +324,13 @@ class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
     ENDPOINT: ClassVar[str] = "CPEMatch"
     ENDPOINT_URL: ClassVar[str] = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
     RESULTS_PER_PAGE: ClassVar[int] = 5000
+    VERSION_KEYS: ClassVar[list[str]] = [
+        "versionStartIncluding",
+        "versionStartExcluding",
+        "versionEndIncluding",
+        "versionEndExcluding",
+    ]
 
-    # TODO: I'm actually forgetting to process start_version and end_version
     def _process_responses(self, responses: list[Response], dataset_to_fill: dict) -> dict:
         timestamp = self._end_mod_date.isoformat() if self._end_mod_date else responses[-1].json()["timestamp"]
         match_strings = list(itertools.chain.from_iterable(response.json()["matchStrings"] for response in responses))
@@ -341,6 +346,11 @@ class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
                         "criteria": m["matchString"]["criteria"],
                         "matches": m["matchString"]["matches"],
                     }
+                    for version_key in self.VERSION_KEYS:
+                        if version_key in m["matchString"]:
+                            dataset_to_fill["match_strings"][m["matchString"]["matchCriteriaId"]][version_key] = m[
+                                "matchString"
+                            ][version_key]
 
         for inactive in inactive_criteria:
             dataset_to_fill["match_strings"].pop(inactive, None)

@@ -423,6 +423,8 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                     with gzip.open(str(dset_path)) as handle:
                         json_str = handle.read().decode("utf-8")
                         cpe_match_dict = json.loads(json_str)
+            with self.cpe_match_json_path.open("w") as handle:
+                json.dump(cpe_match_dict, handle, indent=4)
 
         return cpe_match_dict
 
