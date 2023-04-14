@@ -152,7 +152,7 @@ class MIPSnapshot(ComplexSerializableType):
         return {
             MIPEntry(
                 str(line[0].string),
-                str(" ".join(line[1].find_all(text=True, recursive=False)).strip()),
+                str(" ".join(line[1].find_all(string=True, recursive=False)).strip()),
                 str(line[2].string),
                 MIPStatus(str(line[3].string)),
                 None,
