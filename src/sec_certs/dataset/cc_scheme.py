@@ -1296,7 +1296,7 @@ class CCSchemeDataset:
                 f.write(resp.content)
             dfs = tabula.read_pdf(str(pdf_path), pages="all")
             for df in dfs:
-                for line in df.values:
+                for line in df.values:  # type: ignore
                     cert = {
                         # TODO: Split item number and generate several dicts for a range they include.
                         "item_no": line[0],
