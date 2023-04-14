@@ -4,9 +4,10 @@ from urllib.parse import urlparse
 import pytest
 from requests import RequestException
 
-from sec_certs.dataset import CCDataset, CCSchemeDataset
-from sec_certs.model import CCSchemeMatcher
-from sec_certs.sample import CCCertificate
+from sec_certs.dataset.cc import CCDataset
+from sec_certs.dataset.cc_scheme import CCSchemeDataset
+from sec_certs.model.cc_matching import CCSchemeMatcher
+from sec_certs.sample.cc import CCCertificate
 
 
 def absolute_urls(results):

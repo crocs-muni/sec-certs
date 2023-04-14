@@ -9,10 +9,10 @@ from rapidfuzz import fuzz
 from sec_certs.configuration import config
 
 if typing.TYPE_CHECKING:
-    from sec_certs.dataset import CCDataset
-    from sec_certs.sample import CCCertificate
+    from sec_certs.dataset.cc import CCDataset
+    from sec_certs.sample.cc import CCCertificate
 
-from sec_certs.sample import CertificateId
+from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.utils.strings import fully_sanitize_string
 
 

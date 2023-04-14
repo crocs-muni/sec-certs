@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from sec_certs.sample import CCCertificate
+from sec_certs.sample.cc import CCCertificate
 
 
 def test_extract_metadata(vulnerable_certificate: CCCertificate):

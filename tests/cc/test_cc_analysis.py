@@ -8,7 +8,7 @@ from dateutil.parser import isoparse
 
 import tests.data.cc.analysis
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
-from sec_certs.dataset import CCDataset
+from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cc import CCCertificate

@@ -6,9 +6,10 @@ from pathlib import Path
 import pytest
 
 import tests.data.fips.iut
-from sec_certs.dataset import FIPSDataset, IUTDataset
-from sec_certs.model import FIPSProcessMatcher
-from sec_certs.sample import IUTEntry, IUTSnapshot
+from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset.fips_iut import IUTDataset
+from sec_certs.model.fips_matching import FIPSProcessMatcher
+from sec_certs.sample.fips_iut import IUTEntry, IUTSnapshot
 
 
 @pytest.fixture(scope="module")

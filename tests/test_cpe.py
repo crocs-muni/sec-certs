@@ -7,8 +7,9 @@ import pytest
 
 import tests.data.cc.analysis.auxiliary_datasets
 from sec_certs import constants
-from sec_certs.dataset import CPEDataset, CVEDataset
-from sec_certs.sample import CPE, CPEConfiguration
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.sample.cpe import CPE, CPEConfiguration
 from sec_certs.serialization.json import SerializationError
 
 

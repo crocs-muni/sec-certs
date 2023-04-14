@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from sec_certs.dataset import CVEDataset
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE

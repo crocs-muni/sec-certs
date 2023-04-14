@@ -7,9 +7,9 @@ import pytest
 from dateutil.parser import isoparse
 
 import tests.data.cc.analysis.auxiliary_datasets
-from sec_certs.dataset import CVEDataset
-from sec_certs.sample import CVE
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import SerializationError
 
 

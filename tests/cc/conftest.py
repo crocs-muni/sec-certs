@@ -7,8 +7,8 @@ import pytest
 import tests.data.cc.analysis
 import tests.data.cc.certificate
 import tests.data.cc.dataset
-from sec_certs.dataset import CCDataset
-from sec_certs.sample import CCCertificate, ProtectionProfile
+from sec_certs.dataset.cc import CCDataset
+from sec_certs.sample.cc import CCCertificate, ProtectionProfile
 
 
 @pytest.fixture(scope="module")

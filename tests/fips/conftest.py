@@ -9,7 +9,10 @@ from dateutil.parser import isoparse
 
 import tests.data.fips.certificate
 import tests.data.fips.dataset
-from sec_certs.dataset import CPEDataset, CVEDataset, FIPSAlgorithmDataset, FIPSDataset
+from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cve import CVEDataset
+from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.sample.cpe import CPE, CPEConfiguration
 from sec_certs.sample.cve import CVE
 from sec_certs.sample.fips import FIPSCertificate

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from sec_certs.dataset import CCDatasetMaintenanceUpdates
+from sec_certs.dataset.cc import CCDatasetMaintenanceUpdates
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 
 
