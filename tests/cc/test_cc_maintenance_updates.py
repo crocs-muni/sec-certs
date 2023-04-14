@@ -2,26 +2,17 @@ import json
 from pathlib import Path
 
 import pytest
-import tests.data.cc.dataset
 
-from sec_certs.dataset import CCDataset, CCDatasetMaintenanceUpdates
+from sec_certs.dataset import CCDatasetMaintenanceUpdates
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 
 
-@pytest.fixture(scope="module")
-def data_dir() -> Path:
-    return Path(tests.data.cc.dataset.__path__[0])
-
-
-@pytest.fixture(scope="module")
-def cc_dset(data_dir: Path) -> CCDataset:
-    return CCDataset.from_json(data_dir / "toy_dataset.json")
-
-
 @pytest.fixture
-def mu_dset(data_dir: Path, tmp_path_factory) -> CCDatasetMaintenanceUpdates:
+def mu_dset(dataset_data_dir: Path, tmp_path_factory) -> CCDatasetMaintenanceUpdates:
     tmp_dir = tmp_path_factory.mktemp("mu_dset")
-    dset = CCDatasetMaintenanceUpdates.from_json(data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json")
+    dset = CCDatasetMaintenanceUpdates.from_json(
+        dataset_data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json"
+    )
     dset.copy_dataset(tmp_dir)
     return dset
 
@@ -52,13 +43,13 @@ def test_download_artifacts(mu_dset: CCDatasetMaintenanceUpdates):
     assert mu.state.st_pdf_hash == "d42e4364d037ba742fcd4050a9a84d0e6300f93eb68bcfe8c61f72c429c9ceca"
 
 
-def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path, tmp_path: Path):
+def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, dataset_data_dir: Path, tmp_path: Path):
     mu_dset.to_json(tmp_path / "dset.json")
 
     with (tmp_path / "dset.json").open("r") as handle:
         data = json.load(handle)
 
-    with (data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json").open("r") as handle:
+    with (dataset_data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json").open("r") as handle:
         template_data = json.load(handle)
 
     del template_data["timestamp"]
@@ -66,9 +57,9 @@ def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path, t
     assert data == template_data
 
 
-def test_dataset_from_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path):
+def test_dataset_from_json(mu_dset: CCDatasetMaintenanceUpdates, dataset_data_dir: Path):
     assert mu_dset == CCDatasetMaintenanceUpdates.from_json(
-        data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json"
+        dataset_data_dir / "auxiliary_datasets/maintenances/maintenance_updates.json"
     )
 
 
