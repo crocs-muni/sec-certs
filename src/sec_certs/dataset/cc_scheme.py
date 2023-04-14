@@ -997,19 +997,19 @@ class CCSchemeDataset:
                         elif "Certificate" in title:
                             v["cert_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
-                                v["cert_hash"] = CCSchemeDataset._get_hash(v["cert_link"], session)
+                                v["cert_hash"] = CCSchemeDataset._get_hash(v["cert_link"], session).hex()
                         elif "Security Target" in title:
                             v["target_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
-                                v["target_hash"] = CCSchemeDataset._get_hash(v["target_link"], session)
+                                v["target_hash"] = CCSchemeDataset._get_hash(v["target_link"], session).hex()
                         elif "Certification Report" in title:
                             v["report_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
-                                v["report_hash"] = CCSchemeDataset._get_hash(v["report_link"], session)
+                                v["report_hash"] = CCSchemeDataset._get_hash(v["report_link"], session).hex()
                         elif "Maintenance Report" in title:
                             v["maintenance_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
-                                v["maintenance_hash"] = CCSchemeDataset._get_hash(v["maintenance_link"], session)
+                                v["maintenance_hash"] = CCSchemeDataset._get_hash(v["maintenance_link"], session).hex()
                     cert["enhanced"] = e
                 results.append(cert)
             seen_pages.add(page)
@@ -1057,7 +1057,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_korea(product_class=4, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
-    def _get_singapore(url):
+    def _get_singapore(url, artifacts):
         soup = CCSchemeDataset._get_page(url)
         page_id = str(soup.find("input", id="CurrentPageId").value)
         page = 1
@@ -1091,6 +1091,10 @@ class CCSchemeDataset:
                     "target_title": obj["securityTarget"]["title"],
                     "target_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["securityTarget"]["mediaUrl"]),
                 }
+                if artifacts:
+                    cert["cert_hash"] = CCSchemeDataset._get_hash(cert["cert_link"]).hex()
+                    cert["report_hash"] = CCSchemeDataset._get_hash(cert["report_link"]).hex()
+                    cert["target_hash"] = CCSchemeDataset._get_hash(cert["target_link"]).hex()
                 results.append(cert)
             page += 1
             api_call = requests.post(
@@ -1107,13 +1111,14 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_singapore_certified():
+    def get_singapore_certified(artifacts: bool = False):
         """
         Get Singaporean "certified product" entries.
 
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_CERTIFIED_URL)
+        return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_CERTIFIED_URL, artifacts)
 
     @staticmethod
     def get_singapore_in_evaluation():
@@ -1142,13 +1147,14 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_singapore_archived():
+    def get_singapore_archived(artifacts: bool = False):
         """
         Get Singaporean "archived product" entries.
 
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_ARCHIVED_URL)
+        return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_ARCHIVED_URL, artifacts)
 
     @staticmethod
     def get_spain_certified():
