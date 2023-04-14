@@ -675,15 +675,12 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_japan(constants.CC_JAPAN_ARCHIVED_SW_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_japan_in_evaluation(enhanced: bool = True, artifacts: bool = False):
+    def get_japan_in_evaluation():
         """
         Get Japanese "product in evaluation" entries.
 
-        :param enhanced: Whether to enhance the results by following links (slower, more data).
-        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        # TODO: Information could be expanded by following toe link.
         soup = CCSchemeDataset._get_page(constants.CC_JAPAN_INEVAL_URL)
         table = soup.find("table")
         results = []
@@ -695,7 +692,7 @@ class CCSchemeDataset:
             cert = {
                 "supplier": sns(tds[0].text),
                 "toe_name": sns(toe_a.text),
-                "toe_link": urljoin(constants.CC_JAPAN_BASE_URL, "/" + toe_a["href"]),
+                "toe_link": urljoin(constants.CC_JAPAN_BASE_URL, toe_a["href"]),
                 "claim": sns(tds[2].text),
             }
             results.append(cert)
@@ -928,8 +925,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_norway(constants.CC_NORWAY_ARCHIVED_URL, enhanced, artifacts)
 
     @staticmethod
-    def _get_korea(product_class):
-        # TODO: Information could be expanded by following product link.
+    def _get_korea(product_class, enhanced, artifacts):  # noqa: C901
         session = requests.session()
         session.get(constants.CC_KOREA_EN_URL)
         # Get base page
@@ -959,6 +955,62 @@ class CCSchemeDataset:
                     "category": sns(tds[4].text),
                     "certification_date": sns(tds[5].text),
                 }
+                if enhanced:
+                    e: dict[str, Any] = {}
+                    cert_page = CCSchemeDataset._get_page(cert["product_link"], session)
+                    main = cert_page.find("div", class_="mainContent")
+                    table = main.find("table", class_="shortenedWidth")
+                    v = e
+                    for tr in table.find_all("tr"):
+                        th = tr.find("th")
+                        td = tr.find("td")
+                        if not th:
+                            mus = e.setdefault("maintenance_update", [])
+                            v = {"name": sns(td.text)}
+                            mus.append(v)
+                            continue
+                        title = sns(th.text)
+                        value = sns(td.text)
+                        a = td.find("a")
+                        if not title:
+                            continue
+                        if "Product Name" in title:
+                            v["product"] = value
+                        elif "Common Criteria" in title:
+                            v["cc_version"] = value
+                        elif "Date of Certification" in title or "Date issued":
+                            v["certification_date"] = value
+                        elif "EvaluationAssurance Level" in title:
+                            v["assurance_level"] = value
+                        elif "Expiry Date" in title:
+                            v["expiration_date"] = value
+                        elif "Type of Product" in title:
+                            v["product_type"] = value
+                        elif "Certification No." in title:
+                            v["cert_id"] = value
+                        elif "Protection Profile" in title:
+                            v["protection_profile"] = value
+                        elif "Developer" in title:
+                            v["developer"] = value
+                        elif "Certificate Holder" in title:
+                            v["holder"] = value
+                        elif "Certificate" in title:
+                            v["cert_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
+                            if artifacts:
+                                v["cert_hash"] = CCSchemeDataset._get_hash(v["cert_link"], session)
+                        elif "Security Target" in title:
+                            v["target_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
+                            if artifacts:
+                                v["target_hash"] = CCSchemeDataset._get_hash(v["target_link"], session)
+                        elif "Certification Report" in title:
+                            v["report_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
+                            if artifacts:
+                                v["report_hash"] = CCSchemeDataset._get_hash(v["report_link"], session)
+                        elif "Maintenance Report" in title:
+                            v["maintenance_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
+                            if artifacts:
+                                v["maintenance_hash"] = CCSchemeDataset._get_hash(v["maintenance_link"], session)
+                    cert["enhanced"] = e
                 results.append(cert)
             seen_pages.add(page)
             page_links = soup.find("div", class_="paginate").find_all("a", class_="number_off")
@@ -972,31 +1024,37 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_korea_certified():
+    def get_korea_certified(enhanced: bool = True, artifacts: bool = False):
         """
         Get Korean "certified product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_korea(product_class=1)
+        return CCSchemeDataset._get_korea(product_class=1, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
-    def get_korea_suspended():
+    def get_korea_suspended(enhanced: bool = True, artifacts: bool = False):
         """
         Get Korean "suspended product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_korea(product_class=2)
+        return CCSchemeDataset._get_korea(product_class=2, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
-    def get_korea_archived():
+    def get_korea_archived(enhanced: bool = True, artifacts: bool = False):
         """
         Get Korean "product in evaluation" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        return CCSchemeDataset._get_korea(product_class=4)
+        return CCSchemeDataset._get_korea(product_class=4, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
     def _get_singapore(url):

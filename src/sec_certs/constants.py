@@ -105,9 +105,10 @@ CC_NETHERLANDS_INEVAL_URL = CC_NETHERLANDS_BASE_URL + "/ongoing-certifications.h
 CC_NORWAY_BASE_URL = "https://sertit.no"
 CC_NORWAY_CERTIFIED_URL = CC_NORWAY_BASE_URL + "/certified-products/category1919.html"
 CC_NORWAY_ARCHIVED_URL = CC_NORWAY_BASE_URL + "/certified-products/product-archive/"
-CC_KOREA_EN_URL = "https://itscc.kr/main/main.do?accessMode=home_en"
-CC_KOREA_CERTIFIED_URL = "https://itscc.kr/certprod/list.do"
-CC_KOREA_PRODUCT_URL = "https://itscc.kr/certprod/view.do?product_id={}&product_class=1"
+CC_KOREA_BASE_URL = "https://itscc.kr"
+CC_KOREA_EN_URL = CC_KOREA_BASE_URL + "/main/main.do?accessMode=home_en"
+CC_KOREA_CERTIFIED_URL = CC_KOREA_BASE_URL + "/certprod/list.do"
+CC_KOREA_PRODUCT_URL = CC_KOREA_BASE_URL + "/certprod/view.do?product_id={}&product_class=1"
 CC_SINGAPORE_BASE_URL = "https://www.csa.gov.sg"
 CC_SINGAPORE_CERTIFIED_URL = (
     CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-list"
