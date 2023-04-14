@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import tempfile
+import warnings
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
@@ -12,6 +13,7 @@ import requests
 import tabula
 from bs4 import BeautifulSoup, NavigableString, Tag
 from requests import Response
+from urllib3.connectionpool import InsecureRequestWarning
 
 from sec_certs import constants
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
@@ -29,8 +31,10 @@ class CCSchemeDataset:
 
     @staticmethod
     def _get(url: str, session, **kwargs) -> Response:
-        conn = session if session else requests
-        resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False, **kwargs)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=InsecureRequestWarning)
+            conn = session if session else requests
+            resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False, **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -47,7 +51,7 @@ class CCSchemeDataset:
         return h.digest()
 
     @staticmethod
-    def get_australia_in_evaluation(enhanced: bool = True):  # noqa: C901
+    def get_australia_in_evaluation(enhanced: bool = True) -> list[dict[str, Any]]:  # noqa: C901
         """
         Get Australia "products in evaluation" entries.
 
@@ -111,7 +115,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_canada_certified():
+    def get_canada_certified() -> list[dict[str, Any]]:
         """
         Get Canada "certified product" entries.
 
@@ -134,7 +138,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_canada_in_evaluation():
+    def get_canada_in_evaluation() -> list[dict[str, Any]]:
         """
         Get Canada "products in evaluation" entries.
 
@@ -157,7 +161,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_france_certified(enhanced: bool = True, artifacts: bool = False):  # noqa: C901
+    def get_france_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
         """
         Get French "certified product" entries.
 
@@ -250,7 +254,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_germany_certified(enhanced: bool = True, artifacts: bool = False):  # noqa: C901
+    def get_germany_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
         """
         Get German "certified product" entries.
 
@@ -353,11 +357,11 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _fix_india_link(link):
+    def _fix_india_link(link: str) -> str:
         return link.replace("/index.php", "")
 
     @staticmethod
-    def get_india_certified():
+    def get_india_certified() -> list[dict[str, Any]]:
         """
         Get Indian "certified product" entries.
 
@@ -413,7 +417,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_india_archived():
+    def get_india_archived() -> list[dict[str, Any]]:
         """
         Get Indian "archived product" entries.
 
@@ -471,7 +475,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_italy_certified():  # noqa: C901
+    def get_italy_certified() -> list[dict[str, Any]]:  # noqa: C901
         """
         Get Italian "certified product" entries.
 
@@ -486,7 +490,7 @@ class CCSchemeDataset:
             cert = {"title": title}
             for data_p in data_div.find_all("p"):
                 p_text = sns(data_p.text)
-                if ":" not in p_text:
+                if not p_text or ":" not in p_text:
                     continue
                 p_name, p_data = p_text.split(":")
                 p_data = p_data
@@ -513,7 +517,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_italy_in_evaluation():
+    def get_italy_in_evaluation() -> list[dict[str, Any]]:
         """
         Get Italian "product in evaluation" entries.
 
@@ -528,7 +532,7 @@ class CCSchemeDataset:
             cert = {"title": title}
             for data_p in data_div.find_all("p"):
                 p_text = sns(data_p.text)
-                if ":" not in p_text:
+                if not p_text or ":" not in p_text:
                     continue
                 p_name, p_data = p_text.split(":")
                 p_data = p_data
@@ -542,8 +546,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _get_japan(url, enhanced, artifacts):  # noqa: C901
-        # TODO: Information could be expanded by following toe link.
+    def _get_japan(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
         soup = CCSchemeDataset._get_page(url)
         table = soup.find("table", class_="cert-table")
         results = []
@@ -553,7 +556,7 @@ class CCSchemeDataset:
             if not tds:
                 continue
             if len(tds) == 6:
-                cert = {
+                cert: dict[str, Any] = {
                     "cert_id": sns(tds[0].text),
                     "supplier": sns(tds[1].text),
                     "toe_overseas_name": sns(tds[2].text),
@@ -565,7 +568,7 @@ class CCSchemeDataset:
                     toe_link = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
                 else:
                     toe_link = None
-                if "Assurance Continuity" in cert_date:
+                if cert_date and "Assurance Continuity" in cert_date:
                     cert["revalidations"] = [{"date": cert_date.split("(")[0], "link": toe_link}]
                 else:
                     cert["certification_date"] = cert_date
@@ -651,7 +654,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_japan_certified(enhanced: bool = True, artifacts: bool = False):
+    def get_japan_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Japanese "certified product" entries.
 
@@ -664,7 +667,7 @@ class CCSchemeDataset:
         return japan_sw + japan_hw
 
     @staticmethod
-    def get_japan_archived(enhanced: bool = True, artifacts: bool = False):
+    def get_japan_archived(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Japanese "archived product" entries.
 
@@ -675,7 +678,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_japan(constants.CC_JAPAN_ARCHIVED_SW_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_japan_in_evaluation():
+    def get_japan_in_evaluation() -> list[dict[str, Any]]:
         """
         Get Japanese "product in evaluation" entries.
 
@@ -699,7 +702,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_malaysia_certified():
+    def get_malaysia_certified() -> list[dict[str, Any]]:
         """
         Get Malaysian "certified product" entries.
 
@@ -733,7 +736,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_malaysia_in_evaluation():
+    def get_malaysia_in_evaluation() -> list[dict[str, Any]]:
         """
         Get Malaysian "product in evaluation" entries.
 
@@ -758,7 +761,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_netherlands_certified(artifacts: bool = False):  # noqa: C901
+    def get_netherlands_certified(artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
         """
         Get Dutch "certified product" entries.
 
@@ -806,7 +809,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_netherlands_in_evaluation():
+    def get_netherlands_in_evaluation() -> list[dict[str, Any]]:
         """
         Get Dutch "product in evaluation" entries.
 
@@ -828,7 +831,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _get_norway(url: str, enhanced: bool, artifacts: bool):  # noqa: C901
+    def _get_norway(url: str, enhanced: bool, artifacts: bool) -> list[dict[str, Any]]:  # noqa: C901
         soup = CCSchemeDataset._get_page(url)
         results = []
         for tr in soup.find_all("tr", class_="certified-product"):
@@ -903,7 +906,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_norway_certified(enhanced: bool = True, artifacts: bool = False):
+    def get_norway_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Norwegian "certified product" entries.
 
@@ -914,7 +917,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_norway(constants.CC_NORWAY_CERTIFIED_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_norway_archived(enhanced: bool = True, artifacts: bool = False):
+    def get_norway_archived(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Norwegian "archived product" entries.
 
@@ -925,7 +928,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_norway(constants.CC_NORWAY_ARCHIVED_URL, enhanced, artifacts)
 
     @staticmethod
-    def _get_korea(product_class, enhanced, artifacts):  # noqa: C901
+    def _get_korea(product_class: int, enhanced: bool, artifacts: bool) -> list[dict[str, Any]]:  # noqa: C901
         session = requests.session()
         session.get(constants.CC_KOREA_EN_URL)
         # Get base page
@@ -946,7 +949,7 @@ class CCSchemeDataset:
                     continue
                 link = tds[0].find("a")
                 id = link["id"].split("-")[1]
-                cert = {
+                cert: dict[str, Any] = {
                     "product": sns(tds[0].text),
                     "cert_id": sns(tds[1].text),
                     "product_link": constants.CC_KOREA_PRODUCT_URL.format(id),
@@ -957,6 +960,8 @@ class CCSchemeDataset:
                 }
                 if enhanced:
                     e: dict[str, Any] = {}
+                    if not cert["product_link"]:
+                        continue
                     cert_page = CCSchemeDataset._get_page(cert["product_link"], session)
                     main = cert_page.find("div", class_="mainContent")
                     table = main.find("table", class_="shortenedWidth")
@@ -1024,7 +1029,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_korea_certified(enhanced: bool = True, artifacts: bool = False):
+    def get_korea_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Korean "certified product" entries.
 
@@ -1035,7 +1040,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_korea(product_class=1, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
-    def get_korea_suspended(enhanced: bool = True, artifacts: bool = False):
+    def get_korea_suspended(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Korean "suspended product" entries.
 
@@ -1046,7 +1051,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_korea(product_class=2, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
-    def get_korea_archived(enhanced: bool = True, artifacts: bool = False):
+    def get_korea_archived(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Korean "product in evaluation" entries.
 
@@ -1057,7 +1062,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_korea(product_class=4, enhanced=enhanced, artifacts=artifacts)
 
     @staticmethod
-    def _get_singapore(url, artifacts):
+    def _get_singapore(url: str, artifacts: bool) -> list[dict[str, Any]]:
         soup = CCSchemeDataset._get_page(url)
         page_id = str(soup.find("input", id="CurrentPageId").value)
         page = 1
@@ -1073,10 +1078,10 @@ class CCSchemeDataset:
         )
         api_json = api_call.json()
         total = api_json["total"]
-        results = []
+        results: list[dict[str, Any]] = []
         while len(results) != total:
             for obj in api_json["objects"]:
-                cert = {
+                cert: dict[str, Any] = {
                     "level": obj["assuranceLevel"],
                     "product": obj["productName"],
                     "vendor": obj["productDeveloper"],
@@ -1111,7 +1116,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_singapore_certified(artifacts: bool = False):
+    def get_singapore_certified(artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Singaporean "certified product" entries.
 
@@ -1121,7 +1126,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_CERTIFIED_URL, artifacts)
 
     @staticmethod
-    def get_singapore_in_evaluation():
+    def get_singapore_in_evaluation() -> list[dict[str, Any]]:
         """
         Get Singaporean "product in evaluation" entries.
 
@@ -1147,7 +1152,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_singapore_archived(artifacts: bool = False):
+    def get_singapore_archived(artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Singaporean "archived product" entries.
 
@@ -1157,7 +1162,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_singapore(constants.CC_SINGAPORE_ARCHIVED_URL, artifacts)
 
     @staticmethod
-    def get_spain_certified():
+    def get_spain_certified() -> list[dict[str, Any]]:
         """
         Get Spanish "certified product" entries.
 
@@ -1179,14 +1184,19 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def _get_sweden(url, enhanced, artifacts):  # noqa: C901
+    def _get_sweden(url: str, enhanced: bool, artifacts: bool) -> list[dict[str, Any]]:  # noqa: C901
         soup = CCSchemeDataset._get_page(url)
         nav = soup.find("main").find("nav", class_="component-nav-box__list")
         results = []
         for link in nav.find_all("a"):
-            cert = {"product": sns(link.text), "url": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"])}
+            cert: dict[str, Any] = {
+                "product": sns(link.text),
+                "url": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"]),
+            }
             if enhanced:
-                e = {}
+                e: dict[str, Any] = {}
+                if not cert["url"]:
+                    continue
                 cert_page = CCSchemeDataset._get_page(cert["url"])
                 content = cert_page.find("section", class_="container-article")
                 head = content.find("h1")
@@ -1237,7 +1247,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_sweden_certified(enhanced: bool = True, artifacts: bool = False):
+    def get_sweden_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Swedish "certified product" entries.
 
@@ -1248,7 +1258,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_CERTIFIED_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_sweden_in_evaluation(enhanced: bool = True, artifacts: bool = False):
+    def get_sweden_in_evaluation(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Swedish "product in evaluation" entries.
 
@@ -1259,7 +1269,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_INEVAL_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_sweden_archived(enhanced: bool = True, artifacts: bool = False):
+    def get_sweden_archived(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
         """
         Get Swedish "archived product" entries.
 
@@ -1270,7 +1280,7 @@ class CCSchemeDataset:
         return CCSchemeDataset._get_sweden(constants.CC_SWEDEN_ARCHIVED_URL, enhanced, artifacts)
 
     @staticmethod
-    def get_turkey_certified():
+    def get_turkey_certified() -> list[dict[str, Any]]:
         """
         Get Turkish "certified product" entries.
 
@@ -1304,13 +1314,14 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_usa_certified():
+    def get_usa_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
         """
         Get American "certified product" entries.
 
+        :param enhanced: Whether to enhance the results by following links (slower, more data).
+        :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
         :return: The entries.
         """
-        # TODO: Information could be expanded by following product link.
         # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
         soup = CCSchemeDataset._get_page(constants.CC_USA_CERTIFIED_URL)
         tbody = soup.find("table", class_="tablesorter").find("tbody")
@@ -1323,7 +1334,7 @@ class CCSchemeDataset:
             # Only return the US certifications.
             if scheme_img["title"] != "USA":
                 continue
-            cert = {
+            cert: dict[str, Any] = {
                 "product": sns(product_link.text),
                 "vendor": sns(vendor_span.text),
                 "product_link": urljoin(constants.CC_USA_PRODUCT_URL, product_link["href"]),
@@ -1333,11 +1344,64 @@ class CCSchemeDataset:
                 "certification_date": sns(tds[4].text),
                 "assurance_maintenance_date": sns(tds[5].text),
             }
+            if enhanced:
+                e: dict[str, Any] = {}
+                if not cert["product_link"]:
+                    continue
+                cert_page = CCSchemeDataset._get_page(cert["product_link"])
+                details = cert_page.find("div", class_="txt2 lma")
+                for span in details.find_all("span"):
+                    title = sns(span.text)
+                    if not title:
+                        continue
+                    sibling = span.next_sibling
+                    value = sns(sibling.text)
+                    if "Certificate Date" in title:
+                        e["certification_date"] = value
+                    elif "Product Type" in title:
+                        e["product_type"] = value
+                    elif "Conformance Claim" in title:
+                        e["cc_claim"] = value
+                    elif "Validation Report Number" in title:
+                        e["cert_id"] = value
+                    elif "PP Identifier" in title:
+                        e["protection_profile"] = sns(span.find_next_sibling("a").text)
+                    elif "CC Testing Lab" in title:
+                        e["evaluation_facility"] = sns(span.find_next_sibling("a").text)
+                links = cert_page.find_all("a", class_="pseudobtn1")
+                for link in links:
+                    name = sns(link.text)
+                    href = urljoin(constants.CC_USA_BASE_URL, sns(link["href"]))
+                    if not name:
+                        continue
+                    if "CC Certificate" in name:
+                        e["cert_link"] = href
+                        if artifacts:
+                            e["cert_hash"] = CCSchemeDataset._get_hash(href).hex()
+                    elif "Security Target" in name:
+                        e["target_link"] = href
+                        if artifacts:
+                            e["target_hash"] = CCSchemeDataset._get_hash(href).hex()
+                    elif "Validation Report" in name:
+                        e["report_link"] = href
+                        if artifacts:
+                            e["report_hash"] = CCSchemeDataset._get_hash(href).hex()
+                    elif "Assurance Activity" in name:
+                        e["assurance_activity_link"] = href
+                        if artifacts:
+                            e["assurance_activity_hash"] = CCSchemeDataset._get_hash(href).hex()
+                    elif "Administrative Guide" in name:
+                        guides = e.setdefault("administrative_guides", [])
+                        guide = {"link": href}
+                        guides.append(guide)
+                        if artifacts:
+                            guide["hash"] = CCSchemeDataset._get_hash(href).hex()
+                cert["enhanced"] = e
             results.append(cert)
         return results
 
     @staticmethod
-    def get_usa_in_evaluation():
+    def get_usa_in_evaluation() -> list[dict[str, Any]]:
         """
         Get American "product in evaluation" entries.
 
@@ -1368,7 +1432,7 @@ class CCSchemeDataset:
         return results
 
     @staticmethod
-    def get_usa_archived():
+    def get_usa_archived() -> list[dict[str, Any]]:
         """
         Get American "archived product" entries.
 

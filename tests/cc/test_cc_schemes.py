@@ -1,3 +1,4 @@
+from pprint import pp
 from urllib.parse import urlparse
 
 import pytest
@@ -164,6 +165,8 @@ def test_turkey():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_usa():
     certified = CCSchemeDataset.get_usa_certified()
+    for r in certified:
+        pp(r)
     assert len(certified) != 0
     assert absolute_urls(certified)
     archived = CCSchemeDataset.get_usa_archived()
