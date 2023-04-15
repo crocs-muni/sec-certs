@@ -69,7 +69,7 @@ class CPEMatchCriteriaConfiguration(ComplexSerializableType):
             raise ValueError(
                 "Cannot match to CPEMatchConfiguration when attribute _expanded_components was not filled-in. That attribute is prepared by `CVEDataset.build_lookup_dict()`."
             )
-        return all(any(x in component for x in cpe_ids) for component in self.components)
+        return all(any(x in component for x in cpe_ids) for component in self._expanded_components)
 
     @property
     def serialized_attributes(self) -> list[str]:

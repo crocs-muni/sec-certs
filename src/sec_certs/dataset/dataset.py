@@ -588,10 +588,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         if not self.auxiliary_datasets.cve_dset:
             self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset()
 
-        cpe_match_dict = self._prepare_cpe_match_dict()
-
-        all_cpes = self._get_all_cpes_in_dataset()
-        self.auxiliary_datasets.cve_dset.build_lookup_dict(cpe_match_dict, all_cpes)
+        if not self.auxiliary_datasets.cve_dset.look_up_dicts_built:
+            cpe_match_dict = self._prepare_cpe_match_dict()
+            all_cpes = self._get_all_cpes_in_dataset()
+            self.auxiliary_datasets.cve_dset.build_lookup_dict(cpe_match_dict, all_cpes)
 
         self.enrich_automated_cpes_with_manual_labels()
         cpe_rich_certs = [x for x in cast(Iterator[Certificate], self) if x.heuristics.cpe_matches]

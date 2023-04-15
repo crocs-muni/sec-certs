@@ -34,13 +34,13 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     ):
         self.cves = cves
         self.json_path = Path(json_path)
-        self.cpe_uri_to_cve_ids_lookup: dict[str, set[str]] = {}
-        self.cves_with_vulnerable_configurations: list[CVE] = []
+        self._cpe_uri_to_cve_ids_lookup: dict[str, set[str]] = {}
+        self._cves_with_vulnerable_configurations: list[CVE] = []
         self.last_update_timestamp = last_update_timestamp
 
     @property
     def serialized_attributes(self) -> list[str]:
-        return ["cves"]
+        return ["last_update_timestamp", "cves"]
 
     def __iter__(self):
         yield from self.cves.values()
@@ -56,6 +56,10 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
     def __eq__(self, other: object):
         return isinstance(other, CVEDataset) and self.cves == other.cves
+
+    @property
+    def look_up_dicts_built(self) -> bool:
+        return bool(self._cpe_uri_to_cve_ids_lookup)
 
     @classmethod
     def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CVEDataset:
@@ -86,13 +90,13 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         """
         Method filters the subset of CVE dataset thah contain at least one CPE criteria configuration in the CVE.
         """
-        self.cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_criteria_configurations]
+        self._cves_with_vulnerable_configurations = [cve for cve in self if cve.vulnerable_criteria_configurations]
 
     def _expand_criteria_configurations(self, matching_dict: dict, relevant_cpe_uris: set[str] | None = None) -> None:
         indices_to_delete = []
         cve: CVE
         for index, cve in enumerate(
-            tqdm(self.cves_with_vulnerable_configurations, desc="Expanding and filtering criteria configurations")
+            tqdm(self._cves_with_vulnerable_configurations, desc="Expanding and filtering criteria configurations")
         ):
             can_be_matched = []
             for configuration in cve.vulnerable_criteria_configurations:
@@ -102,28 +106,28 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                 indices_to_delete.append(index)
 
         for index in sorted(indices_to_delete, reverse=True):
-            del self.cves_with_vulnerable_configurations[index]
+            del self._cves_with_vulnerable_configurations[index]
 
     def build_lookup_dict(
         self,
-        cpe_match_dict: dict,
+        cpe_match_feed: dict,
         limit_to_cpes: set[CPE] | None = None,
     ):
-        self.cpe_uri_to_cve_ids_lookup = {}
+        self._cpe_uri_to_cve_ids_lookup = {}
         cpe_uris_of_interest = {x.uri for x in limit_to_cpes} if limit_to_cpes else None
         self._get_cves_with_criteria_configurations()
-        self._expand_criteria_configurations(cpe_match_dict, cpe_uris_of_interest)
+        self._expand_criteria_configurations(cpe_match_feed, cpe_uris_of_interest)
 
         logger.info("Building lookup dictionaries.")
         cve: CVE
         for cve in tqdm(self, desc="Building-up lookup dictionaries for fast CVE matching"):
             vulnerable_cpe_uris: set[str] = set()
             for x in cve.vulnerable_criteria:
-                if x.criteria_id not in cpe_match_dict["match_strings"]:
+                if x.criteria_id not in cpe_match_feed["match_strings"]:
                     # This happens when there's no `matches` key in the original dict. In such case, the whole key got
                     # discarded. Statistically, approx. 13% of criteria match to no CPEs and are used solely as criteria.
                     continue
-                matches = cpe_match_dict["match_strings"][x.criteria_id]["matches"]
+                matches = cpe_match_feed["match_strings"][x.criteria_id]["matches"]
                 vulnerable_cpe_uris = vulnerable_cpe_uris.union(x["cpeName"] for x in matches)
 
             if (
@@ -134,20 +138,20 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                 continue
 
             for cpe_uri in vulnerable_cpe_uris:
-                if cpe_uri in self.cpe_uri_to_cve_ids_lookup:
-                    self.cpe_uri_to_cve_ids_lookup[cpe_uri].add(cve.cve_id)
+                if cpe_uri in self._cpe_uri_to_cve_ids_lookup:
+                    self._cpe_uri_to_cve_ids_lookup[cpe_uri].add(cve.cve_id)
                 else:
-                    self.cpe_uri_to_cve_ids_lookup[cpe_uri] = {cve.cve_id}
+                    self._cpe_uri_to_cve_ids_lookup[cpe_uri] = {cve.cve_id}
 
     def _get_cves_from_exactly_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
         return set(
-            itertools.chain.from_iterable([self.cpe_uri_to_cve_ids_lookup.get(cpe_uri, set()) for cpe_uri in cpe_uris])
+            itertools.chain.from_iterable([self._cpe_uri_to_cve_ids_lookup.get(cpe_uri, set()) for cpe_uri in cpe_uris])
         )
 
     def _get_cves_from_criteria_configurations(self, cpe_uris: set[str]) -> set[str]:
         return {
             cve.cve_id
-            for cve in self.cves_with_vulnerable_configurations
+            for cve in self._cves_with_vulnerable_configurations
             if any(configuration.matches(cpe_uris) for configuration in cve.vulnerable_criteria_configurations)
         }
 

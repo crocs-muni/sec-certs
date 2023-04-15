@@ -1,131 +1,38 @@
 from __future__ import annotations
 
-from pathlib import Path
+import json
+from importlib import resources
 
 import pytest
+import tests.data.common
 import tests.data.fips.dataset
-from dateutil.parser import isoparse
 
 from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
-from sec_certs.sample.cpe import CPE, CPEConfiguration
-from sec_certs.sample.cve import CVE
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
-    return Path(tests.data.fips.dataset.__path__[0])
+def cpe_dataset() -> CPEDataset:
+    with resources.path(tests.data.common, "cpe_dataset.json") as cpe_dataset_path:
+        return CPEDataset.from_json(cpe_dataset_path)
 
 
 @pytest.fixture(scope="module")
-def vulnerable_cpe() -> CPE:
-    return CPE("cpe:2.3:o:redhat:enterprise_linux:7.1:*:*:*:*:*:*:*", "Red Hat Enterprise Linux 7.1")
+def cve_dataset() -> CVEDataset:
+    with resources.open_text(tests.data.common, "cpe_match_feed.json") as handle:
+        cpe_match_feed = json.load(handle)
+
+    with resources.path(tests.data.common, "cve_dataset.json") as cve_dataset_path:
+        cve_dataset = CVEDataset.from_json(cve_dataset_path)
+
+    cve_dataset.build_lookup_dict(cpe_match_feed)
+    return cve_dataset
 
 
 @pytest.fixture(scope="module")
-def some_random_cpe() -> CPE:
-    return CPE(
-        "cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
-        "IBM Security Key Lifecycle Manager 2.6.0.1",
-    )
-
-
-@pytest.fixture(scope="module")
-def cve(vulnerable_cpe: CPE) -> CVE:
-    return CVE(
-        "CVE-1234-123456",
-        [vulnerable_cpe],
-        [],
-        CVE.Metrics(10, "HIGH", 10, 10),
-        isoparse("2021-05-26T04:15Z"),
-        {"CWE-200"},
-    )
-
-
-@pytest.fixture(scope="module")
-def some_other_cve(some_random_cpe: CPE) -> CVE:
-    return CVE(
-        "CVE-2019-4513",
-        [some_random_cpe],
-        [],
-        CVE.Metrics(8.2, "HIGH", 3.9, 4.2),
-        isoparse("2000-05-26T04:15Z"),
-        {"CVE-611"},
-    )
-
-
-@pytest.fixture(scope="module")
-def ibm_cpe_configuration() -> CPEConfiguration:
-    return CPEConfiguration(
-        CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
-        [
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*"),
-        ],
-    )
-
-
-@pytest.fixture(scope="module")
-def cpes_ibm_websphere_app_with_platform() -> set[CPE]:
-    return {
-        CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*", "IBM zOS"),
-        CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", "IBM WebSphere Application Server"),
-    }
-
-
-@pytest.fixture(scope="module")
-def ibm_xss_cve(ibm_cpe_configuration: CPEConfiguration) -> CVE:
-    return CVE(
-        "CVE-2010-2325",
-        [],
-        [ibm_cpe_configuration],
-        CVE.Metrics(4.3, "MEDIUM", 2.9, 8.6),
-        isoparse("2000-06-18T04:15Z"),
-        {"CWE-79"},
-    )
-
-
-@pytest.fixture(scope="module")
-def cpe_dataset(
-    vulnerable_cpe: CPE, some_random_cpe: CPE, cpes_ibm_websphere_app_with_platform: set[CPE]
-) -> CPEDataset:
-    cpes = {
-        vulnerable_cpe,
-        some_random_cpe,
-        CPE(
-            "cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
-            "Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress",
-        ),
-        CPE(
-            "cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
-            "Tracker Software PDF-XChange Lite Printer 6.0.320.0",
-        ),
-        *cpes_ibm_websphere_app_with_platform,
-    }
-
-    return CPEDataset(False, {x.uri: x for x in cpes})
-
-
-@pytest.fixture(scope="module")
-def cve_dataset(cve: CVE, some_other_cve: CVE, ibm_xss_cve: CVE) -> CVEDataset:
-    cves = {cve, some_other_cve, ibm_xss_cve}
-    cve_dset = CVEDataset({x.cve_id: x for x in cves})
-    cve_dset.build_lookup_dict(use_nist_mapping=False)
-    return cve_dset
-
-
-@pytest.fixture(scope="module")
-def toy_static_dataset(data_dir: Path) -> FIPSDataset:
-    return FIPSDataset.from_json(data_dir / "toy_dataset.json")
+def toy_static_dataset() -> FIPSDataset:
+    with resources.path(tests.data.fips.dataset, "toy_dataset.json") as dataset_path:
+        return FIPSDataset.from_json(dataset_path)
 
 
 @pytest.fixture(scope="module")
@@ -251,30 +158,26 @@ def test_pdf_policies_indirectly_referenced_by(
     assert crt.heuristics.module_processed_references.indirectly_referenced_by == expected_refs
 
 
-def test_match_cpe(processed_dataset: FIPSDataset, vulnerable_cpe: CPE, some_random_cpe: CPE):
-    assert processed_dataset["2441"].heuristics.cpe_matches
-    assert vulnerable_cpe.uri in processed_dataset["2441"].heuristics.cpe_matches
-    assert some_random_cpe.uri not in processed_dataset["2441"].heuristics.cpe_matches
+def test_match_cpe(processed_dataset: FIPSDataset):
+    assert processed_dataset["2441"].heuristics.cpe_matches == {"cpe:2.3:o:redhat:enterprise_linux:7.1:*:*:*:*:*:*:*"}
 
 
-def test_find_related_cves(processed_dataset: FIPSDataset, cve: CVE, some_other_cve: CVE):
-    assert processed_dataset["2441"].heuristics.related_cves
-    assert cve.cve_id in processed_dataset["2441"].heuristics.related_cves
-    assert some_other_cve not in processed_dataset["2441"].heuristics.related_cves
-
-
-def test_find_related_cves_for_cpe_configuration(
-    processed_dataset: FIPSDataset,
-    cve_dataset: CVEDataset,
-    ibm_xss_cve: CVE,
-    cpes_ibm_websphere_app_with_platform: set[CPE],
-):
-    cve_dataset.cves = {ibm_xss_cve.cve_id: ibm_xss_cve}
-    cert = processed_dataset["2441"]
-    cert.heuristics.cpe_matches = {cpe.uri for cpe in cpes_ibm_websphere_app_with_platform}
-    processed_dataset.auxiliary_datasets.cve_dset = cve_dataset
+def test_find_related_cves(processed_dataset: FIPSDataset):
+    assert processed_dataset.auxiliary_datasets.cve_dset
+    processed_dataset.auxiliary_datasets.cve_dset._cpe_uri_to_cve_ids_lookup[
+        "cpe:2.3:o:redhat:enterprise_linux:7.1:*:*:*:*:*:*:*"
+    ] = {"CVE-123456"}
     processed_dataset.compute_related_cves()
-    assert cert.heuristics.related_cves == {ibm_xss_cve.cve_id}
+    assert processed_dataset["2441"].heuristics.related_cves == {"CVE-123456"}
+
+
+def test_find_related_cves_criteria_configuration(processed_dataset: FIPSDataset):
+    processed_dataset["2441"].heuristics.cpe_matches = {
+        "cpe:2.3:a:nalin_dahyabhai:vte:0.11.21:*:*:*:*:*:*:*",
+        "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
+    }
+    processed_dataset.compute_related_cves()
+    assert processed_dataset["2441"].heuristics.related_cves == {"CVE-2003-0070"}
 
 
 def test_keywords_heuristics(processed_dataset: FIPSDataset):
