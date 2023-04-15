@@ -64,11 +64,10 @@ def test_cpe_parsing():
         assert cpe.version == tpl[2]
 
 
-def test_cpe_from_to_dict(cpe_dict):
-    cpe = CPE.from_dict(cpe_dict)
-    ret = cpe.to_dict()
-    assert cpe_dict == ret
-    other_cpe = CPE.from_dict(ret)
+def test_cpe_from_to_dict(cpe_dataset: CPEDataset):
+    cpe = cpe_dataset["cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*"]
+    dct = cpe.to_dict()
+    other_cpe = CPE.from_dict(dct)
     assert cpe == other_cpe
 
 
