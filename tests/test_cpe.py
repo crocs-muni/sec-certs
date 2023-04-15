@@ -39,7 +39,6 @@ def cpe_dict() -> dict[str, Any]:
 
 
 @pytest.mark.slow
-@pytest.mark.monitor_test
 @pytest.mark.xfail(reason="May fail due to errors with NIST server.")
 @pytest.mark.skip(reason="Too much memory consumed.")
 def test_cpe_dset_from_web(tmp_path: Path):

@@ -103,7 +103,6 @@ def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
 
 
 @pytest.mark.slow
-@pytest.mark.monitor_test
 @pytest.mark.xfail(reason="May fail due to errors on NIST server.")
 def test_from_web():
     dset = CVEDataset.from_web()
