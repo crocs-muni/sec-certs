@@ -999,19 +999,19 @@ class CCSchemeDataset:
                             v["developer"] = value
                         elif "Certificate Holder" in title:
                             v["holder"] = value
-                        elif "Certificate" in title:
+                        elif "Certificate" in title and a:
                             v["cert_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
                                 v["cert_hash"] = CCSchemeDataset._get_hash(v["cert_link"], session).hex()
-                        elif "Security Target" in title:
+                        elif "Security Target" in title and a:
                             v["target_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
                                 v["target_hash"] = CCSchemeDataset._get_hash(v["target_link"], session).hex()
-                        elif "Certification Report" in title:
+                        elif "Certification Report" in title and a:
                             v["report_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
                                 v["report_hash"] = CCSchemeDataset._get_hash(v["report_link"], session).hex()
-                        elif "Maintenance Report" in title:
+                        elif "Maintenance Report" in title and a:
                             v["maintenance_link"] = urljoin(constants.CC_KOREA_BASE_URL, a["href"])
                             if artifacts:
                                 v["maintenance_hash"] = CCSchemeDataset._get_hash(v["maintenance_link"], session).hex()
