@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from importlib import resources
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-import tests.data.cc.analysis.auxiliary_datasets
+import tests.data.common
 from sec_certs import constants
 from sec_certs.dataset import CPEDataset
 from sec_certs.sample import CPE
@@ -13,46 +13,23 @@ from sec_certs.serialization.json import SerializationError
 
 
 @pytest.fixture(scope="module")
-def cpe_dset_path() -> Path:
-    return Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cpe_dataset.json"
+def cpe_dataset_path() -> Path:
+    with resources.path(tests.data.common, "cpe_dataset.json") as path:
+        return path
 
 
 @pytest.fixture(scope="module")
-def cpe_dset(cpe_dset_path: Path) -> CPEDataset:
-    return CPEDataset.from_json(cpe_dset_path)
+def cpe_dataset(cpe_dataset_path: Path) -> CPEDataset:
+    return CPEDataset.from_json(cpe_dataset_path)
 
 
-# @pytest.fixture(scope="module")
-# def cve_dataset() -> CVEDataset:
-#     return CVEDataset.from_json(Path(tests.data.cc.analysis.auxiliary_datasets.__path__[0]) / "cve_dataset.json")
-
-
-@pytest.fixture(scope="module")
-def cpe_dict() -> dict[str, Any]:
-    return {
-        "cpe_id": "some-random-id",
-        "uri": "cpe:2.3:o:freebsd:freebsd:1.0:*:*:*:*:*:*:*",
-        "title": None,
-    }
-
-
-@pytest.mark.slow
-@pytest.mark.monitor_test
-@pytest.mark.xfail(reason="May fail due to errors with seccerts.org server.")
-@pytest.mark.skip(reason="Too much memory consumed.")
-def test_cpe_dset_from_web(tmp_path: Path):
-    dset = CPEDataset.from_web(tmp_path)
-    assert dset is not None
-    assert "cpe:2.3:o:infineon:trusted_platform_firmware:6.40:*:*:*:*:*:*:*" in dset.cpes
-
-
-def test_cpe_dset_from_json(cpe_dset_path: Path, cpe_dset: CPEDataset, tmp_path: Path):
-    assert CPEDataset.from_json(cpe_dset_path) == cpe_dset
+def test_cpe_dset_from_json(cpe_dataset_path: Path, cpe_dataset: CPEDataset, tmp_path: Path):
+    assert CPEDataset.from_json(cpe_dataset_path) == cpe_dataset
 
     compressed_path = tmp_path / "dset.json.gz"
-    cpe_dset.to_json(compressed_path, compress=True)
+    cpe_dataset.to_json(compressed_path, compress=True)
     decompressed_dataset = CPEDataset.from_json(compressed_path, is_compressed=True)
-    assert cpe_dset == decompressed_dataset
+    assert cpe_dataset == decompressed_dataset
 
 
 def test_cpe_parsing():
@@ -95,9 +72,9 @@ def test_cpe_from_to_dict(cpe_dict):
     assert cpe == other_cpe
 
 
-def test_to_pandas(cpe_dset: CPEDataset):
-    df = cpe_dset.to_pandas()
-    assert df.shape == (len(cpe_dset), len(CPE.pandas_columns) - 1)
+def test_to_pandas(cpe_dataset: CPEDataset):
+    df = cpe_dataset.to_pandas()
+    assert df.shape == (len(cpe_dataset), len(CPE.pandas_columns) - 1)
     assert df.index.name == "uri"
     assert set(df.columns) == set(CPE.pandas_columns) - {"uri"}
 
@@ -106,29 +83,3 @@ def test_serialization_missing_path():
     dummy_dset = CPEDataset()
     with pytest.raises(SerializationError):
         dummy_dset.to_json()
-
-
-# def test_single_platform_config_cpe(cve_dataset: CVEDataset):
-#     tested_cpe_config = cve_dataset["CVE-2010-2325"].vulnerable_cpe_configurations
-#     cpe_configuration = CPEConfiguration(
-#         platform=CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
-#         cpes=[
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
-#             CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*", end_version=("including", "7.0.0.10")),
-#         ],
-#     )
-
-#     assert cpe_configuration in tested_cpe_config
-
-
-# def test_no_cpe_configuration(cve_dataset: CVEDataset):
-#     assert not cve_dataset["CVE-2003-0001"].vulnerable_cpe_configurations
