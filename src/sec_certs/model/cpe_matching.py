@@ -6,7 +6,6 @@ import operator
 import re
 from typing import Pattern
 
-import spacy
 from rapidfuzz import fuzz
 
 from sec_certs import cert_rules, constants
@@ -28,6 +27,8 @@ class CPEClassifier:
     vendors_: set[str]
 
     def __init__(self, match_threshold: int = 80, n_max_matches: int = 10, spacy_model_to_use: str = "en_core_web_sm"):
+        import spacy
+
         self.match_threshold = match_threshold
         self.n_max_matches = n_max_matches
         self.nlp = spacy.load(spacy_model_to_use, disable=["parser", "ner"])

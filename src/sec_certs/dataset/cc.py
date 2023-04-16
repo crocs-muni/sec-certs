@@ -12,7 +12,6 @@ from typing import ClassVar, Iterator, cast
 import numpy as np
 import pandas as pd
 import requests
-import tabula
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 import sec_certs.utils.sanitization
@@ -1532,6 +1531,8 @@ class CCSchemeDataset:
 
     @staticmethod
     def get_turkey_certified():
+        import tabula
+
         results = []
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = Path(tmpdir) / "turkey.pdf"
