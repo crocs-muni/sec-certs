@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from multiprocessing import cpu_count
-from typing import Any, ClassVar, Generic, TypeVar
+from typing import Any, Final, Generic, TypeVar
 
 import numpy as np
 import requests
@@ -59,7 +59,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
 
     @property
     @abstractmethod
-    def RESULTS_PER_PAGE(self):
+    def _RESULTS_PER_PAGE(self):
         """
         Specifies "resultsPerPage" parameter to the API
         """
@@ -67,7 +67,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
 
     @property
     @abstractmethod
-    def ENDPOINT(self):
+    def _ENDPOINT(self):
         """
         Specifies the endpoint, used mostly for logging
         """
@@ -75,7 +75,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
 
     @property
     @abstractmethod
-    def ENDPOINT_URL(self):
+    def _ENDPOINT_URL(self):
         """
         Specifies the URL to send the requests to
         """
@@ -108,7 +108,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
 
     @property
     def base_params(self) -> dict[str, Any]:
-        dct = {"resultsPerPage": self.RESULTS_PER_PAGE}
+        dct = {"resultsPerPage": self._RESULTS_PER_PAGE}
 
         if self._start_mod_date and self._end_mod_date:
             dct["startModDate"] = self._start_mod_date.isoformat()
@@ -176,7 +176,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
                 self._start_mod_date = None
                 self._end_mod_date = None
                 logger.info(
-                    f"Will fetch complete {self.ENDPOINT} data from NVD API as the last update was either done >120 days ago, or no previous data was provided."
+                    f"Will fetch complete {self._ENDPOINT} data from NVD API as the last update was either done >120 days ago, or no previous data was provided."
                 )
             else:
                 self._start_mod_date = last_update
@@ -187,7 +187,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
             time.sleep(6)
 
         response = NvdDatasetBuilder.fetch_nvd_api(
-            self.ENDPOINT_URL, params={**self.base_params, **{"resultsPerPage": 0}}, headers=self.headers
+            self._ENDPOINT_URL, params={**self.base_params, **{"resultsPerPage": 0}}, headers=self.headers
         )
         if response.status_code == 404:
             # This is likely due to no CPEs to update, incremental update very soon.
@@ -195,15 +195,15 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         if response.status_code != constants.RESPONSE_OK:
             if fresh:
                 logger.warning(
-                    f"Error when attempting to fetch number of pages to get from NVD API {self.ENDPOINT} endpoint, sleeping 6 seconds and repeating."
+                    f"Error when attempting to fetch number of pages to get from NVD API {self._ENDPOINT} endpoint, sleeping 6 seconds and repeating."
                 )
                 return self._get_n_total_results(fresh=False)
             else:
                 logger.error(
-                    f"Could not fetch the number of pages to get from NVD API {self.ENDPOINT} endpoint even after retry attempt, raising exception."
+                    f"Could not fetch the number of pages to get from NVD API {self._ENDPOINT} endpoint even after retry attempt, raising exception."
                 )
                 raise RequestException(
-                    f"Could not fetch the number of pages to get from NVD API {self.ENDPOINT} endpoint even after retry attempt"
+                    f"Could not fetch the number of pages to get from NVD API {self._ENDPOINT} endpoint even after retry attempt"
                 )
         return response.json()["totalResults"]
 
@@ -212,14 +212,14 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         Makes an API call to NVD API to learn how many records in total will be fetch. Based on that, prepares
         a list of tuples that parametrize the requests to be made.
         """
-        n_requests = math.ceil(self._get_n_total_results() / self.RESULTS_PER_PAGE)
+        n_requests = math.ceil(self._get_n_total_results() / self._RESULTS_PER_PAGE)
         logger.info(
-            f"Building arguments for NVD requests to {self.ENDPOINT} endpoint. Will send {n_requests} requests."
+            f"Building arguments for NVD requests to {self._ENDPOINT} endpoint. Will send {n_requests} requests."
         )
-        offsets = [i * self.RESULTS_PER_PAGE for i in range(n_requests)]
+        offsets = [i * self._RESULTS_PER_PAGE for i in range(n_requests)]
         delays = [self._base_delay * random.randint(1, 3) for _ in range(n_requests)]  # Bulgarian constant
         self._requests_to_process = [
-            (self.ENDPOINT_URL, {**self.base_params, **{"startIndex": offset}}, self.headers, delay)
+            (self._ENDPOINT_URL, {**self.base_params, **{"startIndex": offset}}, self.headers, delay)
             for offset, delay in zip(offsets, delays)
         ]
 
@@ -255,7 +255,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
                     self._requests_to_process,
                     max_workers=self._actual_n_threads,
                     unpack=True,
-                    progress_bar_desc=f"Fetching data from {self.ENDPOINT} NVD endpoint",
+                    progress_bar_desc=f"Fetching data from {self._ENDPOINT} NVD endpoint",
                 )
             )
             self._request_parallel_and_handle_responses()
@@ -283,9 +283,9 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
 
 
 class CpeNvdDatasetBuilder(NvdDatasetBuilder[CPEDataset]):
-    ENDPOINT: ClassVar[str] = "CPE"
-    ENDPOINT_URL: ClassVar[str] = "https://services.nvd.nist.gov/rest/json/cpes/2.0"
-    RESULTS_PER_PAGE: ClassVar[int] = 10000
+    _ENDPOINT: Final[str] = "CPE"
+    _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cpes/2.0"
+    _RESULTS_PER_PAGE: Final[int] = 10000
 
     def _process_responses(self, responses: list[requests.Response], cpe_dataset: CPEDataset) -> CPEDataset:
         products = list(itertools.chain.from_iterable(response.json()["products"] for response in responses))
@@ -302,9 +302,9 @@ class CpeNvdDatasetBuilder(NvdDatasetBuilder[CPEDataset]):
 
 
 class CveNvdDatasetBuilder(NvdDatasetBuilder[CVEDataset]):
-    ENDPOINT: ClassVar[str] = "CVE"
-    ENDPOINT_URL: ClassVar[str] = "https://services.nvd.nist.gov/rest/json/cves/2.0"
-    RESULTS_PER_PAGE: ClassVar[int] = 2000
+    _ENDPOINT: Final[str] = "CVE"
+    _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+    _RESULTS_PER_PAGE: Final[int] = 2000
 
     def _process_responses(self, responses: list[Response], cve_dataset: CVEDataset) -> CVEDataset:
         timestamp = self._end_mod_date.isoformat() if self._end_mod_date else responses[-1].json()["timestamp"]
@@ -321,10 +321,10 @@ class CveNvdDatasetBuilder(NvdDatasetBuilder[CVEDataset]):
 
 
 class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
-    ENDPOINT: ClassVar[str] = "CPEMatch"
-    ENDPOINT_URL: ClassVar[str] = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
-    RESULTS_PER_PAGE: ClassVar[int] = 5000
-    VERSION_KEYS: ClassVar[list[str]] = [
+    _ENDPOINT: Final[str] = "CPEMatch"
+    _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
+    _RESULTS_PER_PAGE: Final[int] = 5000
+    _VERSION_KEYS: Final[list[str]] = [
         "versionStartIncluding",
         "versionStartExcluding",
         "versionEndIncluding",
@@ -346,7 +346,7 @@ class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
                         "criteria": m["matchString"]["criteria"],
                         "matches": m["matchString"]["matches"],
                     }
-                    for version_key in self.VERSION_KEYS:
+                    for version_key in self._VERSION_KEYS:
                         if version_key in m["matchString"]:
                             dataset_to_fill["match_strings"][m["matchString"]["matchCriteriaId"]][version_key] = m[
                                 "matchString"
