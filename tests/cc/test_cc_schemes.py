@@ -27,11 +27,16 @@ def test_australia():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.fixture
+def canada_certified():
+    return CCSchemeDataset.get_canada_certified()
+
+
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
-def test_canada():
-    certified = CCSchemeDataset.get_canada_certified()
-    assert len(certified) != 0
-    assert absolute_urls(certified)
+def test_canada(canada_certified):
+    assert len(canada_certified) != 0
+    assert absolute_urls(canada_certified)
     ineval = CCSchemeDataset.get_canada_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
@@ -214,8 +219,6 @@ def test_single_match(cert_one: CCCertificate):
     assert matcher.match(cert_one) > 95
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-def test_matching(toy_dataset: CCDataset):
-    certified = CCSchemeDataset.get_canada_certified()
-    matches = CCSchemeMatcher.match_all(certified, "CA", toy_dataset)
+def test_matching(toy_dataset: CCDataset, canada_certified):
+    matches = CCSchemeMatcher.match_all(canada_certified, "CA", toy_dataset)
     assert len(matches) == 1
