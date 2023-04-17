@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import Any, Iterable, Mapping
 
 from rapidfuzz import fuzz
 
 from sec_certs.configuration import config
-from sec_certs.dataset.cc import CCDataset
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.utils.strings import fully_sanitize_string
 
 
-class CCSchemeMatcher(AbstractMatcher[CCCertificate, CCDataset]):
+class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
     """
     A heuristic matcher between entries on CC scheme websites (see CCSchemeDataset) and
     CC certificates from the Common Criteria portal (as in CCDataset).
@@ -82,15 +81,17 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate, CCDataset]):
         return max((0, max(product_ratings) * 0.5 + max(vendor_ratings) * 0.5 - 2))
 
     @classmethod
-    def match_all(cls, entries: list[dict[str, Any]], scheme: str, dset: CCDataset) -> dict[str, Mapping]:
+    def match_all(
+        cls, entries: list[dict[str, Any]], scheme: str, certificates: Iterable[CCCertificate]
+    ) -> dict[str, Mapping]:
         """
         Match all entries of a given CC scheme to certificates from the dataset.
 
         :param entries: The entries from the scheme, obtained from CCSchemeDataset.
         :param scheme: The scheme, e.g. "DE".
-        :param dset: The dataset to match against.
+        :param certificates: The certificates to match against.
         :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
-        certs: list[CCCertificate] = list(filter(lambda cert: cert.scheme == scheme, dset))
+        certs: list[CCCertificate] = list(filter(lambda cert: cert.scheme == scheme, certificates))
         matchers = [CCSchemeMatcher(entry, scheme) for entry in entries]
-        return cls._match_all(matchers, certs, config.cc_matching_threshold)
+        return cls._match_certs(matchers, certs, config.cc_matching_threshold)

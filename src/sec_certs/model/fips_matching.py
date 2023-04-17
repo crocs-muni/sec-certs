@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import typing
-from typing import Mapping
+from typing import Iterable, Mapping
 
 from rapidfuzz import fuzz
 
 from sec_certs.configuration import config
-from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.utils.strings import fully_sanitize_string
@@ -16,7 +15,7 @@ if typing.TYPE_CHECKING:
     from sec_certs.sample.fips_mip import MIPEntry, MIPSnapshot
 
 
-class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate, FIPSDataset]):
+class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
     """
     A heuristic matcher between entries on the FIPS IUT/MIP lists and
     the FIPS certificates.
@@ -59,15 +58,14 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate, FIPSDataset]):
 
     @classmethod
     def match_snapshot(
-        cls, snapshot: IUTSnapshot | MIPSnapshot, dset: FIPSDataset
+        cls, snapshot: IUTSnapshot | MIPSnapshot, certificates: Iterable[FIPSCertificate]
     ) -> Mapping[IUTEntry | MIPEntry, FIPSCertificate | None]:
         """
         Match a whole snapshot of IUT/MIP entries to a FIPS certificate dataset.
 
         :param snapshot: The snapshot to match the entries of.
-        :param dset: The dataset to match to.
+        :param certificates: The certificates to match against.
         :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
-        certs: list[FIPSCertificate] = list(dset)
         matchers = [FIPSProcessMatcher(entry) for entry in snapshot]
-        return cls._match_all(matchers, certs, config.fips_matching_threshold)
+        return cls._match_certs(matchers, certificates, config.fips_matching_threshold)
