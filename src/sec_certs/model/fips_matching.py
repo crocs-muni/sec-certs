@@ -67,5 +67,6 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
         :param certificates: The certificates to match against.
         :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
+        certs: list[FIPSCertificate] = list(certificates)
         matchers = [FIPSProcessMatcher(entry) for entry in snapshot]
-        return cls._match_certs(matchers, certificates, config.fips_matching_threshold)
+        return cls._match_certs(matchers, certs, config.fips_matching_threshold)
