@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Any, Iterable, Mapping
 
-from rapidfuzz import fuzz
-
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.cc import CCCertificate
@@ -33,20 +31,20 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         return None
 
     def _prepare(self):
+        self._canonical_cert_id = None
         if cert_id := self._get_from_entry("cert_id", "id"):
             self._canonical_cert_id = CertificateId(self.scheme, cert_id).canonical
-        else:
-            self._canonical_cert_id = None
 
+        self._product = None
         if product_name := self._get_from_entry("product", "title", "name"):
             self._product = fully_sanitize_string(product_name)
-        else:
-            self._product = None
 
+        self._vendor = None
         if vendor_name := self._get_from_entry("vendor", "developer", "manufacturer", "supplier"):
             self._vendor = fully_sanitize_string(vendor_name)
-        else:
-            self._vendor = None
+
+        self._report_hash = self._get_from_entry("report_hash")
+        self._target_hash = self._get_from_entry("target_hash")
 
     def match(self, cert: CCCertificate) -> float:
         """
@@ -58,6 +56,7 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         :param cert: The certificate to match against.
         :return: The match score.
         """
+        # This one is full of magic numbers, there is some idea to it but adjust as necessary.
         if self.scheme != cert.scheme:
             return 0
         if self._canonical_cert_id and cert.heuristics.cert_id == self._canonical_cert_id:
@@ -68,17 +67,14 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         cert_manufacturer = fully_sanitize_string(cert.manufacturer)
         if self._product == cert.name and self._vendor == cert.manufacturer:
             return 99
-        # TODO: Add matching based on document hashes: cert_hash, report_hash, target_hash.
+        if cert.state.report_pdf_hash == self._report_hash and self._report_hash is not None:
+            return 95
+        if cert.state.st_pdf_hash == self._target_hash and self._target_hash is not None:
+            return 93
 
-        product_ratings = [
-            fuzz.token_set_ratio(self._product, cert_name),
-            fuzz.partial_token_sort_ratio(self._product, cert_name, score_cutoff=100),
-        ]
-        vendor_ratings = [
-            fuzz.token_set_ratio(self._vendor, cert_manufacturer),
-            fuzz.partial_token_sort_ratio(self._vendor, cert_manufacturer, score_cutoff=100),
-        ]
-        return max((0, max(product_ratings) * 0.5 + max(vendor_ratings) * 0.5 - 2))
+        product_rating = self._compute_match(self._product, cert_name)
+        vendor_rating = self._compute_match(self._vendor, cert_manufacturer)
+        return max((0, product_rating * 0.5 + vendor_rating * 0.5 - 2))
 
     @classmethod
     def match_all(

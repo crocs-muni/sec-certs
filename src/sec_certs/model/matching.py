@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from heapq import heappop, heappush
 from typing import Generic
 
+from rapidfuzz import fuzz
+
 from sec_certs.sample.certificate import Certificate
 
 CertSubType = typing.TypeVar("CertSubType", bound=Certificate)
@@ -12,6 +14,15 @@ class AbstractMatcher(Generic[CertSubType], ABC):
     @abstractmethod
     def match(self, cert: CertSubType) -> float:
         raise NotImplementedError
+
+    def _compute_match(self, one: str, other: str) -> float:
+        return max(
+            [
+                fuzz.token_set_ratio(one, other),
+                fuzz.partial_token_sort_ratio(one, other, score_cutoff=100),
+                fuzz.partial_ratio(one, other, score_cutoff=100),
+            ]
+        )
 
     @staticmethod
     def _match_certs(matchers, certs, threshold):

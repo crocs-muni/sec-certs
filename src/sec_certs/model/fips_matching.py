@@ -3,8 +3,6 @@ from __future__ import annotations
 import typing
 from typing import Iterable, Mapping
 
-from rapidfuzz import fuzz
-
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.fips import FIPSCertificate
@@ -39,22 +37,16 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
         """
         if cert.web_data.standard != self._standard:
             return 0
-        if self._product is None or self._vendor is None or cert.name is None or cert.manufacturer is None:
+        if cert.name is None or cert.manufacturer is None:
             return 0
         cert_name = fully_sanitize_string(cert.name)
         cert_manufacturer = fully_sanitize_string(cert.manufacturer)
         if self._product == cert_name and self._vendor == cert_manufacturer:
             return 99
 
-        product_ratings = [
-            fuzz.token_set_ratio(self._product, cert_name),
-            fuzz.partial_token_sort_ratio(self._product, cert_name, score_cutoff=100),
-        ]
-        vendor_ratings = [
-            fuzz.token_set_ratio(self._vendor, cert_manufacturer),
-            fuzz.partial_token_sort_ratio(self._vendor, cert_manufacturer, score_cutoff=100),
-        ]
-        return max((0, max(product_ratings) * 0.5 + max(vendor_ratings) * 0.5 - 2))
+        product_rating = self._compute_match(self._product, cert_name)
+        vendor_rating = self._compute_match(self._vendor, cert_manufacturer)
+        return max((0, product_rating * 0.5 + vendor_rating * 0.5 - 2))
 
     @classmethod
     def match_snapshot(
