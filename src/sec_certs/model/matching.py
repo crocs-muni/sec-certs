@@ -1,13 +1,14 @@
-import typing
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from heapq import heappop, heappush
-from typing import Any, Generic, Sequence
+from typing import Any, Generic, Sequence, TypeVar
 
 from rapidfuzz import fuzz
 
 from sec_certs.sample.certificate import Certificate
 
-CertSubType = typing.TypeVar("CertSubType", bound=Certificate)
+CertSubType = TypeVar("CertSubType", bound=Certificate)
 
 
 class AbstractMatcher(Generic[CertSubType], ABC):
