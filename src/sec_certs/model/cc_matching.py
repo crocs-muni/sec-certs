@@ -57,21 +57,28 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         :return: The match score.
         """
         # This one is full of magic numbers, there is some idea to it but adjust as necessary.
+        # We want to match the same scheme.
         if self.scheme != cert.scheme:
             return 0
+        # If we have a perfect cert_id match, take it.
         if self._canonical_cert_id and cert.heuristics.cert_id == self._canonical_cert_id:
             return 100
+        # We need to have something to match to.
         if self._product is None or self._vendor is None or cert.name is None or cert.manufacturer is None:
             return 0
         cert_name = fully_sanitize_string(cert.name)
         cert_manufacturer = fully_sanitize_string(cert.manufacturer)
+        # If we match exactly, return early.
         if self._product == cert.name and self._vendor == cert.manufacturer:
             return 99
+        # If we match the report hash, return early.
         if cert.state.report_pdf_hash == self._report_hash and self._report_hash is not None:
             return 95
+        # If we match the target hash, return early.
         if cert.state.st_pdf_hash == self._target_hash and self._target_hash is not None:
             return 93
 
+        # Fuzzy match at the end with some penalization.
         product_rating = self._compute_match(self._product, cert_name)
         vendor_rating = self._compute_match(self._vendor, cert_manufacturer)
         return max((0, product_rating * 0.5 + vendor_rating * 0.5 - 2))

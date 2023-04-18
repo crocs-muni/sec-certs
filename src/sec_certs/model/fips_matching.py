@@ -37,19 +37,24 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
         :param cert: The certificate to match against.
         :return: The match score.
         """
+        # We want to match the same standard.
         if cert.web_data.standard != self._standard:
             return 0
+        # We need to have something to match to.
         if cert.name is None or cert.manufacturer is None:
             return 0
+        # We can't match to a cert that predates us (MIP or IUT always predates the cert).
         if cert.web_data.validation_history and not any(
             validation_entry.date > self._date for validation_entry in cert.web_data.validation_history
         ):
             return 0
+        # If we match exactly, return early.
         cert_name = fully_sanitize_string(cert.name)
         cert_manufacturer = fully_sanitize_string(cert.manufacturer)
         if self._product == cert_name and self._vendor == cert_manufacturer:
             return 99
 
+        # Fuzzy match at the end with some penalization.
         product_rating = self._compute_match(self._product, cert_name)
         vendor_rating = self._compute_match(self._vendor, cert_manufacturer)
         return max((0, product_rating * 0.5 + vendor_rating * 0.5 - 2))
