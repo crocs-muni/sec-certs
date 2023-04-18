@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from datetime import date
 from typing import Iterable, Mapping, Sequence
 
 from sec_certs.configuration import config
@@ -19,11 +20,12 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
     the FIPS certificates.
     """
 
-    def __init__(self, entry: MIPEntry | IUTEntry):
+    def __init__(self, entry: MIPEntry | IUTEntry, date: date | None = None):
         self.entry = entry
-        self._prepare()
+        self._prepare(date)
 
-    def _prepare(self):
+    def _prepare(self, date):
+        self._date = date or getattr(self.entry, "status_since", None) or getattr(self.entry, "iut_date", None)
         self._product = fully_sanitize_string(self.entry.module_name)
         self._vendor = fully_sanitize_string(self.entry.vendor_name)
         self._standard = self.entry.standard
@@ -38,6 +40,10 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
         if cert.web_data.standard != self._standard:
             return 0
         if cert.name is None or cert.manufacturer is None:
+            return 0
+        if cert.web_data.validation_history and not any(
+            validation_entry.date > self._date for validation_entry in cert.web_data.validation_history
+        ):
             return 0
         cert_name = fully_sanitize_string(cert.name)
         cert_manufacturer = fully_sanitize_string(cert.manufacturer)
@@ -60,6 +66,8 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
         :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
         certs: list[FIPSCertificate] = list(certificates)
-        matchers: Sequence[FIPSProcessMatcher] = [FIPSProcessMatcher(entry) for entry in snapshot]
+        matchers: Sequence[FIPSProcessMatcher] = [
+            FIPSProcessMatcher(entry, snapshot.timestamp.date()) for entry in snapshot
+        ]
         # mypy is ridiculous
         return cls._match_certs(matchers, certs, config.fips_matching_threshold)  # type: ignore

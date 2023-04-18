@@ -819,6 +819,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
         if to_download or not self.scheme_dataset_path.exists():
             scheme_dset = CCSchemeDataset.from_web(only_schemes)
+            scheme_dset.to_json(self.scheme_dataset_path)
         else:
             scheme_dset = CCSchemeDataset.from_json(self.scheme_dataset_path)
 

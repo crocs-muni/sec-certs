@@ -58,5 +58,7 @@ def test_iut_matching(processed_dataset: FIPSDataset):
 
 def test_iut_snapshot_match(processed_dataset: FIPSDataset, data_dump_path: Path):
     snapshot = IUTSnapshot.from_dump(data_dump_path)
+    # Move snapshot date back so that there are matches
+    snapshot.timestamp = datetime.datetime(2014, 1, 2)
     matches = FIPSProcessMatcher.match_snapshot(snapshot, processed_dataset)
     assert matches
