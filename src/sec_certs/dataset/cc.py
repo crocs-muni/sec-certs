@@ -17,10 +17,12 @@ from bs4 import BeautifulSoup, Tag
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.dataset.cc_scheme import CCSchemeDataset, EntryType
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
@@ -39,6 +41,7 @@ class CCAuxiliaryDatasets(AuxiliaryDatasets):
     cve_dset: CVEDataset | None = None
     pp_dset: ProtectionProfileDataset | None = None
     mu_dset: CCDatasetMaintenanceUpdates | None = None
+    scheme_dset: CCSchemeDataset | None = None
 
 
 class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializableType):
@@ -139,7 +142,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @property
     def pp_dataset_path(self) -> Path:
         """
-        Returns directory that holds files associated with Protection profiles
+        Returns a path to the dataset of Protection Profiles
         """
         return self.auxiliary_datasets_dir / "pp_dataset.json"
 
@@ -153,9 +156,16 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @property
     def mu_dataset_path(self) -> Path:
         """
-        Returns json that holds the datase of maintenance updates
+        Returns a path to the dataset of maintenance updates
         """
         return self.mu_dataset_dir / "maintenance_updates.json"
+
+    @property
+    def scheme_dataset_path(self) -> Path:
+        """
+        Returns a path to the scheme dataset
+        """
+        return self.auxiliary_datasets_dir / "scheme_dataset.json"
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -733,11 +743,12 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
         """
         Processes all auxiliary datasets needed during computation. On top of base-class processing,
-        CC handles protection profiles and maintenance updates.
+        CC handles protection profiles, maintenance updates and schemes.
         """
         super().process_auxiliary_datasets(download_fresh)
         self.auxiliary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
         self.auxiliary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
+        self.auxiliary_datasets.scheme_dset = self.process_schemes(to_download=download_fresh)
 
     def process_protection_profiles(
         self, to_download: bool = True, keep_metadata: bool = True
@@ -797,6 +808,30 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             update_dset.extract_data()
 
         return update_dset
+
+    def process_schemes(self, to_download: bool = True, only_schemes: set[str] | None = None) -> CCSchemeDataset:
+        """
+        Downloads or loads from json a dataset of CC scheme data.
+        """
+        logger.info("Processing CC schemes")
+
+        self.auxiliary_datasets_dir.mkdir(parents=True, exist_ok=True)
+
+        if to_download or not self.scheme_dataset_path.exists():
+            scheme_dset = CCSchemeDataset.from_web(only_schemes)
+        else:
+            scheme_dset = CCSchemeDataset.from_json(self.scheme_dataset_path)
+
+        for scheme in scheme_dset:
+            code = scheme["scheme"]
+            certified = scheme.get(EntryType.Certified)
+            if certified:
+                matches = CCSchemeMatcher.match_all(certified, code, self)
+                for dgst, match in matches.items():
+                    self[dgst].heuristics.scheme_data = match
+            # TODO: Archived??
+
+        return scheme_dset
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):

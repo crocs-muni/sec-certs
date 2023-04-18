@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Mapping, Sequence
 
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
@@ -79,7 +79,7 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
     @classmethod
     def match_all(
         cls, entries: list[dict[str, Any]], scheme: str, certificates: Iterable[CCCertificate]
-    ) -> dict[str, Mapping]:
+    ) -> dict[str, dict[str, Any]]:
         """
         Match all entries of a given CC scheme to certificates from the dataset.
 
@@ -89,5 +89,5 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
         certs: list[CCCertificate] = list(filter(lambda cert: cert.scheme == scheme, certificates))
-        matchers = [CCSchemeMatcher(entry, scheme) for entry in entries]
-        return cls._match_certs(matchers, certs, config.cc_matching_threshold)
+        matchers: Sequence[CCSchemeMatcher] = [CCSchemeMatcher(entry, scheme) for entry in entries]
+        return cls._match_certs(matchers, certs, config.cc_matching_threshold)  # type: ignore

@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import tempfile
 import warnings
+from datetime import datetime
+from enum import Enum, auto
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Mapping
 from urllib.parse import urljoin
 
 import requests
@@ -16,18 +19,133 @@ from requests import Response
 from urllib3.connectionpool import InsecureRequestWarning
 
 from sec_certs import constants
+from sec_certs.dataset.json_path_dataset import JSONPathDataset
+from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 from sec_certs.utils.tqdm import tqdm
 
+logger = logging.getLogger()
 
-class CCSchemeDataset:
+
+class EntryType(Enum):
+    Certified = auto()
+    InEvaluation = auto()
+    Archived = auto()
+
+
+class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
     """
-    Not really a dataset of data from CC scheme websites.
+    A dataset of data from CC scheme websites.
 
     Each `.get_*` method returns a list of dict entries from the given scheme.
     The entries do not share many keys, but each one has at least some form
     of a product name and most have a vendor/developer/manufacturer field.
     """
+
+    def __init__(self, schemes, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+        self.schemes = schemes
+        self.json_path = Path(json_path)
+
+    @property
+    def serialized_attributes(self) -> list[str]:
+        return ["schemes"]
+
+    def __iter__(self):
+        yield from self.schemes.values()
+
+    def __getitem__(self, scheme: str):
+        return self.schemes.__getitem__(scheme.upper())
+
+    def __setitem__(self, key: str, value):
+        self.schemes.__setitem__(key.upper(), value)
+
+    def __len__(self) -> int:
+        return len(self.schemes)
+
+    def to_dict(self):
+        return {"schemes": self.schemes}
+
+    @classmethod
+    def from_dict(cls, dct: Mapping) -> CCSchemeDataset:
+        return cls(dct["schemes"])
+
+    @classmethod
+    def from_web(cls, only_schemes: set[str] | None = None) -> CCSchemeDataset:
+        methods: dict[str, list[dict[str, EntryType | Callable]]] = {
+            "AU": [{"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_australia_in_evaluation}],
+            "CA": [
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_canada_in_evaluation},
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_canada_certified},
+            ],
+            "FR": [{"type": EntryType.Certified, "method": CCSchemeDataset.get_france_certified}],
+            "DE": [{"type": EntryType.Certified, "method": CCSchemeDataset.get_germany_certified}],
+            "IN": [
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_india_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_india_archived},
+            ],
+            "IT": [
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_italy_certified},
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_italy_in_evaluation},
+            ],
+            "JP": [
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_japan_in_evaluation},
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_japan_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_japan_archived},
+            ],
+            "MY": [
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_malaysia_certified},
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_malaysia_in_evaluation},
+            ],
+            "NL": [
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_netherlands_certified},
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_netherlands_in_evaluation},
+            ],
+            "NO": [
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_norway_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_norway_archived},
+            ],
+            "KO": [
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_korea_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_korea_archived},
+            ],
+            "SG": [
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_singapore_in_evaluation},
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_singapore_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_singapore_archived},
+            ],
+            "ES": [{"type": EntryType.Certified, "method": CCSchemeDataset.get_spain_certified}],
+            "SE": [
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_sweden_in_evaluation},
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_sweden_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_sweden_archived},
+            ],
+            "TR": [{"type": EntryType.Certified, "method": CCSchemeDataset.get_turkey_certified}],
+            "US": [
+                {"type": EntryType.InEvaluation, "method": CCSchemeDataset.get_usa_in_evaluation},
+                {"type": EntryType.Certified, "method": CCSchemeDataset.get_usa_certified},
+                {"type": EntryType.Archived, "method": CCSchemeDataset.get_usa_archived},
+            ],
+        }
+        schemes = {}
+        for scheme, sources in methods.items():
+            if only_schemes is not None and scheme not in only_schemes:
+                continue
+            timestamp = datetime.now()
+            entry: dict[str | EntryType, Any] = {
+                "scheme": scheme,
+                "timestamp": timestamp,
+            }
+            for source in sources:
+                source_type: EntryType = source["type"]  # type: ignore
+                source_method: Callable = source["method"]  # type: ignore
+                try:
+                    res = source_method()
+                except Exception as e:
+                    logger.warning(f"Error during {scheme} download of {source_type}: {e}")
+                    continue
+                entry[source_type] = res
+            schemes[scheme] = entry
+        return cls(schemes)
 
     @staticmethod
     def _get(url: str, session, **kwargs) -> Response:

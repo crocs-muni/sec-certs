@@ -70,7 +70,8 @@
                 },
                 "extracted_sars": null,
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "scheme_data": null
             },
             "related_cert_digest": "8a5e6bcda602920c",
             "maintenance_date": "2019-08-26"

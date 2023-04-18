@@ -1,7 +1,7 @@
 import typing
 from abc import ABC, abstractmethod
 from heapq import heappop, heappush
-from typing import Generic
+from typing import Any, Generic, Sequence
 
 from rapidfuzz import fuzz
 
@@ -11,6 +11,8 @@ CertSubType = typing.TypeVar("CertSubType", bound=Certificate)
 
 
 class AbstractMatcher(Generic[CertSubType], ABC):
+    entry: Any
+
     @abstractmethod
     def match(self, cert: CertSubType) -> float:
         raise NotImplementedError
@@ -25,7 +27,7 @@ class AbstractMatcher(Generic[CertSubType], ABC):
         )
 
     @staticmethod
-    def _match_certs(matchers, certs, threshold):
+    def _match_certs(matchers: Sequence["AbstractMatcher"], certs: list[CertSubType], threshold: float):
         scores: list[tuple[float, int, int]] = []
         matched_is: set[int] = set()
         matched_js: set[int] = set()

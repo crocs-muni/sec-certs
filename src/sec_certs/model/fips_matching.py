@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Iterable, Mapping
+from typing import Iterable, Mapping, Sequence
 
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
@@ -60,5 +60,6 @@ class FIPSProcessMatcher(AbstractMatcher[FIPSCertificate]):
         :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
         """
         certs: list[FIPSCertificate] = list(certificates)
-        matchers = [FIPSProcessMatcher(entry) for entry in snapshot]
-        return cls._match_certs(matchers, certs, config.fips_matching_threshold)
+        matchers: Sequence[FIPSProcessMatcher] = [FIPSProcessMatcher(entry) for entry in snapshot]
+        # mypy is ridiculous
+        return cls._match_certs(matchers, certs, config.fips_matching_threshold)  # type: ignore

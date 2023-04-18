@@ -222,3 +222,8 @@ def test_single_match(cert_one: CCCertificate):
 def test_matching(toy_dataset: CCDataset, canada_certified):
     matches = CCSchemeMatcher.match_all(canada_certified, "CA", toy_dataset)
     assert len(matches) == 1
+
+
+def test_process_dataset(toy_dataset: CCDataset):
+    toy_dataset.process_schemes(True, only_schemes={"CA"})
+    assert toy_dataset["8a5e6bcda602920c"].heuristics.scheme_data is not None
