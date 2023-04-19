@@ -95,7 +95,7 @@ class ComplexSerializableType:
 # Decorator for serialization
 def serialize(func: Callable):
     @wraps(func)
-    def inner_func(*args, **kwargs):
+    def _serialize(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
             raise ValueError(
                 "@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes."
@@ -112,7 +112,7 @@ def serialize(func: Callable):
             args[0].to_json()
         return result
 
-    return inner_func
+    return _serialize
 
 
 def get_class_fullname(obj: Any) -> str:

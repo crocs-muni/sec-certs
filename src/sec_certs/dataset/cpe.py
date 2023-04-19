@@ -117,11 +117,8 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         return pd.DataFrame([x.pandas_tuple for x in self], columns=CPE.pandas_columns).set_index("uri")
 
     def get_title_to_cpes_dict(self) -> dict[str, set[CPE]]:
-        title_to_cpes_dict = {}
+        title_to_cpes_dict: dict[str, set[CPE]] = {}
         for cpe in self:
             if cpe.title:
-                if cpe.title not in title_to_cpes_dict:
-                    title_to_cpes_dict[cpe.title] = {cpe}
-                else:
-                    title_to_cpes_dict[cpe.title].add(cpe)
+                title_to_cpes_dict.setdefault(cpe.title, set()).add(cpe)
         return title_to_cpes_dict
