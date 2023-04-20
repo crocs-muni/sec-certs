@@ -6,7 +6,7 @@
 1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
-from sec_certs.dataset import CCDataset
+from sec_certs.dataset.cc import CCDataset
 
 dset = CCDataset.from_web_latest()
 ```
@@ -19,7 +19,7 @@ to obtain to obtain freshly processed dataset from [seccerts.org](https://seccer
 1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
-from sec_certs.dataset import FIPSDataset
+from sec_certs.dataset.fips import FIPSDataset
 
 dset = FIPSDataset.from_web_latest()
 ```

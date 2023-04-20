@@ -12,8 +12,9 @@ import click
 from pydantic import ValidationError
 
 from sec_certs.configuration import config
-from sec_certs.dataset import CCDataset, FIPSDataset
+from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.dataset import Dataset
+from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tesseract
 
 logger = logging.getLogger(__name__)

@@ -437,6 +437,7 @@ class CCCertificate(
         extracted_sars: set[SAR] | None = field(default=None)
         direct_transitive_cves: set[str] | None = field(default=None)
         indirect_transitive_cves: set[str] | None = field(default=None)
+        scheme_data: dict[str, Any] | None = field(default=None)
 
         @property
         def serialized_attributes(self) -> list[str]:

@@ -7,9 +7,9 @@ import pytest
 from dateutil.parser import isoparse
 
 import tests.data.cc.analysis.auxiliary_datasets
-from sec_certs.dataset import CVEDataset
-from sec_certs.sample import CVE
+from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cpe import CPE
+from sec_certs.sample.cve import CVE
 from sec_certs.serialization.json import SerializationError
 
 
@@ -103,7 +103,6 @@ def cves(cve_2010_2325_cpe_configs) -> list[CVE]:
 
 
 @pytest.mark.slow
-@pytest.mark.monitor_test
 @pytest.mark.xfail(reason="May fail due to errors on NIST server.")
 def test_from_web():
     dset = CVEDataset.from_web()

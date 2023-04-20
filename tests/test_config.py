@@ -8,13 +8,6 @@ import pytest
 import yaml
 
 import sec_certs.configuration as config_module
-import tests.data
-
-
-@pytest.fixture(autouse=True)
-def load_test_config():
-    pth = Path(tests.data.__path__[0]) / "settings_tests.yml"
-    config_module.config.load_from_yaml(pth)
 
 
 @pytest.fixture

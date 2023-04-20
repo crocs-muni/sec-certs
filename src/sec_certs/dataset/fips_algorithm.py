@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 
 from sec_certs import constants
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
-from sec_certs.sample import FIPSAlgorithm
+from sec_certs.sample.fips_algorithm import FIPSAlgorithm
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
 
