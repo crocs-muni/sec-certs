@@ -7,7 +7,6 @@ import logging
 import tempfile
 import warnings
 from datetime import datetime
-from enum import Enum, auto
 from pathlib import Path
 from typing import Any, Callable, Mapping
 from urllib.parse import urljoin
@@ -20,17 +19,12 @@ from urllib3.connectionpool import InsecureRequestWarning
 
 from sec_certs import constants
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
+from sec_certs.sample.cc_scheme import CCScheme, EntryType
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger()
-
-
-class EntryType(Enum):
-    Certified = auto()
-    InEvaluation = auto()
-    Archived = auto()
 
 
 class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
@@ -42,7 +36,7 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
     of a product name and most have a vendor/developer/manufacturer field.
     """
 
-    def __init__(self, schemes, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+    def __init__(self, schemes: dict[str, CCScheme], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
         self.schemes = schemes
         self.json_path = Path(json_path)
 
@@ -131,10 +125,7 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
             if only_schemes is not None and scheme not in only_schemes:
                 continue
             timestamp = datetime.now()
-            entry: dict[str | EntryType, Any] = {
-                "scheme": scheme,
-                "timestamp": timestamp,
-            }
+            entry: dict[str, Any] = {"country": scheme, "timestamp": timestamp, "lists": {}}
             for source in sources:
                 source_type: EntryType = source["type"]  # type: ignore
                 source_method: Callable = source["method"]  # type: ignore
@@ -143,8 +134,9 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
                 except Exception as e:
                     logger.warning(f"Error during {scheme} download of {source_type}: {e}")
                     continue
-                entry[source_type] = res
-            schemes[scheme] = entry
+                entry["lists"][source_type] = res
+            scheme_obj = CCScheme(**entry)
+            schemes[scheme] = scheme_obj
         return cls(schemes)
 
     @staticmethod

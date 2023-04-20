@@ -824,10 +824,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             scheme_dset = CCSchemeDataset.from_json(self.scheme_dataset_path)
 
         for scheme in scheme_dset:
-            code = scheme["scheme"]
-            certified = scheme.get(EntryType.Certified)
+            certified = scheme.lists.get(EntryType.Certified)
             if certified:
-                matches = CCSchemeMatcher.match_all(certified, code, self)
+                matches = CCSchemeMatcher.match_all(certified, scheme.country, self)
                 for dgst, match in matches.items():
                     self[dgst].heuristics.scheme_data = match
             # TODO: Archived??
