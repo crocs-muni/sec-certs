@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from importlib import resources
 
 import pytest
@@ -9,24 +8,6 @@ import tests.data.fips.dataset
 
 from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
-
-
-@pytest.fixture(scope="module")
-def cpe_dataset() -> CPEDataset:
-    with resources.path(tests.data.common, "cpe_dataset.json") as cpe_dataset_path:
-        return CPEDataset.from_json(cpe_dataset_path)
-
-
-@pytest.fixture(scope="module")
-def cve_dataset() -> CVEDataset:
-    with resources.open_text(tests.data.common, "cpe_match_feed.json") as handle:
-        cpe_match_feed = json.load(handle)
-
-    with resources.path(tests.data.common, "cve_dataset.json") as cve_dataset_path:
-        cve_dataset = CVEDataset.from_json(cve_dataset_path)
-
-    cve_dataset.build_lookup_dict(cpe_match_feed)
-    return cve_dataset
 
 
 @pytest.fixture(scope="module")

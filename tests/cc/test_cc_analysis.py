@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import shutil
 from importlib import resources
 from pathlib import Path
@@ -22,25 +21,6 @@ from sec_certs.sample.sar import SAR
 def analysis_data_dir() -> Path:
     with resources.path(tests.data.cc.analysis, "") as path:
         return path
-
-
-@pytest.fixture(scope="module")
-def cpe_dataset() -> CPEDataset:
-    with resources.path(tests.data.common, "cpe_dataset.json") as path:
-        return CPEDataset.from_json(path)
-
-
-@pytest.fixture(scope="module")
-def cve_dataset() -> CVEDataset:
-    with resources.open_text(tests.data.common, "cpe_match_feed.json") as handle:
-        cpe_match_feed = json.load(handle)
-
-    with resources.path(tests.data.common, "cve_dataset.json") as path:
-        cve_dataset = CVEDataset.from_json(path)
-
-    cve_dataset.build_lookup_dict(cpe_match_feed)
-
-    return cve_dataset
 
 
 @pytest.fixture(scope="module")

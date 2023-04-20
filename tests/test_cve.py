@@ -1,36 +1,13 @@
 from __future__ import annotations
 
 import itertools
-import json
-from importlib import resources
 from pathlib import Path
 
 import pytest
 
-import tests.data.common
 from sec_certs.dataset import CVEDataset
 from sec_certs.sample import CVE
 from sec_certs.serialization.json import SerializationError
-
-
-@pytest.fixture(scope="module")
-def cve_dataset_path() -> Path:
-    with resources.path(tests.data.common, "cve_dataset.json") as cve_dataset_path:
-        return cve_dataset_path
-
-
-@pytest.fixture(scope="module")
-def cpe_match_feed() -> dict:
-    with resources.open_text(tests.data.common, "cpe_match_feed.json") as handle:
-        data = json.load(handle)
-    return data
-
-
-@pytest.fixture(scope="module")
-def cve_dataset(cve_dataset_path: Path, cpe_match_feed: dict) -> CVEDataset:
-    cve_dataset = CVEDataset.from_json(cve_dataset_path)
-    cve_dataset.build_lookup_dict(cpe_match_feed)
-    return cve_dataset
 
 
 def test_cve_dset_lookup_dicts(cve_dataset: CVEDataset):
@@ -85,3 +62,17 @@ def test_serialization_missing_path():
     dummy_dset = CVEDataset({})
     with pytest.raises(SerializationError):
         dummy_dset.to_json()
+
+
+# def test_enhance_with_nvd_data():
+#     pass
+
+
+# def test_dataset_prunning(cve_dataset_path: Path, cpe_match_feed: dict):
+#     cve_dataset = CVEDataset.from_json(cve_dataset_path)
+#     cpes_to_consider = set()
+#     cve_dataset.build_lookup_dict(
+#         cpe_match_feed,
+#     )
+#     # TODO: Note that also CVEs with configurations are being prunned, their prunning must also be tested.
+#     pass

@@ -111,7 +111,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     def build_lookup_dict(
         self,
         cpe_match_feed: dict,
-        limit_to_cpes: set[CPE] | None = None,
+        limit_to_cpes: set[CPE] = set(),
     ):
         self._cpe_uri_to_cve_ids_lookup = {}
         cpe_uris_of_interest = {x.uri for x in limit_to_cpes} if limit_to_cpes else None

@@ -1,26 +1,13 @@
 from __future__ import annotations
 
-from importlib import resources
 from pathlib import Path
 
 import pytest
 
-import tests.data.common
 from sec_certs import constants
 from sec_certs.dataset import CPEDataset
 from sec_certs.sample import CPE
 from sec_certs.serialization.json import SerializationError
-
-
-@pytest.fixture(scope="module")
-def cpe_dataset_path() -> Path:
-    with resources.path(tests.data.common, "cpe_dataset.json") as path:
-        return path
-
-
-@pytest.fixture(scope="module")
-def cpe_dataset(cpe_dataset_path: Path) -> CPEDataset:
-    return CPEDataset.from_json(cpe_dataset_path)
 
 
 def test_cpe_dset_from_json(cpe_dataset_path: Path, cpe_dataset: CPEDataset, tmp_path: Path):
@@ -82,3 +69,11 @@ def test_serialization_missing_path():
     dummy_dset = CPEDataset()
     with pytest.raises(SerializationError):
         dummy_dset.to_json()
+
+
+def test_enhance_with_nvd_data():
+    pass
+
+
+def test_criteria_configuration_expansion():
+    pass
