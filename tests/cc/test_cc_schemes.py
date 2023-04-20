@@ -3,8 +3,8 @@ from urllib.parse import urlparse
 import pytest
 from requests import RequestException
 
+import sec_certs.sample.cc_scheme as CCSchemes
 from sec_certs.dataset.cc import CCDataset
-from sec_certs.dataset.cc_scheme import CCSchemeDataset
 from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.sample.cc import CCCertificate
 
@@ -21,7 +21,7 @@ def absolute_urls(results):
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_australia():
-    ineval = CCSchemeDataset.get_australia_in_evaluation()
+    ineval = CCSchemes.get_australia_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -29,7 +29,7 @@ def test_australia():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.fixture
 def canada_certified():
-    return CCSchemeDataset.get_canada_certified()
+    return CCSchemes.get_canada_certified()
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
@@ -37,7 +37,7 @@ def canada_certified():
 def test_canada(canada_certified):
     assert len(canada_certified) != 0
     assert absolute_urls(canada_certified)
-    ineval = CCSchemeDataset.get_canada_in_evaluation()
+    ineval = CCSchemes.get_canada_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -45,7 +45,7 @@ def test_canada(canada_certified):
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_anssi():
-    certified = CCSchemeDataset.get_france_certified()
+    certified = CCSchemes.get_france_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
 
@@ -53,7 +53,7 @@ def test_anssi():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_bsi():
-    certified = CCSchemeDataset.get_germany_certified()
+    certified = CCSchemes.get_germany_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
 
@@ -61,10 +61,10 @@ def test_bsi():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_india():
-    certified = CCSchemeDataset.get_india_certified()
+    certified = CCSchemes.get_india_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_india_archived()
+    archived = CCSchemes.get_india_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
 
@@ -72,10 +72,10 @@ def test_india():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_italy():
-    certified = CCSchemeDataset.get_italy_certified()
+    certified = CCSchemes.get_italy_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    ineval = CCSchemeDataset.get_italy_in_evaluation()
+    ineval = CCSchemes.get_italy_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -83,13 +83,13 @@ def test_italy():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_japan():
-    certified = CCSchemeDataset.get_japan_certified()
+    certified = CCSchemes.get_japan_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_japan_archived()
+    archived = CCSchemes.get_japan_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
-    ineval = CCSchemeDataset.get_japan_in_evaluation()
+    ineval = CCSchemes.get_japan_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -97,10 +97,10 @@ def test_japan():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_malaysia():
-    certified = CCSchemeDataset.get_malaysia_certified()
+    certified = CCSchemes.get_malaysia_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    ineval = CCSchemeDataset.get_malaysia_in_evaluation()
+    ineval = CCSchemes.get_malaysia_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -108,10 +108,10 @@ def test_malaysia():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_netherlands():
-    certified = CCSchemeDataset.get_netherlands_certified()
+    certified = CCSchemes.get_netherlands_certified()
     assert len(certified) != 0
     # assert absolute_urls(certified)
-    ineval = CCSchemeDataset.get_netherlands_in_evaluation()
+    ineval = CCSchemes.get_netherlands_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -119,10 +119,10 @@ def test_netherlands():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_norway():
-    certified = CCSchemeDataset.get_norway_certified()
+    certified = CCSchemes.get_norway_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_norway_archived()
+    archived = CCSchemes.get_norway_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
 
@@ -130,10 +130,10 @@ def test_norway():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_korea():
-    certified = CCSchemeDataset.get_korea_certified()
+    certified = CCSchemes.get_korea_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_korea_archived()
+    archived = CCSchemes.get_korea_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
 
@@ -141,13 +141,13 @@ def test_korea():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_singapore():
-    certified = CCSchemeDataset.get_singapore_certified()
+    certified = CCSchemes.get_singapore_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_singapore_archived()
+    archived = CCSchemes.get_singapore_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
-    ineval = CCSchemeDataset.get_singapore_in_evaluation()
+    ineval = CCSchemes.get_singapore_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -155,20 +155,20 @@ def test_singapore():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_spain():
-    certified = CCSchemeDataset.get_spain_certified()
+    certified = CCSchemes.get_spain_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_sweden():
-    certified = CCSchemeDataset.get_sweden_certified()
+    certified = CCSchemes.get_sweden_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_sweden_archived()
+    archived = CCSchemes.get_sweden_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
-    ineval = CCSchemeDataset.get_sweden_in_evaluation()
+    ineval = CCSchemes.get_sweden_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
@@ -176,7 +176,7 @@ def test_sweden():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_turkey():
-    certified = CCSchemeDataset.get_turkey_certified()
+    certified = CCSchemes.get_turkey_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
 
@@ -184,13 +184,13 @@ def test_turkey():
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.mark.slow
 def test_usa():
-    certified = CCSchemeDataset.get_usa_certified()
+    certified = CCSchemes.get_usa_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
-    archived = CCSchemeDataset.get_usa_archived()
+    archived = CCSchemes.get_usa_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
-    ineval = CCSchemeDataset.get_usa_in_evaluation()
+    ineval = CCSchemes.get_usa_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
