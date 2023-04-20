@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup, Tag
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.dataset.cc_scheme import CCSchemeDataset, EntryType
+from sec_certs.dataset.cc_scheme import CCSchemeDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
@@ -29,6 +29,7 @@ from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabil
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
+from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
 from sec_certs.utils import helpers
