@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from sec_certs.dataset import CVEDataset
-from sec_certs.sample import CVE
+from sec_certs.sample import CPE, CVE
 from sec_certs.serialization.json import SerializationError
 
 
@@ -68,11 +68,31 @@ def test_serialization_missing_path():
 #     pass
 
 
-# def test_dataset_prunning(cve_dataset_path: Path, cpe_match_feed: dict):
-#     cve_dataset = CVEDataset.from_json(cve_dataset_path)
-#     cpes_to_consider = set()
-#     cve_dataset.build_lookup_dict(
-#         cpe_match_feed,
-#     )
-#     # TODO: Note that also CVEs with configurations are being prunned, their prunning must also be tested.
-#     pass
+def test_dataset_prunning(cve_dataset_path: Path, cpe_match_feed: dict):
+    cve_dataset = CVEDataset.from_json(cve_dataset_path)
+    cpes_to_consider = {
+        CPE("D2D8310E-E0B8-4FF1-86EA-24F463E9F175", "cpe:2.3:o:freebsd:freebsd:4.2:*:*:*:*:*:*:*"),
+        CPE("ACFEB8AA-B8FC-49E1-98BE-3D581655FE2E", "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
+        CPE("88CA7428-3329-4E07-84CB-428DB1D2BC8E", "cpe:2.3:o:ibm:zos:6.0.1:*:*:*:*:*:*:*"),
+    }
+    cve_dataset.build_lookup_dict(cpe_match_feed, cpes_to_consider)
+
+    assert cve_dataset._cves_with_vulnerable_configurations == [cve_dataset["CVE-2010-2325"]]
+    assert cve_dataset._cpe_uri_to_cve_ids_lookup == {"cpe:2.3:o:freebsd:freebsd:4.2:*:*:*:*:*:*:*": {"CVE-2003-0001"}}
+
+
+def test_criteria_configuration_expansion(cve_dataset_path: Path, cpe_match_feed: dict):
+    cve_dataset = CVEDataset.from_json(cve_dataset_path)
+    cve_dataset.cves = {"CVE-2003-0070": cve_dataset["CVE-2003-0070"]}
+    cve_dataset.build_lookup_dict(cpe_match_feed)
+    assert len(cve_dataset["CVE-2003-0070"].vulnerable_criteria_configurations) == 1
+    expanded_components = cve_dataset["CVE-2003-0070"].vulnerable_criteria_configurations[0]._expanded_components
+    assert len(expanded_components) == 2
+    first, second = expanded_components[0], expanded_components[1]
+    assert len(first) == 10
+    assert "cpe:2.3:a:nalin_dahyabhai:vte:0.16.14:*:*:*:*:*:*:*" in first
+    assert "cpe:2.3:a:nalin_dahyabhai:vte:0.25.1:*:*:*:*:*:*:*" in first
+    assert second == [
+        "cpe:2.3:a:gnome:gnome-terminal:2.0:*:*:*:*:*:*:*",
+        "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
+    ]

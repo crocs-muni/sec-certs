@@ -138,7 +138,8 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                 continue
 
             for cpe_uri in vulnerable_cpe_uris:
-                self._cpe_uri_to_cve_ids_lookup.setdefault(cpe_uri, set()).add(cve.cve_id)
+                if not cpe_uris_of_interest or cpe_uri in cpe_uris_of_interest:
+                    self._cpe_uri_to_cve_ids_lookup.setdefault(cpe_uri, set()).add(cve.cve_id)
 
     def _get_cves_from_exactly_matched_cpes(self, cpe_uris: set[str]) -> set[str]:
         return set(

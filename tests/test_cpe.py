@@ -73,7 +73,3 @@ def test_serialization_missing_path():
 
 def test_enhance_with_nvd_data():
     pass
-
-
-def test_criteria_configuration_expansion():
-    pass

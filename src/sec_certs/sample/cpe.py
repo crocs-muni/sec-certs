@@ -61,7 +61,7 @@ class CPEMatchCriteriaConfiguration(ComplexSerializableType):
     components: list[list[CPEMatchCriteria]]
     _expanded_components: list[list[str]] = field(default_factory=list)
 
-    def matches(self, cpe_ids: set[str]) -> bool:
+    def matches(self, cpe_uris: set[str]) -> bool:
         """
         Returns if given set of cpe_ids matches this configuration.
         """
@@ -69,7 +69,7 @@ class CPEMatchCriteriaConfiguration(ComplexSerializableType):
             raise ValueError(
                 "Cannot match to CPEMatchConfiguration when attribute _expanded_components was not filled-in. That attribute is prepared by `CVEDataset.build_lookup_dict()`."
             )
-        return all(any(x in component for x in cpe_ids) for component in self._expanded_components)
+        return all(any(x in component for x in cpe_uris) for component in self._expanded_components)
 
     @property
     def serialized_attributes(self) -> list[str]:
