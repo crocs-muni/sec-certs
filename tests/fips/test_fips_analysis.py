@@ -1,48 +1,38 @@
 from __future__ import annotations
 
-from importlib import resources
-
 import pytest
-import tests.data.common
-import tests.data.fips.dataset
 
 from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.dataset.fips import FIPSDataset
 
 
 @pytest.fixture(scope="module")
-def toy_static_dataset() -> FIPSDataset:
-    with resources.path(tests.data.fips.dataset, "toy_dataset.json") as dataset_path:
-        return FIPSDataset.from_json(dataset_path)
-
-
-@pytest.fixture(scope="module")
 def processed_dataset(
-    toy_static_dataset: FIPSDataset, cpe_dataset: CPEDataset, cve_dataset: CVEDataset, tmp_path_factory
+    toy_dataset: FIPSDataset, cpe_dataset: CPEDataset, cve_dataset: CVEDataset, tmp_path_factory
 ) -> FIPSDataset:
     tmp_dir = tmp_path_factory.mktemp("fips_dset")
-    toy_static_dataset.copy_dataset(tmp_dir)
+    toy_dataset.copy_dataset(tmp_dir)
 
     tested_certs = [
-        toy_static_dataset["3095"],
-        toy_static_dataset["3093"],
-        toy_static_dataset["3197"],
-        toy_static_dataset["2441"],
+        toy_dataset["3095"],
+        toy_dataset["3093"],
+        toy_dataset["3197"],
+        toy_dataset["2441"],
     ]
-    toy_static_dataset.certs = {x.dgst: x for x in tested_certs}
+    toy_dataset.certs = {x.dgst: x for x in tested_certs}
 
-    toy_static_dataset.download_all_artifacts()
-    toy_static_dataset.convert_all_pdfs()
-    toy_static_dataset.extract_data()
-    toy_static_dataset._compute_references(keep_unknowns=True)
+    toy_dataset.download_all_artifacts()
+    toy_dataset.convert_all_pdfs()
+    toy_dataset.extract_data()
+    toy_dataset._compute_references(keep_unknowns=True)
 
-    toy_static_dataset.auxiliary_datasets.cpe_dset = cpe_dataset
-    toy_static_dataset.auxiliary_datasets.cve_dset = cve_dataset
-    toy_static_dataset.compute_cpe_heuristics()
-    toy_static_dataset.compute_related_cves()
-    toy_static_dataset._compute_transitive_vulnerabilities()
+    toy_dataset.auxiliary_datasets.cpe_dset = cpe_dataset
+    toy_dataset.auxiliary_datasets.cve_dset = cve_dataset
+    toy_dataset.compute_cpe_heuristics()
+    toy_dataset.compute_related_cves()
+    toy_dataset._compute_transitive_vulnerabilities()
 
-    return toy_static_dataset
+    return toy_dataset
 
 
 @pytest.mark.parametrize(

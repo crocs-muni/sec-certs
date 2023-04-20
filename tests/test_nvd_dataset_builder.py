@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-import tests.data
+import tests.data.common
 from sec_certs.configuration import config
 from sec_certs.dataset import CCDataset, CPEDataset, CVEDataset
 from sec_certs.utils.nvd_dataset_builder import (
@@ -17,7 +17,7 @@ from sec_certs.utils.nvd_dataset_builder import (
 
 @pytest.fixture(autouse=True)
 def load_test_config():
-    with resources.path(tests.data, "settings_tests.yml") as path:
+    with resources.path(tests.data.common, "settings_tests.yml") as path:
         config.load_from_yaml(path)
 
 

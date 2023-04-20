@@ -1,5 +1,6 @@
 import json
 import shutil
+from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -13,12 +14,8 @@ from sec_certs.sample.fips import FIPSCertificate
 
 @pytest.fixture(scope="module")
 def data_dir() -> Path:
-    return Path(tests.data.fips.dataset.__path__[0])
-
-
-@pytest.fixture
-def toy_dataset(data_dir: Path) -> FIPSDataset:
-    return FIPSDataset.from_json(data_dir / "toy_dataset.json")
+    with resources.path(tests.data.fips.dataset, "") as path:
+        return path
 
 
 def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):

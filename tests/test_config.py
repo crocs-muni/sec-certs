@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -13,8 +14,8 @@ import tests.data
 
 @pytest.fixture(autouse=True)
 def load_test_config():
-    pth = Path(tests.data.__path__[0]) / "settings_tests.yml"
-    config_module.config.load_from_yaml(pth)
+    with resources.path(tests.data.common, "settings_tests.yml") as path:
+        config_module.config.load_from_yaml(path)
 
 
 @pytest.fixture

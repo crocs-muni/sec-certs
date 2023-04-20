@@ -1,6 +1,6 @@
 import json
 import shutil
-from datetime import date
+from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -14,35 +14,14 @@ from sec_certs.sample.cc import CCCertificate
 
 @pytest.fixture(scope="module")
 def data_dir() -> Path:
-    return Path(tests.data.cc.dataset.__path__[0])
-
-
-@pytest.fixture(scope="module")
-def crt() -> CCCertificate:
-    return CCCertificate(
-        "active",
-        "Access Control Devices and Systems",
-        "NetIQ Identity Manager 4.7",
-        "NetIQ Corporation",
-        "SE",
-        {"ALC_FLR.2", "EAL3+"},
-        date(2020, 6, 15),
-        date(2025, 6, 15),
-        "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf",
-        "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
-        "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
-        "https://www.netiq.com/",
-        set(),
-        set(),
-        None,
-        None,
-        None,
-    )
+    with resources.path(tests.data.cc.dataset, "") as path:
+        return path
 
 
 @pytest.fixture
-def toy_dataset(data_dir: Path) -> CCDataset:
-    return CCDataset.from_json(data_dir / "toy_dataset.json")
+def toy_dataset() -> CCDataset:
+    with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
+        return CCDataset.from_json(path)
 
 
 def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
@@ -133,7 +112,7 @@ def test_build_empty_dataset():
     assert not dset.state.certs_analyzed
 
 
-def test_build_dataset(data_dir: Path, crt: CCCertificate, toy_dataset: CCDataset):
+def test_build_dataset(data_dir: Path, cert_one: CCCertificate, toy_dataset: CCDataset):
     with TemporaryDirectory() as tmp_dir:
         dataset_path = Path(tmp_dir)
         (dataset_path / "web").mkdir()
@@ -147,7 +126,7 @@ def test_build_dataset(data_dir: Path, crt: CCCertificate, toy_dataset: CCDatase
 
         assert len(list(dataset_path.iterdir())) == 0
         assert len(dset) == 3
-        assert crt in dset
+        assert cert_one in dset
         assert dset == toy_dataset
 
 

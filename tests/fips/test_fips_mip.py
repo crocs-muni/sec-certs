@@ -1,3 +1,4 @@
+from importlib import resources
 from pathlib import Path
 
 import pytest
@@ -9,7 +10,8 @@ from sec_certs.sample import MIPSnapshot
 
 @pytest.fixture(scope="module")
 def data_dir() -> Path:
-    return Path(tests.data.fips.mip.__path__[0])
+    with resources.path(tests.data.fips.mip, "") as path:
+        return path
 
 
 @pytest.fixture(scope="module")
