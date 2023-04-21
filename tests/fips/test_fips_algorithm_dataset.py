@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
+import tests.data.fips.dataset
 
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.sample.fips_algorithm import FIPSAlgorithm
@@ -18,6 +20,27 @@ def test_alg_dset_from_web(tmp_path):
     assert "SHS1619" in dset
     assert "RNG447" in dset
     assert len(dset) > 30000
+
+
+@pytest.fixture(scope="module")
+def alg_dset_path() -> Path:
+    return Path(tests.data.fips.dataset.__path__[0]) / "alg_dataset.json"
+
+
+@pytest.fixture(scope="module")
+def alg_dset(alg_dset_path: Path) -> FIPSAlgorithmDataset:
+    return FIPSAlgorithmDataset.from_json(alg_dset_path)
+
+
+@pytest.fixture(scope="module")
+def alg_dict() -> dict[str, Any]:
+    return {
+        "alg_number": "2902",
+        "algorithm_type": "AES",
+        "vendor": "Hewlett-Packard Development Company, L.P.",
+        "implementation_name": "HP Secure Encryption Engine v1.0",
+        "validation_date": "7/10/2014",
+    }
 
 
 def test_alg_dset_lookup_dict(alg_dset: FIPSAlgorithmDataset):
