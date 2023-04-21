@@ -163,6 +163,9 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        {% if not out_edges and not in_edges %}
+            <p>No references.</p>
+        {% endif  %}
     {% endif %}
 {%- endmacro %}
 

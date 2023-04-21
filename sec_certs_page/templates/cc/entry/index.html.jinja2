@@ -371,7 +371,11 @@
                           data-bs-toggle="tooltip" data-bs-placement="top"
                           title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
                 </h2>
-                {% if cert["heuristics"]["cert_id"] %}
+                {% if not cert["heuristics"]["cert_id"] %}
+                    <p>No references are available for this certificate as its ID was not successfully extracted.</p>
+                {% elif not network or network|length <= 1 %}
+                    <p>No references are available for this certificate.</p>
+                {% else %}
                     <div class="border">
                         <div id="network"></div>
                     </div>
@@ -384,8 +388,6 @@
                             600,
                             300);
                     </script>
-                {% else %}
-                    <p>No references are available for this certificate as its ID was not successfully extracted.</p>
                 {% endif %}
             </div>
 
