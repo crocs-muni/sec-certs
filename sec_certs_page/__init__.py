@@ -23,7 +23,7 @@ from flask_sitemap import Sitemap as FlaskSitemap
 from flask_wtf import CSRFProtect
 from periodiq import PeriodiqMiddleware
 from public import public
-from sec_certs.config.configuration import config as tool_config
+from sec_certs.configuration import config as tool_config
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -55,7 +55,7 @@ if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
 
     ignore_logger("sec_certs.*")
 
-tool_config.load(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
+tool_config.load_from_yaml(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
 mongo: PyMongo = PyMongo(app)
 public(mongo=mongo)
