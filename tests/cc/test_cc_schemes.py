@@ -19,7 +19,6 @@ def absolute_urls(results):
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_australia():
     ineval = CCSchemes.get_australia_in_evaluation()
     assert len(ineval) != 0
@@ -59,7 +58,6 @@ def test_bsi():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_india():
     certified = CCSchemes.get_india_certified()
     assert len(certified) != 0
@@ -70,7 +68,6 @@ def test_india():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_italy():
     certified = CCSchemes.get_italy_certified()
     assert len(certified) != 0
@@ -81,7 +78,6 @@ def test_italy():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_japan():
     certified = CCSchemes.get_japan_certified()
     assert len(certified) != 0
@@ -95,7 +91,6 @@ def test_japan():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_malaysia():
     certified = CCSchemes.get_malaysia_certified()
     assert len(certified) != 0
@@ -106,7 +101,6 @@ def test_malaysia():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_netherlands():
     certified = CCSchemes.get_netherlands_certified()
     assert len(certified) != 0
@@ -117,7 +111,6 @@ def test_netherlands():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_norway():
     certified = CCSchemes.get_norway_certified()
     assert len(certified) != 0
@@ -128,7 +121,6 @@ def test_norway():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_korea():
     certified = CCSchemes.get_korea_certified()
     assert len(certified) != 0
@@ -139,7 +131,6 @@ def test_korea():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_singapore():
     certified = CCSchemes.get_singapore_certified()
     assert len(certified) != 0
@@ -153,7 +144,6 @@ def test_singapore():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_spain():
     certified = CCSchemes.get_spain_certified()
     assert len(certified) != 0
@@ -174,7 +164,6 @@ def test_sweden():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_turkey():
     certified = CCSchemes.get_turkey_certified()
     assert len(certified) != 0
@@ -182,7 +171,6 @@ def test_turkey():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
-@pytest.mark.slow
 def test_usa():
     certified = CCSchemes.get_usa_certified()
     assert len(certified) != 0
