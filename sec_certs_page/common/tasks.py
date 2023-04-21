@@ -67,12 +67,14 @@ class Updater:  # pragma: no cover
             "cve_path": instance_path / ns["cve"],
             "cpe_path": instance_path / ns["cpe"],
             "dset_path": instance_path / ns[self.collection],
-            "output_path": instance_path / ns[f"{self.collection}_out"],
-            "output_path_mu": (instance_path / ns[f"{self.collection}_out_mu"])
-            if f"{self.collection}_out_mu" in ns
-            else None,
             "dir_path": instance_path / ns[f"{self.collection}_dir"],
         }
+        # Process DATASET_*_OUT_* entries, creating "output_path_*"
+        out_prefix = f"{self.collection}_out"
+        for key, value in ns.items():
+            if key.startswith(out_prefix):
+                suffix = key[len(out_prefix) :]
+                res[f"output_path{suffix}"] = instance_path / value
 
         for document, format in product(("report", "target"), ("pdf", "txt")):
             path = res["dir_path"] / document / format

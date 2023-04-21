@@ -13,7 +13,6 @@ from sec_certs.dataset.cve import CVEDataset
 
 from . import mongo
 from .cc.tasks import update_data as update_cc_data
-from .cc.tasks import update_scheme_data as update_cc_scheme_data
 from .common.objformats import ObjFormat
 from .common.tasks import no_simultaneous_execution
 from .fips.tasks import update_data as update_fips_data
@@ -106,9 +105,7 @@ def update_cpe_data() -> None:  # pragma: no cover
 @dramatiq.actor(periodic=cron("@weekly"))
 def run_updates_weekly() -> None:  # pragma: no cover
     (
-        update_cc_data.message_with_options(pipe_ignore=True)
-        | update_cc_scheme_data.message_with_options(pipe_ignore=True)
-        | update_fips_data.message_with_options(pipe_ignore=True)
+        update_cc_data.message_with_options(pipe_ignore=True) | update_fips_data.message_with_options(pipe_ignore=True)
     ).run()
 
 

@@ -89,7 +89,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                 with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"), suppress_child_spans():
                     dset.get_certs_from_web(update_json=False)
                 with sentry_sdk.start_span(
-                    op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU)"
+                    op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
                 ), suppress_child_spans():
                     dset.process_auxiliary_datasets(update_json=False)
                 with sentry_sdk.start_span(
@@ -102,6 +102,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
+                    dset.auxiliary_datasets.scheme_dset.to_json(paths["output_path_scheme"])
                     dset.auxiliary_datasets.mu_dset.to_json(paths["output_path_mu"])
 
             with sentry_sdk.start_span(op="cc.move", description="Move files"), suppress_child_spans():
@@ -141,90 +142,3 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()
-
-
-@dramatiq.actor(max_retries=0, actor_name="cc_scheme_update")
-@no_simultaneous_execution("cc_scheme_update", abort=True, timeout=3600 * 12)
-def update_scheme_data():  # pragma: no cover
-    schemes = {
-        "AU": [{"type": "ineval", "method": CCSchemeDataset.get_australia_in_evaluation}],
-        "CA": [
-            {"type": "ineval", "method": CCSchemeDataset.get_canada_in_evaluation},
-            {"type": "certified", "method": CCSchemeDataset.get_canada_certified},
-        ],
-        "FR": [{"type": "certified", "method": CCSchemeDataset.get_france_certified}],
-        "DE": [{"type": "certified", "method": CCSchemeDataset.get_germany_certified}],
-        "IN": [
-            {"type": "certified", "method": CCSchemeDataset.get_india_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_india_archived},
-        ],
-        "IT": [
-            {"type": "certified", "method": CCSchemeDataset.get_italy_certified},
-            {"type": "ineval", "method": CCSchemeDataset.get_italy_in_evaluation},
-        ],
-        "JP": [
-            {"type": "ineval", "method": CCSchemeDataset.get_japan_in_evaluation},
-            {"type": "certified", "method": CCSchemeDataset.get_japan_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_japan_archived},
-        ],
-        "MY": [
-            {"type": "certified", "method": CCSchemeDataset.get_malaysia_certified},
-            {"type": "ineval", "method": CCSchemeDataset.get_malaysia_in_evaluation},
-        ],
-        "NL": [
-            {"type": "certified", "method": CCSchemeDataset.get_netherlands_certified},
-            {"type": "ineval", "method": CCSchemeDataset.get_netherlands_in_evaluation},
-        ],
-        "NO": [
-            {"type": "certified", "method": CCSchemeDataset.get_norway_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_norway_archived},
-        ],
-        "KO": [
-            {"type": "suspended", "method": CCSchemeDataset.get_korea_suspended},
-            {"type": "certified", "method": CCSchemeDataset.get_korea_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_korea_archived},
-        ],
-        "SG": [
-            {"type": "ineval", "method": CCSchemeDataset.get_singapore_in_evaluation},
-            {"type": "certified", "method": CCSchemeDataset.get_singapore_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_singapore_archived},
-        ],
-        "ES": [{"type": "certified", "method": CCSchemeDataset.get_spain_certified}],
-        "SE": [
-            {"type": "ineval", "method": CCSchemeDataset.get_sweden_in_evaluation},
-            {"type": "certified", "method": CCSchemeDataset.get_sweden_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_sweden_archived},
-        ],
-        "TR": [{"type": "certified", "method": CCSchemeDataset.get_turkey_certified}],
-        "US": [
-            {"type": "ineval", "method": CCSchemeDataset.get_usa_in_evaluation},
-            {"type": "certified", "method": CCSchemeDataset.get_usa_certified},
-            {"type": "archived", "method": CCSchemeDataset.get_usa_archived},
-        ],
-    }
-
-    run_id = ObjectId()
-
-    for scheme, sources in schemes.items():
-        for source in sources:
-            source_type = source["type"]
-            source_method = source["method"]
-            start = datetime.now()
-            try:
-                res = source_method()
-            except Exception as e:
-                logger.warning(f"Error during {scheme} download of {source_type}: {e}")
-                continue
-            end = datetime.now()
-            logger.info(f"Finished scheme download for {scheme} {source_type}.")
-
-            mongo.db.cc_scheme.insert_one(
-                {
-                    "run_id": run_id,
-                    "scheme": scheme,
-                    "type": source_type,
-                    "start_time": start,
-                    "end_time": end,
-                    "results": res,
-                }
-            )

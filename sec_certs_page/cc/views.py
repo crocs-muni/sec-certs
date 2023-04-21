@@ -152,6 +152,20 @@ def maintenance_updates():
     )
 
 
+@cc.route("/schemes.json")
+def schemes():
+    """Common criteria scheme dataset API endpoint."""
+    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT_SCHEME"]
+    if not dset_path.is_file():
+        return abort(404)
+    return send_file(
+        dset_path,
+        as_attachment=True,
+        mimetype="application/json",
+        download_name="schemes.json",
+    )
+
+
 @cc.route("/network/")
 @register_breadcrumb(cc, ".network", "References")
 def network():

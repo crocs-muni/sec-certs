@@ -11,11 +11,14 @@ The app uses the following collections:
    with periodic updates done by a background Celery task (see `sec_certs_page.cc.tasks.update_data`).
  - `cc_log`: To store a log of "runs" of the background update Celery task mentioned above.
  - `cc_old`: To store the mapping of old CC ids and new CC dgsts.
+ - `cc_scheme`: To store the dump of CC scheme websites. **Unused**
  - `feedback`: To store the user feedback given on the site through the feedback form.
  - `fips`: To store the FIPS 140 certificate documents.
  - `fips_diff`: Same as `cc_diff` above but instead for FIPS.
  - `fips_log`: Same as `cc_log` above but instead for FIPS.
  - `fips_old`: To store the mapping of old FIPS ids and new FIPS dgsts.
+ - `fips_mip`: To store the modules-in-process data from FIPS.
+ - `fips_iut`: To store the implementation-under-test data from FIPS.
  - `pp`: To store the protection profile documents.
  - `pp_diff`: Same as `cc_diff` above but instead for protection profiles. **Currently unused**
  - `pp_log`: Same as `cc_log` above but instead for protection profiles. **Currently unused**

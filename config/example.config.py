@@ -64,6 +64,8 @@ DATASET_PATH_CPE = "cpe.json"
 # Paths inside the instance directory where the CC and FIPS datasets will be stored and processed.
 DATASET_PATH_CC = "cc_dataset"
 DATASET_PATH_CC_OUT = "cc.json"
+DATASET_PATH_CC_OUT_MU = "cc_mu.json"
+DATASET_PATH_CC_OUT_SCHEME = "cc_scheme.json"
 DATASET_PATH_CC_DIR = "cc"
 
 DATASET_PATH_FIPS = "fips_dataset"
