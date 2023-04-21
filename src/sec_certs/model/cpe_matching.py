@@ -34,7 +34,6 @@ class CPEClassifier:
     vendors_: set[str]
 
     def __init__(self, match_threshold: int = 80, n_max_matches: int = 10, spacy_model_to_use: str = "en_core_web_sm"):
-
         self.match_threshold = match_threshold
         self.n_max_matches = n_max_matches
         self.nlp = load_spacy_model(spacy_model_to_use)
