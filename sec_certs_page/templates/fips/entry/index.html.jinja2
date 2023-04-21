@@ -2,7 +2,7 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves %}
+{% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
         {{ cert["web_data"]["module_name"]|default("", true) + " | seccerts.org" }}
@@ -275,12 +275,7 @@
                     {% endif %}
 
                     <h3 class="mt-3">References</h3>
-                    <p>This certificate's security target directly references
-                        {{ cert["heuristics"]["policy_processed_references"]["directly_referencing"]|default("", true)|length }}
-                        certificates,
-                        transitively this expands
-                        into {{ cert["heuristics"]["policy_processed_references"]["indirectly_referencing"]|default("", true)|length }}
-                        certificates.</p>
+                    {{ render_references(network, hashid, "st") }}
                 </div>
             </div>
         </div>
@@ -321,7 +316,7 @@
                 <h2 class="anchor" id="reference-graph">References
                     <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                           data-bs-toggle="tooltip" data-bs-placement="top"
-                          title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
+                          title="Information automatically extracted from the certificate and security policy documents. Might contain errors.">?</span>
                 </h2>
                 <div class="border">
                     <div id="network"></div>

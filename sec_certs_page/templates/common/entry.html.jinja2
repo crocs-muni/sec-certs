@@ -131,6 +131,41 @@
     </table>
 {%- endmacro %}
 
+{% macro render_references(network, hashid, type) %}
+    {% if network and hashid in network.nodes %}
+        {% set out_edges = network.out_edges(hashid) %}
+        {% if out_edges %}
+            <b>Outgoing</b>
+            <ul class="outgoing-list">
+                {% for edge in out_edges %}
+                    {% set child_node = network.nodes[edge[1]] %}
+                    {% if type in network.edges[edge]["type"] %}
+                        <li>
+                            <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a>
+                            - {{ child_node["name"] }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% set in_edges = network.in_edges(hashid) %}
+        {% if in_edges %}
+            <b>Incoming</b>
+            <ul class="incoming-list">
+                {% for edge in in_edges %}
+                    {% set parent_node = network.nodes[edge[0]] %}
+                    {% if type in network.edges[edge]["type"] %}
+                        <li>
+                            <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a>
+                            - {{ parent_node["name"] }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+{%- endmacro %}
+
 {% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
     {% set ns = namespace(render=False) %}
     {% for heading, keyword in keyword_sources.items() %}
