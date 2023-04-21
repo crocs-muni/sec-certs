@@ -93,7 +93,8 @@
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
                     "indirectly_referencing": null
-                }
+                },
+                "scheme_data": null
             }
         },
         {
@@ -180,7 +181,8 @@
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
                     "indirectly_referencing": null
-                }
+                },
+                "scheme_data": null
             }
         },
         {
@@ -275,7 +277,8 @@
                     "directly_referencing": null,
                     "indirectly_referenced_by": null,
                     "indirectly_referencing": null
-                }
+                },
+                "scheme_data": null
             }
         }
     ]

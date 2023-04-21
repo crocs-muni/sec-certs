@@ -79,6 +79,12 @@ class Configuration(BaseSettings):
         "https://seccerts.org/cpe/cpe_match_dataset.json.gz",
         description="URL for the latest snapshot of cpe match json.",
     )
+    fips_matching_threshold: int = Field(
+        90,
+        description="Level of required similarity before FIPS IUT/MIP entry is considered to match a FIPS certificate.",
+        ge=0,
+        le=100,
+    )
     minimal_token_length: int = Field(
         3,
         description="Minimal length of a string that will be considered as a token during keyword extraction in CVE matching",
@@ -94,7 +100,12 @@ class Configuration(BaseSettings):
     cc_reference_annotator_should_train: bool = Field(
         True, description="True if new reference annotator model shall be build, False otherwise."
     )
-
+    cc_matching_threshold: int = Field(
+        90,
+        description="Level of required similarity before CC scheme entry is considered to match a CC certificate.",
+        ge=0,
+        le=100,
+    )
     enable_progress_bars: bool = Field(
         True, description="If true, progress bars will be printed to stdout during computation."
     )
