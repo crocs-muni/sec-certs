@@ -167,10 +167,11 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         df.cwe_ids = df.cwe_ids.map(lambda x: x if x else np.nan)
         return df.set_index("cve_id")
 
-    def enhance_with_nvd_data(self, data: dict[str, Any]) -> None:
+    def enhance_with_nvd_data(self, data: dict[str, Any]) -> CVEDataset:
         self.last_update_timestamp = datetime.fromisoformat(data["timestamp"])
         for vuln in data["vulnerabilities"]:
             # https://nvd.nist.gov/vuln/vulnerability-status#divNvdStatus
             if vuln["cve"]["vulnStatus"] in {"Analyzed", "Modified"}:
                 cve = CVE.from_nist_dict(vuln["cve"])
                 self[cve.cve_id] = cve
+        return self

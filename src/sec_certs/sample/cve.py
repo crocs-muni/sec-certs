@@ -173,9 +173,10 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     def parse_cwe_data(dct: dict) -> set[str] | None:
         if "weaknesses" not in dct:
             return None
-        assert dct["weaknesses"][0]["type"] == "Primary"
-        descriptions = dct["weaknesses"][0]["description"]
-        return {x["value"] for x in descriptions} if descriptions else None
+
+        descriptions = [x["description"] for x in dct["weaknesses"]]
+        cwes = {x["value"] for description in descriptions for x in description}
+        return cwes if cwes else None
 
     @staticmethod
     def parse_configurations(
