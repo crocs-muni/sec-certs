@@ -1,27 +1,13 @@
 import json
 import shutil
-from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
-import tests.data.cc.dataset
 
 from sec_certs import constants
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
-
-
-@pytest.fixture(scope="module")
-def data_dir() -> Path:
-    with resources.path(tests.data.cc.dataset, "") as path:
-        return path
-
-
-@pytest.fixture
-def toy_dataset() -> CCDataset:
-    with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
-        return CCDataset.from_json(path)
 
 
 def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):

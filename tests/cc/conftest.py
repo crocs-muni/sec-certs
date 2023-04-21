@@ -1,9 +1,25 @@
 from datetime import date
+from importlib import resources
+from pathlib import Path
 
 import pytest
+import tests.data.cc.dataset
 
+from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.protection_profile import ProtectionProfile
+
+
+@pytest.fixture(scope="module")
+def data_dir() -> Path:
+    with resources.path(tests.data.cc.dataset, "") as path:
+        return path
+
+
+@pytest.fixture
+def toy_dataset() -> CCDataset:
+    with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
+        return CCDataset.from_json(path)
 
 
 @pytest.fixture(scope="module")
