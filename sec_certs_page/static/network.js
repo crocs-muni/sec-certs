@@ -197,7 +197,7 @@ class CertificateNetwork {
         referenceBox.append("h4")
             .text("References")
 
-        const referenceFilter = referenceBox.append("div").classed("row", true);
+        const referenceFilter = referenceBox.append("div").classed("row", true).append("div").classed("col", true);
 
         const referenceOnly = referenceFilter.append("div")
             .classed("form-check", true)
