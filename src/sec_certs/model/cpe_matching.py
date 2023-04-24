@@ -75,10 +75,7 @@ class CPEClassifier:
 
         for cpe in tqdm(sufficiently_long_cpes, desc="Fitting the CPE classifier"):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
-            if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
-                self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
-            else:
-                self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)].add(cpe)
+            self.vendor_version_to_cpe_.setdefault((cpe.vendor, cpe.version), set()).add(cpe)
 
     def predict(self, X: list[tuple[str, str, str]]) -> list[set[str] | None]:
         """

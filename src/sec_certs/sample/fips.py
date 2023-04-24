@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
-from tabula import read_pdf
 
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
@@ -632,6 +631,8 @@ class FIPSCertificate(
         Retrieves IDs of algorithms from tables inside security policy pdfs.
         External library is used to handle this.
         """
+        from tabula import read_pdf
+
         if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy_txt_path):
             pdf.repair_pdf(cert.state.policy_pdf_path)
             try:

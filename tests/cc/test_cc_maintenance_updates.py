@@ -1,21 +1,18 @@
 import json
+from importlib import resources
 from pathlib import Path
 
 import pytest
 import tests.data.cc.dataset
 
-from sec_certs.dataset import CCDataset, CCDatasetMaintenanceUpdates
+from sec_certs.dataset import CCDatasetMaintenanceUpdates
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 
 
 @pytest.fixture(scope="module")
 def data_dir() -> Path:
-    return Path(tests.data.cc.dataset.__path__[0])
-
-
-@pytest.fixture(scope="module")
-def cc_dset(data_dir: Path) -> CCDataset:
-    return CCDataset.from_json(data_dir / "toy_dataset.json")
+    with resources.path(tests.data.cc.dataset, "") as path:
+        return path
 
 
 @pytest.fixture

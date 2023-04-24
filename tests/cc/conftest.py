@@ -1,42 +1,25 @@
-import shutil
 from datetime import date
+from importlib import resources
 from pathlib import Path
 
 import pytest
-
-import tests.data.cc.analysis
-import tests.data.cc.certificate
 import tests.data.cc.dataset
+
 from sec_certs.dataset.cc import CCDataset
-from sec_certs.sample.cc import CCCertificate, ProtectionProfile
+from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 @pytest.fixture(scope="module")
-def dataset_data_dir() -> Path:
-    return Path(tests.data.cc.dataset.__path__[0])
+def data_dir() -> Path:
+    with resources.path(tests.data.cc.dataset, "") as path:
+        return path
 
 
 @pytest.fixture
-def toy_dataset(dataset_data_dir: Path) -> CCDataset:
-    return CCDataset.from_json(dataset_data_dir / "toy_dataset.json")
-
-
-@pytest.fixture(scope="module")
-def cert_data_dir() -> Path:
-    return Path(tests.data.cc.certificate.__path__[0])
-
-
-@pytest.fixture(scope="module")
-def vulnerable_certificate(tmp_path_factory) -> CCCertificate:
-    tmp_dir = tmp_path_factory.mktemp("dset")
-    dset_json_path = Path(tests.data.cc.analysis.__path__[0]) / "vulnerable_dataset.json"
-    data_dir_path = dset_json_path.parent
-    shutil.copytree(data_dir_path, tmp_dir, dirs_exist_ok=True)
-    cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
-    cc_dset.download_all_artifacts()
-    cc_dset.convert_all_pdfs()
-
-    return list(cc_dset.certs.values())[0]
+def toy_dataset() -> CCDataset:
+    with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
+        return CCDataset.from_json(path)
 
 
 @pytest.fixture(scope="module")

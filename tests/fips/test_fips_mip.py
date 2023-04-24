@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import datetime
+from importlib import resources
 from pathlib import Path
 
 import pytest
-
 import tests.data.fips.mip
+
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.dataset.fips_mip import MIPDataset
 from sec_certs.model.fips_matching import FIPSProcessMatcher
@@ -14,7 +15,8 @@ from sec_certs.sample.fips_mip import MIPEntry, MIPSnapshot, MIPStatus
 
 @pytest.fixture(scope="module")
 def data_dir() -> Path:
-    return Path(tests.data.fips.mip.__path__[0])
+    with resources.path(tests.data.fips.mip, "") as path:
+        return path
 
 
 @pytest.fixture(scope="module")

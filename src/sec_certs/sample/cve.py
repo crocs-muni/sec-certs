@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import datetime
-import itertools
 from dataclasses import dataclass
-from typing import Any, ClassVar, Iterable
+from typing import Any, ClassVar
 
 from dateutil.parser import isoparse
 
-from sec_certs.sample.cpe import CPE, CPEConfiguration, cached_cpe
+from sec_certs.sample.cpe import CPEMatchCriteria, CPEMatchCriteriaConfiguration
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 
@@ -15,7 +14,7 @@ from sec_certs.serialization.pandas import PandasSerializableType
 @dataclass
 class CVE(PandasSerializableType, ComplexSerializableType):
     @dataclass
-    class Impact(ComplexSerializableType):
+    class Metrics(ComplexSerializableType):
         base_score: float
         severity: str
         exploitability_score: float
@@ -24,36 +23,76 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         __slots__ = ["base_score", "severity", "exploitability_score", "impact_score"]
 
         @classmethod
-        def from_nist_dict(cls, dct: dict[str, Any]) -> CVE.Impact:
+        def from_nist_dict(cls, dct: dict[str, Any]) -> CVE.Metrics:
             """
-            Will load Impact from dictionary defined at https://nvd.nist.gov/feeds/json/cve/1.1
+            Loads metrics from dictionary
             """
-            if not dct["impact"]:
+            if not dct["metrics"]:
                 return cls(0, "", 0, 0)
-            elif "baseMetricV3" in dct["impact"]:
+            metric_dct = CVE.Metrics.find_metrics_to_use(dct["metrics"])
+            if not metric_dct:
+                raise ValueError(f"Metrics dictionary for cve {dct['id']} present, but no suitable entry found.")
+            return CVE.Metrics.from_metrics_dct(metric_dct)
+
+        @staticmethod
+        def find_metrics_to_use(dct: dict) -> dict | None:
+            """
+            any `Primary` entry available > any `nvd@nist.gov` entry available > just return the first entry if exists.
+            """
+            all_metrics = dct.get("cvssMetricV31", []) + dct.get("cvssMetricV30", []) + dct.get("cvssMetricV2", [])
+
+            for element in all_metrics:
+                if element["type"] == "Primary":
+                    return element
+            for element in all_metrics:
+                if element["source"] == "nvd@nist.gov":
+                    return element
+
+            if all_metrics:
+                return all_metrics[0]
+
+            return None
+
+        @classmethod
+        def from_metrics_dct(cls, dct: dict) -> CVE.Metrics:
+            if dct["cvssData"]["version"] == "3.1":
                 return cls(
-                    dct["impact"]["baseMetricV3"]["cvssV3"]["baseScore"],
-                    dct["impact"]["baseMetricV3"]["cvssV3"]["baseSeverity"],
-                    dct["impact"]["baseMetricV3"]["exploitabilityScore"],
-                    dct["impact"]["baseMetricV3"]["impactScore"],
+                    dct["cvssData"]["baseScore"],
+                    dct["cvssData"]["baseSeverity"],
+                    dct["exploitabilityScore"],
+                    dct["impactScore"],
                 )
-            elif "baseMetricV2" in dct["impact"]:
+            if dct["cvssData"]["version"] == "3.0":
                 return cls(
-                    dct["impact"]["baseMetricV2"]["cvssV2"]["baseScore"],
-                    dct["impact"]["baseMetricV2"]["severity"],
-                    dct["impact"]["baseMetricV2"]["exploitabilityScore"],
-                    dct["impact"]["baseMetricV2"]["impactScore"],
+                    dct["cvssData"]["baseScore"],
+                    dct["cvssData"]["baseSeverity"],
+                    dct["exploitabilityScore"],
+                    dct["impactScore"],
                 )
-            raise ValueError("NIST Dict for CVE Impact badly formatted.")
+            if dct["cvssData"]["version"] == "2.0":
+                return cls(
+                    dct["cvssData"]["baseScore"],
+                    dct["baseSeverity"],
+                    dct["exploitabilityScore"],
+                    dct["impactScore"],
+                )
+            raise ValueError(f"Unknown CVSS version occured ({dct['cvssData']['version']}) when parsing CVSS metrics.")
 
     cve_id: str
-    vulnerable_cpes: list[CPE]
-    vulnerable_cpe_configurations: list[CPEConfiguration]
-    impact: Impact
+    vulnerable_criteria: list[CPEMatchCriteria]
+    vulnerable_criteria_configurations: list[CPEMatchCriteriaConfiguration]
+    metrics: Metrics
     published_date: datetime.datetime | None
     cwe_ids: set[str] | None
 
-    __slots__ = ["cve_id", "vulnerable_cpes", "vulnerable_cpe_configurations", "impact", "published_date", "cwe_ids"]
+    __slots__ = [
+        "cve_id",
+        "vulnerable_criteria",
+        "vulnerable_criteria_configurations",
+        "metrics",
+        "published_date",
+        "cwe_ids",
+    ]
 
     pandas_columns: ClassVar[list[str]] = [
         "cve_id",
@@ -88,11 +127,11 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     def pandas_tuple(self):
         return (
             self.cve_id,
-            self.vulnerable_cpes,
-            self.impact.base_score,
-            self.impact.severity,
-            self.impact.exploitability_score,
-            self.impact.impact_score,
+            self.vulnerable_criteria,
+            self.metrics.base_score,
+            self.metrics.severity,
+            self.metrics.exploitability_score,
+            self.metrics.impact_score,
             self.published_date,
             self.cwe_ids,
         )
@@ -100,9 +139,9 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     def to_dict(self) -> dict[str, Any]:
         return {
             "cve_id": self.cve_id,
-            "vulnerable_cpes": self.vulnerable_cpes,
-            "vulnerable_cpe_configurations": self.vulnerable_cpe_configurations,
-            "impact": self.impact,
+            "vulnerable_cpes": self.vulnerable_criteria,
+            "vulnerable_criteria_configurations": self.vulnerable_criteria_configurations,
+            "impact": self.metrics,
             "published_date": self.published_date.isoformat() if self.published_date else None,
             "cwe_ids": self.cwe_ids,
         }
@@ -115,7 +154,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         return cls(
             dct["cve_id"],
             dct["vulnerable_cpes"],
-            dct["vulnerable_cpe_configurations"],
+            dct["vulnerable_criteria_configurations"],
             dct["impact"],
             date_to_take,
             dct["cwe_ids"],
@@ -123,92 +162,78 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
     @classmethod
     def from_nist_dict(cls, dct: dict) -> CVE:
-        cve_id = dct["cve"]["CVE_data_meta"]["ID"]
-        impact = cls.Impact.from_nist_dict(dct)
-        published_date = isoparse(dct["publishedDate"])
+        cve_id = dct["id"]
+        metrics = cls.Metrics.from_nist_dict(dct)
+        published_date = datetime.datetime.fromisoformat(dct["published"])
         cwe_ids = cls.parse_cwe_data(dct)
-        cpes, cpe_configurations = CVE.get_cpe_data_from_nodes_list(dct["configurations"]["nodes"])
-
-        return cls(cve_id, cpes, cpe_configurations, impact, published_date, cwe_ids)
-
-    @staticmethod
-    def _parse_nist_cpe_dicts(dictionaries: Iterable[dict[str, Any]]) -> list[CPE]:
-        cpes: list[CPE] = []
-
-        for x in dictionaries:
-            cpe_uri = x["cpe23Uri"]
-            version_start: tuple[str, str] | None
-            version_end: tuple[str, str] | None
-            if "versionStartIncluding" in x and x["versionStartIncluding"]:
-                version_start = ("including", x["versionStartIncluding"])
-            elif "versionStartExcluding" in x and x["versionStartExcluding"]:
-                version_start = ("excluding", x["versionStartExcluding"])
-            else:
-                version_start = None
-
-            if "versionEndIncluding" in x and x["versionEndIncluding"]:
-                version_end = ("including", x["versionEndIncluding"])
-            elif "versionEndExcluding" in x and x["versionEndExcluding"]:
-                version_end = ("excluding", x["versionEndExcluding"])
-            else:
-                version_end = None
-
-            cpes.append(cached_cpe(cpe_uri, start_version=version_start, end_version=version_end))
-
-        return cpes
-
-    @staticmethod
-    def _parse_nist_dict(cpe_list: list[dict[str, Any]], parse_only_vulnerable_cpes: bool) -> list[CPE]:
-        """
-        Method parses list of CPE dicts to the list of CPE objects.
-        The <parse_only_vulnerable_cpes> parameter specifies if we want to
-        parse only vulnerable CPEs or not.
-        """
-        return CVE._parse_nist_cpe_dicts(dct for dct in cpe_list if dct["vulnerable"] or not parse_only_vulnerable_cpes)
+        vulnerable_criteria, vulnerable_criteria_configurations = CVE.parse_configurations(dct)
+        return cls(cve_id, vulnerable_criteria, vulnerable_criteria_configurations, metrics, published_date, cwe_ids)
 
     @staticmethod
     def parse_cwe_data(dct: dict) -> set[str] | None:
-        descriptions = dct["cve"]["problemtype"]["problemtype_data"][0]["description"]
-        return {x["value"] for x in descriptions} if descriptions else None
+        if "weaknesses" not in dct:
+            return None
+
+        descriptions = [x["description"] for x in dct["weaknesses"]]
+        cwes = {x["value"] for description in descriptions for x in description}
+        return cwes if cwes else None
 
     @staticmethod
-    def get_cpe_data_from_nodes_list(lst: list) -> tuple[list[CPE], list[CPEConfiguration]]:
-        or_nodes = [x for x in lst if x["operator"] == "OR"]
-        and_nodes = [x for x in lst if x["operator"] == "AND"]
-        return CVE.get_simple_cpes_from_nodes_list(or_nodes), CVE.get_cpe_configurations_from_node_list(and_nodes)
+    def parse_configurations(
+        dct: dict[str, Any],
+    ) -> tuple[list[CPEMatchCriteria], list[CPEMatchCriteriaConfiguration]]:
+        criteria = []
+        criteria_configurations = []
+        configurations = dct.get("configurations", [])
+
+        for conf in configurations:
+            new_criteria, new_criteria_configuration = CVE.parse_single_configuration(conf)
+            criteria.extend(new_criteria)
+            if new_criteria_configuration:
+                criteria_configurations.append(new_criteria_configuration)
+        return criteria, criteria_configurations
 
     @staticmethod
-    def get_simple_cpes_from_nodes_list(lst: list) -> list[CPE]:
-        return list(
-            itertools.chain.from_iterable(
-                CVE._parse_nist_dict(node["cpe_match"], parse_only_vulnerable_cpes=True) for node in lst
-            )
+    def parse_single_configuration(
+        configuration: dict[str, Any]
+    ) -> tuple[list[CPEMatchCriteria], CPEMatchCriteriaConfiguration | None]:
+        if CVE.configuration_is_simple(configuration):
+            return CVE.get_simple_criteria_from_cpe_matches(configuration["nodes"][0]["cpeMatch"]), None
+        else:
+            return [], CVE.get_configuration_criteria_from_configuration_nodes(configuration["nodes"])
+
+    @staticmethod
+    def configuration_is_simple(configuration: dict) -> bool:
+        return (
+            len(configuration["nodes"]) == 1
+            and "cpeMatch" in configuration["nodes"][0]
+            and (configuration.get("operator", "OR") == "OR" or len(configuration["nodes"][0]["cpeMatch"]) == 1)
         )
 
     @staticmethod
-    def get_cpe_configurations_from_node_list(lst: list) -> list[CPEConfiguration]:
+    def get_configuration_criteria_from_configuration_nodes(
+        configuration_nodes: dict,
+    ) -> CPEMatchCriteriaConfiguration | None:
         """
-        Retrieves only running on/with configurations, not the advanced ones.
-        See more at https://nvd.nist.gov/vuln/vulnerability-detail-pages, section `Configurations`
+        Retrieves complex configuration criteria from a dictionary of configuration nodes.
+        It is aasserted that the dictionary has two layers at most, that the top-level children are in AND relationship,
+        and that the individual elements are in OR relationship (otherwise, they would be parsed by different method.)
+
+        We cannot process configuration when elements of a single component are in AND relationship.
+        Out of all configurations in dataset as of April 2023, only 3 were detected in the dataset.
+        We ignore those on purpose.
+
+        :param dict configuration_nodes: _description_
+        :return CPEMatchCriteriaConfiguration | None: _description_
         """
-        configurations = [CVE.get_cpe_confiugration_from_node(x) for x in lst]
-        return [x for x in configurations if x]
+        assert all("cpeMatch" in x for x in configuration_nodes)  # the next layer are matches
+        nodes = [x for x in configuration_nodes if "operator" not in x or x["operator"] == "OR"]
+        if nodes:
+            return CPEMatchCriteriaConfiguration(
+                [CVE.get_simple_criteria_from_cpe_matches(x["cpeMatch"]) for x in nodes]
+            )
+        return None
 
     @staticmethod
-    def get_cpe_confiugration_from_node(node: dict) -> CPEConfiguration | None:
-        if node["children"]:
-            if len(node["children"]) != 2:
-                return None
-
-            # Deep variant should have two children, get CPEs from the first one and declare that product, second is platform
-            cpes = CVE._parse_nist_dict(node["children"][0]["cpe_match"], parse_only_vulnerable_cpes=True)
-            platform = CVE._parse_nist_dict(node["children"][1]["cpe_match"], parse_only_vulnerable_cpes=False)
-            return CPEConfiguration(platform[0], cpes)
-        else:
-            # Shallow variant should have exactly 2 matching CPEs, we declare one a platform, second one the vuln. thing
-            cpes = CVE._parse_nist_dict(node["cpe_match"], parse_only_vulnerable_cpes=True)
-
-            if len(cpes) != 2:
-                return None
-
-            return CPEConfiguration(cpes[0], [cpes[1]])
+    def get_simple_criteria_from_cpe_matches(cpe_matches: list[dict[str, Any]]) -> list[CPEMatchCriteria]:
+        return [CPEMatchCriteria.from_nist_dict(x) for x in cpe_matches]

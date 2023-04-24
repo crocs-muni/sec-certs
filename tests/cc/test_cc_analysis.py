@@ -1,174 +1,81 @@
 from __future__ import annotations
 
 import shutil
+from importlib import resources
 from pathlib import Path
 
 import pytest
-from dateutil.parser import isoparse
-
 import tests.data.cc.analysis
+import tests.data.common
+
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cpe import CPE, CPEConfiguration
-from sec_certs.sample.cve import CVE
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
-    return Path(tests.data.cc.analysis.__path__[0])
+def analysis_data_dir() -> Path:
+    with resources.path(tests.data.cc.analysis, "") as path:
+        return path
 
 
 @pytest.fixture(scope="module")
-def cpe_single_sign_on() -> CPE:
-    return CPE(
-        "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
-        "IBM Security Access Manager For Enterprise Single Sign-On 8.2.2",
-    )
-
-
-@pytest.fixture(scope="module")
-def cpes(cpe_single_sign_on: CPE) -> set[CPE]:
-    return {
-        cpe_single_sign_on,
-        CPE(
-            "cpe:2.3:a:ibm:security_key_lifecycle_manager:2.6.0.1:*:*:*:*:*:*:*",
-            "IBM Security Key Lifecycle Manager 2.6.0.1",
-        ),
-        CPE(
-            "cpe:2.3:a:semperplugins:all_in_one_seo_pack:1.3.6.4:*:*:*:*:wordpress:*:*",
-            "Semper Plugins All in One SEO Pack 1.3.6.4 for WordPress",
-        ),
-        CPE(
-            "cpe:2.3:a:tracker-software:pdf-xchange_lite_printer:6.0.320.0:*:*:*:*:*:*:*",
-            "Tracker Software PDF-XChange Lite Printer 6.0.320.0",
-        ),
-    }
-
-
-@pytest.fixture(scope="module")
-def cpe_dset(cpes: set[CPE]) -> CPEDataset:
-    return CPEDataset(False, {x.uri: x for x in cpes})
-
-
-@pytest.fixture(scope="module")
-def cves(cpe_single_sign_on: CPE, ibm_xss_cve: CVE) -> set[CVE]:
-    return {
-        CVE(
-            "CVE-2017-1732",
-            [cpe_single_sign_on],
-            [],
-            CVE.Impact(5.3, "MEDIUM", 3.9, 1.4),
-            isoparse("2021-05-26T04:15Z"),
-            {"CWE-200"},
-        ),
-        CVE(
-            "CVE-2019-4513",
-            [cpe_single_sign_on],
-            [],
-            CVE.Impact(8.2, "HIGH", 3.9, 4.2),
-            isoparse("2000-05-26T04:15Z"),
-            {"CVE-611"},
-        ),
-        ibm_xss_cve,
-    }
-
-
-@pytest.fixture(scope="module")
-def cve_dset(cves: set[CVE]) -> CVEDataset:
-    cve_dset = CVEDataset({x.cve_id: x for x in cves})
-    cve_dset.build_lookup_dict(use_nist_mapping=False)
-    return cve_dset
-
-
-@pytest.fixture(scope="module")
-def cc_dset(data_dir: Path, cve_dset: CVEDataset, tmp_path_factory) -> CCDataset:
+def processed_cc_dset(
+    analysis_data_dir: Path, cve_dataset: CVEDataset, cpe_dataset: CPEDataset, tmp_path_factory
+) -> CCDataset:
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
-    shutil.copytree(data_dir, tmp_dir, dirs_exist_ok=True)
+    shutil.copytree(analysis_data_dir, tmp_dir, dirs_exist_ok=True)
 
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.process_protection_profiles()
     cc_dset.extract_data()
-    cc_dset.auxiliary_datasets.cve_dset = cve_dset
+    cc_dset.auxiliary_datasets.cve_dset = cve_dataset
+    cc_dset.auxiliary_datasets.cpe_dset = cpe_dataset
     cc_dset._compute_heuristics()
 
     return cc_dset
 
 
 @pytest.fixture
-def reference_dataset(data_dir) -> CCDataset:
-    return CCDataset.from_json(data_dir / "reference_dataset.json")
+def reference_dataset(analysis_data_dir) -> CCDataset:
+    return CCDataset.from_json(analysis_data_dir / "reference_dataset.json")
 
 
 @pytest.fixture
-def transitive_vulnerability_dataset(data_dir) -> CCDataset:
-    return CCDataset.from_json(data_dir / "transitive_vulnerability_dataset.json")
+def transitive_vulnerability_dataset(analysis_data_dir) -> CCDataset:
+    return CCDataset.from_json(analysis_data_dir / "transitive_vulnerability_dataset.json")
 
 
-@pytest.fixture(scope="module")
-def ibm_cpe_configuration() -> CPEConfiguration:
-    return CPEConfiguration(
-        CPE("cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*"),
-        [
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*"),
-            CPE("cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*"),
-        ],
-    )
+@pytest.fixture
+def random_certificate(processed_cc_dset: CCDataset) -> CCCertificate:
+    return processed_cc_dset["ebd276cca70fd723"]
 
 
-@pytest.fixture(scope="module")
-def ibm_xss_cve(ibm_cpe_configuration) -> CVE:
-    return CVE(
-        "CVE-2010-2325",
-        [],
-        [ibm_cpe_configuration],
-        CVE.Impact(4.3, "MEDIUM", 2.9, 8.6),
-        isoparse("2000-06-18T04:15Z"),
-        {"CWE-79"},
-    )
+def test_match_cpe(random_certificate: CCCertificate):
+    assert {
+        "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
+    } == random_certificate.heuristics.cpe_matches
 
 
-def test_find_related_cves_for_cpe_configuration(
-    cc_dset: CCDataset,
-    ibm_xss_cve: CVE,
-):
-    cert = cc_dset["37e1b22e5933b0ed"]
-    cert.heuristics.cpe_matches = {
-        "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
-        "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+def test_find_related_cves(processed_cc_dset: CCDataset, random_certificate: CCCertificate):
+    random_certificate.heuristics.cpe_matches = {
+        "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
     }
-    cc_dset.compute_related_cves()
-    assert cert.heuristics.related_cves == {ibm_xss_cve.cve_id}
+    processed_cc_dset.compute_related_cves()
+    assert random_certificate.heuristics.related_cves == {"CVE-2017-1732", "CVE-2019-4513"}
 
 
-@pytest.fixture
-def random_certificate(cc_dset: CCDataset) -> CCCertificate:
-    return cc_dset["ebd276cca70fd723"]
-
-
-def test_match_cpe(cpe_single_sign_on: CPE, random_certificate: CCCertificate):
-    assert {cpe_single_sign_on.uri} == random_certificate.heuristics.cpe_matches
-
-
-def test_find_related_cves(
-    cc_dset: CCDataset, cpe_single_sign_on: CPE, cves: set[CVE], random_certificate: CCCertificate
-):
-    random_certificate.heuristics.cpe_matches = {cpe_single_sign_on.uri}
-    cc_dset.compute_related_cves()
-    assert {"CVE-2017-1732", "CVE-2019-4513"} == random_certificate.heuristics.related_cves
+def test_find_related_cves_criteria_configuration(processed_cc_dset: CCDataset, random_certificate: CCCertificate):
+    random_certificate.heuristics.cpe_matches = {
+        "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+        "cpe:2.3:o:ibm:zos:6.0.1:*:*:*:*:*:*:*",
+    }
+    processed_cc_dset.compute_related_cves()
+    assert random_certificate.heuristics.related_cves == {"CVE-2010-2325"}
 
 
 def test_version_extraction(random_certificate: CCCertificate):
@@ -224,7 +131,7 @@ def test_keywords_heuristics(random_certificate: CCCertificate):
     assert extracted_keywords["cipher_mode"]["CBC"]["CBC"] == 2
 
 
-def test_protection_profile_matching(cc_dset: CCDataset, random_certificate: CCCertificate):
+def test_protection_profile_matching(processed_cc_dset: CCDataset, random_certificate: CCCertificate):
     artificial_pp: ProtectionProfile = ProtectionProfile(
         "Korean National Protection Profile for Single Sign On V1.0",
         "EAL1+",
@@ -240,7 +147,7 @@ def test_protection_profile_matching(cc_dset: CCDataset, random_certificate: CCC
         pp_ids=frozenset(["KECS-PP-0822-2017 SSO V1.0"]),
     )
 
-    cc_dset.process_protection_profiles(to_download=False)
+    processed_cc_dset.process_protection_profiles(to_download=False)
     assert random_certificate.protection_profiles == {expected_pp}
 
 

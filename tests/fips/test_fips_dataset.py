@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -15,12 +16,8 @@ from sec_certs.sample.fips import FIPSCertificate
 
 @pytest.fixture(scope="module")
 def data_dir() -> Path:
-    return Path(tests.data.fips.dataset.__path__[0])
-
-
-@pytest.fixture
-def toy_dataset(data_dir: Path) -> FIPSDataset:
-    return FIPSDataset.from_json(data_dir / "toy_dataset.json")
+    with resources.path(tests.data.fips.dataset, "") as path:
+        return path
 
 
 def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):
@@ -37,8 +34,13 @@ def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Pat
     assert data == template_data
 
 
-def test_dataset_from_json(toy_dataset: FIPSDataset, data_dir: Path):
+def test_dataset_from_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):
     assert toy_dataset == FIPSDataset.from_json(data_dir / "toy_dataset.json")
+
+    compressed_path = tmp_path / "dset.json.gz"
+    toy_dataset.to_json(compressed_path, compress=True)
+    decompressed_dataset = FIPSDataset.from_json(compressed_path, is_compressed=True)
+    assert toy_dataset == decompressed_dataset
 
 
 def test_build_empty_dataset():

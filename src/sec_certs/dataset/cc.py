@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import itertools
-import json
 import locale
 import shutil
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Iterator
+from typing import ClassVar, Iterator, cast
 
 import numpy as np
 import pandas as pd
@@ -31,7 +30,7 @@ from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.serialization.json import ComplexSerializableType, CustomJSONDecoder, serialize
+from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 
@@ -355,7 +354,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
         # TODO: Now skipping bad lines, smarter heuristics to be built for dumb files
         df = pd.read_csv(file, engine="python", encoding="windows-1252", on_bad_lines="skip")
-        df = df.rename(columns={x: y for (x, y) in zip(list(df.columns), csv_header)})
+        df = df.rename(columns=dict(zip(list(df.columns), csv_header)))
 
         df["is_maintenance"] = ~df.maintenance_title.isnull()
         df = df.fillna(value="")
@@ -506,7 +505,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             "Products for Digital Signatures",
             "Trusted Computing",
         ]
-        cat_dict = {x: y for (x, y) in zip(cc_table_ids, cc_categories)}
+        cat_dict = dict(zip(cc_table_ids, cc_categories))
 
         with file.open("r") as handle:
             soup = BeautifulSoup(handle, "html5lib")
@@ -882,11 +881,9 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         raise NotImplementedError
 
     @classmethod
-    def from_json(cls, input_path: str | Path) -> CCDatasetMaintenanceUpdates:
-        input_path = Path(input_path)
-        with input_path.open("r") as handle:
-            dset = json.load(handle, cls=CustomJSONDecoder)
-        dset._root_dir = Path(input_path).parent
+    def from_json(cls, input_path: str | Path, is_compressed: bool = False) -> CCDatasetMaintenanceUpdates:
+        dset = cast(CCDatasetMaintenanceUpdates, ComplexSerializableType.from_json(input_path, is_compressed))
+        dset._root_dir = Path(input_path).parent.absolute()
         return dset
 
     def to_pandas(self) -> pd.DataFrame:

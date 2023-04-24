@@ -1,12 +1,15 @@
 import re
 from pathlib import Path
+from typing import Final
 
 DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 
 RESPONSE_OK = 200
 RETURNCODE_OK = "ok"
 RETURNCODE_NOK = "nok"
-REQUEST_TIMEOUT = 10
+REQUEST_TIMEOUT = 20
+
+INCREMENTAL_NVD_UPDATE_MAX_INTERVAL_DAYS: Final[int] = 120
 
 MIN_CORRECT_CERT_SIZE = 5000
 

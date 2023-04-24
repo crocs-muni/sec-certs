@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+from importlib import resources
 from typing import Any
 
 import pytest
@@ -23,13 +23,9 @@ def test_alg_dset_from_web(tmp_path):
 
 
 @pytest.fixture(scope="module")
-def alg_dset_path() -> Path:
-    return Path(tests.data.fips.dataset.__path__[0]) / "alg_dataset.json"
-
-
-@pytest.fixture(scope="module")
-def alg_dset(alg_dset_path: Path) -> FIPSAlgorithmDataset:
-    return FIPSAlgorithmDataset.from_json(alg_dset_path)
+def alg_dset() -> FIPSAlgorithmDataset:
+    with resources.path(tests.data.fips.dataset, "alg_dataset.json") as alg_dset_path:
+        return FIPSAlgorithmDataset.from_json(alg_dset_path)
 
 
 @pytest.fixture(scope="module")

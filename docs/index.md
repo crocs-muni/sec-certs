@@ -32,6 +32,7 @@ Seccerts PyPi <https://pypi.org/project/sec-certs/>
 installation.md
 quickstart.md
 configuration.md
+user_guide.md
 ```
 
 ```{toctree}
