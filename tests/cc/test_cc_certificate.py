@@ -2,6 +2,7 @@ import json
 import shutil
 from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import tests.data.cc.analysis
@@ -12,9 +13,9 @@ from sec_certs.sample import CCCertificate
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
+def data_dir() -> Generator[Path, None, None]:
     with resources.path(tests.data.cc.certificate, "") as path:
-        return path
+        yield path
 
 
 @pytest.fixture(scope="module")
