@@ -13,7 +13,6 @@ from pymongo import ReplaceOne
 from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.serialization.json import CustomJSONEncoder
 from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
 
 from . import mongo
@@ -137,9 +136,9 @@ def update_cpe_match_data() -> None:  # pragma: no cover
     logger.info("Saving CPE match dataset.")
     with sentry_sdk.start_span(op="cpe_match.save", description="Save CPE matches."):
         with match_path.open("w") as handle:
-            json.dump(match_dset, handle)
+            json.dump(match_dset, handle, indent=4)
         with gzip.open(match_compressed_path, "wb") as handle:
-            json_str = json.dumps(match_dset, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+            json_str = json.dumps(match_dset, indent=4)
             handle.write(json_str.encode("utf-8"))
 
 

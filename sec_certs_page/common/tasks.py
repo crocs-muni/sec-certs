@@ -66,6 +66,7 @@ class Updater:  # pragma: no cover
         res = {
             "cve_path": instance_path / ns["cve"],
             "cpe_path": instance_path / ns["cpe"],
+            "cpe_match_path": instance_path / ns["cpe_match"],
             "dset_path": instance_path / ns[self.collection],
             "dir_path": instance_path / ns[f"{self.collection}_dir"],
         }
@@ -233,6 +234,10 @@ class Updater:  # pragma: no cover
             if dset.cpe_dataset_path.exists():
                 dset.cpe_dataset_path.unlink()
             os.symlink(paths["cpe_path"], dset.cpe_dataset_path)
+        if paths["cpe_match_path"].exists():
+            if dset.cpe_match_json_path.exists():
+                dset.cpe_match_json_path.unlink()
+            os.symlink(paths["cpe_match_path"], dset.cpe_match_json_path)
 
         update_result = None
         run_doc = None
