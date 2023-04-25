@@ -8,8 +8,10 @@ import sentry_sdk
 from flask import current_app
 from periodiq import cron
 from pymongo import ReplaceOne
+from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
+from sec_certs.utils.nvd_dataset_builder import CpeNvdDatasetBuilder, CveNvdDatasetBuilder
 
 from . import mongo
 from .cc.tasks import update_data as update_cc_data
@@ -27,15 +29,22 @@ logger: Logger = logging.getLogger(__name__)
 def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
+    cve_compressed_path = instance_path / current_app.config["DATASET_PATH_CvE_COMPRESSED"]
 
     logger.info("Getting CVEs.")
     with sentry_sdk.start_span(op="cve.get", description="Get CVEs."):
-        cve_dset: CVEDataset = CVEDataset.from_web()
+        if cve_path.exists():
+            cve_dset = CVEDataset.from_json(cve_path)
+        else:
+            cve_dset = CVEDataset(json_path=cve_path)
+        with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+            cve_dset = builder.build_dataset(cve_dset)
     logger.info(f"Got {len(cve_dset)} CVEs.")
 
     logger.info("Saving CVE dataset.")
     with sentry_sdk.start_span(op="cve.save", description="Save CVEs."):
         cve_dset.to_json(cve_path)
+        cve_dset.to_json(cve_compressed_path, compress=True)
 
     logger.info("Inserting CVEs.")
     with sentry_sdk.start_span(op="cve.insert", description="Insert CVEs into DB."):
@@ -64,21 +73,23 @@ def update_cve_data() -> None:  # pragma: no cover
 def update_cpe_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
-    cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
+    cpe_compressed_path = instance_path / current_app.config["DATASET_PATH_CPE_COMPRESSED"]
 
     logger.info("Getting CPEs.")
     with sentry_sdk.start_span(op="cpe.get", description="Get CPEs."):
-        cpe_dset: CPEDataset = CPEDataset.from_web(cpe_path)
-    logger.info(f"Got {len(cpe_dset)} CPEs.")
+        if cpe_path.exists():
+            cpe_dset = CPEDataset.from_json(cpe_path)
+        else:
+            cpe_dset = CPEDataset(json_path=cpe_path)
 
-    logger.info("Enhancing with CVE CPEs.")
-    with sentry_sdk.start_span(op="cpe.enhance", description="Enhance CPEs."):
-        cpe_dset.enhance_with_cpes_from_cve_dataset(cve_path)
+        with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+            cpe_dset = builder.build_dataset(cpe_dset)
     logger.info(f"Got {len(cpe_dset)} CPEs.")
 
     logger.info("Saving CPE dataset.")
     with sentry_sdk.start_span(op="cpe.save", description="Save CPEs."):
-        cpe_dset.to_json()
+        cpe_dset.to_json(cpe_path)
+        cpe_dset.to_json(cpe_compressed_path, compress=True)
 
     logger.info("Inserting CPEs.")
     with sentry_sdk.start_span(op="cpe.insert", description="Insert CPEs into DB."):
