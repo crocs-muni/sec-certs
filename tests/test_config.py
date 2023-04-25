@@ -9,7 +9,7 @@ import pytest
 import yaml
 
 import sec_certs.configuration as config_module
-import tests.data
+import tests.data.common
 
 
 @pytest.fixture(autouse=True)

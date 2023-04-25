@@ -1,6 +1,7 @@
 from datetime import date
 from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import tests.data.cc.dataset
@@ -11,9 +12,9 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
+def data_dir() -> Generator[Path, None, None]:
     with resources.path(tests.data.cc.dataset, "") as path:
-        return path
+        yield path
 
 
 @pytest.fixture

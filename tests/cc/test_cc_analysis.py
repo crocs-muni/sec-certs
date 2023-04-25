@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import tests.data.cc.analysis
@@ -18,9 +19,9 @@ from sec_certs.sample.sar import SAR
 
 
 @pytest.fixture(scope="module")
-def analysis_data_dir() -> Path:
+def analysis_data_dir() -> Generator[Path, None, None]:
     with resources.path(tests.data.cc.analysis, "") as path:
-        return path
+        yield path
 
 
 @pytest.fixture(scope="module")

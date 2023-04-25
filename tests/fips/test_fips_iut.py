@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import tests.data.fips.iut
@@ -14,9 +15,9 @@ from sec_certs.sample.fips_iut import IUTEntry, IUTSnapshot
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
+def data_dir() -> Generator[Path, None, None]:
     with resources.path(tests.data.fips.iut, "") as path:
-        return path
+        yield path
 
 
 @pytest.fixture(scope="module")

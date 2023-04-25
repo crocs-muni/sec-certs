@@ -1,6 +1,7 @@
 import json
 from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 
@@ -16,9 +17,9 @@ def load_test_config():
 
 
 @pytest.fixture(scope="module")
-def cve_dataset_path() -> Path:
+def cve_dataset_path() -> Generator[Path, None, None]:
     with resources.path(tests.data.common, "cve_dataset.json") as cve_dataset_path:
-        return cve_dataset_path
+        yield cve_dataset_path
 
 
 @pytest.fixture(scope="module")
@@ -36,9 +37,9 @@ def cve_dataset(cve_dataset_path: Path, cpe_match_feed: dict) -> CVEDataset:
 
 
 @pytest.fixture(scope="module")
-def cpe_dataset_path() -> Path:
+def cpe_dataset_path() -> Generator[Path, None, None]:
     with resources.path(tests.data.common, "cpe_dataset.json") as cpe_dataset_path:
-        return cpe_dataset_path
+        yield cpe_dataset_path
 
 
 @pytest.fixture(scope="module")

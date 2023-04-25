@@ -4,6 +4,7 @@ import json
 import shutil
 from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import tests.data.fips.certificate
@@ -14,9 +15,9 @@ from sec_certs.sample.fips import FIPSCertificate
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
+def data_dir() -> Generator[Path, None, None]:
     with resources.path(tests.data.fips.certificate, "") as path:
-        return path
+        yield path
 
 
 @pytest.fixture
