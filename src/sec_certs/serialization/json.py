@@ -67,9 +67,8 @@ class ComplexSerializableType:
 
         # false positive MyPy warning, cannot be None
         if compress:
-            with gzip.open(str(output_path), "w") as handle:  # type: ignore
-                json_str = json.dumps(self, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
-                handle.write(json_str.encode("utf-8"))
+            with gzip.open(str(output_path), "wt", encoding="utf-8") as handle:  # type: ignore
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
         else:
             with Path(output_path).open("w") as handle:  # type: ignore
                 json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
@@ -83,12 +82,10 @@ class ComplexSerializableType:
         :return T: the deserialized object
         """
         if is_compressed:
-            with gzip.open(str(input_path)) as handle:
-                json_str = handle.read().decode("utf-8")
-                return json.loads(json_str, cls=CustomJSONDecoder)
+            with gzip.open(str(input_path), "rt", encoding="utf-8") as handle:
+                return json.load(handle, cls=CustomJSONDecoder)
         else:
-            input_path = Path(input_path)
-            with input_path.open("r") as handle:
+            with Path(input_path).open("r") as handle:
                 return json.load(handle, cls=CustomJSONDecoder)
 
 
