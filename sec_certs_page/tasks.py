@@ -32,7 +32,7 @@ logger: Logger = logging.getLogger(__name__)
 def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
-    cve_compressed_path = instance_path / current_app.config["DATASET_PATH_CvE_COMPRESSED"]
+    cve_compressed_path = instance_path / current_app.config["DATASET_PATH_CVE_COMPRESSED"]
 
     logger.info("Getting CVEs.")
     with sentry_sdk.start_span(op="cve.get", description="Get CVEs."):
