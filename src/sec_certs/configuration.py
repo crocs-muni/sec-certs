@@ -70,13 +70,13 @@ class Configuration(BaseSettings):
         "https://seccerts.org/fips/mip/latest.json", description="URL for the latest snapshot of FIPS MIP data"
     )
     cpe_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/cpe/cpe_dataset.json.gz", description="URL for the latest snapshot of CPEDataset."
+        "https://seccerts.org/cpe/cpe.json.gz", description="URL for the latest snapshot of CPEDataset."
     )
     cve_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/cve/cve_dataset.json.gz", description="URL for the latest snapshot of CVEDataset."
+        "https://seccerts.org/cve/cve.json.gz", description="URL for the latest snapshot of CVEDataset."
     )
     cpe_match_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/cpe/cpe_match_dataset.json.gz",
+        "https://seccerts.org/cpe/cpe_match.json.gz",
         description="URL for the latest snapshot of cpe match json.",
     )
     fips_matching_threshold: int = Field(
