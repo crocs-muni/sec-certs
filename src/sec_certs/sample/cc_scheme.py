@@ -1,3 +1,5 @@
+# This code is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.
+# What follows is a repulsive wall of BeautifulSoup garbage parsing code.
 from __future__ import annotations
 
 import hashlib
@@ -877,8 +879,8 @@ def _get_norway(url: str, enhanced: bool, artifacts: bool) -> list[dict[str, Any
                 value = sns(row.find("div", class_="value").text)
                 if not title:
                     continue
-                if "Certificate No." in title:
-                    e["id"] = value
+                if "Certificate No." in title and value is not None:
+                    e["id"] = value.split(" ")[0]
                 elif "Mutual Recognition" in title:
                     e["mutual_recognition"] = value
                 elif "Product" in title:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import Any, Iterable, Mapping, Sequence
 
 from sec_certs.configuration import config
@@ -33,7 +34,8 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
     def _prepare(self):
         self._canonical_cert_id = None
         if cert_id := self._get_from_entry("cert_id", "id"):
-            self._canonical_cert_id = CertificateId(self.scheme, cert_id).canonical
+            with contextlib.suppress(Exception):
+                self._canonical_cert_id = CertificateId(self.scheme, cert_id).canonical
 
         self._product = None
         if product_name := self._get_from_entry("product", "title", "name"):

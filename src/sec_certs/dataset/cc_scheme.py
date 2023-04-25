@@ -1,5 +1,3 @@
-# This code is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.
-# What follows is a repulsive wall of BeautifulSoup garbage parsing code.
 from __future__ import annotations
 
 import logging
