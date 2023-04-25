@@ -138,8 +138,7 @@ def update_cpe_match_data() -> None:  # pragma: no cover
         with match_path.open("w") as handle:
             json.dump(match_dset, handle, indent=4)
         with gzip.open(match_compressed_path, "wb") as handle:
-            json_str = json.dumps(match_dset, indent=4)
-            handle.write(json_str.encode("utf-8"))
+            json.dump(match_dset, handle, indent=4)
 
 
 @dramatiq.actor(periodic=cron("@weekly"))
