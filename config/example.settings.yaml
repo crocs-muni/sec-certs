@@ -1,4 +1,3 @@
----
-enable_progress_bars:
-  description: Whether to enable pretty-printed progress bars while processing.
-  value: false
+enable_progress_bars: false
+nvd_api_key: "your key here"
+preferred_source_nvd_datasets: "api"

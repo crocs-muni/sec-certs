@@ -1,3 +1,5 @@
+import gzip
+import json
 import logging
 from logging import Logger
 from operator import itemgetter
@@ -11,7 +13,8 @@ from pymongo import ReplaceOne
 from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.utils.nvd_dataset_builder import CpeNvdDatasetBuilder, CveNvdDatasetBuilder
+from sec_certs.serialization.json import CustomJSONEncoder
+from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
 
 from . import mongo
 from .cc.tasks import update_data as update_cc_data
@@ -113,6 +116,33 @@ def update_cpe_data() -> None:  # pragma: no cover
         logger.info(f"Cleaned up {res.deleted_count} CPEs.")
 
 
+@dramatiq.actor(max_retries=0, actor_name="cpe_match_update")
+@no_simultaneous_execution("cpe_match_update", abort=True, timeout=3600)
+def update_cpe_match_data() -> None:  # pragma: no cover
+    instance_path = Path(current_app.instance_path)
+    match_path = instance_path / current_app.config["DATASET_PATH_CPE_MATCH"]
+    match_compressed_path = instance_path / current_app.config["DATASET_PATH_CPE_MATCH_COMPRESSED"]
+
+    logger.info("Getting CPE matches.")
+    with sentry_sdk.start_span(op="cpe_match.get", description="Get CPE matches."):
+        if match_path.exists():
+            with match_path.open("r") as handle:
+                match_dset = json.load(handle)
+        else:
+            match_dset = None
+
+        with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+            match_dset = builder.build_dataset(match_dset)
+
+    logger.info("Saving CPE match dataset.")
+    with sentry_sdk.start_span(op="cpe_match.save", description="Save CPE matches."):
+        with match_path.open("w") as handle:
+            json.dump(match_dset, handle)
+        with gzip.open(match_compressed_path, "wb") as handle:
+            json_str = json.dumps(match_dset, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+            handle.write(json_str.encode("utf-8"))
+
+
 @dramatiq.actor(periodic=cron("@weekly"))
 def run_updates_weekly() -> None:  # pragma: no cover
     (
@@ -126,6 +156,7 @@ def run_updates_daily() -> None:  # pragma: no cover
         cleanup_subscriptions.message_with_options(pipe_ignore=True)
         | update_cve_data.message_with_options(pipe_ignore=True)
         | update_cpe_data.message_with_options(pipe_ignore=True)
+        | update_cpe_match_data.message_with_options(pipe_ignore=True)
         | update_iut_data.message_with_options(pipe_ignore=True)
         | update_mip_data.message_with_options(pipe_ignore=True)
     ).run()

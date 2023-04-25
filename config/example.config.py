@@ -59,7 +59,11 @@ SEARCH_ITEMS_PER_PAGE = 20
 
 # Paths inside the instance directory where the CVE and CPE dataset will be stored.
 DATASET_PATH_CVE = "cve.json"
+DATASET_PATH_CVE_COMPRESSED = "cve.json.gz"
 DATASET_PATH_CPE = "cpe.json"
+DATASET_PATH_CPE_COMPRESSED = "cpe.json.gz"
+DATASET_PATH_CPE_MATCH = "cpe_match.json"
+DATASET_PATH_CPE_MATCH_COMPRESSED = "cpe_match.json.gz"
 
 # Paths inside the instance directory where the CC and FIPS datasets will be stored and processed.
 DATASET_PATH_CC = "cc_dataset"
