@@ -441,6 +441,7 @@ def entry_name(name):
 def sitemap_urls():
     yield "cc.index", {}
     yield "cc.dataset", {}
+    yield "cc.maintenance_updates", {}
     yield "cc.network", {}
     yield "cc.analysis", {}
     yield "cc.search", {}
