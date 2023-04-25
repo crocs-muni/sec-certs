@@ -363,6 +363,32 @@
                         {{ render_cves(cves) }}
                     </div>
                 {% endif %}
+                {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
+                    <div data-cs-name="Scheme data">
+                        <h3>Scheme data</h3>
+                        <table class="table table-sm table-borderless w-auto">
+                            <colgroup>
+                                <col style="width: 30%"/>
+                                <col style="width: 70%"/>
+                            </colgroup>
+                            <tbody>
+                            {% for key, value in cert["heuristics"]["scheme_data"].items() %}
+                                {% set name = key|replace("_", " ")|title %}
+                                <tr data-cs-name="{{ name }}">
+                                    <th scope="row">{{ name }}</th>
+                                    <td>
+                                        {% if key.endswith("_link") or key.endswith("_url") %}
+                                            <a href="{{ value }}" target="_blank" rel="noopener">{{ value }}</a>
+                                        {% else %}
+                                            {{ value }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="mt-5 mb-5">
