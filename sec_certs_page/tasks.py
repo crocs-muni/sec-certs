@@ -135,10 +135,10 @@ def update_cpe_match_data() -> None:  # pragma: no cover
 
     logger.info("Saving CPE match dataset.")
     with sentry_sdk.start_span(op="cpe_match.save", description="Save CPE matches."):
-        with match_path.open("w") as handle:
+        with match_path.open("w", encoding="UTF-8") as handle:
             json.dump(match_dset, handle, indent=4)
-        with gzip.open(match_compressed_path, "wb") as handle:
-            json.dump(match_dset, handle, indent=4)
+        with gzip.open(match_compressed_path, "wb", encoding="UTF-8") as gzip_handle:
+            json.dump(match_dset, gzip_handle, indent=4)  # type: ignore
 
 
 @dramatiq.actor(periodic=cron("@weekly"))
