@@ -58,7 +58,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
 
     @property
     def serialized_attributes(self) -> list[str]:
-        return ["last_update_timestamp", "was_enhanced_with_vuln_cpes", "cpes"]
+        return ["last_update_timestamp", "cpes"]
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> CPEDataset:

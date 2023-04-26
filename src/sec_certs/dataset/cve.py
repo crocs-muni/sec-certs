@@ -38,10 +38,6 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         self._cves_with_vulnerable_configurations: list[CVE] = []
         self.last_update_timestamp = last_update_timestamp
 
-    @property
-    def serialized_attributes(self) -> list[str]:
-        return ["last_update_timestamp", "cves"]
-
     def __iter__(self):
         yield from self.cves.values()
 
@@ -56,6 +52,15 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
     def __eq__(self, other: object):
         return isinstance(other, CVEDataset) and self.cves == other.cves
+
+    @property
+    def serialized_attributes(self) -> list[str]:
+        return ["last_update_timestamp", "cves"]
+
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> CVEDataset:
+        dct["last_update_timestamp"] = datetime.fromisoformat(dct["last_update_timestamp"])
+        return cls(**dct)
 
     @property
     def look_up_dicts_built(self) -> bool:
