@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import tempfile
 import warnings
 from dataclasses import dataclass
@@ -1320,18 +1321,19 @@ def get_turkey_certified() -> list[dict[str, Any]]:
         dfs = tabula.read_pdf(str(pdf_path), pages="all")
         for df in dfs:
             for line in df.values:  # type: ignore
+                values = [value if not (isinstance(value, float) and math.isnan(value)) else None for value in line]
                 cert = {
                     # TODO: Split item number and generate several dicts for a range they include.
-                    "item_no": line[0],
-                    "developer": line[1],
-                    "product": line[2],
-                    "cc_version": line[3],
-                    "level": line[4],
-                    "cert_lab": line[5],
-                    "certification_date": line[6],
-                    "expiration_date": line[7],
+                    "item_no": values[0],
+                    "developer": values[1],
+                    "product": values[2],
+                    "cc_version": values[3],
+                    "level": values[4],
+                    "cert_lab": values[5],
+                    "certification_date": values[6],
+                    "expiration_date": values[7],
                     # TODO: Parse "Ongoing Evaluation" out of this field as well.
-                    "archived": isinstance(line[9], str) and "Archived" in line[9],
+                    "archived": isinstance(values[9], str) and "Archived" in values[9],
                 }
                 results.append(cert)
     return results
