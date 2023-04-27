@@ -698,9 +698,23 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             self.certs[dgst].heuristics.direct_transitive_cves = transitive_cve.direct_transitive_cves
             self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
 
+    def _compute_scheme_data(self):
+        for scheme in self.auxiliary_datasets.scheme_dset:
+            if certified := scheme.lists.get(EntryType.Certified):
+                certs = [cert for cert in self if cert.status == "active"]
+                matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
+                for dgst, match in matches.items():
+                    self[dgst].heuristics.scheme_data = match
+            if archived := scheme.lists.get(EntryType.Archived):
+                certs = [cert for cert in self if cert.status == "archived"]
+                matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
+                for dgst, match in matches.items():
+                    self[dgst].heuristics.scheme_data = match
+
     def _compute_heuristics(self) -> None:
         self._compute_normalized_cert_ids()
         super()._compute_heuristics()
+        self._compute_scheme_data()
         self._compute_cert_labs()
         self._compute_sars()
 
@@ -822,18 +836,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             scheme_dset.to_json(self.scheme_dataset_path)
         else:
             scheme_dset = CCSchemeDataset.from_json(self.scheme_dataset_path)
-
-        for scheme in scheme_dset:
-            if certified := scheme.lists.get(EntryType.Certified):
-                certs = [cert for cert in self if cert.status == "active"]
-                matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
-            if archived := scheme.lists.get(EntryType.Archived):
-                certs = [cert for cert in self if cert.status == "archived"]
-                matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
 
         return scheme_dset
 
