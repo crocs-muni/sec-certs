@@ -345,7 +345,7 @@
                 {% endif %}
                 {% if cpes %}
                     <div data-cs-name="CPE matches">
-                        <h3><abbr title="Common Platform Enumeration">CPE</abbr> matches</h3>
+                        <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
                         <ul>
                             {% for cpe in cpes %}
                                 <li><a href="{{ url_for("vuln.cpe", cpe_id=cpe["uri"]) }}">{{ cpe["uri"] }}</a>
@@ -358,32 +358,61 @@
                 {% endif %}
                 {% if cves %}
                     <div data-cs-name="Related CVEs">
-                        <h3 class="anchor" id="cves">Related <abbr title="Common Vulnerability Enumeration">CVEs</abbr>
-                        </h3>
+                        <h4 class="anchor" id="cves">Related <abbr title="Common Vulnerability Enumeration">CVEs</abbr>
+                        </h4>
                         {{ render_cves(cves) }}
                     </div>
                 {% endif %}
                 {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
                     <div data-cs-name="Scheme data">
-                        <h3>Scheme data</h3>
+                        <h4>Scheme data
+                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                  class="badge bg-secondary"
+                                  data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="Data automatically extracted from scheme websites and matched to the certificate using heuristics. Might contain errors or be for a different certificate.">?</span>
+                        </h4>
                         <table class="table table-sm table-borderless w-auto">
                             <colgroup>
-                                <col style="width: 30%"/>
-                                <col style="width: 70%"/>
+                                <col style="width: 20%"/>
+                                <col style="width: 20%"/>
+                                <col style="width: 60%"/>
                             </colgroup>
                             <tbody>
                             {% for key, value in cert["heuristics"]["scheme_data"].items() %}
                                 {% set name = key|replace("_", " ")|title %}
-                                <tr data-cs-name="{{ name }}">
-                                    <th scope="row">{{ name }}</th>
-                                    <td>
-                                        {% if key.endswith("_link") or key.endswith("_url") %}
+                                {% if key.endswith("link") or key.endswith("url") %}
+                                    <tr data-cs-name="Scheme data - {{ name }}">
+                                        <th scope="row">{{ name }}</th>
+                                        <td colspan="2">
                                             <a href="{{ value }}" target="_blank" rel="noopener">{{ value }}</a>
-                                        {% else %}
+                                        </td>
+                                    </tr>
+                                {% elif key == "enhanced" %}
+                                    <tr>
+                                        <th rowspan="{{ value|length + 1 }}">{{ name }}</th>
+                                    </tr>
+
+                                    {% for k, v in value.items() %}
+                                        {% set kname = k|replace("_", " ")|title %}
+                                        <tr data-cs-name="Scheme data - Enhanced - {{ kname }}">
+                                            <th scope="row">{{ kname }}</th>
+                                            <td>
+                                                {% if k.endswith("link") or k.endswith("url") %}
+                                                <a href="{{ v }}" target="_blank" rel="noopener">{{ v }}</a>
+                                                {% else %}
+                                                {{ v }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr data-cs-name="Scheme data - {{ name }}">
+                                        <th scope="row">{{ name }}</th>
+                                        <td colspan="2">
                                             {{ value }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
                             </tbody>
                         </table>
