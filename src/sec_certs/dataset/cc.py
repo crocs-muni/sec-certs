@@ -699,17 +699,19 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
 
     def _compute_scheme_data(self):
-        for scheme in self.auxiliary_datasets.scheme_dset:
-            if certified := scheme.lists.get(EntryType.Certified):
-                certs = [cert for cert in self if cert.status == "active"]
-                matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
-            if archived := scheme.lists.get(EntryType.Archived):
-                certs = [cert for cert in self if cert.status == "archived"]
-                matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
+        if self.auxiliary_datasets.scheme_dset:
+            print("here")
+            for scheme in self.auxiliary_datasets.scheme_dset:
+                if certified := scheme.lists.get(EntryType.Certified):
+                    certs = [cert for cert in self if cert.status == "active"]
+                    matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
+                    for dgst, match in matches.items():
+                        self[dgst].heuristics.scheme_data = match
+                if archived := scheme.lists.get(EntryType.Archived):
+                    certs = [cert for cert in self if cert.status == "archived"]
+                    matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
+                    for dgst, match in matches.items():
+                        self[dgst].heuristics.scheme_data = match
 
     def _compute_heuristics(self) -> None:
         self._compute_normalized_cert_ids()
@@ -762,7 +764,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         super().process_auxiliary_datasets(download_fresh)
         self.auxiliary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
         self.auxiliary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
-        self.auxiliary_datasets.scheme_dset = self.process_schemes(to_download=download_fresh)
+        self.auxiliary_datasets.scheme_dset = self.process_schemes(
+            to_download=download_fresh, only_schemes={cert.scheme for cert in self}
+        )
 
     def process_protection_profiles(
         self, to_download: bool = True, keep_metadata: bool = True
