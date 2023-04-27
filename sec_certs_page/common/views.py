@@ -73,6 +73,7 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
             href=value["href"],
             type=value["type"],
             status=value["status"],
+            vuln=value["vuln"],
         )
     for cert_id, reference in references.items():
         for ref_type, refs in reference["refs"].items():

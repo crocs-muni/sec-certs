@@ -3,6 +3,8 @@
 function color(highlighted, statuses, d) {
     if (highlighted && highlighted.includes(d.id)) {
         return "#0d6efd"
+    //} else if (d.vuln) {
+    //    return "#ff0000";
     } else if (d.status in statuses) {
         return statuses[d.status]["color"];
     } else {
@@ -258,8 +260,9 @@ class CertificateNetwork {
 
         const categoryFilter = categoryBox.append("div").classed("row", true);
         let categoryColumn;
+        let catColSize = Object.entries(this.categories).length > 6 ? 5 : 3;
         for (const [i, [category, value]] of Object.entries(this.categories).entries()) {
-            if (i % 5 === 0) {
+            if (i % catColSize === 0) {
                 categoryColumn = categoryFilter.append("div").classed("col", true);
             }
             let elem = categoryColumn.append("div")
@@ -353,6 +356,12 @@ class CertificateNetwork {
                         .append("use")
                         .attr("xlink:href", d => "#" + d.type)
                         .attr("fill", colorFunc);
+                    g.append("circle")
+                        .attr("r", 5)
+                        .attr("cx", -10)
+                        .attr("cy", -10)
+                        .attr("fill", "#f00")
+                        .attr("visibility", d => d.vuln ? "visible" : "hidden");
                     g.append("text")
                         .attr("fill", "#000")
                         .attr("visibility", "hidden")

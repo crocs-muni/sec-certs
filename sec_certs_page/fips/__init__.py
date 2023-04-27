@@ -37,6 +37,7 @@ def load_fips_data():
                 "web_data.module_name": 1,
                 "web_data.module_type": 1,
                 "web_data.status": 1,
+                "heuristics.related_cves": 1,
                 "heuristics.policy_processed_references.directly_referencing": 1,
                 "heuristics.module_processed_references.directly_referencing": 1,
             },
@@ -53,6 +54,7 @@ def load_fips_data():
                 "hashid": cert["_id"],
                 "name": cert["web_data"]["module_name"],
                 "refs": refs,
+                "vuln": cert["heuristics"]["related_cves"] is not None,
                 "href": url_for("fips.entry", hashid=cert["_id"]),
                 "type": fips_types[cert["web_data"]["module_type"]]["id"]
                 if cert["web_data"]["module_type"] in fips_types

@@ -24,7 +24,6 @@ from ..common.views import (
     entry_download_report_txt,
     entry_download_target_pdf,
     entry_download_target_txt,
-    entry_file_path,
     network_graph_func,
     send_json_attachment,
 )
