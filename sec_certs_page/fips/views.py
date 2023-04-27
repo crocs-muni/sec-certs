@@ -635,7 +635,7 @@ def entry_feed(hashid):
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=True), diffs))
         fg = FeedGenerator()
         fg.id(request.base_url)
-        fg.title(doc["web_data"]["module_name"] if doc["web_data"]["module_name"] is not None else "")
+        fg.title(doc["web_data"]["module_name"] if doc["web_data"]["module_name"] is not None else doc["cert_id"])
         fg.author({"name": "sec-certs", "email": "webmaster@seccerts.org"})
         fg.link({"href": entry_url, "rel": "alternate"})
         fg.link({"href": request.base_url, "rel": "self"})
