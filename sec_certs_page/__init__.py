@@ -30,6 +30,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.search.index import create_index, get_index
+from .common.sentry import DramatiqIntegration
 
 app: Flask = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
@@ -47,7 +48,7 @@ if os.environ.get("TESTING", False):
 if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
     sentry_sdk.init(
         dsn=app.config["SENTRY_INGEST"],
-        integrations=[FlaskIntegration(), RedisIntegration()],  # DramatiqIntegration()
+        integrations=[FlaskIntegration(), RedisIntegration(), DramatiqIntegration()],
         environment=app.config["SENTRY_ENV"],
         sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
         traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],

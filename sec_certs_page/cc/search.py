@@ -13,7 +13,7 @@ class CCBasicSearch(BasicSearch):
     status_default = "any"
     sort_options = {"match", "name", "cert_date", "archive_date"}
     sort_default = "match"
-    categories = cc_categories
+    categories = cc_categories  # type: ignore
     collection = mongo.db.cc
 
     @classmethod
@@ -66,6 +66,6 @@ class CCFulltextSearch(FulltextSearch):
     status_default = "any"
     type_options = {"any", "report", "target"}
     type_default = "any"
-    categories = cc_categories
+    categories = cc_categories  # type: ignore
     collection = mongo.db.cc
     doc_dir = "DATASET_PATH_CC_DIR"

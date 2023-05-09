@@ -64,6 +64,7 @@
 
     # Misc
     "sentry-sdk[flask,redis]",
+    "sentry-dramatiq",
     "fabric",
     "networkx",
     "atpublic",

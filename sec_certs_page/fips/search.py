@@ -11,7 +11,7 @@ class FIPSBasicSearch(BasicSearch):
     status_default = "Any"
     sort_options = {"match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"}
     sort_default = "match"
-    categories = fips_types
+    categories = fips_types  # type: ignore
     collection = mongo.db.fips
 
     @classmethod
@@ -84,6 +84,6 @@ class FIPSFulltextSearch(FulltextSearch):
     status_default = "Any"
     type_options = {"any", "report", "target"}
     type_default = "any"
-    categories = fips_types
+    categories = fips_types  # type: ignore
     collection = mongo.db.fips
     doc_dir = "DATASET_PATH_FIPS_DIR"
