@@ -39,7 +39,7 @@ from . import (
     get_cc_graphs,
     get_cc_map,
 )
-from .search import CCBasicSearch, FulltextSearch
+from .search import CCBasicSearch, CCFulltextSearch
 from .tasks import CCRenderer
 
 
@@ -185,9 +185,9 @@ def network_graph():
             del args["page"]
             certs, count = CCBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
-            args = FulltextSearch.parse_args(args)
+            args = CCFulltextSearch.parse_args(args)
             del args["page"]
-            certs, count = FulltextSearch.select_certs(**args)
+            certs, count = CCFulltextSearch.select_certs(**args)
         else:
             raise BadRequest("Invalid search query.")
         component_map = get_cc_map()
@@ -231,7 +231,7 @@ def search_pagination():
 @register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
 def fulltext_search():
     """Fulltext search for Common Criteria."""
-    res = FulltextSearch.process_search(request)
+    res = CCFulltextSearch.process_search(request)
     return render_template("cc/search/fulltext.html.jinja2", **res)
 
 

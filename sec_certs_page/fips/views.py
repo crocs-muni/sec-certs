@@ -30,7 +30,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
-from .search import FIPSBasicSearch, FulltextSearch
+from .search import FIPSBasicSearch, FIPSFulltextSearch
 from .tasks import FIPSRenderer
 
 
@@ -102,9 +102,9 @@ def network_graph():
             del args["page"]
             certs, count = FIPSBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
-            args = FulltextSearch.parse_args(args)
+            args = FIPSFulltextSearch.parse_args(args)
             del args["page"]
-            certs, count = FulltextSearch.select_certs(**args)
+            certs, count = FIPSFulltextSearch.select_certs(**args)
         else:
             raise BadRequest("Invalid search query.")
         component_map = get_fips_map()
@@ -144,7 +144,7 @@ def search_pagination():
 @fips.route("/ftsearch/")
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    res = FulltextSearch.process_search(request)
+    res = FIPSFulltextSearch.process_search(request)
     return render_template("fips/search/fulltext.html.jinja2", **res)
 
 
