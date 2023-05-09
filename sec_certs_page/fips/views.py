@@ -34,7 +34,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
-from .search import BasicSearch
+from .search import BasicSearch, FulltextSearch
 from .tasks import FIPSRenderer
 
 
@@ -128,108 +128,8 @@ def search_pagination():
 @fips.route("/ftsearch/")
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    categories = fips_types.copy()
-    try:
-        page = int(request.args.get("page", 1))
-    except ValueError:
-        raise BadRequest(description="Invalid page number.")
-    q = request.args.get("q", None)
-    cat = request.args.get("cat", None)
-    q_filter = query.Term("cert_schema", "fips")
-    if cat is not None:
-        cat_terms = []
-        for name, category in categories.items():
-            if category["id"] in cat:
-                cat_terms.append(query.Term("category", category["id"]))
-                category["selected"] = True
-            else:
-                category["selected"] = False
-        q_filter &= reduce(operator.or_, cat_terms)
-    else:
-        for category in categories.values():
-            category["selected"] = True
-
-    type = request.args.get("type", "any")
-    if type not in ("any", "report", "target"):
-        raise BadRequest(description="Invalid type.")
-    if type != "any":
-        q_filter &= query.Term("document_type", type)
-
-    status = request.args.get("status", "Any")
-    if status not in ("Any", "Active", "Historical", "Revoked"):
-        raise BadRequest(description="Invalid status.")
-    if status != "Any":
-        q_filter &= query.Term("status", status)
-
-    if q is None:
-        return render_template(
-            "fips/search/fulltext.html.jinja2",
-            categories=categories,
-            status=status,
-            document_type=type,
-            results=[],
-            pagination=None,
-            q=q,
-        )
-
-    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-
-    parser = QueryParser("content", schema=index_schema)
-    qr = parser.parse(q)
-    results = []
-    with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
-        searcher = get_searcher()
-    with sentry_sdk.start_span(op="whoosh.search", description="Search"):
-        res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
-    res.results.fragmenter.charlimit = None
-    res.results.fragmenter.maxchars = 300
-    res.results.fragmenter.surround = 40
-    res.results.order = highlight.SCORE
-    hf = highlight.HtmlFormatter(between="<br/>")
-    res.results.formatter = hf
-    runtime = res.results.runtime
-    # print("total", res.total)
-    # print("len", len(res))
-    # print("scored", res.scored_length())
-    # print("filtered", res.results.filtered_count)
-    count = len(res)
-    highlite_start = time.perf_counter()
-    with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
-        for hit in res:
-            dgst = hit["dgst"]
-            cert = mongo.db.fips.find_one({"_id": dgst})
-            entry = {"hit": hit, "cert": cert}
-            fpath = entry_file_path(dgst, current_app.config["DATASET_PATH_FIPS_DIR"], hit["document_type"], "txt")
-            try:
-                with open(fpath) as f:
-                    contents = f.read()
-                hlt = hit.highlights("content", text=contents)
-                entry["highlights"] = hlt
-            except FileNotFoundError:
-                pass
-            results.append(entry)
-    highlite_runtime = time.perf_counter() - highlite_start
-
-    pagination = Pagination(
-        page=page,
-        per_page=per_page,
-        search=True,
-        found=count,
-        total=mongo.db.fips.count_documents({}),
-        css_framework="bootstrap5",
-        alignment="center",
-    )
-    return render_template(
-        "fips/search/fulltext.html.jinja2",
-        q=q,
-        results=results,
-        categories=categories,
-        status=status,
-        pagination=pagination,
-        document_type=type,
-        runtime=runtime,
-        highlite_runtime=highlite_runtime,
-    )
+    res = FulltextSearch.process_search(request)
+    return render_template("fips/search/fulltext.html.jinja2", **res)
 
 
 @fips.route("/analysis/")
