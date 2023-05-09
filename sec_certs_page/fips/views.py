@@ -34,6 +34,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
+from .search import BasicSearch
 from .tasks import FIPSRenderer
 
 
@@ -104,120 +105,24 @@ def network_graph():
     return network_graph_func(get_fips_graphs())
 
 
-def select_certs(q, cat, status, sort):
-    categories = fips_types.copy()
-    query = {}
-    projection = {
-        "_id": 1,
-        "cert_id": 1,
-        "web_data.module_name": 1,
-        "web_data.status": 1,
-        "web_data.level": 1,
-        "web_data.vendor": 1,
-        "web_data.module_type": 1,
-        "web_data.validation_history": 1,
-        "web_data.date_sunset": 1,
-    }
-
-    if q is not None and q != "":
-        projection["score"] = {"$meta": "textScore"}
-        try:
-            iq = int(q)
-            query["$or"] = [{"$text": {"$search": q}}, {"cert_id": iq}]
-        except ValueError:
-            query["$text"] = {"$search": q}
-
-    if cat is not None:
-        selected_cats = []
-        for name, category in categories.items():
-            if category["id"] in cat:
-                selected_cats.append(name)
-                category["selected"] = True
-            else:
-                category["selected"] = False
-        query["web_data.module_type"] = {"$in": selected_cats}
-    else:
-        for category in categories.values():
-            category["selected"] = True
-
-    if status is not None and status != "Any":
-        query["web_data.status"] = status
-
-    with sentry_sdk.start_span(op="mongo", description="Find certs."):
-        cursor = mongo.db.fips.find(query, projection)
-        count = mongo.db.fips.count_documents(query)
-
-    if sort == "match" and q is not None and q != "":
-        cursor.sort(
-            [
-                ("score", {"$meta": "textScore"}),
-                ("web_data.module_name", pymongo.ASCENDING),
-            ]
-        )
-    elif sort == "number":
-        cursor.sort([("cert_id", pymongo.ASCENDING)])
-    elif sort == "first_cert_date":
-        cursor.sort([("web_data.validation_history.0.date._value", pymongo.ASCENDING)])
-    elif sort == "last_cert_date":
-        cursor.sort([("web_data.validation_history", pymongo.ASCENDING)])
-    elif sort == "sunset_date":
-        cursor.sort([("web_data.date_sunset", pymongo.ASCENDING)])
-    elif sort == "level":
-        cursor.sort([("web_data.level", pymongo.ASCENDING)])
-    elif sort == "vendor":
-        cursor.sort([("web_data.vendor", pymongo.ASCENDING)])
-    else:
-        cursor.sort([("cert_id", pymongo.ASCENDING)])
-    return cursor, categories, count
-
-
-def process_search(req, callback=None):
-    try:
-        page = int(req.args.get("page", 1))
-    except ValueError:
-        raise BadRequest(description="Invalid page number.")
-    q = req.args.get("q", None)
-    cat = req.args.get("cat", None)
-    status = req.args.get("status", "Any")
-    if status not in ("Any", "Active", "Historical", "Revoked"):
-        raise BadRequest(description="Invalid status.")
-    sort = req.args.get("sort", "match")
-    if sort not in ("match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"):
-        raise BadRequest(description="Invalid sort.")
-
-    cursor, categories, count = select_certs(q, cat, status, sort)
-
-    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-    pagination = Pagination(
-        page=page,
-        per_page=per_page,
-        search=True,
-        found=count,
-        total=mongo.db.fips.count_documents({}),
-        css_framework="bootstrap5",
-        alignment="center",
-        url_callback=callback,
-    )
-    return {
-        "pagination": pagination,
-        "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
-        "categories": categories,
-        "q": q,
-        "page": page,
-        "status": status,
-        "sort": sort,
-    }
-
-
 @fips.route("/search/")
 @register_breadcrumb(fips, ".search", "Search")
 def search():
-    res = process_search(request)
+    res = BasicSearch.process_search(request)
     return render_template(
         "fips/search/index.html.jinja2",
         **res,
-        title=f"FIPS 140 [{res['q']}] ({res['page']}) | seccerts.org",
+        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | seccerts.org",
     )
+
+
+@fips.route("/search/pagination/")
+def search_pagination():
+    def callback(**kwargs):
+        return url_for(".search", **kwargs)
+
+    res = BasicSearch.process_search(request, callback=callback)
+    return render_template("fips/search/pagination.html.jinja2", **res)
 
 
 @fips.route("/ftsearch/")
@@ -325,15 +230,6 @@ def fulltext_search():
         runtime=runtime,
         highlite_runtime=highlite_runtime,
     )
-
-
-@fips.route("/search/pagination/")
-def search_pagination():
-    def callback(**kwargs):
-        return url_for(".search", **kwargs)
-
-    res = process_search(request, callback=callback)
-    return render_template("fips/search/pagination.html.jinja2", **res)
 
 
 @fips.route("/analysis/")
@@ -700,6 +596,7 @@ def sitemap_urls():
     yield "fips.network", {}
     yield "fips.analysis", {}
     yield "fips.search", {}
+    yield "fips.fulltext_search", {}
     yield "fips.rand", {}
     yield "fips.mip_index", {}
     yield "fips.iut_index", {}

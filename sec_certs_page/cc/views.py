@@ -445,6 +445,7 @@ def sitemap_urls():
     yield "cc.network", {}
     yield "cc.analysis", {}
     yield "cc.search", {}
+    yield "cc.fulltext_search", {}
     yield "cc.rand", {}
     for doc in mongo.db.cc.find({}, {"_id": 1}):
         yield "cc.entry", {"hashid": doc["_id"]}
