@@ -30,7 +30,7 @@
     "sec-certs >= 0.1.3",
 
     # Flask
-    "Flask",
+    "Flask < 2.3",   # Flask-Breadcrumbs and Flask-Menu break
     "Flask-Assets",
     "Flask-Breadcrumbs",
     "Flask-CacheControl",

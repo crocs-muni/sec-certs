@@ -10,7 +10,7 @@ from feedgen.feed import FeedGenerator
 from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
-from markupsafe import escape
+from markupsafe import Markup, escape
 from networkx import node_link_data
 from pytz import timezone
 from werkzeug.exceptions import BadRequest
@@ -171,7 +171,7 @@ def network():
     """Common criteria references visualization."""
     query = None
     if request.args:
-        query = urlencode({escape(key): escape(value) for key, value in request.args.items()})
+        query = urlencode({Markup.escape(key): Markup.escape(value) for key, value in request.args.items()})
     return render_template("cc/network.html.jinja2", query=query)
 
 
@@ -179,12 +179,13 @@ def network():
 def network_graph():
     """Common criteria references data."""
     if "search" in request.args:
+        args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
-            args = BasicSearch.parse_args(request.args)
+            args = BasicSearch.parse_args(args)
             del args["page"]
             certs, count = BasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
-            args = FulltextSearch.parse_args(request.args)
+            args = FulltextSearch.parse_args(args)
             del args["page"]
             certs, count = FulltextSearch.select_certs(**args)
         else:

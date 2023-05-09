@@ -341,6 +341,8 @@ class CertificateNetwork {
             nodes: nodes,
             links: links
         }
+        // TODO: Somewhere the highlight color is lost on update (when changing the display settings that
+        //       hide some stuff and then show it back).
 
         // Update nodes
         console.log("Update nodes");

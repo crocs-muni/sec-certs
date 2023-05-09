@@ -48,7 +48,7 @@ if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
     sentry_sdk.init(
         dsn=app.config["SENTRY_INGEST"],
         integrations=[FlaskIntegration(), RedisIntegration()],  # DramatiqIntegration()
-        environment=app.env,
+        environment=app.config["SENTRY_ENV"],
         sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
         traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
     )

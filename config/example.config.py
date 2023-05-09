@@ -9,6 +9,7 @@ SERVER_NAME = "localhost:5000"
 # Sentry
 # SENTRY_INGEST is the URL of your Sentry ingest endpoint.
 SENTRY_INGEST = ""
+SENTRY_ENV = "development"  # or "production"
 SENTRY_ERROR_SAMPLE_RATE = 1.0
 SENTRY_TRACES_SAMPLE_RATE = 1.0
 

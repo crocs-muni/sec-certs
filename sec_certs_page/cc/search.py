@@ -21,7 +21,7 @@ from ..common.views import Pagination, entry_file_path
 
 class BasicSearch:
     @classmethod
-    def parse_args(cls, args: MultiDict) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
         """Parse the request into validated args."""
         try:
             page = int(args.get("page", 1))
@@ -45,7 +45,8 @@ class BasicSearch:
         sort = args.get("sort", "match")
         if sort not in ("match", "name", "cert_date", "archive_date"):
             raise BadRequest(description="Invalid sort.")
-        return {"q": q, "page": page, "cat": cat, "categories": categories, "sort": sort, "status": status}
+        res = {"q": q, "page": page, "cat": cat, "categories": categories, "sort": sort, "status": status}
+        return res
 
     @classmethod
     def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int]:
@@ -117,7 +118,7 @@ class BasicSearch:
 
 class FulltextSearch:
     @classmethod
-    def parse_args(cls, args: MultiDict) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
         categories = cc_categories.copy()
         try:
             page = int(args.get("page", 1))
@@ -142,7 +143,7 @@ class FulltextSearch:
         status = args.get("status", "any")
         if status not in ("any", "active", "archived"):
             raise BadRequest(description="Invalid status.")
-        return {
+        res = {
             "q": q,
             "page": page,
             "cat": cat,
@@ -150,6 +151,7 @@ class FulltextSearch:
             "status": status,
             "document_type": document_type,
         }
+        return res
 
     @classmethod
     def select_items(
