@@ -1,11 +1,9 @@
 """FIPS views."""
-import operator
 import random
-import time
 from datetime import datetime
-from functools import reduce
 from operator import itemgetter
 from pathlib import Path
+from urllib.parse import urlencode
 
 import pymongo
 import sentry_sdk
@@ -13,17 +11,15 @@ from feedgen.feed import FeedGenerator
 from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
+from markupsafe import Markup
 from networkx import node_link_data
 from pytz import timezone
 from sec_certs import constants
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
-from whoosh import highlight
-from whoosh.qparser import QueryParser, query
 
-from .. import cache, get_searcher, mongo, sitemap
+from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
-from ..common.search import index_schema
 from ..common.views import (
     Pagination,
     entry_download_files,
@@ -91,17 +87,37 @@ def dataset():
 @fips.route("/network/")
 @register_breadcrumb(fips, ".network", "References")
 def network():
-    return render_template(
-        "fips/network.html.jinja2",
-        url=url_for(".network_graph"),
-        title="FIPS 140 network | seccerts.org",
-    )
+    query = None
+    if request.args:
+        query = urlencode({Markup.escape(key): Markup.escape(value) for key, value in request.args.items()})
+    return render_template("fips/network.html.jinja2", query=query)
 
 
 @fips.route("/network/graph.json")
-@cache.cached(5 * 60)
-@cache_for(hours=12)
 def network_graph():
+    if "search" in request.args:
+        args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
+        if request.args["search"] == "basic":
+            args = BasicSearch.parse_args(args)
+            del args["page"]
+            certs, count = BasicSearch.select_certs(**args)
+        elif request.args["search"] == "fulltext":
+            args = FulltextSearch.parse_args(args)
+            del args["page"]
+            certs, count = FulltextSearch.select_certs(**args)
+        else:
+            raise BadRequest("Invalid search query.")
+        component_map = get_fips_map()
+        components = {}
+        ids = []
+        for cert in certs:
+            if cert["_id"] not in component_map:
+                continue
+            ids.append(cert["_id"])
+            component = component_map[cert["_id"]]
+            if id(component) not in components:
+                components[id(component)] = component
+        return network_graph_func(list(components.values()), highlighted=ids)
     return network_graph_func(get_fips_graphs())
 
 

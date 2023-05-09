@@ -29,18 +29,27 @@ class BasicSearch:
             raise BadRequest(description="Invalid page number.")
         q = args.get("q", None)
         cat = args.get("cat", None)
+        categories = fips_types.copy()
+        if cat is not None:
+            for name, category in categories.items():
+                if category["id"] in cat:
+                    category["selected"] = True
+                else:
+                    category["selected"] = False
+        else:
+            for category in categories.values():
+                category["selected"] = True
         status = args.get("status", "Any")
         if status not in ("Any", "Active", "Historical", "Revoked"):
             raise BadRequest(description="Invalid status.")
         sort = args.get("sort", "match")
         if sort not in ("match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"):
             raise BadRequest(description="Invalid sort.")
-        res = {"q": q, "page": page, "cat": cat, "status": status, "sort": sort}
+        res = {"q": q, "page": page, "cat": cat, "categories": categories, "status": status, "sort": sort}
         return res
 
     @classmethod
-    def select_certs(cls, q, cat, status, sort, **kwargs):
-        categories = fips_types.copy()
+    def select_certs(cls, q, cat, categories, status, sort, **kwargs):
         query = {}
         projection = {
             "_id": 1,
@@ -65,11 +74,8 @@ class BasicSearch:
         if cat is not None:
             selected_cats = []
             for name, category in categories.items():
-                if category["id"] in cat:
+                if category["selected"]:
                     selected_cats.append(name)
-                    category["selected"] = True
-                else:
-                    category["selected"] = False
             query["web_data.module_type"] = {"$in": selected_cats}
         else:
             for category in categories.values():
@@ -103,12 +109,12 @@ class BasicSearch:
             cursor.sort([("web_data.vendor", pymongo.ASCENDING)])
         else:
             cursor.sort([("cert_id", pymongo.ASCENDING)])
-        return cursor, categories, count
+        return cursor, count
 
     @classmethod
     def process_search(cls, req, callback=None):
         parsed = cls.parse_args(req.args)
-        cursor, categories, count = cls.select_certs(**parsed)
+        cursor, count = cls.select_certs(**parsed)
 
         page = parsed["page"]
 
@@ -126,7 +132,6 @@ class BasicSearch:
         return {
             "pagination": pagination,
             "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
-            "categories": categories,
             **parsed,
         }
 
@@ -168,6 +173,7 @@ class FulltextSearch:
             "status": status,
             "document_type": document_type,
         }
+        print(res)
         return res
 
     @classmethod

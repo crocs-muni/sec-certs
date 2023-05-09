@@ -90,7 +90,7 @@
                 }
 
                 function networkSearch() {
-                    location.href = "{{ url_for("cc.network") }}?" + searchParams({search: "fulltext"});
+                    location.href = "{{ url_for(".network") }}?" + searchParams({search: "fulltext"});
                 }
 
                 $("#search-btn").click(fullSearch);
