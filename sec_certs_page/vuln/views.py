@@ -68,19 +68,19 @@ def cve(cve_id):
     for vuln_cpe in cve_doc["vulnerable_cpes"]:
         match = matches.get(vuln_cpe["criteria_id"])
         if match:
-            vuln_configs.append(([match["matches"][0]["cpeName"]], []))
+            vuln_configs.append((list(map(itemgetter("cpeName"), match["matches"])), []))
     for vuln_cfg in cve_doc["vulnerable_criteria_configurations"]:
         matches_first = []
         for crit in vuln_cfg["components"][0]:
             match = matches.get(crit["criteria_id"])
             if match:
-                matches_first.append(match["matches"][0]["cpeName"])
+                matches_first.extend(list(map(itemgetter("cpeName"), match["matches"])))
         matches_second = []
         if len(vuln_cfg["components"]) > 1:
             for crit in vuln_cfg["components"][1]:
                 match = matches.get(crit["criteria_id"])
                 if match:
-                    matches_second.append(match["matches"][0]["cpeName"])
+                    matches_second.extend(list(map(itemgetter("cpeName"), match["matches"])))
         vuln_configs.append((matches_first, matches_second))
 
     with sentry_sdk.start_span(op="mongo", description="Find CC certs"):
@@ -136,7 +136,6 @@ def cpe(cpe_id):
     with sentry_sdk.start_span(op="mongo", description="Find FIPS certs"):
         fips_certs = list(map(load, mongo.db.fips.find({"heuristics.cpe_matches._value": cpe_id})))
     with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
-        # Probably only ever a single match right?
         match_ids = list(map(itemgetter("_id"), mongo.db.cpe_match.find({"matches.cpeName": cpe_id}, ["_id"])))
         # XXX: If we want to include the "running on/with" part of the matching then we need one more or
         #      in this statement (for components.1).
@@ -146,8 +145,8 @@ def cpe(cpe_id):
                 mongo.db.cve.find(
                     {
                         "$or": [
-                            {"vulnerable_cpes.criteria_id": match_ids[0]},
-                            {"vulnerable_criteria_configurations.components.0.criteria_id": match_ids[0]},
+                            {"vulnerable_cpes.criteria_id": {"$in": match_ids}},
+                            {"vulnerable_criteria_configurations.components.0.criteria_id": {"$in": match_ids}},
                         ]
                     }
                 ),
