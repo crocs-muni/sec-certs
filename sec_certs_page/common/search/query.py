@@ -137,7 +137,7 @@ class FulltextSearch(ABC):
         q_filter &= reduce(operator.or_, cat_terms)
         if document_type != "any":
             q_filter &= query.Term("document_type", document_type)
-        if status != "Any":
+        if status.lower() != "any":
             q_filter &= query.Term("status", status)
 
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
