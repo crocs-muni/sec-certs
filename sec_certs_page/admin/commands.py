@@ -74,12 +74,12 @@ def init_collections():  # pragma: no cover
         if collection == "cve":
             mongo.db[collection].create_index([("vulnerable_cpes.criteria_id", pymongo.ASCENDING)])
             mongo.db[collection].create_index(
-                [("vulnerable_criteria_configurations.components.criteria_id", pymongo.ASCENDING)]
+                [("vulnerable_criteria_configurations.components.0.criteria_id", pymongo.ASCENDING)]
             )
         if collection == "cpe_match":
             mongo.db[collection].create_index([("matches.cpeName", pymongo.ASCENDING)])
         if collection in ("cc_diff", "fips_diff"):
-            mongo.db[collection].createIndex([("dgst", pymongo.ASCENDING)])
+            mongo.db[collection].create_index([("dgst", pymongo.ASCENDING)])
 
 
 @app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
