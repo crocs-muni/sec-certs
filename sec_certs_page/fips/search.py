@@ -12,12 +12,12 @@ from whoosh import highlight, query
 from whoosh.qparser import QueryParser
 from whoosh.searching import Results, ResultsPage
 
-from sec_certs_page import get_searcher, mongo
-from sec_certs_page.common.objformats import load
-from sec_certs_page.common.search.index import index_schema
-from sec_certs_page.common.search.query import BasicSearch
-from sec_certs_page.common.views import Pagination, entry_file_path
-from sec_certs_page.fips import fips_types
+from .. import get_searcher, mongo
+from ..common.objformats import load
+from ..common.search.index import index_schema
+from ..common.search.query import BasicSearch
+from ..common.views import Pagination, entry_file_path
+from ..fips import fips_types
 
 
 class FIPSBasicSearch(BasicSearch):
