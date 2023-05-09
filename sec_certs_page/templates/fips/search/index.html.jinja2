@@ -14,16 +14,18 @@
             <div id="name" class="mt-1 mb-3">
                 <h4><label for="search">Name</label></h4>
                 <div class="form-inline">
-                    <input id="search" class="form-control" placeholder="Search" type="search" value="{{ q|default('', true) }}"/>
+                    <input id="search" class="form-control mb-2" placeholder="Search" type="search" value="{{ q|default('', true) }}"/>
                     <button id="search-btn" class="btn btn-primary">Search</button>
                 </div>
-                <small class="text-muted">Search by certificate name (case-insensitive, e.g. Infineon, card, applet).</small>
+                <small class="text-muted">Search by certificate name (case-insensitive, e.g. Infineon, card, applet). Uses
+                    <a href="https://www.mongodb.com/docs/manual/reference/operator/query/text/#std-label-text-operator-phrases"
+                       target="_blank" rel="noopener">MongoDB $text search</a>, use quotes to specify a phrase and a hyphen-minus prefix to negate a match.</small>
             </div>
             <div id="categories" class="mt-3 mb-3">
                 <h4>Categories</h4><button id="cat-select-all" class="btn btn-outline-primary">Select all</button><button id="cat-deselect-all" class="btn btn-outline-primary">Deselect all</button>
                 <div id="search-categories" class="row">
                     {% for name, val in categories.items() %}
-                        {% if loop.index0 % 5 == 0 %}
+                        {% if loop.index0 % 3 == 0 %}
                             <div class="col">
                         {% endif %}
                         <div class="form-check">
@@ -34,7 +36,7 @@
                                 </label>
                             </span>
                         </div>
-                        {% if (loop.index0 + 1) % 5 == 0 %}
+                        {% if (loop.index0 + 1) % 3 == 0 %}
                             </div>
                         {% endif %}
                     {% endfor %}
