@@ -1,4 +1,6 @@
+from operator import itemgetter
 from pathlib import Path
+from pprint import pprint
 
 import sentry_sdk
 from flask import abort, current_app, render_template, request, send_file
@@ -53,12 +55,42 @@ def cve(cve_id):
         cve_doc = mongo.db.cve.find_one({"_id": cve_id})
     if not cve_doc:
         return abort(404)
+    pprint(cve_doc)
+    criteria = set()
+    criteria |= set(vuln_cpe["criteria_id"] for vuln_cpe in cve_doc["vulnerable_cpes"])
+    for vuln_cfg in cve_doc["vulnerable_criteria_configurations"]:
+        for vuln_component in vuln_cfg["components"]:
+            criteria |= set(vuln_match["criteria_id"] for vuln_match in vuln_component)
+
+    with sentry_sdk.start_span(op="mongo", description="Find CPE matches"):
+        matches = {match["_id"]: match for match in mongo.db.cpe_match.find({"_id": {"$in": list(criteria)}})}
+
+    vuln_configs = []
+    for vuln_cpe in cve_doc["vulnerable_cpes"]:
+        match = matches.get(vuln_cpe["criteria_id"])
+        if match:
+            vuln_configs.append(([match["matches"][0]["cpeName"]], []))
+    for vuln_cfg in cve_doc["vulnerable_criteria_configurations"]:
+        matches_first = []
+        for crit in vuln_cfg["components"][0]:
+            match = matches.get(crit["criteria_id"])
+            if match:
+                matches_first.append(match["matches"][0]["cpeName"])
+        matches_second = []
+        if len(vuln_cfg["components"]) > 1:
+            for crit in vuln_cfg["components"][1]:
+                match = matches.get(crit["criteria_id"])
+                if match:
+                    matches_second.append(match["matches"][0]["cpeName"])
+        vuln_configs.append((matches_first, matches_second))
 
     with sentry_sdk.start_span(op="mongo", description="Find CC certs"):
         cc_certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
     with sentry_sdk.start_span(op="mongo", description="Find FIPS certs"):
         fips_certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
-    return render_template("vuln/cve.html.jinja2", cve=load(cve_doc), cc_certs=cc_certs, fips_certs=fips_certs)
+    return render_template(
+        "vuln/cve.html.jinja2", cve=load(cve_doc), cc_certs=cc_certs, fips_certs=fips_certs, vuln_configs=vuln_configs
+    )
 
 
 @vuln.route("/cpe/cpe_match.json")

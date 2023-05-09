@@ -66,6 +66,7 @@ def init_collections():  # pragma: no cover
         "subs",
         "cve",
         "cpe",
+        "cpe_match",
     }
     for collection in collections.difference(current):
         mongo.db.create_collection(collection)

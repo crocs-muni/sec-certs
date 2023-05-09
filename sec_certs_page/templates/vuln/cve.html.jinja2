@@ -72,20 +72,30 @@
                         {{ render_cve_links(cve,full=True) }}
                     </div>
                     <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="vulnerable-cpes">Vulnerable CPEs
+                        <h2 class="anchor" id="vulnerable-cpes">Vulnerable configurations
                             <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                   class="badge bg-secondary"
                                   data-bs-toggle="tooltip" data-bs-placement="top"
                                   title="Information automatically extracted from NIST's NVD.">?</span>
                         </h2>
-                        {% if cve["vulnerable_cpes"] %}
+                        {% if vuln_configs %}
                             <ul>
-                                {% for cpe in cve["vulnerable_cpes"] %}
-                                    <li><a href="{{ url_for(".cpe", cpe_id=cpe["uri"]) }}">{{ cpe["uri"] }}</a></li>
+                                {% for first, second in vuln_configs %}
+                                    <li>
+                                    {% for cpe in first %}
+                                        <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% if second %}
+                                        <br/><b>running on/with</b><br/>
+                                        {% for cpe in second %}
+                                        <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <p>This CVE has no vulnerable CPEs linked.</p>
+                            <p>This CVE has no vulnerable configurations linked.</p>
                         {% endif %}
                     </div>
                 </div>
