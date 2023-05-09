@@ -30,7 +30,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
-from .search import BasicSearch, FulltextSearch
+from .search import FIPSBasicSearch, FulltextSearch
 from .tasks import FIPSRenderer
 
 
@@ -98,9 +98,9 @@ def network_graph():
     if "search" in request.args:
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
-            args = BasicSearch.parse_args(args)
+            args = FIPSBasicSearch.parse_args(args)
             del args["page"]
-            certs, count = BasicSearch.select_certs(**args)
+            certs, count = FIPSBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
             args = FulltextSearch.parse_args(args)
             del args["page"]
@@ -124,7 +124,7 @@ def network_graph():
 @fips.route("/search/")
 @register_breadcrumb(fips, ".search", "Search")
 def search():
-    res = BasicSearch.process_search(request)
+    res = FIPSBasicSearch.process_search(request)
     return render_template(
         "fips/search/index.html.jinja2",
         **res,
@@ -137,7 +137,7 @@ def search_pagination():
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
-    res = BasicSearch.process_search(request, callback=callback)
+    res = FIPSBasicSearch.process_search(request, callback=callback)
     return render_template("fips/search/pagination.html.jinja2", **res)
 
 

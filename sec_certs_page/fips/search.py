@@ -14,39 +14,19 @@ from whoosh.searching import Results, ResultsPage
 
 from sec_certs_page import get_searcher, mongo
 from sec_certs_page.common.objformats import load
-from sec_certs_page.common.search import index_schema
+from sec_certs_page.common.search.index import index_schema
+from sec_certs_page.common.search.query import BasicSearch
 from sec_certs_page.common.views import Pagination, entry_file_path
 from sec_certs_page.fips import fips_types
 
 
-class BasicSearch:
-    @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
-        """Parse the request into validated args."""
-        try:
-            page = int(args.get("page", 1))
-        except ValueError:
-            raise BadRequest(description="Invalid page number.")
-        q = args.get("q", None)
-        cat = args.get("cat", None)
-        categories = fips_types.copy()
-        if cat is not None:
-            for name, category in categories.items():
-                if category["id"] in cat:
-                    category["selected"] = True
-                else:
-                    category["selected"] = False
-        else:
-            for category in categories.values():
-                category["selected"] = True
-        status = args.get("status", "Any")
-        if status not in ("Any", "Active", "Historical", "Revoked"):
-            raise BadRequest(description="Invalid status.")
-        sort = args.get("sort", "match")
-        if sort not in ("match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"):
-            raise BadRequest(description="Invalid sort.")
-        res = {"q": q, "page": page, "cat": cat, "categories": categories, "status": status, "sort": sort}
-        return res
+class FIPSBasicSearch(BasicSearch):
+    status_options = {"Any", "Active", "Historical", "Revoked"}
+    status_default = "Any"
+    sort_options = {"match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"}
+    sort_default = "match"
+    categories = fips_types
+    collection = mongo.db.fips
 
     @classmethod
     def select_certs(cls, q, cat, categories, status, sort, **kwargs):
@@ -111,30 +91,6 @@ class BasicSearch:
             cursor.sort([("cert_id", pymongo.ASCENDING)])
         return cursor, count
 
-    @classmethod
-    def process_search(cls, req, callback=None):
-        parsed = cls.parse_args(req.args)
-        cursor, count = cls.select_certs(**parsed)
-
-        page = parsed["page"]
-
-        per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-        pagination = Pagination(
-            page=page,
-            per_page=per_page,
-            search=True,
-            found=count,
-            total=mongo.db.fips.count_documents({}),
-            css_framework="bootstrap5",
-            alignment="center",
-            url_callback=callback,
-        )
-        return {
-            "pagination": pagination,
-            "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
-            **parsed,
-        }
-
 
 class FulltextSearch:
     @classmethod
@@ -173,7 +129,6 @@ class FulltextSearch:
             "status": status,
             "document_type": document_type,
         }
-        print(res)
         return res
 
     @classmethod

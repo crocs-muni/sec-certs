@@ -15,38 +15,18 @@ from whoosh.searching import Results, ResultsPage
 from .. import get_searcher, mongo
 from ..cc import cc_categories
 from ..common.objformats import load
-from ..common.search import index_schema
+from ..common.search.index import index_schema
+from ..common.search.query import BasicSearch
 from ..common.views import Pagination, entry_file_path
 
 
-class BasicSearch:
-    @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
-        """Parse the request into validated args."""
-        try:
-            page = int(args.get("page", 1))
-        except ValueError:
-            raise BadRequest(description="Invalid page number.")
-        q = args.get("q", None)
-        cat = args.get("cat", None)
-        categories = cc_categories.copy()
-        if cat is not None:
-            for name, category in categories.items():
-                if category["id"] in cat:
-                    category["selected"] = True
-                else:
-                    category["selected"] = False
-        else:
-            for category in categories.values():
-                category["selected"] = True
-        status = args.get("status", "any")
-        if status not in ("any", "active", "archived"):
-            raise BadRequest(description="Invalid status.")
-        sort = args.get("sort", "match")
-        if sort not in ("match", "name", "cert_date", "archive_date"):
-            raise BadRequest(description="Invalid sort.")
-        res = {"q": q, "page": page, "cat": cat, "categories": categories, "sort": sort, "status": status}
-        return res
+class CCBasicSearch(BasicSearch):
+    status_options = {"any", "active", "archived"}
+    status_default = "any"
+    sort_options = {"match", "name", "cert_date", "archive_date"}
+    sort_default = "match"
+    categories = cc_categories
+    collection = mongo.db.cc
 
     @classmethod
     def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int]:
@@ -90,30 +70,6 @@ class BasicSearch:
             cursor.sort([("name", pymongo.ASCENDING)])
 
         return cursor, count
-
-    @classmethod
-    def process_search(cls, req: Request, callback=None):
-        parsed = cls.parse_args(req.args)
-        cursor, count = cls.select_certs(**parsed)
-
-        page = parsed["page"]
-
-        per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
-        pagination = Pagination(
-            page=page,
-            per_page=per_page,
-            search=True,
-            found=count,
-            total=mongo.db.cc.count_documents({}),
-            css_framework="bootstrap5",
-            alignment="center",
-            url_callback=callback,
-        )
-        return {
-            "pagination": pagination,
-            "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),  # type: ignore
-            **parsed,
-        }
 
 
 class FulltextSearch:

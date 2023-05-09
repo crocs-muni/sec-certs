@@ -29,7 +29,7 @@ from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
-from .common.search import create_index, get_index
+from .common.search.index import create_index, get_index
 
 app: Flask = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)

@@ -39,7 +39,7 @@ from . import (
     get_cc_graphs,
     get_cc_map,
 )
-from .search import BasicSearch, FulltextSearch
+from .search import CCBasicSearch, FulltextSearch
 from .tasks import CCRenderer
 
 
@@ -181,9 +181,9 @@ def network_graph():
     if "search" in request.args:
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
-            args = BasicSearch.parse_args(args)
+            args = CCBasicSearch.parse_args(args)
             del args["page"]
-            certs, count = BasicSearch.select_certs(**args)
+            certs, count = CCBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
             args = FulltextSearch.parse_args(args)
             del args["page"]
@@ -208,7 +208,7 @@ def network_graph():
 @register_breadcrumb(cc, ".search", "Search")
 def search():
     """Common criteria search."""
-    res = BasicSearch.process_search(request)
+    res = CCBasicSearch.process_search(request)
     return render_template(
         "cc/search/index.html.jinja2",
         **res,
@@ -223,7 +223,7 @@ def search_pagination():
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
-    res = BasicSearch.process_search(request, callback=callback)
+    res = CCBasicSearch.process_search(request, callback=callback)
     return render_template("cc/search/pagination.html.jinja2", **res)
 
 
