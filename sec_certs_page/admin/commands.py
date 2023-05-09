@@ -72,7 +72,12 @@ def init_collections():  # pragma: no cover
         mongo.db.create_collection(collection)
         click.echo(f"Created collection {collection}.")
         if collection == "cve":
-            mongo.db[collection].createIndex([("vulnerable_cpes.uri", pymongo.ASCENDING)])
+            mongo.db[collection].create_index([("vulnerable_cpes.criteria_id", pymongo.ASCENDING)])
+            mongo.db[collection].create_index(
+                [("vulnerable_criteria_configurations.components.criteria_id", pymongo.ASCENDING)]
+            )
+        if collection == "cpe_match":
+            mongo.db[collection].create_index([("matches.cpeName", pymongo.ASCENDING)])
         if collection in ("cc_diff", "fips_diff"):
             mongo.db[collection].createIndex([("dgst", pymongo.ASCENDING)])
 

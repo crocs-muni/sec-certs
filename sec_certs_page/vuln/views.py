@@ -55,7 +55,6 @@ def cve(cve_id):
         cve_doc = mongo.db.cve.find_one({"_id": cve_id})
     if not cve_doc:
         return abort(404)
-    pprint(cve_doc)
     criteria = set()
     criteria |= set(vuln_cpe["criteria_id"] for vuln_cpe in cve_doc["vulnerable_cpes"])
     for vuln_cfg in cve_doc["vulnerable_criteria_configurations"]:
@@ -137,7 +136,23 @@ def cpe(cpe_id):
     with sentry_sdk.start_span(op="mongo", description="Find FIPS certs"):
         fips_certs = list(map(load, mongo.db.fips.find({"heuristics.cpe_matches._value": cpe_id})))
     with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
-        cves = list(map(load, mongo.db.cve.find({"vulnerable_cpes.uri": cpe_id})))
+        # Probably only ever a single match right?
+        match_ids = list(map(itemgetter("_id"), mongo.db.cpe_match.find({"matches.cpeName": cpe_id}, ["_id"])))
+        # XXX: If we want to include the "running on/with" part of the matching then we need one more or
+        #      in this statement (for components.1).
+        cves = list(
+            map(
+                load,
+                mongo.db.cve.find(
+                    {
+                        "$or": [
+                            {"vulnerable_cpes.criteria_id": match_ids[0]},
+                            {"vulnerable_criteria_configurations.components.0.criteria_id": match_ids[0]},
+                        ]
+                    }
+                ),
+            )
+        )
     return render_template(
         "vuln/cpe.html.jinja2", cpe=load(cpe_doc), cc_certs=cc_certs, fips_certs=fips_certs, cves=cves
     )
