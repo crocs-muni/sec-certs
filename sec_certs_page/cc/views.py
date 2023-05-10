@@ -188,6 +188,9 @@ def network_graph():
             args = CCFulltextSearch.parse_args(args)
             del args["page"]
             certs, count = CCFulltextSearch.select_certs(**args)
+        elif request.args["search"] == "cve":
+            cve_id = args["cve"]
+            certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
         else:
             raise BadRequest("Invalid search query.")
         component_map = get_cc_map()

@@ -105,6 +105,9 @@ def network_graph():
             args = FIPSFulltextSearch.parse_args(args)
             del args["page"]
             certs, count = FIPSFulltextSearch.select_certs(**args)
+        elif request.args["search"] == "cve":
+            cve_id = args["cve"]
+            certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
         else:
             raise BadRequest("Invalid search query.")
         component_map = get_fips_map()
