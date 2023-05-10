@@ -39,6 +39,7 @@ user_guide.md
 :caption: Notebook examples
 :hidden: True
 :maxdepth: 1
+notebooks/examples/est_solution.ipynb
 notebooks/examples/cc.ipynb
 notebooks/examples/fips.ipynb
 notebooks/examples/model.ipynb
