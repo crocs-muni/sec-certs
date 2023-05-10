@@ -90,3 +90,9 @@ FIPS_SKIP_UPDATE = False
 # Whether to anonymize the site (for review).
 ANONYMOUS = False
 ANONYMOUS_GIT = ""
+
+# List of URLs to fetch additional metadata binding files from.
+BINDING_URLS = []
+
+# Secret key to validate jwt tokens of downloaded binding files with.
+BINDINGS_SECRET_KEY = ""

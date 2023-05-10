@@ -252,3 +252,44 @@
     {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "standard_id",
 																  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
 {%- endmacro %}
+
+{% macro metadata_binding_card(doc_prefix, index, data) %}
+    {% for measurement in data %}
+        {% set header_label = measurement["measurement_tool"] + " data by \"" + measurement["measurement_author"] + "\" on " + measurement["timestamp"] %}
+        <div class="card mt-3 mb-3">
+            <div class="card-header" id="{{ doc_prefix }}-{{ index }}-{{ loop.index }}-head">
+                <h4 class="mb-0">
+                    <button class="btn btn-link" data-bs-toggle="collapse"
+                            data-bs-target="#{{ doc_prefix }}-{{ index }}-{{ loop.index }}-card" aria-expanded="false"
+                            aria-controls="{{ doc_prefix }}-{{ index }}-{{ loop.index }}-card">
+                        {{ header_label }}
+                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </h4>
+            </div>
+
+            <div id="{{ doc_prefix }}-{{ index }}-{{ loop.index }}-card" class="collapse"
+                    aria-labelledby="{{ doc_prefix }}-{{ index }}-{{ loop.index }}-head">
+                <div class="card-body text-dark">
+                    <table class="metadata-header-table">
+                        {% for key, value in measurement.items() %}
+                            <tr class="metadata-header-table-row mt-1">
+                                <td class="metadata-header-table-cell" style="width: 20%">{{ key }}</td>
+                                {% if key == 'metadata_url' %}
+                                    <td class="metadata-header-table-cell"><a href="{{ value }}" class="link">{{ value }}</a></td>
+                                {% elif key == 'metadata_preview' %}
+                                <td class="metadata-header-table-cell">
+                                    <img src='data:image/jpeg;base64, {{ value }}' style='max-width:100%'>
+                                </td>
+                                {% else %}
+                                    <td class="metadata-header-table-cell">{{ value }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endmacro %}

@@ -229,3 +229,17 @@ body {
     background-color: var(--bs-dark-bg-subtle);
     border-left: 0.25rem solid var(--bs-dark-border-subtle);
 }
+
+.metadata-header-table {
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.metadata-header-table-row {
+    border: 1px solid black;
+}
+
+.metadata-header-table-cell {
+    border: 1px solid black;
+    word-break: break-word;
+}

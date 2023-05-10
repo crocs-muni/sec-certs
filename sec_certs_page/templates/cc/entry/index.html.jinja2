@@ -2,7 +2,7 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "cc/utils.html.jinja2" import cc_keywords, security_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta, render_cves, render_references %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta, render_cves, render_referencess, metadata_binding_card %}
 {% block title %}
     <title>
         {{ cert["name"]|default("", true) + " | seccerts.org" }}
@@ -445,6 +445,13 @@
                     </script>
                 {% endif %}
             </div>
+
+            {% if cert["metadata_headers"] %}
+                <h3 class="mt-3">Additional Metadata</h3>
+                {% for header in cert["metadata_headers"] %}
+                    {{ metadata_binding_card("cc", loop.index, header) }}
+                {% endfor %}
+            {% endif %}
 
             <div class="mt-5 mb-5">
                 <h2 class="anchor" id="updates">Updates
