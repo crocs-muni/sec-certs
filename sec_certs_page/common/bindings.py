@@ -476,7 +476,7 @@ def update_one(
         if verbose:
             click.echo("Inserting new metadata binding")
         collection.insert_one(
-            {"cert_id": cert_id, "metadata_headers": binding["metadata_header"]})
+            {"cert_id": cert_id, "metadata_headers": binding["header_data"]})
 
 
 def update_bindings(
