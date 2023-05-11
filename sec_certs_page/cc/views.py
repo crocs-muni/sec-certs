@@ -299,6 +299,10 @@ def entry(hashid):
                 cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": list(doc["heuristics"]["cpe_matches"])}})))
             else:
                 cpes = []
+        with sentry_sdk.start_span(op="mongo", description="Find metadata bindings"):
+            found = mongo.db.metadata_bindings.find_one({"cert_id" : doc["cert_id"]})
+            if found:
+                doc["metadata_headers"] = found["metadata_headers"]
         with sentry_sdk.start_span(op="files", description="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
         with sentry_sdk.start_span(op="network", description="Find network"):
