@@ -1,12 +1,9 @@
-import logging
 import os
 import json
 import datetime
 import asyncio
 import hashlib
 import shutil
-import base64
-from urllib.parse import urlparse, unquote
 import urllib
 from typing import Tuple, Union, Any
 import requests
@@ -18,8 +15,8 @@ from pymongo.collection import Collection
 
 from .. import mongo
 
-logger = logging.getLogger(__name__)
 Document = Any
+
 
 class Binding():
     """ A binding data class
@@ -58,10 +55,6 @@ class Binding():
         """
         if self.match_name(name):
             self.header_data = header
-            for h in self.header_data:
-                if "metadata_preview" in h and verify_url(h["metadata_preview"]):
-                    click.echo(f"Converting image to base64")
-                    h["metadata_preview"] = get_base64_preview(h["metadata_preview"])
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -76,20 +69,6 @@ class Binding():
             "header_data": self.header_data
         }[key]
 
-def get_base64_preview(url: str) -> str:
-    """ Function to get the base64 encoded representation of an image at a given URL
-
-    Args:
-        url (str): Preview pic location
-
-    Returns:
-        str: Base64 encoded preview image
-    """    
-    response = urllib.request.urlopen(url)
-    file_content = response.read()
-    base64_content = base64.b64encode(file_content)
-    base64_string = base64_content.decode('utf-8')
-    return base64_string
 
 def url_to_local_path(url: str) -> str:
     """ Transorms local URL to local path
@@ -100,8 +79,8 @@ def url_to_local_path(url: str) -> str:
     Returns:
         str: Transformed URL
     """
-    parsed_url = urlparse(url)
-    path = unquote(parsed_url.path.strip("/"))
+    parsed_url = urllib.parse.urlparse(url)
+    path = urllib.parse.unquote(parsed_url.path.strip("/"))
     return path
 
 
@@ -114,7 +93,7 @@ def github_url_to_api(url: str) -> str:
     Returns:
         str: Transformed API URL
     """
-    parsed_url = urlparse(url)
+    parsed_url = urllib.parse.urlparse(url)
     api_url = f"https://api.github.com/repos{parsed_url.path}"
     if parsed_url.query:
         api_url += f"?{parsed_url.query}"
@@ -163,7 +142,7 @@ def verify_url(url: str) -> bool:
         bool: Whether the given URL is valid
     """
     try:
-        result = urlparse(url)
+        result = urllib.parse.urlparse(url)
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
@@ -180,7 +159,8 @@ def verify_jwt(data: dict[str, Union[str, object]]) -> bool:
     """
     jwt_token = data['JWT']
     del data["JWT"]
-    encoded_jwt = jwt.encode(data, key=current_app.config["BINDINGS_SECRET_KEY"], algorithm="HS256")
+    encoded_jwt = jwt.encode(
+        data, key=current_app.config["BINDINGS_SECRET_KEY"], algorithm="HS256")
     if not jwt_token:
         click.echo("JWT token is missing")
         return False
@@ -240,7 +220,8 @@ async def download_binding_files(url: str, output_dir: str, file_ext: str = ".js
                 data = response.json()
             except json.decoder.JSONDecodeError as e:
                 click.echo(f"Error decoding JSON: {e}")
-                click.echo(f"Response content: {response.text.splitlines()[:5]}")
+                click.echo(
+                    f"Response content: {response.text.splitlines()[:5]}")
                 return
         else:
             click.echo(
@@ -270,7 +251,8 @@ async def download_binding_files(url: str, output_dir: str, file_ext: str = ".js
             if verbose:
                 click.echo(f"copying local file: {file_name}")
             if file_name.endswith(f".{file_ext}"):
-                shutil.copy(os.path.join(path, file_name), os.path.join(output_dir, file_name))
+                shutil.copy(os.path.join(path, file_name),
+                            os.path.join(output_dir, file_name))
         if verbose:
             click.echo(
                 f"Copied {len(os.listdir(path))} {file_ext} files from {path} to {output_dir}.")
@@ -324,7 +306,8 @@ async def process_binding_files(bindings_dir: str, download_dir: str, download_h
             with open(filepath, "r", encoding="utf8") as f:
                 data = json.load(f)
                 if not verify_jwt(data):
-                    click.echo(f"JWT verification failed processing binding file {filename}")
+                    click.echo(
+                        f"JWT verification failed processing binding file {filename}")
                     continue
                 for item in data["data"]:
                     timestamp = item["timestamp"]
@@ -335,7 +318,8 @@ async def process_binding_files(bindings_dir: str, download_dir: str, download_h
                     header_file_name = get_filename_from_url(
                         urllib.parse.unquote(url))
                     if not verify_url(url):
-                        click.echo(f"Invalid metadata_header_url for file: {url}")
+                        click.echo(
+                            f"Invalid metadata_header_url for file: {url}")
                         continue
                     if not download_headers:
                         continue
@@ -344,15 +328,16 @@ async def process_binding_files(bindings_dir: str, download_dir: str, download_h
                         bindings.append(Binding(cert_id, header_file_name))
                     if os.path.exists(
                             url_to_local_path(url)) and download_headers:
-                        click.echo(f"Copying header file from: {url_to_local_path(url)}")
+                        click.echo(
+                            f"Copying header file from: {url_to_local_path(url)}")
                         shutil.copy(url_to_local_path(url), os.path.join(
-                        download_dir, header_file_name
-                    ))
+                            download_dir, header_file_name
+                        ))
                         continue
                     tasks.append(asyncio.create_task(
                         download_file(url, os.path.join(
-                        download_dir, header_file_name
-                    ), verbose=verbose)))
+                            download_dir, header_file_name
+                        ), verbose=verbose)))
 
     click.echo(f"Identified {len(bindings)} bindings")
     click.echo(f'\nDownloading {len(tasks)} header files')
@@ -382,7 +367,8 @@ async def process_header_files(headers_dir: str, download_dir: str, bindings: li
                     click.echo(f"Processing {file_name}")
                 json_obj = json.load(f)
                 if not verify_jwt(json_obj):
-                    click.echo(f"JWT verification failed for header file {file_name}")
+                    click.echo(
+                        f"JWT verification failed for header file {file_name}")
                     continue
                 for data_obj in json_obj["data"]:
                     if not verify_timestamp(data_obj["timestamp"]):
@@ -461,10 +447,8 @@ def purge_headers_data(collection: Collection[Document]) -> None:
     Args:
         collection (Collection[Document]): MongoDB collection to purge headers from
     """
-    collection.update_many(
-        {'metadata_headers': {'$exists': True}},
-        {'$unset': {'metadata_headers': ''}}
-    )
+    result = collection.delete_many({})
+    print(f"Deleted {result} metadata bindings")
 
 
 def update_one(
@@ -478,22 +462,21 @@ def update_one(
         binding (Binding): An object representing the binding - cert_id and header_data
         verbose (bool, optional): Whether to click.echo out extra information. Defaults to False.
     """
-    cert_id = binding["cert_id"] if "NIST" not in binding["cert_id"] else int(binding["cert_id"].strip("NIST-"))
+    cert_id = binding["cert_id"] if "NIST" not in binding["cert_id"] else int(
+        binding["cert_id"].strip("NIST-"))
     cert = collection.find_one({"cert_id": cert_id})
     if cert is not None:
         if verbose:
             click.echo(
                 f'Found Cert {cert_id}, updating it with {len(binding["header_data"])} new headers.')
-        if "metadata_headers" not in cert:
-            if verbose:
-                click.echo("Creating metadata headers")
-            collection.update_one({"cert_id": cert_id}, {
-                                  "$set": {"metadata_headers": [binding["header_data"]]}})
-        else:
-            if verbose:
-                click.echo("Pushing to metadata headers")
-            collection.update_one({"cert_id": cert_id}, {"$push": {
-                                  "metadata_headers": binding["header_data"]}})
+            click.echo("Pushing to metadata headers")
+        collection.update_one({"cert_id": cert_id}, {"$push": {
+            "metadata_headers": binding["header_data"]}})
+    else:
+        if verbose:
+            click.echo("Inserting new metadata binding")
+        collection.insert_one(
+            {"cert_id": cert_id, "metadata_headers": binding["metadata_header"]})
 
 
 def update_bindings(
@@ -519,11 +502,9 @@ def update_bindings(
         "\033[32m" +
         "Finished processing bindings, updating mongoDB collections now" +
         "\033[0m")
-    cc = mongo.db.get_collection("cc")
-    fips = mongo.db.get_collection("fips")
+    collection = mongo.db["metadata_bindings"]
     if purge:
-        purge_headers_data(fips)
+        purge_headers_data(collection)
 
     for binding in bindings:
-        update_one(cc, binding, verbose=verbose)
-        update_one(fips, binding, verbose=verbose)
+        update_one(collection, binding, verbose=verbose)

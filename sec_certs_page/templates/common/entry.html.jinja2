@@ -277,10 +277,10 @@
                             <tr class="metadata-header-table-row mt-1">
                                 <td class="metadata-header-table-cell" style="width: 20%">{{ key }}</td>
                                 {% if key == 'metadata_url' %}
-                                    <td class="metadata-header-table-cell"><a href="{{ value }}" class="link">{{ value }}</a></td>
+                                    <td class="metadata-header-table-cell"><a href="{{ value }}" class="link" target="_blank" rel="noopener">{{ value }}</a></td>
                                 {% elif key == 'metadata_preview' %}
                                 <td class="metadata-header-table-cell">
-                                    <img src='data:image/jpeg;base64, {{ value }}' style='max-width:100%'>
+                                    <img src='{{ value }}' style='max-width:100%'>
                                 </td>
                                 {% else %}
                                     <td class="metadata-header-table-cell">{{ value }}</td>
