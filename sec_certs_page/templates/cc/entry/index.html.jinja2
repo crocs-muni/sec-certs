@@ -448,9 +448,7 @@
 
             {% if additional_metadata %}
                 <h3 class="mt-3">Additional Metadata</h3>
-                {% for header in additional_metadata["metadata_headers"] %}
-                    {{ metadata_binding_card("cc", loop.index, header) }}
-                {% endfor %}
+                {{ metadata_binding_card("cc", additional_metadata["metadata_headers"]) }}
             {% endif %}
 
             <div class="mt-5 mb-5">

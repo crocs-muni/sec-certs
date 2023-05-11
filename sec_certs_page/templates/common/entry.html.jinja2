@@ -253,7 +253,7 @@
 																  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-{% macro metadata_binding_card(doc_prefix, index, data) %}
+{% macro metadata_binding_card(doc_prefix, data) %}
     {% for measurement in data %}
         {% set header_label = measurement["measurement_tool"] + " data by \"" + measurement["measurement_author"] + "\" on " + measurement["timestamp"] %}
         <div class="card mt-3 mb-3">
