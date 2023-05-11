@@ -448,7 +448,7 @@ def purge_headers_data(collection: Collection[Document]) -> None:
         collection (Collection[Document]): MongoDB collection to purge headers from
     """
     result = collection.delete_many({})
-    print(f"Deleted {result} metadata bindings")
+    print(f"Deleted {result.deleted_count} metadata bindings")
 
 
 def update_one(
