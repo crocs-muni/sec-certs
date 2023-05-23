@@ -349,7 +349,7 @@ pyzmq==24.0.1
     #   jupyter-client
 rapidfuzz==2.13.3
     # via sec-certs (./../pyproject.toml)
-requests==2.28.1
+requests==2.31.0
     # via
     #   pytest-monitor
     #   sec-certs (./../pyproject.toml)
