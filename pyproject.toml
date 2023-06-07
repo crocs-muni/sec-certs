@@ -58,6 +58,8 @@
     "scipy>=1.9.0",
     "networkx",
     "pydantic",
+    "setfit",
+    "langdetect",
   ]
 
   [project.optional-dependencies]
@@ -81,8 +83,6 @@
       "sphinx-design",
       "sphinx-copybutton",
       "ipython!=8.7.0",
-      "setfit",
-      "langdetect",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
 
