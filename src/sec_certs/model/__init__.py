@@ -3,7 +3,9 @@ This package exposes model (mostly transformers and classifiers) that apply comp
 leveraged by members of Dataset package and are directly applied on members of Sample class (or on built-in objects).
 """
 
+from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.model.fips_matching import FIPSProcessMatcher
 from sec_certs.model.references.annotator import ReferenceAnnotator
 from sec_certs.model.references.annotator_trainer import ReferenceAnnotatorTrainer
 from sec_certs.model.references.reference_finder import ReferenceFinder
@@ -13,6 +15,8 @@ from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabil
 
 __all__ = [
     "CPEClassifier",
+    "CCSchemeMatcher",
+    "FIPSProcessMatcher",
     "ReferenceFinder",
     "TransitiveVulnerabilityFinder",
     "SARTransformer",

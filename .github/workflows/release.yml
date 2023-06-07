@@ -8,6 +8,11 @@ jobs:
     name: Release on PyPi
     runs-on: ubuntu-latest
     if: github.repository == 'crocs-muni/sec-certs'
+    environment:
+      name: pypi
+      url: https://pypi.org/project/sec-certs/
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -23,9 +28,6 @@ jobs:
         run: python -m build
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: ${{ secrets.PYPI_USERNAME }}
-          password: ${{ secrets.PYPI_PASSWORD }}
   docker_release:
     name: Release on DockerHub
     runs-on: ubuntu-latest

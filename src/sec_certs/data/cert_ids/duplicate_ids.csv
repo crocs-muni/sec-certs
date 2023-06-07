@@ -64,10 +64,8 @@ ANSSI-CC-2010/24,0372b733c28f305a,tp,ANSSI-CC-2010/24,clone,
 ANSSI-CC-2010/24,b9789028f97490ce,tp,ANSSI-CC-2010/24,clone,
 ANSSI-CC-2010/34,2f53e1d94ca1a010,tp,ANSSI-CC-2010/34,clone,
 ANSSI-CC-2010/34,27ccec0740bb7915,tp,ANSSI-CC-2010/34,clone,
-CSEC2017009,4c33266562bb9b24,tp,CSEC2017009,clone,
 CSEC2017009,99ebfcfea90e5e75,tp,CSEC2017009,clone,
-BSI-DSZ-CC-1030-2018,4df9f5ce6006aa63,tp,BSI-DSZ-CC-1030-2018,clone,
-BSI-DSZ-CC-1030-2018,83b56f938e262858,tp,BSI-DSZ-CC-1030-2018,clone,
+CSEC2017009,c431560393ad4f45,tp,CSEC2017009,clone,
 CCEVS-VR-06-0008,11a73a5b4bff867e,tp,CCEVS-VR-06-0008,clone,
 CCEVS-VR-06-0008,b33406a237a97bf0,tp,CCEVS-VR-06-0008,clone,
 ANSSI-CC-2014/36,8d6bca0d7f228191,tp,ANSSI-CC-2014/36,clone,
@@ -76,8 +74,6 @@ CCEVS-VR-VID10003-2008,bf7b3c78598f74cd,tp,CCEVS-VR-VID10003-2008,,
 CCEVS-VR-VID10003-2008,8f538d2eb9a1c6c7,fp,,wrong certification report,
 ANSSI-CC-2009/46,baead73ecc6e4a33,tp,ANSSI-CC-2009/46,clone,
 ANSSI-CC-2009/46,d76f210e41d5589c,tp,ANSSI-CC-2009/46,clone,
-BSI-DSZ-CC-1053-2018,4e246ff7fd346630,tp,BSI-DSZ-CC-1053-2018,clone,
-BSI-DSZ-CC-1053-2018,a6629b6ce5514a43,tp,BSI-DSZ-CC-1053-2018,clone,
 ANSSI-CC-2018/41,10b17081dd7cad8f,tp,ANSSI-CC-2018/41,clone,
 ANSSI-CC-2018/41,27baf39406deb767,tp,ANSSI-CC-2018/41,clone,
 ANSSI-CC-2009/49,1b5a04adf5047f67,tp,ANSSI-CC-2009/49,clone,
@@ -144,3 +140,13 @@ ANSSI-CC-2021/34,60f31793e1e5f4e1,tp,ANSSI-CC-2021/34,,
 ANSSI-CC-2021/34,3cbdd57de3f32ad0,fp,ANSSI-CC-2021/34-R01,number of mentions of component certificate higher than actual,frontpage match
 ANSSI-CC-2021/29,6ed3cd21c6a2c9d0,tp,ANSSI-CC-2021/29,,
 ANSSI-CC-2021/29,e34879f5664b1908,fp,ANSSI-CC-2021/36,number of mentions of component certificate higher than actual,frontpage match
+IC3S/KOL01/ADVA/EAL2/0520/0022/CR,34393279d90717e0,fp,IC3S/KOL01/ADVA/EAL2/0421/0030/CR,number of mentions of component certificate higher than actual,frontpage match
+IC3S/KOL01/ADVA/EAL2/0520/0022/CR,ad047d264a746cad,tp,IC3S/KOL01/ADVA/EAL2/0520/0022/CR,,
+ANSSI-CC-2022/34,4f9038720b7383e4,fp,ANSSI-CC-2022/34v2,number of mentions of component certificate higher than actual,frontpage match
+ANSSI-CC-2022/34,bdeb6e11c8d19494,tp,ANSSI-CC-2022/34,,
+ANSSI-CC-2022/36,1af99e9fc0a6dda0,fp,ANSSI-CC-2022/36v2,number of mentions of component certificate higher than actual,frontpage match
+ANSSI-CC-2022/36,24de96ea505af909,tp,ANSSI-CC-2022/36,,
+ANSSI-CC-2021/42,81eeb757742c69a8,fp,ANSSI-CC-2022/53,security target in place of report,filename match
+ANSSI-CC-2021/42,cef1c9957f4ff612,tp,ANSSI-CC-2021/42,,
+ANSSI-CC-2021/18,e85cd9f643295c93,fp,ANSSI-CC-2021/18v2,number of mentions of component certificate higher than actual,frontpage match
+ANSSI-CC-2021/18,0bd651fcbb86f2a9,tp,ANSSI-CC-2021/18,,

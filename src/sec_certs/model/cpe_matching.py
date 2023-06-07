@@ -6,11 +6,17 @@ import operator
 import re
 from typing import Pattern
 
-import spacy
 from rapidfuzz import fuzz
 
 from sec_certs import cert_rules, constants
 from sec_certs.sample.cpe import CPE
+from sec_certs.utils.strings import (
+    discard_trademark_symbols,
+    fully_sanitize_string,
+    lemmatize_product_name,
+    load_spacy_model,
+    standardize_version_in_cert_name,
+)
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -30,7 +36,7 @@ class CPEClassifier:
     def __init__(self, match_threshold: int = 80, n_max_matches: int = 10, spacy_model_to_use: str = "en_core_web_sm"):
         self.match_threshold = match_threshold
         self.n_max_matches = n_max_matches
-        self.nlp = spacy.load(spacy_model_to_use, disable=["parser", "ner"])
+        self.nlp = load_spacy_model(spacy_model_to_use)
 
     def fit(self, X: list[CPE], y: list[str] | None = None) -> CPEClassifier:
         """
@@ -69,10 +75,7 @@ class CPEClassifier:
 
         for cpe in tqdm(sufficiently_long_cpes, desc="Fitting the CPE classifier"):
             self.vendor_to_versions_[cpe.vendor].add(cpe.version)
-            if (cpe.vendor, cpe.version) not in self.vendor_version_to_cpe_:
-                self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)] = {cpe}
-            else:
-                self.vendor_version_to_cpe_[(cpe.vendor, cpe.version)].add(cpe)
+            self.vendor_version_to_cpe_.setdefault((cpe.vendor, cpe.version), set()).add(cpe)
 
     def predict(self, X: list[tuple[str, str, str]]) -> list[set[str] | None]:
         """
@@ -108,9 +111,9 @@ class CPEClassifier:
         :param bool relax_title: See step 7 above, defaults to False
         :return Optional[Set[str]]: Set of matching CPE uris, None if no matches found
         """
-        lemmatized_product_name = self._lemmatize_product_name(product_name)
+        lemmatized_product_name = lemmatize_product_name(self.nlp, product_name)
         candidate_vendors = self._get_candidate_list_of_vendors(
-            CPEClassifier._discard_trademark_symbols(vendor).lower() if vendor else vendor
+            discard_trademark_symbols(vendor).lower() if vendor else vendor
         )
         candidates = self._get_candidate_cpe_matches(candidate_vendors, versions)
         candidates = self._filter_candidates_by_platform(candidates, product_name)
@@ -210,15 +213,15 @@ class CPEClassifier:
         """
         if relax_title:
             sanitized_title = (
-                CPEClassifier._fully_sanitize_string(cpe.title)
+                fully_sanitize_string(cpe.title)
                 if cpe.title
-                else CPEClassifier._fully_sanitize_string(
+                else fully_sanitize_string(
                     cpe.vendor + " " + cpe.item_name + " " + cpe.version + " " + cpe.update + " " + cpe.target_hw
                 )
             )
         else:
             if cpe.title:
-                sanitized_title = CPEClassifier._fully_sanitize_string(cpe.title)
+                sanitized_title = fully_sanitize_string(cpe.title)
             else:
                 return 0
 
@@ -226,12 +229,12 @@ class CPEClassifier:
         if len(sanitized_title) < 5:
             return 0
 
-        sanitized_item_name = CPEClassifier._fully_sanitize_string(cpe.item_name)
+        sanitized_item_name = fully_sanitize_string(cpe.item_name)
         sanitized_cpe_stripped_manufacturer = re.sub(r"\b" + rf"{cpe.vendor}" + r"\b", "", sanitized_title)
-        standard_version_product_name = self._standardize_version_in_cert_name(product_name, versions)
+        standard_version_product_name = standardize_version_in_cert_name(product_name, versions)
 
         # The expression below is currently unused, it could assist with some matches though
-        # cert_stripped = CPEClassifier._strip_manufacturer_and_version(product_name, candidate_vendors, versions)
+        # cert_stripped = strip_manufacturer_and_version(product_name, candidate_vendors, versions)
 
         # On some ratings, we require 100 match regardless of the treshold in settings.
         ratings = [
@@ -253,34 +256,6 @@ class CPEClassifier:
             ]
 
         return max(ratings)
-
-    @staticmethod
-    def _fully_sanitize_string(string: str) -> str:
-        return CPEClassifier._replace_special_chars_with_space(
-            CPEClassifier._discard_trademark_symbols(string.lower())
-        ).strip()
-
-    @staticmethod
-    def _replace_special_chars_with_space(string: str) -> str:
-        return re.sub(r"[^a-zA-Z0-9 \n\.]", " ", string)
-
-    @staticmethod
-    def _discard_trademark_symbols(string: str) -> str:
-        return string.replace("®", "").replace("™", "")
-
-    @staticmethod
-    def _strip_manufacturer_and_version(string: str, manufacturers: set[str] | None, versions: set[str]) -> str:
-        to_strip = versions | manufacturers if manufacturers else versions
-        for x in to_strip:
-            string = string.lower().replace(CPEClassifier._replace_special_chars_with_space(x.lower()), " ").strip()
-        return string
-
-    @staticmethod
-    def _standardize_version_in_cert_name(string: str, detected_versions: set[str]) -> str:
-        for ver in detected_versions:
-            version_regex = r"(" + r"(\bversion)\s*" + ver + r"+) | (\bv\s*" + ver + r"+)"
-            string = re.sub(version_regex, " " + ver + " ", string, flags=re.IGNORECASE)
-        return string
 
     def _process_manufacturer(self, manufacturer: str, result: set) -> set[str]:
         tokenized = manufacturer.split()
@@ -394,8 +369,3 @@ class CPEClassifier:
             if candidate_vendor_version_pairs
             else []
         )
-
-    def _lemmatize_product_name(self, product_name: str) -> str:
-        if not product_name:
-            return product_name
-        return " ".join([token.lemma_ for token in self.nlp(CPEClassifier._fully_sanitize_string(product_name))])

@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import json
 import shutil
+from importlib import resources
 from pathlib import Path
+from typing import Generator
 
 import pytest
 import tests.data.fips.certificate
@@ -11,16 +15,18 @@ from sec_certs.sample.fips import FIPSCertificate
 
 
 @pytest.fixture(scope="module")
-def data_dir() -> Path:
-    return Path(tests.data.fips.certificate.__path__[0])
+def data_dir() -> Generator[Path, None, None]:
+    with resources.path(tests.data.fips.certificate, "") as path:
+        yield path
 
 
 @pytest.fixture
 def certificate(tmp_path_factory) -> FIPSCertificate:
     tmp_dir = tmp_path_factory.mktemp("dset")
-    dset_json_path = Path(tests.data.fips.dataset.__path__[0]) / "toy_dataset.json"
-    data_dir_path = dset_json_path.parent
-    shutil.copytree(data_dir_path, tmp_dir, dirs_exist_ok=True)
+
+    with resources.path(tests.data.fips.dataset, "") as dataset_path:
+        shutil.copytree(dataset_path, tmp_dir, dirs_exist_ok=True)
+
     fips_dset = FIPSDataset.from_json(tmp_dir / "toy_dataset.json")
 
     crt = fips_dset["184097a88a9b4ad9"]

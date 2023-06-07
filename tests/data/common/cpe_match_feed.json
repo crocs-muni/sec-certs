@@ -1,0 +1,1848 @@
+{
+    "timestamp": "2023-04-14T13:25:26.843",
+    "match_strings": {
+        "98651D39-60CF-409F-8276-DBBB56B972AA": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.15:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "1D48BA0E-DEDE-4CD0-A531-2EAFA0676A84"
+                }
+            ]
+        },
+        "7AC78BA4-70F4-4B9F-93C2-B107E4DCC418": {
+            "criteria": "cpe:2.3:o:netbsd:netbsd:1.5.3:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:netbsd:netbsd:1.5.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "29786132-151C-4E43-B177-B8E9F4C291BF"
+                }
+            ]
+        },
+        "8208AFC9-0EFC-4A90-AD5A-FD94F5542885": {
+            "criteria": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:sp1:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000_terminal_services:-:sp1:*:*:*:*:*:*",
+                    "cpeNameId": "22F39BB6-A34C-4606-9DEA-608115DCE8E7"
+                }
+            ]
+        },
+        "28A10F5A-067E-4DD8-B585-ABCD6F6B324E": {
+            "criteria": "cpe:2.3:o:netbsd:netbsd:1.6:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:netbsd:netbsd:1.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "BFB77846-8578-4F69-A717-AB32F9325C4D"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:netbsd:netbsd:1.6:beta:*:*:*:*:*:*",
+                    "cpeNameId": "63E80EF6-F0BF-4FC5-B5D3-DE90E8686D2A"
+                }
+            ]
+        },
+        "4A8FC820-48D5-4850-82F7-8DA4A18EFF51": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "6B75A555-3DBB-47D9-B1EB-526829F9F64E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:-:*:*:*",
+                    "cpeNameId": "A5FD1141-7C0E-40A8-BEC2-88775D698403"
+                }
+            ]
+        },
+        "6ABB9787-5497-4BDC-8952-F99CF60A89BD": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.11:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.11:*:*:*:*:*:*:*",
+                    "cpeNameId": "7F34EBED-EBDB-4B10-A9EC-B4C0A56BFD57"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.11:-:*:*:*:*:*:*",
+                    "cpeNameId": "B656327E-C463-4FB1-8DBE-0860BAD611A0"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.11:pre3:*:*:*:*:*:*",
+                    "cpeNameId": "C9953E5D-82CA-46CE-B0D1-3CE85D4F1147"
+                }
+            ]
+        },
+        "9BFBDE57-3895-4841-B23C-06336A7016EB": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "27623D33-7BA5-40A4-9675-27EF3BF5F8A3"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:-:*:*:*",
+                    "cpeNameId": "04B839B7-3C81-440C-8116-AB6EF68A8ACE"
+                }
+            ]
+        },
+        "E10D9BF9-FCC7-4680-AD3A-95757FC005EA": {
+            "criteria": "cpe:2.3:o:netbsd:netbsd:1.5:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:netbsd:netbsd:1.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "2C3E186D-9505-4AEF-8726-F42D65B96E27"
+                }
+            ]
+        },
+        "90BA0923-4064-49D3-82A2-EEFC4B0F9A9C": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "98ABD199-DB51-4FC5-931D-39DABD93C664"
+                }
+            ]
+        },
+        "615F6BA2-CD51-4159-B28A-A018CA9FC25C": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.12:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.12:*:*:*:*:*:*:*",
+                    "cpeNameId": "E9E42A6D-67CA-4104-94F9-7F9612D764D1"
+                }
+            ]
+        },
+        "093848CB-68A1-4258-8357-373A477FE4E2": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.13:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "D355D8A7-3332-4F7C-8537-45447BBAB886"
+                }
+            ]
+        },
+        "A553A6E7-64AA-41F2-9B92-4EC715C617B0": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "FC0E718E-7439-4487-8BDB-5CA26BEAD770"
+                }
+            ]
+        },
+        "4E545C63-FE9C-4CA1-AF0F-D999D84D2AFD": {
+            "criteria": "cpe:2.3:o:microsoft:windows_2000:*:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:*:*:*:*:*:*:*",
+                    "cpeNameId": "EE86EF87-8C2B-49BF-8689-32600E9C6B3E"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:*:*:ja:server:*:*:*",
+                    "cpeNameId": "A6790885-6404-42DA-938C-5A15734FDBA2"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:-:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "19F19F40-EAFE-421F-BB5D-548D170FB88A"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:-:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "322C05D2-1C4A-47CE-B25C-1C03CB0F0C7C"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:-:*:*:professional:*:*:*",
+                    "cpeNameId": "4D9C41DD-288D-4E53-875B-241DB0E21C58"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:-:*:*:server:*:*:*",
+                    "cpeNameId": "1B9C82AC-4E45-4424-A7C8-F5B6FE1BC634"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:beta3:*:*:*:*:*:*",
+                    "cpeNameId": "FAD880AC-395E-44D4-838C-7E6EE872BC40"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:gold:*:*:*:*:*:*",
+                    "cpeNameId": "61EC7442-A20F-48EE-B713-B8A5C5ED12E6"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:gold:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "F3982023-CF9C-4A38-B736-62B68B6FC217"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:gold:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "0328D634-9E84-4BDB-B623-B6D9E3D97BB7"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:gold:professional:*:*:*:*:*",
+                    "cpeNameId": "01679CAB-47D1-411E-8302-B742A3EED584"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:gold:server:*:*:*:*:*",
+                    "cpeNameId": "107A8ED0-E301-4D03-B868-AB261022D016"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:rc1:*:*:*:*:*:*",
+                    "cpeNameId": "63EA9813-A7F3-4519-B64D-EF989A00FC90"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:rc2:*:*:*:*:*:*",
+                    "cpeNameId": "FBC3BAD9-0A84-41FF-A5B4-7765A67B331F"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:*:*:*:*",
+                    "cpeNameId": "11422F2D-DA40-44D3-8EC4-B8D9EFB059F8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "A0BFE7A6-8940-4C97-82CE-86F22E1244A3"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "332B64B9-D1CD-4C9E-A024-2D6D93B66DEA"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:professional:*:*:*",
+                    "cpeNameId": "C7CA3414-E3AF-4879-84D9-12C7BCF51AEC"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:server:*:*:*",
+                    "cpeNameId": "C7817997-0635-4535-B7A5-6136F33601A8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "705D0CCF-BEE3-404D-98D0-60EA39199B78"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "B93EB334-39A6-4F46-BC60-04ED4E2CF8B2"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:professional:*:*:*:*:*",
+                    "cpeNameId": "6110B9D8-5703-43E8-BC63-43AB7D9BCB63"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:server:*:*:*:*:*",
+                    "cpeNameId": "378963D2-B38D-4E21-811B-2C226AEC5B53"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:*:*:*:*",
+                    "cpeNameId": "4AF6C905-2BE5-4091-9C1E-5FD4FCAC2FB1"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "019A3CC4-FFD6-4B97-97DE-3CD416166C0A"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "1A229ABD-792D-4D3C-B1A5-8EA90771B634"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:professional:*:*:*",
+                    "cpeNameId": "CDA757C0-9B63-40BD-A1A5-E86F97557B93"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:server:*:*:*",
+                    "cpeNameId": "2E8B4F55-B766-4A67-B986-77823E511063"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "619F77D9-FE6D-4E3C-9452-A20FA22D502C"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "EA69A4B4-91B7-4E53-825D-FCCB25AA5712"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:professional:*:*:*:*:*",
+                    "cpeNameId": "0D0C314F-D1EB-4E14-AC23-FE23B591EC62"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:server:*:*:*:*:*",
+                    "cpeNameId": "22068331-B283-4AE9-B93F-6B26B1B2D738"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:*:*:*:*:*:*",
+                    "cpeNameId": "8352E382-0071-44FE-82F4-7316A0657C37"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "8A01365A-7F55-4D12-95A7-B34C65B91C69"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "9DA0E093-AF27-46F1-BEA1-A39B13BC8368"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:*:*:professional:*:*:*",
+                    "cpeNameId": "5B45DCB0-628C-452E-96F5-87148AA8AEAF"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:*:*:server:*:*:*",
+                    "cpeNameId": "EA6F8ED0-0BAB-4C54-8EA6-F030F5E31E35"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "C5F2B6D0-66A5-4CF7-9926-7D19DBB990C4"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "5C511D56-5692-4699-8E90-CD3BB5BF33B7"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:professional:*:*:*:*:*",
+                    "cpeNameId": "FE03A31B-261E-4B95-9290-78067B38B387"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp3:server:*:*:*:*:*",
+                    "cpeNameId": "77662DB9-0C9C-4411-9FB4-0A1CC8A169B8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:*:*:*:*:*:*",
+                    "cpeNameId": "669430CF-F16A-4743-B881-DC53B2CAAD64"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "D78B1F93-8489-448D-99A8-82CE58106393"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "67FD0A15-91ED-4E9B-97A7-E88E506B11B5"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:*:*:professional:*:*:*",
+                    "cpeNameId": "987A071F-2E7C-4376-826E-2AAAC535B8BE"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:*:*:server:*:*:*",
+                    "cpeNameId": "737DC45F-20B1-4847-9C5B-B5E19D110CF1"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:*:fr:*:*:*:*",
+                    "cpeNameId": "E5DADAED-E94F-44FC-938A-C1FEFCA0D425"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "98AF5FFA-099F-4580-B162-AD302D11D0AD"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "DB2FF04A-70E7-4688-A5EF-24885C759F32"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:professional:*:*:*:*:*",
+                    "cpeNameId": "31F2DA56-4A4B-4E49-8C1F-4D636650EA4F"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp4:server:*:*:*:*:*",
+                    "cpeNameId": "657D76B3-6CFA-4EEC-8467-97CAF23F2FFC"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:beta3:*:*:*:*:*:*:*",
+                    "cpeNameId": "6C887E50-B14B-4347-93C8-22E4C55CA4CA"
+                }
+            ]
+        },
+        "7500A708-B2DB-49A8-823D-5632ECA92205": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.15.0:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.15.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "654DA643-6F57-4410-A96F-FFDF01B9BC53"
+                }
+            ]
+        },
+        "9EBE3738-E530-4EC6-9FC6-1A063605BE05": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.17:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.17:*:*:*:*:*:*:*",
+                    "cpeNameId": "CCC542D5-AACD-49D8-8122-D3E80094CC9C"
+                }
+            ]
+        },
+        "B0905C80-A1BA-49CD-90CA-9270ECC3940C": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "663EA28C-DD70-4410-9EF2-28A6E234172E"
+                }
+            ]
+        },
+        "D1BC4612-2ACB-4087-A349-8E26AF1A3BF7": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.14.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.14.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "0A69FB58-B539-4068-A79A-406FE9213315"
+                }
+            ]
+        },
+        "C93D1CE2-1772-44C0-A8CB-73E9AA1AF6B8": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+                    "cpeNameId": "6D5A095D-1933-4C2D-A16E-7617D60E925C"
+                }
+            ]
+        },
+        "80AD28D1-5CA8-446A-9D71-7051332DF9AF": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.17.4:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.17.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "A0DC36A8-9D07-47B3-9571-A89FEC8CE323"
+                }
+            ]
+        },
+        "D0399660-6385-45AB-9785-E504D8788146": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.7:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "A954622D-3B3C-4D9D-A2B0-4DA7AB78596E"
+                }
+            ]
+        },
+        "44308D13-D935-4FF8-AB52-F0E115ED1AD2": {
+            "criteria": "cpe:2.3:o:freebsd:freebsd:4.5:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "5455D0A5-2BED-47F0-BAA7-345ED7B46880"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:-:*:*:*:*:*:*",
+                    "cpeNameId": "6DCE2275-A851-4492-B68A-5FF375C1C470"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p1:*:*:*:*:*:*",
+                    "cpeNameId": "07384354-5E73-4CE1-BF01-B568AFF3B389"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p20:*:*:*:*:*:*",
+                    "cpeNameId": "C48FF1E3-2473-433B-9DCD-1CDC80E092E4"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p31:*:*:*:*:*:*",
+                    "cpeNameId": "F0817BDD-BA1C-4B22-A86A-32A98EA33F77"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p32:*:*:*:*:*:*",
+                    "cpeNameId": "507E87DE-A1DD-4152-8A44-E02D5C340B28"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p34:*:*:*:*:*:*",
+                    "cpeNameId": "A7E9265A-20C2-4B39-8AD3-698A50709851"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p35:*:*:*:*:*:*",
+                    "cpeNameId": "2E9B70C5-96A0-4646-A95A-D804550AB64B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p36:*:*:*:*:*:*",
+                    "cpeNameId": "C7E7DFE3-49BE-43E3-A28E-58E3EAD774D0"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.5:p37:*:*:*:*:*:*",
+                    "cpeNameId": "477DE5E7-C73C-4C88-89C8-3403CA13974B"
+                }
+            ]
+        },
+        "B86C77AB-B8FF-4376-9B4E-C88417396F3D": {
+            "criteria": "cpe:2.3:o:freebsd:freebsd:4.7:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "71A66A11-4305-4B02-AF06-1C23F5A7CE23"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:-:*:*:*:*:*:*",
+                    "cpeNameId": "7C7E84BA-DF05-4141-8F82-9FDA2BFC35CE"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p13:*:*:*:*:*:*",
+                    "cpeNameId": "E7E9B34A-4782-4B82-A8FA-1420FCE31DA3"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p16:*:*:*:*:*:*",
+                    "cpeNameId": "845BC2E4-E5F3-4443-B791-1FF98DACF4A8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p17:*:*:*:*:*:*",
+                    "cpeNameId": "578D9F3E-CF09-490E-A44E-7A6FAB82371B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p19:*:*:*:*:*:*",
+                    "cpeNameId": "112BB675-9EC9-4250-8498-06A1D249BBEC"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p20:*:*:*:*:*:*",
+                    "cpeNameId": "6C4FFE23-FE08-41DB-8BE0-2618C3E7380B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p21:*:*:*:*:*:*",
+                    "cpeNameId": "CF9EDA1B-58D8-4193-9D2E-9D31059C6D9B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p22:*:*:*:*:*:*",
+                    "cpeNameId": "231EB0F9-B6FD-4533-A48A-357F1E58EB2F"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p23:*:*:*:*:*:*",
+                    "cpeNameId": "5D09F930-8F8F-43EA-B80B-D471B348B470"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p24:*:*:*:*:*:*",
+                    "cpeNameId": "685432C1-8C7D-476C-8D9A-6585AD0FFFA1"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p25:*:*:*:*:*:*",
+                    "cpeNameId": "1097FD93-4776-4AF5-8564-229372B7D537"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p26:*:*:*:*:*:*",
+                    "cpeNameId": "C93568A5-2A80-40D1-8F24-2EC034141716"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p27:*:*:*:*:*:*",
+                    "cpeNameId": "50827EE6-CE29-4BCD-A9D7-89BB1766C56F"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p28:*:*:*:*:*:*",
+                    "cpeNameId": "EC50938F-4EED-4B37-B02F-C8D2971F542A"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p4:*:*:*:*:*:*",
+                    "cpeNameId": "3F91A549-4E4B-4492-AD7C-10D4A0F3E172"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p5:*:*:*:*:*:*",
+                    "cpeNameId": "3359D430-4B14-4D17-B8D1-285ABDF4EC9F"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p6:*:*:*:*:*:*",
+                    "cpeNameId": "B7F6351F-463B-4FCC-B543-142732EB87AD"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p8:*:*:*:*:*:*",
+                    "cpeNameId": "7DD91032-FCA9-47EE-8271-2E0F5E023269"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.7:p9:*:*:*:*:*:*",
+                    "cpeNameId": "AF5721A4-FCAA-4AB0-BACA-514D68806773"
+                }
+            ]
+        },
+        "B91F6CBE-400F-4D0B-B893-34577B47A342": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.9:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "A259E0E8-0757-4478-ABB7-3DEF981D4167"
+                }
+            ]
+        },
+        "4E8B7346-F2AA-434C-A048-7463EC1BB117": {
+            "criteria": "cpe:2.3:o:microsoft:windows_2000:*:sp2:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:*:*:*:*",
+                    "cpeNameId": "4AF6C905-2BE5-4091-9C1E-5FD4FCAC2FB1"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "019A3CC4-FFD6-4B97-97DE-3CD416166C0A"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "1A229ABD-792D-4D3C-B1A5-8EA90771B634"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:professional:*:*:*",
+                    "cpeNameId": "CDA757C0-9B63-40BD-A1A5-E86F97557B93"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:*:*:server:*:*:*",
+                    "cpeNameId": "2E8B4F55-B766-4A67-B986-77823E511063"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "619F77D9-FE6D-4E3C-9452-A20FA22D502C"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "EA69A4B4-91B7-4E53-825D-FCCB25AA5712"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:professional:*:*:*:*:*",
+                    "cpeNameId": "0D0C314F-D1EB-4E14-AC23-FE23B591EC62"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp2:server:*:*:*:*:*",
+                    "cpeNameId": "22068331-B283-4AE9-B93F-6B26B1B2D738"
+                }
+            ]
+        },
+        "1DF64D68-2E3D-4504-AC40-C73ABE136EE2": {
+            "criteria": "cpe:2.3:a:gnome:gnome-terminal:2.0:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:gnome:gnome-terminal:2.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "C49B6D85-F865-405E-B9B6-E4A2E863A341"
+                }
+            ]
+        },
+        "FF0E1F40-C9BA-4879-A952-51E211298D27": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:-:*:*:*:*:*:*:*",
+                    "cpeNameId": "E54AA9CE-0751-437F-8083-04A53F9B08B1"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:-:*:*:*:liberty:*:*:*",
+                    "cpeNameId": "96DB4136-52EB-45C2-8E85-192515D7FD68"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:-:*:*:*:library:*:*:*",
+                    "cpeNameId": "FAD6658A-2347-4E78-A5D4-2A345336003D"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:-:-:*:*:*:z\\/os:*:*",
+                    "cpeNameId": "3DCD6A59-3889-489C-A86E-57572356AC6F"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:2.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "39056F8E-CAB7-4A7A-AA24-E0ED72B09622"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "8842E9AC-ED14-450E-8F4B-9F2DAE9F519D"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.0.3:-:community:*:*:*:*:*",
+                    "cpeNameId": "69C2E08B-0651-4D29-ABCD-8E9428FDB291"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "18147E5E-F79B-47D3-9154-E2E16ED45A2E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.2.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "6BD471B9-BFDF-4D16-8001-9E1CAFC80EDD"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.2.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "44DC0CE8-1C36-43F4-8828-D8EAB958F1FB"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.2.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "9E4E7871-6132-4259-A998-D74E881F2BDA"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.2.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "D865E02F-A3D3-4A0C-9A69-929D9602F7F2"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.9.20:*:*:*:*:*:*:*",
+                    "cpeNameId": "A828A415-8B6A-4760-BD9A-9FD512B978F4"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.0.21:*:*:*:*:*:*:*",
+                    "cpeNameId": "832ADD56-2CE6-44F7-9572-C24DF3F04F05"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "3078D262-B11B-4F81-A1B2-279588B43D7C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.5.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "4FD7B7E0-BBC6-489D-B609-1393D59DD71C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.5.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "9B937FBE-4245-45F7-ADB5-010A8E622E7C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.5.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "72B89A7B-CEE0-4D8C-A278-4F980E5F7424"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:3.52:*:*:*:*:*:*:*",
+                    "cpeNameId": "5C2AA22F-E395-4F16-9E8B-2B29DD501CBA"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:4.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "4FF9B616-847E-4B96-9AA8-3E2C7D64A2A4"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:4.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "01A29629-BDC7-4DD0-BE48-D00ADB7C9E86"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:4.0.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "1970C8E6-E95F-426D-82B5-BA07F6DAFFA7"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:4.0.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "90287221-3C50-4447-B9B8-91CFB7BD05A4"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "AE0DF5C7-BDE1-4003-8727-168754917E8B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "9B7AB299-C15D-4B19-9379-841B45848933"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "26E227FF-11EB-43A5-B718-F077AAC9F9B3"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "061A1D68-731F-402C-BA67-5372C23FF466"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "F3368BCB-705D-4B96-8138-D8762040565B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "4CC94B74-6F8E-4010-A4D0-4AAB10427B5E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "C9479759-EB49-43CF-A7A5-82ECD4454A5A"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "2896517D-7F01-4609-A12F-D7D7ACC2AAE1"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "4618D39D-8B7F-405E-8C1A-3794D8E45C1E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "6B0FAED5-79DC-44B0-BBA7-6BE83EC7905B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "EBDF35D8-1D22-40FA-9108-8A1C54127327"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.8:*:*:*:*:*:*:*",
+                    "cpeNameId": "C85AF259-5F58-4CEB-8154-432C3881B71D"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "51240BBE-EC28-4762-82DB-BDE6709A6918"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.10:*:*:*:*:*:*:*",
+                    "cpeNameId": "3488F362-6CFF-4600-90D0-E98E864A06CC"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.11:*:*:*:*:*:*:*",
+                    "cpeNameId": "BF98B8D7-0DA1-4CB2-B38F-C4BDEE128FC6"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.12:*:*:*:*:*:*:*",
+                    "cpeNameId": "1C544D4E-1231-4EB1-84D9-1C5DCE491D8A"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "899BE064-17D8-49A1-BB63-C68978D211B5"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.14:*:*:*:*:*:*:*",
+                    "cpeNameId": "D79C89D3-C668-4E04-9BD8-FEFA85DBD119"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "FBD564CF-08BE-4574-8D4F-D9309EE01C53"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.0.2.16:*:*:*:*:*:*:*",
+                    "cpeNameId": "DC10B913-8C30-4E0B-81B8-07DEBB0E9556"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "8317F76A-C02E-435C-8345-3A452AA8A46B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "4379AFDB-3800-4432-A781-086A2930354E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.0.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "71C23415-23CF-42F5-9805-7DC24AFC72AF"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.0.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "BB8A8570-9D51-41B7-973C-9D0912E50044"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.0.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "763CCF7E-5037-44B4-B0D3-E0F8A087BF3C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "B7A6804C-84DD-4BA4-A4FF-13D981F1A64B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "F7A76F36-034F-4C56-BDFA-35BC6F8CE902"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "47CC740F-E875-47A8-8899-656A965BFD9E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "0D4C5902-01D1-4619-A669-4D2AA863AE60"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "2092A151-7C8D-4D48-ADCC-87A1FE63137B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "1A335381-A341-4D93-94BE-7081A56461D3"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "CF9C81A9-CFF8-4ED0-95B9-D7645694BF8F"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "443D9AD0-7B52-432A-90A4-065C397E7937"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.8:*:*:*:*:*:*:*",
+                    "cpeNameId": "A9C6A760-52F4-4C26-A622-ED6158B4732E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "072FA236-A15E-4EEE-8E3C-1B2C7939B978"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.10:*:*:*:*:*:*:*",
+                    "cpeNameId": "B641BA8B-2ABF-4B63-9A98-E3969210BB2F"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.11:*:*:*:*:*:*:*",
+                    "cpeNameId": "75D6C144-BD49-474F-A2E1-734C9D319A5A"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.12:*:*:*:*:*:*:*",
+                    "cpeNameId": "83CE1F0A-AE52-450A-95B0-C5608CE2EE10"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "FDA77EF0-8CF8-49B4-AEEF-34989ACF3FA0"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.14:*:*:*:*:*:*:*",
+                    "cpeNameId": "0836EDA1-DE1F-4040-8685-C48D09144D5A"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "3E7F5D10-334D-4C7A-8E3A-83C2D58CDDA8"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.16:*:*:*:*:*:*:*",
+                    "cpeNameId": "8A2F0916-9F85-44F3-8303-BFA6EB9833E4"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.1.1.17:*:*:*:*:*:*:*",
+                    "cpeNameId": "12978532-3B1B-4D7D-9847-26CA9AA35963"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:5.02.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "43B90ECB-E641-4025-8694-0C612D77B01D"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "BE4F07F1-2E5D-41AD-88CE-057CD00C5AFE"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "DB515F5D-DB6A-4A99-8CC6-80D03F233598"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "AB5A458B-6824-4A2A-8A22-1A3A7DD95928"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.0.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "273A94BE-65BF-4383-8E1A-FB5AA78B232B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "2FAE242C-0B92-4B0F-906B-A6C0EA4849EF"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "CE2B98A5-3AD0-4B00-860F-17E0B0EC8D6C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "65EA6E5B-81EE-493A-BFE0-DE1FC5FEA3F6"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "5EF30EE5-47EE-4DC4-BA67-CD457800F34C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "4A4A5AD0-B546-4DBC-BE84-15C9481423BF"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "D2E4B190-C93C-4069-9D7C-411A69974E92"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "6786EE9E-786D-4C9C-94A4-291227B06956"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.11:*:*:*:*:*:*:*",
+                    "cpeNameId": "4F8960A6-A880-4CC5-BA82-DFEE5CB5A4E7"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "91D31A7B-EFBA-4060-8CD9-DB90596BA38B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "958BEDC0-DF35-4E30-956A-EA895A073621"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.1.17:*:*:*:*:*:*:*",
+                    "cpeNameId": "89EFB91B-9C44-4E50-8791-A5E001BB4972"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "E96D9FEA-7F49-4D52-9BE6-B3F3858F1F67"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "CC586ADA-7F81-422F-B974-E4884FB1AB87"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "AC3FD5C7-50EF-4119-8DF4-00532C797E47"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "B6C69C1A-733D-4E54-9655-43C10E2A1B74"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "9F8C1292-2883-4F8E-9338-CD5F5092951C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "6D3DB809-174F-4586-AB5E-46979DBB7578"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "AFCED053-A34B-41DC-BD94-A3116E7F4E46"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "C9D6071A-747A-4471-97CC-61DC4E8F142D"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.8:*:*:*:*:*:*:*",
+                    "cpeNameId": "F7AE5C9A-3822-4AAB-8013-AA6EBD7ED772"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "1A084FB7-8DDE-47A8-8637-1B49FFE6EE21"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.11:*:*:*:*:*:*:*",
+                    "cpeNameId": "631A9AC1-30E4-4516-BEEF-6BFFD5C32B37"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "632A785E-58F5-4663-BD2E-21705A6A277C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "5EF18AC0-49A1-45F5-8369-8A3D603293C7"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.17:*:*:*:*:*:*:*",
+                    "cpeNameId": "15450AF8-1C77-45A8-8E31-DA97AC9CFB12"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.19:*:*:*:*:*:*:*",
+                    "cpeNameId": "B1612F1D-9374-487F-B9DF-436020876A3B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.22:*:*:*:*:*:*:*",
+                    "cpeNameId": "4862BC6D-E600-497E-8924-947743457387"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.23:*:*:*:*:*:*:*",
+                    "cpeNameId": "D8F1C595-2E15-43AE-8CFF-A9DCE8B296FE"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.24:*:*:*:*:*:*:*",
+                    "cpeNameId": "BD2C7997-FE67-4E7A-AD42-460C2F8327F7"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.25:*:*:*:*:*:*:*",
+                    "cpeNameId": "27CA50F8-4E11-4301-9A03-EDCE4BFE4F98"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.27:*:*:*:*:*:*:*",
+                    "cpeNameId": "FD27DC6F-18C9-4DA7-B5FB-A19772A2635E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.28:*:*:*:*:*:*:*",
+                    "cpeNameId": "89B8EBC0-ABCF-4A78-8C1D-E5AC69750817"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.29:*:*:*:*:*:*:*",
+                    "cpeNameId": "558EBF19-7506-4E41-BD52-0AF599A07478"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.30:*:*:*:*:*:*:*",
+                    "cpeNameId": "9255A8C2-5E17-47CB-B2A2-8977EF05DE9C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.31:*:*:*:*:*:*:*",
+                    "cpeNameId": "54446505-13C9-4B54-B027-9A90190246F9"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.32:*:*:*:*:*:*:*",
+                    "cpeNameId": "F6B60775-F619-4489-820B-570B4DC1DAC5"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.33:*:*:*:*:*:*:*",
+                    "cpeNameId": "F59035C6-D8CE-4B15-A11E-C0DB04986C07"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.35:*:*:*:*:*:*:*",
+                    "cpeNameId": "AC22F92A-02B1-4AAE-A05E-9A2CE6E80041"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.37:*:*:*:*:*:*:*",
+                    "cpeNameId": "DF39BCD5-86B8-4AF9-940A-6A2C37DEEE32"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.39:*:*:*:*:*:*:*",
+                    "cpeNameId": "D525084B-8A47-45B6-A391-0E9E33F00A91"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.41:*:*:*:*:*:*:*",
+                    "cpeNameId": "66B72071-F851-4C1B-9305-140D3F89190B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.0.2.43:*:*:*:*:*:*:*",
+                    "cpeNameId": "9F3E1FB1-3733-4542-B235-AE85A738B408"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "7D62E1FA-0630-4AD4-84A9-65581462D6D7"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "67D9BAC2-789D-46C0-A488-5F301C705D17"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "EC2C5539-2657-4516-8909-E9138685F5D1"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "933E587D-BF10-4B0C-BF37-1A84C571D814"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "5A561092-BCA2-4B11-A4B7-1265FA85065D"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "64A4AEFA-6EF6-471D-8CA7-DAF2B665B3AB"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "C92EC9EA-E81F-4042-A94E-9D89B0044190"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "584A3530-B9F5-4E82-BF2F-D17A3341E335"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "8FAFE0F4-F70A-48A5-A567-710A84D156B1"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.11:*:*:*:*:*:*:*",
+                    "cpeNameId": "9356F0D8-2518-484C-BF92-BAC609208E03"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.12:*:*:*:*:*:*:*",
+                    "cpeNameId": "C9A153E6-474F-40F4-B211-EBF5B4D0FBCB"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "27B193F2-2EE0-44E4-AF41-B8C86A0D6968"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.14:*:*:*:*:*:*:*",
+                    "cpeNameId": "FA837E3C-3729-4304-AB6C-9D16C9E49553"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.15:*:*:*:*:*:*:*",
+                    "cpeNameId": "7F4229FA-DEA4-4CD0-9572-1CB617454097"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.17:*:*:*:*:*:*:*",
+                    "cpeNameId": "796049B2-A30D-49A0-94E3-BE5A1E2B37BD"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.19:*:*:*:*:*:*:*",
+                    "cpeNameId": "85ECBD01-C21C-4B6C-AB0A-16D74336D164"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.21:*:*:*:*:*:*:*",
+                    "cpeNameId": "D733F9C7-2B57-485C-A2E1-B234AB699D91"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.23:*:*:*:*:*:*:*",
+                    "cpeNameId": "56D39353-62D4-4E86-A88B-7FF32E61BAAC"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.24:*:*:*:*:*:*:*",
+                    "cpeNameId": "BD33A44E-189C-460A-8297-5FDFA1B435FB"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.25:*:*:*:*:*:*:*",
+                    "cpeNameId": "7C939A82-C119-4790-BF9A-1F14316FB5AD"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.27:*:*:*:*:*:*:*",
+                    "cpeNameId": "46DC582A-8C7D-4DC4-979F-F7FF54565155"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.29:*:*:*:*:*:*:*",
+                    "cpeNameId": "8C0E1175-AFDF-4EFC-9434-690BE9570EBE"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.31:*:*:*:*:*:*:*",
+                    "cpeNameId": "F29D1DE8-B496-4B82-A707-D187172C4FE8"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.33:*:*:*:*:*:*:*",
+                    "cpeNameId": "42D334DE-45EC-4F26-A152-38F2BE07CD12"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.35:*:*:*:*:*:*:*",
+                    "cpeNameId": "94FF7F74-BB39-4F2D-A551-96AAC9EAD03E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.37:*:*:*:*:*:*:*",
+                    "cpeNameId": "5B2F4FC4-A5F5-4C01-9F59-1D6E9BA2F609"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.39:*:*:*:*:*:*:*",
+                    "cpeNameId": "4E1F1E08-F383-4CD8-BC37-5A684A9FDA84"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.41:*:*:*:*:*:*:*",
+                    "cpeNameId": "1326447F-9799-40AA-AB80-218E763AA892"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.43:*:*:*:*:*:*:*",
+                    "cpeNameId": "3FAD1A21-4CD7-4200-A357-806F72F3D300"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.45:*:*:*:*:*:*:*",
+                    "cpeNameId": "E8B74EB4-E1BC-4725-86EC-5E0020FDFB86"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.0.47:*:*:*:*:*:*:*",
+                    "cpeNameId": "DA5C8EBC-B99F-4A68-90E4-A50B8F34EC82"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "3CE5B89F-145D-49A6-BC6A-49E22C42B9F6"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "4F081322-4E00-4EA9-8E28-256872476E38"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "5F82212F-28AA-4764-9589-7DEFEA7DEAB4"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "2FDFC216-A26F-4ABF-BFED-4C9AFEE2B1CC"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "A3F26250-C011-4586-9F66-3C2157E5F685"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.13:*:*:*:*:*:*:*",
+                    "cpeNameId": "6D484B6D-5138-428D-BE69-C7601165FCED"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:6.1.14:*:*:*:*:*:*:*",
+                    "cpeNameId": "C052FA73-E13B-4E90-B601-C504A2651FFD"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "663EA28C-DD70-4410-9EF2-28A6E234172E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.0:*:*:*:*:*:*:*",
+                    "cpeNameId": "B443C535-6FE7-4A0D-B109-51F766D7CB3C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.0:*:*:*:-:*:*:*",
+                    "cpeNameId": "DE10C055-754F-4BDD-8E89-D89B4AB44263"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.0:*:*:*:hypervisor:*:*:*",
+                    "cpeNameId": "EC207CE0-F0FB-4F2C-89A0-6AEF212798F2"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "67E43EA0-0C77-498B-96C1-665FBF218ECD"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:-:*:*:*",
+                    "cpeNameId": "53F84AA8-9BBF-41E0-8061-6F30334C1AF7"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "6B75A555-3DBB-47D9-B1EB-526829F9F64E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:-:*:*:*",
+                    "cpeNameId": "A5FD1141-7C0E-40A8-BEC2-88775D698403"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "88B60B6A-E3BC-4E1D-AAC0-2BAC7CEB53C1"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:-:*:*:*",
+                    "cpeNameId": "08BF99B5-2AE1-430D-B83D-0C0F2299D719"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "FC0E718E-7439-4487-8BDB-5CA26BEAD770"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "27623D33-7BA5-40A4-9675-27EF3BF5F8A3"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:-:*:*:*",
+                    "cpeNameId": "04B839B7-3C81-440C-8116-AB6EF68A8ACE"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "ACFEB8AA-B8FC-49E1-98BE-3D581655FE2E"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "CE6A7749-8B0D-48DF-907A-2230BC5E140B"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+                    "cpeNameId": "6D5A095D-1933-4C2D-A16E-7617D60E925C"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+                    "cpeNameId": "98ABD199-DB51-4FC5-931D-39DABD93C664"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.10:*:*:*:*:*:*:*",
+                    "cpeNameId": "89AF3698-3BB9-4E00-BE67-01E878CFA218"
+                }
+            ],
+            "versionEndIncluding": "7.0.0.10"
+        },
+        "BE63886D-928A-4F30-8547-20B19D406EA3": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.12.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.12.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "739128A0-90E6-4F7A-8669-8FDFD7DF63F3"
+                }
+            ]
+        },
+        "1548ECFD-FCB5-4AE0-9788-42F61F25489F": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.10:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.10:*:*:*:*:*:*:*",
+                    "cpeNameId": "D8D60D91-78C0-4543-93D2-EF50ECC26C06"
+                }
+            ]
+        },
+        "78E8C3A4-9FA7-4F2A-8C65-D4404715E674": {
+            "criteria": "cpe:2.3:o:netbsd:netbsd:1.5.1:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:netbsd:netbsd:1.5.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "44FE5B9A-DB56-499F-9F5A-D527ECFFCB2E"
+                }
+            ]
+        },
+        "55C5FC1A-1253-4390-A4FC-573BB14EA937": {
+            "criteria": "cpe:2.3:o:freebsd:freebsd:4.4:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "7EC47958-F3AC-4DBB-9FBB-8C9E66F52CF8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:-:*:*:*:*:*:*",
+                    "cpeNameId": "91AC1F67-BE9D-4170-98AD-5844DFE70A92"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p27:*:*:*:*:*:*",
+                    "cpeNameId": "F7C6D509-F9CB-4D68-8305-C239EC2A5753"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p4:*:*:*:*:*:*",
+                    "cpeNameId": "C5A4C3E7-C23D-4332-BF24-6BC629F37517"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p41:*:*:*:*:*:*",
+                    "cpeNameId": "04FBA871-4560-47B8-867C-C68322C1B3B2"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p42:*:*:*:*:*:*",
+                    "cpeNameId": "A0131EE0-D3BD-4185-88AC-6A2FF8B3F8BA"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p44:*:*:*:*:*:*",
+                    "cpeNameId": "DF3CAC6E-D23A-40EF-8285-9EBA4B8315FA"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p45:*:*:*:*:*:*",
+                    "cpeNameId": "BE1165B1-621F-4E50-8247-FBF9A2B2C5DE"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p46:*:*:*:*:*:*",
+                    "cpeNameId": "BF047572-E271-48A4-9A05-4549F38A8191"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p47:*:*:*:*:*:*",
+                    "cpeNameId": "C4C97D9A-E2C9-4C07-BE39-5F41FFD5C863"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.4:p8:*:*:*:*:*:*",
+                    "cpeNameId": "0A599A01-ADF2-4678-9400-2740C6946A53"
+                }
+            ]
+        },
+        "01408EC0-9C2D-4A44-8080-D7FC7E1A1FA1": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "2ED7406F-31F5-4EBF-AA7E-B6A257635CD3"
+                }
+            ]
+        },
+        "66A6A608-AD4B-499F-BFE6-AD8DA79BE29F": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.24.3:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.24.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "6A3B04E3-75A2-4B5F-A50A-743C92B9239C"
+                }
+            ]
+        },
+        "067B8E09-C923-4DDA-92DB-4A2892CB526A": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.16:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.16:*:*:*:*:*:*:*",
+                    "cpeNameId": "DA7EAA8F-051D-493E-A4D7-5D97E9C5E7AA"
+                }
+            ]
+        },
+        "DCBC50EA-130C-41B7-83EA-C523B3C3AAD7": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.8:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.8:*:*:*:*:*:*:*",
+                    "cpeNameId": "48BC2B29-8ADD-4D41-860D-11F75168E27F"
+                }
+            ]
+        },
+        "F677E992-8D37-438F-97DF-9D98B28F020C": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.19:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:*:*:*:*:*:*:*",
+                    "cpeNameId": "2A1BD83D-C6BE-4A7C-B1E6-94808B6E7E8D"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:-:*:*:*:*:*:*",
+                    "cpeNameId": "A10C76A6-812A-4A53-A0F9-EDF8B585E81B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:pre1:*:*:*:*:*:*",
+                    "cpeNameId": "58F6776B-59D3-4BE8-9360-D17F0B137A16"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:pre2:*:*:*:*:*:*",
+                    "cpeNameId": "457C36BD-BDAA-4E5A-B8DA-4B44A81F43DA"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:pre3:*:*:*:*:*:*",
+                    "cpeNameId": "6E56681C-1104-417D-AA8D-171FB78B1E25"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:pre4:*:*:*:*:*:*",
+                    "cpeNameId": "837DEBCB-2979-4F3D-BBF0-025A50DA5078"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:pre5:*:*:*:*:*:*",
+                    "cpeNameId": "27B17801-33BF-405A-8EB9-AB8926C5810D"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.19:pre6:*:*:*:*:*:*",
+                    "cpeNameId": "521BCA41-D09C-4740-9535-EE017D4E3E09"
+                }
+            ]
+        },
+        "E275F440-A427-465F-B314-BF0730C781DB": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.14:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.14:*:*:*:*:*:*:*",
+                    "cpeNameId": "5605786D-125D-49D6-9673-5A8AC4A0DA0E"
+                }
+            ]
+        },
+        "294EBA01-147B-4DA0-937E-ACBB655EDE53": {
+            "criteria": "cpe:2.3:o:microsoft:windows_2000:*:sp1:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:*:*:*:*",
+                    "cpeNameId": "11422F2D-DA40-44D3-8EC4-B8D9EFB059F8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:advanced_server:*:*:*",
+                    "cpeNameId": "A0BFE7A6-8940-4C97-82CE-86F22E1244A3"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:datacenter_server:*:*:*",
+                    "cpeNameId": "332B64B9-D1CD-4C9E-A024-2D6D93B66DEA"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:professional:*:*:*",
+                    "cpeNameId": "C7CA3414-E3AF-4879-84D9-12C7BCF51AEC"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:*:*:server:*:*:*",
+                    "cpeNameId": "C7817997-0635-4535-B7A5-6136F33601A8"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:advanced_server:*:*:*:*:*",
+                    "cpeNameId": "705D0CCF-BEE3-404D-98D0-60EA39199B78"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:datacenter_server:*:*:*:*:*",
+                    "cpeNameId": "B93EB334-39A6-4F46-BC60-04ED4E2CF8B2"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:professional:*:*:*:*:*",
+                    "cpeNameId": "6110B9D8-5703-43E8-BC63-43AB7D9BCB63"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000:-:sp1:server:*:*:*:*:*",
+                    "cpeNameId": "378963D2-B38D-4E21-811B-2C226AEC5B53"
+                }
+            ]
+        },
+        "CF56870A-F9D3-4544-B63A-EFC2E82A1F7D": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "ACFEB8AA-B8FC-49E1-98BE-3D581655FE2E"
+                }
+            ]
+        },
+        "DBA2E3A3-EB9B-4B20-B754-EEC914FB1D47": {
+            "criteria": "cpe:2.3:o:netbsd:netbsd:1.5.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:netbsd:netbsd:1.5.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "32A03DA3-EFAC-4B82-B8DA-1A1C525A262B"
+                }
+            ]
+        },
+        "DF49BF03-C25E-4737-84D5-892895C86C58": {
+            "criteria": "cpe:2.3:o:freebsd:freebsd:4.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "D2D8310E-E0B8-4FF1-86EA-24F463E9F175"
+                }
+            ]
+        },
+        "D865FBB6-E07D-492F-A75E-168B06C8ADEE": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.5:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "A6BBEF03-1360-41B0-98A1-7B9952777B2B"
+                }
+            ]
+        },
+        "7F3171C1-7888-43FC-A618-221F2B5D1174": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.22.5:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.22.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "E8C05719-0219-4DF0-970F-FA6AC1A6FE61"
+                }
+            ]
+        },
+        "474384F1-FB2D-4C00-A4CD-0C2C5AE42DB4": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.18:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:*:*:*:*:*:*:*",
+                    "cpeNameId": "3D6A8C53-91FB-4E3E-A5ED-ECDD050BDB2C"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:-:*:*:*:*:*:*",
+                    "cpeNameId": "F4DFF799-273D-475E-B75C-B6706B6E0EB7"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre1:*:*:*:*:*:*",
+                    "cpeNameId": "10F2A87E-192B-48C1-BA18-97A9C1C1292A"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre2:*:*:*:*:*:*",
+                    "cpeNameId": "55C8238F-8089-4298-870B-35F6600CB235"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre3:*:*:*:*:*:*",
+                    "cpeNameId": "E35AAFAC-CB47-4D14-9E2E-3902943D7123"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre4:*:*:*:*:*:*",
+                    "cpeNameId": "D6ADF52D-1247-499F-994F-78DB03A9AA14"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre5:*:*:*:*:*:*",
+                    "cpeNameId": "FED1E8E1-D567-4D93-999A-325CF2806B56"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre6:*:*:*:*:*:*",
+                    "cpeNameId": "AD1072E7-F17C-4F3F-95A3-CF087E36D4A4"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre7:*:*:*:*:*:*",
+                    "cpeNameId": "1E9F91DC-9717-4A92-9744-A6135B5D3339"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre8:*:*:*:*:*:*",
+                    "cpeNameId": "9024BBA6-B1F4-4D09-BD83-3481FD82194D"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.18:pre9:*:*:*:*:*:*",
+                    "cpeNameId": "ACB44D2D-FF10-4C61-B708-612E67499ED5"
+                }
+            ]
+        },
+        "30B7A7B9-FCD1-4509-93CF-C5B736B04F4B": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+                    "cpeNameId": "CE6A7749-8B0D-48DF-907A-2230BC5E140B"
+                }
+            ]
+        },
+        "9C001822-FDF8-497C-AC2C-B59A00E9ACD2": {
+            "criteria": "cpe:2.3:o:freebsd:freebsd:4.6:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "446A63F3-5BF0-4268-A0C6-C7A88FEF4DB4"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:-:*:*:*:*:*:*",
+                    "cpeNameId": "8D621085-CC95-4851-BD15-AEFE224E1BEF"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p11:*:*:*:*:*:*",
+                    "cpeNameId": "85090A2E-0236-4F9D-9332-889CAD731613"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p12:*:*:*:*:*:*",
+                    "cpeNameId": "E5037E99-9A55-40C0-84BE-1281DA0CF687"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p16:*:*:*:*:*:*",
+                    "cpeNameId": "61ACFC8B-EB84-449C-8E18-13D0B61FFA39"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p19:*:*:*:*:*:*",
+                    "cpeNameId": "7961251B-C0A8-4405-AEA4-F09432D13683"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p20:*:*:*:*:*:*",
+                    "cpeNameId": "F448308D-A907-499D-9CD6-CDD11F73A23C"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p23:*:*:*:*:*:*",
+                    "cpeNameId": "73A8CEB5-82D1-4EF7-8724-D7935AD8B3BF"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p24:*:*:*:*:*:*",
+                    "cpeNameId": "59C0DC30-30E3-4520-A0D2-E1B61AAAEF9A"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p25:*:*:*:*:*:*",
+                    "cpeNameId": "1EA470A5-06F8-4D93-BC86-A93002116470"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.6:p7:*:*:*:*:*:*",
+                    "cpeNameId": "2A848E9D-7437-4C1E-B922-BB6148768236"
+                }
+            ]
+        },
+        "D2019E0E-426B-43AF-8904-1B811AE171E8": {
+            "criteria": "cpe:2.3:o:freebsd:freebsd:4.3:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "F76107E7-88FC-4EB0-BFFC-81BB8051CEFC"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:-:*:*:*:*:*:*",
+                    "cpeNameId": "25A9B1A4-1117-42F9-825D-651BEC2C88D7"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:p24:*:*:*:*:*:*",
+                    "cpeNameId": "871694B7-5A68-4F13-A9DD-5D59A9EA2EAD"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:p37:*:*:*:*:*:*",
+                    "cpeNameId": "3A42E9C2-7178-4CDC-8AA6-EB52785EC0D4"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:p38:*:*:*:*:*:*",
+                    "cpeNameId": "87AD8064-0133-4A99-96AF-2542EEE294F9"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:p40:*:*:*:*:*:*",
+                    "cpeNameId": "E820F63D-47F0-4531-A96B-8EB649313A5B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:p41:*:*:*:*:*:*",
+                    "cpeNameId": "53C3AF5C-23AC-4D13-965E-7F3ED465031D"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:p42:*:*:*:*:*:*",
+                    "cpeNameId": "6291C928-CED3-40D6-906E-3B6CACF1A939"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:freebsd:freebsd:4.3:rc:*:*:*:*:*:*",
+                    "cpeNameId": "5CEABFCC-4A16-49D0-A1E6-97E6BE0E126E"
+                }
+            ]
+        },
+        "5F49A384-7222-41F3-9BE1-4E18C00E50A6": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.3:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "82E1BFE2-2D96-44CA-B044-6E194DAB8830"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.3:-:*:*:*:*:*:*",
+                    "cpeNameId": "B3BD888E-4C47-4AF3-9B64-03A571B9E0DB"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.3:pre3:*:*:*:*:*:*",
+                    "cpeNameId": "CBF260F5-ED2F-4A9B-B02F-18D3926D3F9A"
+                }
+            ]
+        },
+        "55B85D5B-4EA1-4FCF-8D50-9C54E8FDA92F": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.1:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "7E7C9989-A526-4E30-B79F-58E42063F1C5"
+                }
+            ]
+        },
+        "C134DA96-4F89-47EA-9655-9D68FC5D86F1": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.16.14:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.16.14:*:*:*:*:*:*:*",
+                    "cpeNameId": "181ED73D-B71B-4506-B33D-BEBB36BA2533"
+                }
+            ]
+        },
+        "05520FE3-C48D-42E8-BC24-C2396BD46CBA": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.4:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.4:*:*:*:*:*:*:*",
+                    "cpeNameId": "C57060CB-0575-417A-ABC8-CCAEDAA71EE3"
+                }
+            ]
+        },
+        "0661F4A0-A520-4443-B19D-6885920ADFE5": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+                    "cpeNameId": "88B60B6A-E3BC-4E1D-AAC0-2BAC7CEB53C1"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:-:*:*:*",
+                    "cpeNameId": "08BF99B5-2AE1-430D-B83D-0C0F2299D719"
+                }
+            ]
+        },
+        "9D34EFE5-22B7-4E8D-B5B2-2423C37CFFA7": {
+            "criteria": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000_terminal_services:-:*:*:*:*:*:*:*",
+                    "cpeNameId": "CCB931EA-953C-45FA-9ACF-18389CED7D6D"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000_terminal_services:-:sp1:*:*:*:*:*:*",
+                    "cpeNameId": "22F39BB6-A34C-4606-9DEA-608115DCE8E7"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000_terminal_services:-:sp2:*:*:*:*:*:*",
+                    "cpeNameId": "C051998B-41D0-47BA-A2F9-71AB5B715A8B"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000_terminal_services:-:sp3:*:*:*:*:*:*",
+                    "cpeNameId": "56BA116C-5E3F-4254-91BA-7CE589007893"
+                }
+            ]
+        },
+        "E0CBB9AD-5118-4484-A265-6DF819C111B2": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.11.21:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.11.21:*:*:*:*:*:*:*",
+                    "cpeNameId": "4085B743-5BEB-470E-BE4B-CAEA9C6A6D37"
+                }
+            ]
+        },
+        "E8D60057-94B9-40DB-927D-953703552B2A": {
+            "criteria": "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:ibm:zos:-:*:*:*:*:*:*:*",
+                    "cpeNameId": "F457B56B-7050-43C6-8070-51305A35ADBC"
+                },
+                {
+                    "cpeName": "cpe:2.3:o:ibm:zos:6.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "88CA7428-3329-4E07-84CB-428DB1D2BC8E"
+                }
+            ]
+        },
+        "598F24C2-0366-4799-865C-5EE4572B734B": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.6:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.6:*:*:*:*:*:*:*",
+                    "cpeNameId": "40545821-7236-4AB9-BD16-633EC3F85471"
+                }
+            ]
+        },
+        "4D4168AE-D19E-482E-8F2B-3E798B2D84E7": {
+            "criteria": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:sp2:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:microsoft:windows_2000_terminal_services:-:sp2:*:*:*:*:*:*",
+                    "cpeNameId": "C051998B-41D0-47BA-A2F9-71AB5B715A8B"
+                }
+            ]
+        },
+        "B108457A-50DC-4432-9E30-98ADBEBF2389": {
+            "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "67E43EA0-0C77-498B-96C1-665FBF218ECD"
+                },
+                {
+                    "cpeName": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:-:*:*:*",
+                    "cpeNameId": "53F84AA8-9BBF-41E0-8061-6F30334C1AF7"
+                }
+            ]
+        },
+        "476687F9-722B-490C-BD0B-B5F2CD7891DC": {
+            "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.20:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:o:linux:linux_kernel:2.4.20:*:*:*:*:*:*:*",
+                    "cpeNameId": "115856F4-505E-42A4-A941-7D35E8F03ECD"
+                }
+            ]
+        },
+        "592958D8-368B-4A10-90A9-559BD0CBECCD": {
+            "criteria": "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "95FBD14F-0CE9-4D16-9B8C-D1E618562665"
+                }
+            ]
+        },
+        "1052E372-C3E9-4CF4-80AC-ED116CF37F94": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.20.5:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.20.5:*:*:*:*:*:*:*",
+                    "cpeNameId": "FC751CF5-C4E8-4954-A24C-06532A2886DF"
+                }
+            ]
+        },
+        "004C85EE-7881-4B03-8946-6E17F0D0A48C": {
+            "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.25.1:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:nalin_dahyabhai:vte:0.25.1:*:*:*:*:*:*:*",
+                    "cpeNameId": "6201F44F-2042-4F09-A1F7-060DDAD209B5"
+                }
+            ]
+        },
+        "F3D33D16-A432-46C5-81C1-FF385AF79F94": {
+            "criteria": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+            "matches": [
+                {
+                    "cpeName": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                    "cpeNameId": "249582E3-A298-4A7E-8483-5164C92E4464"
+                }
+            ]
+        }
+    }
+}

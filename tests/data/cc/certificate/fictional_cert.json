@@ -90,7 +90,8 @@
             "directly_referencing": null,
             "indirectly_referenced_by": null,
             "indirectly_referencing": null
-        }
+        },
+        "scheme_data": null
     },
     "report_link": "https://path.to/report/link",
     "st_link": "https://path.to/st/link",

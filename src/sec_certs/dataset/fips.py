@@ -12,7 +12,7 @@ import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
 
 from sec_certs import constants
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset
@@ -329,8 +329,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
         df = df.set_index("dgst")
 
-        df.date_validation = pd.to_datetime(df.date_validation, infer_datetime_format=True)
-        df.date_sunset = pd.to_datetime(df.date_sunset, infer_datetime_format=True)
+        df.date_validation = pd.to_datetime(df.date_validation, infer_datetime_format=True, errors="coerce")
+        df.date_sunset = pd.to_datetime(df.date_sunset, infer_datetime_format=True, errors="coerce")
 
         # Manually delete one certificate with bad embodiment (seems to have many blank fields)
         df = df.loc[~(df.embodiment == "*")]

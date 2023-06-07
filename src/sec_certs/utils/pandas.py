@@ -292,7 +292,7 @@ def expand_df_with_cve_cols(df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFr
 
     df["earliest_cve"] = df.cve_published_dates.map(lambda x: min(x) if isinstance(x, list) else np.nan)
     df["worst_cve_score"] = df.related_cves.map(
-        lambda x: max([cve_dset[cve].impact.base_score for cve in x]) if not pd.isna(x) else np.nan
+        lambda x: max([cve_dset[cve].metrics.base_score for cve in x]) if not pd.isna(x) else np.nan
     )
 
     """
@@ -302,7 +302,7 @@ def expand_df_with_cve_cols(df: pd.DataFrame, cve_dset: CVEDataset) -> pd.DataFr
     To properly treat this, the average should be taken across CVEs with >0 base_socre.
     """
     df["avg_cve_score"] = df.related_cves.map(
-        lambda x: np.mean([cve_dset[cve].impact.base_score for cve in x]) if not pd.isna(x) else np.nan
+        lambda x: np.mean([cve_dset[cve].metrics.base_score for cve in x]) if not pd.isna(x) else np.nan
     )
     return df
 

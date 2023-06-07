@@ -511,6 +511,8 @@ pq_crypto:
     - "NTRU"
   NTRUPrime:
     - "NTRU[ -]?Prime"
+  NewHope:
+    - "NewHope"
   Saber:
     - "Saber|SABER"
   Dilithium:
@@ -537,6 +539,12 @@ pq_crypto:
     - "Picnic"
   SPHINCS:
     - "SPHINCS\\+"
+  SABER:
+    - "SABER"
+  XMSS:
+    - "XMSS(MT)?"
+  LMS:
+    - "LMS"
 
 #####
 # Hash-function, grouped by hash-function class (SHA, MD) or competition (PHC).

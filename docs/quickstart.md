@@ -6,7 +6,7 @@
 1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
-from sec_certs.dataset import CCDataset
+from sec_certs.dataset.cc import CCDataset
 
 dset = CCDataset.from_web_latest()
 ```
@@ -19,7 +19,7 @@ to obtain to obtain freshly processed dataset from [seccerts.org](https://seccer
 1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
-from sec_certs.dataset import FIPSDataset
+from sec_certs.dataset.fips import FIPSDataset
 
 dset = FIPSDataset.from_web_latest()
 ```
@@ -53,7 +53,7 @@ This script takes a long time to run (few hours) and will create `./cc_dset` or 
 
 ## Run sec-certs from docker
 
-If you installed the docker image (see [installation](installation.md)), use `docker run -it sec-certs` to run the container interactively. From there, you can run the `sec-certs` CLI. Alternatively, you can serve a Jupyter notebook from the docker to use at your host machine and even write your scripts to some shared folder. Example of that use-case follows.
+If you installed the docker image (see [installation](installation.md)), use `docker run -it seccerts/sec-certs` to run the container interactively. From there, you can run the `sec-certs` CLI. Alternatively, you can serve a Jupyter notebook from the docker to use at your host machine and even write your scripts to some shared folder. Example of that use-case follows.
 
 ### Persistent files with docker mounts
 

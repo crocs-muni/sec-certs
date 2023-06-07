@@ -373,6 +373,7 @@ pycryptodome==3.16.0
 pydantic==1.10.2
     # via
     #   confection
+    #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
 pydata-sphinx-theme==0.8.1
@@ -428,11 +429,11 @@ pyzmq==24.0.1
     #   jupyter-client
 rapidfuzz==2.13.3
     # via sec-certs (./../pyproject.toml)
-regex==2022.10.31
+regex==2023.6.3
     # via
     #   nltk
     #   transformers
-requests==2.28.1
+requests==2.31.0
     # via
     #   datasets
     #   evaluate
@@ -550,13 +551,13 @@ tomli==2.0.1
     #   pep517
     #   pytest
     #   setuptools-scm
-torch==2.0.0
+torch==2.0.1
     # via
     #   sentence-transformers
     #   torchvision
-torchvision==0.15.1
+torchvision==0.15.2
     # via sentence-transformers
-tornado==6.2
+tornado==6.3.2
     # via
     #   ipykernel
     #   jupyter-client

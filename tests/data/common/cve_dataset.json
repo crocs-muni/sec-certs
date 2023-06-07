@@ -1,0 +1,636 @@
+{
+    "_type": "sec_certs.dataset.cve.CVEDataset",
+    "cves": {
+        "CVE-2003-0001": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2003-0001",
+            "vulnerable_cpes": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:freebsd:freebsd:4.2:*:*:*:*:*:*:*",
+                    "criteria_id": "DF49BF03-C25E-4737-84D5-892895C86C58",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:freebsd:freebsd:4.3:*:*:*:*:*:*:*",
+                    "criteria_id": "D2019E0E-426B-43AF-8904-1B811AE171E8",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:freebsd:freebsd:4.4:*:*:*:*:*:*:*",
+                    "criteria_id": "55C5FC1A-1253-4390-A4FC-573BB14EA937",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:freebsd:freebsd:4.5:*:*:*:*:*:*:*",
+                    "criteria_id": "44308D13-D935-4FF8-AB52-F0E115ED1AD2",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:freebsd:freebsd:4.6:*:*:*:*:*:*:*",
+                    "criteria_id": "9C001822-FDF8-497C-AC2C-B59A00E9ACD2",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:freebsd:freebsd:4.7:*:*:*:*:*:*:*",
+                    "criteria_id": "B86C77AB-B8FF-4376-9B4E-C88417396F3D",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.1:*:*:*:*:*:*:*",
+                    "criteria_id": "55B85D5B-4EA1-4FCF-8D50-9C54E8FDA92F",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.2:*:*:*:*:*:*:*",
+                    "criteria_id": "01408EC0-9C2D-4A44-8080-D7FC7E1A1FA1",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.3:*:*:*:*:*:*:*",
+                    "criteria_id": "5F49A384-7222-41F3-9BE1-4E18C00E50A6",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.4:*:*:*:*:*:*:*",
+                    "criteria_id": "05520FE3-C48D-42E8-BC24-C2396BD46CBA",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.5:*:*:*:*:*:*:*",
+                    "criteria_id": "D865FBB6-E07D-492F-A75E-168B06C8ADEE",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.6:*:*:*:*:*:*:*",
+                    "criteria_id": "598F24C2-0366-4799-865C-5EE4572B734B",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.7:*:*:*:*:*:*:*",
+                    "criteria_id": "D0399660-6385-45AB-9785-E504D8788146",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.8:*:*:*:*:*:*:*",
+                    "criteria_id": "DCBC50EA-130C-41B7-83EA-C523B3C3AAD7",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.9:*:*:*:*:*:*:*",
+                    "criteria_id": "B91F6CBE-400F-4D0B-B893-34577B47A342",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.10:*:*:*:*:*:*:*",
+                    "criteria_id": "1548ECFD-FCB5-4AE0-9788-42F61F25489F",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.11:*:*:*:*:*:*:*",
+                    "criteria_id": "6ABB9787-5497-4BDC-8952-F99CF60A89BD",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.12:*:*:*:*:*:*:*",
+                    "criteria_id": "615F6BA2-CD51-4159-B28A-A018CA9FC25C",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.13:*:*:*:*:*:*:*",
+                    "criteria_id": "093848CB-68A1-4258-8357-373A477FE4E2",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.14:*:*:*:*:*:*:*",
+                    "criteria_id": "E275F440-A427-465F-B314-BF0730C781DB",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.15:*:*:*:*:*:*:*",
+                    "criteria_id": "98651D39-60CF-409F-8276-DBBB56B972AA",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.16:*:*:*:*:*:*:*",
+                    "criteria_id": "067B8E09-C923-4DDA-92DB-4A2892CB526A",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.17:*:*:*:*:*:*:*",
+                    "criteria_id": "9EBE3738-E530-4EC6-9FC6-1A063605BE05",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.18:*:*:*:*:*:*:*",
+                    "criteria_id": "474384F1-FB2D-4C00-A4CD-0C2C5AE42DB4",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.19:*:*:*:*:*:*:*",
+                    "criteria_id": "F677E992-8D37-438F-97DF-9D98B28F020C",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:linux:linux_kernel:2.4.20:*:*:*:*:*:*:*",
+                    "criteria_id": "476687F9-722B-490C-BD0B-B5F2CD7891DC",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:windows_2000:*:*:*:*:*:*:*:*",
+                    "criteria_id": "4E545C63-FE9C-4CA1-AF0F-D999D84D2AFD",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:windows_2000:*:sp1:*:*:*:*:*:*",
+                    "criteria_id": "294EBA01-147B-4DA0-937E-ACBB655EDE53",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:windows_2000:*:sp2:*:*:*:*:*:*",
+                    "criteria_id": "4E8B7346-F2AA-434C-A048-7463EC1BB117",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:*:*:*:*:*:*:*",
+                    "criteria_id": "9D34EFE5-22B7-4E8D-B5B2-2423C37CFFA7",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:sp1:*:*:*:*:*:*",
+                    "criteria_id": "8208AFC9-0EFC-4A90-AD5A-FD94F5542885",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:windows_2000_terminal_services:*:sp2:*:*:*:*:*:*",
+                    "criteria_id": "4D4168AE-D19E-482E-8F2B-3E798B2D84E7",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:netbsd:netbsd:1.5:*:*:*:*:*:*:*",
+                    "criteria_id": "E10D9BF9-FCC7-4680-AD3A-95757FC005EA",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:netbsd:netbsd:1.5.1:*:*:*:*:*:*:*",
+                    "criteria_id": "78E8C3A4-9FA7-4F2A-8C65-D4404715E674",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:netbsd:netbsd:1.5.2:*:*:*:*:*:*:*",
+                    "criteria_id": "DBA2E3A3-EB9B-4B20-B754-EEC914FB1D47",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:netbsd:netbsd:1.5.3:*:*:*:*:*:*:*",
+                    "criteria_id": "7AC78BA4-70F4-4B9F-93C2-B107E4DCC418",
+                    "version_start": null,
+                    "version_end": null
+                },
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:netbsd:netbsd:1.6:*:*:*:*:*:*:*",
+                    "criteria_id": "28A10F5A-067E-4DD8-B585-ABCD6F6B324E",
+                    "version_start": null,
+                    "version_end": null
+                }
+            ],
+            "vulnerable_criteria_configurations": [],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Metrics",
+                "base_score": 5.0,
+                "severity": "MEDIUM",
+                "exploitability_score": 10.0,
+                "impact_score": 2.9
+            },
+            "published_date": "2003-01-17T05:00:00",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-200"
+                ]
+            }
+        },
+        "CVE-2003-0070": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2003-0070",
+            "vulnerable_cpes": [],
+            "vulnerable_criteria_configurations": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteriaConfiguration",
+                    "components": [
+                        [
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.11.21:*:*:*:*:*:*:*",
+                                "criteria_id": "E0CBB9AD-5118-4484-A265-6DF819C111B2",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.12.2:*:*:*:*:*:*:*",
+                                "criteria_id": "BE63886D-928A-4F30-8547-20B19D406EA3",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.14.2:*:*:*:*:*:*:*",
+                                "criteria_id": "D1BC4612-2ACB-4087-A349-8E26AF1A3BF7",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.15.0:*:*:*:*:*:*:*",
+                                "criteria_id": "7500A708-B2DB-49A8-823D-5632ECA92205",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.16.14:*:*:*:*:*:*:*",
+                                "criteria_id": "C134DA96-4F89-47EA-9655-9D68FC5D86F1",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.17.4:*:*:*:*:*:*:*",
+                                "criteria_id": "80AD28D1-5CA8-446A-9D71-7051332DF9AF",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.20.5:*:*:*:*:*:*:*",
+                                "criteria_id": "1052E372-C3E9-4CF4-80AC-ED116CF37F94",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.22.5:*:*:*:*:*:*:*",
+                                "criteria_id": "7F3171C1-7888-43FC-A618-221F2B5D1174",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.24.3:*:*:*:*:*:*:*",
+                                "criteria_id": "66A6A608-AD4B-499F-BFE6-AD8DA79BE29F",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:nalin_dahyabhai:vte:0.25.1:*:*:*:*:*:*:*",
+                                "criteria_id": "004C85EE-7881-4B03-8946-6E17F0D0A48C",
+                                "version_start": null,
+                                "version_end": null
+                            }
+                        ],
+                        [
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:gnome:gnome-terminal:2.0:*:*:*:*:*:*:*",
+                                "criteria_id": "1DF64D68-2E3D-4504-AC40-C73ABE136EE2",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
+                                "criteria_id": "592958D8-368B-4A10-90A9-559BD0CBECCD",
+                                "version_start": null,
+                                "version_end": null
+                            }
+                        ]
+                    ]
+                }
+            ],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Metrics",
+                "base_score": 6.8,
+                "severity": "MEDIUM",
+                "exploitability_score": 8.6,
+                "impact_score": 6.4
+            },
+            "published_date": "2003-03-03T05:00:00",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "NVD-CWE-Other"
+                ]
+            }
+        },
+        "CVE-2010-2325": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2010-2325",
+            "vulnerable_cpes": [],
+            "vulnerable_criteria_configurations": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteriaConfiguration",
+                    "components": [
+                        [
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:*:*:*:*:*:*:*:*",
+                                "criteria_id": "FF0E1F40-C9BA-4879-A952-51E211298D27",
+                                "version_start": null,
+                                "version_end": [
+                                    "including",
+                                    "7.0.0.10"
+                                ]
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
+                                "criteria_id": "B0905C80-A1BA-49CD-90CA-9270ECC3940C",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.1:*:*:*:*:*:*:*",
+                                "criteria_id": "B108457A-50DC-4432-9E30-98ADBEBF2389",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.2:*:*:*:*:*:*:*",
+                                "criteria_id": "4A8FC820-48D5-4850-82F7-8DA4A18EFF51",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.3:*:*:*:*:*:*:*",
+                                "criteria_id": "0661F4A0-A520-4443-B19D-6885920ADFE5",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.4:*:*:*:*:*:*:*",
+                                "criteria_id": "A553A6E7-64AA-41F2-9B92-4EC715C617B0",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.5:*:*:*:*:*:*:*",
+                                "criteria_id": "9BFBDE57-3895-4841-B23C-06336A7016EB",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.6:*:*:*:*:*:*:*",
+                                "criteria_id": "CF56870A-F9D3-4544-B63A-EFC2E82A1F7D",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.7:*:*:*:*:*:*:*",
+                                "criteria_id": "30B7A7B9-FCD1-4509-93CF-C5B736B04F4B",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.8:*:*:*:*:*:*:*",
+                                "criteria_id": "C93D1CE2-1772-44C0-A8CB-73E9AA1AF6B8",
+                                "version_start": null,
+                                "version_end": null
+                            },
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": true,
+                                "criteria": "cpe:2.3:a:ibm:websphere_application_server:7.0.0.9:*:*:*:*:*:*:*",
+                                "criteria_id": "90BA0923-4064-49D3-82A2-EEFC4B0F9A9C",
+                                "version_start": null,
+                                "version_end": null
+                            }
+                        ],
+                        [
+                            {
+                                "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                                "vulnerable": false,
+                                "criteria": "cpe:2.3:o:ibm:zos:*:*:*:*:*:*:*:*",
+                                "criteria_id": "E8D60057-94B9-40DB-927D-953703552B2A",
+                                "version_start": null,
+                                "version_end": null
+                            }
+                        ]
+                    ]
+                }
+            ],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Metrics",
+                "base_score": 4.3,
+                "severity": "MEDIUM",
+                "exploitability_score": 8.6,
+                "impact_score": 2.9
+            },
+            "published_date": "2010-06-18T18:30:01.217000",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-79"
+                ]
+            }
+        },
+        "CVE-2017-1732": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2017-1732",
+            "vulnerable_cpes": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                    "criteria_id": "F3D33D16-A432-46C5-81C1-FF385AF79F94",
+                    "version_start": null,
+                    "version_end": null
+                }
+            ],
+            "vulnerable_criteria_configurations": [],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Metrics",
+                "base_score": 5.3,
+                "severity": "MEDIUM",
+                "exploitability_score": 3.9,
+                "impact_score": 1.4
+            },
+            "published_date": "2018-08-17T16:29:00.230000",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-200"
+                ]
+            }
+        },
+        "CVE-2019-4513": {
+            "_type": "sec_certs.sample.cve.CVE",
+            "cve_id": "CVE-2019-4513",
+            "vulnerable_cpes": [
+                {
+                    "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*",
+                    "criteria_id": "F3D33D16-A432-46C5-81C1-FF385AF79F94",
+                    "version_start": null,
+                    "version_end": null
+                }
+            ],
+            "vulnerable_criteria_configurations": [],
+            "impact": {
+                "_type": "sec_certs.sample.cve.CVE.Metrics",
+                "base_score": 8.2,
+                "severity": "HIGH",
+                "exploitability_score": 3.9,
+                "impact_score": 4.2
+            },
+            "published_date": "2019-08-26T15:15:13.173000",
+            "cwe_ids": {
+                "_type": "Set",
+                "elements": [
+                    "CWE-611"
+                ]
+            }
+        }
+    },
+    "last_update_timestamp": "1970-01-01 01:00:00"
+}

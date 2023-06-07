@@ -11,8 +11,6 @@ from typing import Any
 
 import pdftotext
 import pikepdf
-from pypdf import PdfReader
-from pypdf.generic import BooleanObject, ByteStringObject, FloatObject, IndirectObject, NumberObject, TextStringObject
 
 from sec_certs import constants
 from sec_certs.constants import (
@@ -156,6 +154,15 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
     :param filepath: THe path to the PDF.
     :return: A tuple of the result code (see constants) and the metadata dictionary.
     """
+    from pypdf import PdfReader
+    from pypdf.generic import (
+        BooleanObject,
+        ByteStringObject,
+        FloatObject,
+        IndirectObject,
+        NumberObject,
+        TextStringObject,
+    )
 
     def map_metadata_value(val, nope_out=False):
         if isinstance(val, BooleanObject):

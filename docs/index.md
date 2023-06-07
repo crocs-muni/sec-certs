@@ -32,12 +32,14 @@ Seccerts PyPi <https://pypi.org/project/sec-certs/>
 installation.md
 quickstart.md
 configuration.md
+user_guide.md
 ```
 
 ```{toctree}
 :caption: Notebook examples
 :hidden: True
 :maxdepth: 1
+notebooks/examples/est_solution.ipynb
 notebooks/examples/cc.ipynb
 notebooks/examples/fips.ipynb
 notebooks/examples/model.ipynb

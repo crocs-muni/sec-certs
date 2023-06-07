@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import json
-from datetime import date
+from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, TypeVar
@@ -44,7 +45,12 @@ class ComplexSerializableType:
         except TypeError as e:
             raise TypeError(f"Dict: {dct} on {cls.__mro__}") from e
 
-    def to_json(self, output_path: str | Path | None = None) -> None:
+    def to_json(self, output_path: str | Path | None = None, compress: bool = False) -> None:
+        """
+        Serializes `ComplexSerializableType` instance to json file.
+        :param str | Path | None output_path: path where the file will be stored. If None, `obj.json_path` access is attempted, defaults to None
+        :param bool compress: if True, will be compress with gzip, defaults to False
+        """
         if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise SerializationError(
                 f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
@@ -60,20 +66,33 @@ class ComplexSerializableType:
             raise SerializationError("output path for json cannot be directory.")
 
         # false positive MyPy warning, cannot be None
-        with Path(output_path).open("w") as handle:  # type: ignore
-            json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+        if compress:
+            with gzip.open(str(output_path), "wt", encoding="utf-8") as handle:  # type: ignore
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+        else:
+            with Path(output_path).open("w") as handle:  # type: ignore
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
 
     @classmethod
-    def from_json(cls: type[T], input_path: str | Path) -> T:
-        input_path = Path(input_path)
-        with input_path.open("r") as handle:
-            return json.load(handle, cls=CustomJSONDecoder)
+    def from_json(cls: type[T], input_path: str | Path, is_compressed: bool = False) -> T:
+        """
+        Will load `ComplexSerializableType` from json.
+        :param str | Path input_path: path to load the file from
+        :param bool is_compressed: if True, will decompress .gz first, defaults to False
+        :return T: the deserialized object
+        """
+        if is_compressed:
+            with gzip.open(str(input_path), "rt", encoding="utf-8") as handle:
+                return json.load(handle, cls=CustomJSONDecoder)
+        else:
+            with Path(input_path).open("r") as handle:
+                return json.load(handle, cls=CustomJSONDecoder)
 
 
 # Decorator for serialization
 def serialize(func: Callable):
     @wraps(func)
-    def inner_func(*args, **kwargs):
+    def _serialize(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
             raise ValueError(
                 "@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes."
@@ -90,7 +109,7 @@ def serialize(func: Callable):
             args[0].to_json()
         return result
 
-    return inner_func
+    return _serialize
 
 
 def get_class_fullname(obj: Any) -> str:
@@ -113,6 +132,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             return sorted(obj)
         if isinstance(obj, date):
             return str(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
         if isinstance(obj, Path):
             return str(obj)
         return super().default(obj)

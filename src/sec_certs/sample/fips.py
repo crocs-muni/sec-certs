@@ -12,11 +12,10 @@ import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
-from tabula import read_pdf
 
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
-from sec_certs.config.configuration import config
+from sec_certs.configuration import config
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -144,6 +143,11 @@ class FIPSHTMLParser:
         return dct
 
     @staticmethod
+    def normalize_type(mod_type: Tag) -> str:
+        tag_text = str(mod_type.text).strip()
+        return "-".join(s.capitalize() for s in tag_text.split("-"))
+
+    @staticmethod
     def normalize_string(string: str) -> str:
         return " ".join(string.split())
 
@@ -195,6 +199,7 @@ DETAILS_KEY_TO_NORMALIZATION_FUNCTION: dict[str, Callable] = {
     "status": lambda x: FIPSHTMLParser.normalize_string(x.text).lower(),
     "level": lambda x: int(FIPSHTMLParser.normalize_string(x.text)),
     "embodiment": getattr(FIPSHTMLParser, "normalize_embodiment"),
+    "module_type": getattr(FIPSHTMLParser, "normalize_type"),
 }
 
 
@@ -626,6 +631,8 @@ class FIPSCertificate(
         Retrieves IDs of algorithms from tables inside security policy pdfs.
         External library is used to handle this.
         """
+        from tabula import read_pdf
+
         if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy_txt_path):
             pdf.repair_pdf(cert.state.policy_pdf_path)
             try:
