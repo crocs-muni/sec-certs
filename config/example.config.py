@@ -95,4 +95,4 @@ ANONYMOUS_GIT = ""
 BINDING_URLS = []
 
 # Secret key to validate jwt tokens of downloaded binding files with.
-BINDINGS_SECRET_KEY = ""
+BINDINGS_PUBLIC_KEY = ""

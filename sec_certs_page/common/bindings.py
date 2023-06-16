@@ -160,7 +160,7 @@ def verify_jwt(data: dict[str, Union[str, object]]) -> bool:
     jwt_token = data['JWT']
     del data["JWT"]
     encoded_jwt = jwt.encode(
-        data, key=current_app.config["BINDINGS_SECRET_KEY"], algorithm="HS256")
+        data, key=current_app.config["BINDINGS_PUBLIC_KEY"], algorithm="RS256")
     if not jwt_token:
         click.echo("JWT token is missing")
         return False
