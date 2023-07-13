@@ -297,6 +297,7 @@ pycryptodome==3.16.0
 pydantic==1.10.2
     # via
     #   confection
+    #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
 pydata-sphinx-theme==0.8.1
