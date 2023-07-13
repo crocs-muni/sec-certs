@@ -182,6 +182,7 @@ pycryptodome==3.16.0
 pydantic==1.10.2
     # via
     #   confection
+    #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
 pygments==2.13.0
@@ -216,7 +217,7 @@ requests==2.31.0
     #   spacy
 scikit-learn==1.2.0
     # via sec-certs (./../pyproject.toml)
-scipy==1.9.3
+scipy==1.10.0
     # via
     #   scikit-learn
     #   sec-certs (./../pyproject.toml)

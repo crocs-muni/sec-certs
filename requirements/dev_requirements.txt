@@ -297,6 +297,7 @@ pycryptodome==3.16.0
 pydantic==1.10.2
     # via
     #   confection
+    #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
 pydata-sphinx-theme==0.8.1
@@ -359,7 +360,7 @@ ruff==0.0.239
     # via sec-certs (./../pyproject.toml)
 scikit-learn==1.2.0
     # via sec-certs (./../pyproject.toml)
-scipy==1.9.3
+scipy==1.10.0
     # via
     #   scikit-learn
     #   sec-certs (./../pyproject.toml)
