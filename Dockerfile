@@ -1,3 +1,16 @@
+# First stage just copies the content of the git repo to /tmp so that we can copy it to the final image
+# Note that if your folder with repository contains some large files, they should be added to .dockerignore
+FROM ubuntu:jammy-20220428 AS intermediate
+
+RUN apt-get update
+RUN apt-get install git -y
+
+WORKDIR /tmp
+COPY . /tmp
+RUN mkdir /output
+RUN git ls-files | xargs cp -r --parents -t /output
+COPY .git /output/.git
+
 FROM ubuntu:jammy-20220428
 
 ENV USER="user"
@@ -30,12 +43,11 @@ RUN adduser --disabled-password \
 
 RUN chown -R ${NB_UID}:${NB_GID} ${HOME}
 USER ${USER}
-WORKDIR ${HOME}
 
-# Due to setuptools_scm for versioning, we need whole repository with .git
-RUN git clone https://github.com/crocs-muni/sec-certs
-
+# Get the intermediate files from the previous stage
+RUN mkdir ${HOME}/sec-certs
 WORKDIR ${HOME}/sec-certs
+COPY --chown=${NB_UID}:${NB_GID} --from=intermediate /output ${HOME}/sec-certs
 
 # Create virtual environment
 ENV VENV_PATH=${HOME}/venv
@@ -51,7 +63,7 @@ RUN \
   pip3 install -e . && \
   python3 -m spacy download en_core_web_sm
 
-# #just to be sure that pdftotext is in $PATH
+# just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}
 
 # # Run the application:
