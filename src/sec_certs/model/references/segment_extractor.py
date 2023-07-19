@@ -16,6 +16,22 @@ from sec_certs.utils import parallel_processing
 nlp = spacy.load("en_core_web_sm")
 
 
+def references_to_label_studio(df: pd.DataFrame, filepath: Path) -> None:
+    """
+    Prepares a DataFrame obtained from ReferenceSegmentExtractor to be used in Label Studio for manual annotation.
+    It then suffices to use "Natural Language Processing" -> "Text Classification" task in Label Studio.
+    """
+
+    def split(segments: list[str]) -> str:
+        res = ""
+        for x in segments:
+            res += "* Segment: " + x + "\n\n"
+        return res
+
+    df["text"] = df["segments"].apply(split)
+    df.loc[:, ["dgst", "referenced_cert_id", "text"]].to_json(filepath, indent=4, orient="records")
+
+
 def fill_reference_segments_spacy(record: ReferenceRecord) -> ReferenceRecord:
     """
     Open file, read text and extract sentences with `referenced_cert_id` match.
