@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Iterable, Literal
 
 import langdetect
 import pandas as pd
@@ -16,6 +16,45 @@ from sec_certs.utils import parallel_processing
 nlp = spacy.load("en_core_web_sm")
 
 
+def fill_reference_segments_spacy(record: ReferenceRecord) -> ReferenceRecord:
+    """
+    Open file, read text and extract sentences with `referenced_cert_id` match.
+    """
+    with record.data_source_path.open("r") as handle:
+        data = handle.read()
+
+    record.segments = {sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text}
+
+    if not record.segments:
+        record.segments = None
+
+    return record
+
+
+def fill_reference_segments_ocr(record: ReferenceRecord) -> ReferenceRecord:
+    """
+    Fill the segment data from jsons produced by OCR and segmentation.
+    """
+    with record.data_source_path.open("r") as handle:
+        data = json.load(handle)
+
+    record.segments = set()
+    # TODO: Now we're taking the first segment encountered. This is not ideal, but we don't have a better solution yet.
+    for segment in data:
+        first_segment = segment["low_level_segments"][0]
+        if (
+            ((first_segment["type"] == "Text") or (first_segment["type"] == "Title"))
+            and "text" in first_segment
+            and record.referenced_cert_id in first_segment["text"]
+        ):
+            record.segments.add(first_segment["text"])
+
+    if not record.segments:
+        record.segments = None
+
+    return record
+
+
 @dataclass
 class ReferenceRecord:
     """
@@ -23,28 +62,10 @@ class ReferenceRecord:
     """
 
     certificate_dgst: str
-    certificate_st_path: Path
-    certificate_report_path: Path
+    data_source_path: Path
     referenced_cert_id: str
     source: str
     segments: set[str] | None = None
-
-    @staticmethod
-    def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
-        """
-        Open file, read text and extract sentences with `referenced_cert_id` match.
-        Static method to allow for parallelization
-        """
-        pth_to_read = record.certificate_st_path if record.source == "target" else record.certificate_report_path
-        with pth_to_read.open("r") as handle:
-            data = handle.read()
-
-        record.segments = {sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text}
-
-        if not record.segments:
-            record.segments = None
-
-        return record
 
     def to_pandas_tuple(self) -> tuple[str, str, str, set[str] | None]:
         return self.certificate_dgst, self.referenced_cert_id, self.source, self.segments
@@ -52,14 +73,18 @@ class ReferenceRecord:
 
 class ReferenceSegmentExtractor:
     """
-    Class to process list of certificates into a dataframe that holds reference segments. Exploses single method
-    Should be only called with ReferenceSegmentExtractor().prepare_df_from_cc_certs(list_of_certificates)
+    Class to process list of certificates into a dataframe that holds reference segments.
+    Should be only called with ReferenceSegmentExtractor()(list_of_certificates)
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, segmenter: Literal["spacy", "ocr"] = "spacy", ocr_json_dir: Path | None = None):
+        self.segmenter = segmenter
+        self.ocr_json_dir = ocr_json_dir
 
-    def prepare_df_from_cc_certs(self, certs: list[CCCertificate]) -> pd.DataFrame:
+    def __call__(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
+        return self._prepare_df_from_cc_certs(certs)
+
+    def _prepare_df_from_cc_certs(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
         """
         Prepares processed DataFrame for reference annotator training from a list of certificates. This method:
         - Extracts text segments relevant for each reference out of the certificates, forms dataframe from those
@@ -76,22 +101,48 @@ class ReferenceSegmentExtractor:
         df_reports = self._build_df(report_certs, "report")
         return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]))
 
-    def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
+    def _build_records(
+        self, certs: Iterable[CCCertificate], source: Literal["target", "report"]
+    ) -> list[ReferenceRecord]:
+        if self.segmenter == "spacy":
+            return self._build_records_spacy(certs, source)
+        else:
+            return self._build_records_ocr(certs, source)
+
+    def _build_records_spacy(
+        self, certs: Iterable[CCCertificate], source: Literal["target", "report"]
+    ) -> list[ReferenceRecord]:
         attribute_mapping = {"target": "st_references", "report": "report_references"}
-        records = [
-            ReferenceRecord(x.dgst, x.state.st_txt_path, x.state.report_txt_path, y, source)
+        file_to_read = "st_txt_path" if source == "target" else "report_txt_path"
+        return [
+            ReferenceRecord(x.dgst, getattr(x.state, file_to_read), y, source)
             for x in certs
             for y in getattr(x.heuristics, attribute_mapping[source]).directly_referencing
         ]
 
+    def _build_records_ocr(
+        self, certs: Iterable[CCCertificate], source: Literal["target", "report"]
+    ) -> list[ReferenceRecord]:
+        attribute_mapping = {"target": "st_references", "report": "report_references"}
+        dir_to_read = "reports" if source == "report" else "targets"
+        if not self.ocr_json_dir:
+            raise ValueError("OCR json directory must be specified when using OCR segmenter")
+        return [
+            ReferenceRecord(x.dgst, self.ocr_json_dir / dir_to_read / f"{x.dgst}.json", y, source)
+            for x in certs
+            for y in getattr(x.heuristics, attribute_mapping[source]).directly_referencing
+        ]
+
+    def _build_df(self, certs: Iterable[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
+        records = self._build_records(certs, source)
+        func = fill_reference_segments_spacy if self.segmenter == "spacy" else fill_reference_segments_ocr
         results = parallel_processing.process_parallel(
-            ReferenceRecord.fill_reference_segments,
+            func,
             records,
             use_threading=False,
             progress_bar=True,
             progress_bar_desc=f"Recovering reference segments for {source}s",
         )
-
         return pd.DataFrame.from_records(
             [x.to_pandas_tuple() for x in results],
             columns=["dgst", "referenced_cert_id", "source", "segments"],

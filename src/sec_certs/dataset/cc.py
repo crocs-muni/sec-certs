@@ -872,7 +872,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
                 return
 
         logger.info("Extracting segments of text relevant for reference annotations.")
-        df = ReferenceSegmentExtractor().prepare_df_from_cc_certs(list(self.certs.values()))
+        df = ReferenceSegmentExtractor()(self.certs.values())
         if config.cc_reference_annotator_should_train:
             annotator = self._train_reference_annotator(df, mode=mode)
 
