@@ -198,7 +198,7 @@ pydantic==1.10.2
     #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
-pygments==2.13.0
+pygments==2.15.0
     # via ipython
 pyparsing==3.0.9
     # via matplotlib

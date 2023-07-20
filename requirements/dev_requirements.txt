@@ -302,7 +302,7 @@ pydantic==1.10.2
     #   thinc
 pydata-sphinx-theme==0.8.1
     # via sphinx-book-theme
-pygments==2.13.0
+pygments==2.15.0
     # via
     #   ipython
     #   sphinx
