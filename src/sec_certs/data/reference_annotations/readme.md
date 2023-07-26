@@ -9,14 +9,19 @@ This folder contains data and the methodology (presented below) related to learn
 
 After manually inspecting random certificates, we have identified the following reference meanings:
 
-- **Component used**: The referenced certificate is a component used in the examined certificate (e.g., IC used by a smartcard). Some evaluation results were likely shared/re-used. This is a specific case of *evaluation reused* label
-- **Component shared**: The referenced certificate shares some components with the examined certificate. Some evaluation results were likely shared/re-used. This is a specific case of *evaluation reused* label.
-- **Evaluation reused**: The evaluation results of the referenced certificate were used for evaluation of the examined certificate, due to reasons that could not be resolved as *component used* nor *component shared*.
-- **Recertification**: The examined certificate is a re-certification of the referenced certificate.
-- **Previous version**: The product in the referenced certificate is a previous version of the product in the examined certificate and the recertification is not explicitly mentioned.
-- **On platform**: The examined certificate runs on a platform that is certified in the referenced certificate.
-- **Self**: The referenced certificate is the same as the examined certificate.
+- **Component used**: The referenced certificate is a component used in the examined certificate (e.g., IC used by a smartcard). Some evaluation results were likely shared/re-used.
+- **Component shared**: The referenced certificate shares some components with the examined certificate. Some evaluation results were likely shared/re-used.
+- **Evaluation reused**: The evaluation results of the referenced certificate were used for evaluation of the examined certificate, due to reasons that could not be resolved.
+- **Re-certification**: The examined certificate is a re-certification of the referenced certificate.
+- **Previous version**: The product in the referenced certificate is a previous version of the product in the examined certificate and the re-certification is not explicitly mentioned.
+- **Unknown**: The annotator could not assign any of the previous contexts.
 
+These can be further merged into the following super-categories:
+
+- **Component used or shared**
+- **Previous version of re-certification**
+- **Evaluation reused** - these cases should be manually visited
+- **Unknown**
 
 ### Reference classification methodology
 
@@ -25,17 +30,11 @@ After manually inspecting random certificates, we have identified the following 
 1. Inspect random certificates (>100) and capture the observed relations into reference taxonomy
 2. Split all certificates for which we register a direct outgoing reference in either security target or certification report into `train/valid/test` splits in `30/20/50` fashion.
     - See [split](split/)
-3. Choose all samples from test set, random 100 samples from train set and random 100 samples from validation set for manual annotations. Store those into [manual_annotations](manual_annotations/)
-4. Label all references in [manual_annotations](manual_annotations/) as follows:
-    - The reference meaning is recovered based on certification report and security target pdf.
-    - The annotator should visit certification report first. If data in certification report is ambigous or does not allow precise annotation, the annotator should further visit the security target pdf.
-    - The annotator should set `None` label on instances that he/she was unable to decide.
-    - The annotator should label the `source` as:
-        - `report` if he/she decided purely based on the data from certification report
-        - `target` if he/she decided purely based on the data from security target
-        - `report+target` if both artifacts were needed for resolution
-        - Note that this label is only internal, not intended to be used for research
-        - The label should be in lowercase letters with underscore, e.g., `evaluation_reused`.
+3. Label all references in as follows:
+    - Extract the text segments (using `ReferenceSegmentExtractor`) related to the references
+    - Use label-studio `Natural Language Processing -> text classification` setup to assign 1 label to each of the references.
+        - All text segments both from certification report and security target are displayed for the given instance
+    - The instances labeled with `Unknown` are re-visited and labeled after manual inspection of both certification report and security target pdfs
     - Artifacts of the referenced certificate are not examined.
     - The labeling is done by a pair of co-authors, the inter-annotator agreement is measured with Cohen's Kappa
 
