@@ -297,8 +297,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         logger.info("Converting all PDFs to txt")
         self._convert_all_pdfs_body(fresh)
-        if fresh:
-            self._convert_all_pdfs_body(False)
 
         self.state.pdfs_converted = True
 
