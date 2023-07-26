@@ -27,6 +27,8 @@ def filter_short_sentences(sentences, cert_id):
 
 
 def prepare_reference_annotations_df(df: pd.DataFrame):
+    if df.loc[(df.label != "SELF") & (df.label.notnull())].empty:
+        raise ValueError("No expert annotations found in the dataset of references.")
     df = (
         df.loc[lambda df_: (df_.label != "SELF") & (df_.label.notnull())]
         .assign(segments=lambda df_: eval_strings_if_necessary(df_.segments))
