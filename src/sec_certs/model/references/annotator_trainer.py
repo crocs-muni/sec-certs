@@ -20,12 +20,11 @@ class ReferenceAnnotatorTrainer:
         train_dataset: pd.DataFrame,
         eval_dataset: pd.DataFrame,
         metric: Callable,
-        method: Literal["transformer", "baseline"] = "transformer",
     ):
         self._train_dataset = train_dataset
         self._eval_dataset = eval_dataset
         self._metric = metric
-        self._model, self._trainer, self.label_mapping = self._init_trainer(method)
+        self._model, self._trainer, self.label_mapping = self._init_trainer()
         self.clf = ReferenceAnnotator(self._model, self.label_mapping)
 
     @classmethod
@@ -33,7 +32,6 @@ class ReferenceAnnotatorTrainer:
         cls,
         df: pd.DataFrame,
         metric: Callable,
-        method: Literal["transformer", "baseline"] = "transformer",
         mode: Literal["training", "production"] = "training",
     ):
         df = prepare_reference_annotations_df(df)
@@ -43,7 +41,7 @@ class ReferenceAnnotatorTrainer:
         }
 
         train_dataset, eval_dataset = dataset_generation_method[mode](df)
-        return cls(train_dataset, eval_dataset, metric, method)
+        return cls(train_dataset, eval_dataset, metric)
 
     @staticmethod
     def split_df_for_training(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -56,16 +54,9 @@ class ReferenceAnnotatorTrainer:
             logger.warning("`test` split for annotator dataset is empty -> model can be trained, but not evaluated.")
         return df.loc[df.split == "train"].drop(columns="split"), df.loc[df.split == "test"].drop(columns="split")
 
-    def _init_trainer(self, method: Literal["transformer", "baseline"]):
-        return (
-            self._init_transformer_model_and_trainer()
-            if method == "transformer"
-            else self._init_baseline_model_and_trainer()
-        )
-
-    def _init_transformer_model_and_trainer(self):
-        model = SetFitModel.from_pretrained("paraphrase-multilingual-mpnet-base-v2")
-        # model = SetFitModel.from_pretrained("all-mpnet-base-v2")
+    def _init_trainer(self):
+        # model = SetFitModel.from_pretrained("paraphrase-multilingual-mpnet-base-v2")
+        model = SetFitModel.from_pretrained("all-mpnet-base-v2")
 
         internal_train_dataset = self._get_hugging_face_datasets_from_df(self._train_dataset, "train")
         internal_validation_dataset = self._get_hugging_face_datasets_from_df(self._eval_dataset, "validation")
@@ -100,10 +91,6 @@ class ReferenceAnnotatorTrainer:
         )
         return Dataset.from_pandas(df_to_use, features=features, split=split, preserve_index=False)
 
-    def _init_baseline_model_and_trainer(self):
-        # Process the datasets so that BaselineTrainer can work with them and init the trainer.
-        raise NotImplementedError("Not yet implemented.")
-
     def train(self):
         self._trainer.train(show_progress_bar=True)
 
@@ -123,20 +110,3 @@ class ReferenceAnnotatorTrainer:
         y_pred = self.clf.predict(self._eval_dataset.segments)
         y_true = self._eval_dataset.label
         return self._metric(y_pred, y_true)
-
-
-# TODO: Implement me
-class BaselineTrainer:
-    """
-    This is where baseline method shall be implemented. It should accept the classifier and fit it on train_dataset.
-    It should then use eval_dataset to evaluate the classifier.
-    """
-
-    def __init__(self, model, train_dataset, eval_dataset, metric):
-        pass
-
-    def train(self):
-        pass
-
-    def evaluate(self):
-        pass
