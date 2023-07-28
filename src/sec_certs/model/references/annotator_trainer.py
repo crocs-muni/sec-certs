@@ -55,8 +55,8 @@ class ReferenceAnnotatorTrainer:
         return df.loc[df.split == "train"].drop(columns="split"), df.loc[df.split == "test"].drop(columns="split")
 
     def _init_trainer(self):
-        # model = SetFitModel.from_pretrained("paraphrase-multilingual-mpnet-base-v2")
-        model = SetFitModel.from_pretrained("all-mpnet-base-v2")
+        model = SetFitModel.from_pretrained("paraphrase-multilingual-mpnet-base-v2")
+        # model = SetFitModel.from_pretrained("all-mpnet-base-v2")
 
         internal_train_dataset = self._get_hugging_face_datasets_from_df(self._train_dataset, "train")
         internal_validation_dataset = self._get_hugging_face_datasets_from_df(self._eval_dataset, "validation")

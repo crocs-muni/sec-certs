@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import itertools
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Literal
@@ -32,43 +34,98 @@ def references_to_label_studio(df: pd.DataFrame, filepath: Path) -> None:
     df.loc[:, ["dgst", "referenced_cert_id", "text"]].to_json(filepath, indent=4, orient="records")
 
 
-def fill_reference_segments_spacy(record: ReferenceRecord) -> ReferenceRecord:
+def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
     """
     Open file, read text and extract sentences with `referenced_cert_id` match.
     """
-    with record.data_source_path.open("r") as handle:
+    with record.processed_data_source_path.open("r") as handle:
         data = handle.read()
 
-    record.segments = {sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text}
-
-    if not record.segments:
+    sentences_with_hits = [sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text]
+    if not sentences_with_hits:
         record.segments = None
-
-    return record
-
-
-def fill_reference_segments_ocr(record: ReferenceRecord) -> ReferenceRecord:
-    """
-    Fill the segment data from jsons produced by OCR and segmentation.
-    """
-    with record.data_source_path.open("r") as handle:
-        data = json.load(handle)
+        return record
 
     record.segments = set()
-    # TODO: Now we're taking the first segment encountered. This is not ideal, but we don't have a better solution yet.
-    for segment in data:
-        first_segment = segment["low_level_segments"][0]
-        if (
-            ((first_segment["type"] == "Text") or (first_segment["type"] == "Title"))
-            and "text" in first_segment
-            and record.referenced_cert_id in first_segment["text"]
-        ):
-            record.segments.add(first_segment["text"])
+    for index, sent in enumerate(sentences_with_hits):
+        to_add = ""
+        if index > 0:
+            to_add += sentences_with_hits[index - 1]
 
-    if not record.segments:
-        record.segments = None
+        to_add += sent
+
+        if index < len(sentences_with_hits) - 1:
+            to_add += sentences_with_hits[index + 1]
+
+        record.segments.add(to_add)
+
+    # record.segments = {sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text}
+
+    # if not record.segments:
+    #     record.segments = None
 
     return record
+
+
+def preprocess_data_source(record: ReferenceRecord) -> ReferenceRecord:
+    # TODO: This shall be reactivate only when we delete the processed data source files after finnishing
+    # if record.processed_data_source_path.exists():
+    #     return record
+
+    with record.raw_data_source_path.open("r") as handle:
+        data = handle.read()
+
+    processed_data = preprocess_txt_func(data, record.referenced_cert_id)
+
+    with record.processed_data_source_path.open("w") as handle:
+        handle.write(processed_data)
+
+    return record
+
+
+def find_bracket_pattern(sentences, exact_match):
+    pattern = r"(\[.+?\])(?=.*" + exact_match + r")"
+    res = []
+    for sent in sentences:
+        matches = re.findall(pattern, sent, flags=re.MULTILINE | re.UNICODE | re.DOTALL)
+        if matches:
+            res.append(matches[-1])
+    return res
+
+
+def preprocess_txt_func(data: str, referenced_cert_id: str) -> str:
+    data = replace_acronyms(data)
+    data = replace_citation_identifiers(data, referenced_cert_id)
+    return data
+
+
+def replace_citation_identifiers(data: str, referenced_cert_id: str) -> str:
+    segments = {sent.text for sent in nlp(data).sents if referenced_cert_id in sent.text}
+    patterns_to_replace = find_bracket_pattern(segments, referenced_cert_id)
+    for pattern in patterns_to_replace:
+        data = data.replace(pattern, referenced_cert_id)
+    return data
+
+
+def replace_acronyms(text: str) -> str:
+    acronym_replacements = {
+        "TOE": "target of evaluation",
+        "CC": "certification framework",
+        "PP": "protection profile",
+        "ST": "security target",
+        "SFR": "security Functional Requirement",
+        "SFRs": "security Functional Requirements",
+        "IC": "integrated circuit",
+        "MRTD": "machine readable travel document",
+        "TSF": "security functions of target of evaluation",
+        "PACE": "password authenticated connection establishment",
+    }
+
+    for acronym, replacement in acronym_replacements.items():
+        pattern = rf"(?<!\S){re.escape(acronym)}(?!\S)"
+        text = re.sub(pattern, replacement, text)
+
+    return text
 
 
 @dataclass
@@ -78,7 +135,8 @@ class ReferenceRecord:
     """
 
     certificate_dgst: str
-    data_source_path: Path
+    raw_data_source_path: Path
+    processed_data_source_path: Path
     referenced_cert_id: str
     source: str
     segments: set[str] | None = None
@@ -93,9 +151,8 @@ class ReferenceSegmentExtractor:
     Should be only called with ReferenceSegmentExtractor()(list_of_certificates)
     """
 
-    def __init__(self, segmenter: Literal["spacy", "ocr"] = "spacy", ocr_json_dir: Path | None = None):
-        self.segmenter = segmenter
-        self.ocr_json_dir = ocr_json_dir
+    def __init__(self):
+        pass
 
     def __call__(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
         return self._prepare_df_from_cc_certs(certs)
@@ -115,50 +172,48 @@ class ReferenceSegmentExtractor:
         ]
         df_targets = self._build_df(target_certs, "target")
         df_reports = self._build_df(report_certs, "report")
+        print(f"df_targets shape: {df_targets.shape}")
+        print(f"df_reports shape: {df_reports.shape}")
         return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]))
 
-    def _build_records(
-        self, certs: Iterable[CCCertificate], source: Literal["target", "report"]
-    ) -> list[ReferenceRecord]:
-        if self.segmenter == "spacy":
-            return self._build_records_spacy(certs, source)
-        else:
-            return self._build_records_ocr(certs, source)
+    def _build_records(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> list[ReferenceRecord]:
+        def get_cert_records(cert: CCCertificate, source: Literal["target", "report"]) -> list[ReferenceRecord]:
+            ref_var = {"target": "st_references", "report": "report_references"}
+            raw_source_var = {"target": "st_txt_path", "report": "report_txt_path"}
 
-    def _build_records_spacy(
-        self, certs: Iterable[CCCertificate], source: Literal["target", "report"]
-    ) -> list[ReferenceRecord]:
-        attribute_mapping = {"target": "st_references", "report": "report_references"}
-        file_to_read = "st_txt_path" if source == "target" else "report_txt_path"
-        return [
-            ReferenceRecord(x.dgst, getattr(x.state, file_to_read), y, source)
-            for x in certs
-            for y in getattr(x.heuristics, attribute_mapping[source]).directly_referencing
-        ]
+            references = getattr(cert.heuristics, ref_var[source]).directly_referencing
+            raw_source_dir = getattr(cert.state, raw_source_var[source]).parent
+            processed_source_dir = raw_source_dir.parent / "txt_processed"
 
-    def _build_records_ocr(
-        self, certs: Iterable[CCCertificate], source: Literal["target", "report"]
-    ) -> list[ReferenceRecord]:
-        attribute_mapping = {"target": "st_references", "report": "report_references"}
-        dir_to_read = "reports" if source == "report" else "targets"
-        if not self.ocr_json_dir:
-            raise ValueError("OCR json directory must be specified when using OCR segmenter")
-        return [
-            ReferenceRecord(x.dgst, self.ocr_json_dir / dir_to_read / f"{x.dgst}.json", y, source)
-            for x in certs
-            for y in getattr(x.heuristics, attribute_mapping[source]).directly_referencing
-        ]
+            return [
+                ReferenceRecord(
+                    cert.dgst, raw_source_dir / f"{cert.dgst}.txt", processed_source_dir / f"{cert.dgst}.txt", x, source
+                )
+                for x in references
+            ]
 
-    def _build_df(self, certs: Iterable[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
+        (certs[0].state.report_txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
+        (certs[0].state.st_txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
+        return list(itertools.chain.from_iterable(get_cert_records(cert, source) for cert in certs))
+
+    def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
         records = self._build_records(certs, source)
-        func = fill_reference_segments_spacy if self.segmenter == "spacy" else fill_reference_segments_ocr
-        results = parallel_processing.process_parallel(
-            func,
+        records = parallel_processing.process_parallel(
+            preprocess_data_source,
             records,
             use_threading=False,
             progress_bar=True,
-            progress_bar_desc=f"Recovering reference segments for {source}s",
+            progress_bar_desc="Preprocessing data",
         )
+
+        results = parallel_processing.process_parallel(
+            fill_reference_segments,
+            records,
+            use_threading=False,
+            progress_bar=True,
+            progress_bar_desc="Recovering reference segments",
+        )
+        print(f"I now have {len(results)} in {source} mode")
         return pd.DataFrame.from_records(
             [x.to_pandas_tuple() for x in results],
             columns=["dgst", "referenced_cert_id", "source", "segments"],
