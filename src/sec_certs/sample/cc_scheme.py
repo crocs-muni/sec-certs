@@ -153,7 +153,9 @@ def get_canada_certified() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    soup = _get_page(constants.CC_CANADA_CERTIFIED_URL)
+    resp = _get(constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_CERTIFIED_URL}", None)
+    html_data = resp.json()["response"]["page"]["body"][0]
+    soup = BeautifulSoup(html_data, "html5lib")
     tbody = soup.find("table").find("tbody")
     results = []
     for tr in tqdm(tbody.find_all("tr"), desc="Get CA scheme certified."):
@@ -176,7 +178,9 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    soup = _get_page(constants.CC_CANADA_INEVAL_URL)
+    resp = _get(constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_INEVAL_URL}", None)
+    html_data = resp.json()["response"]["page"]["body"][0]
+    soup = BeautifulSoup(html_data, "html5lib")
     tbody = soup.find("table").find("tbody")
     results = []
     for tr in tqdm(tbody.find_all("tr"), desc="Get CA scheme in evaluation."):
