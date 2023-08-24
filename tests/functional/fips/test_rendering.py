@@ -43,10 +43,10 @@ def test_search_basic(client: FlaskClient, sort):
 def test_search_pagination(client: FlaskClient):
     cert_id = "310"
     cert_name = "MOVEit Crypto"
-    resp = client.get(f"/fips/search/pagination/?q={cert_id}&cat=abcde&status=Any&sort=match")
+    resp = client.get(f"/fips/search/results/?q={cert_id}&cat=abcde&status=Any&sort=match")
     assert resp.status_code == 200
     assert cert_name in resp.data.decode()
-    resp = client.get(f"/fips/search/pagination/?q={cert_id}&cat=abcde&status=Active&sort=match")
+    resp = client.get(f"/fips/search/results/?q={cert_id}&cat=abcde&status=Active&sort=match")
     assert resp.status_code == 200
     assert cert_name not in resp.data.decode()
 
