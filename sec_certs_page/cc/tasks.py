@@ -1,11 +1,10 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import dramatiq
 import sentry_sdk
-from bson.objectid import ObjectId
 from flask import current_app
-from sec_certs.dataset.cc import CCDataset, CCSchemeDataset
+from sec_certs.dataset.cc import CCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import mongo

@@ -1,6 +1,7 @@
 import gzip
 import json
 import logging
+from datetime import timedelta
 from logging import Logger
 from operator import itemgetter
 from pathlib import Path
@@ -21,8 +22,8 @@ from . import mongo
 logger: Logger = logging.getLogger(__name__)
 
 
-@dramatiq.actor(max_retries=0, actor_name="cve_update")
-@no_simultaneous_execution("cve_update", abort=True, timeout=3600)
+@dramatiq.actor(max_retries=0, actor_name="cve_update", time_limit=timedelta(hours=1).total_seconds() * 1000)
+@no_simultaneous_execution("cve_update", abort=True, timeout=timedelta(hours=1).total_seconds())
 def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
@@ -65,8 +66,8 @@ def update_cve_data() -> None:  # pragma: no cover
         logger.info(f"Cleaned up {res.deleted_count} CVEs.")
 
 
-@dramatiq.actor(max_retries=0, actor_name="cpe_update")
-@no_simultaneous_execution("cpe_update", abort=True, timeout=3600)
+@dramatiq.actor(max_retries=0, actor_name="cpe_update", time_limit=timedelta(hours=1).total_seconds() * 1000)
+@no_simultaneous_execution("cpe_update", abort=True, timeout=timedelta(hours=1).total_seconds())
 def update_cpe_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
@@ -110,8 +111,8 @@ def update_cpe_data() -> None:  # pragma: no cover
         logger.info(f"Cleaned up {res.deleted_count} CPEs.")
 
 
-@dramatiq.actor(max_retries=0, actor_name="cpe_match_update")
-@no_simultaneous_execution("cpe_match_update", abort=True, timeout=3600)
+@dramatiq.actor(max_retries=0, actor_name="cpe_match_update", time_limit=timedelta(hours=1).total_seconds() * 1000)
+@no_simultaneous_execution("cpe_match_update", abort=True, timeout=timedelta(hours=1).total_seconds())
 def update_cpe_match_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     match_path = instance_path / current_app.config["DATASET_PATH_CPE_MATCH"]
@@ -140,7 +141,6 @@ def update_cpe_match_data() -> None:  # pragma: no cover
         old_ids = set(map(itemgetter("_id"), mongo.db.cpe_match.find({}, ["_id"])))
         new_ids = set()
         match_keys = list(match_dset["match_strings"].keys())
-        print(len(match_keys))
         for i in range(0, len(match_keys), 10000):
             chunk = []
             for key in match_keys[i : i + 10000]:
@@ -150,11 +150,9 @@ def update_cpe_match_data() -> None:  # pragma: no cover
                 chunk.append(ReplaceOne({"_id": key}, match_data, upsert=True))
             res = mongo.db.cpe_match.bulk_write(chunk, ordered=False)
             res_vals = ", ".join(f"{k} = {v}" for k, v in res.bulk_api_result.items() if k != "upserted")
-            print(res_vals)
             logger.info(f"Inserted chunk: {res_vals}")
 
     logger.info("Cleaning up old CPE matches.")
     with sentry_sdk.start_span(op="cpe_match.cleanup", description="Cleanup CPE matches from DB."):
         res = mongo.db.cpe_match.delete_many({"_id": {"$in": list(old_ids - new_ids)}})
-        print(res.deleted_count)
         logger.info(f"Cleaned up {res.deleted_count} CPE matches.")
