@@ -183,7 +183,7 @@ def network_graph():
         if request.args["search"] == "basic":
             args = CCBasicSearch.parse_args(args)
             del args["page"]
-            certs, count = CCBasicSearch.select_certs(**args)
+            certs, count, timeline = CCBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
             args = CCFulltextSearch.parse_args(args)
             del args["page"]
@@ -219,15 +219,15 @@ def search():
     )
 
 
-@cc.route("/search/pagination/")
-def search_pagination():
-    """Common criteria search (raw pagination)."""
+@cc.route("/search/results/")
+def search_results():
+    """Common criteria search (raw results, pagination + timeline)."""
 
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
     res = CCBasicSearch.process_search(request, callback=callback)
-    return render_template("cc/search/pagination.html.jinja2", **res)
+    return render_template("cc/search/results.html.jinja2", **res)
 
 
 @cc.route("/ftsearch/")

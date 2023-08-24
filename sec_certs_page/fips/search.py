@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import List, Mapping, Sequence, Tuple
+
 import pymongo
 import sentry_sdk
 
@@ -15,7 +18,7 @@ class FIPSBasicSearch(BasicSearch):
     collection = mongo.db.fips
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, sort, **kwargs):
+    def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int, List[datetime]]:
         query = {}
         projection = {
             "_id": 1,
@@ -54,6 +57,19 @@ class FIPSBasicSearch(BasicSearch):
             cursor = cls.collection.find(query, projection)
             count = cls.collection.count_documents(query)
 
+        timeline = []
+        for cert in cursor.clone():
+            val_history = cert["web_data"]["validation_history"]
+            if not val_history:
+                continue
+            zero = val_history[0]
+            if not zero:
+                continue
+            val = zero["date"]["_value"]
+            if not val:
+                continue
+            timeline.append(datetime.strptime(val, "%Y-%m-%d"))
+
         if sort == "match" and q is not None and q != "":
             cursor.sort(
                 [
@@ -75,7 +91,7 @@ class FIPSBasicSearch(BasicSearch):
             cursor.sort([("web_data.vendor", pymongo.ASCENDING)])
         else:
             cursor.sort([("cert_id", pymongo.ASCENDING)])
-        return cursor, count
+        return cursor, count, timeline
 
 
 class FIPSFulltextSearch(FulltextSearch):

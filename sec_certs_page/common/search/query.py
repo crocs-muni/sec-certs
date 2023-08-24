@@ -59,7 +59,7 @@ class BasicSearch(ABC):
     @classmethod
     def process_search(cls, req, callback=None):
         parsed = cls.parse_args(req.args)
-        cursor, count = cls.select_certs(**parsed)
+        cursor, count, timeline = cls.select_certs(**parsed)
 
         page = parsed["page"]
 
@@ -77,6 +77,7 @@ class BasicSearch(ABC):
         return {
             "pagination": pagination,
             "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
+            "timeline": timeline,
             **parsed,
         }
 
@@ -98,6 +99,8 @@ class FulltextSearch(ABC):
             page = int(args.get("page", 1))
         except ValueError:
             raise BadRequest(description="Invalid page number.")
+        if page < 1:
+            raise BadRequest(description="Invalid page number, must be >= 1.")
         q = args.get("q", None)
         cat = args.get("cat", None)
 

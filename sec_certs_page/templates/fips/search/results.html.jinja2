@@ -1,0 +1,9 @@
+{% from "fips/utils.html.jinja2" import render_pagination %}
+<div id="results">
+    {{ render_pagination(pagination, certs, search=True) }}
+
+    <button id="timeline-btn" class="btn btn-primary">Show timeline</button>
+    <script>
+        $("#timeline-btn").click(fullSearch);
+    </script>
+</div>

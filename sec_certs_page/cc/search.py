@@ -1,4 +1,5 @@
-from typing import Mapping, Sequence, Tuple
+from datetime import datetime
+from typing import List, Mapping, Sequence, Tuple
 
 import pymongo
 import sentry_sdk
@@ -17,7 +18,7 @@ class CCBasicSearch(BasicSearch):
     collection = mongo.db.cc
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int]:
+    def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int, List[datetime]]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
         projection = {
@@ -48,6 +49,8 @@ class CCBasicSearch(BasicSearch):
             cursor = mongo.db.cc.find(query, projection)
             count = mongo.db.cc.count_documents(query)
 
+        timeline = [datetime.strptime(cert["not_valid_before"]["_value"], "%Y-%m-%d") for cert in cursor.clone()]
+
         if sort == "match" and q is not None and q != "":
             cursor.sort([("score", {"$meta": "textScore"}), ("name", pymongo.ASCENDING)])
         elif sort == "cert_date":
@@ -57,7 +60,7 @@ class CCBasicSearch(BasicSearch):
         else:
             cursor.sort([("name", pymongo.ASCENDING)])
 
-        return cursor, count
+        return cursor, count, timeline
 
 
 class CCFulltextSearch(FulltextSearch):

@@ -137,3 +137,73 @@
         </div>
     </div>
 {%- endmacro %}
+
+{% macro render_plot(timeline) %}
+    <div class="row mt-4 mb-4">
+        <div class="col border ml-3 mr-3">
+            <h2>Timeline</h2>
+            <span>Matched certificates (monthly)</span>
+            <div id="timeline"></div>
+        </div>
+    </div>
+
+    <script>
+        function renderTimeline(timeline) {
+            let parser = d3.timeParse("%a, %d %b %Y %H:%M:%S GMT");
+            let weekFormatter = d3.timeFormat("%m,%Y");
+            let weekParser = d3.timeParse("%m,%Y");
+            let data = d3.map(timeline, d => ({date: parser(d)}));
+            let extent = d3.extent(data, d => d.date);
+            let weekRange = d3.timeWeek.range(extent[0], extent[1]);
+
+            let width = 800;
+            let height = 320;
+            let margin = {top: 20, right: 30, bottom: 30, left: 40};
+
+            let x = d3.scaleUtc()
+                .domain(extent)
+                .range([margin.left, width - margin.right]);
+
+            let nested = d3.rollup(data, v => v.length, d => weekFormatter(d.date));
+            let base = d3.rollup(weekRange, v => 0, d => weekFormatter(d));
+
+            let y = d3.scaleLinear()
+                .domain([0, d3.max(nested, d => d[1])]).nice()
+                .range([height - margin.bottom, margin.top]);
+
+            let xAxis = g => g
+                .attr("transform", `translate(0,${height - margin.bottom})`)
+                .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
+            let yAxis = g => g
+                .attr("transform", `translate(${margin.left},0)`)
+                .call(d3.axisLeft(y).tickFormat(d3.format("d")))
+                .call(g => g.select(".domain").remove());
+            let line = d3.line()
+                .x(d => x(d.week))
+                .y(d => y(d.count));
+
+            let full = new d3.InternMap([...base, ...nested]);
+
+            let res = d3.sort(d3.map(full, ([name, value]) => ({week: weekParser(name), count:value})), (d) => d.week);
+            const svg = d3.create("svg")
+                .attr("viewBox", [0, 0, width, height]);
+
+          svg.append("path")
+              .attr("fill", "none")
+              .attr("stroke", "var(--bs-primary)")
+              .attr("stroke-width", 1.5)
+              .attr("d", line(res));
+
+            svg.append("g")
+                .call(xAxis);
+
+            svg.append("g")
+                .call(yAxis);
+
+            d3.select("#timeline").append(() => svg.node());
+        }
+
+        let certsData = JSON.parse('{{ timeline|tojson }}');
+        renderTimeline(certsData);
+    </script>
+{%- endmacro %}

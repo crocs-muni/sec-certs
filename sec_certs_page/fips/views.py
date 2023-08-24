@@ -100,7 +100,7 @@ def network_graph():
         if request.args["search"] == "basic":
             args = FIPSBasicSearch.parse_args(args)
             del args["page"]
-            certs, count = FIPSBasicSearch.select_certs(**args)
+            certs, count, timeline = FIPSBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
             args = FIPSFulltextSearch.parse_args(args)
             del args["page"]
@@ -135,13 +135,13 @@ def search():
     )
 
 
-@fips.route("/search/pagination/")
-def search_pagination():
+@fips.route("/search/results/")
+def search_results():
     def callback(**kwargs):
         return url_for(".search", **kwargs)
 
     res = FIPSBasicSearch.process_search(request, callback=callback)
-    return render_template("fips/search/pagination.html.jinja2", **res)
+    return render_template("fips/search/results.html.jinja2", **res)
 
 
 @fips.route("/ftsearch/")
