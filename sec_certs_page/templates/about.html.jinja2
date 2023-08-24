@@ -58,6 +58,7 @@
                                 $(function () {
                                     $("#display-about").click(function () {
                                         $("#about-info").show();
+                                        $("#about-sponsors").show();
                                         $("#about-toggle").hide();
                                     });
                                 });
@@ -65,7 +66,7 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-6" id="about-sponsors" {% if config["ANONYMOUS"] %}style="display: none"{% endif %}>
                     <div class="row">
                         <img class="w-25 m-5" style="background-color: #0E4294"
                              src="{{ url_for("static", filename="img/csfe_logo.png") }}" alt=""/>
