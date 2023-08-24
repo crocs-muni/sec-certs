@@ -68,7 +68,7 @@
 {% endmacro %}
 
 {% macro render_cve_links(cve, full=False) %}
-    <div class="btn-group" role="group" aria-label="Basic example">
+    <div class="btn-group" role="group" aria-label="CVE links">
         <a href="https://www.cve.org/CVERecord?id={{ cve["cve_id"] }}"
            target="_blank" rel="noopener" title="CVE at cve.org"
            class="btn btn-outline-secondary btn-sm">{% if full %}cve.org{% else %}C{% endif %}</a>

@@ -1,6 +1,5 @@
 from operator import itemgetter
 from pathlib import Path
-from pprint import pprint
 
 import sentry_sdk
 from flask import abort, current_app, render_template, request, send_file
@@ -139,7 +138,7 @@ def cpe(cpe_id):
         match_ids = list(map(itemgetter("_id"), mongo.db.cpe_match.find({"matches.cpeName": cpe_id}, ["_id"])))
         # XXX: If we want to include the "running on/with" part of the matching then we need one more or
         #      in this statement (for components.1).
-        cves = list(
+        cves = sorted(
             map(
                 load,
                 mongo.db.cve.find(
@@ -150,7 +149,8 @@ def cpe(cpe_id):
                         ]
                     }
                 ),
-            )
+            ),
+            key=itemgetter("_id"),
         )
     return render_template(
         "vuln/cpe.html.jinja2", cpe=load(cpe_doc), cc_certs=cc_certs, fips_certs=fips_certs, cves=cves

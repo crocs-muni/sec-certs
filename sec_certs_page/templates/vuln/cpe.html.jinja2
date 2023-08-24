@@ -66,6 +66,10 @@
                             </tr>
                         </table>
 
+                        <a href="https://nvd.nist.gov/products/cpe/search/results?namingFormat=2.3&orderBy=CPEURI&keyword={{ cpe["uri"] }}"
+                           target="_blank" rel="noopener" title="CPE at nvd.nist.org"
+                           class="btn btn-outline-secondary btn-sm">nvd.nist.org</a>
+
                     </div>
                     <div class="col-12 col-md-6">
                         <h2 class="anchor" id="linked-cves">Linked CVEs
@@ -123,8 +127,8 @@
                               title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
                     </h2>
                     {% if cc_certs or fips_certs %}
-                    <p>Note that this currently lists only certificates matched to the CPE, it does not
-                        include certificates that directly or indirectly reference the matched certificate.</p>
+                        <p>Note that this currently lists only certificates matched to the CPE, it does not
+                            include certificates that directly or indirectly reference the matched certificate.</p>
                     {% endif %}
 
                     {% if cc_certs %}
