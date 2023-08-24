@@ -79,21 +79,57 @@
                                   title="Information automatically extracted from NIST's NVD.">?</span>
                         </h2>
                         {% if vuln_configs %}
-                            <ul>
+                            {% set configs = namespace(shown=0,rendered=False) %}
+                            <ul data-cs-name="Vulnerable configurations">
                                 {% for first, second in vuln_configs %}
-                                    <li>
-                                    {% for cpe in first %}
-                                        <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                    {% if second %}
-                                        <br/><b>running on/with</b><br/>
-                                        {% for cpe in second %}
-                                        <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                    {% endif %}
+                                    <li class="vuln-config" style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                        {% for cpe in first %}
+                                            {% set configs.shown = configs.shown + 1 %}
+                                            <span class="vuln-config"
+                                                  style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                            <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
+                                                {%- if not loop.last %}, {% endif %}
+                                        </span>
+                                            {% if configs.shown > 10 and not configs.rendered %}
+                                                <span class="vuln-ellipsis"><br/>&hellip;</span>
+                                                {% set configs.rendered = True %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if second %}
+                                            <b class="vuln-config"
+                                                    style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                                <br/>running
+                                            on/with<br/></b>
+                                            {% for cpe in second %}
+                                                {% set configs.shown = configs.shown + 1 %}
+                                                <span class="vuln-config"
+                                                      style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                                <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
+                                                    {%- if not loop.last %}, {% endif %}
+                                            </span>
+                                                {% if configs.shown > 10 and not configs.rendered %}
+                                                    <span class="vuln-ellipsis"><br/>&hellip;</span>
+                                                    {% set configs.rendered = True %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
                             </ul>
+                            {% if configs.rendered %}
+                                <button type="button" id="display-vuln-configs" class="btn btn-outline-primary" style="margin-left: 2rem">
+                                    <i class="fas fa-plus"></i> Display all
+                                </button>
+                                <script>
+                                    $(function () {
+                                        $("#display-vuln-configs").click(function () {
+                                            $(".vuln-config").show();
+                                            $(".vuln-ellipsis").hide();
+                                            $("#display-vuln-configs").hide();
+                                        });
+                                    });
+                                </script>
+                            {% endif %}
                         {% else %}
                             <p>This CVE has no vulnerable configurations linked.</p>
                         {% endif %}
@@ -101,7 +137,6 @@
                 </div>
             </div>
         </div>
-        {#  heeeere #}
         <div class="row bg-dark p-3">
             <div class="col-10 mx-auto p-3 py-md-5 text-light">
 
@@ -111,11 +146,13 @@
                               class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
                     </h2>
+                    {% if cc_certs or fips_certs %}
                     <p>Note that this currently lists only certificates matched to the CVE via its CPEs, it does not
                         include certificates that directly or indirectly reference the vulnerable certificate.</p>
+                    {% endif %}
 
                     {% if cc_certs %}
-                        <div class="my-4">
+                        <div class="my-4" data-cs-name="Vulnerable CC certificates">
                             <h3>Common Criteria certificates <a style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                               class="badge bg-warning text-dark text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Experimental feature: Display reference graph with affected certificates highlighted"
@@ -131,7 +168,7 @@
                         </div>
                     {% endif %}
                     {% if fips_certs %}
-                        <div class="my-4">
+                        <div class="my-4" data-cs-name="Vulnerable FIPS certificates">
                             <h3>FIPS 140 certificates <a style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                               class="badge bg-warning text-dark text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Experimental feature: Display reference graph with affected certificates highlighted"
@@ -147,7 +184,7 @@
                         </div>
                     {% endif %}
                     {% if not cc_certs and not fips_certs %}
-                        <p>This CVE has no assigned vulnerable certificates.</p>
+                        <p>This CVE has no assigned vulnerable CC or FIPS certificates.</p>
                     {% endif %}
                 </div>
             </div>

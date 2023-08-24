@@ -75,11 +75,36 @@
                                   title="Information automatically extracted from NIST's NVD.">?</span>
                         </h2>
                         {% if cves %}
+                            {% set configs = namespace(shown=0,rendered=False) %}
                             <ul>
                                 {% for cve in cves %}
-                                    <li><a href="{{ url_for(".cve", cve_id=cve["_id"]) }}">{{ cve["_id"] }}</a></li>
+                                    {% set configs.shown = configs.shown + 1 %}
+                                    <li class="vuln-cve" style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                        <a href="{{ url_for(".cve", cve_id=cve["_id"]) }}">{{ cve["_id"] }}</a>
+                                    </li>
+                                    {% if configs.shown > 10 and not configs.rendered %}
+                                        <li class="vuln-ellipsis">
+                                            &hellip;
+                                        </li>
+                                        {% set configs.rendered = True %}
+                                    {% endif %}
                                 {% endfor %}
                             </ul>
+                            {% if configs.rendered %}
+                                <button type="button" id="display-vuln-configs" class="btn btn-outline-primary"
+                                        style="margin-left: 2rem">
+                                    <i class="fas fa-plus"></i> Display all
+                                </button>
+                                <script>
+                                    $(function () {
+                                        $("#display-vuln-configs").click(function () {
+                                            $(".vuln-cve").show();
+                                            $(".vuln-ellipsis").hide();
+                                            $("#display-vuln-configs").hide();
+                                        });
+                                    });
+                                </script>
+                            {% endif %}
                         {% else %}
                             <p>This CPE has no linked CVEs.</p>
                         {% endif %}
@@ -97,8 +122,10 @@
                               class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
                     </h2>
+                    {% if cc_certs or fips_certs %}
                     <p>Note that this currently lists only certificates matched to the CPE, it does not
                         include certificates that directly or indirectly reference the matched certificate.</p>
+                    {% endif %}
 
                     {% if cc_certs %}
                         <div class="my-4">
