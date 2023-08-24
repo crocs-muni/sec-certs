@@ -2,7 +2,9 @@
 
 ![](docs/_static/logo.png)
 
-A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks. This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic.
+A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks.
+
+<!-- This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic. -->
 
 [![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org)](https://seccerts.org)
 [![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org/docs/index.html)](https://seccerts.org/docs/index.html)
@@ -58,8 +60,8 @@ df_2015_and_newer = df.loc[df.year_from > 2014]
 df.year_from.value_counts().sort_index().plot.line()
 ```
 
-## Authors
+<!-- ## Authors
 
 This work is being done at [CRoCS MUNI](https://crocs.fi.muni.cz/) by Adam Janovsky, Jan Jancar, Petr Svenda, Jiri Michalik, Lukasz Chmielewski and other contributors. This work was supported by the Internal grant agency of Masaryk University, CZ.02.2.69/0.0/0.0/19_073/0016943.
 
-![](docs/_static/logolink_OP_VVV_hor_barva_eng.jpg)
+![](docs/_static/logolink_OP_VVV_hor_barva_eng.jpg) -->
