@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import logging
+from functools import partial
 from typing import Callable, Literal
 
 import pandas as pd
 from datasets import ClassLabel, Dataset, Features, NamedSplit, Value
 from sentence_transformers.losses import CosineSimilarityLoss
 from setfit import SetFitModel, SetFitTrainer
+from sklearn.metrics import f1_score
 
 from sec_certs.model.references.annotator import ReferenceAnnotator
 from sec_certs.utils.nlp import prepare_reference_annotations_df
@@ -20,12 +22,28 @@ class ReferenceAnnotatorTrainer:
         train_dataset: pd.DataFrame,
         eval_dataset: pd.DataFrame,
         metric: Callable,
+        use_analytical_rule_name_similarity: bool = True,
+        n_iterations: int = 20,
+        n_epochs: int = 1,
+        batch_size: int = 16,
+        segmenter_metric: Literal["accuracy", "f1"] = "accuracy",
+        ensemble_soft_voting_power: int = 2,
     ):
         self._train_dataset = train_dataset
         self._eval_dataset = eval_dataset
         self._metric = metric
+        self.use_analytical_rule_name_similarity = use_analytical_rule_name_similarity
+        self.n_iterations = n_iterations
+        self.n_epochs = n_epochs
+        self.batch_size = batch_size
+        self.segmenter_metric = segmenter_metric
+        self.ensemble_soft_voting_power = ensemble_soft_voting_power
+
         self._model, self._trainer, self.label_mapping = self._init_trainer()
-        self.clf = ReferenceAnnotator(self._model, self.label_mapping)
+
+        self.clf = ReferenceAnnotator(
+            self._model, self.label_mapping, self.ensemble_soft_voting_power, self.use_analytical_rule_name_similarity
+        )
 
     @classmethod
     def from_df(
@@ -33,6 +51,12 @@ class ReferenceAnnotatorTrainer:
         df: pd.DataFrame,
         metric: Callable,
         mode: Literal["training", "production"] = "training",
+        use_analytical_rule_name_similarity: bool = True,
+        n_iterations: int = 20,
+        n_epochs: int = 1,
+        batch_size: int = 16,
+        segmenter_metric: Literal["accuracy", "f1"] = "accuracy",
+        ensemble_soft_voting_power: int = 2,
     ):
         df = prepare_reference_annotations_df(df)
         dataset_generation_method = {
@@ -41,7 +65,17 @@ class ReferenceAnnotatorTrainer:
         }
 
         train_dataset, eval_dataset = dataset_generation_method[mode](df)
-        return cls(train_dataset, eval_dataset, metric)
+        return cls(
+            train_dataset,
+            eval_dataset,
+            metric,
+            use_analytical_rule_name_similarity,
+            n_iterations,
+            n_epochs,
+            batch_size,
+            segmenter_metric,
+            ensemble_soft_voting_power,
+        )
 
     @staticmethod
     def split_df_for_training(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -58,25 +92,37 @@ class ReferenceAnnotatorTrainer:
         model = SetFitModel.from_pretrained("paraphrase-multilingual-mpnet-base-v2")
         # model = SetFitModel.from_pretrained("all-mpnet-base-v2")
 
-        internal_train_dataset = self._get_hugging_face_datasets_from_df(self._train_dataset, "train")
-        internal_validation_dataset = self._get_hugging_face_datasets_from_df(self._eval_dataset, "validation")
+        train_dataset_relevant_cols = self._train_dataset[["dgst", "referenced_cert_id", "segments", "label"]]
+        eval_dataset_relevant_cols = self._eval_dataset[["dgst", "referenced_cert_id", "segments", "label"]]
+        internal_train_dataset = self._get_hugging_face_datasets_from_df(train_dataset_relevant_cols, "train")
+        internal_validation_dataset = self._get_hugging_face_datasets_from_df(eval_dataset_relevant_cols, "validation")
+
+        # Align labels alphabetically
+        labels_alphabetically = sorted(internal_train_dataset.features["label"].names)
+        label2id = {label: index for index, label in enumerate(labels_alphabetically)}
+        internal_train_dataset = internal_train_dataset.align_labels_with_mapping(label2id, "label")
+        internal_validation_dataset = internal_validation_dataset.align_labels_with_mapping(label2id, "label")
+
+        if self.segmenter_metric == "accuracy":
+            metric_to_use = "accuracy"
+        else:
+            metric_to_use = partial(f1_score, average="weighted", zero_division=0)
 
         trainer = SetFitTrainer(
             model=model,
             train_dataset=internal_train_dataset,
             eval_dataset=internal_validation_dataset,
             loss_class=CosineSimilarityLoss,
-            metric=self._metric,
-            batch_size=16,
-            num_iterations=40,  # The number of text pairs to generate for contrastive learning
-            num_epochs=1,  # The number of epochs to use for contrastive learning
+            metric=metric_to_use,
+            batch_size=self.batch_size,
+            num_iterations=self.n_iterations,  # The number of text pairs to generate for contrastive learning
+            num_epochs=self.n_epochs,  # The number of epochs to use for contrastive learning
             column_mapping={
                 "segment": "text",
                 "label": "label",
             },  # Map dataset columns to text/label expected by trainer
         )
-        label_mapping = {index: x for index, x in enumerate(internal_train_dataset.features["label"].names)}
-        return model, trainer, label_mapping
+        return model, trainer, {index: label for label, index in label2id.items()}
 
     @staticmethod
     def _get_hugging_face_datasets_from_df(df: pd.DataFrame, split: NamedSplit) -> Dataset:

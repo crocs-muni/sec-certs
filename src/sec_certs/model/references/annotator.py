@@ -24,7 +24,10 @@ class ReferenceAnnotator:
 
     _model: Any
     _label_mapping: dict[int, str]
+    _soft_voting_power: int = 2
+    _use_analytical_rule_name_similarity: bool = True
 
+    # TODO: This does not load hyperparameters, only the model and label mapping
     @classmethod
     def from_pretrained(cls, model_dir: str | Path) -> ReferenceAnnotator:
         """
@@ -43,6 +46,7 @@ class ReferenceAnnotator:
 
         return cls(model, label_mapping)
 
+    # TODO: This does not save hyperparameters, only the model and label mapping
     def save_pretrained(self, model_dir: str | Path):
         """
         Will dump _model and _label_mapping into a directory.
@@ -74,7 +78,7 @@ class ReferenceAnnotator:
         3. Sum probabilities for each label
         4. softmax
         """
-        return softmax(np.power(self._model.predict_proba(sample, as_numpy=True), 2).sum(axis=0))
+        return softmax(np.power(self._model.predict_proba(sample, as_numpy=True), self._soft_voting_power).sum(axis=0))
 
     def predict_df(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -84,6 +88,15 @@ class ReferenceAnnotator:
         y_proba = self.predict_proba(df.segments)
         df_new["y_proba"] = y_proba
         df_new["y_pred"] = df_new.y_proba.map(lambda x: self._label_mapping[int(np.argmax(x))])
+
+        if self._use_analytical_rule_name_similarity:
+            df_new.loc[
+                (df_new.name_similarity_stripped_version == 100)
+                & (df_new.name_len_diff < 5)
+                & ((df_new.y_pred != "RECERTIFICATION") & (df_new.y_pred != "PREVIOUS_VERSION")),
+                ["y_pred"],
+            ] = "PREVIOUS_VERSION"
+
         df_new["correct"] = df_new.apply(
             lambda row: row["y_pred"] == row["label"] if not pd.isnull(row["label"]) else np.NaN, axis=1
         )
