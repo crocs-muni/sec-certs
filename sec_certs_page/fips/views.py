@@ -365,7 +365,7 @@ def entry(hashid):
         doc = load(raw_doc)
         renderer = FIPSRenderer()
         with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
-            diffs = list(mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
+            diffs = list(mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
