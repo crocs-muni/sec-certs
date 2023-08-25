@@ -1,3 +1,5 @@
+from typing import Dict, List, Tuple
+
 from networkx import DiGraph
 from pandas import DataFrame
 
@@ -18,8 +20,8 @@ def get_cert_property(df: DataFrame, cert_id: int, column: str) -> str:
 
 
 def get_fips_cert_references_graph(
-    df: DataFrame, cert_id: int, colour_mapper: dict[str, str]
-) -> tuple[DiGraph, list[str]]:
+    df: DataFrame, cert_id: int, colour_mapper: Dict[str, str]
+) -> Tuple[DiGraph, List[str]]:
     if cert_id not in df["cert_id"].unique():
         raise ValueError(f"Cert ID: {cert_id} is not in the dataset")
 
@@ -43,7 +45,7 @@ def get_fips_cert_references_graph(
     return graph, colour_map
 
 
-def get_most_referenced_cert_graph(df: DataFrame, status_colour_mapper: dict[str, str]) -> tuple[DiGraph, list[str]]:
+def get_most_referenced_cert_graph(df: DataFrame, status_colour_mapper: Dict[str, str]) -> Tuple[DiGraph, List[str]]:
     graph = DiGraph()
     colour_map = []
     max_referenced_by_num = df["incoming_direct_references_count"].max()
@@ -64,7 +66,7 @@ def get_most_referenced_cert_graph(df: DataFrame, status_colour_mapper: dict[str
     return graph, colour_map
 
 
-def get_most_referencing_cert_graph(df: DataFrame, status_colour_mapper: dict[str, str]) -> tuple[DiGraph, list[str]]:
+def get_most_referencing_cert_graph(df: DataFrame, status_colour_mapper: Dict[str, str]) -> Tuple[DiGraph, List[str]]:
     graph = DiGraph()
     colour_map = []
     max_referencing_num = df["outgoing_direct_references_count"].max()
