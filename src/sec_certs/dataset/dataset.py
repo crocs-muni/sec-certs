@@ -474,6 +474,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
 
         clf = CPEClassifier(config.cpe_matching_threshold, config.cpe_n_max_matches)
+
+        if self.auxiliary_datasets.cpe_dset is None:
+            raise ValueError("CPE dataset cannot be None")
+
         clf.fit([x for x in self.auxiliary_datasets.cpe_dset if filter_condition(x)])
 
         cert: CertSubType
@@ -589,6 +593,9 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         if not self.auxiliary_datasets.cve_dset:
             self.auxiliary_datasets.cve_dset = self._prepare_cve_dataset()
+
+        if self.auxiliary_datasets.cve_dset is None:
+            raise ValueError("CVE dataset cannot be None")
 
         if not self.auxiliary_datasets.cve_dset.look_up_dicts_built:
             cpe_match_dict = self._prepare_cpe_match_dict()
