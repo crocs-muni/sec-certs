@@ -25,6 +25,7 @@ from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
+from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -297,8 +298,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         logger.info("Converting all PDFs to txt")
         self._convert_all_pdfs_body(fresh)
-        if fresh:
-            self._convert_all_pdfs_body(False)
 
         self.state.pdfs_converted = True
 
@@ -350,6 +349,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
     def _compute_transitive_vulnerabilities(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
+    @staged(logger, "Processing CPEDataset.")
     def _prepare_cpe_dataset(self, download_fresh: bool = False) -> CPEDataset:
         if not self.auxiliary_datasets_dir.exists():
             self.auxiliary_datasets_dir.mkdir(parents=True)
@@ -373,6 +373,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         return cpe_dataset
 
+    @staged(logger, "Processing CVEDataset.")
     def _prepare_cve_dataset(self, download_fresh: bool = False) -> CVEDataset:
         if not self.auxiliary_datasets_dir.exists():
             logger.info("Loading CVEDataset from json.")
@@ -397,6 +398,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         return cve_dataset
 
+    @staged(logger, "Processing CPE match dict.")
     def _prepare_cpe_match_dict(self, download_fresh: bool = False) -> dict:
         if self.cpe_match_json_path.exists():
             logger.info("Preparing CPE Match feed from json.")
@@ -435,6 +437,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         return cpe_match_dict
 
     @serialize
+    @staged(logger, "Computing heuristics: Finding CPE matches for certificates")
     def compute_cpe_heuristics(self) -> CPEClassifier:
         """
         Computes matching CPEs for the certificates.
@@ -467,7 +470,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 return False
             return True
 
-        logger.info("Computing heuristics: Finding CPE matches for certificates")
         if not self.auxiliary_datasets.cpe_dset:
             self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
 
@@ -576,11 +578,11 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         return set(itertools.chain.from_iterable(cpe_matches))
 
     @serialize
+    @staged(logger, "Computing heuristics: CVEs in certificates.")
     def compute_related_cves(self) -> None:
         """
         Computes CVEs for the certificates, given their CPE matches.
         """
-        logger.info("Computing heuristics: CVEs in certificates.")
 
         if not self.auxiliary_datasets.cpe_dset:
             self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()

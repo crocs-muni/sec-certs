@@ -49,6 +49,8 @@ class AbstractMatcher(Generic[CertSubType], ABC):
             if score < threshold:
                 break
             # Match cert dgst to entry
+            matched_is.add(i)
+            matched_js.add(j)
             cert = certs[i]
             entry = matchers[j].entry
             results[cert.dgst] = entry
