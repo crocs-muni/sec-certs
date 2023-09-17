@@ -1,4 +1,4 @@
-dgst,referenced_cert_id,source,label,comment
+dgst,canonical_reference_keyword,source,label,comment
 a21d17fd2d8b8edc,BSI-DSZ-CC-0813-2012,report,component_used,None
 657f8d0cc39bbcdc,BSI-DSZ-CC-0946-2014,report,recertification,None
 0efe2627f1ce8ac2,BSI-DSZ-CC-0351-2006,report,component_used,None

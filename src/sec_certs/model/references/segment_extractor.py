@@ -5,7 +5,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Literal
+from typing import Any, Iterable, Literal
 
 import langdetect
 import pandas as pd
@@ -13,9 +13,21 @@ import spacy
 from importlib_resources import files
 
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.utils import parallel_processing
 
 nlp = spacy.load("en_core_web_sm")
+
+
+def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
+    new_dct: dict[str, set[str]] = {}
+    for key, val in dct.items():
+        if val in new_dct:
+            new_dct[val].add(key)
+        else:
+            new_dct[val] = {key}
+
+    return {key: val for key, val in new_dct.items() if key in filter_to_keys}
 
 
 def references_to_label_studio(df: pd.DataFrame, filepath: Path) -> None:
@@ -41,7 +53,9 @@ def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
     with record.processed_data_source_path.open("r") as handle:
         data = handle.read()
 
-    sentences_with_hits = [sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text]
+    sentences_with_hits = [
+        sent.text for sent in nlp(data).sents if any(x in sent.text for x in record.actual_reference_keywords)
+    ]
     if not sentences_with_hits:
         record.segments = None
         return record
@@ -75,7 +89,7 @@ def preprocess_data_source(record: ReferenceRecord) -> ReferenceRecord:
     with record.raw_data_source_path.open("r") as handle:
         data = handle.read()
 
-    processed_data = preprocess_txt_func(data, record.referenced_cert_id)
+    processed_data = preprocess_txt_func(data, record.canonical_reference_keyword)
 
     with record.processed_data_source_path.open("w") as handle:
         handle.write(processed_data)
@@ -137,12 +151,19 @@ class ReferenceRecord:
     certificate_dgst: str
     raw_data_source_path: Path
     processed_data_source_path: Path
-    referenced_cert_id: str
+    canonical_reference_keyword: str
+    actual_reference_keywords: set[str]
     source: str
     segments: set[str] | None = None
 
-    def to_pandas_tuple(self) -> tuple[str, str, str, set[str] | None]:
-        return self.certificate_dgst, self.referenced_cert_id, self.source, self.segments
+    def to_pandas_tuple(self) -> tuple[str, str, set[str], str, set[str] | None]:
+        return (
+            self.certificate_dgst,
+            self.canonical_reference_keyword,
+            self.actual_reference_keywords,
+            self.source,
+            self.segments,
+        )
 
 
 class ReferenceSegmentExtractor:
@@ -178,18 +199,32 @@ class ReferenceSegmentExtractor:
 
     def _build_records(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> list[ReferenceRecord]:
         def get_cert_records(cert: CCCertificate, source: Literal["target", "report"]) -> list[ReferenceRecord]:
-            ref_var = {"target": "st_references", "report": "report_references"}
+            canonical_ref_var = {"target": "st_references", "report": "report_references"}
+            actual_ref_var = {"target": "st_keywords", "report": "report_keywords"}
             raw_source_var = {"target": "st_txt_path", "report": "report_txt_path"}
 
-            references = getattr(cert.heuristics, ref_var[source]).directly_referencing
+            canonical_references = getattr(cert.heuristics, canonical_ref_var[source]).directly_referencing
+            actual_references = getattr(cert.pdf_data, actual_ref_var[source])["cc_cert_id"]
+            actual_references = {
+                inner_key: CertificateId(outer_key, inner_key).canonical
+                for outer_key, val in actual_references.items()
+                for inner_key in val
+            }
+            actual_references = swap_and_filter_dict(actual_references, canonical_references)
+
             raw_source_dir = getattr(cert.state, raw_source_var[source]).parent
             processed_source_dir = raw_source_dir.parent / "txt_processed"
 
             return [
                 ReferenceRecord(
-                    cert.dgst, raw_source_dir / f"{cert.dgst}.txt", processed_source_dir / f"{cert.dgst}.txt", x, source
+                    cert.dgst,
+                    raw_source_dir / f"{cert.dgst}.txt",
+                    processed_source_dir / f"{cert.dgst}.txt",
+                    key,
+                    val,
+                    source,
                 )
-                for x in references
+                for key, val in actual_references.items()
             ]
 
         (certs[0].state.report_txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
@@ -216,7 +251,7 @@ class ReferenceSegmentExtractor:
         print(f"I now have {len(results)} in {source} mode")
         return pd.DataFrame.from_records(
             [x.to_pandas_tuple() for x in results],
-            columns=["dgst", "referenced_cert_id", "source", "segments"],
+            columns=["dgst", "canonical_reference_keyword", "actual_reference_keywords", "source", "segments"],
         )
 
     @staticmethod
@@ -239,7 +274,7 @@ class ReferenceSegmentExtractor:
     @staticmethod
     def _get_annotations_dict() -> dict[tuple[str, str], str]:
         """
-        Returns dictionary mapping tuples `(dgst, referenced_cert_id) -> label`
+        Returns dictionary mapping tuples `(dgst, canonical_reference_keyword) -> label`
         """
 
         def load_single_df(pth: Path, split_name: str) -> pd.DataFrame:
@@ -260,7 +295,9 @@ class ReferenceSegmentExtractor:
         )
 
         return (
-            df_annot[["dgst", "referenced_cert_id", "label"]].set_index(["dgst", "referenced_cert_id"]).label.to_dict()
+            df_annot[["dgst", "canonical_reference_keyword", "label"]]
+            .set_index(["dgst", "canonical_reference_keyword"])
+            .label.to_dict()
         )
 
     @staticmethod
@@ -276,13 +313,23 @@ class ReferenceSegmentExtractor:
             .explode("segments")
             .assign(lang=lambda df_: df_.segments.map(langdetect.detect))
             .loc[lambda df_: df_.lang.isin({"en", "fr", "de"})]
-            .groupby(["dgst", "referenced_cert_id", "source"], as_index=False, dropna=False)
+            .groupby(
+                ["dgst", "canonical_reference_keyword", "actual_reference_keywords", "source"],
+                as_index=False,
+                dropna=False,
+            )
             .agg({"segments": list, "lang": list})
             .assign(
                 split=lambda df_: df_.dgst.map(split_dct),
-                label=lambda df_: [annotations_dict.get(x) for x in zip(df_["dgst"], df_["referenced_cert_id"])],
+                label=lambda df_: [
+                    annotations_dict.get(x) for x in zip(df_["dgst"], df_["canonical_reference_keyword"])
+                ],
             )
             .loc[lambda df_: df_["split"] != "test"]
-            .groupby(["dgst", "referenced_cert_id", "label", "split"], as_index=False, dropna=False)
+            .groupby(
+                ["dgst", "canonical_reference_keyword", "actual_reference_keywords", "label", "split"],
+                as_index=False,
+                dropna=False,
+            )
             .agg({"segments": sum, "lang": sum})
         )

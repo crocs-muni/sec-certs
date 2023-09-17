@@ -1,4 +1,4 @@
-dgst,referenced_cert_id,source,label,comment
+dgst,canonical_reference_keyword,source,label,comment
 00a2b91e5b58cef1,ANSSI-CC-2014/23,None,None,None
 00ad121fa63e5dfb,BSI-DSZ-CC-0973-V2-2016,None,None,None
 00ad121fa63e5dfb,BSI-DSZ-CC-0996-2018,None,None,None

@@ -14,6 +14,11 @@ class CertificateId:
     raw: str
 
     def _canonical_fr(self) -> str:
+        def pad_last_segment_with_zero(id_str: str) -> str:
+            prefix, num = id_str.split("/")
+            num = num.zfill(2)
+            return f"{prefix}/{num}"
+
         new_cert_id = self.clean
         rules = [
             "(?:Rapport de certification|Certification Report) ([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
@@ -22,7 +27,7 @@ class CertificateId:
         ]
         for rule in rules:
             if match := re.match(rule, new_cert_id):
-                return "ANSSI-CC-" + match.group(1).replace("_", "/").replace("V", "v")
+                return pad_last_segment_with_zero("ANSSI-CC-" + match.group(1).replace("_", "/").replace("V", "v"))
 
         return new_cert_id
 
