@@ -15,9 +15,11 @@ class CertificateId:
 
     def _canonical_fr(self) -> str:
         def pad_last_segment_with_zero(id_str: str) -> str:
-            prefix, num = id_str.split("/")
-            num = num.zfill(2)
-            return f"{prefix}/{num}"
+            splitted = id_str.split("/")
+            if len(splitted) > 1:
+                num = splitted[-1].zfill(2)
+                return f"{''.join(splitted[:-1])}/{num}"
+            return id_str
 
         new_cert_id = self.clean
         rules = [
