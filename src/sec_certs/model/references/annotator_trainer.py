@@ -50,7 +50,7 @@ class ReferenceAnnotatorTrainer:
         cls,
         df: pd.DataFrame,
         metric: Callable,
-        mode: Literal["training", "production"] = "training",
+        mode: Literal["training", "evaluation", "production"] = "training",
         use_analytical_rule_name_similarity: bool = True,
         n_iterations: int = 20,
         n_epochs: int = 1,
@@ -61,6 +61,7 @@ class ReferenceAnnotatorTrainer:
         df = prepare_reference_annotations_df(df)
         dataset_generation_method = {
             "training": ReferenceAnnotatorTrainer.split_df_for_training,
+            "evaluation": ReferenceAnnotatorTrainer.split_df_for_evaluation,
             "production": ReferenceAnnotatorTrainer.split_df_for_production,
         }
 
@@ -83,6 +84,11 @@ class ReferenceAnnotatorTrainer:
 
     @staticmethod
     def split_df_for_production(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+        logger.info("Splitting dataset for production, model can be trained, but not evaluated.")
+        return df.drop(columns="split"), df.drop(df.index)
+
+    @staticmethod
+    def split_df_for_evaluation(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         df.split = df.split.map({"test": "test", "train": "train", "valid": "train"})
         if df.loc[df.split == "test"].empty:
             logger.warning("`test` split for annotator dataset is empty -> model can be trained, but not evaluated.")
@@ -92,8 +98,8 @@ class ReferenceAnnotatorTrainer:
         model = SetFitModel.from_pretrained("paraphrase-multilingual-mpnet-base-v2")
         # model = SetFitModel.from_pretrained("all-mpnet-base-v2")
 
-        train_dataset_relevant_cols = self._train_dataset[["dgst", "referenced_cert_id", "segments", "label"]]
-        eval_dataset_relevant_cols = self._eval_dataset[["dgst", "referenced_cert_id", "segments", "label"]]
+        train_dataset_relevant_cols = self._train_dataset[["dgst", "canonical_reference_keyword", "segments", "label"]]
+        eval_dataset_relevant_cols = self._eval_dataset[["dgst", "canonical_reference_keyword", "segments", "label"]]
         internal_train_dataset = self._get_hugging_face_datasets_from_df(train_dataset_relevant_cols, "train")
         internal_validation_dataset = self._get_hugging_face_datasets_from_df(eval_dataset_relevant_cols, "validation")
 
@@ -126,11 +132,11 @@ class ReferenceAnnotatorTrainer:
 
     @staticmethod
     def _get_hugging_face_datasets_from_df(df: pd.DataFrame, split: NamedSplit) -> Dataset:
-        df_to_use = df.explode("segments").rename(columns={"segments": "segment"})
+        df_to_use = df.explode("segments").rename(columns={"segments": "segment"}).loc[df.label.notnull()]
         features = Features(
             {
                 "dgst": Value("string"),
-                "referenced_cert_id": Value("string"),
+                "canonical_reference_keyword": Value("string"),
                 "segment": Value("string"),
                 "label": ClassLabel(names=list(df_to_use.label.unique())),
             }

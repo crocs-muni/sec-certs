@@ -2,21 +2,25 @@ from __future__ import annotations
 
 import itertools
 import json
+import logging
 import re
 from dataclasses import dataclass
+from importlib.resources import files
 from pathlib import Path
 from typing import Any, Iterable, Literal
 
 import langdetect
+import numpy as np
 import pandas as pd
 import spacy
-from importlib_resources import files
+from rapidfuzz import fuzz
 
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.utils import parallel_processing
 
 nlp = spacy.load("en_core_web_sm")
+logger = logging.getLogger(__name__)
 
 
 def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
@@ -27,28 +31,12 @@ def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
         else:
             new_dct[val] = {key}
 
-    return {key: val for key, val in new_dct.items() if key in filter_to_keys}
-
-
-def references_to_label_studio(df: pd.DataFrame, filepath: Path) -> None:
-    """
-    Prepares a DataFrame obtained from ReferenceSegmentExtractor to be used in Label Studio for manual annotation.
-    It then suffices to use "Natural Language Processing" -> "Text Classification" task in Label Studio.
-    """
-
-    def split(segments: list[str]) -> str:
-        res = ""
-        for x in segments:
-            res += "* Segment: " + x + "\n\n"
-        return res
-
-    df["text"] = df["segments"].apply(split)
-    df.loc[:, ["dgst", "referenced_cert_id", "text"]].to_json(filepath, indent=4, orient="records")
+    return {key: frozenset(val) for key, val in new_dct.items() if key in filter_to_keys}
 
 
 def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
     """
-    Open file, read text and extract sentences with `referenced_cert_id` match.
+    Open file, read text and extract sentences with `canonical_reference_keyword` match.
     """
     with record.processed_data_source_path.open("r") as handle:
         data = handle.read()
@@ -63,8 +51,8 @@ def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
     record.segments = set()
     for index, sent in enumerate(sentences_with_hits):
         to_add = ""
-        if index > 0:
-            to_add += sentences_with_hits[index - 1]
+        if index > 2:
+            to_add += sentences_with_hits[index - 3] + sentences_with_hits[index - 2] + sentences_with_hits[index - 1]
 
         to_add += sent
 
@@ -73,10 +61,8 @@ def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
 
         record.segments.add(to_add)
 
-    # record.segments = {sent.text for sent in nlp(data).sents if record.referenced_cert_id in sent.text}
-
-    # if not record.segments:
-    #     record.segments = None
+    if not record.segments:
+        record.segments = None
 
     return record
 
@@ -89,7 +75,7 @@ def preprocess_data_source(record: ReferenceRecord) -> ReferenceRecord:
     with record.raw_data_source_path.open("r") as handle:
         data = handle.read()
 
-    processed_data = preprocess_txt_func(data, record.canonical_reference_keyword)
+    processed_data = preprocess_txt_func(data, record.actual_reference_keywords)
 
     with record.processed_data_source_path.open("w") as handle:
         handle.write(processed_data)
@@ -97,27 +83,37 @@ def preprocess_data_source(record: ReferenceRecord) -> ReferenceRecord:
     return record
 
 
-def find_bracket_pattern(sentences, exact_match):
-    pattern = r"(\[.+?\])(?=.*" + exact_match + r")"
-    res = []
+def strip_all(text: str, to_strip) -> str:
+    if pd.isna(to_strip):
+        return text
+    for i in to_strip:
+        text = text.replace(i, "")
+    return text
+
+
+def find_bracket_pattern(sentences: set[str], actual_reference_keywords: frozenset[str]):
+    patterns = [r"(\[.+?\])(?=.*" + x + r")" for x in actual_reference_keywords]
+    res: list[tuple[str, str]] = []
+
     for sent in sentences:
-        matches = re.findall(pattern, sent, flags=re.MULTILINE | re.UNICODE | re.DOTALL)
-        if matches:
-            res.append(matches[-1])
+        for pattern, keyword in zip(patterns, actual_reference_keywords):
+            matches = re.findall(pattern, sent, flags=re.MULTILINE | re.UNICODE | re.DOTALL)
+            if matches:
+                res.append((matches[-1], keyword))
     return res
 
 
-def preprocess_txt_func(data: str, referenced_cert_id: str) -> str:
+def preprocess_txt_func(data: str, actual_reference_keywords: frozenset[str]) -> str:
     data = replace_acronyms(data)
-    data = replace_citation_identifiers(data, referenced_cert_id)
+    data = replace_citation_identifiers(data, actual_reference_keywords)
     return data
 
 
-def replace_citation_identifiers(data: str, referenced_cert_id: str) -> str:
-    segments = {sent.text for sent in nlp(data).sents if referenced_cert_id in sent.text}
-    patterns_to_replace = find_bracket_pattern(segments, referenced_cert_id)
-    for pattern in patterns_to_replace:
-        data = data.replace(pattern, referenced_cert_id)
+def replace_citation_identifiers(data: str, actual_reference_keywords: frozenset[str]) -> str:
+    segments = {sent.text for sent in nlp(data).sents if any([x in sent.text for x in actual_reference_keywords])}
+    patterns_to_replace = find_bracket_pattern(segments, actual_reference_keywords)
+    for x in patterns_to_replace:
+        data = data.replace(x[0], x[1])
     return data
 
 
@@ -152,11 +148,11 @@ class ReferenceRecord:
     raw_data_source_path: Path
     processed_data_source_path: Path
     canonical_reference_keyword: str
-    actual_reference_keywords: set[str]
+    actual_reference_keywords: frozenset[str]
     source: str
     segments: set[str] | None = None
 
-    def to_pandas_tuple(self) -> tuple[str, str, set[str], str, set[str] | None]:
+    def to_pandas_tuple(self) -> tuple[str, str, frozenset[str], str, set[str] | None]:
         return (
             self.certificate_dgst,
             self.canonical_reference_keyword,
@@ -176,17 +172,16 @@ class ReferenceSegmentExtractor:
         pass
 
     def __call__(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
-        return self._prepare_df_from_cc_certs(certs)
+        return self._prepare_df_from_cc_dset(certs)
 
-    def _prepare_df_from_cc_certs(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
+    def _prepare_df_from_cc_dset(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
         """
         Prepares processed DataFrame for reference annotator training from a list of certificates. This method:
         - Extracts text segments relevant for each reference out of the certificates, forms dataframe from those
-        - Loads data splits into train/valid/test
+        - Loads data splits into train/valid/test (unseen certificates are put into test set)
         - Loads manually annotated samples
         - Combines all of that into single dataframe
         """
-
         target_certs = [x for x in certs if x.heuristics.st_references.directly_referencing and x.state.st_txt_path]
         report_certs = [
             x for x in certs if x.heuristics.report_references.directly_referencing and x.state.report_txt_path
@@ -195,7 +190,7 @@ class ReferenceSegmentExtractor:
         df_reports = self._build_df(report_certs, "report")
         print(f"df_targets shape: {df_targets.shape}")
         print(f"df_reports shape: {df_reports.shape}")
-        return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]))
+        return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]), certs)
 
     def _build_records(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> list[ReferenceRecord]:
         def get_cert_records(cert: CCCertificate, source: Literal["target", "report"]) -> list[ReferenceRecord]:
@@ -264,7 +259,7 @@ class ReferenceSegmentExtractor:
             with pth.open("r") as handle:
                 return dict.fromkeys(json.load(handle), split_name)
 
-        split_directory = files("sec_certs.data") / "reference_annotations/split/"
+        split_directory = Path(str(files("sec_certs.data") / "reference_annotations/split/"))
         return {
             **get_single_dct(split_directory / "train.json", "train"),
             **get_single_dct(split_directory / "valid.json", "valid"),
@@ -285,7 +280,7 @@ class ReferenceSegmentExtractor:
                 .dropna(subset="label")
             )
 
-        annotations_directory = files("sec_certs.data") / "reference_annotations/manual_annotations/"
+        annotations_directory = Path(str(files("sec_certs.data") / "reference_annotations/manual_annotations/"))
         df_annot = pd.concat(
             [
                 load_single_df(annotations_directory / "train.csv", "train"),
@@ -301,14 +296,35 @@ class ReferenceSegmentExtractor:
         )
 
     @staticmethod
-    def _process_df(df: pd.DataFrame) -> pd.DataFrame:
+    def _process_df(df: pd.DataFrame, certs: Iterable[CCCertificate]) -> pd.DataFrame:
+        def process_segment(segment: str, actual_reference_keywords: frozenset[str]) -> str:
+            segment = " ".join(segment.split())
+            for ref_id in actual_reference_keywords:
+                segment = segment.replace(ref_id, "REFERENCED_CERTIFICATE_ID")
+            return segment
+
         """
         Fully processes the dataframe.
         """
         annotations_dict = ReferenceSegmentExtractor._get_annotations_dict()
         split_dct = ReferenceSegmentExtractor._get_split_dict()
 
-        return (
+        # Retrieve some columns previously lost
+        dgst_to_cert_name = {x.dgst: x.name for x in certs}
+        cert_id_to_cert_name = {x.heuristics.cert_id: x.name for x in certs}
+        dgst_to_extracted_versions = {x.dgst: x.heuristics.extracted_versions for x in certs}
+        cert_id_to_extracted_versions = {x.heuristics.cert_id: x.heuristics.extracted_versions for x in certs}
+
+        logger.info(f"Deleting {df.loc[df.segments.isnull()].shape[0]} rows with no segments.")
+
+        df_new = df.copy()
+        df_new["full_key"] = df_new.apply(lambda x: (x["dgst"], x["canonical_reference_keyword"]), axis=1)
+        to_delete = len(df_new.loc[df_new.segments.isnull()].full_key.unique())
+        print(
+            f"Deleting records for {to_delete} unique (dgst, referenced_id) pairs, not necessarily labeled ones. These have empty segments."
+        )
+
+        df_processed = (
             df.loc[df.segments.notnull()]
             .explode("segments")
             .assign(lang=lambda df_: df_.segments.map(langdetect.detect))
@@ -324,12 +340,36 @@ class ReferenceSegmentExtractor:
                 label=lambda df_: [
                     annotations_dict.get(x) for x in zip(df_["dgst"], df_["canonical_reference_keyword"])
                 ],
+                cert_name=lambda df_: df_.dgst.map(dgst_to_cert_name),
+                referenced_cert_name=lambda df_: df_.canonical_reference_keyword.map(cert_id_to_cert_name),
+                cert_versions=lambda df_: df_.dgst.map(dgst_to_extracted_versions),
+                referenced_cert_versions=lambda df_: df_.canonical_reference_keyword.map(cert_id_to_extracted_versions),
+                cert_name_stripped_version=lambda df_: df_.apply(
+                    lambda x: strip_all(x["cert_name"], x["cert_versions"]), axis=1
+                ),
+                referenced_cert_name_stripped_version=lambda df_: df_.apply(
+                    lambda x: strip_all(x["referenced_cert_name"], x["referenced_cert_versions"]), axis=1
+                ),
+                name_similarity=lambda df_: df_.apply(
+                    lambda x: fuzz.token_set_ratio(
+                        x["cert_name_stripped_version"], x["referenced_cert_name_stripped_version"]
+                    ),
+                    axis=1,
+                ),
+                name_len_diff=lambda df_: df_.apply(
+                    lambda x: np.nan
+                    if pd.isnull(x["cert_name_stripped_version"])
+                    or pd.isnull(x["referenced_cert_name_stripped_version"])
+                    else abs(len(x["cert_name_stripped_version"]) - len(x["referenced_cert_name_stripped_version"])),
+                    axis=1,
+                ),
             )
-            .loc[lambda df_: df_["split"] != "test"]
-            .groupby(
-                ["dgst", "canonical_reference_keyword", "actual_reference_keywords", "label", "split"],
-                as_index=False,
-                dropna=False,
+            .assign(
+                label=lambda df_: df_.label.map(lambda x: x if x is not None else np.nan),
+                split=lambda df_: df_.split.map(lambda x: "test" if pd.isnull(x) else x),
             )
-            .agg({"segments": sum, "lang": sum})
         )
+        df_processed.segments = df_processed.apply(
+            lambda row: [process_segment(x, row.actual_reference_keywords) for x in row.segments], axis=1
+        )
+        return df_processed

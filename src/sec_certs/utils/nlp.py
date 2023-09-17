@@ -22,8 +22,8 @@ def eval_strings_if_necessary(series: pd.Series) -> pd.Series:
     return series.map(literal_eval) if isinstance(series.iloc[0], str) else series
 
 
-def filter_short_sentences(sentences, cert_id):
-    return [x for x in sentences if len(x) > len(cert_id) + 20]
+def filter_short_sentences(sentences, actual_reference_keywords):
+    return [x for x in sentences if len(x) > min(len(x) for x in actual_reference_keywords) + 20]
 
 
 def prepare_reference_annotations_df(df: pd.DataFrame):
@@ -34,6 +34,8 @@ def prepare_reference_annotations_df(df: pd.DataFrame):
         .assign(segments=lambda df_: eval_strings_if_necessary(df_.segments))
         .drop(columns="lang")
     )
-    df.segments = df.apply(lambda row: filter_short_sentences(row["segments"], row["referenced_cert_id"]), axis=1)
+    df.segments = df.apply(
+        lambda row: filter_short_sentences(row["segments"], row["actual_reference_keywords"]), axis=1
+    )
     df = df.loc[lambda df_: df_.segments.map(len) > 0]
     return df
