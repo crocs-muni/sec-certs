@@ -128,6 +128,7 @@ packaging==22.0
     #   ipykernel
     #   matplotlib
     #   pikepdf
+    #   pytesseract
     #   setuptools-scm
     #   spacy
 pandas==1.5.2
@@ -152,6 +153,7 @@ pillow==9.3.0
     # via
     #   matplotlib
     #   pikepdf
+    #   pytesseract
     #   sec-certs (./../pyproject.toml)
 pkgconfig==1.5.5
     # via sec-certs (./../pyproject.toml)
@@ -188,6 +190,8 @@ pypdf[crypto]==3.2.1
 pyrsistent==0.19.2
     # via jsonschema
 pysankeybeta==1.4.0
+    # via sec-certs (./../pyproject.toml)
+pytesseract==0.3.10
     # via sec-certs (./../pyproject.toml)
 python-dateutil==2.8.2
     # via
@@ -275,6 +279,7 @@ typer==0.7.0
 typing-extensions==4.4.0
     # via
     #   pydantic
+    #   pypdf
     #   setuptools-scm
 urllib3==1.26.13
     # via requests
