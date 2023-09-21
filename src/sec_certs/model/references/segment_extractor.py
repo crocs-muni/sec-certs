@@ -276,6 +276,7 @@ class ReferenceSegmentExtractor:
             return (
                 pd.read_csv(
                     pth,
+                    na_values=["None"],
                     dtype={
                         "dgst": str,
                         "canonical_reference_keyword": str,
@@ -348,6 +349,7 @@ class ReferenceSegmentExtractor:
                 label=lambda df_: [
                     annotations_dict.get(x) for x in zip(df_["dgst"], df_["canonical_reference_keyword"])
                 ],
+                actual_reference_keywords=lambda df_: df_.actual_reference_keywords.map(list),
                 cert_name=lambda df_: df_.dgst.map(dgst_to_cert_name),
                 referenced_cert_name=lambda df_: df_.canonical_reference_keyword.map(cert_id_to_cert_name),
                 cert_versions=lambda df_: df_.dgst.map(dgst_to_extracted_versions),
