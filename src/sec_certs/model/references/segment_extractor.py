@@ -110,7 +110,7 @@ def preprocess_txt_func(data: str, actual_reference_keywords: frozenset[str]) ->
 
 
 def replace_citation_identifiers(data: str, actual_reference_keywords: frozenset[str]) -> str:
-    segments = {sent.text for sent in nlp(data).sents if any([x in sent.text for x in actual_reference_keywords])}
+    segments = {sent.text for sent in nlp(data).sents if any(x in sent.text for x in actual_reference_keywords)}
     patterns_to_replace = find_bracket_pattern(segments, actual_reference_keywords)
     for x in patterns_to_replace:
         data = data.replace(x[0], x[1])
@@ -274,10 +274,18 @@ class ReferenceSegmentExtractor:
 
         def load_single_df(pth: Path, split_name: str) -> pd.DataFrame:
             return (
-                pd.read_csv(pth)
-                .assign(label=lambda df_: df_.label.str.replace(" ", "_").str.upper(), split=split_name)
-                .replace("NONE", None)
+                pd.read_csv(
+                    pth,
+                    dtype={
+                        "dgst": str,
+                        "canonical_reference_keyword": str,
+                        "source": str,
+                        "label": str,
+                        "comment": str,
+                    },
+                )
                 .dropna(subset="label")
+                .assign(label=lambda df_: df_.label.str.replace(" ", "_").str.upper(), split=split_name)
             )
 
         annotations_directory = Path(str(files("sec_certs.data") / "reference_annotations/manual_annotations/"))
