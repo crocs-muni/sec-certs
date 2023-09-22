@@ -34,35 +34,36 @@ def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
     return {key: frozenset(val) for key, val in new_dct.items() if key in filter_to_keys}
 
 
-def fill_reference_segments(record: ReferenceRecord) -> ReferenceRecord:
+def fill_reference_segments_new(
+    record: ReferenceRecord, n_sent_before: int = 3, n_sent_after: int = 1
+) -> ReferenceRecord:
     """
-    Open file, read text and extract sentences with `canonical_reference_keyword` match.
+    Compute indices of the sentences containing the reference keyword, take their surrounding sentences and join them.
     """
+
+    def compute_allowed_indices(hit_index: int, max_index: int, n_before: int, n_after: int):
+        """
+        Computes indices of sentences to join into a coherent paragraph based on their location in text.
+        Ideally we would like to take (hit_index - n_before, hit_index + n_after), but we need to make sure
+        that we do not go out of bounds.
+        """
+        lower = max(0, hit_index - n_before)
+        upper = min(max_index, hit_index + n_after)
+        return range(lower, upper)
+
     with record.processed_data_source_path.open("r") as handle:
         data = handle.read()
 
-    sentences_with_hits = [
-        sent.text for sent in nlp(data).sents if any(x in sent.text for x in record.actual_reference_keywords)
-    ]
-    if not sentences_with_hits:
+    sentences = [sent.text for sent in nlp(data).sents]
+    hit_indices = [sentences.index(x) for x in sentences if any(y in x for y in record.actual_reference_keywords)]
+    if not hit_indices:
         record.segments = None
         return record
 
-    record.segments = set()
-    for index, sent in enumerate(sentences_with_hits):
-        to_add = ""
-        if index > 2:
-            to_add += sentences_with_hits[index - 3] + sentences_with_hits[index - 2] + sentences_with_hits[index - 1]
-
-        to_add += sent
-
-        if index < len(sentences_with_hits) - 1:
-            to_add += sentences_with_hits[index + 1]
-
-        record.segments.add(to_add)
-
-    if not record.segments:
-        record.segments = None
+    sequences_to_take = [
+        compute_allowed_indices(x, len(sentences) - 1, n_sent_before, n_sent_after) for x in hit_indices
+    ]
+    record.segments = {"".join([sentences[y] for y in x]) for x in sequences_to_take}
 
     return record
 
@@ -228,6 +229,7 @@ class ReferenceSegmentExtractor:
 
     def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
         records = self._build_records(certs, source)
+
         records = parallel_processing.process_parallel(
             preprocess_data_source,
             records,
@@ -237,12 +239,13 @@ class ReferenceSegmentExtractor:
         )
 
         results = parallel_processing.process_parallel(
-            fill_reference_segments,
+            fill_reference_segments_new,
             records,
             use_threading=False,
             progress_bar=True,
             progress_bar_desc="Recovering reference segments",
         )
+
         print(f"I now have {len(results)} in {source} mode")
         return pd.DataFrame.from_records(
             [x.to_pandas_tuple() for x in results],
