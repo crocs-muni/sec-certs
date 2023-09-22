@@ -34,14 +34,12 @@ def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
     return {key: frozenset(val) for key, val in new_dct.items() if key in filter_to_keys}
 
 
-def fill_reference_segments_new(
-    record: ReferenceRecord, n_sent_before: int = 3, n_sent_after: int = 1
-) -> ReferenceRecord:
+def fill_reference_segments(record: ReferenceRecord, n_sent_before: int = 1, n_sent_after: int = 0) -> ReferenceRecord:
     """
     Compute indices of the sentences containing the reference keyword, take their surrounding sentences and join them.
     """
 
-    def compute_allowed_indices(hit_index: int, max_index: int, n_before: int, n_after: int):
+    def compute_surroundings(hit_index: int, max_index: int, n_before: int, n_after: int):
         """
         Computes indices of sentences to join into a coherent paragraph based on their location in text.
         Ideally we would like to take (hit_index - n_before, hit_index + n_after), but we need to make sure
@@ -54,24 +52,23 @@ def fill_reference_segments_new(
     with record.processed_data_source_path.open("r") as handle:
         data = handle.read()
 
-    sentences = [sent.text for sent in nlp(data).sents]
-    hit_indices = [sentences.index(x) for x in sentences if any(y in x for y in record.actual_reference_keywords)]
-    if not hit_indices:
+    sents = [sent.text for sent in nlp(data).sents]
+    indices_of_relevant_sents = [sents.index(x) for x in sents if any(y in x for y in record.actual_reference_keywords)]
+
+    if not indices_of_relevant_sents:
         record.segments = None
         return record
 
     sequences_to_take = [
-        compute_allowed_indices(x, len(sentences) - 1, n_sent_before, n_sent_after) for x in hit_indices
+        compute_surroundings(x, len(sents) - 1, n_sent_before, n_sent_after) for x in indices_of_relevant_sents
     ]
-    record.segments = {"".join([sentences[y] for y in x]) for x in sequences_to_take}
+    record.segments = {"".join([sents[y] for y in x]) for x in sequences_to_take}
 
     return record
 
 
 def preprocess_data_source(record: ReferenceRecord) -> ReferenceRecord:
-    # TODO: This shall be reactivate only when we delete the processed data source files after finnishing
-    # if record.processed_data_source_path.exists():
-    #     return record
+    # TODO: There's some space for improvement, the preprocessing is acutally run twice.
 
     with record.raw_data_source_path.open("r") as handle:
         data = handle.read()
@@ -239,7 +236,7 @@ class ReferenceSegmentExtractor:
         )
 
         results = parallel_processing.process_parallel(
-            fill_reference_segments_new,
+            fill_reference_segments,
             records,
             use_threading=False,
             progress_bar=True,
