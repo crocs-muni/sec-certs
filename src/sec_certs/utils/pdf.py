@@ -12,6 +12,7 @@ from typing import Any
 import pdftotext
 import pikepdf
 import pytesseract
+from PIL import Image
 
 from sec_certs import constants
 from sec_certs.constants import (
@@ -55,7 +56,7 @@ def ocr_pdf_file(pdf_path: Path) -> str:
 
         for ppm_path in map(Path, glob.glob(str(tmppath / "image*.ppm"))):
             base = ppm_path.with_suffix("")
-            content = pytesseract.image_to_string(ppm_path, lang="eng+deu+fra")
+            content = pytesseract.image_to_string(Image.open(ppm_path), lang="eng+deu+fra")
 
             if content:
                 with Path(base.with_suffix(".txt")).open("w") as file:
