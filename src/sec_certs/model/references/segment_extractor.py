@@ -9,7 +9,7 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any, Iterable, Literal
 
-import langdetect
+# import langdetect
 import numpy as np
 import pandas as pd
 import spacy
@@ -47,7 +47,7 @@ def fill_reference_segments(record: ReferenceRecord, n_sent_before: int = 1, n_s
         """
         lower = max(0, hit_index - n_before)
         upper = min(max_index, hit_index + n_after)
-        return range(lower, upper)
+        return range(lower, upper + 1)
 
     with record.processed_data_source_path.open("r") as handle:
         data = handle.read()
@@ -188,6 +188,7 @@ class ReferenceSegmentExtractor:
         df_reports = self._build_df(report_certs, "report")
         print(f"df_targets shape: {df_targets.shape}")
         print(f"df_reports shape: {df_reports.shape}")
+
         return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]), certs)
 
     def _build_records(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> list[ReferenceRecord]:
@@ -312,6 +313,10 @@ class ReferenceSegmentExtractor:
                 segment = segment.replace(ref_id, "REFERENCED_CERTIFICATE_ID")
             return segment
 
+        def unique_elements(series):
+            combined = [item for sublist in series for item in sublist]
+            return list(set(combined))
+
         """
         Fully processes the dataframe.
         """
@@ -336,14 +341,14 @@ class ReferenceSegmentExtractor:
         df_processed = (
             df.loc[df.segments.notnull()]
             .explode("segments")
-            .assign(lang=lambda df_: df_.segments.map(langdetect.detect))
-            .loc[lambda df_: df_.lang.isin({"en", "fr", "de"})]
+            # .assign(lang=lambda df_: df_.segments.map(langdetect.detect))
+            # .loc[lambda df_: df_.lang.isin({"en", "fr", "de"})]  # This could get disabled possibly.
             .groupby(
-                ["dgst", "canonical_reference_keyword", "actual_reference_keywords", "source"],
+                ["dgst", "canonical_reference_keyword"],
                 as_index=False,
                 dropna=False,
             )
-            .agg({"segments": list, "lang": list})
+            .agg({"segments": list, "actual_reference_keywords": unique_elements})
             .assign(
                 split=lambda df_: df_.dgst.map(split_dct),
                 label=lambda df_: [
