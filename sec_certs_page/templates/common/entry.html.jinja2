@@ -2,13 +2,13 @@
     <div class="btn-group">
         <a class="btn {{ primary_style }}" role="button" href="{{ link }}"
            data-bs-toggle="tooltip" data-bs-placement="bottom"
-           title="{{ link.split("/")[-1] if "/" in link else link }}">{{ link_content|safe }}</a>
+           title="{{ link.split("/")[-1] if "/" in link else link }}" target="_blank" rel="noopener">{{ link_content|safe }}</a>
         {% for format in ("pdf", "txt") %}
             {% if local_files.get((document, format)) %}
                 <a class="btn {{ secondary_style }}" role="button"
                    href="{{ url_for(".entry_" + document + "_" + format, hashid=hashid) }}"
                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                   title="Local download">{{ format.upper() }}</a>
+                   title="Local download" target="_blank">{{ format.upper() }}</a>
             {% endif %}
         {% endfor %}
     </div>

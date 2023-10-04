@@ -216,12 +216,6 @@
                               class="badge bg-secondary"
                               data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information automatically extracted from the certificate report. Might contain errors.">?</span>
-                        {% if cert["report_link"] and False %}
-                            <a role="button" href="{{ cert['report_link'] }}"
-                               style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                               data-bs-toggle="tooltip" data-bs-placement="top" title="Download."><i
-                                    class="fas fa-fw fa-download"></i></a>
-                        {% endif %}
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                               class="badge rounded-pill {% if cert["state"]["report_download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
