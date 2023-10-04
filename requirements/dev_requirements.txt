@@ -248,7 +248,7 @@ pickleshare==0.7.5
     # via ipython
 pikepdf==6.2.5
     # via sec-certs (./../pyproject.toml)
-pillow==9.3.0
+pillow==10.0.1
     # via
     #   matplotlib
     #   pikepdf
