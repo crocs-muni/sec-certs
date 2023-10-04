@@ -276,7 +276,7 @@ typing-extensions==4.4.0
     # via
     #   pydantic
     #   setuptools-scm
-urllib3==1.26.13
+urllib3==1.26.17
     # via requests
 wasabi==0.10.1
     # via
