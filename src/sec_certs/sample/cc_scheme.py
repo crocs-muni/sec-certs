@@ -107,7 +107,7 @@ def get_australia_in_evaluation(enhanced: bool = True) -> list[dict[str, Any]]: 
         if enhanced:
             e: dict[str, Any] = {}
             cert_page = _get_page(cert["url"])
-            article = cert_page.find("article", attrs={"role": "article"})
+            article = cert_page.find("article")
             blocks = article.find("div").find_all("div", class_="flex", recursive=False)
             for h2 in blocks[0].find_all("h2"):
                 val = sns(h2.find_next_sibling("span").text)
