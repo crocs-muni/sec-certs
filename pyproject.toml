@@ -60,6 +60,7 @@
     "networkx",
     "pydantic",
     "psutil",
+    "pytesseract",
   ]
 
   [project.optional-dependencies]

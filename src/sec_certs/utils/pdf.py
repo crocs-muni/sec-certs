@@ -11,6 +11,8 @@ from typing import Any
 
 import pdftotext
 import pikepdf
+import pytesseract
+from PIL import Image
 
 from sec_certs import constants
 from sec_certs.constants import (
@@ -51,13 +53,16 @@ def ocr_pdf_file(pdf_path: Path) -> str:
         )
         if ppm.returncode != 0:
             raise ValueError(f"pdftoppm failed: {ppm.returncode}")
+
         for ppm_path in map(Path, glob.glob(str(tmppath / "image*.ppm"))):
             base = ppm_path.with_suffix("")
-            tes = subprocess.run(
-                ["tesseract", "-l", "eng+deu+fra", ppm_path, base], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            )
-            if tes.returncode != 0:
-                raise ValueError(f"tesseract failed: {tes.returncode}")
+            content = pytesseract.image_to_string(Image.open(ppm_path), lang="eng+deu+fra")
+
+            if content:
+                with Path(base.with_suffix(".txt")).open("w") as file:
+                    file.write(content)
+            else:
+                raise ValueError(f"OCR failed for document {ppm_path}. Check document manually")
 
         contents = ""
 
