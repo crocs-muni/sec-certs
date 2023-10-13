@@ -1,17 +1,16 @@
-import os
-from typing import Dict, Optional, Any
-from pathlib import Path
 import abc
-import os
-import pytesseract
-
-from tempfile import TemporaryDirectory
-import subprocess
-
+import glob
 import logging
-from PIL import Image
+import os
+import subprocess
 from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import Any, Dict, Optional
+
 import fitz
+import pytesseract
+from PIL import Image
 
 INVALID_PYMUPDF_CHARACTER = chr(0xFFFD)
 
@@ -103,7 +102,7 @@ def ocr_segment(page, old_text: Optional[str], bbox, ocr_engine: OCREngineBase) 
     return left_spaces + new_text + right_spaces
     
 
-def ocr_segments_with_garbage_text(page: fitz.Page, page_content: Dict[str, Any], ocr_engine: OCREngineBase) -> None:
+def ocr_segments_with_garbage_text(page: fitz.Page, page_content: Dict[str, Any], ocr_engine: OCREngineBase) -> int:
     """
     Perform OCR on segments of a page that have text which couldn't be read properly.
     
@@ -133,7 +132,7 @@ def ocr_segments_with_garbage_text(page: fitz.Page, page_content: Dict[str, Any]
                     continue
                 if len(text_cells) < len(bbox_cells):
                     logging.warning(f"There is less text cells ({len(text_cells)}) than bbox cells ({len(bbox_cells)}).")
-                    text_cells.extend([None] * len(bbox_cells) - len(text_cells))
+                    text_cells.extend([None] * (len(bbox_cells) - len(text_cells)))
                 for i in range(len(bbox_cells)):
                     text, bbox = text_cells[i], bbox_cells[i]
                     if text is None or INVALID_PYMUPDF_CHARACTER in text:

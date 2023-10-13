@@ -1,23 +1,13 @@
 from __future__ import annotations
 
-import glob
 import logging
-import subprocess
 from datetime import datetime, timedelta, timezone
 from functools import reduce
 from pathlib import Path
+from typing import Any
 
-from typing import Any, Dict, List, Any
-
-import pdftotext
+import fitz  # PyMuPDF
 import pikepdf
-
-from pathlib import Path
-import pytesseract
-
-import logging
-from pathlib import Path
-import fitz # PyMuPDF
 
 from sec_certs import constants
 from sec_certs.constants import (
@@ -27,13 +17,7 @@ from sec_certs.constants import (
     GARBAGE_LINES_THRESHOLD,
     GARBAGE_SIZE_THRESHOLD,
 )
-
-from sec_certs.utils.ocr import (
-    build_ocr_engine,
-    ocr_segments_with_garbage_text,
-    OCREngineBase,
-    ocr_pdf_file
-)
+from sec_certs.utils.ocr import OCREngineBase, build_ocr_engine, ocr_pdf_file, ocr_segments_with_garbage_text
 
 logger = logging.getLogger(__name__)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
@@ -42,8 +26,19 @@ PYMUPDF_TYPES = {
     0: "text",
     1: "figure"
 }
+
+def repair_pdf(file: Path) -> None:
+    """
+    Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
+    By opening this file in a pdf reader, we can already extract number of pages.
+
+    :param file: file name
+    :return: number of pages in pdf file
+    """
+    pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
+    pdf.save(file)
     
-def extract_texts_and_figures(pdf_page) -> Dict[str, Any]:
+def extract_texts_and_figures(pdf_page: fitz.Page) -> dict[str, Any]:
     """
     Extract text and figures from a given PDF page.
     
@@ -60,7 +55,7 @@ def extract_texts_and_figures(pdf_page) -> Dict[str, Any]:
             block.pop("image") # this is too big and useless in byte format
     return page_dict
 
-def extract_tables_from_page(pdf_page, logging_metadata: Dict[str, str]) -> List[Dict[str, Any]]:
+def extract_tables_from_page(pdf_page: fitz.Page, logging_metadata: dict[str, str]) -> list[dict[str, Any]]:
     """
     Extract tables from a given PDF page.
     
@@ -109,7 +104,7 @@ def extract_tables_from_page(pdf_page, logging_metadata: Dict[str, str]) -> List
     return out_tables
 
     
-def extract_from_page(pdf_page: fitz.Page, extract_tables: bool, logging_metadata: Dict[str, str]) -> Dict[str, Any]:
+def extract_from_page(pdf_page: fitz.Page, extract_tables: bool, logging_metadata: dict[str, str]) -> dict[str, Any]:
     """
     Extract all relevant information (text, figures, tables) from a given PDF page.
     
@@ -132,7 +127,7 @@ def extract_from_page(pdf_page: fitz.Page, extract_tables: bool, logging_metadat
     return texts_and_figures
 
 
-def segment_pdf(pdf, ocr_engine: OCREngineBase, extract_tables: bool, logging_metadata: Dict[str, str]) -> List[Dict[str, Any]]:
+def segment_pdf(pdf, ocr_engine: OCREngineBase, extract_tables: bool, logging_metadata: dict[str, str]) -> list[dict[str, Any]]:
     """
     Segment a PDF into its constituent parts (texts, tables, figures).
     
@@ -146,7 +141,7 @@ def segment_pdf(pdf, ocr_engine: OCREngineBase, extract_tables: bool, logging_me
     pages = []
     ocr_count = 0
     for i, page in enumerate(pdf):
-        page_content = extract_from_page(page, extract_tables, {"page_index": i, **logging_metadata})
+        page_content = extract_from_page(page, extract_tables, {"page_index": str(i), **logging_metadata})
         ocr_count += ocr_segments_with_garbage_text(page, page_content, ocr_engine)
         pages.append(page_content)
     if ocr_count > 0:
@@ -165,7 +160,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
              was (OK/NOK).
     """
 
-    def segmented_pdf_to_text(segmented_pdf: List[Dict[str, Any]]) -> str:
+    def segmented_pdf_to_text(segmented_pdf: list[dict[str, Any]]) -> str:
 
         pdf_page_texts = []
         for pdf_page in segmented_pdf:
@@ -204,12 +199,6 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
     txt = None
     ok = False
     ocr = False
-    try:
-        with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
-            txt = "".join(pdf)
-    except Exception as e:
-        logger.error(f"Error when converting pdf->txt: {e}")
 
     # TODO move these things outside the function...
     ocr_engine = build_ocr_engine("TesseractOCR")
@@ -222,9 +211,9 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
         doc.close()
         if not doc.is_closed:
             logging.warning("There was issue closing the doc.")
-        text = segmented_pdf_to_text(segmented_doc)
-    except Exception as e:
-        logger.error(f"Error when parsing pdf using PyMuPDF")
+        txt = segmented_pdf_to_text(segmented_doc)
+    except Exception:
+        logger.error("Error when parsing pdf using PyMuPDF")
     
     # TODO this check should be revisited (changed or fully removed) as now OCR is done inside `segment_pdf`
     if txt is None or text_is_garbage(txt):
