@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Any
 import pdftotext
 import pikepdf
 
-from typing import 
 from pathlib import Path
 import pytesseract
 
@@ -32,7 +31,8 @@ from sec_certs.constants import (
 from sec_certs.ocr import (
     build_ocr_engine,
     ocr_segments_with_garbage_text,
-    OCREngineBase
+    OCREngineBase,
+    ocr_pdf_file
 )
 
 logger = logging.getLogger(__name__)
@@ -213,20 +213,20 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
 
     # TODO move these things outside the function...
     ocr_engine = build_ocr_engine("TesseractOCR")
-    extract_tables = False # SET THIS TO CHANGE TABLE EXTRACTION
+    extract_tables = False # SET THIS TO TRUE TO EXTRACT TABLES
 
     # parse structure of the document
     try:
         doc = fitz.open(pdf_path)
-        segmented_doc = segment_pdf(doc, ocr_engine, extract_tables, {"document": pdf_path.name})
+        segmented_doc = segment_pdf(doc, ocr_engine, extract_tables, {}) # last argument is logging metadata, empty in this PoC
         doc.close()
         if not doc.is_closed:
             logging.warning("There was issue closing the doc.")
+        text = segmented_pdf_to_text(segmented_doc)
     except Exception as e:
         logger.error(f"Error when parsing pdf using PyMuPDF")
-
     
-    # TODO this check should be changed or fully removed as now OCR is done inside `segment_pdf`
+    # TODO this check should be revisited (changed or fully removed) as now OCR is done inside `segment_pdf`
     if txt is None or text_is_garbage(txt):
         logger.warning(f"Detected garbage during conversion of {pdf_path}")
         ocr = True
