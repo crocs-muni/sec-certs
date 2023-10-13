@@ -143,6 +143,7 @@ pathy==0.10.1
     # via spacy
 pdftotext==2.2.2
     # via sec-certs (./../pyproject.toml)
+pymupdf==1.23.4
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
