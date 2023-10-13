@@ -176,8 +176,12 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
                         spans = []
                         for span in line:
                             spans.append(span.strip())
-                        lines.append(" ".join(spans))
-                    block_texts.append("\n".join(lines)) # lines are separated by "\n"
+                        line = " ".join(spans)
+                        if len(line.strip()) > 0:
+                            lines.append(line)
+                    block_text = "\n".join(lines) # TODO maybe change to " ", depends how we wanna view it
+                    if len(block_text.strip()) > 0:
+                        block_texts.append(block_text) # lines are separated by "\n"
                 # deal with table which has header and rows
                 elif block["type"] == "table":
                     row_texts = []
