@@ -28,7 +28,7 @@ from sec_certs.constants import (
     GARBAGE_SIZE_THRESHOLD,
 )
 
-from sec_certs.ocr import (
+from sec_certs.utils.ocr import (
     build_ocr_engine,
     ocr_segments_with_garbage_text,
     OCREngineBase,
