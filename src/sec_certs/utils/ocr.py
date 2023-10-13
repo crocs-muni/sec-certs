@@ -50,7 +50,7 @@ class PaddleOCREngine(OCREngineBase):
 class TrOCREngine(OCREngineBase):
     pass
 
-def build_ocr_engine(engine_choice: str, engine_kwargs: Dict[str, str]) -> OCREngineBase:
+def build_ocr_engine(engine_choice: str, engine_kwargs: Dict[str, str]={}) -> OCREngineBase:
     """
     Factory method to build and return an instance of the desired OCR engine.
     
