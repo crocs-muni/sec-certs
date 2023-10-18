@@ -174,7 +174,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
                     lines = []
                     for line in block["lines"]:
                         spans = []
-                        for span in line:
+                        for span in line["spans"]:
                             spans.append(span.strip())
                         line = " ".join(spans)
                         if len(line.strip()) > 0:
