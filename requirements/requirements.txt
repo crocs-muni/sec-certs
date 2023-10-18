@@ -281,7 +281,7 @@ typing-extensions==4.4.0
     #   pydantic
     #   pypdf
     #   setuptools-scm
-urllib3==1.26.17
+urllib3==1.26.18
     # via requests
 wasabi==0.10.1
     # via
