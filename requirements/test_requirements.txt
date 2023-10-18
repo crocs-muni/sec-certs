@@ -199,7 +199,9 @@ pygments==2.15.0
 pyparsing==3.0.9
     # via matplotlib
 pypdf[crypto]==3.2.1
-    # via sec-certs (./../pyproject.toml)
+    # via
+    #   pypdf
+    #   sec-certs (./../pyproject.toml)
 pyrsistent==0.19.2
     # via jsonschema
 pysankeybeta==1.4.0
@@ -301,7 +303,6 @@ typer==0.7.0
 typing-extensions==4.4.0
     # via
     #   pydantic
-    #   pypdf
     #   setuptools-scm
 urllib3==1.26.18
     # via requests
