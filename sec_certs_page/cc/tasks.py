@@ -137,7 +137,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
 
 
 @dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000, actor_name="cc_update")
-@no_simultaneous_execution("cc_update", abort=True, timeout=timedelta(hours=12).total_seconds())
+@no_simultaneous_execution("cc_update", abort=True, timeout=timedelta(hours=13).total_seconds())
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()
