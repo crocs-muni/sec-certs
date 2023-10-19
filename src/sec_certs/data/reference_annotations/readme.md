@@ -4,6 +4,10 @@ This folder contains data and the methodology (presented below) related to learn
 
 - The folder [split](split) contains split of the CC Dataset to `train/valid/test` splits for learning.
 - The csv file [manually_annotated_references.csv](./manually_annotated_references.csv) contains manually acquired labels to references obtained with the methodology outlined below.
+- The folder `adam` contains manual annotations created by Adam
+- The folder `jano` contains manual annotations created by Jano
+- The folder `conflicts` contains conflicting annotations between Adam and Jano, as weel as their resolution
+- The contents of the `final` folder can thus be obtained by taking annotations either from `adam` or `jano` folder and masking them by `resolution_label` from `conflicts` folder.
 
 ### Reference taxonomy
 
@@ -12,31 +16,27 @@ After manually inspecting random certificates, we have identified the following 
 - **Component used**: The referenced certificate is a component used in the examined certificate (e.g., IC used by a smartcard). Some evaluation results were likely shared/re-used.
 - **Component shared**: The referenced certificate shares some components with the examined certificate. Some evaluation results were likely shared/re-used.
 - **Evaluation reused**: The evaluation results of the referenced certificate were used for evaluation of the examined certificate, due to reasons that could not be resolved.
-- **Re-certification**: The examined certificate is a re-certification of the referenced certificate.
+- **Recertification**: The examined certificate is a re-certification of the referenced certificate.
 - **Previous version**: The product in the referenced certificate is a previous version of the product in the examined certificate and the re-certification is not explicitly mentioned.
-- **Unknown**: The annotator could not assign any of the previous contexts.
+- **None**: The annotator could not assign any of the previous contexts.
+- **Irrelevant**: The reference is irrelevant to the studied certificate (typo, left-out reference from a template, ...)
 
 These can be further merged into the following super-categories:
 
-- **Component used or shared**
-- **Previous version of re-certification**
-- **Evaluation reused** - these cases should be manually visited
-- **Unknown**
+- **Some sub-component relationship** `component_used`, `component_shared`, and `evaluation_reused`
+- **Previous version**: `previous_version` and `recertification`
+- **None**: `None` or `irrelevant`
 
 ### Reference classification methodology
 
 **Data splits and manual annotations**:
 
-1. Inspect random certificates (>100) and capture the observed relations into reference taxonomy
-2. Split all certificates for which we register a direct outgoing reference in either security target or certification report into `train/valid/test` splits in `30/20/50` fashion.
-    - See [split](split/)
-3. Label all references in as follows:
-    - Extract the text segments (using `ReferenceSegmentExtractor`) related to the references
-    - Use label-studio `Natural Language Processing -> text classification` setup to assign 1 label to each of the references.
-        - All text segments both from certification report and security target are displayed for the given instance
-    - The instances labeled with `Unknown` are re-visited and labeled after manual inspection of both certification report and security target pdfs
-    - Artifacts of the referenced certificate are not examined.
-    - The labeling is done by a pair of co-authors, the inter-annotator agreement is measured with Cohen's Kappa
+1. Two authors inspect random certificates (~100) and capture the observed relations into reference taxonomy
+2. Split all certificates for which we register a direct outgoing reference in either security target or certification report into `train/valid/test` splits in `30/20/50` fashion (see [split](split/)).
+3. Sample 100 train, 100 valid, 200 test pairs of `(dgst, canonical_reference_keyword)` for manual annotations.
+4. Two co-authors independently assign each of these pairs with a single label from the reference taxonomy.
+5. Measure the inter-annotator agreement with Cohen's Kappa.
+6. Resolve conflicts in the annotations in a meeting held by the co-authors. Use this consensual annotations for training and evaluation described below.
 
 **Learning the annotations**:
 

@@ -290,7 +290,7 @@ class ReferenceSegmentExtractor:
                 .assign(label=lambda df_: df_.label.str.replace(" ", "_").str.upper(), split=split_name)
             )
 
-        annotations_directory = Path(str(files("sec_certs.data") / "reference_annotations/manual_annotations/"))
+        annotations_directory = Path(str(files("sec_certs.data") / "reference_annotations/final/"))
         df_annot = pd.concat(
             [
                 load_single_df(annotations_directory / "train.csv", "train"),
