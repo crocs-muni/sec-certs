@@ -48,3 +48,42 @@ These can be further merged into the following super-categories:
 4. Train a sentence transformer with the same soft-voting layer on top of that.
 5. Finetune hyperparameters.
 6. Evaluate on test set.
+
+
+## Inter-annotator agreement
+
+The inter-annotator agreement is measured both with Cohen's Kappa and with percentage. The results are as follows:
+
+| Cohen's Kappa | Percentage |
+|---------------|------------|
+| 0.71          | 0.82       |
+
+The code used to measure the agreement is:
+
+```python
+import pandas as pd
+from pathlib import Path
+from sklearn.metrics import cohen_kappa_score
+
+def load_all_dataframes(base_folder: Path) -> pd.DataFrame:
+    splits = ["train", "valid", "test"]
+
+    df_train, df_valid, df_test = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    for split in splits:
+        df = pd.read_csv(base_folder / f"{split}.csv")
+        if split == "train":
+            df_train = df
+        elif split == "valid":
+            df_valid = df
+        else:
+            df_test = df
+
+    return pd.concat([df_train, df_valid, df_test])
+
+adam_df = load_all_dataframes(Path("./src/sec_certs/data/reference_annotations/adam"))
+jano_df = load_all_dataframes(Path("./src/sec_certs/data/reference_annotations/jano"))
+agreement_series = adam_df.label == jano_df.label
+
+print(f"Cohen's Kappa: {cohen_kappa_score(adam_df.label, jano_df.label)}")
+print(f"Percentage agreement: {agreement_series.loc[agreement_series == True].count() / agreement_series.count()}")
+```

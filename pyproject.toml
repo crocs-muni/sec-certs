@@ -121,7 +121,7 @@
     'sec_certs.config' = ["settings.yaml", "settings-schema.json"]
     'sec_certs.data' = [
       "reference_annotations/split/*.json",
-      "reference_annotations/manual_annotations/*.csv",
+      "reference_annotations/manual_annotations/final/*.csv",
     ]
 
 
