@@ -96,7 +96,7 @@ class ReferenceAnnotator:
         WIll read df.segments and populate the dataframe with predictions.
         """
 
-        def matches_recertification(segments: list[str]) -> bool:
+        def matches_reevaluation(segments: list[str]) -> bool:
             regex_a = r"This is a re-?\s?certification based on (the\s){1,2}referenced product"
             regex_b = r"Re-?\s?Zertifizierung basierend auf (the\s){1,2}referenced product"
             return any(
@@ -113,12 +113,12 @@ class ReferenceAnnotator:
             df_new.loc[
                 (df_new.name_similarity == 100)
                 & (df_new.name_len_diff < 5)
-                & ((df_new.y_pred != "RECERTIFICATION") & (df_new.y_pred != "PREVIOUS_VERSION")),
+                & ((df_new.y_pred != "RE-EVALUATION") & (df_new.y_pred != "PREVIOUS_VERSION")),
                 ["y_pred"],
             ] = "PREVIOUS_VERSION"
 
-        df_new["matches_recertification"] = df_new.segments.map(matches_recertification)
-        df_new.loc[df_new.matches_recertification, ["y_pred"]] = "RECERTIFICATION"
+        df_new["maches_reevaluation"] = df_new.segments.map(matches_reevaluation)
+        df_new.loc[df_new.maches_reevaluation, ["y_pred"]] = "RE-EVALUATION"
 
         df_new["correct"] = df_new.apply(
             lambda row: row["y_pred"] == row["label"] if not pd.isnull(row["label"]) else np.NaN, axis=1
