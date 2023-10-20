@@ -8,7 +8,7 @@ dgst,canonical_reference_keyword,label_adam,label_jano,resolution_label
 4b3f577896c80f8a,ANSSI-CC-2015/80,evaluation_reused,component_used,evaluation_reused
 4b3f577896c80f8a,ANSSI-CC-2016/44,previous_version,component_used,evaluation_reused
 774cb0f28f7900f9,BSI-DSZ-CC-0232-2004,evaluation_reused,component_used,evaluation_reused
-7e58bfc14edf68e4,OCSI/CERT/TEC/01/2013/RC,recertification,previous_version,recertification
+7e58bfc14edf68e4,OCSI/CERT/TEC/01/2013/RC,re-evaluation,previous_version,re-evaluation
 b00bb452e7a8176c,ANSSI-CC-2016/57,previous_version,evaluation_reused,previous_version
 c23bb542201aa511,ANSSI-CC-2014/14,component_shared,component_used,previous_version
 c37a9b7ae53093d8,CCEVS-VR-VID10256-2012,evaluation_reused,component_shared,None

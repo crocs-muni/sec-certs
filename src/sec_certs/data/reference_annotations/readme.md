@@ -38,7 +38,7 @@ After manually inspecting ~100 random certificates, we have identified the follo
 - **Component used**: The referenced certificate is a component used in the examined certificate (e.g., IC used by a smartcard). Some evaluation results were likely shared/re-used.
 - **Component shared**: The referenced certificate shares some components with the examined certificate. Some evaluation results were likely shared/re-used.
 - **Evaluation reused**: The evaluation results of the referenced certificate were used for evaluation of the examined certificate, due to reasons that could not be resolved.
-- **Recertification**: The examined certificate is a re-certification of the referenced certificate.
+- **Re-evaluation**: The examined certificate is a re-evaluation of the referenced certificate. For definition of re-evaluation, see [Assurance Continuity: CCRA Requirements](https://www.commoncriteriaportal.org/files/operatingprocedures/CCDB-011-v2.2-2021-Sep-30-Final-Assurance_Continuity.pdf).
 - **Previous version**: The product in the referenced certificate is a previous version of the product in the examined certificate and the re-certification is not explicitly mentioned.
 - **None**: The annotator could not assign any of the previous contexts.
 - **Irrelevant**: The reference is irrelevant to the studied certificate (typo, left-out reference from a template, ...)
@@ -46,7 +46,7 @@ After manually inspecting ~100 random certificates, we have identified the follo
 These can be further merged into the following super-categories:
 
 - **Some sub-component relationship** `component_used`, `component_shared`, and `evaluation_reused`
-- **Previous version**: `previous_version` and `recertification`
+- **Previous version**: `previous_version` and `re-evaluation`
 - **None**: `None` or `irrelevant`
 
 ###  Inter-annotator agreement

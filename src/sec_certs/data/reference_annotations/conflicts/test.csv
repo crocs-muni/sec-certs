@@ -4,7 +4,7 @@ dgst,canonical_reference_keyword,label_adam,label_jano,resolution_label
 18b7e5bdf459ca13,NSCIB-CC-07-09219,component_used,previous_version,previous_version
 195366bfba7213a5,BSI-DSZ-CC-0266-2005,component_used,None,component_used
 195366bfba7213a5,BSI-DSZ-CC-0322-2005,component_used,None,previous_version
-195366bfba7213a5,BSI-DSZ-CC-0399-2007,recertification,None,recertification
+195366bfba7213a5,BSI-DSZ-CC-0399-2007,re-evaluation,None,re-evaluation
 1999d4ed82b3188e,BSI-DSZ-CC-0451-2007,component_used,None,component_used
 1ea31bb5f6a15995,BSI-DSZ-CC-0808-V3-2017,evaluation_reused,component_shared,component_shared
 22ede463dbf1a105,ANSSI-CC-2015/36,evaluation_reused,component_used,component_used
@@ -12,7 +12,7 @@ dgst,canonical_reference_keyword,label_adam,label_jano,resolution_label
 26c4912b140fde9f,BSI-DSZ-CC-0891-V2-2016,evaluation_reused,component_used,component_used
 27ccec0740bb7915,ANSSI-CC-2010/35,evaluation_reused,component_shared,component_shared
 296618f10b019d9c,BSI-DSZ-CC-0417-2008,evaluation_reused,component_used,component_used
-2f9feaf4121720da,BSI-DSZ-CC-0547-2009,recertification,evaluation_reused,recertification
+2f9feaf4121720da,BSI-DSZ-CC-0547-2009,re-evaluation,evaluation_reused,re-evaluation
 31fd07069aebf013,BSI-DSZ-CC-0466-2008,evaluation_reused,component_used,previous_version
 34506b8fab6dd7c3,ANSSI-CC-2014/22,evaluation_reused,previous_version,previous_version
 054bd8196e015197,ANSSI-CC-2011/07,None,evaluation_reused,evaluation_reused
