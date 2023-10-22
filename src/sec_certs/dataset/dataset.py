@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Generic, Iterator, TypeVar, cast
 
 import pandas as pd
+from setuptools_scm import get_version
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -50,6 +51,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
     @dataclass
     class DatasetInternalState(ComplexSerializableType):
+        sec_certs_version: str = get_version(root="..", local_scheme="no-local-version")
         meta_sources_parsed: bool = False
         artifacts_downloaded: bool = False
         pdfs_converted: bool = False
@@ -204,6 +206,12 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
     @classmethod
     def from_json(cls: type[DatasetSubType], input_path: str | Path, is_compressed: bool = False) -> DatasetSubType:
         dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path, is_compressed))
+        dset_version = dset.state.sec_certs_version
+        tool_version = get_version(root="..", local_scheme="no-local-version")
+
+        if dset_version != tool_version:
+            logger.warning(f"Dataset version: {dset_version} does not match current version of tool: {tool_version}!")
+
         dset._root_dir = Path(input_path).parent.absolute()
         dset._set_local_paths()
         return dset
