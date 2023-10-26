@@ -18,6 +18,7 @@ Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-too
 - List actual dependencies in [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) without pinning them.
 - Additionally, [compile.sh](https://github.com/crocs-muni/sec-certs/blob/main/requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
 - Tests, linting and Docker all run against this reproducible environment of pinned requirements.
+- To install all requirements, use `pip install -U pip-tools && pip-sync requirements/all_requirements.txt`
 
 ## Branches
 

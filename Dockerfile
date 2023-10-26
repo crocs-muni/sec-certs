@@ -56,9 +56,8 @@ ENV PATH="${VENV_PATH}/bin:$PATH"
 
 # Install dependencies, notebook is because of mybinder.org
 RUN \
-  pip3 install -U pip && \
-  pip3 install wheel && \
-  pip3 install -r requirements/requirements.txt && \
+  pip3 install -U pip wheel pip-tools && \
+  pip-sync requirements/all_requirements.txt && \
   pip3 install --no-cache notebook jupyterlab && \
   pip3 install -e . && \
   python3 -m spacy download en_core_web_sm
@@ -66,5 +65,5 @@ RUN \
 # just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}
 
-# # Run the application:
-# CMD ["python3", "./cc_cli.py"]
+# Run the application:
+ENTRYPOINT ["sec-certs"]
