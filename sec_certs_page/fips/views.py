@@ -379,6 +379,10 @@ def entry(hashid):
                 cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": list(doc["heuristics"]["cpe_matches"])}})))
             else:
                 cpes = []
+        with sentry_sdk.start_span(op="mongo", description="Find metadata bindings"):
+            additional_metadata = mongo.db.metadata_bindings.find_one({"cert_id" : doc["cert_id"]})
+            if not additional_metadata:
+                additional_metadata = []
         with sentry_sdk.start_span(op="files", description="Find local files"):
             local_files = entry_download_files(
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
@@ -395,6 +399,7 @@ def entry(hashid):
             local_files=local_files,
             json=StorageFormat(raw_doc).to_json_mapping(),
             policy_link=constants.FIPS_SP_URL.format(doc["cert_id"]),
+            additional_metadata=additional_metadata,
         )
     else:
         return abort(404)

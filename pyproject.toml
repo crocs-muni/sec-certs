@@ -74,6 +74,7 @@
     "click",
     "requests",
     "feedgen",
+    "pyjwt",
   ]
 
 [project.optional-dependencies]
