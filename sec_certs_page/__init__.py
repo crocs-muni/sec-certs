@@ -52,6 +52,7 @@ if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
         environment=app.config["SENTRY_ENV"],
         sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
         traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
+        send_default_pii=True,
     )
 
     ignore_logger("sec_certs.*")

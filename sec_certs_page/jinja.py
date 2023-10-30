@@ -1,7 +1,6 @@
 import time
 from datetime import date, datetime
 
-import sentry_sdk
 from flag import flag
 from flask import request
 from flask_principal import Permission, RoleNeed
@@ -9,14 +8,6 @@ from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
 from . import app
-
-
-@app.before_request
-def set_sentry_user():
-    try:
-        sentry_sdk.set_user({"ip_address": request.remote_addr})
-    except Exception:
-        pass
 
 
 @app.template_global("country_to_flag")
