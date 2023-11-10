@@ -1,9 +1,9 @@
-name: Lint (MyPy, Black, Ruff)
+name: Lint (Ruff, MyPy)
 on:
   push:
   workflow_dispatch:
 jobs:
-  black:
+  pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
