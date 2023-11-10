@@ -502,7 +502,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
             candidates = [cpe_dset[x].title for x in cert.heuristics.cpe_matches]
             candidates += ["No good match"] * (config.cpe_n_max_matches - len(candidates))
             options = ["option_" + str(x) for x in range(1, config.cpe_n_max_matches)]
-            dct.update({o: c for o, c in zip(options, candidates)})
+            dct.update(dict(zip(options, candidates)))
             lst.append(dct)
 
         with Path(output_path).open("w") as handle:
@@ -634,6 +634,6 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         Enriches the dataset with `certs`
         :param List[Certificate] certs: new certs to include into the dataset.
         """
-        if any([x not in self for x in certs]):
+        if any(x not in self for x in certs):
             logger.warning("Updating dataset with certificates outside of the dataset!")
         self.certs.update({x.dgst: x for x in certs})

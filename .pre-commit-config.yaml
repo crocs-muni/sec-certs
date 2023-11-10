@@ -1,16 +1,12 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
-    hooks:
-      - id: black
-        args: ["--check", "--target-version", "py38"]
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    # Ruff version.
-    rev: "v0.0.239"
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.5
     hooks:
       - id: ruff
+      - id: ruff-format
+        args: ["--check"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.0.0"
+    rev: "v1.6.1"
     hooks:
       - id: mypy
         additional_dependencies:

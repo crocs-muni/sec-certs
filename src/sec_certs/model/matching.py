@@ -28,7 +28,7 @@ class AbstractMatcher(Generic[CertSubType], ABC):
         )
 
     @staticmethod
-    def _match_certs(matchers: Sequence["AbstractMatcher"], certs: list[CertSubType], threshold: float):
+    def _match_certs(matchers: Sequence[AbstractMatcher], certs: list[CertSubType], threshold: float):
         scores: list[tuple[float, int, int]] = []
         matched_is: set[int] = set()
         matched_js: set[int] = set()

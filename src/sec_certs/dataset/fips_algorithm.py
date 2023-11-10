@@ -82,7 +82,7 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         if failed_tuples:
             failed_urls, failed_paths = zip(*failed_tuples)
             responses = helpers.download_parallel(failed_urls, failed_paths)
-            if any([x != constants.RESPONSE_OK for x in responses]):
+            if any(x != constants.RESPONSE_OK for x in responses):
                 raise ValueError("Failed to download the algorithms HTML data, the dataset won't be constructed.")
 
         return paths

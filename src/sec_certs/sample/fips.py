@@ -64,7 +64,7 @@ class FIPSHTMLParser:
         )
         entries = [(FIPSHTMLParser.normalize_string(key.text), entry) for key, entry in entries]
         entries = [parse_single_detail_entry(*x) for x in entries if x[0] in DETAILS_KEY_NORMALIZATION_DICT]
-        entries = {x: y for x, y in entries}
+        entries = dict(entries)
 
         if "caveat" in entries:
             entries["mentioned_certs"] = FIPSHTMLParser.get_mentioned_certs_from_caveat(entries["caveat"])

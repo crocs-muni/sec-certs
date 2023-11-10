@@ -42,8 +42,8 @@ def test_config_from_yaml(simple_config_dict, simple_config_yaml: Path) -> None:
 
 
 def test_load_env_values(simple_config_dict, simple_config_yaml):
-    os.environ["seccerts_log_filepath"] = "/some/nonsense/path"
-    os.environ["always_false_positive_fips_cert_id_threshold"] = "10"
+    os.environ["SECCERTS_LOG_FILEPATH"] = "/some/nonsense/path"
+    os.environ["ALWAYS_FALSE_POSITIVE_FIPS_CERT_ID_THRESHOLD"] = "10"
 
     config_module.config.load_from_yaml(simple_config_yaml)
 
@@ -57,7 +57,7 @@ def test_load_env_values(simple_config_dict, simple_config_yaml):
 def test_complex_config_load(simple_config_dict, simple_config_yaml):
     config_module.config.year_difference_between_validations = 123456789
     config_module.config.n_threads = 987654321
-    os.environ["seccerts_n_threads"] = "1"
+    os.environ["SECCERTS_N_THREADS"] = "1"
 
     config_module.config.load_from_yaml(simple_config_yaml)
     for key, val in simple_config_dict.items():

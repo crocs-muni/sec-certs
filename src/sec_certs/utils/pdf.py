@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import glob
 import logging
 import subprocess
 from datetime import datetime, timedelta, timezone
@@ -54,7 +53,7 @@ def ocr_pdf_file(pdf_path: Path) -> str:
         if ppm.returncode != 0:
             raise ValueError(f"pdftoppm failed: {ppm.returncode}")
 
-        for ppm_path in map(Path, glob.glob(str(tmppath / "image*.ppm"))):
+        for ppm_path in tmppath.rglob("image*.ppm"):
             base = ppm_path.with_suffix("")
             content = pytesseract.image_to_string(Image.open(ppm_path), lang="eng+deu+fra")
 
