@@ -141,7 +141,7 @@ def get_sar_level_from_set(sars: set[SAR], sar_family: str) -> int | None:
     Given a set of SARs and a family name, will return level of the seeked SAR from the set.
     """
     family_sars_dict = {x.family: x for x in sars} if (sars and not pd.isnull(sars)) else {}
-    if sar_family not in family_sars_dict.keys():
+    if sar_family not in family_sars_dict:
         return None
     return family_sars_dict[sar_family].level
 
@@ -211,7 +211,7 @@ def compute_cve_correlations(
     tuples = list(
         zip(n_cves_corrs, n_cves_pvalues, worst_cve_corrs, worst_cve_pvalues, avg_cve_corrs, avg_cve_pvalues, supports)
     )
-    dct = {family: correlations for family, correlations in zip(["eal"] + families, tuples)}
+    dct = dict(zip(["eal"] + families, tuples))
     df_corr = pd.DataFrame.from_dict(
         dct,
         orient="index",

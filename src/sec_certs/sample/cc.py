@@ -247,7 +247,7 @@ class CCCertificate(
         st_filename: str | None = field(default=None)
 
         def __bool__(self) -> bool:
-            return any([x is not None for x in vars(self)])
+            return any(x is not None for x in vars(self))
 
         @property
         def bsi_data(self) -> dict[str, Any] | None:
@@ -612,13 +612,12 @@ class CCCertificate(
             )
 
         for att, val in vars(self).items():
-            if not val:
-                setattr(self, att, getattr(other, att))
-            elif other_source == "html" and att == "protection_profiles":
-                setattr(self, att, getattr(other, att))
-            elif other_source == "html" and att == "maintenance_updates":
-                setattr(self, att, getattr(other, att))
-            elif att == "state":
+            if (
+                (not val)
+                or (other_source == "html" and att == "protection_profiles")
+                or (other_source == "html" and att == "maintenance_updates")
+                or (att == "state")
+            ):
                 setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):

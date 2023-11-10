@@ -353,7 +353,7 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
 
             for m in re.finditer(rule_and_sep, whole_text):
                 # check if previous rules had at least one match
-                if constants.TAG_CERT_ID not in items_found.keys():
+                if constants.TAG_CERT_ID not in items_found:
                     logger.error(f"ERROR: front page not found for file: {filepath}")
 
                 match_groups = m.groups()
