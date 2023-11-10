@@ -65,9 +65,8 @@
 
   [project.optional-dependencies]
     dev = [
-      "black==23.1.0",
-      "ruff==0.0.239",
-      "mypy==1.0.0",
+      "ruff==0.1.5",
+      "mypy==1.6.1",
       "types-PyYAML",
       "types-python-dateutil",
       "types-requests",
@@ -107,7 +106,7 @@
     "SIM",
   ]
   ignore = [
-    "E501", # line-length, should be handled by black
+    "E501", # line-length, should be handled by ruff format
   ]
   src = ["src", "tests"]
   line-length = 120
@@ -124,25 +123,6 @@
   write_to = "src/sec_certs/_version.py"
   version_scheme = "no-guess-dev"
 
-[tool.black]
-  line-length = 120
-  force-exclude = '''
-/(
-    \.git
-  | \.mypy_cache
-  | \.tox
-  | venv
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | src/sec_certs/_version.py
-  | docs
-  | .ipynb_checkpoints
-  | .eggs
-)/
-'''
 
 [tool.mypy]
   plugins = ["numpy.typing.mypy_plugin"]
