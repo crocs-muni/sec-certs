@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import date
-from typing import Iterable, Mapping, Sequence
 
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher

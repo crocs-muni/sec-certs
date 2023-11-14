@@ -1,8 +1,8 @@
 import json
 import shutil
+from collections.abc import Generator
 from importlib import resources
 from pathlib import Path
-from typing import Generator
 
 import pytest
 import tests.data.cc.analysis

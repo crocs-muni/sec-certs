@@ -28,7 +28,7 @@ def sanitize_date(record: pd.Timestamp | date | np.datetime64) -> date | None:
         return None
     if isinstance(record, pd.Timestamp):
         return record.date()
-    if isinstance(record, (date, type(None))):
+    if isinstance(record, date | type(None)):
         return record
     raise ValueError("Unsupported type given as input")
 

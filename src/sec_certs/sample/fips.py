@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import itertools
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Final, Literal
+from typing import Any, ClassVar, Final, Literal
 
 import dateutil
 import numpy as np

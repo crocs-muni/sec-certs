@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Set, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 
 from sec_certs.sample.certificate import Certificate, References
 
 CertSubType = TypeVar("CertSubType", bound=Certificate)
-Certificates = Dict[str, CertSubType]
-ReferencedByDirect = Dict[str, Set[str]]
-ReferencedByIndirect = Dict[str, Set[str]]
-ReferencesType = Dict[str, Dict[str, Optional[Set[str]]]]
-IDMapping = Dict[str, List[str]]
-UnknownReferences = Dict[str, Set[str]]
+Certificates = dict[str, CertSubType]
+ReferencedByDirect = dict[str, set[str]]
+ReferencedByIndirect = dict[str, set[str]]
+ReferencesType = dict[str, dict[str, set[str] | None]]
+IDMapping = dict[str, list[str]]
+UnknownReferences = dict[str, set[str]]
 IDLookupFunc = Callable[[CertSubType], str]
-ReferenceLookupFunc = Callable[[CertSubType], Set[str]]
+ReferenceLookupFunc = Callable[[CertSubType], set[str]]
 
 
 # TODO: All of this can and should be rewritten on top of networkx or some other graph library.

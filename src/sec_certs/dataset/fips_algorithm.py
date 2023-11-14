@@ -3,9 +3,9 @@ from __future__ import annotations
 import itertools
 import logging
 import re
+from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Iterator
 
 import pandas as pd
 from bs4 import BeautifulSoup

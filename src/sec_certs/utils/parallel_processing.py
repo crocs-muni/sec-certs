@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable, Iterable
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool, ThreadPool
-from typing import Any, Callable, Iterable
+from typing import Any
 
 from sec_certs.configuration import config
 from sec_certs.utils.tqdm import tqdm

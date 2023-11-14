@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections.abc import Generator
 from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Generator
 
 import pytest
 import tests.data.fips.dataset

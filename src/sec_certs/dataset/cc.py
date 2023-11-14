@@ -4,10 +4,11 @@ import itertools
 import locale
 import shutil
 import tempfile
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Iterator, cast
+from typing import ClassVar, cast
 
 import numpy as np
 import pandas as pd

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import datetime
+from collections.abc import Generator
 from importlib import resources
 from pathlib import Path
-from typing import Generator
 
 import pytest
 import tests.data.fips.mip
