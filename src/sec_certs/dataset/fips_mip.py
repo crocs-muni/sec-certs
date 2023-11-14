@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import date
 from operator import attrgetter
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterator, Mapping
 
 import requests
 

@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from importlib import resources
-from typing import Any, Type
+from typing import Any
 
 import pytest
 
@@ -50,14 +50,14 @@ def test_cpe_match_download_from_seccerts():
         ({"timestamp": datetime.fromtimestamp(0).isoformat(), "match_strings": {}}, CpeMatchNvdDatasetBuilder),
     ],
 )
-def test_build_dataset(default_dataset: Any, builder_class: Type[NvdDatasetBuilder]):
+def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuilder]):
     def get_update_timestamp_from_dataset(dset) -> datetime:
-        if isinstance(dset, (CPEDataset, CVEDataset)):
+        if isinstance(dset, CPEDataset | CVEDataset):
             return dset.last_update_timestamp
         return datetime.fromisoformat(dset["timestamp"])
 
     def get_dataset_len(dset) -> int:
-        if isinstance(dset, (CPEDataset, CVEDataset)):
+        if isinstance(dset, CPEDataset | CVEDataset):
             return len(dset)
         return len(dset["match_strings"])
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import contextlib
-from typing import Any, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from typing import Any
 
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher

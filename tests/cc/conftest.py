@@ -1,7 +1,7 @@
+from collections.abc import Generator
 from datetime import date
 from importlib import resources
 from pathlib import Path
-from typing import Generator
 
 import pytest
 import tests.data.cc.dataset

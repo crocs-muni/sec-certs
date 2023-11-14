@@ -4,11 +4,12 @@ import hashlib
 import logging
 import re
 import time
+from collections.abc import Collection
 from contextlib import nullcontext
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Any, Collection
+from typing import Any
 
 import numpy as np
 import pkgconfig

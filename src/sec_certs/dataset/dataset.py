@@ -8,10 +8,11 @@ import re
 import shutil
 import tempfile
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generic, Iterator, TypeVar, cast
+from typing import Any, Generic, TypeVar, cast
 
 import pandas as pd
 
