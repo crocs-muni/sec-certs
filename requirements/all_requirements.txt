@@ -8,10 +8,8 @@ aiosignal==1.3.1
     # via aiohttp
 alabaster==0.7.13
     # via sphinx
-appnope==0.1.3
-    # via
-    #   ipykernel
-    #   ipython
+alembic==1.12.1
+    # via optuna
 asttokens==2.2.1
     # via stack-data
 async-timeout==4.0.2
@@ -43,6 +41,8 @@ catalogue==2.0.8
     #   spacy
     #   srsly
     #   thinc
+catboost==1.2.2
+    # via sec-certs (./../pyproject.toml)
 certifi==2022.12.7
     # via requests
 cfgv==3.3.1
@@ -59,6 +59,10 @@ click==8.1.3
     #   pip-tools
     #   sec-certs (./../pyproject.toml)
     #   typer
+cmake==3.27.7
+    # via triton
+colorlog==6.7.0
+    # via optuna
 comm==0.1.2
     # via ipykernel
 confection==0.0.4
@@ -112,6 +116,7 @@ filelock==3.10.0
     #   huggingface-hub
     #   torch
     #   transformers
+    #   triton
     #   virtualenv
 fonttools==4.39.2
     # via matplotlib
@@ -123,8 +128,11 @@ fsspec[http]==2023.3.0
     # via
     #   datasets
     #   evaluate
+    #   fsspec
 gprof2dot==2022.7.29
     # via pytest-profiling
+graphviz==0.20.1
+    # via catboost
 greenlet==2.0.2
     # via sqlalchemy
 html5lib==1.1
@@ -173,6 +181,7 @@ jinja2==3.1.2
 joblib==1.2.0
     # via
     #   nltk
+    #   pynndescent
     #   scikit-learn
 jsonschema==4.17.3
     # via
@@ -197,18 +206,29 @@ langcodes==3.3.0
     # via spacy
 langdetect==1.0.9
     # via sec-certs (./../pyproject.toml)
+lit==17.0.3
+    # via triton
+llvmlite==0.41.1
+    # via
+    #   numba
+    #   pynndescent
 lxml==4.9.2
     # via
     #   pikepdf
     #   sec-certs (./../pyproject.toml)
+mako==1.3.0
+    # via alembic
 markdown-it-py==2.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
 markupsafe==2.1.2
-    # via jinja2
+    # via
+    #   jinja2
+    #   mako
 matplotlib==3.7.1
     # via
+    #   catboost
     #   pysankeybeta
     #   seaborn
     #   sec-certs (./../pyproject.toml)
@@ -268,13 +288,20 @@ nltk==3.8.1
     # via sentence-transformers
 nodeenv==1.7.0
     # via pre-commit
+numba==0.58.1
+    # via
+    #   pynndescent
+    #   umap-learn
 numpy==1.24.2
     # via
     #   blis
+    #   catboost
     #   contourpy
     #   datasets
     #   evaluate
     #   matplotlib
+    #   numba
+    #   optuna
     #   pandas
     #   pyarrow
     #   pysankeybeta
@@ -288,6 +315,34 @@ numpy==1.24.2
     #   thinc
     #   torchvision
     #   transformers
+    #   umap-learn
+nvidia-cublas-cu11==11.10.3.66
+    # via
+    #   nvidia-cudnn-cu11
+    #   nvidia-cusolver-cu11
+    #   torch
+nvidia-cuda-cupti-cu11==11.7.101
+    # via torch
+nvidia-cuda-nvrtc-cu11==11.7.99
+    # via torch
+nvidia-cuda-runtime-cu11==11.7.99
+    # via torch
+nvidia-cudnn-cu11==8.5.0.96
+    # via torch
+nvidia-cufft-cu11==10.9.0.58
+    # via torch
+nvidia-curand-cu11==10.2.10.91
+    # via torch
+nvidia-cusolver-cu11==11.4.0.1
+    # via torch
+nvidia-cusparse-cu11==11.7.4.91
+    # via torch
+nvidia-nccl-cu11==2.14.3
+    # via torch
+nvidia-nvtx-cu11==11.7.91
+    # via torch
+optuna==3.4.0
+    # via sec-certs (./../pyproject.toml)
 packaging==23.0
     # via
     #   black
@@ -298,7 +353,9 @@ packaging==23.0
     #   huggingface-hub
     #   ipykernel
     #   matplotlib
+    #   optuna
     #   pikepdf
+    #   plotly
     #   pydata-sphinx-theme
     #   pytest
     #   setuptools-scm
@@ -308,6 +365,7 @@ packaging==23.0
     #   transformers
 pandas==1.5.3
     # via
+    #   catboost
     #   datasets
     #   evaluate
     #   pysankeybeta
@@ -343,6 +401,10 @@ platformdirs==3.1.1
     #   black
     #   jupyter-core
     #   virtualenv
+plotly==5.18.0
+    # via
+    #   catboost
+    #   sec-certs (./../pyproject.toml)
 pluggy==1.0.0
     # via pytest
 pre-commit==3.1.1
@@ -380,10 +442,14 @@ pygments==2.14.0
     #   ipython
     #   pydata-sphinx-theme
     #   sphinx
+pynndescent==0.5.10
+    # via umap-learn
 pyparsing==3.0.9
     # via matplotlib
 pypdf[crypto]==3.5.2
-    # via sec-certs (./../pyproject.toml)
+    # via
+    #   pypdf
+    #   sec-certs (./../pyproject.toml)
 pyproject-hooks==1.0.0
     # via build
 pyrsistent==0.19.3
@@ -417,6 +483,7 @@ pyyaml==6.0
     #   jupyter-cache
     #   myst-nb
     #   myst-parser
+    #   optuna
     #   pre-commit
     #   sec-certs (./../pyproject.toml)
     #   transformers
@@ -451,13 +518,18 @@ ruff==0.0.239
     # via sec-certs (./../pyproject.toml)
 scikit-learn==1.2.2
     # via
+    #   pynndescent
     #   sec-certs (./../pyproject.toml)
     #   sentence-transformers
+    #   umap-learn
 scipy==1.10.1
     # via
+    #   catboost
+    #   pynndescent
     #   scikit-learn
     #   sec-certs (./../pyproject.toml)
     #   sentence-transformers
+    #   umap-learn
 seaborn==0.12.2
     # via
     #   pysankeybeta
@@ -473,10 +545,13 @@ setuptools-scm==7.1.0
 six==1.16.0
     # via
     #   asttokens
+    #   catboost
     #   html5lib
     #   langdetect
     #   pytest-profiling
     #   python-dateutil
+sklearn==0.0.post11
+    # via sec-certs (./../pyproject.toml)
 smart-open==6.3.0
     # via
     #   pathy
@@ -519,7 +594,10 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 sqlalchemy==1.4.46
-    # via jupyter-cache
+    # via
+    #   alembic
+    #   jupyter-cache
+    #   optuna
 srsly==2.4.6
     # via
     #   confection
@@ -533,6 +611,10 @@ tabula-py==2.7.0
     # via sec-certs (./../pyproject.toml)
 tabulate==0.9.0
     # via jupyter-cache
+tbb==2021.10.0
+    # via umap-learn
+tenacity==8.2.3
+    # via plotly
 thinc==8.1.9
     # via spacy
 threadpoolctl==3.1.0
@@ -543,6 +625,7 @@ torch==2.0.0
     # via
     #   sentence-transformers
     #   torchvision
+    #   triton
 torchvision==0.15.1
     # via sentence-transformers
 tornado==6.2
@@ -555,10 +638,12 @@ tqdm==4.65.0
     #   evaluate
     #   huggingface-hub
     #   nltk
+    #   optuna
     #   sec-certs (./../pyproject.toml)
     #   sentence-transformers
     #   spacy
     #   transformers
+    #   umap-learn
 traitlets==5.9.0
     # via
     #   comm
@@ -572,6 +657,8 @@ traitlets==5.9.0
     #   nbformat
 transformers==4.27.1
     # via sentence-transformers
+triton==2.0.0
+    # via torch
 typer==0.7.0
     # via
     #   pathy
@@ -586,6 +673,7 @@ types-urllib3==1.26.25.8
     # via types-requests
 typing-extensions==4.5.0
     # via
+    #   alembic
     #   huggingface-hub
     #   mypy
     #   myst-nb
@@ -593,6 +681,8 @@ typing-extensions==4.5.0
     #   pydantic
     #   setuptools-scm
     #   torch
+umap-learn==0.5.4
+    # via sec-certs (./../pyproject.toml)
 urllib3==1.26.15
     # via
     #   requests
@@ -609,6 +699,12 @@ webencodings==0.5.1
     # via html5lib
 wheel==0.40.0
     # via
+    #   nvidia-cublas-cu11
+    #   nvidia-cuda-cupti-cu11
+    #   nvidia-cuda-runtime-cu11
+    #   nvidia-curand-cu11
+    #   nvidia-cusparse-cu11
+    #   nvidia-nvtx-cu11
     #   pip-tools
     #   pytest-monitor
 widgetsnbextension==4.0.5

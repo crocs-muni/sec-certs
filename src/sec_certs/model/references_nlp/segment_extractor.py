@@ -13,7 +13,6 @@ from typing import Any, Iterable, Literal
 import numpy as np
 import pandas as pd
 import spacy
-from rapidfuzz import fuzz
 
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
@@ -79,14 +78,6 @@ def preprocess_data_source(record: ReferenceRecord) -> ReferenceRecord:
         handle.write(processed_data)
 
     return record
-
-
-def strip_all(text: str, to_strip) -> str:
-    if pd.isna(to_strip):
-        return text
-    for i in to_strip:
-        text = text.replace(i, "")
-    return text
 
 
 def find_bracket_pattern(sentences: set[str], actual_reference_keywords: frozenset[str]):
@@ -166,8 +157,9 @@ class ReferenceSegmentExtractor:
     Should be only called with ReferenceSegmentExtractor()(list_of_certificates)
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, n_sents_before: int = 1, n_sents_after: int = 0):
+        self.n_sents_before = n_sents_before
+        self.n_sents_after = n_sents_after
 
     def __call__(self, certs: Iterable[CCCertificate]) -> pd.DataFrame:
         return self._prepare_df_from_cc_dset(certs)
@@ -235,10 +227,12 @@ class ReferenceSegmentExtractor:
             progress_bar=True,
             progress_bar_desc="Preprocessing data",
         )
+        records_with_args = [(x, self.n_sents_before, self.n_sents_after) for x in records]
 
         results = parallel_processing.process_parallel(
             fill_reference_segments,
-            records,
+            records_with_args,
+            unpack=True,
             use_threading=False,
             progress_bar=True,
             progress_bar_desc="Recovering reference segments",
@@ -322,13 +316,6 @@ class ReferenceSegmentExtractor:
         """
         annotations_dict = ReferenceSegmentExtractor._get_annotations_dict()
         split_dct = ReferenceSegmentExtractor._get_split_dict()
-
-        # Retrieve some columns previously lost
-        dgst_to_cert_name = {x.dgst: x.name for x in certs}
-        cert_id_to_cert_name = {x.heuristics.cert_id: x.name for x in certs}
-        dgst_to_extracted_versions = {x.dgst: x.heuristics.extracted_versions for x in certs}
-        cert_id_to_extracted_versions = {x.heuristics.cert_id: x.heuristics.extracted_versions for x in certs}
-
         logger.info(f"Deleting {df.loc[df.segments.isnull()].shape[0]} rows with no segments.")
 
         df_new = df.copy()
@@ -350,34 +337,11 @@ class ReferenceSegmentExtractor:
             )
             .agg({"segments": list, "actual_reference_keywords": unique_elements})
             .assign(
-                split=lambda df_: df_.dgst.map(split_dct),
+                actual_reference_keywords=lambda df_: df_.actual_reference_keywords.map(list),
                 label=lambda df_: [
                     annotations_dict.get(x) for x in zip(df_["dgst"], df_["canonical_reference_keyword"])
                 ],
-                actual_reference_keywords=lambda df_: df_.actual_reference_keywords.map(list),
-                cert_name=lambda df_: df_.dgst.map(dgst_to_cert_name),
-                referenced_cert_name=lambda df_: df_.canonical_reference_keyword.map(cert_id_to_cert_name),
-                cert_versions=lambda df_: df_.dgst.map(dgst_to_extracted_versions),
-                referenced_cert_versions=lambda df_: df_.canonical_reference_keyword.map(cert_id_to_extracted_versions),
-                cert_name_stripped_version=lambda df_: df_.apply(
-                    lambda x: strip_all(x["cert_name"], x["cert_versions"]), axis=1
-                ),
-                referenced_cert_name_stripped_version=lambda df_: df_.apply(
-                    lambda x: strip_all(x["referenced_cert_name"], x["referenced_cert_versions"]), axis=1
-                ),
-                name_similarity=lambda df_: df_.apply(
-                    lambda x: fuzz.token_set_ratio(
-                        x["cert_name_stripped_version"], x["referenced_cert_name_stripped_version"]
-                    ),
-                    axis=1,
-                ),
-                name_len_diff=lambda df_: df_.apply(
-                    lambda x: np.nan
-                    if pd.isnull(x["cert_name_stripped_version"])
-                    or pd.isnull(x["referenced_cert_name_stripped_version"])
-                    else abs(len(x["cert_name_stripped_version"]) - len(x["referenced_cert_name_stripped_version"])),
-                    axis=1,
-                ),
+                split=lambda df_: df_.dgst.map(split_dct),
             )
             .assign(
                 label=lambda df_: df_.label.map(lambda x: x if x is not None else np.nan),

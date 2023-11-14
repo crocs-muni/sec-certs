@@ -7,7 +7,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Iterator, Literal, cast
+from typing import ClassVar, Iterator, cast
 
 import numpy as np
 import pandas as pd
@@ -22,14 +22,11 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model import (
-    ReferenceAnnotator,
-    ReferenceAnnotatorTrainer,
     ReferenceFinder,
     SARTransformer,
     TransitiveVulnerabilityFinder,
 )
 from sec_certs.model.cc_matching import CCSchemeMatcher
-from sec_certs.model.references.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
@@ -38,7 +35,6 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
-from sec_certs.utils.nlp import prec_recall_metric
 
 
 @dataclass
@@ -729,7 +725,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         self._compute_scheme_data()
         self._compute_cert_labs()
         self._compute_sars()
-        self.annotate_references()
 
     def _compute_sars(self) -> None:
         logger.info("Computing heuristics: Computing SARs")
@@ -837,68 +832,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             update_dset.extract_data()
 
         return update_dset
-
-    def annotate_references(self, mode: Literal["training", "production"] = "production"):
-        """
-        Fills in `cert.heuristics.annotated_references` with reference labels.
-        This requires (a) a pre-trained `ReferenceAnnotator` or (b) to train a `ReferenceAnnotator`.
-        The behaviour is controlled by config keys `config.cc_reference_annotator_should_train` and
-        `config.cc_reference_annotator_path`. If should_train is False and path is provided, a pre-trained annotator
-        will be loaded and used.
-        """
-        if not self.state.pdfs_converted:
-            logger.info(
-                "Attempting run analysis of txt files while not having the pdf->txt conversion done. Returning."
-            )
-            return
-        if not self.state.auxiliary_datasets_processed:
-            logger.info(
-                "Attempting to run analysis of certifies while not having the auxiliary datasets processed. Returning."
-            )
-
-        if not config.cc_reference_annotator_should_train:
-            model_dir = (
-                config.cc_reference_annotator_dir if config.cc_reference_annotator_dir else self.reference_annotator_dir
-            )
-            try:
-                annotator = ReferenceAnnotator.from_pretrained(model_dir)
-            except Exception:
-                logger.error(
-                    "annotate_references() method was called with `config.cc_reference_annotator_should_train=False`."
-                    f"Further, the model was not found either at `config.cc_reference_annotator_dir={config.cc_reference_annotator_dir}`"
-                    f"nor at {self.reference_annotator_dir}. Either: (a) allow training with `config.cc_reference_annotator_should_train=True`;"
-                    "(b) set path to model with `config.cc_reference_annotator_path`; (c) paste the model into {self.reference_annotator_dir}. Returning."
-                )
-                return
-
-        logger.info("Extracting segments of text relevant for reference annotations.")
-        df = ReferenceSegmentExtractor()(self.certs.values())
-        if config.cc_reference_annotator_should_train:
-            annotator = self._train_reference_annotator(df, mode=mode)
-
-        logger.info("Predicting reference labels")
-        df = annotator.predict_df(df)
-        refs: dict[str, dict[str, str]] = dict.fromkeys(df.dgst, {})
-        for dgst, cert_id, label in zip(df.dgst, df.referenced_cert_id, df.y_pred):
-            refs[dgst][cert_id] = label
-
-        for dgst, value in refs.items():
-            self[dgst].heuristics.annotated_references = value
-
-    def _train_reference_annotator(
-        self, df: pd.DataFrame, save_model: bool = True, mode: Literal["training", "production"] = "production"
-    ) -> ReferenceAnnotator:
-        trainer = ReferenceAnnotatorTrainer.from_df(df, prec_recall_metric, "transformer", mode)
-        logger.info(
-            "Training ReferenceAnnotator on {df.shape[0]} samples ({df.loc[df.split == 'train'].shape[0]}/{df.loc[df.split == 'valid'].shape[0]}/{df.loc[df.split == 'test'].shape[0]}) (train/valid/test)."
-        )
-        trainer.train()
-        logger.info(trainer.evaluate())
-
-        if save_model:
-            trainer.clf.save_pretrained(self.reference_annotator_dir)
-
-        return trainer.clf
 
     def process_schemes(self, to_download: bool = True, only_schemes: set[str] | None = None) -> CCSchemeDataset:
         """

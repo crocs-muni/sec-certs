@@ -6,10 +6,7 @@ leveraged by members of Dataset package and are directly applied on members of S
 from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.model.fips_matching import FIPSProcessMatcher
-from sec_certs.model.references.annotator import ReferenceAnnotator
-from sec_certs.model.references.annotator_trainer import ReferenceAnnotatorTrainer
-from sec_certs.model.references.reference_finder import ReferenceFinder
-from sec_certs.model.references.segment_extractor import ReferenceSegmentExtractor
+from sec_certs.model.reference_finder import ReferenceFinder
 from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
 

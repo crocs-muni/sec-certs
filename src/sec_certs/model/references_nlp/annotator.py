@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -27,9 +26,7 @@ class ReferenceAnnotator:
     _model: Any
     _label_mapping: dict[int, str]
     _soft_voting_power: int = 2
-    _use_analytical_rule_name_similarity: bool = True
 
-    # TODO: This does not load hyperparameters, only the model and label mapping
     @classmethod
     def from_pretrained(cls, model_dir: str | Path) -> ReferenceAnnotator:
         """
@@ -48,7 +45,6 @@ class ReferenceAnnotator:
 
         return cls(model, label_mapping)
 
-    # TODO: This does not save hyperparameters, only the model and label mapping
     def save_pretrained(self, model_dir: str | Path):
         """
         Will dump _model and _label_mapping into a directory.
@@ -95,31 +91,10 @@ class ReferenceAnnotator:
         """
         WIll read df.segments and populate the dataframe with predictions.
         """
-
-        def matches_reevaluation(segments: list[str]) -> bool:
-            regex_a = r"This is a re-?\s?certification based on (the\s){1,2}referenced product"
-            regex_b = r"Re-?\s?Zertifizierung basierend auf (the\s){1,2}referenced product"
-            return any(
-                re.search(regex_a, segment, re.IGNORECASE) or re.search(regex_b, segment, re.IGNORECASE)
-                for segment in segments
-            )
-
         df_new = df.copy()
         y_proba = self.predict_proba(df_new.segments)
         df_new["y_proba"] = y_proba
         df_new["y_pred"] = self.predict(df_new.segments)
-
-        if self._use_analytical_rule_name_similarity:
-            df_new.loc[
-                (df_new.name_similarity == 100)
-                & (df_new.name_len_diff < 5)
-                & ((df_new.y_pred != "RE-EVALUATION") & (df_new.y_pred != "PREVIOUS_VERSION")),
-                ["y_pred"],
-            ] = "PREVIOUS_VERSION"
-
-        df_new["maches_reevaluation"] = df_new.segments.map(matches_reevaluation)
-        df_new.loc[df_new.maches_reevaluation, ["y_pred"]] = "RE-EVALUATION"
-
         df_new["correct"] = df_new.apply(
             lambda row: row["y_pred"] == row["label"] if not pd.isnull(row["label"]) else np.NaN, axis=1
         )
