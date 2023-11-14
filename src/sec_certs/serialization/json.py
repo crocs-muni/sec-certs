@@ -3,10 +3,11 @@ from __future__ import annotations
 import copy
 import gzip
 import json
+from collections.abc import Callable
 from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 from sec_certs import constants
 

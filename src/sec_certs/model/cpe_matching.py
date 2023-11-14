@@ -4,7 +4,7 @@ import itertools
 import logging
 import operator
 import re
-from typing import Pattern
+from re import Pattern
 
 from rapidfuzz import fuzz
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Iterable, cast
+from collections.abc import Iterable
+from typing import cast
 
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR, SAR_DICT_KEY
@@ -68,13 +69,13 @@ class SARTransformer:
         sec_level_sars = SARTransformer._parse_sars_from_security_level_list(cert.security_level)
 
         if st_keywords_may_have_sars(cert):
-            st_dict: dict = cast(Dict, cert.pdf_data.st_keywords)
+            st_dict: dict = cast(dict, cert.pdf_data.st_keywords)
             st_sars = SARTransformer._parse_sar_dict(st_dict[SAR_DICT_KEY], cert.dgst)
         else:
             st_sars = set()
 
         if report_keywords_may_have_sars(cert):
-            report_dict: dict = cast(Dict, cert.pdf_data.report_keywords)
+            report_dict: dict = cast(dict, cert.pdf_data.report_keywords)
             report_sars = SARTransformer._parse_sar_dict(report_dict[SAR_DICT_KEY], cert.dgst)
         else:
             report_sars = set()

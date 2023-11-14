@@ -6,11 +6,12 @@ import hashlib
 import math
 import tempfile
 import warnings
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Iterable
+from typing import Any, ClassVar
 from urllib.parse import urljoin
 
 import requests
