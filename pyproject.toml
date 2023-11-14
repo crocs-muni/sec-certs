@@ -56,6 +56,7 @@
     "scipy>=1.9.0",
     "networkx",
     "pydantic",
+    "pydantic-settings",
     "psutil",
     "pytesseract",
   ]

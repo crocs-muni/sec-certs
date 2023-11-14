@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, Final, Literal
+from typing import Final, Literal
 
 import pandas as pd
 from datasets import ClassLabel, Dataset, Features, NamedSplit, Value

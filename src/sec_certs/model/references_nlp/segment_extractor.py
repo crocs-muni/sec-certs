@@ -4,10 +4,11 @@ import itertools
 import json
 import logging
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
-from typing import Any, Iterable, Literal
+from typing import Any, Literal
 
 # import langdetect
 import numpy as np
