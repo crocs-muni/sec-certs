@@ -9,5 +9,5 @@ try:
 except ImportError as e:
     print(e)
     print(
-        f"Requirements for ML annotation of references not met. Please run `pip install sec-certs[nlp]` or install `pip install -r requirements/nlp_requirements.txt."
+        "Requirements for ML annotation of references not met. Please run `pip install sec-certs[nlp]` or install `pip install -r requirements/nlp_requirements.txt."
     )

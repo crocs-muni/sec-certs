@@ -296,7 +296,7 @@ def create_colors(
         for i, label in enumerate(allLabels):
             colorDict[label] = colorPalette[i]
     else:
-        missing = [label for label in allLabels if label not in colorDict.keys()]
+        missing = [label for label in allLabels if label not in colorDict]
         if missing:
             raise ValueError(
                 "The colorDict parameter is missing values for the following labels : " + ", ".join(missing)
