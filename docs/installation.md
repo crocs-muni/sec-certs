@@ -10,7 +10,7 @@ pip install -U sec-certs
 python -m spacy download en_core_web_sm
 ```
 
-Note, that `Python>=3.8` is required.
+Note, that `Python>=3.10` is required.
 
 :::
 
