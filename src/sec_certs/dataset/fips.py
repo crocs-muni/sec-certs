@@ -24,6 +24,7 @@ from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
+from sec_certs.utils.profiling import staged
 
 logger = logging.getLogger(__name__)
 
@@ -230,13 +231,13 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
             cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
 
     @serialize
+    @staged(logger, "Downloading and processing certificates.")
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download:
             self._download_html_resources()
 
-        logger.info("Adding unprocessed FIPS certificates into FIPSDataset.")
         self.certs = {x.dgst: x for x in self._get_all_certs_from_html_sources()}
         logger.info(f"The dataset now contains {len(self)} certificates.")
 
@@ -251,8 +252,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         super().process_auxiliary_datasets(download_fresh)
         self.auxiliary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
 
+    @staged(logger, "Processing FIPSAlgorithm dataset.")
     def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
-        logger.info("Preparing FIPSAlgorithm dataset.")
         if not self.algorithm_dataset_path.exists() or download_fresh_algs:
             alg_dset = FIPSAlgorithmDataset.from_web(self.algorithm_dataset_path)
             alg_dset.to_json()
@@ -261,8 +262,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
 
         return alg_dset
 
+    @staged(logger, "Extracting Algorithms from policy tables")
     def _extract_algorithms_from_policy_tables(self):
-        logger.info("Extracting Algorithms from policy tables")
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
@@ -271,8 +272,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
 
+    @staged(logger, "Extracting security policy metadata from the pdfs")
     def _extract_policy_pdf_metadata(self) -> None:
-        logger.info("Extracting security policy metadata from the pdfs")
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_metadata,
@@ -282,8 +283,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         )
         self.update_with_certs(processed_certs)
 
+    @staged(logger, "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.")
     def _compute_transitive_vulnerabilities(self) -> None:
-        logger.info("Computing heuristics: Computing transitive vulnerabilities in referenc(ed/ing) certificates.")
         transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: str(cert.cert_id))
         transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.policy_processed_references)
 
@@ -292,20 +293,16 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
             self.certs[dgst].heuristics.direct_transitive_cves = transitive_cve.direct_transitive_cves
             self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
 
-    def _prune_reference_candidates(self) -> None:
-        for cert in self:
-            cert.prune_referenced_cert_ids()
-
+    @staged(logger, "Computing heuristics: references between certificates.")
+    def _compute_references(self, keep_unknowns: bool = False) -> None:
         # Previously, a following procedure was used to prune reference_candidates:
         #   - A set of algorithms was obtained via self.auxiliary_datasets.algorithm_dset.get_algorithms_by_id(reference_candidate)
         #   - If any of these algorithms had the same vendor as the reference_candidate, the candidate was rejected
         #   - The rationale is that if an ID appears in a certificate s.t. an algorithm with the same ID was produced by the same vendor, the reference likely refers to alg.
         #   - Such reference should then be discarded.
         #   - We are uncertain of the effectivity of such measure, disabling it for now.
-
-    def _compute_references(self, keep_unknowns: bool = False) -> None:
-        logger.info("Computing heuristics: Recovering references between certificates")
-        self._prune_reference_candidates()
+        for cert in self:
+            cert.prune_referenced_cert_ids()
 
         policy_reference_finder = ReferenceFinder()
         policy_reference_finder.fit(

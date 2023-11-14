@@ -54,5 +54,8 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
         for scheme, sources in CCScheme.methods.items():
             if only_schemes is not None and scheme not in only_schemes:
                 continue
-            schemes[scheme] = CCScheme.from_web(scheme, sources.keys())
+            try:
+                schemes[scheme] = CCScheme.from_web(scheme, sources.keys())
+            except Exception as e:
+                logger.warning(f"Could not download CC scheme: {scheme} due to error {e}.")
         return cls(schemes)

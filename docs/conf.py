@@ -18,7 +18,8 @@ from importlib.metadata import version as get_version
 # -- Project information -----------------------------------------------------
 
 project = "sec-certs"
-copyright = "CRoCS MUNI | 2020-2023"
+copyright = "Anonymized | 2020-2023"
+# copyright = "CRoCS MUNI | 2020-2023"
 
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
 release = ".".join(get_version("sec-certs").split(".")[:3])

@@ -21,8 +21,7 @@ Each of the notebooks can be launched interactively in MyBinder by clicking on ð
 :maxdepth: 1
 Seccerts homepage <https://seccerts.org/>
 Seccerts docs <https://seccerts.org/docs>
-GitHub repo <https://github.com/crocs-muni/sec-certs>
-Seccerts PyPi <https://pypi.org/project/sec-certs/>
+GitHub repo <https://anonymous.4open.science/r/sec-certs-7A92>
 ```
 
 ```{toctree}

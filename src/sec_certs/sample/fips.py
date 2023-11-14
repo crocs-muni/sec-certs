@@ -64,7 +64,7 @@ class FIPSHTMLParser:
         )
         entries = [(FIPSHTMLParser.normalize_string(key.text), entry) for key, entry in entries]
         entries = [parse_single_detail_entry(*x) for x in entries if x[0] in DETAILS_KEY_NORMALIZATION_DICT]
-        entries = {x: y for x, y in entries}
+        entries = dict(entries)
 
         if "caveat" in entries:
             entries["mentioned_certs"] = FIPSHTMLParser.get_mentioned_certs_from_caveat(entries["caveat"])
@@ -83,15 +83,13 @@ class FIPSHTMLParser:
     def _build_vendor_dict(vendor_div: Tag) -> dict[str, Any]:
         if not (link := vendor_div.find("a")):
             return {"vendor_url": None, "vendor": list(vendor_div.find("div", "panel-body").children)[0].strip()}
-        else:
-            return {"vendor_url": link.get("href"), "vendor": link.text.strip()}
+        return {"vendor_url": link.get("href"), "vendor": link.text.strip()}
 
     @staticmethod
     def _build_related_files_dict(related_files_div: Tag) -> dict[str, Any]:
         if cert_link := [x for x in related_files_div.find_all("a") if "Certificate" in x.text]:
             return {"certificate_pdf_url": constants.FIPS_BASE_URL + cert_link[0].get("href")}
-        else:
-            return {"certificate_pdf_url": None}
+        return {"certificate_pdf_url": None}
 
     @staticmethod
     def _build_validation_history_dict(validation_history_div: Tag) -> dict[str, Any]:
@@ -433,8 +431,7 @@ class FIPSCertificate(
                 fips_certlike = self.keywords["fips_certlike"].get("Certlike", {})
                 matches = {re.search(r"#\s{0,1}\d{1,4}", x) for x in fips_certlike}
                 return {"".join([x for x in match.group() if x.isdigit()]) for match in matches if match}
-            else:
-                return set()
+            return set()
 
     @dataclass(eq=True)
     class Heuristics(BaseHeuristics, ComplexSerializableType):

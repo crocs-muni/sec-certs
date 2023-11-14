@@ -107,7 +107,7 @@ def get_australia_in_evaluation(enhanced: bool = True) -> list[dict[str, Any]]: 
         if enhanced:
             e: dict[str, Any] = {}
             cert_page = _get_page(cert["url"])
-            article = cert_page.find("article", attrs={"role": "article"})
+            article = cert_page.find("article")
             blocks = article.find("div").find_all("div", class_="flex", recursive=False)
             for h2 in blocks[0].find_all("h2"):
                 val = sns(h2.find_next_sibling("span").text)
@@ -153,7 +153,9 @@ def get_canada_certified() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    soup = _get_page(constants.CC_CANADA_CERTIFIED_URL)
+    resp = _get(constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_CERTIFIED_URL}", None)
+    html_data = resp.json()["response"]["page"]["body"][0]
+    soup = BeautifulSoup(html_data, "html5lib")
     tbody = soup.find("table").find("tbody")
     results = []
     for tr in tqdm(tbody.find_all("tr"), desc="Get CA scheme certified."):
@@ -176,7 +178,9 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    soup = _get_page(constants.CC_CANADA_INEVAL_URL)
+    resp = _get(constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_INEVAL_URL}", None)
+    html_data = resp.json()["response"]["page"]["body"][0]
+    soup = BeautifulSoup(html_data, "html5lib")
     tbody = soup.find("table").find("tbody")
     results = []
     for tr in tqdm(tbody.find_all("tr"), desc="Get CA scheme in evaluation."):

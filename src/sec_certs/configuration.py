@@ -18,7 +18,7 @@ class Configuration(BaseSettings):
         env_prefix = "seccerts_"
 
     log_filepath: Path = Field(
-        "./cert_processing_log.txt",
+        "./cert_processing_log.log",
         description="Path to the file, relative to working directory, where the log will be stored.",
     )
     always_false_positive_fips_cert_id_threshold: int = Field(

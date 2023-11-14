@@ -18,6 +18,7 @@ Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-too
 - List actual dependencies in [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) without pinning them.
 - Additionally, [compile.sh](https://github.com/crocs-muni/sec-certs/blob/main/requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
 - Tests, linting and Docker all run against this reproducible environment of pinned requirements.
+- To install all requirements, use `pip install -U pip-tools && pip-sync requirements/all_requirements.txt`
 
 ## Branches
 
@@ -43,9 +44,7 @@ Note on single-sourcing the package version: More can be read [here](https://pac
 All commits shall pass the lint pipeline of the following tools:
 
 - Mypy (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
-- Black (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 - Ruff (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
-- PyUpgrade
 
 These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool to register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
@@ -59,8 +58,8 @@ pre-commit run --all-files
 
 To ivoke the tools manually, you can, in the repository root, use:
 - Mypy: `mypy .`
-- Black: `black --check .` (without the flag to reformat)
 - Ruff: `ruff ." (or with `--fix` flag to apply fixes)
+- Ruff formatL `ruff format --check .`
 
 ## Documentation
 

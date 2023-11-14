@@ -23,7 +23,7 @@ catalogue==2.0.8
     #   spacy
     #   srsly
     #   thinc
-certifi==2022.12.7
+certifi==2023.7.22
     # via requests
 charset-normalizer==2.1.1
     # via
@@ -232,6 +232,7 @@ packaging==22.0
     #   ipykernel
     #   matplotlib
     #   pikepdf
+    #   pytesseract
     #   setuptools-scm
     #   spacy
     #   transformers
@@ -255,10 +256,11 @@ pickleshare==0.7.5
     # via ipython
 pikepdf==6.2.5
     # via sec-certs (./../pyproject.toml)
-pillow==9.3.0
+pillow==10.0.1
     # via
     #   matplotlib
     #   pikepdf
+    #   pytesseract
     #   sec-certs (./../pyproject.toml)
     #   torchvision
 pkgconfig==1.5.5
@@ -272,7 +274,9 @@ preshed==3.0.8
 prompt-toolkit==3.0.36
     # via ipython
 psutil==5.9.4
-    # via ipykernel
+    # via
+    #   ipykernel
+    #   sec-certs (./../pyproject.toml)
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -287,7 +291,7 @@ pydantic==1.10.2
     #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
-pygments==2.13.0
+pygments==2.15.0
     # via ipython
 pyparsing==3.0.9
     # via matplotlib
@@ -295,9 +299,14 @@ pypdf[crypto]==3.2.1
     # via
     #   pypdf
     #   sec-certs (./../pyproject.toml)
+    # via
+    #   pypdf
+    #   sec-certs (./../pyproject.toml)
 pyrsistent==0.19.2
     # via jsonschema
 pysankeybeta==1.4.0
+    # via sec-certs (./../pyproject.toml)
+pytesseract==0.3.10
     # via sec-certs (./../pyproject.toml)
 python-dateutil==2.8.2
     # via

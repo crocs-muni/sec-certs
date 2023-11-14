@@ -76,10 +76,12 @@ GARBAGE_ALPHA_CHARS_THRESHOLD = 0.5
 CC_AUSTRALIA_BASE_URL = "https://www.cyber.gov.au"
 CC_AUSTRALIA_INEVAL_URL = (
     CC_AUSTRALIA_BASE_URL
-    + "/resources-business-and-government/assessment-and-evaluation-programs/australian-information-security-evaluation-program-aisep"
+    + "/resources-business-and-government/assessment-and-evaluation-programs/australian-information-security-evaluation-program"
 )
-CC_CANADA_CERTIFIED_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteria/certified-products"
-CC_CANADA_INEVAL_URL = "https://www.cyber.gc.ca/en/tools-services/common-criteria/products-evaluation"
+CC_CANADA_BASE_URL = "https://www.cyber.gc.ca"
+CC_CANADA_API_URL = CC_CANADA_BASE_URL + "/api/cccs/page/v1/get"
+CC_CANADA_CERTIFIED_URL = "/en/tools-services/common-criteria/certified-products"
+CC_CANADA_INEVAL_URL = "/en/tools-services/common-criteria/products-evaluation"
 CC_ANSSI_BASE_URL = "https://www.ssi.gouv.fr"
 CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/en/products/certified-products/"
 CC_BSI_BASE_URL = "https://www.bsi.bund.de/"

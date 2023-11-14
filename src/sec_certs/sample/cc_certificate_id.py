@@ -122,6 +122,14 @@ class CertificateId:
         cert_num = int(new_cert_id.split("-")[1])
         return f"SERTIT-{cert_num:03}"
 
+    def _canonical_nl(self):
+        new_cert_id = self.clean
+        if new_cert_id.startswith("CC-"):
+            new_cert_id = f"NSCIB-{new_cert_id}"
+        if not new_cert_id.endswith("-CR"):
+            new_cert_id = f"{new_cert_id}-CR"
+        return new_cert_id
+
     @property
     def clean(self) -> str:
         """
@@ -146,6 +154,7 @@ class CertificateId:
             "CA": self._canonical_ca,
             "JP": self._canonical_jp,
             "NO": self._canonical_no,
+            "NL": self._canonical_nl,
         }
 
         if self.scheme in schemes:
