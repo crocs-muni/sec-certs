@@ -83,7 +83,14 @@
       "ipython!=8.7.0",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
-    nlp = ["catboost", "optuna", "setfit", "umap-learn", "plotly", "sklearn"]
+    nlp = [
+      "catboost",
+      "optuna",
+      "setfit",
+      "umap-learn[plot]",
+      "plotly",
+      "scikit-learn",
+    ]
 
   [project.urls]
     Homepage = "https://seccerts.org"

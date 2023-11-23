@@ -1,150 +1,110 @@
-aiohttp==3.8.4
+annotated-types==0.6.0
+    # via pydantic
+appnope==0.1.3
     # via
-    #   datasets
-    #   fsspec
-aiosignal==1.3.1
-    # via aiohttp
-asttokens==2.2.1
+    #   ipykernel
+    #   ipython
+asttokens==2.4.1
     # via stack-data
-async-timeout==4.0.2
-    # via aiohttp
-attrs==22.1.0
+attrs==23.1.0
     # via
-    #   aiohttp
     #   jsonschema
-backcall==0.2.0
-    # via ipython
-beautifulsoup4==4.11.1
+    #   referencing
+beautifulsoup4==4.12.2
     # via sec-certs (./../pyproject.toml)
-blis==0.7.9
+blis==0.7.11
     # via thinc
-catalogue==2.0.8
+catalogue==2.0.10
     # via
     #   spacy
     #   srsly
     #   thinc
-certifi==2023.7.22
+certifi==2023.11.17
     # via requests
-charset-normalizer==2.1.1
+cffi==1.16.0
+    # via cryptography
+charset-normalizer==3.3.2
+    # via requests
+click==8.1.7
     # via
-    #   aiohttp
-    #   requests
-click==8.1.3
-    # via
-    #   nltk
     #   sec-certs (./../pyproject.toml)
     #   typer
-cmake==3.27.7
-    # via triton
-comm==0.1.2
-    # via ipykernel
-confection==0.0.3
-    # via thinc
-contourpy==1.0.6
+cloudpathlib==0.16.0
+    # via weasel
+comm==0.2.0
+    # via
+    #   ipykernel
+    #   ipywidgets
+confection==0.1.3
+    # via
+    #   thinc
+    #   weasel
+contourpy==1.2.0
     # via matplotlib
-cycler==0.11.0
+cryptography==41.0.5
+    # via pypdf
+cycler==0.12.1
     # via matplotlib
-cymem==2.0.7
+cymem==2.0.8
     # via
     #   preshed
     #   spacy
     #   thinc
-datasets==2.12.0
-    # via
-    #   evaluate
-    #   setfit
-debugpy==1.6.4
+debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
     # via ipython
-deprecation==2.1.0
+deprecated==1.2.14
     # via pikepdf
-dill==0.3.6
-    # via
-    #   datasets
-    #   evaluate
-    #   multiprocess
 distro==1.8.0
     # via tabula-py
-entrypoints==0.4
-    # via jupyter-client
-evaluate==0.4.0
-    # via setfit
-executing==1.2.0
+exceptiongroup==1.2.0
+    # via ipython
+executing==2.0.1
     # via stack-data
-filelock==3.12.0
-    # via
-    #   huggingface-hub
-    #   torch
-    #   transformers
-    #   triton
-fonttools==4.38.0
+fonttools==4.45.0
     # via matplotlib
-frozenlist==1.3.3
-    # via
-    #   aiohttp
-    #   aiosignal
-fsspec[http]==2023.5.0
-    # via
-    #   datasets
-    #   evaluate
-    #   fsspec
-    #   huggingface-hub
 html5lib==1.1
     # via sec-certs (./../pyproject.toml)
-huggingface-hub==0.15.1
-    # via
-    #   datasets
-    #   evaluate
-    #   sentence-transformers
-    #   transformers
 idna==3.4
-    # via
-    #   requests
-    #   yarl
-ipykernel==6.19.1
-    # via
-    #   ipywidgets
-    #   sec-certs (./../pyproject.toml)
-ipython==8.10.0
+    # via requests
+ipykernel==6.27.0
+    # via sec-certs (./../pyproject.toml)
+ipython==8.17.2
     # via
     #   ipykernel
     #   ipywidgets
-ipywidgets==8.0.3
+ipywidgets==8.1.1
     # via sec-certs (./../pyproject.toml)
-jedi==0.18.2
+jedi==0.19.1
     # via ipython
 jinja2==3.1.2
-    # via
-    #   spacy
-    #   torch
-joblib==1.2.0
-    # via
-    #   nltk
-    #   scikit-learn
-jsonschema==4.17.3
+    # via spacy
+joblib==1.3.2
+    # via scikit-learn
+jsonschema==4.20.0
     # via sec-certs (./../pyproject.toml)
-jupyter-client==7.4.8
+jsonschema-specifications==2023.11.1
+    # via jsonschema
+jupyter-client==8.6.0
     # via ipykernel
-jupyter-core==5.1.0
-    # via jupyter-client
-jupyterlab-widgets==3.0.4
+jupyter-core==5.5.0
+    # via
+    #   ipykernel
+    #   jupyter-client
+jupyterlab-widgets==3.0.9
     # via ipywidgets
-kiwisolver==1.4.4
+kiwisolver==1.4.5
     # via matplotlib
 langcodes==3.3.0
     # via spacy
-langdetect==1.0.9
-    # via sec-certs (./../pyproject.toml)
-lit==17.0.3
-    # via triton
-lxml==4.9.1
+lxml==4.9.3
     # via
     #   pikepdf
     #   sec-certs (./../pyproject.toml)
-markupsafe==2.1.1
+markupsafe==2.1.3
     # via jinja2
-matplotlib==3.6.2
+matplotlib==3.8.2
     # via
     #   pysankeybeta
     #   seaborn
@@ -153,127 +113,70 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-mpmath==1.3.0
-    # via sympy
-multidict==6.0.4
-    # via
-    #   aiohttp
-    #   yarl
-multiprocess==0.70.14
-    # via
-    #   datasets
-    #   evaluate
-murmurhash==1.0.9
+murmurhash==1.0.10
     # via
     #   preshed
     #   spacy
     #   thinc
-nest-asyncio==1.5.6
-    # via
-    #   ipykernel
-    #   jupyter-client
-networkx==2.8.8
-    # via
-    #   sec-certs (./../pyproject.toml)
-    #   torch
-nltk==3.8.1
-    # via sentence-transformers
-numpy==1.23.5
+nest-asyncio==1.5.8
+    # via ipykernel
+networkx==3.2.1
+    # via sec-certs (./../pyproject.toml)
+numpy==1.26.2
     # via
     #   blis
     #   contourpy
-    #   datasets
-    #   evaluate
     #   matplotlib
     #   pandas
-    #   pyarrow
     #   pysankeybeta
     #   scikit-learn
     #   scipy
     #   seaborn
     #   sec-certs (./../pyproject.toml)
-    #   sentence-transformers
     #   spacy
     #   tabula-py
     #   thinc
-    #   torchvision
-    #   transformers
-nvidia-cublas-cu11==11.10.3.66
+packaging==23.2
     # via
-    #   nvidia-cudnn-cu11
-    #   nvidia-cusolver-cu11
-    #   torch
-nvidia-cuda-cupti-cu11==11.7.101
-    # via torch
-nvidia-cuda-nvrtc-cu11==11.7.99
-    # via torch
-nvidia-cuda-runtime-cu11==11.7.99
-    # via torch
-nvidia-cudnn-cu11==8.5.0.96
-    # via torch
-nvidia-cufft-cu11==10.9.0.58
-    # via torch
-nvidia-curand-cu11==10.2.10.91
-    # via torch
-nvidia-cusolver-cu11==11.4.0.1
-    # via torch
-nvidia-cusparse-cu11==11.7.4.91
-    # via torch
-nvidia-nccl-cu11==2.14.3
-    # via torch
-nvidia-nvtx-cu11==11.7.91
-    # via torch
-packaging==22.0
-    # via
-    #   datasets
-    #   deprecation
-    #   evaluate
-    #   huggingface-hub
     #   ipykernel
     #   matplotlib
     #   pikepdf
     #   pytesseract
     #   setuptools-scm
     #   spacy
-    #   transformers
-pandas==1.5.2
+    #   thinc
+    #   weasel
+pandas==2.1.3
     # via
-    #   datasets
-    #   evaluate
     #   pysankeybeta
     #   seaborn
     #   sec-certs (./../pyproject.toml)
     #   tabula-py
 parso==0.8.3
     # via jedi
-pathy==0.10.1
-    # via spacy
 pdftotext==2.2.2
     # via sec-certs (./../pyproject.toml)
 pexpect==4.8.0
     # via ipython
-pickleshare==0.7.5
-    # via ipython
-pikepdf==6.2.5
+pikepdf==8.7.1
     # via sec-certs (./../pyproject.toml)
-pillow==10.0.1
+pillow==10.1.0
     # via
     #   matplotlib
     #   pikepdf
     #   pytesseract
     #   sec-certs (./../pyproject.toml)
-    #   torchvision
 pkgconfig==1.5.5
     # via sec-certs (./../pyproject.toml)
-platformdirs==2.6.0
+platformdirs==4.0.0
     # via jupyter-core
-preshed==3.0.8
+preshed==3.0.9
     # via
     #   spacy
     #   thinc
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.41
     # via ipython
-psutil==5.9.4
+psutil==5.9.6
     # via
     #   ipykernel
     #   sec-certs (./../pyproject.toml)
@@ -281,30 +184,29 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pyarrow==12.0.0
-    # via datasets
-pycryptodome==3.16.0
-    # via pypdf
-pydantic==1.10.2
+pycparser==2.21
+    # via cffi
+pydantic==2.5.2
     # via
     #   confection
+    #   pydantic-settings
     #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
-pygments==2.15.0
+    #   weasel
+pydantic-core==2.14.5
+    # via pydantic
+pydantic-settings==2.1.0
+    # via sec-certs (./../pyproject.toml)
+pygments==2.17.2
     # via ipython
-pyparsing==3.0.9
+pyparsing==3.1.1
     # via matplotlib
-pypdf[crypto]==3.2.1
+pypdf[crypto]==3.17.1
     # via
     #   pypdf
     #   sec-certs (./../pyproject.toml)
-    # via
-    #   pypdf
-    #   sec-certs (./../pyproject.toml)
-pyrsistent==0.19.2
-    # via jsonschema
-pysankeybeta==1.4.0
+pysankeybeta==1.4.1
     # via sec-certs (./../pyproject.toml)
 pytesseract==0.3.10
     # via sec-certs (./../pyproject.toml)
@@ -314,117 +216,85 @@ python-dateutil==2.8.2
     #   matplotlib
     #   pandas
     #   sec-certs (./../pyproject.toml)
-pytz==2022.6
+python-dotenv==1.0.0
+    # via pydantic-settings
+pytz==2023.3.post1
     # via pandas
-pyyaml==6.0
-    # via
-    #   datasets
-    #   huggingface-hub
-    #   sec-certs (./../pyproject.toml)
-    #   transformers
-pyzmq==24.0.1
+pyyaml==6.0.1
+    # via sec-certs (./../pyproject.toml)
+pyzmq==25.1.1
     # via
     #   ipykernel
     #   jupyter-client
-rapidfuzz==2.13.3
+rapidfuzz==3.5.2
     # via sec-certs (./../pyproject.toml)
-regex==2023.6.3
+referencing==0.31.0
     # via
-    #   nltk
-    #   transformers
+    #   jsonschema
+    #   jsonschema-specifications
 requests==2.31.0
     # via
-    #   datasets
-    #   evaluate
-    #   fsspec
-    #   huggingface-hub
-    #   responses
     #   sec-certs (./../pyproject.toml)
     #   spacy
-    #   torchvision
-    #   transformers
-responses==0.18.0
+    #   weasel
+rpds-py==0.13.1
     # via
-    #   datasets
-    #   evaluate
-scikit-learn==1.2.0
-    # via
-    #   sec-certs (./../pyproject.toml)
-    #   sentence-transformers
-scipy==1.10.0
+    #   jsonschema
+    #   referencing
+scikit-learn==1.3.2
+    # via sec-certs (./../pyproject.toml)
+scipy==1.11.4
     # via
     #   scikit-learn
     #   sec-certs (./../pyproject.toml)
-    #   sentence-transformers
-seaborn==0.12.1
+seaborn==0.13.0
     # via
     #   pysankeybeta
     #   sec-certs (./../pyproject.toml)
-sentence-transformers==2.2.2
-    # via setfit
-sentencepiece==0.1.99
-    # via sentence-transformers
-setfit==0.7.0
-    # via sec-certs (./../pyproject.toml)
-setuptools-scm==7.0.5
+setuptools-scm==8.0.4
     # via sec-certs (./../pyproject.toml)
 six==1.16.0
     # via
     #   asttokens
     #   html5lib
-    #   langdetect
     #   python-dateutil
-smart-open==6.2.0
-    # via pathy
-soupsieve==2.3.2.post1
+smart-open==6.4.0
+    # via
+    #   spacy
+    #   weasel
+soupsieve==2.5
     # via beautifulsoup4
-spacy==3.4.3
+spacy==3.7.2
     # via sec-certs (./../pyproject.toml)
-spacy-legacy==3.0.10
+spacy-legacy==3.0.12
     # via spacy
-spacy-loggers==1.0.4
+spacy-loggers==1.0.5
     # via spacy
-srsly==2.4.5
+srsly==2.4.8
     # via
     #   confection
     #   spacy
     #   thinc
-stack-data==0.6.2
+    #   weasel
+stack-data==0.6.3
     # via ipython
-sympy==1.12
-    # via torch
-tabula-py==2.6.0
+tabula-py==2.9.0
     # via sec-certs (./../pyproject.toml)
-thinc==8.1.5
+thinc==8.2.1
     # via spacy
-threadpoolctl==3.1.0
+threadpoolctl==3.2.0
     # via scikit-learn
-tokenizers==0.13.3
-    # via transformers
 tomli==2.0.1
     # via setuptools-scm
-torch==2.0.1
-    # via
-    #   sentence-transformers
-    #   torchvision
-    #   triton
-torchvision==0.15.2
-    # via sentence-transformers
-tornado==6.3.2
+tornado==6.3.3
     # via
     #   ipykernel
     #   jupyter-client
-tqdm==4.64.1
+tqdm==4.66.1
     # via
-    #   datasets
-    #   evaluate
-    #   huggingface-hub
-    #   nltk
     #   sec-certs (./../pyproject.toml)
-    #   sentence-transformers
     #   spacy
-    #   transformers
-traitlets==5.6.0
+traitlets==5.13.0
     # via
     #   comm
     #   ipykernel
@@ -433,48 +303,36 @@ traitlets==5.6.0
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
-transformers==4.29.2
-    # via sentence-transformers
-triton==2.0.0
-    # via torch
-typer==0.7.0
+typer==0.9.0
     # via
-    #   pathy
     #   spacy
-typing-extensions==4.4.0
+    #   weasel
+typing-extensions==4.8.0
     # via
-    #   huggingface-hub
+    #   cloudpathlib
     #   pydantic
+    #   pydantic-core
     #   setuptools-scm
-    #   torch
-urllib3==1.26.13
-    # via
-    #   requests
-    #   responses
-wasabi==0.10.1
+    #   typer
+tzdata==2023.3
+    # via pandas
+urllib3==2.1.0
+    # via requests
+wasabi==1.1.2
     # via
     #   spacy
     #   thinc
-wcwidth==0.2.5
+    #   weasel
+wcwidth==0.2.12
     # via prompt-toolkit
+weasel==0.3.4
+    # via spacy
 webencodings==0.5.1
     # via html5lib
-wheel==0.41.2
-    # via
-    #   nvidia-cublas-cu11
-    #   nvidia-cuda-cupti-cu11
-    #   nvidia-cuda-runtime-cu11
-    #   nvidia-curand-cu11
-    #   nvidia-cusparse-cu11
-    #   nvidia-nvtx-cu11
-widgetsnbextension==4.0.4
+widgetsnbextension==4.0.9
     # via ipywidgets
-xxhash==3.2.0
-    # via
-    #   datasets
-    #   evaluate
-yarl==1.9.2
-    # via aiohttp
+wrapt==1.16.0
+    # via deprecated
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

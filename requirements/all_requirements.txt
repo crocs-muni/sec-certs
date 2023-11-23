@@ -1,6 +1,6 @@
-accessible-pygments==0.0.3
+accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.8.4
+aiohttp==3.9.0
     # via
     #   datasets
     #   fsspec
@@ -10,93 +10,120 @@ alabaster==0.7.13
     # via sphinx
 alembic==1.12.1
     # via optuna
-asttokens==2.2.1
+annotated-types==0.6.0
+    # via pydantic
+appnope==0.1.3
+    # via
+    #   ipykernel
+    #   ipython
+asttokens==2.4.1
     # via stack-data
-async-timeout==4.0.2
+async-timeout==4.0.3
     # via aiohttp
-attrs==22.2.0
+attrs==23.1.0
     # via
     #   aiohttp
     #   jsonschema
     #   jupyter-cache
-    #   pytest
-babel==2.12.1
+    #   referencing
+babel==2.13.1
     # via
     #   pydata-sphinx-theme
     #   sphinx
-backcall==0.2.0
-    # via ipython
-beautifulsoup4==4.11.2
+beautifulsoup4==4.12.2
     # via
     #   pydata-sphinx-theme
     #   sec-certs (./../pyproject.toml)
-black==23.1.0
-    # via sec-certs (./../pyproject.toml)
-blis==0.7.9
+bleach==6.1.0
+    # via panel
+blis==0.7.11
     # via thinc
-build==0.10.0
+bokeh==3.3.1
+    # via
+    #   panel
+    #   umap-learn
+build==1.0.3
     # via pip-tools
-catalogue==2.0.8
+catalogue==2.0.10
     # via
     #   spacy
     #   srsly
     #   thinc
 catboost==1.2.2
     # via sec-certs (./../pyproject.toml)
-certifi==2022.12.7
+certifi==2023.11.17
     # via requests
-cfgv==3.3.1
+cffi==1.16.0
+    # via cryptography
+cfgv==3.4.0
     # via pre-commit
-charset-normalizer==3.1.0
+charset-normalizer==3.3.2
+    # via requests
+click==8.1.7
     # via
-    #   aiohttp
-    #   requests
-click==8.1.3
-    # via
-    #   black
+    #   dask
     #   jupyter-cache
     #   nltk
     #   pip-tools
     #   sec-certs (./../pyproject.toml)
     #   typer
-cmake==3.27.7
-    # via triton
+cloudpathlib==0.16.0
+    # via weasel
+cloudpickle==3.0.0
+    # via dask
+colorcet==3.0.1
+    # via
+    #   datashader
+    #   holoviews
+    #   umap-learn
 colorlog==6.7.0
     # via optuna
-comm==0.1.2
-    # via ipykernel
-confection==0.0.4
-    # via thinc
-contourpy==1.0.7
-    # via matplotlib
-coverage[toml]==7.2.2
+comm==0.2.0
+    # via
+    #   ipykernel
+    #   ipywidgets
+confection==0.1.3
+    # via
+    #   thinc
+    #   weasel
+contourpy==1.2.0
+    # via
+    #   bokeh
+    #   matplotlib
+coverage[toml]==7.3.2
     # via
     #   pytest-cov
     #   sec-certs (./../pyproject.toml)
-cycler==0.11.0
+cryptography==41.0.5
+    # via pypdf
+cycler==0.12.1
     # via matplotlib
-cymem==2.0.7
+cymem==2.0.8
     # via
     #   preshed
     #   spacy
     #   thinc
-datasets==2.10.1
+dask==2023.11.0
+    # via datashader
+datasets==2.15.0
     # via
     #   evaluate
     #   sec-certs (./../pyproject.toml)
     #   setfit
-debugpy==1.6.6
+datashader==0.16.0
+    # via umap-learn
+debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
     # via ipython
-deprecation==2.1.0
+deprecated==1.2.14
     # via pikepdf
-dill==0.3.6
+dill==0.3.7
     # via
     #   datasets
     #   evaluate
     #   multiprocess
-distlib==0.3.6
+distlib==0.3.7
     # via virtualenv
 distro==1.8.0
     # via tabula-py
@@ -105,139 +132,162 @@ docutils==0.19
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
-evaluate==0.4.0
+evaluate==0.4.1
     # via setfit
-executing==1.2.0
+exceptiongroup==1.2.0
+    # via
+    #   ipython
+    #   pytest
+executing==2.0.1
     # via stack-data
-fastjsonschema==2.16.3
+fastjsonschema==2.19.0
     # via nbformat
-filelock==3.10.0
+filelock==3.13.1
     # via
     #   huggingface-hub
     #   torch
     #   transformers
-    #   triton
     #   virtualenv
-fonttools==4.39.2
+fonttools==4.45.0
     # via matplotlib
-frozenlist==1.3.3
+frozenlist==1.4.0
     # via
     #   aiohttp
     #   aiosignal
-fsspec[http]==2023.3.0
+fsspec[http]==2023.10.0
     # via
+    #   dask
     #   datasets
     #   evaluate
     #   fsspec
+    #   huggingface-hub
+    #   torch
 gprof2dot==2022.7.29
     # via pytest-profiling
 graphviz==0.20.1
     # via catboost
-greenlet==2.0.2
+greenlet==3.0.1
     # via sqlalchemy
+holoviews==1.18.1
+    # via umap-learn
 html5lib==1.1
     # via sec-certs (./../pyproject.toml)
-huggingface-hub==0.13.2
+huggingface-hub==0.19.4
     # via
     #   datasets
     #   evaluate
     #   sentence-transformers
+    #   tokenizers
     #   transformers
-identify==2.5.21
+identify==2.5.32
     # via pre-commit
 idna==3.4
     # via
     #   requests
     #   yarl
+imageio==2.33.0
+    # via scikit-image
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.0.0
+importlib-metadata==6.8.0
     # via
+    #   dask
     #   jupyter-cache
     #   myst-nb
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.21.3
+ipykernel==6.27.0
     # via
-    #   ipywidgets
     #   myst-nb
     #   sec-certs (./../pyproject.toml)
-ipython==8.11.0
+ipython==8.17.2
     # via
     #   ipykernel
     #   ipywidgets
     #   myst-nb
     #   sec-certs (./../pyproject.toml)
-ipywidgets==8.0.4
+ipywidgets==8.1.1
     # via sec-certs (./../pyproject.toml)
-jedi==0.18.2
+jedi==0.19.1
     # via ipython
 jinja2==3.1.2
     # via
+    #   bokeh
     #   myst-parser
     #   spacy
     #   sphinx
     #   torch
-joblib==1.2.0
+joblib==1.3.2
     # via
     #   nltk
     #   pynndescent
     #   scikit-learn
-jsonschema==4.17.3
+jsonschema==4.20.0
     # via
     #   nbformat
     #   sec-certs (./../pyproject.toml)
-jupyter-cache==0.5.0
+jsonschema-specifications==2023.11.1
+    # via jsonschema
+jupyter-cache==1.0.0
     # via myst-nb
-jupyter-client==8.0.3
+jupyter-client==8.6.0
     # via
     #   ipykernel
     #   nbclient
-jupyter-core==5.3.0
+jupyter-core==5.5.0
     # via
     #   ipykernel
     #   jupyter-client
+    #   nbclient
     #   nbformat
-jupyterlab-widgets==3.0.5
+jupyterlab-widgets==3.0.9
     # via ipywidgets
-kiwisolver==1.4.4
+kiwisolver==1.4.5
     # via matplotlib
 langcodes==3.3.0
     # via spacy
-langdetect==1.0.9
-    # via sec-certs (./../pyproject.toml)
-lit==17.0.3
-    # via triton
+lazy-loader==0.3
+    # via scikit-image
+linkify-it-py==2.0.2
+    # via panel
 llvmlite==0.41.1
     # via
     #   numba
     #   pynndescent
-lxml==4.9.2
+locket==1.0.0
+    # via partd
+lxml==4.9.3
     # via
     #   pikepdf
     #   sec-certs (./../pyproject.toml)
 mako==1.3.0
     # via alembic
-markdown-it-py==2.2.0
+markdown==3.5.1
+    # via panel
+markdown-it-py==3.0.0
     # via
     #   mdit-py-plugins
     #   myst-parser
-markupsafe==2.1.2
+    #   panel
+markupsafe==2.1.3
     # via
     #   jinja2
     #   mako
-matplotlib==3.7.1
+matplotlib==3.8.2
     # via
     #   catboost
     #   pysankeybeta
     #   seaborn
     #   sec-certs (./../pyproject.toml)
+    #   umap-learn
 matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-mdit-py-plugins==0.3.5
-    # via myst-parser
+mdit-py-plugins==0.4.0
+    # via
+    #   myst-parser
+    #   panel
 mdurl==0.1.2
     # via markdown-it-py
 memory-profiler==0.61.0
@@ -248,63 +298,68 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-multiprocess==0.70.14
+multipledispatch==1.0.0
+    # via datashader
+multiprocess==0.70.15
     # via
     #   datasets
     #   evaluate
-murmurhash==1.0.9
+murmurhash==1.0.10
     # via
     #   preshed
     #   spacy
     #   thinc
-mypy==1.0.0
+mypy==1.6.1
     # via sec-certs (./../pyproject.toml)
 mypy-extensions==1.0.0
-    # via
-    #   black
-    #   mypy
-myst-nb==0.17.1
+    # via mypy
+myst-nb==1.0.0
     # via sec-certs (./../pyproject.toml)
-myst-parser==0.18.1
+myst-parser==2.0.0
     # via myst-nb
-nbclient==0.5.13
+nbclient==0.9.0
     # via
     #   jupyter-cache
     #   myst-nb
-nbformat==5.7.3
+nbformat==5.9.2
     # via
     #   jupyter-cache
     #   myst-nb
     #   nbclient
-nest-asyncio==1.5.6
+nest-asyncio==1.5.8
+    # via ipykernel
+networkx==3.2.1
     # via
-    #   ipykernel
-    #   nbclient
-networkx==3.0
-    # via
+    #   scikit-image
     #   sec-certs (./../pyproject.toml)
     #   torch
 nltk==3.8.1
     # via sentence-transformers
-nodeenv==1.7.0
+nodeenv==1.8.0
     # via pre-commit
 numba==0.58.1
     # via
+    #   datashader
     #   pynndescent
     #   umap-learn
-numpy==1.24.2
+numpy==1.26.2
     # via
     #   blis
+    #   bokeh
     #   catboost
     #   contourpy
     #   datasets
+    #   datashader
     #   evaluate
+    #   holoviews
+    #   imageio
     #   matplotlib
     #   numba
     #   optuna
     #   pandas
     #   pyarrow
     #   pysankeybeta
+    #   scikit-image
     #   scikit-learn
     #   scipy
     #   seaborn
@@ -313,43 +368,21 @@ numpy==1.24.2
     #   spacy
     #   tabula-py
     #   thinc
+    #   tifffile
     #   torchvision
     #   transformers
     #   umap-learn
-nvidia-cublas-cu11==11.10.3.66
-    # via
-    #   nvidia-cudnn-cu11
-    #   nvidia-cusolver-cu11
-    #   torch
-nvidia-cuda-cupti-cu11==11.7.101
-    # via torch
-nvidia-cuda-nvrtc-cu11==11.7.99
-    # via torch
-nvidia-cuda-runtime-cu11==11.7.99
-    # via torch
-nvidia-cudnn-cu11==8.5.0.96
-    # via torch
-nvidia-cufft-cu11==10.9.0.58
-    # via torch
-nvidia-curand-cu11==10.2.10.91
-    # via torch
-nvidia-cusolver-cu11==11.4.0.1
-    # via torch
-nvidia-cusparse-cu11==11.7.4.91
-    # via torch
-nvidia-nccl-cu11==2.14.3
-    # via torch
-nvidia-nvtx-cu11==11.7.91
-    # via torch
+    #   xarray
 optuna==3.4.0
     # via sec-certs (./../pyproject.toml)
-packaging==23.0
+packaging==23.2
     # via
-    #   black
+    #   bokeh
     #   build
+    #   dask
     #   datasets
-    #   deprecation
     #   evaluate
+    #   holoviews
     #   huggingface-hub
     #   ipykernel
     #   matplotlib
@@ -357,114 +390,146 @@ packaging==23.0
     #   pikepdf
     #   plotly
     #   pydata-sphinx-theme
+    #   pytesseract
     #   pytest
+    #   scikit-image
     #   setuptools-scm
     #   spacy
     #   sphinx
     #   thinc
     #   transformers
-pandas==1.5.3
+    #   weasel
+    #   xarray
+pandas==2.1.3
     # via
+    #   bokeh
     #   catboost
     #   datasets
+    #   datashader
     #   evaluate
+    #   holoviews
+    #   panel
     #   pysankeybeta
     #   seaborn
     #   sec-certs (./../pyproject.toml)
     #   tabula-py
+    #   umap-learn
+    #   xarray
+panel==1.3.2
+    # via holoviews
+param==2.0.1
+    # via
+    #   datashader
+    #   holoviews
+    #   panel
+    #   pyct
+    #   pyviz-comms
 parso==0.8.3
     # via jedi
-pathspec==0.11.1
-    # via black
-pathy==0.10.1
-    # via spacy
+partd==1.4.1
+    # via dask
 pdftotext==2.2.2
     # via sec-certs (./../pyproject.toml)
 pexpect==4.8.0
     # via ipython
-pickleshare==0.7.5
-    # via ipython
-pikepdf==7.1.1
+pikepdf==8.7.1
     # via sec-certs (./../pyproject.toml)
-pillow==9.4.0
+pillow==10.1.0
     # via
+    #   bokeh
+    #   datashader
+    #   imageio
     #   matplotlib
     #   pikepdf
+    #   pytesseract
+    #   scikit-image
     #   sec-certs (./../pyproject.toml)
     #   torchvision
-pip-tools==6.12.3
+pip-tools==7.3.0
     # via sec-certs (./../pyproject.toml)
 pkgconfig==1.5.5
     # via sec-certs (./../pyproject.toml)
-platformdirs==3.1.1
+platformdirs==4.0.0
     # via
-    #   black
     #   jupyter-core
     #   virtualenv
 plotly==5.18.0
     # via
     #   catboost
     #   sec-certs (./../pyproject.toml)
-pluggy==1.0.0
+pluggy==1.3.0
     # via pytest
-pre-commit==3.1.1
+pre-commit==3.5.0
     # via sec-certs (./../pyproject.toml)
-preshed==3.0.8
+preshed==3.0.9
     # via
     #   spacy
     #   thinc
-prompt-toolkit==3.0.38
+prompt-toolkit==3.0.41
     # via ipython
-psutil==5.9.4
+psutil==5.9.6
     # via
     #   ipykernel
     #   memory-profiler
     #   pytest-monitor
+    #   sec-certs (./../pyproject.toml)
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pyarrow==11.0.0
+pyarrow==14.0.1
     # via datasets
-pycryptodome==3.17
-    # via pypdf
-pydantic==1.10.6
+pyarrow-hotfix==0.6
+    # via datasets
+pycparser==2.21
+    # via cffi
+pyct==0.5.0
+    # via
+    #   colorcet
+    #   datashader
+pydantic==2.5.2
     # via
     #   confection
+    #   pydantic-settings
     #   sec-certs (./../pyproject.toml)
     #   spacy
     #   thinc
-pydata-sphinx-theme==0.13.1
+    #   weasel
+pydantic-core==2.14.5
+    # via pydantic
+pydantic-settings==2.1.0
+    # via sec-certs (./../pyproject.toml)
+pydata-sphinx-theme==0.14.3
     # via sphinx-book-theme
-pygments==2.14.0
+pygments==2.17.2
     # via
     #   accessible-pygments
     #   ipython
     #   pydata-sphinx-theme
     #   sphinx
-pynndescent==0.5.10
+pynndescent==0.5.11
     # via umap-learn
-pyparsing==3.0.9
+pyparsing==3.1.1
     # via matplotlib
-pypdf[crypto]==3.5.2
+pypdf[crypto]==3.17.1
     # via
     #   pypdf
     #   sec-certs (./../pyproject.toml)
 pyproject-hooks==1.0.0
     # via build
-pyrsistent==0.19.3
-    # via jsonschema
-pysankeybeta==1.4.0
+pysankeybeta==1.4.1
     # via sec-certs (./../pyproject.toml)
-pytest==7.2.2
+pytesseract==0.3.10
+    # via sec-certs (./../pyproject.toml)
+pytest==7.4.3
     # via
     #   pytest-cov
     #   pytest-monitor
     #   pytest-profiling
     #   sec-certs (./../pyproject.toml)
-pytest-cov==4.0.0
+pytest-cov==4.1.0
     # via sec-certs (./../pyproject.toml)
-pytest-monitor==1.6.5
+pytest-monitor==1.6.6
     # via sec-certs (./../pyproject.toml)
 pytest-profiling==1.7.0
     # via sec-certs (./../pyproject.toml)
@@ -474,10 +539,18 @@ python-dateutil==2.8.2
     #   matplotlib
     #   pandas
     #   sec-certs (./../pyproject.toml)
-pytz==2022.7.1
+python-dotenv==1.0.0
+    # via pydantic-settings
+pytz==2023.3.post1
     # via pandas
-pyyaml==6.0
+pyviz-comms==3.0.0
     # via
+    #   holoviews
+    #   panel
+pyyaml==6.0.1
+    # via
+    #   bokeh
+    #   dask
     #   datasets
     #   huggingface-hub
     #   jupyter-cache
@@ -487,22 +560,28 @@ pyyaml==6.0
     #   pre-commit
     #   sec-certs (./../pyproject.toml)
     #   transformers
-pyzmq==25.0.1
+pyzmq==25.1.1
     # via
     #   ipykernel
     #   jupyter-client
-rapidfuzz==2.13.7
+rapidfuzz==3.5.2
     # via sec-certs (./../pyproject.toml)
-regex==2022.10.31
+referencing==0.31.0
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+regex==2023.10.3
     # via
     #   nltk
     #   transformers
-requests==2.28.2
+requests==2.31.0
     # via
     #   datasets
+    #   datashader
     #   evaluate
     #   fsspec
     #   huggingface-hub
+    #   panel
     #   pytest-monitor
     #   responses
     #   sec-certs (./../pyproject.toml)
@@ -510,63 +589,71 @@ requests==2.28.2
     #   sphinx
     #   torchvision
     #   transformers
+    #   weasel
 responses==0.18.0
+    # via evaluate
+rpds-py==0.13.1
     # via
-    #   datasets
-    #   evaluate
-ruff==0.0.239
+    #   jsonschema
+    #   referencing
+ruff==0.1.5
     # via sec-certs (./../pyproject.toml)
-scikit-learn==1.2.2
+safetensors==0.4.0
+    # via transformers
+scikit-image==0.22.0
+    # via umap-learn
+scikit-learn==1.3.2
     # via
     #   pynndescent
     #   sec-certs (./../pyproject.toml)
     #   sentence-transformers
     #   umap-learn
-scipy==1.10.1
+scipy==1.11.4
     # via
     #   catboost
+    #   datashader
     #   pynndescent
+    #   scikit-image
     #   scikit-learn
     #   sec-certs (./../pyproject.toml)
     #   sentence-transformers
     #   umap-learn
-seaborn==0.12.2
+seaborn==0.13.0
     # via
     #   pysankeybeta
     #   sec-certs (./../pyproject.toml)
+    #   umap-learn
 sentence-transformers==2.2.2
     # via setfit
-sentencepiece==0.1.97
+sentencepiece==0.1.99
     # via sentence-transformers
-setfit==0.6.0
+setfit==0.7.0
     # via sec-certs (./../pyproject.toml)
-setuptools-scm==7.1.0
+setuptools-scm==8.0.4
     # via sec-certs (./../pyproject.toml)
 six==1.16.0
     # via
     #   asttokens
+    #   bleach
     #   catboost
     #   html5lib
-    #   langdetect
     #   pytest-profiling
     #   python-dateutil
-sklearn==0.0.post11
-    # via sec-certs (./../pyproject.toml)
-smart-open==6.3.0
+smart-open==6.4.0
     # via
-    #   pathy
     #   spacy
+    #   weasel
 snowballstemmer==2.2.0
     # via sphinx
-soupsieve==2.4
+soupsieve==2.5
     # via beautifulsoup4
-spacy==3.5.1
+spacy==3.7.2
     # via sec-certs (./../pyproject.toml)
 spacy-legacy==3.0.12
     # via spacy
-spacy-loggers==1.0.4
+spacy-loggers==1.0.5
     # via spacy
-sphinx==5.3.0
+sphinx==6.2.1
     # via
     #   myst-nb
     #   myst-parser
@@ -575,76 +662,97 @@ sphinx==5.3.0
     #   sphinx-book-theme
     #   sphinx-copybutton
     #   sphinx-design
-sphinx-book-theme==1.0.0
+    #   sphinxcontrib-applehelp
+    #   sphinxcontrib-devhelp
+    #   sphinxcontrib-htmlhelp
+    #   sphinxcontrib-qthelp
+    #   sphinxcontrib-serializinghtml
+sphinx-book-theme==1.0.1
     # via sec-certs (./../pyproject.toml)
-sphinx-copybutton==0.5.1
+sphinx-copybutton==0.5.2
     # via sec-certs (./../pyproject.toml)
-sphinx-design==0.3.0
+sphinx-design==0.5.0
     # via sec-certs (./../pyproject.toml)
-sphinxcontrib-applehelp==1.0.4
+sphinxcontrib-applehelp==1.0.7
     # via sphinx
-sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-devhelp==1.0.5
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.1
+sphinxcontrib-htmlhelp==2.0.4
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-qthelp==1.0.6
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==1.1.9
     # via sphinx
-sqlalchemy==1.4.46
+sqlalchemy==2.0.23
     # via
     #   alembic
     #   jupyter-cache
     #   optuna
-srsly==2.4.6
+srsly==2.4.8
     # via
     #   confection
     #   spacy
     #   thinc
-stack-data==0.6.2
+    #   weasel
+stack-data==0.6.3
     # via ipython
-sympy==1.11.1
+sympy==1.12
     # via torch
-tabula-py==2.7.0
+tabula-py==2.9.0
     # via sec-certs (./../pyproject.toml)
 tabulate==0.9.0
     # via jupyter-cache
-tbb==2021.10.0
-    # via umap-learn
 tenacity==8.2.3
     # via plotly
-thinc==8.1.9
+thinc==8.2.1
     # via spacy
-threadpoolctl==3.1.0
+threadpoolctl==3.2.0
     # via scikit-learn
-tokenizers==0.13.2
+tifffile==2023.9.26
+    # via scikit-image
+tokenizers==0.15.0
     # via transformers
-torch==2.0.0
+tomli==2.0.1
+    # via
+    #   build
+    #   coverage
+    #   mypy
+    #   pip-tools
+    #   pyproject-hooks
+    #   pytest
+    #   setuptools-scm
+toolz==0.12.0
+    # via
+    #   dask
+    #   datashader
+    #   partd
+torch==2.1.1
     # via
     #   sentence-transformers
     #   torchvision
-    #   triton
-torchvision==0.15.1
+torchvision==0.16.1
     # via sentence-transformers
-tornado==6.2
+tornado==6.3.3
     # via
+    #   bokeh
     #   ipykernel
     #   jupyter-client
-tqdm==4.65.0
+tqdm==4.66.1
     # via
     #   datasets
     #   evaluate
     #   huggingface-hub
     #   nltk
     #   optuna
+    #   panel
     #   sec-certs (./../pyproject.toml)
     #   sentence-transformers
     #   spacy
     #   transformers
     #   umap-learn
-traitlets==5.9.0
+traitlets==5.13.0
     # via
     #   comm
     #   ipykernel
@@ -655,67 +763,80 @@ traitlets==5.9.0
     #   matplotlib-inline
     #   nbclient
     #   nbformat
-transformers==4.27.1
+transformers==4.35.2
     # via sentence-transformers
-triton==2.0.0
-    # via torch
-typer==0.7.0
+typer==0.9.0
     # via
-    #   pathy
     #   spacy
-types-python-dateutil==2.8.19.10
+    #   weasel
+types-python-dateutil==2.8.19.14
     # via sec-certs (./../pyproject.toml)
-types-pyyaml==6.0.12.8
+types-pyyaml==6.0.12.12
     # via sec-certs (./../pyproject.toml)
-types-requests==2.28.11.15
+types-requests==2.31.0.10
     # via sec-certs (./../pyproject.toml)
-types-urllib3==1.26.25.8
-    # via types-requests
-typing-extensions==4.5.0
+typing-extensions==4.8.0
     # via
     #   alembic
+    #   cloudpathlib
     #   huggingface-hub
     #   mypy
     #   myst-nb
-    #   myst-parser
+    #   panel
     #   pydantic
+    #   pydantic-core
+    #   pydata-sphinx-theme
     #   setuptools-scm
+    #   sqlalchemy
     #   torch
-umap-learn==0.5.4
+    #   typer
+tzdata==2023.3
+    # via pandas
+uc-micro-py==1.0.2
+    # via linkify-it-py
+umap-learn[plot]==0.5.5
     # via sec-certs (./../pyproject.toml)
-urllib3==1.26.15
+urllib3==2.1.0
     # via
     #   requests
     #   responses
-virtualenv==20.21.0
+    #   types-requests
+virtualenv==20.24.7
     # via pre-commit
-wasabi==1.1.1
+wasabi==1.1.2
     # via
     #   spacy
     #   thinc
-wcwidth==0.2.6
+    #   weasel
+wcwidth==0.2.12
     # via prompt-toolkit
+weasel==0.3.4
+    # via spacy
 webencodings==0.5.1
-    # via html5lib
-wheel==0.40.0
     # via
-    #   nvidia-cublas-cu11
-    #   nvidia-cuda-cupti-cu11
-    #   nvidia-cuda-runtime-cu11
-    #   nvidia-curand-cu11
-    #   nvidia-cusparse-cu11
-    #   nvidia-nvtx-cu11
+    #   bleach
+    #   html5lib
+wheel==0.41.3
+    # via
     #   pip-tools
     #   pytest-monitor
-widgetsnbextension==4.0.5
+widgetsnbextension==4.0.9
     # via ipywidgets
-xxhash==3.2.0
+wrapt==1.16.0
+    # via deprecated
+xarray==2023.11.0
+    # via datashader
+xxhash==3.4.1
     # via
     #   datasets
     #   evaluate
-yarl==1.8.2
+xyzservices==2023.10.1
+    # via
+    #   bokeh
+    #   panel
+yarl==1.9.3
     # via aiohttp
-zipp==3.15.0
+zipp==3.17.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
