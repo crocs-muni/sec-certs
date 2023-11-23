@@ -121,7 +121,10 @@ def get_lang_features(base_name: str, referenced_name: str) -> tuple:
 
 
 def extract_segments(
-    cc_dset: CCDataset, mode: REF_ANNOTATION_MODES, n_sents_before: int = 2, n_sents_after: int = 1
+    cc_dset: CCDataset,
+    mode: REF_ANNOTATION_MODES,
+    n_sents_before: int = 2,
+    n_sents_after: int = 1,
 ) -> pd.DataFrame:
     logger.info("Extracting segments.")
     df = ReferenceSegmentExtractor(n_sents_before, n_sents_after)(list(cc_dset.certs.values()))
@@ -197,7 +200,10 @@ def _build_tf_idf_embeddings(segments: pd.DataFrame, mode: REF_ANNOTATION_MODES)
 
 
 def build_embeddings(
-    segments: pd.DataFrame, mode: REF_ANNOTATION_MODES, method: REF_EMBEDDING_METHOD, model_path: Path | None = None
+    segments: pd.DataFrame,
+    mode: REF_ANNOTATION_MODES,
+    method: REF_EMBEDDING_METHOD,
+    model_path: Path | None = None,
 ) -> pd.DataFrame:
     return (
         _build_transformer_embeddings(segments, mode, model_path)
@@ -225,23 +231,27 @@ def extract_language_features(df: pd.DataFrame, cc_dset: CCDataset) -> pd.DataFr
                 lambda x: strip_all(x["cert_name"], x["cert_versions"]), axis=1
             ),
             referenced_cert_name_stripped_version=lambda df_: df_.apply(
-                lambda x: strip_all(x["referenced_cert_name"], x["referenced_cert_versions"]), axis=1
+                lambda x: strip_all(x["referenced_cert_name"], x["referenced_cert_versions"]),
+                axis=1,
             ),
             lang_token_set_ratio=lambda df_: df_.apply(
                 lambda x: fuzz.token_set_ratio(
-                    x["cert_name_stripped_version"], x["referenced_cert_name_stripped_version"]
+                    x["cert_name_stripped_version"],
+                    x["referenced_cert_name_stripped_version"],
                 ),
                 axis=1,
             ),
             lang_partial_ratio=lambda df_: df_.apply(
                 lambda x: fuzz.partial_ratio(
-                    x["cert_name_stripped_version"], x["referenced_cert_name_stripped_version"]
+                    x["cert_name_stripped_version"],
+                    x["referenced_cert_name_stripped_version"],
                 ),
                 axis=1,
             ),
             lang_token_sort_ratio=lambda df_: df_.apply(
                 lambda x: fuzz.token_sort_ratio(
-                    x["cert_name_stripped_version"], x["referenced_cert_name_stripped_version"]
+                    x["cert_name_stripped_version"],
+                    x["referenced_cert_name_stripped_version"],
                 ),
                 axis=1,
             ),
@@ -251,13 +261,15 @@ def extract_language_features(df: pd.DataFrame, cc_dset: CCDataset) -> pd.DataFr
         .assign(
             lang_n_extracted_versions=lambda df_: df_.cert_versions.map(lambda x: len(x) if x else 0),
             lang_n_intersection_versions=lambda df_: df_.apply(
-                lambda x: len(set(x["cert_versions"]).intersection(set(x["referenced_cert_versions"]))), axis=1
+                lambda x: len(set(x["cert_versions"]).intersection(set(x["referenced_cert_versions"]))),
+                axis=1,
             ),
         )
     )
 
     df_lang_other_features = df_lang.apply(
-        lambda row: get_lang_features(row["cert_name"], row["referenced_cert_name"]), axis=1
+        lambda row: get_lang_features(row["cert_name"], row["referenced_cert_name"]),
+        axis=1,
     ).apply(pd.Series)
     lang_features = [
         "common_numeric_words",
@@ -276,7 +288,8 @@ def extract_language_features(df: pd.DataFrame, cc_dset: CCDataset) -> pd.DataFr
 
     df_lang = pd.concat([df_lang, df_lang_other_features], axis=1).assign(
         lang_should_not_be_component=lambda df_: df_.apply(
-            lambda x: x.lang_len_difference < 5 and x.lang_token_set_ratio == 100, axis=1
+            lambda x: x.lang_len_difference < 5 and x.lang_token_set_ratio == 100,
+            axis=1,
         ),
     )
     for col in df_lang.columns:
@@ -289,9 +302,9 @@ def extract_language_features(df: pd.DataFrame, cc_dset: CCDataset) -> pd.DataFr
 def perform_dimensionality_reduction(
     df: pd.DataFrame,
     mode: REF_ANNOTATION_MODES,
-    umap_n_neighbors: int = 5,
-    umap_min_dist: float = 0.1,
-    umap_metric: Literal["cosine", "euclidean", "manhattan"] = "euclidean",
+    umap_n_neighbors: int = 10,
+    umap_min_dist: float = 0.51026,
+    umap_metric: Literal["cosine", "euclidean", "manhattan"] = "cosine",
 ) -> pd.DataFrame:
     def choose_values_to_fit(df_: pd.DataFrame):
         if mode == "training":
@@ -325,7 +338,11 @@ def perform_dimensionality_reduction(
 
     # parallel UMAP not available with random state
     umapper = umap.UMAP(
-        n_neighbors=umap_n_neighbors, min_dist=umap_min_dist, metric=umap_metric, random_state=RANDOM_STATE, n_jobs=1
+        n_neighbors=umap_n_neighbors,
+        min_dist=umap_min_dist,
+        metric=umap_metric,
+        random_state=RANDOM_STATE,
+        n_jobs=1,
     ).fit(embeddings_to_fit, y=labels_to_fit)
     pca_mapper = PCA(n_components=2, random_state=RANDOM_STATE).fit(embeddings_to_fit_scaled, y=labels_to_fit)
 
@@ -539,4 +556,9 @@ def get_data_for_clf(
     else:
         raise ValueError(f"Unknown mode {mode}")
 
-    return np.vstack(train_df[feature_columns].values), train_df.label.values, eval_df, feature_columns
+    return (
+        np.vstack(train_df[feature_columns].values),
+        train_df.label.values,
+        eval_df,
+        feature_columns,
+    )

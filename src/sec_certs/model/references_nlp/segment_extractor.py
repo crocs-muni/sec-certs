@@ -34,7 +34,7 @@ def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
     return {key: frozenset(val) for key, val in new_dct.items() if key in filter_to_keys}
 
 
-def fill_reference_segments(record: ReferenceRecord, n_sent_before: int = 1, n_sent_after: int = 0) -> ReferenceRecord:
+def fill_reference_segments(record: ReferenceRecord, n_sent_before: int = 4, n_sent_after: int = 4) -> ReferenceRecord:
     """
     Compute indices of the sentences containing the reference keyword, take their surrounding sentences and join them.
     """
@@ -186,7 +186,10 @@ class ReferenceSegmentExtractor:
 
     def _build_records(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> list[ReferenceRecord]:
         def get_cert_records(cert: CCCertificate, source: Literal["target", "report"]) -> list[ReferenceRecord]:
-            canonical_ref_var = {"target": "st_references", "report": "report_references"}
+            canonical_ref_var = {
+                "target": "st_references",
+                "report": "report_references",
+            }
             actual_ref_var = {"target": "st_keywords", "report": "report_keywords"}
             raw_source_var = {"target": "st_txt_path", "report": "report_txt_path"}
 
@@ -242,7 +245,13 @@ class ReferenceSegmentExtractor:
         print(f"I now have {len(results)} in {source} mode")
         return pd.DataFrame.from_records(
             [x.to_pandas_tuple() for x in results],
-            columns=["dgst", "canonical_reference_keyword", "actual_reference_keywords", "source", "segments"],
+            columns=[
+                "dgst",
+                "canonical_reference_keyword",
+                "actual_reference_keywords",
+                "source",
+                "segments",
+            ],
         )
 
     @staticmethod
@@ -282,7 +291,10 @@ class ReferenceSegmentExtractor:
                     },
                 )
                 .dropna(subset="label")
-                .assign(label=lambda df_: df_.label.str.replace(" ", "_").str.upper(), split=split_name)
+                .assign(
+                    label=lambda df_: df_.label.str.replace(" ", "_").str.upper(),
+                    split=split_name,
+                )
             )
 
         annotations_directory = Path(str(files("sec_certs.data") / "reference_annotations/final/"))
@@ -350,6 +362,7 @@ class ReferenceSegmentExtractor:
             )
         )
         df_processed.segments = df_processed.apply(
-            lambda row: [process_segment(x, row.actual_reference_keywords) for x in row.segments], axis=1
+            lambda row: [process_segment(x, row.actual_reference_keywords) for x in row.segments],
+            axis=1,
         )
         return df_processed

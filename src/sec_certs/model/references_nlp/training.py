@@ -14,7 +14,15 @@ from sec_certs.model.references_nlp.feature_extraction import get_data_for_clf
 logger = logging.getLogger(__name__)
 
 
-def _train_model(x_train, y_train, x_eval, y_eval, learning_rate: float = 0.03, depth: int = 6, l2_leaf_reg: int = 3):
+def _train_model(
+    x_train,
+    y_train,
+    x_eval,
+    y_eval,
+    learning_rate: float = 0.03,
+    depth: int = 6,
+    l2_leaf_reg: float = 3,
+):
     clf = CatBoostClassifier(
         learning_rate=learning_rate,
         depth=depth,
@@ -26,7 +34,14 @@ def _train_model(x_train, y_train, x_eval, y_eval, learning_rate: float = 0.03, 
 
     train_pool = Pool(x_train, y_train)
     eval_pool = Pool(x_eval, y_eval)
-    clf.fit(train_pool, eval_set=eval_pool, verbose=False, plot=True, early_stopping_rounds=100, use_best_model=True)
+    clf.fit(
+        train_pool,
+        eval_set=eval_pool,
+        verbose=False,
+        plot=True,
+        early_stopping_rounds=100,
+        use_best_model=True,
+    )
     return clf
 
 
@@ -38,9 +53,9 @@ def train_model(
     use_umap: bool = True,
     use_lang: bool = True,
     use_pred: bool = True,
-    learning_rate: float = 0.03,
-    depth: int = 6,
-    l2_leaf_reg: int = 3,
+    learning_rate: float = 0.079573,
+    depth: int = 10,
+    l2_leaf_reg: float = 7.303517,
 ) -> tuple[DummyClassifier | CatBoostClassifier, pd.DataFrame, list[str]]:
     logger.info(f"Training model for mode {mode}")
     X_train, y_train, eval_df, feature_cols = get_data_for_clf(df, mode, use_pca, use_umap, use_lang, use_pred)
@@ -49,7 +64,15 @@ def train_model(
         clf.fit(X_train, y_train)
     else:
         assert eval_df is not None
-        clf = _train_model(X_train, y_train, eval_df[feature_cols], eval_df.label, learning_rate, depth, l2_leaf_reg)
+        clf = _train_model(
+            X_train,
+            y_train,
+            eval_df[feature_cols],
+            eval_df.label,
+            learning_rate,
+            depth,
+            l2_leaf_reg,
+        )
 
     return clf, eval_df, feature_cols
 
