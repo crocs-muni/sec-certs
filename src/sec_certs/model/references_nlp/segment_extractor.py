@@ -34,7 +34,7 @@ def swap_and_filter_dict(dct: dict[str, Any], filter_to_keys: set[str]):
     return {key: frozenset(val) for key, val in new_dct.items() if key in filter_to_keys}
 
 
-def fill_reference_segments(record: ReferenceRecord, n_sent_before: int = 4, n_sent_after: int = 4) -> ReferenceRecord:
+def fill_reference_segments(record: ReferenceRecord, n_sent_before: int = 2, n_sent_after: int = 1) -> ReferenceRecord:
     """
     Compute indices of the sentences containing the reference keyword, take their surrounding sentences and join them.
     """
