@@ -140,7 +140,7 @@ def extract_segments(
 
 def _build_transformer_embeddings(
     segments: pd.DataFrame, mode: REF_ANNOTATION_MODES, model_path: Path | None = None
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, ReferenceAnnotator]:
     should_save_model = model_path is not None
     annotator = None
     logger.info("Building transformer embeddings.")
@@ -204,12 +204,12 @@ def build_embeddings(
     mode: REF_ANNOTATION_MODES,
     method: REF_EMBEDDING_METHOD,
     model_path: Path | None = None,
-) -> pd.DataFrame:
-    return (
-        _build_transformer_embeddings(segments, mode, model_path)
-        if method == "transformer"
-        else _build_tf_idf_embeddings(segments, mode)
-    )
+) -> tuple[pd.DataFrame, ReferenceAnnotator | None]:
+    if method == "transformer":
+        return _build_transformer_embeddings(segments, mode, model_path)
+    if method == "tf_idf":
+        return _build_tf_idf_embeddings(segments, mode), None
+    raise ValueError(f"Unknown embedding method {method}")
 
 
 def extract_language_features(df: pd.DataFrame, cc_dset: CCDataset) -> pd.DataFrame:
@@ -521,14 +521,9 @@ def extract_geometrical_features(df: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([df, df_features_pca, df_features_umap], axis=1)
 
 
-def get_data_for_clf(
-    df: pd.DataFrame,
-    mode: REF_ANNOTATION_MODES,
-    use_pca: bool = True,
-    use_umap: bool = True,
-    use_lang: bool = True,
-    use_pred: bool = True,
-) -> tuple[np.ndarray, np.ndarray, pd.DataFrame | None, list[str]]:
+def _choose_feature_columns(
+    df: pd.DataFrame, use_pca: bool = True, use_umap: bool = True, use_lang: bool = True, use_pred: bool = True
+) -> list[str]:
     feature_columns = []
     if not use_pca and not use_umap and not use_lang and not use_pred:
         raise ValueError("At least one of PCA, UMAP or language features must be used.")
@@ -540,7 +535,10 @@ def get_data_for_clf(
         feature_columns.extend([x for x in df.columns if x.startswith("lang_")])
     if use_pred:
         feature_columns.extend([x for x in df.columns if x.startswith("pred_")])
+    return feature_columns
 
+
+def _split_df(df: pd.DataFrame, mode: REF_ANNOTATION_MODES) -> tuple[pd.DataFrame, pd.DataFrame | None]:
     if mode == "training":
         train_df = df.loc[df.split == "train"].copy()
         eval_df = df.loc[df.split == "valid"].copy()
@@ -555,10 +553,36 @@ def get_data_for_clf(
         eval_df = None
     else:
         raise ValueError(f"Unknown mode {mode}")
+    return train_df, eval_df
 
-    return (
+
+def dataframe_to_training_arrays(
+    df: pd.DataFrame,
+    mode: REF_ANNOTATION_MODES,
+    use_pca: bool = True,
+    use_umap: bool = True,
+    use_lang: bool = True,
+    use_pred: bool = True,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray | None, np.ndarray | None, list[str]]:
+    feature_columns = _choose_feature_columns(df, use_pca, use_umap, use_lang, use_pred)
+    train_df, eval_df = _split_df(df.loc[df.label.notnull()].copy(), mode)
+
+    x_train, y_train = (
         np.vstack(train_df[feature_columns].values),
         train_df.label.values,
-        eval_df,
+    )
+    if eval_df is not None:
+        x_valid, y_valid = (
+            np.vstack(eval_df[feature_columns].values),
+            eval_df.label.values,
+        )
+    else:
+        x_valid, y_valid = None, None
+
+    return (
+        x_train,
+        y_train,
+        x_valid,
+        y_valid,
         feature_columns,
     )

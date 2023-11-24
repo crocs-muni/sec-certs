@@ -15,40 +15,30 @@ logger = logging.getLogger(__name__)
 
 def evaluate_model(
     clf: DummyClassifier | CatBoostClassifier,
-    df_eval: pd.DataFrame,
+    x_eval: np.ndarray,
+    y_eval: np.ndarray,
     feature_cols: list[str],
     output_path: Path | None = None,
 ):
     logger.info("Evaluating model.")
-    x_eval = np.vstack(df_eval[feature_cols].values)
     y_pred = clf.predict(x_eval)
 
-    df_eval["y_pred"] = y_pred
-
-    df_eval.loc[df_eval.lang_matches_recertification, ["y_pred"]] = "PREVIOUS_VERSION"
-    df_eval.loc[
-        (df_eval.lang_token_set_ratio == 100)
-        & (df_eval.lang_len_difference < 5)
-        & (df_eval.y_pred != "PREVIOUS_VERSION"),
-        ["y_pred"],
-    ] = "PREVIOUS_VERSION"
-
-    print(classification_report(df_eval.label.values, df_eval.y_pred.values))
-    print(f"Balanced accuracy score: {balanced_accuracy_score(df_eval.label.values, df_eval.y_pred.values)}")
+    print(classification_report(y_eval, y_pred))
+    print(f"Balanced accuracy score: {balanced_accuracy_score(y_eval, y_pred)}")
 
     fig = ConfusionMatrixDisplay.from_predictions(
-        df_eval.label.values,
-        df_eval.y_pred.values,
+        y_eval,
+        y_pred,
         xticks_rotation=90,
     )
 
     if output_path:
-        report_dict = classification_report(df_eval.label.values, df_eval.y_pred.values, output_dict=True)
+        report_dict = classification_report(y_eval, y_pred, output_dict=True)
         report_df = pd.DataFrame(report_dict).transpose()
         report_df.to_csv(output_path / "classification_report.csv")
-        fig.figure_.savefig(output_path / "confusion_matrix.png")
+        fig.figure_.savefig(output_path / "confusion_matrix.png", bbox_inches="tight")
         with Path(output_path / "balanced_accuracy_score.txt").open("w") as handle:
-            handle.write(str(balanced_accuracy_score(df_eval.label.values, df_eval.y_pred.values)))
+            handle.write(str(balanced_accuracy_score(y_eval, y_pred)))
 
     if isinstance(clf, CatBoostClassifier):
         feature_importance = clf.get_feature_importance()

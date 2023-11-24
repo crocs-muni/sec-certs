@@ -9,20 +9,23 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import KFold
 
 from sec_certs.constants import RANDOM_STATE, REF_ANNOTATION_MODES
-from sec_certs.model.references_nlp.feature_extraction import get_data_for_clf
+from sec_certs.model.references_nlp.feature_extraction import dataframe_to_training_arrays
 
 logger = logging.getLogger(__name__)
 
 
 def _train_model(
-    x_train,
-    y_train,
-    x_eval,
-    y_eval,
+    mode: REF_ANNOTATION_MODES,
+    x_train: np.ndarray,
+    y_train: np.ndarray,
+    x_eval: np.ndarray | None = None,
+    y_eval: np.ndarray | None = None,
     learning_rate: float = 0.03,
     depth: int = 6,
     l2_leaf_reg: float = 3,
 ):
+    # In production mode, we don't have early stopping on validation set. Hence we use number of iterations that worked during evaluation.
+    n_iters = 20 if mode == "production" else 1000
     clf = CatBoostClassifier(
         learning_rate=learning_rate,
         depth=depth,
@@ -30,10 +33,11 @@ def _train_model(
         task_type="GPU",
         devices=os.environ["CUDA_VISIBLE_DEVICES"],
         random_seed=RANDOM_STATE,
+        iterations=n_iters,
     )
 
     train_pool = Pool(x_train, y_train)
-    eval_pool = Pool(x_eval, y_eval)
+    eval_pool = Pool(x_eval, y_eval) if x_eval is not None else None
     clf.fit(
         train_pool,
         eval_set=eval_pool,
@@ -46,46 +50,46 @@ def _train_model(
 
 
 def train_model(
-    df: pd.DataFrame,
     mode: REF_ANNOTATION_MODES,
+    x_train: np.ndarray,
+    y_train: np.ndarray,
+    x_eval: np.ndarray | None = None,
+    y_eval: np.ndarray | None = None,
     train_baseline: bool = False,
-    use_pca: bool = True,
-    use_umap: bool = True,
-    use_lang: bool = True,
-    use_pred: bool = True,
     learning_rate: float = 0.079573,
     depth: int = 10,
     l2_leaf_reg: float = 7.303517,
-) -> tuple[DummyClassifier | CatBoostClassifier, pd.DataFrame, list[str]]:
-    logger.info(f"Training model for mode {mode}")
-    X_train, y_train, eval_df, feature_cols = get_data_for_clf(df, mode, use_pca, use_umap, use_lang, use_pred)
+) -> DummyClassifier | CatBoostClassifier:
+    logger.info(f"Training model with baselne={train_baseline}")
+
     if train_baseline:
         clf = DummyClassifier(random_state=RANDOM_STATE)
-        clf.fit(X_train, y_train)
+        clf.fit(x_train, y_train)
     else:
-        assert eval_df is not None
         clf = _train_model(
-            X_train,
+            mode,
+            x_train,
             y_train,
-            eval_df[feature_cols],
-            eval_df.label,
+            x_eval,
+            y_eval,
             learning_rate,
             depth,
             l2_leaf_reg,
         )
+    return clf
 
-    return clf, eval_df, feature_cols
 
-
-def cross_validate_model(df: pd.DataFrame, learning_rate: float = 0.03, depth: int = 6, l2_leaf_reg: int = 3) -> float:
+def cross_validate_model(
+    mode: REF_ANNOTATION_MODES, df: pd.DataFrame, learning_rate: float = 0.03, depth: int = 6, l2_leaf_reg: int = 3
+) -> float:
     logger.info("Cross-validating model")
-    X_train, y_train, _, _ = get_data_for_clf(df, "cross-validation", True, True, True, True)
+    X_train, y_train, _, _, _ = dataframe_to_training_arrays(df, "cross-validation", True, True, True, True)
     kf = KFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
     scores = []
     for train_index, test_index in kf.split(X_train):
         X_train_, X_test_ = X_train[train_index], X_train[test_index]
         y_train_, y_test_ = y_train[train_index], y_train[test_index]
-        clf = _train_model(X_train_, y_train_, X_test_, y_test_, learning_rate, depth, l2_leaf_reg)
+        clf = _train_model(mode, X_train_, y_train_, X_test_, y_test_, learning_rate, depth, l2_leaf_reg)
         scores.append(balanced_accuracy_score(y_test_, clf.predict(X_test_)))
 
     return np.mean(scores)
