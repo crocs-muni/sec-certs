@@ -9,9 +9,11 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     steps:
+      - name: apt-get update
+        run: sudo apt-get update
       - name: Install Poppler
         run: sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup python
         uses: actions/setup-python@v4
         with:
