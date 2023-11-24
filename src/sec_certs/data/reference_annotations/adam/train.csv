@@ -1,0 +1,101 @@
+dgst,canonical_reference_keyword,label,comment
+e676143c80802a59,BSI-DSZ-CC-0891-V4-2019,component_used,the previously certified M7892 G12 component
+0bf7a19b22163465,ANSSI-CC-2016/44,evaluation_reused,unclear whether component used
+ab3af998dff7a2ef,ANSSI-CC-2017/47,component_used,None
+8ba22f6c9651edc3,ANSSI-CC-2013/55,component_used,None
+680aeb0a20a9fed3,BSI-DSZ-CC-0870-2014,component_used,None
+3515801dee00995f,BSI-DSZ-CC-0447-2008,re-evaluation,This is a re-certification based on BSI-DSZ-CC-0447-2008
+6a999675c9422dfb,BSI-DSZ-CC-0353-2006,re-evaluation,This is a re-certification based on BSI-DSZ-CC-0353-2006
+12e20466a0f08342,ANSSI-CC-2016/79,evaluation_reused,unclear whether component used
+d2a4b8cb9ae7fe8f,BSI-DSZ-CC-1110-V4-2021,component_used,complicated situation where referenced cert is mentioned as recertification of some other cert
+921e042759b30033,BSI-DSZ-CC-0978-2016,component_used,composition scheme “[COMP]” mentioned
+00efeb17bcaafce6,ANSSI-CC-2009/34,component_used,None
+c175537338906951,ANSSI-CC-2016/70,component_shared,None
+fb9ec9e846ea4e87,ANSSI-CC-2017/47,component_used,None
+ecba01acba8df2ec,BSI-DSZ-CC-0555-2009,component_used,None
+f71fca5fc684df8b,BSI-DSZ-CC-0863-2013,re-evaluation,This is a re-certification based on BSI-DSZ-CC-0863-2013
+cacdfdafce47678c,ANSSI-CC-2014/59,component_used,None
+dba4b5a166f9456a,ANSSI-CC-2014/76,evaluation_reused,None
+aa096ffde94b953b,BSI-DSZ-CC-0411-2007,component_used,None
+b42009eb34746731,ANSSI-CC-2021/50,previous_version,maybe previous_version
+463ecd64b7506048,ANSSI-CC-2018/52,component_used,None
+c5a60dbdb668bc10,BSI-DSZ-CC-0891-2015,re-evaluation,None
+c96343baf608174d,BSI-DSZ-CC-0645-2010,component_used,None
+0b3e1cdf3ef9413d,BSI-DSZ-CC-0837-V2-2014,component_used,None
+2c15dfc106ebf8d8,ANSSI-CC-2012/24,component_used,None
+e0265f0fb8e196c0,BSI-DSZ-CC-0827-V8-2020,None,unclear
+ee1c6dd97918d74a,ANSSI-CC-2012/71,evaluation_reused,None
+e6e8add5e4db2d9d,BSI-DSZ-CC-0891-V4-2019,component_used,None
+845bb039719ac5d8,ANSSI-CC-2010/40,previous_version,None
+af61a31e3fd0d6f0,ANSSI-CC-2010/02,evaluation_reused,None
+d49988efd778ca9d,ANSSI-CC-2010/02,component_used,None
+54273dd266fce692,ANSSI-CC-2015/15,component_used,None
+4bede5d2af4cb11f,ANSSI-CC-2019/59,evaluation_reused,None
+d75282fdda80b6fd,BSI-DSZ-CC-0609-2010,re-evaluation,None
+a69ec271f8651d1b,BSI-DSZ-CC-1040-2019,component_used,None
+f6579adcbf5faa99,BSI-DSZ-CC-1040-2019,component_used,None
+8bdb610131555c12,BSI-DSZ-CC-0645-2010,component_used,None
+b3b7ac7aae87793d,BSI-DSZ-CC-0945-V2-2018,None,unclear
+371dca18821f7714,BSI-DSZ-CC-0945-2017,component_used,None
+f17fe9ceea628f62,BSI-DSZ-CC-0911-2014,component_shared,The Basic Access Control mechanism was subject of the evaluation process BSI-DSZ-CC-0911-2014
+e0b122da55f1f002,BSI-DSZ-CC-0961-V2-2018,re-evaluation,None
+4f5f41ecf7517e63,ANSSI-CC-2016/80,evaluation_reused,None
+a867d281d34d34b7,BSI-DSZ-CC-0976-2015,re-evaluation,None
+16bdbde359584f99,ANSSI-CC-2017/61,component_used,None
+34370b67b5e675c3,ANSSI-CC-2013/47,component_used,None
+a6fe8fe0aaf2fa92,ANSSI-CC-2018/26,previous_version,None
+0bf7a19b22163465,ANSSI-CC-2015/80,evaluation_reused,None
+1e40bd733acd56bc,BSI-DSZ-CC-0782-V4-2018,component_used,None
+13d95239226aa537,BSI-DSZ-CC-0835-V2-2017,component_shared,"BAC, EAC thingy"
+f869956d14ea1694,ANSSI-CC-2012/68,component_used,None
+037577fc2019fcfa,ANSSI-CC-2021/49,previous_version,None
+17a23970b35a4f44,BSI-DSZ-CC-0782-V5-2020,component_used,None
+5a66027d34aafc52,BSI-DSZ-CC-1019-V2-2019,component_used,None
+1f9f4b843070fc1b,BSI-DSZ-CC-1105-2020,component_used,None
+28e70f46ba4394dd,ANSSI-CC-2012/08,component_used,None
+61832cb4291c343f,BSI-DSZ-CC-0955-2016,component_used,None
+42799014c183e1b3,BSI-DSZ-CC-0312-2005,component_used,None
+627bfd69c2a831cf,ANSSI-CC-2014/37,evaluation_reused,None
+aea11fd4d2a7709d,BSI-DSZ-CC-0809-V3-2017,component_shared,The further security mechanism Basic Access Control is subject of the separate evaluation process BSI-DSZ-CC-0809-V3-2017
+05726637bd47a762,BSI-DSZ-CC-0891-V3-2018,component_used,None
+9529eb793550093c,ANSSI-CC-2018/40,previous_version,None
+7a8d4ed693d443d7,BSI-DSZ-CC-1128-V3-2021,re-evaluation,None
+ed22d4c0f09c3e3a,BSI-DSZ-CC-0719-2011,re-evaluation,None
+ea6d47427a2bb349,BSI-DSZ-CC-0782-2012,re-evaluation,None
+ead1076787fdd7e4,BSI-DSZ-CC-0399-2007,component_used,None
+30f71b100c5cebae,ANSSI-CC-2015/15,component_used,None
+6eb6b29c45f6355f,BSI-DSZ-CC-0782-V4-2018,component_used,None
+06e505abb8dad1b8,ANSSI-CC-2017/54,component_used,None
+317713948b4473b3,BSI-DSZ-CC-0798-2012,component_shared,None
+055985699aee1e09,ANSSI-CC-2010/02,component_used,None
+b61363e51ed90c7a,ANSSI-CC-2019/12,component_used,None
+691119fe8a2f8e1c,BSI-DSZ-CC-0963-2015,component_used,None
+a07548a64fac5794,BSI-DSZ-CC-0350-2007,re-evaluation,None
+19c60923e31777e7,ANSSI-CC-2017/49,component_used,None
+f17fe9ceea628f62,BSI-DSZ-CC-0750-V2-2014,component_used,None
+c96343baf608174d,BSI-DSZ-CC-0750-2011,component_used,None
+42799014c183e1b3,BSI-DSZ-CC-0429-2007,re-evaluation,None
+3f45ee333ce457bb,BSI-DSZ-CC-1002-2018,re-evaluation,None
+5f4b39feb2a82dac,BSI-DSZ-CC-0266-2005,component_used,unclear
+4a6100f1ddaef93b,BSI-DSZ-CC-0410-2007,component_used,None
+c06d86db280f9b2b,BSI-DSZ-CC-0437-2008,component_used,None
+ab3af998dff7a2ef,BSI-DSZ-CC-0973-V2-2016,component_used,None
+30120e4f3aa2f30a,BSI-DSZ-CC-0897-V2-2014,component_used,None
+c32378a010479b33,BSI-DSZ-CC-0891-V2-2016,re-evaluation,None
+ecba01acba8df2ec,BSI-DSZ-CC-0633-2010,component_used,None
+bab97726875c0f14,BSI-DSZ-CC-0957-V2-2016,evaluation_reused,"unclear, mentions that this is a “re-evaluation” but not a “re-certification”"
+97d00a9f198a6e57,ANSSI-CC-2015/66,component_used,None
+744a7a202d909323,ANSSI-CC-2017/24,component_used,None
+df6728b8420ab3b4,BSI-DSZ-CC-0827-V4-2016,component_used,None
+6f8d7a6a1dea6a3a,ANSSI-CC-2019/28,component_used,None
+1b8705a0486b3be1,NSCIB-CC-0209053-CR,previous_version,None
+a9d336b90e8b94a2,BSI-DSZ-CC-0410-2007,re-evaluation,None
+cfdacd53c732343c,BSI-DSZ-CC-1110-V2-2019,component_used,None
+27d11629261d8806,ANSSI-CC-2014/59,component_used,None
+a76d1c0d9964d583,BSI-DSZ-CC-0417-2008,component_used,None
+d2b0cb5a911b8ef8,BSI-DSZ-CC-0729-2011,re-evaluation,None
+c38734a9eeea0ff8,BSI-DSZ-CC-0950-V2-2018,None,"unclear, mentions just ToE delivery"
+84a75b6fc33b669e,ANSSI-CC-2014/08,evaluation_reused,None
+36ed04f4b45e3ab9,BSI-DSZ-CC-0555-2009,component_used,None
+01e8805514b4ef67,BSI-DSZ-CC-0891-V3-2018,component_used,None
+0f3900cdcd0c7f3e,NSCIB-CC-66030-CR5,component_used,None

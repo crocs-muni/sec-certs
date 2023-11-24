@@ -68,6 +68,7 @@
                     "directly_referencing": null,
                     "indirectly_referencing": null
                 },
+                "annotated_references": null,
                 "extracted_sars": null,
                 "direct_transitive_cves": null,
                 "indirect_transitive_cves": null,

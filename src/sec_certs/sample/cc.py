@@ -434,6 +434,10 @@ class CCCertificate(
         cert_id: str | None = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
+
+        # Contains direct outward references merged from both st, and report sources, annotated with ReferenceAnnotator
+        # TODO: Reference meanings as Enum if we work with it further.
+        annotated_references: dict[str, str] | None = field(default=None)
         extracted_sars: set[SAR] | None = field(default=None)
         direct_transitive_cves: set[str] | None = field(default=None)
         indirect_transitive_cves: set[str] | None = field(default=None)

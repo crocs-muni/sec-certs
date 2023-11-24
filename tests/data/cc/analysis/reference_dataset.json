@@ -508,6 +508,7 @@
             ]
           }
         },
+        "annotated_references": null,
         "extracted_sars": {
           "_type": "Set",
           "elements": [
@@ -1105,6 +1106,7 @@
             ]
           }
         },
+        "annotated_references": null,
         "extracted_sars": {
           "_type": "Set",
           "elements": [
@@ -1736,6 +1738,7 @@
             ]
           }
         },
+        "annotated_references": null,
         "extracted_sars": {
           "_type": "Set",
           "elements": [

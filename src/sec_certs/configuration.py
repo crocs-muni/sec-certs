@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Literal, Optional
 
 import yaml
-from pydantic import AnyHttpUrl, BaseSettings, Field
+from pydantic import AnyHttpUrl, Field
+from pydantic_settings import BaseSettings
 
 
 class Configuration(BaseSettings):

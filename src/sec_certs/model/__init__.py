@@ -17,4 +17,7 @@ __all__ = [
     "ReferenceFinder",
     "TransitiveVulnerabilityFinder",
     "SARTransformer",
+    "ReferenceAnnotator",
+    "ReferenceAnnotatorTrainer",
+    "ReferenceSegmentExtractor",
 ]

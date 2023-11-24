@@ -28,7 +28,6 @@
   dynamic = ["version"]
   dependencies = [
     "beautifulsoup4",
-    "billiard",
     "click",
     "html5lib",
     "jsonschema",
@@ -57,6 +56,7 @@
     "scipy>=1.9.0",
     "networkx",
     "pydantic",
+    "pydantic-settings",
     "psutil",
     "pytesseract",
   ]
@@ -68,6 +68,7 @@
       "types-PyYAML",
       "types-python-dateutil",
       "types-requests",
+      "datasets",
       "pytest",
       "pytest-cov",
       "pytest-monitor",
@@ -82,6 +83,14 @@
       "ipython!=8.7.0",
     ]
     test = ["pytest", "coverage", "pytest-cov"]
+    nlp = [
+      "catboost",
+      "optuna",
+      "setfit",
+      "umap-learn[plot]",
+      "plotly",
+      "scikit-learn",
+    ]
 
   [project.urls]
     Homepage = "https://seccerts.org"
@@ -114,7 +123,12 @@
     max-complexity = 10
 
   [tool.setuptools.package-data]
-    "*" = ["*.yaml", "*.json"]
+    'sec_certs' = ["rules.yaml"]
+    'sec_certs.config' = ["settings.yaml", "settings-schema.json"]
+    'sec_certs.data' = [
+      "reference_annotations/split/*.json",
+      "reference_annotations/manual_annotations/final/*.csv",
+    ]
 
 
 [tool.setuptools_scm]

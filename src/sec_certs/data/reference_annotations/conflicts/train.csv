@@ -1,0 +1,10 @@
+dgst,canonical_reference_keyword,label_adam,label_jano,resolution_label
+037577fc2019fcfa,ANSSI-CC-2021/49,previous_version,evaluation_reused,previous_version
+1b8705a0486b3be1,NSCIB-CC-0209053-CR,previous_version,evaluation_reused,previous_version
+9529eb793550093c,ANSSI-CC-2018/40,previous_version,evaluation_reused,previous_version
+a76d1c0d9964d583,BSI-DSZ-CC-0417-2008,component_used,evaluation_reused,component_used
+b42009eb34746731,ANSSI-CC-2021/50,previous_version,evaluation_reused,previous_version
+bab97726875c0f14,BSI-DSZ-CC-0957-V2-2016,evaluation_reused,None,evaluation_reused
+c175537338906951,ANSSI-CC-2016/70,component_shared,component_used,component_shared
+c32378a010479b33,BSI-DSZ-CC-0891-V2-2016,re-evaluation,evaluation_reused,evaluation_reused
+dba4b5a166f9456a,ANSSI-CC-2014/76,evaluation_reused,previous_version,re-evaluation

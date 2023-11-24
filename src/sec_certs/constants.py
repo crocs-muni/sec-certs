@@ -1,6 +1,11 @@
 import re
 from pathlib import Path
-from typing import Final
+from typing import Final, Literal
+
+RANDOM_STATE: Final[int] = 42
+REF_ANNOTATION_MODES = Literal["training", "evaluation", "production", "cross-validation"]
+REF_EMBEDDING_METHOD = Literal["tf_idf", "transformer"]
+
 
 DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 

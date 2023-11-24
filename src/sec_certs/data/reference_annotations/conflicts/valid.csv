@@ -1,0 +1,17 @@
+dgst,canonical_reference_keyword,label_adam,label_jano,resolution_label
+0f53257eb74bee54,BSI-DSZ-CC-0417-2008,component_used,None,component_used
+0fe8df0e85116b61,ANSSI-CC-2010/33,component_shared,evaluation_reused,previous_version
+16abf8ee0697e64f,ANSSI-CC-2014/61,component_shared,evaluation_reused,component_shared
+2532fe8c7214c485,BSI-DSZ-CC-0633-2010,evaluation_reused,component_used,component_used
+3357c28c91cc2ed1,ANSSI-CC-2016/44,evaluation_reused,component_used,evaluation_reused
+3f2a6d4893c18634,NSCIB-CC-12-36243-CR2,component_shared,component_used,component_used
+4b3f577896c80f8a,ANSSI-CC-2015/80,evaluation_reused,component_used,evaluation_reused
+4b3f577896c80f8a,ANSSI-CC-2016/44,previous_version,component_used,evaluation_reused
+774cb0f28f7900f9,BSI-DSZ-CC-0232-2004,evaluation_reused,component_used,evaluation_reused
+7e58bfc14edf68e4,OCSI/CERT/TEC/01/2013/RC,re-evaluation,previous_version,re-evaluation
+b00bb452e7a8176c,ANSSI-CC-2016/57,previous_version,evaluation_reused,previous_version
+c23bb542201aa511,ANSSI-CC-2014/14,component_shared,component_used,previous_version
+c37a9b7ae53093d8,CCEVS-VR-VID10256-2012,evaluation_reused,component_shared,None
+edb3056f1838e6ae,BSI-DSZ-CC-0348-2006,component_shared,evaluation_reused,evaluation_reused
+f05de4db911ec8af,CRP243,previous_version,component_used,previous_version
+f6317f134f532696,ANSSI-CC-2017/24,component_shared,evaluation_reused,previous_version

@@ -30,8 +30,8 @@ b2f3874cdb97fe27,BSI-DSZ-CC-0790-2013,report,self,
 546f9e2496b1d11c,ANSSI-CC-2015/14,report,self,
 1dd7f4bf2e677073,ANSSI-CC-2014/20,report,self,
 b24a14935edd51ad,BSI-DSZ-CC-0783-2013,report,self,
-b24a14935edd51ad,BSI-DSZ-CC-0750-2010,report,component used,"The TOE consists of the Java Card Operating System the NXP Crypto Library for SmartMX v2.7 (certified under BSI-DSZ-CC-0750-2010) and the hardware platform P5CD145V0B or P5CC145V0B (certified under BSI-DSZ-CC-0645-2011)
-b24a14935edd51ad,BSI-DSZ-CC-0645-2011,report,component used,"The TOE consists of the Java Card Operating System the NXP Crypto Library for SmartMX v2.7 (certified under BSI-DSZ-CC-0750-2010) and the hardware platform P5CD145V0B or P5CC145V0B (certified under BSI-DSZ-CC-0645-2011)
+b24a14935edd51ad,BSI-DSZ-CC-0750-2010,report,component used,"The TOE consists of the Java Card Operating System the NXP Crypto Library for SmartMX v2.7 (certified under BSI-DSZ-CC-0750-2010) and the hardware platform P5CD145V0B or P5CC145V0B (certified under BSI-DSZ-CC-0645-2011)"
+b24a14935edd51ad,BSI-DSZ-CC-0645-2011,report,component used,"The TOE consists of the Java Card Operating System the NXP Crypto Library for SmartMX v2.7 (certified under BSI-DSZ-CC-0750-2010) and the hardware platform P5CD145V0B or P5CC145V0B (certified under BSI-DSZ-CC-0645-2011)"
 b24a14935edd51ad,BSI-DSZ-CC-0783,target,self,
 b24a14935edd51ad,BSI-DSZ-CC-0750,target,component used,"Table 2 gives the details of the underlying evaluations of the cryptographic library and the underlying hardware platforms."
 b24a14935edd51ad,BSI-DSZ-CC-0645,target,component used,"Table 2 gives the details of the underlying evaluations of the cryptographic library and the underlying hardware platforms."
@@ -180,3 +180,63 @@ c3b443f243b95913,CCEVS-VR-11219-2021,report,self,
 183a5cd3e2aaa0ec,BSI-DSZ-CC-0891-V2-2016,report,component used,"The product consists of the following components: the previously certified M7892 G12 component (see [BSI-DSZ-CC-0891-V2-2016])"
 183a5cd3e2aaa0ec,ANSSI-CC-2017/76,report,component used,"The product consists of the following components: an operating system in the form of an open configuration platform or closed Java Card MultiApp V4.0.1. This platform is certified under the reference [ANSSI-CC-2017/76]"
 183a5cd3e2aaa0ec,BSI-DSZ-CC-0891-V2-2016,target,component used,"The evaluation is a composite evaluation and uses the results of the CC evaluation provided by [CR-IC]"
+18bb29b147e80caa,BSI-DSZ-CC-1040-2019,report,component used,"et du microcontrôleur « NXP Secure Smart Card Controller N7121 avec son firmware et sa bibliothèque cryptographique dédiés » (certifié sous la référence BSI-DSZ-CC- 1040, voir [CER_IC])"
+d2a4b8cb9ae7fe8f,BSI-DSZ-CC-1110-V4-2021,target,component used,
+14df54305cad83b4,BSI-DSZ-CC-0385-2006,report,basis of recertification,"The product AIX 6 version 6100-00-02 with optional Virtual I/O Server (VIOS) version 1.5 has undergone the certification procedure at BSI. This is a re-certification based on BSI- DSZ-CC-0385-2006. Specific results from the evaluation process BSI-DSZ-CC-0385-2006 were re-used."
+055985699aee1e09,ANSSI-CC-2010/02,report,component used,
+a9639521d8a5ab09,ANSSI-CC-2010/02,report,component used,"The evaluation has been performed according to the composition scheme as defined in the guide [COMP] in order to assess that no weakness comes from the integration of the software in the microcontroller already certified. Therefore, the results of the evaluation of the microcontroller SB23YR80B with Neslib version 3.0” at EAL6 level augmented with ALC_FLR.1, compliant with the [PP0035] protection profile, have been used. This microcontroller has been certified the 10 February 2010 under the reference ANSSI-CC-2010/02. The maintenance report ANSSI-2010/02-M01 has also been issued the 19th March 2010 for this product."
+5f1bc82727f54376,ANSSI-CC-2021/29,report,component used,
+317713948b4473b3,BSI-DSZ-CC-0710-2010,report,NaN,
+c32378a010479b33,BSI-DSZ-CC-0891-V2-2016,report,basis of eval,"Also, specific ALC related parts were re-used in the sense of AIS38 from BSI-DSZ-CC-0891-V2-2016 (Infineon Security Controller M7892 D11 and G12)."
+b0b7b073ca2dfe5f,ANSSI-CC-2019/28,report,component used,
+25eade3365f92578,BSI-DSZ-CC-0338-2005,report,component used,
+b4a2999b439b1ba8,BSI-DSZ-CC-1178-2021,report,basis of recertification,"The product Infineon Technologies AG OPTIGATM Trusted Platform Module SLB9672_2.0 v16.10.16488.00 and SLB9673_2.0 v26.10.16688.00, has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-1178-2021. Specific results from the evaluation process BSI-DSZ-CC-1178-2021 were re-used."
+850f5b2c312299d5,BSI-DSZ-CC-0330-2007,report,basis of recertification,"Das Produkt Virtuelle Poststelle des Bundes, (OSCI) Version 2.2.3.2 hat das Zertifizierungsverfahren beim BSI durchlaufen. Es handelt sich um eine Re-Zertifizierung basierend auf BSI-DSZ-CC-0330-2007."
+e9e12b044b495c6f,ANSSI-CC-2010/01,report,component used,
+aea11fd4d2a7709d,BSI-DSZ-CC-0808-V2-2016,report,basis of recertification,"TCOS Passport Version 2.1 Release 3/P60D144 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0808-V2-. Specific results from the evaluation process BSI-DSZ-CC-0808-V2-2016 were re-used"
+845bb039719ac5d8,BSI-DSZ-CC-0645-2010,target,component used,
+4a6100f1ddaef93b,BSI-DSZ-CC-0410-2007,report,component used,
+1b0a6ecee1f830fc,ANSSI-CC-2011/07,report,component used,
+9ae8bef18938d2df,BSI-DSZ-CC-0965-2015,report,basis of recertification,"The product Infineon Technologies AG Trusted Platform Module SLB9670_2.0, v7.40.2098.00 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0965-2015. Specific results from the evaluation process BSI-DSZ-CC-0965-2015 were re-used."
+7e82a1ceb29e4019,NSCIB-CC-12-36243,report,self,
+54dd28994604ee35,BSI-DSZ-CC-0481-2008,NaN,NaN,
+1357546ec01b1a65,BSI-DSZ-CC-0438-2007,report,basis of recertification,"The product S3CC91C 16-Bit RISC Microcontroller for Smart Card, Version 0 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0438-2007 . Specific results from the evaluation process based on BSI-DSZ-CC-0438-2007 were re-used."
+30120e4f3aa2f30a,BSI-DSZ-CC-0897-2013,target,component used,
+27b4366a0f1fcdef,CCEVS-VR-07-0054,report,basis for,
+27b4366a0f1fcdef,BSI-DSZ-CC-0403-2008,report,basis of recertification,"The product Oracle Database 11g Standard Edition and Standard Edition One, Release 11.1.0.7 with Critical Patch Updates up to and including July 2009 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0403-2008. Specific results from the evaluation process BSI-DSZ-CC-0403-2008 were re-used."
+e0b122da55f1f002,BSI-DSZ-CC-0961-V2-2018,report,basis of recertification,"This is a re-certification based on BSI-DSZ-CC-0961-V2-2018. Specific results from the evaluation process BSI-DSZ-CC-0961-V2-2018 were re-used. Also, specific ALC related parts were re-used in the sense of AIS38 from BSI-DSZ-CC-1079."
+05a8a84b60a30ceb,BSI-DSZ-CC-1110-V3-2020,report,component used,"For details concerning the CC evaluation of the underlying IC see the evaluation documentation under the Certification ID BSI-DSZ-CC-1110-V3-2020 ([16], [17])."
+1b797b27b981aafe,BSI-DSZ-CC-1059-2018,report,component used,"- du microcontrôleur « NXP P60D145 » certifié sous la référence [CER-IC] ;"
+691119fe8a2f8e1c,BSI-DSZ-CC-0944-2014,report,basis of recertification,"The product SLS 32TLC00xS(M) CIPURSETM4move, v1.00.00 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0944-2014. Specific results from the evaluation process BSI-DSZ-CC-0944-2014 were re-used."
+0d164fb0d72dfa00,BSI-DSZ-CC-0645-2010,report,component used,
+a154a01ff4cf04c7,BSI-DSZ-CC-1059-2018,report,component used,
+537154d2c4344d48,ANSSI-CC-2018/31,report,component used,
+265e576fd3517f91,BSI-DSZ-CC-0866-2013,report,basis of recertification,"The product IDeal Pass v2 - SAC/EAC JC ePassport 4.0.0 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0866-2013. Specific results from the evaluation process BSI-DSZ-CC-0866-2013 were re-used."
+38f79f1a48e7844f,ANSSI-CC-2017/49,report,component used,
+66faa094a9333d1a,ANSSI-CC-2014/86,NaN,NaN,
+b8875373ee66e841,ANSSI-CC-2011/07,report,component used,
+3a3ae16e94bc7aba,BSI-DSZ-CC-0995-2018,report,basis of eval,"Please note that in consistency to the claimed protection profile BSI-CC-PP-0055-2009 the security mechanism Basic Access Control is in the focus of this evaluation process. The further security mechanisms Password Authenticated Connection Establishment, Extended Access Control and Active Authentication are subject of the separate evaluation process BSI-DSZ-CC-0995-2018 [25]."
+c18fea56107696a8,BSI-DSZ-CC-0737-2012,report,basis of recertification,"The product Bundesdruckerei Document Reading Application, Version 1.2.1129 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0737-2012. Specific results from the evaluation process BSI-DSZ-CC-0737-2012 were re-used."
+0694786160024e30,BSI-DSZ-CC-0990-2016,report,basis of recertification,"The product SLS 32TLC00xS(M) CIPURSETM 4move, V1.0.2 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0990-2016. Specific results from the evaluation process BSI-DSZ-CC-0990-2016 were re-used."
+c63e878cc60a8682,BSI-DSZ-CC-0883-2013,target,component used,"The HW used to support the OS is the M7794 A12 and G12 (SLE77CLFX2407PM) component. This component M7794 A12 and G12 (BSI-DSZ-CC-0883-2013) is certified CC EAL5+ [9]."
+50aef770cb4f028f,BSI-DSZ-CC-1059-2018,report,component used,
+425f13fb7e94add5,ANSSI-CC-2020/21,report,component used,
+d472c3dfb2f2a810,ANSSI-CC-2011/24,report,previous version,"Par ailleurs, cette évaluation a également pris en compte les résultats de l’évaluation de la version précédente du produit certifié (voir [ANSSI-CC-2011/24])."
+d5074e4b714ac9e7,ANSSI-CC-2011/07,report,component used,
+629372a8091eafae,ANSSI-CC-2020/71,report,component used,
+cefb1202ed3cd997,BSI-DSZ-CC-0344-2005,NaN,NaN,
+34de7910ace6d2e9,BSI-DSZ-CC-0410-2007,report,basis for,
+0fe8df0e85116b61,ANSSI-CC-2010/35,report,previous version,
+43109d44111df5d3,BSI-DSZ-CC-0915-2016,report,component used,
+657f8d0cc39bbcdc,BSI-DSZ-CC-0946-2014,report,basis of recertification,"The product Infineon Technologies Smart Card IC (Security Controller) M5072 G11 with optional RSA v1.03.006, EC v1.03.006 and Toolbox v1.03.006 with specific IC dedicated software has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0946-2014. Specific results from the evaluation process BSI-DSZ-CC-0946-2014 were re-used."
+a0c38b4389ad7cf7,ANSSI-CC-2018/12,report,component used,
+5c06e4fb1887fdc7,BSI-DSZ-CC-0968-2016,report,basis of eval,
+0bb56716a1fbef1e,ANSSI-CC-2019/35,report,component used,
+83bc5fbf2b54e83b,BSI-DSZ-CC-0786-2012,report,basis of recertification,"The product Infineon smartcard IC (Security Controller) M7794 A12 with optional RSA2048/4096 v1.02.013, EC v1.02.013 and Toolbox v1.02.013, has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0786-2012. Specific results from the evaluation process BSI-DSZ-CC-0786-2012 were re-used."
+2793414918738c7f,BSI-DSZ-CC-0633-V2-2014,report,component used,
+720aab4f782f4c60,BSI-DSZ-CC-0555-2009,report,component used,
+0bae4647efd39e51,BSI-DSZ-CC-1190-2022,report,basis of recertification,
+647d17d44745a532,BSI-DSZ-CC-0904-2015,report,basis of recertification,"The product TCOS FlexCert Version 2.0 Release 2/SLC52 has undergone the certification procedure at BSI. This is a re-certification based on BSI-DSZ-CC-0904-2015. Specific results from the evaluation process BSI-DSZ-CC-0904-2015 (including subsequent maintenance procedures BSI-DSZ-CC-0904-2015-MA-01 and BSI-DSZ-CC-0904-2015- MA-02) were re-used."
+8927428c96c0b59a,BSI-DSZ-CC-0813-2012,report,component used,
+8928e191ee2fd3b9,BSI-DSZ-CC-0626-2009,report,component used,
+c23bb542201aa511,ANSSI-CC-2014/06,report,component used,

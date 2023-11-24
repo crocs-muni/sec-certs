@@ -22,10 +22,12 @@ from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.model import (
+    ReferenceFinder,
+    SARTransformer,
+    TransitiveVulnerabilityFinder,
+)
 from sec_certs.model.cc_matching import CCSchemeMatcher
-from sec_certs.model.reference_finder import ReferenceFinder
-from sec_certs.model.sar_transformer import SARTransformer
-from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
@@ -161,6 +163,10 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         Returns a path to the dataset of maintenance updates
         """
         return self.mu_dataset_dir / "maintenance_updates.json"
+
+    @property
+    def reference_annotator_dir(self) -> Path:
+        return self.root_dir / "reference_annotator"
 
     @property
     def scheme_dataset_path(self) -> Path:
