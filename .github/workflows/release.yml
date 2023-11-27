@@ -32,6 +32,9 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
   docker_release:
     name: Release on DockerHub
+    environment:
+      name: dockerhub
+      url: https://hub.docker.com/r/seccerts/sec-certs/
     runs-on: ubuntu-latest
     if: github.repository == 'crocs-muni/sec-certs'
     steps:
@@ -60,3 +63,9 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+      - name: Update dockerhub description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: seccerts/sec-certs
