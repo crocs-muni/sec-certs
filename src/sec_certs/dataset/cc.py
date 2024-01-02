@@ -178,7 +178,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
     HTML_PRODUCTS_URL = {
-        "cc_products_active.html": BASE_URL + "/products/",
+        "cc_products_active.html": BASE_URL + "/products/index.cfm",
         "cc_products_archived.html": BASE_URL + "/products/index.cfm?archived=1",
     }
     HTML_LABS_URL = {"cc_labs.html": BASE_URL + "/labs"}
@@ -362,7 +362,10 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         ]
 
         # TODO: Now skipping bad lines, smarter heuristics to be built for dumb files
-        df = pd.read_csv(file, engine="python", encoding="windows-1252", on_bad_lines="skip")
+        try:
+            df = pd.read_csv(file, engine="python", encoding="utf-8", on_bad_lines="skip")
+        except UnicodeDecodeError:
+            df = pd.read_csv(file, engine="python", encoding="windows-1252", on_bad_lines="skip")
         df = df.rename(columns=dict(zip(list(df.columns), csv_header)))
 
         df["is_maintenance"] = ~df.maintenance_title.isnull()

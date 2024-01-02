@@ -486,8 +486,8 @@ class CCCertificate(
         security_level: str | set[str],
         not_valid_before: date | None,
         not_valid_after: date | None,
-        report_link: str,
-        st_link: str,
+        report_link: str | None,
+        st_link: str | None,
         cert_link: str | None,
         manufacturer_web: str | None,
         protection_profiles: set[ProtectionProfile] | None,
@@ -694,13 +694,19 @@ class CCCertificate(
         return extracted_date
 
     @staticmethod
-    def _html_row_get_report_st_links(cell: Tag) -> tuple[str, str]:
+    def _html_row_get_report_st_links(cell: Tag) -> tuple[str | None, str | None]:
         links = cell.find_all("a")
-        assert links[1].get("title").startswith("Certification Report")
-        assert links[2].get("title").startswith("Security Target")
 
-        report_link = CCCertificate.cc_url + links[1].get("href")
-        security_target_link = CCCertificate.cc_url + links[2].get("href")
+        report_link: str | None = None
+        security_target_link: str | None = None
+        for link in links:
+            title = link.get("title")
+            if not title:
+                continue
+            if title.startswith("Certification Report"):
+                report_link = CCCertificate.cc_url + link.get("href")
+            elif title.startswith("Security Target"):
+                security_target_link = CCCertificate.cc_url + link.get("href")
 
         return report_link, security_target_link
 
