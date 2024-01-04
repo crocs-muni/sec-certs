@@ -95,6 +95,9 @@ def test_malaysia():
     certified = CCSchemes.get_malaysia_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
+    archived = CCSchemes.get_malaysia_archived()
+    assert len(archived) != 0
+    assert absolute_urls(archived)
     ineval = CCSchemes.get_malaysia_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)

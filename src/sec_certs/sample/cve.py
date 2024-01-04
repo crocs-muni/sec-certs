@@ -195,7 +195,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
     @staticmethod
     def parse_single_configuration(
-        configuration: dict[str, Any]
+        configuration: dict[str, Any],
     ) -> tuple[list[CPEMatchCriteria], CPEMatchCriteriaConfiguration | None]:
         if CVE.configuration_is_simple(configuration):
             return CVE.get_simple_criteria_from_cpe_matches(configuration["nodes"][0]["cpeMatch"]), None
