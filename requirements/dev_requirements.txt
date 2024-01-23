@@ -297,7 +297,7 @@ pexpect==4.8.0
     # via ipython
 pikepdf==8.7.1
     # via sec-certs (./../pyproject.toml)
-pillow==10.1.0
+pillow==10.2.0
     # via
     #   matplotlib
     #   pikepdf
