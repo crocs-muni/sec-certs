@@ -1,6 +1,6 @@
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.9.0
+aiohttp==3.9.2
     # via
     #   datasets
     #   fsspec
