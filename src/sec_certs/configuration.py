@@ -121,12 +121,12 @@ class Configuration(BaseSettings):
         """
         Returns keys of the config that have non-default value, i.e. were provided as kwargs, env. vars. or additionaly set.
         """
-        return {key for key, value in Configuration.__fields__.items() if getattr(self, key) != value.default}
+        return {key for key, value in Configuration.model_fields.items() if getattr(self, key) != value.default}
 
     def _set_attrs_from_cfg(self, other_cfg: Configuration, fields_to_set: set[str] | None) -> None:
         if not fields_to_set:
-            fields_to_set = set(Configuration.__fields__.keys())
-        for field in [x for x in other_cfg.__fields__ if x in fields_to_set]:
+            fields_to_set = set(Configuration.model_fields.keys())
+        for field in [x for x in other_cfg.model_fields if x in fields_to_set]:
             setattr(self, field, getattr(other_cfg, field))
 
     def load_from_yaml(self, yaml_path: str | Path) -> None:
