@@ -83,8 +83,8 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CCCertificate.pandas_columns)
         df = df.set_index("dgst")
 
-        df.not_valid_before = pd.to_datetime(df.not_valid_before, infer_datetime_format=True, errors="coerce")
-        df.not_valid_after = pd.to_datetime(df.not_valid_after, infer_datetime_format=True, errors="coerce")
+        df.not_valid_before = pd.to_datetime(df.not_valid_before, errors="coerce")
+        df.not_valid_after = pd.to_datetime(df.not_valid_after, errors="coerce")
         df = df.astype(
             {"category": "category", "status": "category", "scheme": "category", "cert_lab": "category"}
         ).fillna(value=np.nan)
@@ -905,7 +905,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         df = df.set_index("dgst")
         df.index.name = "dgst"
 
-        df.maintenance_date = pd.to_datetime(df.maintenance_date, infer_datetime_format=True, errors="coerce")
+        df.maintenance_date = pd.to_datetime(df.maintenance_date, errors="coerce")
         return df.fillna(value=np.nan)
 
     @classmethod
