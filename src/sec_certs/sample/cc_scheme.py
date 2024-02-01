@@ -236,7 +236,7 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
             complement_info = row.find("div", class_="info-complement")
             for li in complement_info.find_all("li"):
                 label = li.find("span").text
-                value = sns(li.find(text=True, recursive=False))
+                value = sns(li.find(string=True, recursive=False))
                 if "Commanditaire" in label:
                     cert["sponsor"] = value
                 elif "Développeur" in label:
