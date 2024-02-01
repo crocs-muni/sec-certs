@@ -6,7 +6,7 @@ from typing import Literal, Optional
 
 import yaml
 from pydantic import AnyHttpUrl, Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Configuration(BaseSettings):
@@ -15,8 +15,7 @@ class Configuration(BaseSettings):
     While not a singleton, the `config` instance from this module is meant to be primarily used.
     """
 
-    class Config:
-        env_prefix = "seccerts_"
+    model_config = SettingsConfigDict(env_prefix="seccerts_")
 
     log_filepath: Path = Field(
         "./cert_processing_log.log",
