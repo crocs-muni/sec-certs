@@ -84,6 +84,7 @@ CC_CANADA_CERTIFIED_URL = "/en/tools-services/common-criteria/certified-products
 CC_CANADA_INEVAL_URL = "/en/tools-services/common-criteria/products-evaluation"
 CC_ANSSI_BASE_URL = "https://cyber.gouv.fr"
 CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/produits-certifies"
+CC_ANSSI_ARCHIVED_URL = CC_ANSSI_BASE_URL + "/produits-certifies-archives"
 CC_BSI_BASE_URL = "https://www.bsi.bund.de/"
 CC_BSI_CERTIFIED_URL = (
     CC_BSI_BASE_URL
