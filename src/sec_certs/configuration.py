@@ -138,7 +138,7 @@ class Configuration(BaseSettings):
         """
         with Path(yaml_path).open("r") as handle:
             data = yaml.safe_load(handle)
-        other_cfg = Configuration.parse_obj(data)
+        other_cfg = Configuration.model_validate(data)
         keys_to_rewrite = set(data.keys()).union(other_cfg._get_nondefault_keys())
         self._set_attrs_from_cfg(other_cfg, keys_to_rewrite)
 
