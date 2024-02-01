@@ -326,8 +326,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
         df = df.set_index("dgst")
 
-        df.date_validation = pd.to_datetime(df.date_validation, infer_datetime_format=True, errors="coerce")
-        df.date_sunset = pd.to_datetime(df.date_sunset, infer_datetime_format=True, errors="coerce")
+        df.date_validation = pd.to_datetime(df.date_validation, errors="coerce")
+        df.date_sunset = pd.to_datetime(df.date_sunset, errors="coerce")
 
         # Manually delete one certificate with bad embodiment (seems to have many blank fields)
         df = df.loc[~(df.embodiment == "*")]
