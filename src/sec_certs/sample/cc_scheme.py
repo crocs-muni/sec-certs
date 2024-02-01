@@ -1420,8 +1420,7 @@ def get_turkey_certified() -> list[dict[str, Any]]:
     with tempfile.TemporaryDirectory() as tmpdir:
         pdf_path = Path(tmpdir) / "turkey.pdf"
         resp = requests.get(constants.CC_TURKEY_ARCHIVED_URL)
-        if resp.status_code != requests.codes.ok:
-            raise ValueError(f"Unable to download: status={resp.status_code}")
+        resp.raise_for_status()
         with pdf_path.open("wb") as f:
             f.write(resp.content)
         dfs = tabula.read_pdf(str(pdf_path), pages="all")
