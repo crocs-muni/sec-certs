@@ -31,6 +31,7 @@ __all__ = [
     "get_canada_certified",
     "get_canada_in_evaluation",
     "get_france_certified",
+    "get_france_archived",
     "get_germany_certified",
     "get_india_certified",
     "get_india_archived",
@@ -68,7 +69,13 @@ def _get(url: str, session, **kwargs) -> Response:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=InsecureRequestWarning)
         conn = session if session else requests
-        resp = conn.get(url, headers={"User-Agent": "seccerts.org"}, verify=False, **kwargs, timeout=10)
+        resp = conn.get(
+            url,
+            headers={"User-Agent": "seccerts.org"},
+            verify=False,
+            **kwargs,
+            timeout=10,
+        )
     resp.raise_for_status()
     return resp
 
@@ -85,7 +92,9 @@ def _get_hash(url: str, session=None) -> bytes:
     return h.digest()
 
 
-def get_australia_in_evaluation(enhanced: bool = True) -> list[dict[str, Any]]:  # noqa: C901
+def get_australia_in_evaluation(  # noqa: C901
+    enhanced: bool = True,
+) -> list[dict[str, Any]]:
     """
     Get Australia "products in evaluation" entries.
 
@@ -156,7 +165,10 @@ def get_canada_certified() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    resp = _get(constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_CERTIFIED_URL}", None)
+    resp = _get(
+        constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_CERTIFIED_URL}",
+        None,
+    )
     html_data = resp.json()["response"]["page"]["body"][0]
     soup = BeautifulSoup(html_data, "html5lib")
     tbody = soup.find("table").find("tbody")
@@ -181,7 +193,10 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    resp = _get(constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_INEVAL_URL}", None)
+    resp = _get(
+        constants.CC_CANADA_API_URL + f"?lang=en&url={constants.CC_CANADA_INEVAL_URL}",
+        None,
+    )
     html_data = resp.json()["response"]["page"]["body"][0]
     soup = BeautifulSoup(html_data, "html5lib")
     tbody = soup.find("table").find("tbody")
@@ -200,15 +215,8 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
     return results
 
 
-def get_france_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
-    """
-    Get French "certified product" entries.
-
-    :param enhanced: Whether to enhance the results by following links (slower, more data).
-    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
-    :return: The entries.
-    """
-    base_soup = _get_page(constants.CC_ANSSI_CERTIFIED_URL)
+def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
+    base_soup = _get_page(url)
     pager = base_soup.find("nav", class_="pager")
     last_page_a = re.search("[0-9]+", pager.find("a", title="Aller à la dernière page").text)
     if not last_page_a:
@@ -216,13 +224,15 @@ def get_france_certified(enhanced: bool = True, artifacts: bool = False) -> list
     pages = int(last_page_a.group())
     results = []
     for page in range(pages + 1):
-        soup = _get_page(constants.CC_ANSSI_CERTIFIED_URL + f"?page={page}")
+        soup = _get_page(url + f"?page={page}")
         for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
             cert: dict[str, Any] = {
                 "product": sns(row.find("h3").text),
-                "description": sns(row.find("p", class_="field-body")),
                 "url": urljoin(constants.CC_ANSSI_BASE_URL, row.find("a")["href"]),
             }
+            description_para = row.find("p", class_="field-body")
+            if description_para:
+                cert["description"] = sns(description_para.text)
             complement_info = row.find("div", class_="info-complement")
             for li in complement_info.find_all("li"):
                 label = li.find("span").text
@@ -288,7 +298,31 @@ def get_france_certified(enhanced: bool = True, artifacts: bool = False) -> list
     return results
 
 
-def get_germany_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
+def get_france_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
+    """
+    Get French "certified product" entries.
+
+    :param enhanced: Whether to enhance the results by following links (slower, more data).
+    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+    :return: The entries.
+    """
+    return _get_france(constants.CC_ANSSI_CERTIFIED_URL, enhanced, artifacts)
+
+
+def get_france_archived(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
+    """
+    Get French "archived product" entries.
+
+    :param enhanced: Whether to enhance the results by following links (slower, more data).
+    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+    :return: The entries.
+    """
+    return _get_france(constants.CC_ANSSI_ARCHIVED_URL, enhanced, artifacts)
+
+
+def get_germany_certified(  # noqa: C901
+    enhanced: bool = True, artifacts: bool = False
+) -> list[dict[str, Any]]:
     """
     Get German "certified product" entries.
 
@@ -736,7 +770,7 @@ def _get_malaysia(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C9
     total_pages = int(pages_re.group(1))
     results = []
     for i in range(total_pages):
-        soup = _get_page(url + f"?start={i*10}")
+        soup = _get_page(url + f"?start={i * 10}")
         table = soup.find("table", class_="directoryTable")
         for tr in table.find_all("tr", class_="directoryRow"):
             tds = tr.find_all("td")
@@ -846,7 +880,9 @@ def get_malaysia_in_evaluation() -> list[dict[str, Any]]:
     return results
 
 
-def get_netherlands_certified(artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
+def get_netherlands_certified(  # noqa: C901
+    artifacts: bool = False,
+) -> list[dict[str, Any]]:
     """
     Get Dutch "certified product" entries.
 
@@ -916,7 +952,9 @@ def get_netherlands_in_evaluation() -> list[dict[str, Any]]:
     return results
 
 
-def _get_norway(url: str, enhanced: bool, artifacts: bool) -> list[dict[str, Any]]:  # noqa: C901
+def _get_norway(  # noqa: C901
+    url: str, enhanced: bool, artifacts: bool
+) -> list[dict[str, Any]]:
     soup = _get_page(url)
     results = []
     for tr in soup.find_all("tr", class_="certified-product"):
@@ -1013,7 +1051,9 @@ def get_norway_archived(enhanced: bool = True, artifacts: bool = False) -> list[
     return _get_norway(constants.CC_NORWAY_ARCHIVED_URL, enhanced, artifacts)
 
 
-def _get_korea(product_class: int, enhanced: bool, artifacts: bool) -> list[dict[str, Any]]:  # noqa: C901
+def _get_korea(  # noqa: C901
+    product_class: int, enhanced: bool, artifacts: bool
+) -> list[dict[str, Any]]:
     session = requests.session()
     session.get(constants.CC_KOREA_EN_URL)
     # Get base page
@@ -1177,7 +1217,10 @@ def _get_singapore(url: str, artifacts: bool) -> list[dict[str, Any]]:
                 "cert_title": obj["certificate"]["title"],
                 "cert_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["certificate"]["mediaUrl"]),
                 "report_title": obj["certificationReport"]["title"],
-                "report_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["certificationReport"]["mediaUrl"]),
+                "report_link": urljoin(
+                    constants.CC_SINGAPORE_BASE_URL,
+                    obj["certificationReport"]["mediaUrl"],
+                ),
                 "target_title": obj["securityTarget"]["title"],
                 "target_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["securityTarget"]["mediaUrl"]),
             }
@@ -1269,7 +1312,9 @@ def get_spain_certified() -> list[dict[str, Any]]:
     return results
 
 
-def _get_sweden(url: str, enhanced: bool, artifacts: bool) -> list[dict[str, Any]]:  # noqa: C901
+def _get_sweden(  # noqa: C901
+    url: str, enhanced: bool, artifacts: bool
+) -> list[dict[str, Any]]:
     soup = _get_page(url)
     nav = soup.find("main").find("nav", class_="component-nav-box__list")
     results = []
@@ -1375,8 +1420,7 @@ def get_turkey_certified() -> list[dict[str, Any]]:
     with tempfile.TemporaryDirectory() as tmpdir:
         pdf_path = Path(tmpdir) / "turkey.pdf"
         resp = requests.get(constants.CC_TURKEY_ARCHIVED_URL)
-        if resp.status_code != requests.codes.ok:
-            raise ValueError(f"Unable to download: status={resp.status_code}")
+        resp.raise_for_status()
         with pdf_path.open("wb") as f:
             f.write(resp.content)
         dfs = tabula.read_pdf(str(pdf_path), pages="all")
@@ -1400,7 +1444,9 @@ def get_turkey_certified() -> list[dict[str, Any]]:
     return results
 
 
-def get_usa_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
+def get_usa_certified(  # noqa: C901
+    enhanced: bool = True, artifacts: bool = False
+) -> list[dict[str, Any]]:
     """
     Get American "certified product" entries.
 
@@ -1577,11 +1623,23 @@ class CCScheme(ComplexSerializableType):
 
     methods: ClassVar[dict[str, dict[EntryType, Callable]]] = {
         "AU": {EntryType.InEvaluation: get_australia_in_evaluation},
-        "CA": {EntryType.InEvaluation: get_canada_in_evaluation, EntryType.Certified: get_canada_certified},
-        "FR": {EntryType.Certified: get_france_certified},
+        "CA": {
+            EntryType.InEvaluation: get_canada_in_evaluation,
+            EntryType.Certified: get_canada_certified,
+        },
+        "FR": {
+            EntryType.Certified: get_france_certified,
+            EntryType.Archived: get_france_archived,
+        },
         "DE": {EntryType.Certified: get_germany_certified},
-        "IN": {EntryType.Certified: get_india_certified, EntryType.Archived: get_india_archived},
-        "IT": {EntryType.Certified: get_italy_certified, EntryType.InEvaluation: get_italy_in_evaluation},
+        "IN": {
+            EntryType.Certified: get_india_certified,
+            EntryType.Archived: get_india_archived,
+        },
+        "IT": {
+            EntryType.Certified: get_italy_certified,
+            EntryType.InEvaluation: get_italy_in_evaluation,
+        },
         "JP": {
             EntryType.InEvaluation: get_japan_in_evaluation,
             EntryType.Certified: get_japan_certified,
@@ -1592,9 +1650,18 @@ class CCScheme(ComplexSerializableType):
             EntryType.Archived: get_malaysia_archived,
             EntryType.InEvaluation: get_malaysia_in_evaluation,
         },
-        "NL": {EntryType.Certified: get_netherlands_certified, EntryType.InEvaluation: get_netherlands_in_evaluation},
-        "NO": {EntryType.Certified: get_norway_certified, EntryType.Archived: get_norway_archived},
-        "KO": {EntryType.Certified: get_korea_certified, EntryType.Archived: get_korea_archived},
+        "NL": {
+            EntryType.Certified: get_netherlands_certified,
+            EntryType.InEvaluation: get_netherlands_in_evaluation,
+        },
+        "NO": {
+            EntryType.Certified: get_norway_certified,
+            EntryType.Archived: get_norway_archived,
+        },
+        "KO": {
+            EntryType.Certified: get_korea_certified,
+            EntryType.Archived: get_korea_archived,
+        },
         "SG": {
             EntryType.InEvaluation: get_singapore_in_evaluation,
             EntryType.Certified: get_singapore_certified,
