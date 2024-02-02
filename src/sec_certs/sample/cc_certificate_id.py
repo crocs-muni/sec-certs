@@ -6,6 +6,16 @@ from dataclasses import dataclass
 from sec_certs.cert_rules import rules
 
 
+def _parse_year(year: str | None) -> int | None:
+    if year is None:
+        return None
+    y = int(year)
+    if y < 100:
+        return y + 1900
+    else:
+        return y
+
+
 @dataclass(eq=True, frozen=True)
 class CertificateId:
     """
@@ -20,7 +30,7 @@ class CertificateId:
         for rule in rules["cc_cert_id"]["FR"]:
             if match := re.match(rule, new_cert_id):
                 groups = match.groupdict()
-                year = int(groups["year"]) if len(groups["year"]) == 4 else int(groups["year"]) + 2000
+                year = _parse_year(groups["year"])
                 counter = groups["counter"]
                 doc = groups.get("doc")
                 version = groups.get("version")
@@ -34,35 +44,26 @@ class CertificateId:
         return new_cert_id
 
     def _canonical_de(self) -> str:
-        def extract_parts(bsi_parts: list[str]) -> tuple:
-            cert_num = None
-            cert_version = None
-            cert_year = None
-
-            if len(bsi_parts) > 3:
-                cert_num = bsi_parts[3]
-            if len(bsi_parts) > 4:
-                if bsi_parts[4].startswith("V") or bsi_parts[4].startswith("v"):
-                    cert_version = bsi_parts[4].upper()  # get version in uppercase
-                else:
-                    cert_year = bsi_parts[4]
-            if len(bsi_parts) > 5:
-                cert_year = bsi_parts[5]
-
-            return cert_num, cert_version, cert_year
-
-        bsi_parts = self.clean.split("-")
-
-        cert_num, cert_version, cert_year = extract_parts(bsi_parts)
-
-        # reconstruct BSI number again
-        new_cert_id = "BSI-DSZ-CC"
-        if cert_num is not None:
-            new_cert_id += "-" + cert_num
-        if cert_version is not None:
-            new_cert_id += "-" + cert_version
-        if cert_year is not None:
-            new_cert_id += "-" + cert_year
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["DE"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                s = groups.get("s")
+                counter = groups["counter"]
+                version = groups.get("version")
+                year = _parse_year(groups.get("year"))
+                doc = groups.get("doc")
+                new_cert_id = "BSI-DSZ-CC"
+                if s:
+                    new_cert_id += f"-{s}"
+                new_cert_id += f"-{counter}"
+                if version:
+                    new_cert_id += f"-{version.upper()}"
+                if year:
+                    new_cert_id += f"-{year}"
+                if doc:
+                    new_cert_id += f"-{doc}"
+                return new_cert_id
 
         return new_cert_id
 

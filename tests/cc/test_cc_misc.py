@@ -8,6 +8,9 @@ def test_canonicalize_fr():
 
 def test_canonicalize_de():
     assert canonicalize("BSI-DSZ-CC-0420-2007", "DE") == "BSI-DSZ-CC-0420-2007"
+    assert canonicalize("BSI-DSZ-CC-1004", "DE") == "BSI-DSZ-CC-1004"
+    assert canonicalize("BSI-DSZ-CC-0831-V4-2021", "DE") == "BSI-DSZ-CC-0831-V4-2021"
+    assert canonicalize("BSI-DSZ-CC-0837-V2-2014-MA-01", "DE") == "BSI-DSZ-CC-0837-V2-2014-MA-01"
 
 
 def test_canonicalize_es():
