@@ -8,8 +8,8 @@ cc_cert_id:
     - "BSI-DSZ-CC-[0-9]+?-[0-9]+"
     - "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+"
     - "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+"
-    - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9][0-9][0-9][0-9])*"  # German BSI (number + version + year or without year)
-    - "BSI-DSZ-CC-[0-9]+-[0-9][0-9][0-9][0-9]"  # German BSI (number + year, no version)
+    - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9]{4})*"  # German BSI (number + version + year or without year)
+    - "BSI-DSZ-CC-[0-9]+-[0-9]{4}"  # German BSI (number + year, no version)
     - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
     # - "BSI-DSZ-CC-[0-9]+"  # Maybe?
   FR:
@@ -21,8 +21,8 @@ cc_cert_id:
     - "Certification Report [0-9]+/[0-9]+" # French or Australia! Solved because we limit ourselves to scheme when doing heuristics.
     - "Rapport de certification [0-9]+/[0-9]+"  # French
   NL:
-    - "NSCIB-CC-[0-9][0-9][0-9][0-9].+?"  # Netherlands
-    - "NSCIB-CC-[0-9][0-9][0-9][0-9][0-9]*-CR"  # Netherlands
+    - "NSCIB-CC-[0-9]{4}.+?"  # Netherlands
+    - "NSCIB-CC-[0-9]{4}[0-9]*-CR"  # Netherlands
     - "NSCIB-CC-[0-9][0-9]-[0-9]+?-CR[0-9]+?"  # Netherlands
     - "NSCIB-CC-[0-9][0-9]-[0-9]+(-CR[0-9]+)*"  # Netherlands (old number NSCIB-CC-05-6609 or NSCIB-CC-05-6609-CR)
     - "NSCIB-CC-[0-9]+-CR[0-9]*"  # Netherlands (new number NSCIB-CC-111441-CR NSCIB-CC-111441-CR1)
@@ -1083,39 +1083,39 @@ fips_security_level:
 #####
 fips_certlike:
   Certlike:
-      # --- HMAC(-SHA)(-1) - (bits) (method) ((hardware/firmware cert) #id) ---
-      # + added (and #id) everywhere
+    # --- HMAC(-SHA)(-1) - (bits) (method) ((hardware/firmware cert) #id) ---
+    # + added (and #id) everywhere
     - "HMAC(?:[- –]*SHA)?(?:[- –]*1)?[– -]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?\\(?(?: |hardware|firmware)*?[\\s(\\[]*?(?:#|cert\\.?|Cert\\.?|Certificate|sample)?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:[\\s#]*and[\\s#]*\\d+)?"
-      # --- same as above, without hw or fw ---
+    # --- same as above, without hw or fw ---
     - "HMAC(?:-SHA)?(?:-1)?[ -]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[, ]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
-      # --- SHS/A - (bits) (method) ((cert #) numbers) ---
+    # --- SHS/A - (bits) (method) ((cert #) numbers) ---
     - "SH[SA][-– 123]*(?:;|\\/|160|224|256|384|512)?(?:[\\s(\\[]*?(?:KAT|[Bb]yte [Oo]riented)*?[\\s,]*?[\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:\\)?\\[#?\\d+\\])?(?:[\\s#]*?and[\\s#]*?\\d+)?"
-      # --- RSA (bits) (method) ((cert #)) ---
+    # --- RSA (bits) (method) ((cert #)) ---
     - "RSA(?:[-– ]*(?:;|\\/|512|768|1024|1280|1536|2048|3072|4096|8192)\\s\\(\\[]*?(?:(?:;|\\/|KAT|Verify|PSS|\\s)*?)?[\\s,]*?[\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
-      # --- RSA (SSA) (PKCS) (version) (#) ---
+    # --- RSA (SSA) (PKCS) (version) (#) ---
     - "(?:RSA)?[-– ]?(?:SSA)?[- ]?PKCS\\s?#?\\d(?:-[Vv]1_5| [Vv]1[-_]5)?[\\s#]*?(\\d{1,4})?"
-      # --- AES (bits) (method) ((cert #)) ---
+    # --- AES (bits) (method) ((cert #)) ---
     - "AES[-– ]*((?: |;|\\/|bit|key|128|192|256|CBC)*(?: |\\/|;|[Dd]ecrypt|[Ee]ncrypt|KAT|CMAC|CTR|GCM|IV|CBC)*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:\\)?[\\s#]*?\\[#?\\d+\\])?(?:[\\s#]*?and[\\s#]*?(\\d+))?"
-      # --- Diffie Helman (CVL) ((cert #)) ---
+    # --- Diffie Helman (CVL) ((cert #)) ---
     - "Diffie[-– ]*Hellman[,\\s(\\[]*?(?:CVL|\\s)*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?[\\s#]*?(\\d{1,4})"
-      # --- DRBG (bits) (method) (cert #) ---
+    # --- DRBG (bits) (method) (cert #) ---
     - "DRBG[ –-]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
-      # --- DES (bits) (method) (cert #)
+    # --- DES (bits) (method) (cert #)
     - "DES[ –-]*((?:;|\\/|160|224|256|384|512)?(?:;|\\/| |[Dd]ecrypt|[Ee]ncrypt|KAT|CBC|(?:\\d(?: and \\d)? keying options?))*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)*?[\\s#]*?)?[\\s#]*?(\\d{1,4})(?:[\\s#]*?and[\\s#]*?(\\d+))?"
-      # --- DSA (bits) (method) (cert #)
+    # --- DSA (bits) (method) (cert #)
     - "DSA[ –-]*((?:;|\\/|160|224|256|384|512)?(?: |[Dd]ecrypt|[Ee]ncrypt|KAT)*?[,\\s(\\[]*?(?:#|cert\\.?|sample|Cert\\.?|Certificate)?[\\s#]*?)?[\\s#]*?(\\d{1,4})"
-      # --- platforms (#)+ - this is used in modification history ---
+    # --- platforms (#)+ - this is used in modification history ---
     - "[Pp]latforms? #\\d+(?:#\\d+|,| |-|and)*[^\\n]*"
-      # --- CVL (#) ---
+    # --- CVL (#) ---
     - "CVL[\\s#]*?(\\d{1,4})"
-      # --- PAA (#) ---
+    # --- PAA (#) ---
     - "PAA[: #]*?\\d{1,4}"
-      # --- (#) Type ---
+    # --- (#) Type ---
     - "(?:#|cert\\.?|sample|Cert\\.?|Certificate)[\\s#]*?(\\d+)?\\s*?(?:AES|SHS|SHA|RSA|HMAC|Diffie-Hellman|DRBG|DES|CVL)"
-      # --- PKCS (#) ---
+    # --- PKCS (#) ---
     - "PKCS[\\s]?#?\\d+"
     - "PKSC[\\s]?#?\\d+"  # typo, #625
-      # --- # C and # A (just in case) ---
+    # --- # C and # A (just in case) ---
     - "#\\s+?[Cc]\\d+"
     - "#\\s+?[Aa]\\d+"
 

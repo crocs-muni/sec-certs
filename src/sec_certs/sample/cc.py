@@ -292,7 +292,7 @@ class CCCertificate(
             labs = [
                 data["cert_lab"].split(" ")[0].upper()
                 for data in [self.bsi_data, self.anssi_data, self.niap_data, self.nscib_data, self.canada_data]
-                if data
+                if data and "cert_lab" in data
             ]
             return labs if labs else None
 
