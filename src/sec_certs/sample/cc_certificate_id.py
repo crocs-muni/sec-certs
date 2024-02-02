@@ -126,7 +126,7 @@ class CertificateId:
         new_cert_id = self.clean
         if new_cert_id.startswith("CC-"):
             new_cert_id = f"NSCIB-{new_cert_id}"
-        if not new_cert_id.endswith("-CR"):
+        if not re.match(".*-(CR|MA|MR)[0-9]*$", new_cert_id):
             new_cert_id = f"{new_cert_id}-CR"
         return new_cert_id
 

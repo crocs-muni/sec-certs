@@ -21,14 +21,12 @@ cc_cert_id:
     - "Certification Report [0-9]+/[0-9]+" # French or Australia! Solved because we limit ourselves to scheme when doing heuristics.
     - "Rapport de certification [0-9]+/[0-9]+"  # French
   NL:
-    - "NSCIB-CC-[0-9]{4}.+?"  # Netherlands
-    - "NSCIB-CC-[0-9]{4}[0-9]*-CR"  # Netherlands
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+?-CR[0-9]+?"  # Netherlands
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+(-CR[0-9]+)*"  # Netherlands (old number NSCIB-CC-05-6609 or NSCIB-CC-05-6609-CR)
-    - "NSCIB-CC-[0-9]+-CR[0-9]*"  # Netherlands (new number NSCIB-CC-111441-CR NSCIB-CC-111441-CR1)
-    - "NSCIB-CC-[0-9]+-MA[0-9]*"  # Netherlands (new number NSCIB-CC-222073-MA NSCIB-CC-200716-MA2)
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+"  # Netherlands   (old number NSCIB-CC-05-6609)
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+-CR[0-9]+"  # Netherlands (NSCIB-CC-year2digits-number-CR)
+    - "(?:NSCIB-|CC-|NSCIB-CC-)(?P<core>((?P<year>[0-9]{2})-)?(?:-?[0-9]+)+)(?:-?(?P<doc>(?:CR|MA|MR)[0-9]*))?"
+    # Examples:
+    # NSCIB-CC-22-0428888-CR2  (with year=22 and CR2)
+    # NSCIB-CC-228723-CR  (no year)
+    # CC-16-31801-CR4  (no NSCIB)
+    # NSCIB-CC-98209   (no year, no CR)
   "NO":
     - "SERTIT-[0-9]+"  # Norway
   US:

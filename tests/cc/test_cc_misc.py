@@ -45,3 +45,9 @@ def test_canonicalize_jp():
 
 def test_canonicalize_no():
     assert canonicalize("SERTIT-12", "NO") == "SERTIT-012"
+
+
+def test_canonicalize_nl():
+    assert canonicalize("NSCIB-CC-22-0428888-CR2", "NL") == "NSCIB-CC-22-0428888-CR2"
+    assert canonicalize("NSCIB-CC-22-0428888", "NL") == "NSCIB-CC-22-0428888-CR"
+    assert canonicalize("CC-22-0428888", "NL") == "NSCIB-CC-22-0428888-CR"
