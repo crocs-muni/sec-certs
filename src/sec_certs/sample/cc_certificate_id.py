@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from sec_certs.cert_rules import rules
+
 
 @dataclass(eq=True, frozen=True)
 class CertificateId:
@@ -14,22 +16,20 @@ class CertificateId:
     raw: str
 
     def _canonical_fr(self) -> str:
-        def pad_last_segment_with_zero(id_str: str) -> str:
-            splitted = id_str.split("/")
-            if len(splitted) > 1:
-                num = splitted[-1].zfill(2)
-                return f"{''.join(splitted[:-1])}/{num}"
-            return id_str
-
         new_cert_id = self.clean
-        rules = [
-            "(?:Rapport de certification|Certification Report) ([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
-            "(?:ANSS[Ii]|DCSSI)(?:-CC)?[- ]([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
-            "([0-9]+[/-_][0-9]+(?:[vV][1-9])?(?:[_/-][MSR][0-9]+)?)",
-        ]
-        for rule in rules:
+        for rule in rules["cc_cert_id"]["FR"]:
             if match := re.match(rule, new_cert_id):
-                return pad_last_segment_with_zero("ANSSI-CC-" + match.group(1).replace("_", "/").replace("V", "v"))
+                groups = match.groupdict()
+                year = int(groups["year"]) if len(groups["year"]) == 4 else int(groups["year"]) + 2000
+                counter = groups["counter"]
+                doc = groups.get("doc")
+                version = groups.get("version")
+                new_cert_id = f"ANSSI-CC-{year}/{counter}"
+                if doc:
+                    new_cert_id += f"-{doc}"
+                if version:
+                    new_cert_id += f"v{version}"
+                return new_cert_id
 
         return new_cert_id
 
