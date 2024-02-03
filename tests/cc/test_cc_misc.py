@@ -53,9 +53,9 @@ def test_canonicalize_ca():
 
 
 def test_canonicalize_jp():
-    assert canonicalize("Certification No. C01234", "JP") == "C01234"
-    assert canonicalize("CRP-C01234-01", "JP") == "C01234"
-    assert canonicalize("JISEC-CC-CRP-C0689-01-2020", "JP") == "C0689"
+    assert canonicalize("Certification No. C01234", "JP") == "JISEC-CC-CRP-C01234"
+    assert canonicalize("CRP-C01234-01", "JP") == "JISEC-CC-CRP-C01234-01"
+    assert canonicalize("JISEC-CC-CRP-C0689-01-2020", "JP") == "JISEC-CC-CRP-C0689-01-2020"
 
 
 def test_canonicalize_no():

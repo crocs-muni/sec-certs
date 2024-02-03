@@ -147,10 +147,18 @@ class CertificateId:
 
     def _canonical_jp(self):
         new_cert_id = self.clean
-        if match := re.match("Certification No. (C[0-9]+)", new_cert_id):
-            return match.group(1)
-        if match := re.search("CRP-(C[0-9]+)-", new_cert_id):
-            return match.group(1)
+        for rule in rules["cc_cert_id"]["JP"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                counter = groups["counter"]
+                digit = groups.get("digit")
+                year = _parse_year(groups.get("year"))
+                new_cert_id = f"JISEC-CC-CRP-C{counter}"
+                if digit:
+                    new_cert_id += f"-{digit}"
+                if year:
+                    new_cert_id += f"-{year}"
+                break
         return new_cert_id
 
     def _canonical_no(self):

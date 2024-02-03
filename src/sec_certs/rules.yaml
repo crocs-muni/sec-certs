@@ -56,9 +56,13 @@ cc_cert_id:
     # - "KECS[-‐]CR[-‐][0-9]+[-‐][0-9]+"  # Korea KECS-CR-20-61
     - "KECS[-‐](?:ISIS|NISS|CISS)[-‐][0-9]+[-‐][0-9]{4}"  # Korea KECS-ISIS-1234-2011
   JP:
-    - "(?:CRP|ACR)-C[0-9]+-[0-9]+"  # Japan (CRP-C0595-01 ACR-C0417-03)
-    - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
-    - "Certification No. [cC][0-9]+" # Japan (Certification No. C0090)
+    - "(?:CRP|ACR)-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)"
+    - "JISEC-CC-CRP-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)-(?P<year>[0-9]{4})"
+    - "Certification No. [cC](?P<counter>[0-9]+)"
+    # Examples:
+    # CRP-C0595-01
+    # JISEC-CC-CRP-C0689-01-2020
+    # Certification No. C0090
   MY:
     - "ISCB-(?P<digit>[0-9])-RPT-C(?P<counter>[0-9]{3})-CR(?:-[0-9])?-(?P<version>[vV][0-9][a-z]?)"
     # Examples:
