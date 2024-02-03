@@ -103,19 +103,17 @@ class CertificateId:
         return new_cert_id
 
     def _canonical_es(self) -> str:
-        cert_id = self.clean
-        spain_parts = cert_id.split("-")
-        cert_year = spain_parts[0]
-        cert_batch = spain_parts[1].lstrip("0")
-        cert_num = spain_parts[3].lstrip("0")
-
-        if "v" in cert_num:
-            cert_num = cert_num[: cert_num.find("v")]
-        if "V" in cert_num:
-            cert_num = cert_num[: cert_num.find("V")]
-
-        new_cert_id = f"{cert_year}-{cert_batch}-INF-{cert_num.strip()}"  # drop version # TODO: Maybe do not drop?
-
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["ES"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                year = _parse_year(groups["year"])
+                project = groups["project"]
+                counter = groups["counter"]
+                # Version is intentionally cut here, as it seems to refer to an internal version of the report.
+                # version = groups["version"]
+                new_cert_id = f"{year}-{project}-INF-{counter}"
+                break
         return new_cert_id
 
     def _canonical_it(self):

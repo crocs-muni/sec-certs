@@ -52,7 +52,11 @@ cc_cert_id:
     # CRP208
     # CERTIFICATION REPORT No. P123A
   ES:
-    - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+([-‐]?[ -‐](?:V|v)[0-9]+)?"  # Spain ("2006-4-INF-98 v2" or "2006-4-INF-98-v2" or "2020-34-INF-3784- v1")
+    - "(?P<year>[0-9]{4})[-‐](?P<project>[0-9]+)[-‐]INF[-‐](?P<counter>[0-9]+)[ -‐]{1,2}[vV](?P<version>[0-9])"
+    # Examples:
+    # 2006-4-INF-98 v2
+    # 2020-34-INF-3784- v1
+    # 2019-20-INF-3379-v1
   KR:
     # Korea
     # XXX: Do not use KECS-CR as those refer to the certificate report and do not represent the certificate id.
