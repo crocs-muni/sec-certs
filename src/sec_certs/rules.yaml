@@ -77,8 +77,12 @@ cc_cert_id:
     # ISCB-5-RPT-C075-CR-v2
     # ISCB-5-RPT-C046-CR-V1a
   IT:
-    - "OCSI/CERT/.+?"  # Italy
-    - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
+    - "OCSI/CERT/(?:(?P<lab>[A-Z]{3})/)?(?P<counter>[0-9]{2,3})/(?P<year>[0-9]{4})/RC"
+    # Examples:
+    # OCSI/CERT/SYS/04/2018/RC
+    # OCSI/CERT/CCL/10/2022/RC
+    # OCSI/CERT/TEC/09/2017/RC
+    # OCSI/CERT/ATS/06/2020/RC
   TR:
     - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
     - "(?:[0-9]{1,2}\\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028

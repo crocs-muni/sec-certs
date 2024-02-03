@@ -116,13 +116,6 @@ class CertificateId:
                 break
         return new_cert_id
 
-    def _canonical_it(self):
-        new_cert_id = self.clean
-        if not new_cert_id.endswith("/RC"):
-            new_cert_id = new_cert_id + "/RC"
-
-        return new_cert_id
-
     def _canonical_in(self):
         return self.clean.replace(" ", "")
 
@@ -217,7 +210,6 @@ class CertificateId:
             "US": self._canonical_us,
             "MY": self._canonical_my,
             "ES": self._canonical_es,
-            "IT": self._canonical_it,
             "IN": self._canonical_in,
             "SE": self._canonical_se,
             "UK": self._canonical_uk,
@@ -227,6 +219,7 @@ class CertificateId:
             "NL": self._canonical_nl,
             "AU": self._canonical_au,
             # SG is canonical by default
+            # IT is canonucal by default
         }
 
         if self.scheme in schemes:
