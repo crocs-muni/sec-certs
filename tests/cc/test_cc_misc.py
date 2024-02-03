@@ -13,6 +13,12 @@ def test_canonicalize_de():
     assert canonicalize("BSI-DSZ-CC-0837-V2-2014-MA-01", "DE") == "BSI-DSZ-CC-0837-V2-2014-MA-01"
 
 
+def test_canonicalize_us():
+    assert canonicalize("CCEVS-VR-VID10015-2008", "US") == "CCEVS-VR-VID-10015-2008"
+    assert canonicalize("CCEVS-VR-10880-2018", "US") == "CCEVS-VR-10880-2018"
+    assert canonicalize("CCEVS-VR-04-0082", "US") == "CCEVS-VR-0082-2004"
+
+
 def test_canonicalize_es():
     assert canonicalize("2011-14-INF-1095-v1", "ES") == "2011-14-INF-1095"
 

@@ -10,7 +10,9 @@ def _parse_year(year: str | None) -> int | None:
     if year is None:
         return None
     y = int(year)
-    if y < 100:
+    if y < 50:
+        return y + 2000
+    elif y < 100:
         return y + 1900
     else:
         return y
@@ -39,7 +41,7 @@ class CertificateId:
                     new_cert_id += f"-{doc}"
                 if version:
                     new_cert_id += f"v{version}"
-                return new_cert_id
+                break
 
         return new_cert_id
 
@@ -63,7 +65,27 @@ class CertificateId:
                     new_cert_id += f"-{year}"
                 if doc:
                     new_cert_id += f"-{doc}"
-                return new_cert_id
+                break
+
+        return new_cert_id
+
+    def _canonical_us(self) -> str:
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["US"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                year = _parse_year(groups["year"])
+                counter = groups["counter"]
+                cc = groups.get("cc")
+                vid = groups.get("VID")
+                new_cert_id = "CCEVS-VR"
+                if cc:
+                    new_cert_id += f"-{cc}"
+                if vid:
+                    new_cert_id += f"-{vid}"
+                new_cert_id += f"-{counter}"
+                new_cert_id += f"-{year}"
+                break
 
         return new_cert_id
 
@@ -147,6 +169,7 @@ class CertificateId:
         schemes = {
             "FR": self._canonical_fr,
             "DE": self._canonical_de,
+            "US": self._canonical_us,
             "ES": self._canonical_es,
             "IT": self._canonical_it,
             "IN": self._canonical_in,

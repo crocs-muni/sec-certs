@@ -34,7 +34,12 @@ cc_cert_id:
     # Examples:
     # SERTIT-101
   US:
-    - "CCEVS-VR-(?:CC-|VID)?[0-9]+-[0-9]+[a-z]?(?:-[0-9]+)?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
+    - "CCEVS-VR-(?:(?P<cc>CC)-)?(?:(?P<VID>VID)-?)?(?P<year>[0-9]{2})-(?P<counter>[0-9]+)"
+    - "CCEVS-VR-(?:(?P<cc>CC)-)?(?:(?P<VID>VID)-?)?(?P<counter>[0-9]{4,5})-(?P<year>[0-9]{4})?"
+    # Examples:
+    # CCEVS-VR-VID10015-2008
+    # CCEVS-VR-10880-2018
+    # CCEVS-VR-04-0082
   CA:
     # '[0-9][0-9\-]+?-CR', # Canada
     - "[0-9][0-9][0-9]-[347]-[0-9][0-9][0-9]?(?:-CR|P)?"  # Canada xxx-{347}-xxx (383-4-438, 383-4-82-CR, 383-4-422P)
