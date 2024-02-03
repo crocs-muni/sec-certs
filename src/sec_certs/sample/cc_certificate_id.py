@@ -183,6 +183,21 @@ class CertificateId:
             new_cert_id = f"{new_cert_id}-CR"
         return new_cert_id
 
+    def _canonical_au(self):
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["AU"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                counter = groups["counter"]
+                year_s = groups["year"]
+                if len(year_s) < len(counter):
+                    # Hack for some mistakes in their ordering
+                    year_s, counter = counter, year_s
+                year = _parse_year(year_s)
+                new_cert_id = f"Certificate Number: {year}/{counter}"
+                break
+        return new_cert_id
+
     @property
     def clean(self) -> str:
         """
@@ -210,6 +225,8 @@ class CertificateId:
             "JP": self._canonical_jp,
             "NO": self._canonical_no,
             "NL": self._canonical_nl,
+            "AU": self._canonical_au,
+            # SG is canonical by default
         }
 
         if self.scheme in schemes:

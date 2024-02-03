@@ -49,6 +49,13 @@ def test_canonicalize_uk():
     assert canonicalize("CRP123A", "UK") == "CRP123A"
 
 
+def test_canonicalize_au():
+    assert canonicalize("Certification Report 2007/02", "AU") == "Certificate Number: 2007/02"
+    assert canonicalize("Certificate Number: 37/2006", "AU") == "Certificate Number: 2006/37"
+    assert canonicalize("Certificate Number: 2011/73", "AU") == "Certificate Number: 2011/73"
+    assert canonicalize("Certification Report 97/76", "AU") == "Certificate Number: 1997/76"
+
+
 def test_canonicalize_ca():
     assert canonicalize("383-4-123-CR", "CA") == "383-4-123"
     assert canonicalize("383-4-123P", "CA") == "383-4-123"
