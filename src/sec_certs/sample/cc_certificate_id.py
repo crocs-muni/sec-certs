@@ -129,7 +129,14 @@ class CertificateId:
         return self.clean.replace(" ", "")
 
     def _canonical_se(self):
-        return self.clean.replace(" ", "")
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["SE"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                year = _parse_year(groups["year"])
+                counter = int(groups["counter"])
+                new_cert_id = f"CSEC{year}{counter:03}"
+        return new_cert_id
 
     def _canonical_uk(self):
         new_cert_id = self.clean

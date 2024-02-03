@@ -4,6 +4,7 @@ from sec_certs.sample.cc_certificate_id import canonicalize
 def test_canonicalize_fr():
     assert canonicalize("Rapport de certification 2001/02v2", "FR") == "ANSSI-CC-2001/02v2"
     assert canonicalize("ANSSI-CC 2001/02-R01", "FR") == "ANSSI-CC-2001/02-R01"
+    assert canonicalize("ANSSI-CC 2001_02-M01", "FR") == "ANSSI-CC-2001/02-M01"
 
 
 def test_canonicalize_de():
@@ -40,6 +41,7 @@ def test_canonicalize_in():
 def test_canonicalize_se():
     assert canonicalize("CSEC2017020", "SE") == "CSEC2017020"
     assert canonicalize("CSEC 2017020", "SE") == "CSEC2017020"
+    assert canonicalize("CSEC201003", "SE") == "CSEC2010003"
 
 
 def test_canonicalize_uk():

@@ -79,7 +79,10 @@ cc_cert_id:
     - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
     - "(?:[0-9]{1,2}\\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028
   SE:
-    - "CSEC ?[0-9]{6,7}"  # Sweden (CSEC2019015)
+    - "CSEC ?(?P<year>[0-9]{4})(?P<counter>[0-9]{2,3})"
+    # Examples:
+    # CSEC2019015
+    # CSEC 2019012
   IN:
     # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
     # will miss STQC/CC/14-15/12/ETR/0017
