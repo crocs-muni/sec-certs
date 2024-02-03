@@ -19,6 +19,12 @@ def test_canonicalize_us():
     assert canonicalize("CCEVS-VR-04-0082", "US") == "CCEVS-VR-0082-2004"
 
 
+def test_canonicalize_my():
+    assert canonicalize("ISCB-5-RPT-C075-CR-v2", "MY") == "ISCB-5-RPT-C075-CR-v2"
+    assert canonicalize("ISCB-5-RPT-C046-CR-V1a", "MY") == "ISCB-5-RPT-C046-CR-v1a"
+    assert canonicalize("ISCB-3-RPT-C068-CR-1-v1", "MY") == "ISCB-3-RPT-C068-CR-v1"
+
+
 def test_canonicalize_es():
     assert canonicalize("2011-14-INF-1095-v1", "ES") == "2011-14-INF-1095"
 

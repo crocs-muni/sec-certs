@@ -89,6 +89,19 @@ class CertificateId:
 
         return new_cert_id
 
+    def _canonical_my(self) -> str:
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["MY"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                digit = groups["digit"]
+                counter = groups["counter"]
+                version = groups["version"]
+                new_cert_id = f"ISCB-{digit}-RPT-C{counter}-CR-{version.lower()}"
+                break
+
+        return new_cert_id
+
     def _canonical_es(self) -> str:
         cert_id = self.clean
         spain_parts = cert_id.split("-")
@@ -170,6 +183,7 @@ class CertificateId:
             "FR": self._canonical_fr,
             "DE": self._canonical_de,
             "US": self._canonical_us,
+            "MY": self._canonical_my,
             "ES": self._canonical_es,
             "IT": self._canonical_it,
             "IN": self._canonical_in,

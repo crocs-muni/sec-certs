@@ -60,7 +60,11 @@ cc_cert_id:
     - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
     - "Certification No. [cC][0-9]+" # Japan (Certification No. C0090)
   MY:
-    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9])?-[vV][0-9](?:\\.[0-9])?[a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
+    - "ISCB-(?P<digit>[0-9])-RPT-C(?P<counter>[0-9]{3})-CR(?:-[0-9])?-(?P<version>[vV][0-9][a-z]?)"
+    # Examples:
+    # ISCB-3-RPT-C068-CR-1-v1
+    # ISCB-5-RPT-C075-CR-v2
+    # ISCB-5-RPT-C046-CR-V1a
   IT:
     - "OCSI/CERT/.+?"  # Italy
     - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
