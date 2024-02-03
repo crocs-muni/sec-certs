@@ -133,8 +133,12 @@ class CertificateId:
 
     def _canonical_uk(self):
         new_cert_id = self.clean
-        if match := re.match("CERTIFICATION REPORT No. P([0-9]+[A-Z]?)", new_cert_id):
-            new_cert_id = "CRP" + match.group(1)
+        for rule in rules["cc_cert_id"]["UK"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                counter = groups["counter"]
+                new_cert_id = f"CRP{counter}"
+                break
         return new_cert_id
 
     def _canonical_ca(self):

@@ -46,8 +46,11 @@ cc_cert_id:
     - "[0-9][0-9][0-9][ -](?:EWA|LSS|CCS)(?:[ -]20[0-9][0-9])?"  # Canada (522-EWA-2020, 524 LSS 2020, 503-LSS)
     - "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
   UK:
-    - "CRP[0-9]+[A-Z]?"  # UK CESG
-    - "CERTIFICATION REPORT No. P[0-9]+[A-Z]?"  # UK CESG
+    - "CRP(?P<counter>[0-9]+[A-Z]?)"
+    - "CERTIFICATION REPORT No. P(?P<counter>[0-9]+[A-Z]?)"
+    # Examples:
+    # CRP208
+    # CERTIFICATION REPORT No. P123A
   ES:
     - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+([-‐]?[ -‐](?:V|v)[0-9]+)?"  # Spain ("2006-4-INF-98 v2" or "2006-4-INF-98-v2" or "2020-34-INF-3784- v1")
   KR:
