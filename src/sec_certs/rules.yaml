@@ -126,11 +126,11 @@ cc_cert_id:
 #####
 cc_filename_cert_id:
   DE:
-    - "(?P<counter>[0-9]{3,5})(?:(?P<version>[vV][0-9]))?a?(?:_pdf)?"
+    #- "(?P<counter>[0-9]{3,5})(?:(?P<version>[vV][0-9]))?a?(?:_pdf)?"
     - "(?P<year>[0-9]{4})(?P<month>[0-9]{2})(?P<day>[0-9]{2})_(?P<counter>[0-9]{3,5})(?:(?P<version>[vV][0-9]))?a?(?:_pdf)?"
   FR:
     - "(?P<year>[0-9]{4})[_-](?P<counter>[0-9]{2})([vV](?P<version>[0-9]))?"
-    - "(?P<year>[0-9]{2})(?P<counter>[0-9]{2})([vV](?P<version>[0-9]))?"
+    #- "(?P<year>[0-9]{2})(?P<counter>[0-9]{2})([vV](?P<version>[0-9]))?"
   NL:
     - "(?:NSCIB-|CC-|NSCIB-CC-)(?P<core>((?P<year>[0-9]{2})-)?(?:-?[0-9]+)+)(?:-?(?P<doc>(?:CR|MA|MR)[0-9]*))?"
   "NO":

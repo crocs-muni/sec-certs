@@ -338,13 +338,16 @@ class CCCertificate(
             if not self.report_filename:
                 return {}
             scheme_filename_rules = rules["cc_filename_cert_id"][scheme]
+            if not scheme_filename_rules:
+                return {}
             scheme_meta = schemes[scheme]
             matches: Counter = Counter()
             for rule in scheme_filename_rules:
                 match = re.search(rule, self.report_filename)
                 if match:
                     try:
-                        cert_id = scheme_meta(match.groupdict())
+                        meta = match.groupdict()
+                        cert_id = scheme_meta(meta)
                         matches[cert_id] += 1
                     except Exception:
                         continue
