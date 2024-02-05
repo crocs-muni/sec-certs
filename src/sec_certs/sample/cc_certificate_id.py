@@ -182,6 +182,28 @@ def IT(meta) -> str:
     return cert_id
 
 
+# We have rules for some schemes to make canonical cert_ids.
+schemes = {
+    "FR": FR,
+    "DE": DE,
+    "US": US,
+    "MY": MY,
+    "ES": ES,
+    "IN": IN,
+    "SE": SE,
+    "UK": UK,
+    "CA": CA,
+    "JP": JP,
+    "NO": NO,
+    "NL": NL,
+    "AU": AU,
+    "KR": KR,
+    "TR": TR,
+    "SG": SG,
+    "IT": IT,
+}
+
+
 @dataclass(frozen=True)
 class CertificateId:
     """
@@ -210,26 +232,6 @@ class CertificateId:
         """
         The canonical version of this certificate id.
         """
-        # We have rules for some schemes to make canonical cert_ids.
-        schemes = {
-            "FR": FR,
-            "DE": DE,
-            "US": US,
-            "MY": MY,
-            "ES": ES,
-            "IN": IN,
-            "SE": SE,
-            "UK": UK,
-            "CA": CA,
-            "JP": JP,
-            "NO": NO,
-            "NL": NL,
-            "AU": AU,
-            "KR": KR,
-            "TR": TR,
-            "SG": SG,
-            "IT": IT,
-        }
         clean = self.clean
 
         if self.scheme in schemes:

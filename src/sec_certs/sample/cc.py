@@ -19,7 +19,7 @@ import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
-from sec_certs.sample.cc_certificate_id import canonicalize
+from sec_certs.sample.cc_certificate_id import canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -337,13 +337,17 @@ class CCCertificate(
             """
             if not self.report_filename:
                 return {}
-            scheme_rules = rules["cc_cert_id"][scheme]
+            scheme_filename_rules = rules["cc_filename_cert_id"][scheme]
+            scheme_meta = schemes[scheme]
             matches: Counter = Counter()
-            for rule in scheme_rules:
+            for rule in scheme_filename_rules:
                 match = re.search(rule, self.report_filename)
                 if match:
-                    cert_id = normalize_match_string(match.group())
-                    matches[cert_id] += 1
+                    try:
+                        cert_id = scheme_meta(match.groupdict())
+                        matches[cert_id] += 1
+                    except Exception:
+                        continue
             if not matches:
                 return {}
             total = max(matches.values())
