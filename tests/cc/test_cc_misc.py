@@ -63,13 +63,18 @@ def test_canonicalize_jp():
     assert canonicalize("JISEC-CC-CRP-C0689-01-2020", "JP") == "JISEC-CC-CRP-C0689-01-2020"
 
 
-def test_canonicalize_KR():
+def test_canonicalize_kr():
     assert canonicalize("KECS-ISIS-0579-2015", "KR") == "KECS-ISIS-0579-2015"
     assert canonicalize("KECS-CISS-10-2023", "KR") == "KECS-CISS-0010-2023"
 
 
 def test_canonicalize_no():
     assert canonicalize("SERTIT-12", "NO") == "SERTIT-012"
+
+
+def test_canonicalize_tr():
+    assert canonicalize("21.0.03.0.00.00/TSE-CCCS-85", "TR") == "21.0.03.0.00.00/TSE-CCCS-85"
+    assert canonicalize("21.0.03/TSE-CCCS-33", "TR") == "21.0.03/TSE-CCCS-33"
 
 
 def test_canonicalize_nl():

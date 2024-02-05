@@ -86,8 +86,11 @@ cc_cert_id:
     # OCSI/CERT/TEC/09/2017/RC
     # OCSI/CERT/ATS/06/2020/RC
   TR:
-    - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
-    - "(?:[0-9]{1,2}\\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028
+    - "(?P<prefix>[0-9\\.]+)/TSE-CCCS-(?P<number>[0-9]+)"
+    # XXX: The report numbers are like "21.0.01/13-028"
+    # Examples:
+    # 21.0.03.0.00.00/TSE-CCCS-85
+    # 21.0.03/TSE-CCCS-33
   SE:
     - "CSEC ?(?P<year>[0-9]{4})(?P<counter>[0-9]{2,3})"
     # Examples:

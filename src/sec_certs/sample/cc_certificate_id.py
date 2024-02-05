@@ -185,6 +185,17 @@ class CertificateId:
                 break
         return new_cert_id
 
+    def _canonical_tr(self):
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["TR"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                prefix = groups["prefix"]
+                number = groups["number"]
+                new_cert_id = f"{prefix}/TSE-CCCS-{number}"
+                break
+        return new_cert_id
+
     def _canonical_no(self):
         new_cert_id = self.clean
         cert_num = int(new_cert_id.split("-")[1])
@@ -241,6 +252,7 @@ class CertificateId:
             "NL": self._canonical_nl,
             "AU": self._canonical_au,
             "KR": self._canonical_kr,
+            "TR": self._canonical_tr,
             # SG is canonical by default
             # IT is canonical by default
         }
