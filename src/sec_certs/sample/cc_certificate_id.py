@@ -163,6 +163,18 @@ class CertificateId:
                 break
         return new_cert_id
 
+    def _canonical_kr(self):
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["KR"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                word = groups["word"]
+                counter = int(groups["counter"])
+                year = _parse_year(groups["year"])
+                new_cert_id = f"KECS-{word}-{counter:04}-{year}"
+                break
+        return new_cert_id
+
     def _canonical_no(self):
         new_cert_id = self.clean
         cert_num = int(new_cert_id.split("-")[1])
@@ -218,6 +230,7 @@ class CertificateId:
             "NO": self._canonical_no,
             "NL": self._canonical_nl,
             "AU": self._canonical_au,
+            "KR": self._canonical_kr,
             # SG is canonical by default
             # IT is canonucal by default
         }

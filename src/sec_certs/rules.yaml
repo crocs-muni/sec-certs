@@ -58,10 +58,12 @@ cc_cert_id:
     # 2020-34-INF-3784- v1
     # 2019-20-INF-3379-v1
   KR:
-    # Korea
+    - "KECS[-‐](?P<word>ISIS|NISS|CISS)[-‐](?P<counter>[0-9]{2,4})[-‐](?P<year>[0-9]{4})"
     # XXX: Do not use KECS-CR as those refer to the certificate report and do not represent the certificate id.
-    # - "KECS[-‐]CR[-‐][0-9]+[-‐][0-9]+"  # Korea KECS-CR-20-61
-    - "KECS[-‐](?:ISIS|NISS|CISS)[-‐][0-9]+[-‐][0-9]{4}"  # Korea KECS-ISIS-1234-2011
+    # Examples:
+    # KECS-ISIS-0579-2015
+    # KECS-NISS-0792-2017
+    # KECS-CISS-1210-2023
   JP:
     - "(?:CRP|ACR)-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)"
     - "JISEC-CC-CRP-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)-(?P<year>[0-9]{4})"
