@@ -117,7 +117,17 @@ class CertificateId:
         return new_cert_id
 
     def _canonical_in(self):
-        return self.clean.replace(" ", "")
+        new_cert_id = self.clean
+        for rule in rules["cc_cert_id"]["IN"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                lab = groups["lab"]
+                vendor = groups["vendor"]
+                level = groups["level"]
+                number1, number2 = groups["number1"], groups["number2"]
+                new_cert_id = f"IC3S/{lab}/{vendor}/{level}/{number1}/{number2}"
+                break
+        return new_cert_id
 
     def _canonical_se(self):
         new_cert_id = self.clean
@@ -232,7 +242,7 @@ class CertificateId:
             "AU": self._canonical_au,
             "KR": self._canonical_kr,
             # SG is canonical by default
-            # IT is canonucal by default
+            # IT is canonical by default
         }
 
         if self.scheme in schemes:

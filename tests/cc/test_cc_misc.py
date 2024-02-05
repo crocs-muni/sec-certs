@@ -31,7 +31,7 @@ def test_canonicalize_es():
 
 
 def test_canonicalize_in():
-    assert canonicalize("IC3S/KOL01/ADVA/EAL2/0520/0021 /CR", "IN") == "IC3S/KOL01/ADVA/EAL2/0520/0021/CR"
+    assert canonicalize("IC3S/KOL01/ADVA/EAL2/0520/0021 /CR", "IN") == "IC3S/KOL01/ADVA/EAL2/0520/0021"
 
 
 def test_canonicalize_se():

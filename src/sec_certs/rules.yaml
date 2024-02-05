@@ -94,9 +94,13 @@ cc_cert_id:
     # CSEC2019015
     # CSEC 2019012
   IN:
-    # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
-    # will miss STQC/CC/14-15/12/ETR/0017
-    - "(?:IC3S|STQC/CC)/[^ ]+? ?/CR"
+    - "IC3S/(?P<lab>[A-Z]+[0-9]+)/(?P<vendor>[a-zA-Z_]+)/(?P<level>[a-zA-Z0-9]+)/(?P<number1>[0-9]+)/(?P<number2>[0-9]+) ?(?:/CR)?"
+    # XXX: The cert IDs are often present only in the certificate and not in the report.
+    #      The report often only has the report id, of the format "STQC/CC/1617/18/CR"
+    # Examples:
+    # IC3S/BG01/HALTDOS/EAL2/0317/0008/CR
+    # IC3S/KOL01/ADVA/EAL2/0520/0021/CR
+    # IC3S/MUM01/Symantec/NDcPP/0722/0032/CR
   SG:
     - "CSA_CC_(?P<year>[0-9]{2})(?P<counter>[0-9]{3})"
     # Examples:
