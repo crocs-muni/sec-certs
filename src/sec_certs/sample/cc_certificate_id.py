@@ -19,6 +19,169 @@ def _parse_year(year: str | None) -> int | None:
         return y
 
 
+def FR(meta) -> str:
+    year = _parse_year(meta["year"])
+    counter = meta["counter"]
+    doc = meta.get("doc")
+    version = meta.get("version")
+    cert_id = f"ANSSI-CC-{year}/{counter}"
+    if doc:
+        cert_id += f"-{doc}"
+    if version:
+        cert_id += f"v{version}"
+    return cert_id
+
+
+def DE(meta) -> str:
+    s = meta.get("s")
+    counter = meta["counter"]
+    version = meta.get("version")
+    year = _parse_year(meta.get("year"))
+    doc = meta.get("doc")
+    cert_id = "BSI-DSZ-CC"
+    if s:
+        cert_id += f"-{s}"
+    cert_id += f"-{counter}"
+    if version:
+        cert_id += f"-{version.upper()}"
+    if year:
+        cert_id += f"-{year}"
+    if doc:
+        cert_id += f"-{doc}"
+    return cert_id
+
+
+def US(meta) -> str:
+    year = _parse_year(meta["year"])
+    counter = meta["counter"]
+    cc = meta.get("cc")
+    vid = meta.get("VID")
+    cert_id = "CCEVS-VR"
+    if cc:
+        cert_id += f"-{cc}"
+    if vid:
+        cert_id += f"-{vid}"
+    cert_id += f"-{counter}"
+    cert_id += f"-{year}"
+    return cert_id
+
+
+def MY(meta) -> str:
+    digit = meta["digit"]
+    counter = meta["counter"]
+    version = meta["version"]
+    return f"ISCB-{digit}-RPT-C{counter}-CR-{version.lower()}"
+
+
+def ES(meta) -> str:
+    year = _parse_year(meta["year"])
+    project = meta["project"]
+    counter = meta["counter"]
+    # Version is intentionally cut here, as it seems to refer to an internal version of the report.
+    # version = groups["version"]
+    return f"{year}-{project}-INF-{counter}"
+
+
+def IN(meta) -> str:
+    lab = meta["lab"]
+    vendor = meta["vendor"]
+    level = meta["level"]
+    number1, number2 = meta["number1"], meta["number2"]
+    return f"IC3S/{lab}/{vendor}/{level}/{number1}/{number2}"
+
+
+def SE(meta) -> str:
+    year = _parse_year(meta["year"])
+    counter = int(meta["counter"])
+    return f"CSEC{year}{counter:03}"
+
+
+def UK(meta) -> str:
+    counter = meta["counter"]
+    return f"CRP{counter}"
+
+
+def CA(meta) -> str:
+    if "lab" in meta:
+        year = _parse_year(meta.get("year"))
+        number = meta["number"]
+        lab = meta["lab"]
+        cert_id = f"{number}-{lab}"
+        if year:
+            cert_id += f"-{year}"
+        return cert_id
+    else:
+        number1 = meta["number1"]
+        digit = meta["digit"]
+        number2 = meta["number2"]
+        return f"{number1}-{digit}-{number2}"
+
+
+def JP(meta) -> str:
+    counter = meta["counter"]
+    digit = meta.get("digit")
+    year = _parse_year(meta.get("year"))
+    cert_id = f"JISEC-CC-CRP-C{counter}"
+    if digit:
+        cert_id += f"-{digit}"
+    if year:
+        cert_id += f"-{year}"
+    return cert_id
+
+
+def KR(meta) -> str:
+    word = meta["word"]
+    counter = int(meta["counter"])
+    year = _parse_year(meta["year"])
+    return f"KECS-{word}-{counter:04}-{year}"
+
+
+def TR(meta) -> str:
+    prefix = meta["prefix"]
+    number = meta["number"]
+    return f"{prefix}/TSE-CCCS-{number}"
+
+
+def NO(meta) -> str:
+    counter = int(meta["counter"])
+    return f"SERTIT-{counter:03}"
+
+
+def NL(meta) -> str:
+    core = meta["core"]
+    doc = meta.get("doc")
+    if doc is None:
+        doc = "CR"
+    return f"NSCIB-CC-{core}-{doc}"
+
+
+def AU(meta) -> str:
+    counter = meta["counter"]
+    year_s = meta["year"]
+    if len(year_s) < len(counter):
+        # Hack for some mistakes in their ordering
+        year_s, counter = counter, year_s
+    year = _parse_year(year_s)
+    return f"Certificate Number: {year}/{counter}"
+
+
+def SG(meta) -> str:
+    year = meta["year"]
+    counter = meta["counter"]
+    return f"CSA_CC_{year}{counter}"
+
+
+def IT(meta) -> str:
+    lab = meta.get("lab")
+    counter = meta["counter"]
+    year = _parse_year(meta["year"])
+    cert_id = "OCSI/CERT/"
+    if lab:
+        cert_id += f"{lab}/"
+    cert_id += f"{counter}/{year}/RC"
+    return cert_id
+
+
 @dataclass(frozen=True)
 class CertificateId:
     """
@@ -35,215 +198,6 @@ class CertificateId:
                 return match.groupdict()
         return {}
 
-    def _canonical_fr(self) -> str:
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["FR"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                year = _parse_year(groups["year"])
-                counter = groups["counter"]
-                doc = groups.get("doc")
-                version = groups.get("version")
-                new_cert_id = f"ANSSI-CC-{year}/{counter}"
-                if doc:
-                    new_cert_id += f"-{doc}"
-                if version:
-                    new_cert_id += f"v{version}"
-                break
-
-        return new_cert_id
-
-    def _canonical_de(self) -> str:
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["DE"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                s = groups.get("s")
-                counter = groups["counter"]
-                version = groups.get("version")
-                year = _parse_year(groups.get("year"))
-                doc = groups.get("doc")
-                new_cert_id = "BSI-DSZ-CC"
-                if s:
-                    new_cert_id += f"-{s}"
-                new_cert_id += f"-{counter}"
-                if version:
-                    new_cert_id += f"-{version.upper()}"
-                if year:
-                    new_cert_id += f"-{year}"
-                if doc:
-                    new_cert_id += f"-{doc}"
-                break
-
-        return new_cert_id
-
-    def _canonical_us(self) -> str:
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["US"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                year = _parse_year(groups["year"])
-                counter = groups["counter"]
-                cc = groups.get("cc")
-                vid = groups.get("VID")
-                new_cert_id = "CCEVS-VR"
-                if cc:
-                    new_cert_id += f"-{cc}"
-                if vid:
-                    new_cert_id += f"-{vid}"
-                new_cert_id += f"-{counter}"
-                new_cert_id += f"-{year}"
-                break
-
-        return new_cert_id
-
-    def _canonical_my(self) -> str:
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["MY"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                digit = groups["digit"]
-                counter = groups["counter"]
-                version = groups["version"]
-                new_cert_id = f"ISCB-{digit}-RPT-C{counter}-CR-{version.lower()}"
-                break
-
-        return new_cert_id
-
-    def _canonical_es(self) -> str:
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["ES"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                year = _parse_year(groups["year"])
-                project = groups["project"]
-                counter = groups["counter"]
-                # Version is intentionally cut here, as it seems to refer to an internal version of the report.
-                # version = groups["version"]
-                new_cert_id = f"{year}-{project}-INF-{counter}"
-                break
-        return new_cert_id
-
-    def _canonical_in(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["IN"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                lab = groups["lab"]
-                vendor = groups["vendor"]
-                level = groups["level"]
-                number1, number2 = groups["number1"], groups["number2"]
-                new_cert_id = f"IC3S/{lab}/{vendor}/{level}/{number1}/{number2}"
-                break
-        return new_cert_id
-
-    def _canonical_se(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["SE"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                year = _parse_year(groups["year"])
-                counter = int(groups["counter"])
-                new_cert_id = f"CSEC{year}{counter:03}"
-        return new_cert_id
-
-    def _canonical_uk(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["UK"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                counter = groups["counter"]
-                new_cert_id = f"CRP{counter}"
-                break
-        return new_cert_id
-
-    def _canonical_ca(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["CA"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                if "lab" in groups:
-                    year = _parse_year(groups.get("year"))
-                    number = groups["number"]
-                    lab = groups["lab"]
-                    new_cert_id = f"{number}-{lab}"
-                    if year:
-                        new_cert_id += f"-{year}"
-                else:
-                    number1 = groups["number1"]
-                    digit = groups["digit"]
-                    number2 = groups["number2"]
-                    new_cert_id = f"{number1}-{digit}-{number2}"
-                break
-        return new_cert_id
-
-    def _canonical_jp(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["JP"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                counter = groups["counter"]
-                digit = groups.get("digit")
-                year = _parse_year(groups.get("year"))
-                new_cert_id = f"JISEC-CC-CRP-C{counter}"
-                if digit:
-                    new_cert_id += f"-{digit}"
-                if year:
-                    new_cert_id += f"-{year}"
-                break
-        return new_cert_id
-
-    def _canonical_kr(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["KR"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                word = groups["word"]
-                counter = int(groups["counter"])
-                year = _parse_year(groups["year"])
-                new_cert_id = f"KECS-{word}-{counter:04}-{year}"
-                break
-        return new_cert_id
-
-    def _canonical_tr(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["TR"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                prefix = groups["prefix"]
-                number = groups["number"]
-                new_cert_id = f"{prefix}/TSE-CCCS-{number}"
-                break
-        return new_cert_id
-
-    def _canonical_no(self):
-        new_cert_id = self.clean
-        cert_num = int(new_cert_id.split("-")[1])
-        return f"SERTIT-{cert_num:03}"
-
-    def _canonical_nl(self):
-        new_cert_id = self.clean
-        if new_cert_id.startswith("CC-"):
-            new_cert_id = f"NSCIB-{new_cert_id}"
-        if not re.match(".*-(CR|MA|MR)[0-9]*$", new_cert_id):
-            new_cert_id = f"{new_cert_id}-CR"
-        return new_cert_id
-
-    def _canonical_au(self):
-        new_cert_id = self.clean
-        for rule in rules["cc_cert_id"]["AU"]:
-            if match := re.match(rule, new_cert_id):
-                groups = match.groupdict()
-                counter = groups["counter"]
-                year_s = groups["year"]
-                if len(year_s) < len(counter):
-                    # Hack for some mistakes in their ordering
-                    year_s, counter = counter, year_s
-                year = _parse_year(year_s)
-                new_cert_id = f"Certificate Number: {year}/{counter}"
-                break
-        return new_cert_id
-
     @property
     def clean(self) -> str:
         """
@@ -258,29 +212,33 @@ class CertificateId:
         """
         # We have rules for some schemes to make canonical cert_ids.
         schemes = {
-            "FR": self._canonical_fr,
-            "DE": self._canonical_de,
-            "US": self._canonical_us,
-            "MY": self._canonical_my,
-            "ES": self._canonical_es,
-            "IN": self._canonical_in,
-            "SE": self._canonical_se,
-            "UK": self._canonical_uk,
-            "CA": self._canonical_ca,
-            "JP": self._canonical_jp,
-            "NO": self._canonical_no,
-            "NL": self._canonical_nl,
-            "AU": self._canonical_au,
-            "KR": self._canonical_kr,
-            "TR": self._canonical_tr,
-            # SG is canonical by default
-            # IT is canonical by default
+            "FR": FR,
+            "DE": DE,
+            "US": US,
+            "MY": MY,
+            "ES": ES,
+            "IN": IN,
+            "SE": SE,
+            "UK": UK,
+            "CA": CA,
+            "JP": JP,
+            "NO": NO,
+            "NL": NL,
+            "AU": AU,
+            "KR": KR,
+            "TR": TR,
+            "SG": SG,
+            "IT": IT,
         }
+        clean = self.clean
 
         if self.scheme in schemes:
-            return schemes[self.scheme]()
+            return schemes[self.scheme](self.meta)
         else:
-            return self.clean
+            return clean
+
+    def __str__(self):
+        return self.canonical
 
     def __hash__(self):
         return hash((self.scheme, self.raw))

@@ -5,7 +5,7 @@
 #####
 cc_cert_id:
   DE:
-    - "BSI-DSZ-CC-(?:(?P<s>S)-)?(?P<counter>[0-9]{3,5})-(?:(?P<version>[vV][0-9])-)?(?P<year>[0-9]{4})?(?:-(?P<doc>(?:RA|MA)(?:-[0-9]+)?))?"
+    - "BSI-DSZ-CC-(?:(?P<s>S)-)?(?P<counter>[0-9]{3,5})-?(?:(?P<version>[vV][0-9])-)?(?P<year>[0-9]{4})?(?:-(?P<doc>(?:RA|MA)(?:-[0-9]+)?))?"
     # Examples:
     # BSI-DSZ-CC-1004
     # BSI-DSZ-CC-0973-2016
