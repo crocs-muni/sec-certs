@@ -19,7 +19,7 @@ def _parse_year(year: str | None) -> int | None:
         return y
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass(frozen=True)
 class CertificateId:
     """
     A Common Criteria certificate id.
