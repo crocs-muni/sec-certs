@@ -41,10 +41,14 @@ cc_cert_id:
     # CCEVS-VR-10880-2018
     # CCEVS-VR-04-0082
   CA:
-    # '[0-9][0-9\-]+?-CR', # Canada
-    - "[0-9][0-9][0-9]-[347]-[0-9][0-9][0-9]?(?:-CR|P)?"  # Canada xxx-{347}-xxx (383-4-438, 383-4-82-CR, 383-4-422P)
-    - "[0-9][0-9][0-9][ -](?:EWA|LSS|CCS)(?:[ -]20[0-9][0-9])?"  # Canada (522-EWA-2020, 524 LSS 2020, 503-LSS)
-    - "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
+    - "(?P<number1>[0-9]+)[ -](?P<digit>[0-9])[ -](?P<number2>[0-9]+)(?:-CR|P)?"
+    - "(?P<number>[0-9]+)[ -](?P<lab>EWA|LSS|CCS)(?:[ -](?P<year>[0-9]+))?"
+    # Examples:
+    # 383-4-123-CR
+    # 383-4-123P
+    # 522 EWA 2020
+    # Filename rule:
+    #- "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
   UK:
     - "CRP(?P<counter>[0-9]+[A-Z]?)"
     - "CERTIFICATION REPORT No. P(?P<counter>[0-9]+[A-Z]?)"

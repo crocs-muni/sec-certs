@@ -55,6 +55,7 @@ def test_canonicalize_au():
 def test_canonicalize_ca():
     assert canonicalize("383-4-123-CR", "CA") == "383-4-123"
     assert canonicalize("383-4-123P", "CA") == "383-4-123"
+    assert canonicalize("522 EWA 2020", "CA") == "522-EWA-2020"
 
 
 def test_canonicalize_jp():

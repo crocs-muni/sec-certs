@@ -151,11 +151,23 @@ class CertificateId:
 
     def _canonical_ca(self):
         new_cert_id = self.clean
-        if new_cert_id.endswith("-CR"):
-            new_cert_id = new_cert_id[:-3]
-        if new_cert_id.endswith("P"):
-            new_cert_id = new_cert_id[:-1]
-        return new_cert_id.replace(" ", "-")
+        for rule in rules["cc_cert_id"]["CA"]:
+            if match := re.match(rule, new_cert_id):
+                groups = match.groupdict()
+                if "lab" in groups:
+                    year = _parse_year(groups.get("year"))
+                    number = groups["number"]
+                    lab = groups["lab"]
+                    new_cert_id = f"{number}-{lab}"
+                    if year:
+                        new_cert_id += f"-{year}"
+                else:
+                    number1 = groups["number1"]
+                    digit = groups["digit"]
+                    number2 = groups["number2"]
+                    new_cert_id = f"{number1}-{digit}-{number2}"
+                break
+        return new_cert_id
 
     def _canonical_jp(self):
         new_cert_id = self.clean
