@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import cached_property
 
 from sec_certs.cert_rules import rules
 
@@ -26,6 +27,13 @@ class CertificateId:
 
     scheme: str
     raw: str
+
+    @cached_property
+    def meta(self):
+        for rule in rules["cc_cert_id"][self.scheme]:
+            if match := re.match(rule, self.clean):
+                return match.groupdict()
+        return {}
 
     def _canonical_fr(self) -> str:
         new_cert_id = self.clean
@@ -273,6 +281,16 @@ class CertificateId:
             return schemes[self.scheme]()
         else:
             return self.clean
+
+    def __hash__(self):
+        return hash((self.scheme, self.raw))
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.canonical == other
+        if not isinstance(other, CertificateId):
+            return False
+        return self.canonical == other.canonical and self.scheme == other.scheme
 
 
 def canonicalize(cert_id_str: str, scheme: str) -> str:

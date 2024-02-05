@@ -1,4 +1,10 @@
-from sec_certs.sample.cc_certificate_id import canonicalize
+from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize
+
+
+def test_meta_parse():
+    i = CertificateId("FR", "Rapport de certification 2001/02v2")
+    assert "year" in i.meta
+    assert i.meta["year"] == "2001"
 
 
 def test_canonicalize_fr():
