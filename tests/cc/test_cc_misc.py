@@ -36,8 +36,16 @@ def test_canonicalize_es():
     assert canonicalize("2011-14-INF-1095-v1", "ES") == "2011-14-INF-1095"
 
 
+def test_canonicalize_sg():
+    assert canonicalize("CSA_CC_21005", "SG") == "CSA_CC_21005"
+
+
 def test_canonicalize_in():
     assert canonicalize("IC3S/KOL01/ADVA/EAL2/0520/0021 /CR", "IN") == "IC3S/KOL01/ADVA/EAL2/0520/0021"
+
+
+def test_canonicalize_it():
+    assert canonicalize("OCSI/CERT/TEC/02/2009/RC", "IT") == "OCSI/CERT/TEC/02/2009/RC"
 
 
 def test_canonicalize_se():
