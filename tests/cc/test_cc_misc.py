@@ -5,6 +5,8 @@ def test_meta_parse():
     i = CertificateId("FR", "Rapport de certification 2001/02v2")
     assert "year" in i.meta
     assert i.meta["year"] == "2001"
+    assert i.meta["counter"] == "02"
+    assert i.meta["version"] == "2"
 
 
 def test_canonicalize_fr():
@@ -96,3 +98,11 @@ def test_canonicalize_nl():
     assert canonicalize("NSCIB-CC-22-0428888-CR2", "NL") == "NSCIB-CC-22-0428888-CR2"
     assert canonicalize("NSCIB-CC-22-0428888", "NL") == "NSCIB-CC-22-0428888-CR"
     assert canonicalize("CC-22-0428888", "NL") == "NSCIB-CC-22-0428888-CR"
+
+
+def test_certid_compare():
+    cid1 = CertificateId("AU", "Certification Report 2007/02")
+    cid2 = CertificateId("AU", "Certificate Number: 02/2007")
+    cid3 = CertificateId("AU", "Certificate Number: 05/2007")
+    assert cid1 == cid2
+    assert cid1 != cid3
