@@ -5,75 +5,158 @@
 #####
 cc_cert_id:
   DE:
-    - "BSI-DSZ-CC-[0-9]+?-[0-9]+"
-    - "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+-[0-9]+"
-    - "BSI-DSZ-CC-[0-9]+?-(?:V|v)[0-9]+"
-    - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(-[0-9]{4})*"  # German BSI (number + version + year or without year)
-    - "BSI-DSZ-CC-[0-9]+-[0-9]{4}"  # German BSI (number + year, no version)
-    - "BSI-DSZ-CC-[0-9]+-(?:V|v)[0-9]+(?!-)"  # German BSI (number + version but no year => no - after version)
-    # - "BSI-DSZ-CC-[0-9]+"  # Maybe?
+    - "BSI-DSZ-CC-(?:(?P<s>S)-)?(?P<counter>[0-9]{3,5})-?(?:(?P<version>[vV][0-9])-)?(?P<year>[0-9]{4})?(?:-(?P<doc>(?:RA|MA)(?:-[0-9]+)?))?"
+    # Examples:
+    # BSI-DSZ-CC-1004
+    # BSI-DSZ-CC-0973-2016
+    # BSI-DSZ-CC-0831-V4-2021
+    # BSI-DSZ-CC-0837-V2-2014-MA-01
+    # BSI-DSZ-CC-S-0192-2021
   FR:
-    - "ANSS[Ii](?:-|-CC-|-CC )[0-9]{4}/[0-9]+(v[1-9])?"  # French
-    - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9][0-9]+(?!-M|-S|-R)"  # French (/two or more digits then NOT -M or -S)
-    - "ANSS[Ii]-CC[ -][0-9]{4}[/-_][0-9]+(?:v[0-9])?[_/-][MSR][0-9]+"  # French, maintenance or surveillance report (ANSSI-CC-2014_46_M01)
-    # 'ANSSI-CC-CER-F-.+?', # French
-    - "DCSS[Ii]-[0-9]+/[0-9]+"  # French (DCSSI-2009/07)
-    - "Certification Report [0-9]+/[0-9]+" # French or Australia! Solved because we limit ourselves to scheme when doing heuristics.
-    - "Rapport de certification [0-9]+/[0-9]+"  # French
+    - "DCSS[Ii]-(?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
+    - "Rapport de certification (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
+    - "Certification Report (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
+    - "ANSS[Ii](?:-CC)?[ -](?P<year>[0-9]{2,4})[/_-](?P<counter>[0-9]+)(?:-(?P<doc>(?:[MSR][0-9]+)))?([vV](?P<version>[0-9]))?"
+    # Examples:
+    # DCSSI-2009/07
+    # ANSSI-CC 2001/02-R01
+    # Rapport de certification 2001/02v2
+    # Certification Report 2003/20
   NL:
-    - "NSCIB-CC-[0-9]{4}.+?"  # Netherlands
-    - "NSCIB-CC-[0-9]{4}[0-9]*-CR"  # Netherlands
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+?-CR[0-9]+?"  # Netherlands
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+(-CR[0-9]+)*"  # Netherlands (old number NSCIB-CC-05-6609 or NSCIB-CC-05-6609-CR)
-    - "NSCIB-CC-[0-9]+-CR[0-9]*"  # Netherlands (new number NSCIB-CC-111441-CR NSCIB-CC-111441-CR1)
-    - "NSCIB-CC-[0-9]+-MA[0-9]*"  # Netherlands (new number NSCIB-CC-222073-MA NSCIB-CC-200716-MA2)
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+"  # Netherlands   (old number NSCIB-CC-05-6609)
-    - "NSCIB-CC-[0-9][0-9]-[0-9]+-CR[0-9]+"  # Netherlands (NSCIB-CC-year2digits-number-CR)
+    - "(?:NSCIB-|CC-|NSCIB-CC-)(?P<core>((?P<year>[0-9]{2})-)?(?:-?[0-9]+)+)(?:-?(?P<doc>(?:CR|MA|MR)[0-9]*))?"
+    # Examples:
+    # NSCIB-CC-22-0428888-CR2  (with year=22 and CR2)
+    # NSCIB-CC-228723-CR  (no year)
+    # CC-16-31801-CR4  (no NSCIB)
+    # NSCIB-CC-98209   (no year, no CR)
   "NO":
-    - "SERTIT-[0-9]+"  # Norway
+    - "SERTIT-(?P<counter>[0-9]+)"
+    # Examples:
+    # SERTIT-101
   US:
-    - "CCEVS-VR-(?:CC-|VID)?[0-9]+-[0-9]+[a-z]?(?:-[0-9]+)?"  # US NSA (CCEVS-VR-10884-2018 CCEVS-VR-VID10877-2018)
+    - "CCEVS-VR-(?:(?P<cc>CC)-)?(?:(?P<VID>VID)-?)?(?P<year>[0-9]{2})-(?P<counter>[0-9]+)"
+    - "CCEVS-VR-(?:(?P<cc>CC)-)?(?:(?P<VID>VID)-?)?(?P<counter>[0-9]{4,5})-(?P<year>[0-9]{4})?"
+    # Examples:
+    # CCEVS-VR-VID10015-2008
+    # CCEVS-VR-10880-2018
+    # CCEVS-VR-04-0082
   CA:
-    # '[0-9][0-9\-]+?-CR', # Canada
-    - "[0-9][0-9][0-9]-[347]-[0-9][0-9][0-9]?(?:-CR|P)?"  # Canada xxx-{347}-xxx (383-4-438, 383-4-82-CR, 383-4-422P)
-    - "[0-9][0-9][0-9][ -](?:EWA|LSS|CCS)(?:[ -]20[0-9][0-9])?"  # Canada (522-EWA-2020, 524 LSS 2020, 503-LSS)
-    - "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
+    - "(?P<number1>[0-9]+)[ -](?P<digit>[0-9])[ -](?P<number2>[0-9]+)(?:-CR|P)?"
+    - "(?P<number>[0-9]+)[ -](?P<lab>EWA|LSS|CCS)(?:[ -](?P<year>[0-9]+))?"
+    # Examples:
+    # 383-4-123-CR
+    # 383-4-123P
+    # 522 EWA 2020
+    # Filename rule:
+    #- "[0-9][0-9][0-9](?:%20|-)(?:EWA|LSS|CCS)(?:%20|-)(?:20[0-9][0-9]%20|)CR%20v[0-9]\\.[0-9]" # Canada filename with space (518-LSS%20CR%20v1.0)
   UK:
-    - "CRP[0-9]+[A-Z]?"  # UK CESG
-    - "CERTIFICATION REPORT No. P[0-9]+[A-Z]?"  # UK CESG
+    - "CRP(?P<counter>[0-9]+[A-Z]?)"
+    - "CERTIFICATION REPORT No. P(?P<counter>[0-9]+[A-Z]?)"
+    # Examples:
+    # CRP208
+    # CERTIFICATION REPORT No. P123A
   ES:
-    - "20[0-9][0-9][-‐][0-9]+[-‐]INF[-‐][0-9]+([-‐]?[ -‐](?:V|v)[0-9]+)?"  # Spain ("2006-4-INF-98 v2" or "2006-4-INF-98-v2" or "2020-34-INF-3784- v1")
+    - "(?P<year>[0-9]{4})[-‐](?P<project>[0-9]+)[-‐]INF[-‐](?P<counter>[0-9]+)[ -‐]{1,2}[vV](?P<version>[0-9])"
+    # Examples:
+    # 2006-4-INF-98 v2
+    # 2020-34-INF-3784- v1
+    # 2019-20-INF-3379-v1
   KR:
-    # Korea
+    - "KECS[-‐](?P<word>ISIS|NISS|CISS)[-‐](?P<counter>[0-9]{2,4})[-‐](?P<year>[0-9]{4})"
     # XXX: Do not use KECS-CR as those refer to the certificate report and do not represent the certificate id.
-    # - "KECS[-‐]CR[-‐][0-9]+[-‐][0-9]+"  # Korea KECS-CR-20-61
-    - "KECS[-‐](?:ISIS|NISS|CISS)[-‐][0-9]+[-‐][0-9]{4}"  # Korea KECS-ISIS-1234-2011
+    # Examples:
+    # KECS-ISIS-0579-2015
+    # KECS-NISS-0792-2017
+    # KECS-CISS-1210-2023
   JP:
-    - "(?:CRP|ACR)-C[0-9]+-[0-9]+"  # Japan (CRP-C0595-01 ACR-C0417-03)
-    - "JISEC-CC-CRP-C[0-9]+-[0-9]+-[0-9]+"  # Japan (JISEC-CC-CRP-C0689-01-2020)
-    - "Certification No. [cC][0-9]+" # Japan (Certification No. C0090)
+    - "(?:CRP|ACR)-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)"
+    - "JISEC-CC-CRP-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)-(?P<year>[0-9]{4})"
+    - "Certification No. [cC](?P<counter>[0-9]+)"
+    # Examples:
+    # CRP-C0595-01
+    # JISEC-CC-CRP-C0689-01-2020
+    # Certification No. C0090
   MY:
-    - "ISCB-[0-9]+-(?:RPT|FRM)-[CM][0-9]+[A-Z]?-(?:CR|AMR)(?:-[0-9])?-[vV][0-9](?:\\.[0-9])?[a-z]?" # Malaysia (ISCB-3-RPT-C092-CR-v1, ISCB-3-RPT-C068-CR-1-v1)
+    - "ISCB-(?P<digit>[0-9])-RPT-C(?P<counter>[0-9]{3})-CR(?:-[0-9])?-(?P<version>[vV][0-9][a-z]?)"
+    # Examples:
+    # ISCB-3-RPT-C068-CR-1-v1
+    # ISCB-5-RPT-C075-CR-v2
+    # ISCB-5-RPT-C046-CR-V1a
   IT:
-    - "OCSI/CERT/.+?"  # Italy
-    - "OCSI/CERT/.+?/20[0-9]+(?:\\w|/RC)"  # Italy  (OCSI/CERT/ATS/01/2018/RC)
+    - "OCSI/CERT/(?:(?P<lab>[A-Z]{3})/)?(?P<counter>[0-9]{2,3})/(?P<year>[0-9]{4})/RC"
+    # Examples:
+    # OCSI/CERT/SYS/04/2018/RC
+    # OCSI/CERT/CCL/10/2022/RC
+    # OCSI/CERT/TEC/09/2017/RC
+    # OCSI/CERT/ATS/06/2020/RC
   TR:
-    - "[0-9\\.]+?/TSE-CCCS-[0-9]+"  # Turkish CCCS (21.0.0sc/TSE-CCCS-75)
-    - "(?:[0-9]{1,2}\\.){2}[0-9]{1,2}/[0-9]{1,4}-[0-9]{3}"   # 21.0.01/13-028
+    - "(?P<prefix>[0-9\\.]+)/TSE-CCCS-(?P<number>[0-9]+)"
+    # XXX: The report numbers are like "21.0.01/13-028"
+    # Examples:
+    # 21.0.03.0.00.00/TSE-CCCS-85
+    # 21.0.03/TSE-CCCS-33
   SE:
-    - "CSEC ?[0-9]{6,7}"  # Sweden (CSEC2019015)
+    - "CSEC ?(?P<year>[0-9]{4})(?P<counter>[0-9]{2,3})"
+    # Examples:
+    # CSEC2019015
+    # CSEC 2019012
   IN:
-    # India (IC3S/DEL01/VALIANT/EAL1/0317/0007/CR  STQC/CC/14-15/12/ETR/0017 IC3S/MUM01/CISCO/cPP/0119/0016/CR)
-    # will miss STQC/CC/14-15/12/ETR/0017
-    - "(?:IC3S|STQC/CC)/[^ ]+? ?/CR"
+    - "IC3S/(?P<lab>[A-Z]+[0-9]+)/(?P<vendor>[a-zA-Z_]+)/(?P<level>[a-zA-Z0-9]+)/(?P<number1>[0-9]+)/(?P<number2>[0-9]+) ?(?:/CR)?"
+    # XXX: The cert IDs are often present only in the certificate and not in the report.
+    #      The report often only has the report id, of the format "STQC/CC/1617/18/CR"
+    # Examples:
+    # IC3S/BG01/HALTDOS/EAL2/0317/0008/CR
+    # IC3S/KOL01/ADVA/EAL2/0520/0021/CR
+    # IC3S/MUM01/Symantec/NDcPP/0722/0032/CR
   SG:
-    - "CSA_CC_[0-9]+"  # Singapore (CSA_CC_19001)
+    - "CSA_CC_(?P<year>[0-9]{2})(?P<counter>[0-9]{3})"
+    # Examples:
+    # CSA_CC_19001
   AU:
-    # Australia (EFS-T048 ETR 1.0, EFS-T056-ETR 1.0, DXC-EFC-T092-ETR 1.0)
+    - "(?:Certificate Number:|Certification Report) (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)"
     # XXX: Do not use Australian ETR numbers, they are not certificate id.
-    # - "(?:EFS|EFT|DXC-EFC)-T[0-9]+(?: |-)ETR [0-9]+.[0-9]+"
-    - "Certificate Number: [0-9]{1,4}/[0-9]{1,4}"
-    - "Certification Report [0-9]+/[0-9]+"
+    # Examples:
+    # Certification Report 2007/06
+    # Certificate Number: 2010/67
+    # Certificate Number: 37/2006    !mistake
+    # Certification Report 97/76     !short year
+
+#####
+# Common Criteria certificate IDs as they appear in report filenames, grouped by scheme (Alpha-2 ISO country code).
+#####
+cc_filename_cert_id:
+  DE:
+    #- "(?P<counter>[0-9]{3,5})(?:(?P<version>[vV][0-9]))?a?(?:_pdf)?"
+    - "(?P<year>[0-9]{4})(?P<month>[0-9]{2})(?P<day>[0-9]{2})_(?P<counter>[0-9]{3,5})(?:(?P<version>[vV][0-9]))?a?(?:_pdf)?"
+  FR:
+    - "(?P<year>[0-9]{4})[_-](?P<counter>[0-9]{2})([vV](?P<version>[0-9]))?"
+    #- "(?P<year>[0-9]{2})(?P<counter>[0-9]{2})([vV](?P<version>[0-9]))?"
+  NL:
+    - "(?:NSCIB-|CC-|NSCIB-CC-)(?P<core>((?P<year>[0-9]{2})-)?(?:-?[0-9]+)+)(?:-?(?P<doc>(?:CR|MA|MR)[0-9]*))?"
+  "NO":
+    - "SERTIT-(?P<counter>[0-9]+)"
+  US:
+  CA:
+    - "(?P<number1>[0-9]+)[ -](?P<digit>[0-9])[ -](?P<number2>[0-9]+)(?:-CR|P)?"
+    - "(?P<number>[0-9]+)[ -](?P<lab>EWA|LSS|CCS)(?:[ -](?P<year>[0-9]+))?"
+  UK:
+    - "CRP(?P<counter>[0-9]+[A-Z]?)"
+  ES:
+    - "(?P<year>[0-9]{4})[-‐](?P<project>[0-9]+)[-‐]INF[-‐](?P<counter>[0-9]+)[ -‐_]{1,2}[vV](?P<version>[0-9])"
+  KR:
+    - "(?P<word>ISIS|NISS|CISS)[-‐](?P<counter>[0-9]{2,4})(?:[-‐](?P<year>[0-9]{4}))?"
+  JP:
+    - "[cC](?P<counter>[0-9]+)"
+  MY:
+    - "ISCB-(?P<digit>[0-9])-RPT-C(?P<counter>[0-9]{3})-CR(?:-[0-9])?-(?P<version>[vV][0-9][a-z]?)"
+  IT:
+  TR:
+  SE:
+    - "CR(?P<year>[0-9]{4})(?P<counter>[0-9]{2,3})"
+  IN:
+  SG:
+  AU:
+    - "(?P<year>[0-9]{2,4})_(?P<counter>[0-9]+)"
 
 #####
 # Common Criteria protection profile IDs, grouped by certification body (e.g. BSI)
