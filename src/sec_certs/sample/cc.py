@@ -104,51 +104,71 @@ class CCCertificate(
 
         st_download_ok: bool  # Whether target download went OK
         report_download_ok: bool  # Whether report download went OK
+        cert_download_ok: bool  # Whether certificate download went OK
         st_convert_garbage: bool  # Whether initial target conversion resulted in garbage
         report_convert_garbage: bool  # Whether initial report conversion resulted in garbage
+        cert_convert_garbage: bool  # Whether initial certificate conversion resulted in garbage
         st_convert_ok: bool  # Whether overall target conversion went OK (either pdftotext or via OCR)
         report_convert_ok: bool  # Whether overall report conversion went OK (either pdftotext or via OCR)
+        cert_convert_ok: bool  # Whether overall certificate conversion went OK (either pdftotext or via OCR)
         st_extract_ok: bool  # Whether target extraction went OK
         report_extract_ok: bool  # Whether report extraction went OK
+        cert_extract_ok: bool  # Whether certificate extraction went OK
 
         st_pdf_hash: str | None
         report_pdf_hash: str | None
+        cert_pdf_hash: str | None
         st_txt_hash: str | None
         report_txt_hash: str | None
+        cert_txt_hash: str | None
 
         _st_pdf_path: Path | None = None
         _report_pdf_path: Path | None = None
+        _cert_pdf_path: Path | None = None
         _st_txt_path: Path | None = None
         _report_txt_path: Path | None = None
+        _cert_txt_path: Path | None = None
 
         def __init__(
             self,
             st_download_ok: bool = False,
             report_download_ok: bool = False,
+            cert_download_ok: bool = False,
             st_convert_garbage: bool = False,
             report_convert_garbage: bool = False,
+            cert_convert_garbage: bool = False,
             st_convert_ok: bool = False,
             report_convert_ok: bool = False,
+            cert_convert_ok: bool = False,
             st_extract_ok: bool = False,
             report_extract_ok: bool = False,
+            cert_extract_ok: bool = False,
             st_pdf_hash: str | None = None,
             report_pdf_hash: str | None = None,
+            cert_pdf_hash: str | None = None,
             st_txt_hash: str | None = None,
             report_txt_hash: str | None = None,
+            cert_txt_hash: str | None = None,
         ):
             super().__init__()
             self.st_download_ok = st_download_ok
             self.report_download_ok = report_download_ok
+            self.cert_download_ok = cert_download_ok
             self.st_convert_garbage = st_convert_garbage
             self.report_convert_garbage = report_convert_garbage
+            self.cert_convert_garbage = cert_convert_garbage
             self.st_convert_ok = st_convert_ok
             self.report_convert_ok = report_convert_ok
+            self.cert_convert_ok = cert_convert_ok
             self.st_extract_ok = st_extract_ok
             self.report_extract_ok = report_extract_ok
+            self.cert_extract_ok = cert_extract_ok
             self.st_pdf_hash = st_pdf_hash
             self.report_pdf_hash = report_pdf_hash
+            self.cert_pdf_hash = cert_pdf_hash
             self.st_txt_hash = st_txt_hash
             self.report_txt_hash = report_txt_hash
+            self.cert_txt_hash = cert_txt_hash
 
         @property
         def st_pdf_path(self) -> Path:
@@ -171,6 +191,16 @@ class CCCertificate(
             self._report_pdf_path = Path(pth) if pth else None
 
         @property
+        def cert_pdf_path(self) -> Path:
+            if not self._cert_pdf_path:
+                raise ValueError(f"cert_pdf_path not set on {type(self)}")
+            return self._cert_pdf_path
+
+        @cert_pdf_path.setter
+        def cert_pdf_path(self, pth: str | Path | None) -> None:
+            self._cert_pdf_path = Path(pth) if pth else None
+
+        @property
         def st_txt_path(self) -> Path:
             if not self._st_txt_path:
                 raise ValueError(f"st_txt_path not set on {type(self)}")
@@ -191,20 +221,36 @@ class CCCertificate(
             self._report_txt_path = Path(pth) if pth else None
 
         @property
+        def cert_txt_path(self) -> Path:
+            if not self._cert_txt_path:
+                raise ValueError(f"cert_txt_path not set on {type(self)}")
+            return self._cert_txt_path
+
+        @cert_txt_path.setter
+        def cert_txt_path(self, pth: str | Path | None) -> None:
+            self._cert_txt_path = Path(pth) if pth else None
+
+        @property
         def serialized_attributes(self) -> list[str]:
             return [
                 "st_download_ok",
                 "report_download_ok",
+                "cert_download_ok",
                 "st_convert_garbage",
                 "report_convert_garbage",
+                "cert_convert_garbage",
                 "st_convert_ok",
                 "report_convert_ok",
+                "cert_convert_ok",
                 "st_extract_ok",
                 "report_extract_ok",
+                "cert_extract_ok",
                 "st_pdf_hash",
                 "report_pdf_hash",
+                "cert_pdf_hash",
                 "st_txt_hash",
                 "report_txt_hash",
+                "cert_txt_hash",
             ]
 
         def report_is_ok_to_download(self, fresh: bool = True) -> bool:
@@ -213,11 +259,17 @@ class CCCertificate(
         def st_is_ok_to_download(self, fresh: bool = True) -> bool:
             return True if fresh else not self.st_download_ok
 
+        def cert_is_ok_to_download(self, fresh: bool = True) -> bool:
+            return True if fresh else not self.st_download_ok
+
         def report_is_ok_to_convert(self, fresh: bool = True) -> bool:
             return self.report_download_ok if fresh else self.report_download_ok and not self.report_convert_ok
 
         def st_is_ok_to_convert(self, fresh: bool = True) -> bool:
             return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
+
+        def cert_is_ok_to_convert(self, fresh: bool = True) -> bool:
+            return self.cert_download_ok if fresh else self.cert_download_ok and not self.cert_convert_ok
 
         def report_is_ok_to_analyze(self, fresh: bool = True) -> bool:
             if fresh is True:
@@ -231,6 +283,12 @@ class CCCertificate(
             else:
                 return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
 
+        def cert_is_ok_to_analyze(self, fresh: bool = True) -> bool:
+            if fresh is True:
+                return self.cert_download_ok and self.cert_convert_ok
+            else:
+                return self.cert_download_ok and self.cert_convert_ok and not self.cert_extract_ok
+
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
         """
@@ -239,12 +297,16 @@ class CCCertificate(
 
         report_metadata: dict[str, Any] | None = field(default=None)
         st_metadata: dict[str, Any] | None = field(default=None)
+        cert_metadata: dict[str, Any] | None = field(default=None)
         report_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
         st_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
+        cert_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
         report_keywords: dict[str, Any] | None = field(default=None)
         st_keywords: dict[str, Any] | None = field(default=None)
+        cert_keywords: dict[str, Any] | None = field(default=None)
         report_filename: str | None = field(default=None)
         st_filename: str | None = field(default=None)
+        cert_filename: str | None = field(default=None)
 
         def __bool__(self) -> bool:
             return any(x is not None for x in vars(self))
@@ -814,25 +876,33 @@ class CCCertificate(
         self,
         report_pdf_dir: str | Path | None,
         st_pdf_dir: str | Path | None,
+        cert_pdf_dir: str | Path | None,
         report_txt_dir: str | Path | None,
         st_txt_dir: str | Path | None,
+        cert_txt_dir: str | Path | None,
     ) -> None:
         """
         Sets paths to files given the requested directories
 
         :param Optional[Union[str, Path]] report_pdf_dir: Directory where pdf reports shall be stored
         :param Optional[Union[str, Path]] st_pdf_dir: Directory where pdf security targets shall be stored
+        :param Optional[Union[str, Path]] cert_pdf_dir: Directory where pdf certificates shall be stored
         :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
         :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
+        :param Optional[Union[str, Path]] cert_txt_dir: Directory where txtcertificates shall be stored
         """
         if report_pdf_dir:
             self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
         if st_pdf_dir:
             self.state.st_pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
+        if cert_pdf_dir:
+            self.state.cert_pdf_path = Path(cert_pdf_dir) / (self.dgst + ".pdf")
         if report_txt_dir:
             self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
         if st_txt_dir:
             self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
+        if cert_txt_dir:
+            self.state.cert_txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
 
     @staticmethod
     def download_pdf_report(cert: CCCertificate) -> CCCertificate:
@@ -880,11 +950,33 @@ class CCCertificate(
         return cert
 
     @staticmethod
+    def download_pdf_cert(cert: CCCertificate) -> CCCertificate:
+        """
+        Downloads pdf of the certificate. Staticmethod to allow for parallelization.
+
+        :param CCCertificate cert: cert to download the pdf of
+        :return CCCertificate: returns the modified certificate with updated state
+        """
+        exit_code: str | int = (
+            helpers.download_file(cert.cert_link, cert.state.cert_pdf_path) if cert.cert_link else "No link"
+        )
+
+        if exit_code != requests.codes.ok:
+            error_msg = f"failed to download certificate from {cert.cert_link}, code: {exit_code}"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
+            cert.state.cert_download_ok = False
+        else:
+            cert.state.cert_download_ok = True
+            cert.state.cert_pdf_hash = helpers.get_sha256_filepath(cert.state.cert_pdf_path)
+            cert.pdf_data.cert_filename = unquote_plus(str(urlparse(cert.cert_link).path).split("/")[-1])
+        return cert
+
+    @staticmethod
     def convert_report_pdf(cert: CCCertificate) -> CCCertificate:
         """
         Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to download the pdf report for
+        :param CCCertificate cert: cert to convert the pdf report for
         :return CCCertificate: the modified certificate with updated state
         """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
@@ -906,7 +998,7 @@ class CCCertificate(
         """
         Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to download the pdf security target for
+        :param CCCertificate cert: cert to convert the pdf security target for
         :return CCCertificate: the modified certificate with updated state
         """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
@@ -922,18 +1014,23 @@ class CCCertificate(
         return cert
 
     @staticmethod
-    def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
+    def convert_cert_pdf(cert: CCCertificate) -> CCCertificate:
         """
-        Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
+        Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to extract the metadata for.
+        :param CCCertificate cert: cert to convert the certificate for
         :return CCCertificate: the modified certificate with updated state
         """
-        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st_pdf_path)
-        if response != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
+        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.cert_pdf_path, cert.state.cert_txt_path)
+        # If OCR was done the result was garbage
+        cert.state.cert_convert_garbage = ocr_done
+        # And put the whole result into convert_ok
+        cert.state.cert_convert_ok = ok_result
+        if not ok_result:
+            error_msg = "failed to convert security target pdf->txt"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
         else:
-            cert.state.st_extract_ok = True
+            cert.state.cert_txt_hash = helpers.get_sha256_filepath(cert.state.cert_txt_path)
         return cert
 
     @staticmethod
@@ -952,20 +1049,33 @@ class CCCertificate(
         return cert
 
     @staticmethod
-    def extract_st_pdf_frontpage(cert: CCCertificate) -> CCCertificate:
+    def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
         """
-        Extracts data from security target pdf frontpage given the certificate. Staticmethod to allow for parallelization.
+        Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to extract the frontpage data for.
+        :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        cert.pdf_data.st_frontpage = {}
+        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st_pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.st_extract_ok = False
+        else:
+            cert.state.st_extract_ok = True
+        return cert
 
-        for header_type, associated_header_func in HEADERS.items():
-            response, cert.pdf_data.st_frontpage[header_type] = associated_header_func(cert.state.st_txt_path)
+    @staticmethod
+    def extract_cert_pdf_metadata(cert: CCCertificate) -> CCCertificate:
+        """
+        Extracts metadata from certificate pdf given the certificate. Staticmethod to allow for parallelization.
 
-            if response != constants.RETURNCODE_OK:
-                cert.state.st_extract_ok = False
+        :param CCCertificate cert: cert to extract the metadata for.
+        :return CCCertificate: the modified certificate with updated state
+        """
+        response, cert.pdf_data.cert_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.cert_pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.cert_extract_ok = False
+        else:
+            cert.state.cert_extract_ok = True
         return cert
 
     @staticmethod
@@ -988,7 +1098,7 @@ class CCCertificate(
     @staticmethod
     def extract_report_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
-        Matches regular expresions in txt obtained from certification report and extracts the matches into attribute.
+        Matches regular expressions in txt obtained from certification report and extracts the matches into attribute.
         Static method to allow for parallelization
 
         :param CCCertificate cert: certificate to extract the keywords for.
@@ -1004,7 +1114,7 @@ class CCCertificate(
     @staticmethod
     def extract_st_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
-        Matches regular expresions in txt obtained from security target and extracts the matches into attribute.
+        Matches regular expressions in txt obtained from security target and extracts the matches into attribute.
         Static method to allow for parallelization
 
         :param CCCertificate cert: certificate to extract the keywords for.
@@ -1015,6 +1125,22 @@ class CCCertificate(
             cert.state.st_extract_ok = False
         else:
             cert.pdf_data.st_keywords = st_keywords
+        return cert
+
+    @staticmethod
+    def extract_cert_pdf_keywords(cert: CCCertificate) -> CCCertificate:
+        """
+        Matches regular expressions in txt obtained from the certificate and extracts the matches into attribute.
+        Static method to allow for parallelization
+
+        :param CCCertificate cert: certificate to extract the keywords for.
+        :return CCCertificate: the modified certificate with extracted keywords.
+        """
+        cert_keywords = sec_certs.utils.extract.extract_keywords(cert.state.cert_txt_path, cc_rules)
+        if cert_keywords is None:
+            cert.state.cert_extract_ok = False
+        else:
+            cert.pdf_data.cert_keywords = cert_keywords
         return cert
 
     def compute_heuristics_version(self) -> None:

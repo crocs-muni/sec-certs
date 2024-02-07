@@ -144,6 +144,27 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         return self.targets_dir / "txt"
 
     @property
+    def certificates_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with the certificates
+        """
+        return self.certs_dir / "certificates"
+
+    @property
+    def certificates_pdf_dir(self) -> Path:
+        """
+        Returns directory that holds PDFs associated with certificates
+        """
+        return self.certificates_dir / "pdf"
+
+    @property
+    def certificates_txt_dir(self) -> Path:
+        """
+        Returns directory that holds TXTs associated with certificates
+        """
+        return self.certificates_dir / "txt"
+
+    @property
     def pp_dataset_path(self) -> Path:
         """
         Returns a path to the dataset of Protection Profiles
@@ -242,7 +263,14 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             self.auxiliary_datasets.mu_dset.root_dir = self.mu_dataset_dir
 
         for cert in self:
-            cert.set_local_paths(self.reports_pdf_dir, self.targets_pdf_dir, self.reports_txt_dir, self.targets_txt_dir)
+            cert.set_local_paths(
+                self.reports_pdf_dir,
+                self.targets_pdf_dir,
+                self.certificates_pdf_dir,
+                self.reports_txt_dir,
+                self.targets_txt_dir,
+                self.certificates_txt_dir,
+            )
         # TODO: This forgets to set local paths for other auxiliary datasets
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
@@ -531,6 +559,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
         self._download_reports(fresh)
         self._download_targets(fresh)
+        self._download_certs(fresh)
 
     @staged(logger, "Downloading PDFs of CC certification reports.")
     def _download_reports(self, fresh: bool = True) -> None:
@@ -551,7 +580,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Downloading PDFs of CC security targets.")
     def _download_targets(self, fresh: bool = True) -> None:
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.st_is_ok_to_download(fresh)]
 
         if not fresh and certs_to_process:
             logger.info(
@@ -562,6 +591,22 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             CCCertificate.download_pdf_st,
             certs_to_process,
             progress_bar_desc="Downloading PDFs of CC security targets",
+        )
+
+    @staged(logger, "Downloading PDFs of CC certificates.")
+    def _download_certs(self, fresh: bool = True) -> None:
+        self.certificates_pdf_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if x.state.cert_is_ok_to_download(fresh)]
+
+        if not fresh and certs_to_process:
+            logger.info(
+                f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed.."
+            )
+
+        cert_processing.process_parallel(
+            CCCertificate.download_pdf_cert,
+            certs_to_process,
+            progress_bar_desc="Downloading PDFs of CC certificates",
         )
 
     @staged(logger, "Converting PDFs of certification reports to txt.")
@@ -598,9 +643,28 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             progress_bar_desc="Converting PDFs of security targets to txt",
         )
 
+    @staged(logger, "Converting PDFs of certificates to txt.")
+    def _convert_certs_to_txt(self, fresh: bool = True) -> None:
+        self.certificates_txt_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if x.state.cert_is_ok_to_convert(fresh)]
+
+        if fresh:
+            logger.info("Converting PDFs of certificates to txt.")
+        if not fresh and certs_to_process:
+            logger.info(
+                f"Converting {len(certs_to_process)} PDFs of certificates to txt for which previous conversion failed."
+            )
+
+        cert_processing.process_parallel(
+            CCCertificate.convert_cert_pdf,
+            certs_to_process,
+            progress_bar_desc="Converting PDFs of security targets to txt",
+        )
+
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
         self._convert_reports_to_txt(fresh)
         self._convert_targets_to_txt(fresh)
+        self._convert_certs_to_txt(fresh)
 
     @staged(logger, "Extracting report metadata")
     def _extract_report_metadata(self) -> None:
@@ -624,6 +688,17 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         )
         self.update_with_certs(processed_certs)
 
+    @staged(logger, "Extracting cert metadata")
+    def _extract_cert_metadata(self) -> None:
+        certs_to_process = [x for x in self if x.state.cert_is_ok_to_analyze()]
+        processed_certs = cert_processing.process_parallel(
+            CCCertificate.extract_cert_pdf_metadata,
+            certs_to_process,
+            use_threading=False,
+            progress_bar_desc="Extracting cert metadata",
+        )
+        self.update_with_certs(processed_certs)
+
     def _extract_pdf_metadata(self) -> None:
         self._extract_report_metadata()
         self._extract_target_metadata()
@@ -639,20 +714,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         )
         self.update_with_certs(processed_certs)
 
-    @staged(logger, "Extracting target frontpages")
-    def _extract_target_frontpage(self) -> None:
-        certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_st_pdf_frontpage,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting target frontpages",
-        )
-        self.update_with_certs(processed_certs)
-
     def _extract_pdf_frontpage(self) -> None:
         self._extract_report_frontpage()
-        self._extract_target_frontpage()
+        # We have no frontpage extraction for targets or certificates themselves, only for the reports.
 
     @staged(logger, "Extracting report keywords")
     def _extract_report_keywords(self) -> None:
@@ -676,9 +740,21 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         )
         self.update_with_certs(processed_certs)
 
+    @staged(logger, "Extracting cert keywords")
+    def _extract_cert_keywords(self) -> None:
+        certs_to_process = [x for x in self if x.state.cert_is_ok_to_analyze()]
+        processed_certs = cert_processing.process_parallel(
+            CCCertificate.extract_cert_pdf_keywords,
+            certs_to_process,
+            use_threading=False,
+            progress_bar_desc="Extracting cert keywords",
+        )
+        self.update_with_certs(processed_certs)
+
     def _extract_pdf_keywords(self) -> None:
         self._extract_report_keywords()
         self._extract_target_keywords()
+        self._extract_cert_keywords()
 
     def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts")

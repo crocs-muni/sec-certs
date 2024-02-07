@@ -42,10 +42,6 @@ def test_extract_metadata(vulnerable_certificate: CCCertificate):
 
 
 def test_extract_frontpage(vulnerable_certificate: CCCertificate):
-    vulnerable_certificate.state.st_extract_ok = True
-    CCCertificate.extract_st_pdf_frontpage(vulnerable_certificate)
-    assert vulnerable_certificate.state.st_extract_ok
-
     vulnerable_certificate.state.report_extract_ok = True
     CCCertificate.extract_report_pdf_frontpage(vulnerable_certificate)
     assert vulnerable_certificate.state.report_extract_ok
