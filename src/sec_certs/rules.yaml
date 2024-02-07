@@ -70,7 +70,7 @@ cc_cert_id:
     # KECS-CISS-1210-2023
   JP:
     - "(?:CRP|ACR)-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)"
-    - "JISEC-CC-CRP-C(?P<counter>[0-9]+)-(?P<digit>[0-9]+)-(?P<year>[0-9]{4})"
+    - "JISEC-CC-CRP-C(?P<counter>[0-9]+)(?:-(?P<digit>[0-9]{2}))?(?:-(?P<year>[0-9]{4}))?"
     - "Certification No. [cC](?P<counter>[0-9]+)"
     # Examples:
     # CRP-C0595-01
@@ -144,7 +144,7 @@ cc_filename_cert_id:
   ES:
     - "(?P<year>[0-9]{4})[-‐](?P<project>[0-9]+)[-‐]INF[-‐](?P<counter>[0-9]+)[ -‐_]{1,2}[vV](?P<version>[0-9])"
   KR:
-    - "(?P<word>ISIS|NISS|CISS)[-‐](?P<counter>[0-9]{2,4})(?:[-‐](?P<year>[0-9]{4}))?"
+    - "(?P<word>ISIS|NISS|CISS)[-‐](?P<counter>[0-9]{2,4})[-‐](?P<year>[0-9]{4})"
   JP:
     - "[cC](?P<counter>[0-9]+)"
   MY:

@@ -417,14 +417,28 @@ class CCCertificate(
             candidates: dict[str, float] = defaultdict(lambda: 0.0)
             # TODO: Add heuristic based on ordering of ids (and extracted year + increment)
             # TODO: Add heuristic based on length
+            # TODO: Add heuristic based on id "richness", we want to prefer IDs that have more components.
+            # If we cannot canonicalize, just skip that ID.
             for candidate, count in frontpage_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.5
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.5
+                except Exception:
+                    continue
             for candidate, count in metadata_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.2
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.2
+                except Exception:
+                    continue
             for candidate, count in keywords_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.0
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.0
+                except Exception:
+                    continue
             for candidate, count in filename_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.0
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.0
+                except Exception:
+                    continue
             return candidates
 
     @dataclass
