@@ -23,6 +23,7 @@ def test_canonicalize_de():
 
 
 def test_canonicalize_us():
+    assert canonicalize("CCEVS-VR-VID10015", "US") == "CCEVS-VR-VID-10015"
     assert canonicalize("CCEVS-VR-VID10015-2008", "US") == "CCEVS-VR-VID-10015-2008"
     assert canonicalize("CCEVS-VR-10880-2018", "US") == "CCEVS-VR-10880-2018"
     assert canonicalize("CCEVS-VR-04-0082", "US") == "CCEVS-VR-0082-2004"

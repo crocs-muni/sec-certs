@@ -52,17 +52,18 @@ def DE(meta) -> str:
 
 
 def US(meta) -> str:
-    year = _parse_year(meta["year"])
     counter = meta["counter"]
     cc = meta.get("cc")
     vid = meta.get("VID")
+    year = _parse_year(meta.get("year"))
     cert_id = "CCEVS-VR"
     if cc:
         cert_id += f"-{cc}"
     if vid:
         cert_id += f"-{vid}"
     cert_id += f"-{counter}"
-    cert_id += f"-{year}"
+    if year:
+        cert_id += f"-{year}"
     return cert_id
 
 
