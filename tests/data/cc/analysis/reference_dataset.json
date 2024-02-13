@@ -44,16 +44,33 @@
       },
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
-        "st_download_ok": true,
-        "report_download_ok": true,
-        "st_convert_ok": true,
-        "report_convert_ok": true,
-        "st_extract_ok": true,
-        "report_extract_ok": true,
-        "st_pdf_hash": "16f1c7e32517d22f6062edf439f8c67eb0d202fadaaf1c54c1f96af7f74ad7ac",
-        "report_pdf_hash": "2dc5ff15361621bb2bd7db79491b88a70049abe4ffbe8370de87f9c51f42fb50",
-        "st_txt_hash": "81c53d1e5b1c2fcb129ce1053d13cd1308f7a556921f0b9024cedf75c6b2efb7",
-        "report_txt_hash": "460e8010dbc8f5de5b87bf96fd45c71cfd9f3869f34ca6ac1ab02cbd70d2523f"
+        "report": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": "2dc5ff15361621bb2bd7db79491b88a70049abe4ffbe8370de87f9c51f42fb50",
+            "txt_hash": "460e8010dbc8f5de5b87bf96fd45c71cfd9f3869f34ca6ac1ab02cbd70d2523f"
+        },
+        "st": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": "16f1c7e32517d22f6062edf439f8c67eb0d202fadaaf1c54c1f96af7f74ad7ac",
+            "txt_hash": "81c53d1e5b1c2fcb129ce1053d13cd1308f7a556921f0b9024cedf75c6b2efb7"
+        },
+        "cert": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": null,
+            "txt_hash": null
+        }
       },
       "pdf_data": {
         "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
@@ -604,16 +621,33 @@
       },
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
-        "st_download_ok": true,
-        "report_download_ok": true,
-        "st_convert_ok": true,
-        "report_convert_ok": true,
-        "st_extract_ok": true,
-        "report_extract_ok": true,
-        "st_pdf_hash": "8f288bc6133855bba6b78ccaeff86b46b4ce1db86aa1b5141c1073a74e6d13fd",
-        "report_pdf_hash": "d77dffc3f2e4d95d6103de31b7ebbec54551c3b93f01415971ec3b9f5cb33e4f",
-        "st_txt_hash": "926668bea7c427a4fcf82857bfc63420f3597b6bff39699927a58f335620eaac",
-        "report_txt_hash": "0535df1c56fb4f87153cbffee51ba4d77fac47a6f17f024aa7d9df461028bc65"
+        "report": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": "d77dffc3f2e4d95d6103de31b7ebbec54551c3b93f01415971ec3b9f5cb33e4f",
+            "txt_hash": "0535df1c56fb4f87153cbffee51ba4d77fac47a6f17f024aa7d9df461028bc65"
+        },
+        "st": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": "8f288bc6133855bba6b78ccaeff86b46b4ce1db86aa1b5141c1073a74e6d13fd",
+            "txt_hash": "926668bea7c427a4fcf82857bfc63420f3597b6bff39699927a58f335620eaac"
+        },
+        "cert": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": null,
+            "txt_hash": null
+        }
       },
       "pdf_data": {
         "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
@@ -1242,16 +1276,33 @@
       },
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
-        "st_download_ok": true,
-        "report_download_ok": true,
-        "st_convert_ok": true,
-        "report_convert_ok": true,
-        "st_extract_ok": true,
-        "report_extract_ok": true,
-        "st_pdf_hash": "c72b032f6119e6dd64270296713d5626b1473bf4925018ce4dd106d76953213f",
-        "report_pdf_hash": "eca6c3a665d8bd20394cf002bff0a8a1b451337f60c8184d458ffd5b31491085",
-        "st_txt_hash": "179b07b4fc7402066a884edea494b28e324315108a5e0820184031f2e2062ad5",
-        "report_txt_hash": "11e1262fd8f5df1b140f5e8813883b71447503781399427b35adbbecd00b4d63"
+        "report": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": "eca6c3a665d8bd20394cf002bff0a8a1b451337f60c8184d458ffd5b31491085",
+            "txt_hash": "11e1262fd8f5df1b140f5e8813883b71447503781399427b35adbbecd00b4d63"
+        },
+        "st": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": "c72b032f6119e6dd64270296713d5626b1473bf4925018ce4dd106d76953213f",
+            "txt_hash": "179b07b4fc7402066a884edea494b28e324315108a5e0820184031f2e2062ad5"
+        },
+        "cert": {
+            "_type": "sec_certs.sample.cc.CCDocumentState",
+            "download_ok": false,
+            "convert_garbage": false,
+            "convert_ok": false,
+            "extract_ok": false,
+            "pdf_hash": null,
+            "txt_hash": null
+        }
       },
       "pdf_data": {
         "_type": "sec_certs.sample.cc.CCCertificate.PdfData",

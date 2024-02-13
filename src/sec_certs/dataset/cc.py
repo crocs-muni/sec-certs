@@ -564,7 +564,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Downloading PDFs of CC certification reports.")
     def _download_reports(self, fresh: bool = True) -> None:
         self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_download(fresh) and x.report_link]
+        certs_to_process = [x for x in self if x.state.report.is_ok_to_download(fresh) and x.report_link]
 
         if not fresh and certs_to_process:
             logger.info(
@@ -580,7 +580,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Downloading PDFs of CC security targets.")
     def _download_targets(self, fresh: bool = True) -> None:
         self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.st_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.st.is_ok_to_download(fresh)]
 
         if not fresh and certs_to_process:
             logger.info(
@@ -596,7 +596,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Downloading PDFs of CC certificates.")
     def _download_certs(self, fresh: bool = True) -> None:
         self.certificates_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.cert_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.cert.is_ok_to_download(fresh)]
 
         if not fresh and certs_to_process:
             logger.info(
@@ -612,7 +612,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Converting PDFs of certification reports to txt.")
     def _convert_reports_to_txt(self, fresh: bool = True) -> None:
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_convert(fresh)]
+        certs_to_process = [x for x in self if x.state.report.is_ok_to_convert(fresh)]
 
         if not fresh and certs_to_process:
             logger.info(
@@ -628,7 +628,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Converting PDFs of security targets to txt.")
     def _convert_targets_to_txt(self, fresh: bool = True) -> None:
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.st_is_ok_to_convert(fresh)]
+        certs_to_process = [x for x in self if x.state.st.is_ok_to_convert(fresh)]
 
         if fresh:
             logger.info("Converting PDFs of security targets to txt.")
@@ -646,7 +646,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @staged(logger, "Converting PDFs of certificates to txt.")
     def _convert_certs_to_txt(self, fresh: bool = True) -> None:
         self.certificates_txt_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.cert_is_ok_to_convert(fresh)]
+        certs_to_process = [x for x in self if x.state.cert.is_ok_to_convert(fresh)]
 
         if fresh:
             logger.info("Converting PDFs of certificates to txt.")
@@ -668,7 +668,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting report metadata")
     def _extract_report_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_metadata,
             certs_to_process,
@@ -679,7 +679,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting target metadata")
     def _extract_target_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_metadata,
             certs_to_process,
@@ -690,7 +690,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting cert metadata")
     def _extract_cert_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.cert_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_cert_pdf_metadata,
             certs_to_process,
@@ -705,7 +705,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting report frontpages")
     def _extract_report_frontpage(self) -> None:
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_frontpage,
             certs_to_process,
@@ -720,7 +720,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting report keywords")
     def _extract_report_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_report_pdf_keywords,
             certs_to_process,
@@ -731,7 +731,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting target keywords")
     def _extract_target_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.st_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_st_pdf_keywords,
             certs_to_process,
@@ -742,7 +742,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Extracting cert keywords")
     def _extract_cert_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.cert_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             CCCertificate.extract_cert_pdf_keywords,
             certs_to_process,
@@ -764,7 +764,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
     @staged(logger, "Computing heuristics: Deriving information about laboratories involved in certification.")
     def _compute_cert_labs(self) -> None:
-        certs_to_process = [x for x in self if x.state.report_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         for cert in certs_to_process:
             cert.compute_heuristics_cert_lab()
 

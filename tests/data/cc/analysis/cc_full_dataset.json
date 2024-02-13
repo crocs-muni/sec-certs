@@ -55,18 +55,33 @@
             },
             "state": {
                 "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
-                "st_download_ok": true,
-                "report_download_ok": true,
-                "st_convert_garbage": false,
-                "report_convert_garbage": false,
-                "st_convert_ok": true,
-                "report_convert_ok": true,
-                "st_extract_ok": true,
-                "report_extract_ok": true,
-                "st_pdf_hash": "f4ab8c62a2325cc634eef164a9707d2375f2e3d5c5ab9791b7c00a6034e64b62",
-                "report_pdf_hash": "1954f42e857c02a156caf8fea7abd36ee0a5953fe0e319c4ec749af277fcfb4b",
-                "st_txt_hash": "c8b4c5667a3f60edc845051e5a31a2d17b9d9a11df9e56dd89681d25e727a622",
-                "report_txt_hash": "35627594d3806ac3926ec47f466503fe27781533da12beb6f8705882fccf125e"
+                "report": {
+                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": "1954f42e857c02a156caf8fea7abd36ee0a5953fe0e319c4ec749af277fcfb4b",
+                    "txt_hash": "35627594d3806ac3926ec47f466503fe27781533da12beb6f8705882fccf125e"
+                },
+                "st": {
+                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": "f4ab8c62a2325cc634eef164a9707d2375f2e3d5c5ab9791b7c00a6034e64b62",
+                    "txt_hash": "c8b4c5667a3f60edc845051e5a31a2d17b9d9a11df9e56dd89681d25e727a622"
+                },
+                "cert": {
+                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                }
             },
             "pdf_data": {
                 "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
