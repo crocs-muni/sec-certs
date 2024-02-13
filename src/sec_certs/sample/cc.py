@@ -38,63 +38,6 @@ HEADERS = {
 }
 
 
-@dataclass
-class CCDocumentState(ComplexSerializableType):
-    download_ok: bool = False  # Whether download went OK
-    convert_garbage: bool = False  # Whether initial conversion resulted in garbage
-    convert_ok: bool = False  # Whether overall conversion went OK (either pdftotext or via OCR)
-    extract_ok: bool = False  # Whether extraction went OK
-
-    pdf_hash: str | None = None
-    txt_hash: str | None = None
-
-    _pdf_path: Path | None = None
-    _txt_path: Path | None = None
-
-    def is_ok_to_download(self, fresh: bool = True) -> bool:
-        return True if fresh else not self.download_ok
-
-    def is_ok_to_convert(self, fresh: bool = True) -> bool:
-        return self.download_ok if fresh else self.download_ok and not self.convert_ok
-
-    def is_ok_to_analyze(self, fresh: bool = True) -> bool:
-        if fresh:
-            return self.download_ok and self.convert_ok
-        else:
-            return self.download_ok and self.convert_ok and not self.extract_ok
-
-    @property
-    def pdf_path(self) -> Path:
-        if not self._pdf_path:
-            raise ValueError(f"pdf_path not set on {type(self)}")
-        return self._pdf_path
-
-    @pdf_path.setter
-    def pdf_path(self, pth: str | Path | None) -> None:
-        self._pdf_path = Path(pth) if pth else None
-
-    @property
-    def txt_path(self) -> Path:
-        if not self._txt_path:
-            raise ValueError(f"txt_path not set on {type(self)}")
-        return self._txt_path
-
-    @txt_path.setter
-    def txt_path(self, pth: str | Path | None) -> None:
-        self._txt_path = Path(pth) if pth else None
-
-    @property
-    def serialized_attributes(self) -> list[str]:
-        return [
-            "download_ok",
-            "convert_garbage",
-            "convert_ok",
-            "extract_ok",
-            "pdf_hash",
-            "txt_hash",
-        ]
-
-
 class CCCertificate(
     Certificate["CCCertificate", "CCCertificate.Heuristics", "CCCertificate.PdfData"],
     PandasSerializableType,
@@ -147,15 +90,82 @@ class CCCertificate(
             return self.maintenance_date < other.maintenance_date
 
     @dataclass
+    class DocumentState(ComplexSerializableType):
+        download_ok: bool = False  # Whether download went OK
+        convert_garbage: bool = False  # Whether initial conversion resulted in garbage
+        convert_ok: bool = False  # Whether overall conversion went OK (either pdftotext or via OCR)
+        extract_ok: bool = False  # Whether extraction went OK
+
+        pdf_hash: str | None = None
+        txt_hash: str | None = None
+
+        _pdf_path: Path | None = None
+        _txt_path: Path | None = None
+
+        def is_ok_to_download(self, fresh: bool = True) -> bool:
+            return True if fresh else not self.download_ok
+
+        def is_ok_to_convert(self, fresh: bool = True) -> bool:
+            return self.download_ok if fresh else self.download_ok and not self.convert_ok
+
+        def is_ok_to_analyze(self, fresh: bool = True) -> bool:
+            if fresh:
+                return self.download_ok and self.convert_ok
+            else:
+                return self.download_ok and self.convert_ok and not self.extract_ok
+
+        @property
+        def pdf_path(self) -> Path:
+            if not self._pdf_path:
+                raise ValueError(f"pdf_path not set on {type(self)}")
+            return self._pdf_path
+
+        @pdf_path.setter
+        def pdf_path(self, pth: str | Path | None) -> None:
+            self._pdf_path = Path(pth) if pth else None
+
+        @property
+        def txt_path(self) -> Path:
+            if not self._txt_path:
+                raise ValueError(f"txt_path not set on {type(self)}")
+            return self._txt_path
+
+        @txt_path.setter
+        def txt_path(self, pth: str | Path | None) -> None:
+            self._txt_path = Path(pth) if pth else None
+
+        @property
+        def serialized_attributes(self) -> list[str]:
+            return [
+                "download_ok",
+                "convert_garbage",
+                "convert_ok",
+                "extract_ok",
+                "pdf_hash",
+                "txt_hash",
+            ]
+
+    @dataclass(init=False)
     class InternalState(ComplexSerializableType):
         """
         Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
         holds information about errors and paths to the files.
         """
 
-        report: CCDocumentState = field(default_factory=CCDocumentState)
-        st: CCDocumentState = field(default_factory=CCDocumentState)
-        cert: CCDocumentState = field(default_factory=CCDocumentState)
+        report: CCCertificate.DocumentState
+        st: CCCertificate.DocumentState
+        cert: CCCertificate.DocumentState
+
+        def __init__(
+            self,
+            report: CCCertificate.DocumentState | None = None,
+            st: CCCertificate.DocumentState | None = None,
+            cert: CCCertificate.DocumentState | None = None,
+        ):
+            super().__init__()
+            self.report = report if report is not None else CCCertificate.DocumentState()
+            self.st = st if st is not None else CCCertificate.DocumentState()
+            self.cert = cert if cert is not None else CCCertificate.DocumentState()
 
         @property
         def serialized_attributes(self) -> list[str]:

@@ -40,7 +40,7 @@
             "state": {
                 "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "report": {
-                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -49,7 +49,7 @@
                     "txt_hash": null
                 },
                 "st": {
-                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -58,7 +58,7 @@
                     "txt_hash": null
                 },
                 "cert": {
-                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -121,7 +121,7 @@
             "state": {
                 "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "report": {
-                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -130,7 +130,7 @@
                     "txt_hash": null
                 },
                 "st": {
-                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -139,7 +139,7 @@
                     "txt_hash": null
                 },
                 "cert": {
-                    "_type": "sec_certs.sample.cc.CCDocumentState",
+                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
