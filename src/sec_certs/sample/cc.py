@@ -277,52 +277,59 @@ class CCCertificate(
 
         def filename_cert_id(self, scheme: str) -> dict[str, float]:
             """
-            Get cert_id candidates from the matches in the report filename.
+            Get cert_id candidates from the matches in the report filename and cert filename.
             """
-            if not self.report_filename:
-                return {}
             scheme_filename_rules = rules["cc_filename_cert_id"][scheme]
             if not scheme_filename_rules:
                 return {}
             scheme_meta = schemes[scheme]
-            matches: Counter = Counter()
-            for rule in scheme_filename_rules:
-                match = re.search(rule, self.report_filename)
-                if match:
-                    try:
-                        meta = match.groupdict()
-                        cert_id = scheme_meta(meta)
-                        matches[cert_id] += 1
-                    except Exception:
-                        continue
-            if not matches:
-                return {}
-            total = max(matches.values())
-            results = {}
-            for candidate, count in matches.items():
-                results[candidate] = count / total
+            results: dict[str, float] = {}
+            for fname in (self.report_filename, self.cert_filename):
+                if not fname:
+                    continue
+
+                matches: Counter = Counter()
+                for rule in scheme_filename_rules:
+                    match = re.search(rule, fname)
+                    if match:
+                        try:
+                            meta = match.groupdict()
+                            cert_id = scheme_meta(meta)
+                            matches[cert_id] += 1
+                        except Exception:
+                            continue
+                if not matches:
+                    continue
+                total = max(matches.values())
+
+                for candidate, count in matches.items():
+                    results.setdefault(candidate, 0)
+                    results[candidate] += count / total
             # TODO count length in weight
             return results
 
         def keywords_cert_id(self, scheme: str) -> dict[str, float]:
             """
-            Get cert_id candidates from the keywords matches in the report.
+            Get cert_id candidates from the keywords matches in the report and cert.
             """
-            if not self.report_keywords:
-                return {}
-            cert_id_matches = self.report_keywords.get("cc_cert_id")
-            if not cert_id_matches:
-                return {}
+            results: dict[str, float] = {}
+            for keywords in (self.report_keywords, self.cert_keywords):
+                if not keywords:
+                    continue
+                cert_id_matches = keywords.get("cc_cert_id")
+                if not cert_id_matches:
+                    continue
 
-            if scheme not in cert_id_matches:
-                return {}
-            matches: Counter = Counter(cert_id_matches[scheme])
-            if not matches:
-                return {}
-            total = max(matches.values())
-            results = {}
-            for candidate, count in matches.items():
-                results[candidate] = count / total
+                if scheme not in cert_id_matches:
+                    continue
+                matches: Counter = Counter(cert_id_matches[scheme])
+                if not matches:
+                    continue
+                total = max(matches.values())
+
+                for candidate, count in matches.items():
+                    results.setdefault(candidate, 0)
+                    results[candidate] += count / total
             # TODO count length in weight
             return results
 
@@ -332,22 +339,27 @@ class CCCertificate(
             """
             scheme_rules = rules["cc_cert_id"][scheme]
             fields = ("/Title", "/Subject")
-            matches: Counter = Counter()
-            for meta_field in fields:
-                field_val = self.report_metadata.get(meta_field) if self.report_metadata else None
-                if not field_val:
+            results: dict[str, float] = {}
+            for metadata in (self.report_metadata, self.cert_metadata):
+                if not metadata:
                     continue
-                for rule in scheme_rules:
-                    match = re.search(rule, field_val)
-                    if match:
-                        cert_id = normalize_match_string(match.group())
-                        matches[cert_id] += 1
-            if not matches:
-                return {}
-            total = max(matches.values())
-            results = {}
-            for candidate, count in matches.items():
-                results[candidate] = count / total
+                matches: Counter = Counter()
+                for meta_field in fields:
+                    field_val = metadata.get(meta_field)
+                    if not field_val:
+                        continue
+                    for rule in scheme_rules:
+                        match = re.search(rule, field_val)
+                        if match:
+                            cert_id = normalize_match_string(match.group())
+                            matches[cert_id] += 1
+                if not matches:
+                    continue
+                total = max(matches.values())
+
+                for candidate, count in matches.items():
+                    results.setdefault(candidate, 0)
+                    results[candidate] += count / total
             # TODO count length in weight
             return results
 
