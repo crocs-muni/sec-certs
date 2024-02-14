@@ -27,15 +27,7 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers
-from sec_certs.utils.extract import normalize_match_string
-
-HEADERS = {
-    "anssi": sec_certs.utils.extract.search_only_headers_anssi,
-    "bsi": sec_certs.utils.extract.search_only_headers_bsi,
-    "nscib": sec_certs.utils.extract.search_only_headers_nscib,
-    "niap": sec_certs.utils.extract.search_only_headers_niap,
-    "canada": sec_certs.utils.extract.search_only_headers_canada,
-}
+from sec_certs.utils.extract import normalize_match_string, scheme_frontpage_functions
 
 
 class CCCertificate(
@@ -181,8 +173,12 @@ class CCCertificate(
         st_metadata: dict[str, Any] | None = field(default=None)
         cert_metadata: dict[str, Any] | None = field(default=None)
         report_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
-        st_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
-        cert_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
+        st_frontpage: dict[str, dict[str, Any]] | None = field(
+            default=None
+        )  # TODO: Unused, we have no frontpage matching for targets
+        cert_frontpage: dict[str, dict[str, Any]] | None = field(
+            default=None
+        )  # TODO: Unused, we have no frontpage matching for certs
         report_keywords: dict[str, Any] | None = field(default=None)
         st_keywords: dict[str, Any] | None = field(default=None)
         cert_keywords: dict[str, Any] | None = field(default=None)
@@ -194,86 +190,33 @@ class CCCertificate(
             return any(x is not None for x in vars(self))
 
         @property
-        def bsi_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to BSI-provided information
-            """
-            return self.report_frontpage.get("bsi", None) if self.report_frontpage else None
-
-        @property
-        def niap_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to niap-provided information
-            """
-            return self.report_frontpage.get("niap", None) if self.report_frontpage else None
-
-        @property
-        def nscib_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to nscib-provided information
-            """
-            return self.report_frontpage.get("nscib", None) if self.report_frontpage else None
-
-        @property
-        def canada_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to canada-provided information
-            """
-            return self.report_frontpage.get("canada", None) if self.report_frontpage else None
-
-        @property
-        def anssi_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to ANSSI-provided information
-            """
-            return self.report_frontpage.get("anssi", None) if self.report_frontpage else None
-
-        @property
         def cert_lab(self) -> list[str] | None:
             """
             Returns labs for which certificate data was parsed.
             """
+            if not self.report_frontpage:
+                return None
             labs = [
                 data["cert_lab"].split(" ")[0].upper()
-                for data in [self.bsi_data, self.anssi_data, self.niap_data, self.nscib_data, self.canada_data]
+                for scheme, data in self.report_frontpage.items()
                 if data and "cert_lab" in data
             ]
             return labs if labs else None
-
-        @property
-        def bsi_cert_id(self) -> str | None:
-            return self.bsi_data.get("cert_id", None) if self.bsi_data else None
-
-        @property
-        def niap_cert_id(self) -> str | None:
-            return self.niap_data.get("cert_id", None) if self.niap_data else None
-
-        @property
-        def nscib_cert_id(self) -> str | None:
-            return self.nscib_data.get("cert_id", None) if self.nscib_data else None
-
-        @property
-        def canada_cert_id(self) -> str | None:
-            return self.canada_data.get("cert_id", None) if self.canada_data else None
-
-        @property
-        def anssi_cert_id(self) -> str | None:
-            return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
         def frontpage_cert_id(self, scheme: str) -> dict[str, float]:
             """
             Get cert_id candidate from the frontpage of the report.
             """
-            scheme_map = {
-                "DE": self.bsi_cert_id,
-                "US": self.niap_cert_id,
-                "NL": self.nscib_cert_id,
-                "CA": self.canada_cert_id,
-                "FR": self.anssi_cert_id,
-            }
-            if scheme in scheme_map and (candidate := scheme_map[scheme]):
-                return {candidate: 1.0}
-            return {}
+            if not self.report_frontpage:
+                return {}
+            data = self.report_frontpage.get(scheme)
+            if not data:
+                return {}
+            cert_id = data.get("cert_id")
+            if not cert_id:
+                return {}
+            else:
+                return {cert_id: 1.0}
 
         def filename_cert_id(self, scheme: str) -> dict[str, float]:
             """
@@ -982,9 +925,9 @@ class CCCertificate(
         """
         cert.pdf_data.report_frontpage = {}
 
-        for header_type, associated_header_func in HEADERS.items():
-            response, cert.pdf_data.report_frontpage[header_type] = associated_header_func(cert.state.report.txt_path)
-
+        if cert.scheme in scheme_frontpage_functions:
+            header_func = scheme_frontpage_functions[cert.scheme]
+            response, cert.pdf_data.report_frontpage[cert.scheme] = header_func(cert.state.report.txt_path)
             if response != constants.RETURNCODE_OK:
                 cert.state.report.extract_ok = False
         return cert

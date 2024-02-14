@@ -130,8 +130,7 @@
                     }
                 },
                 "report_frontpage": {
-                    "anssi": {},
-                    "bsi": {
+                    "DE": {
                         "match_rules": [
                             "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
                         ],
@@ -142,17 +141,9 @@
                         "ref_protection_profiles": "None",
                         "cc_version": "Product specific Security Target Common Criteria Part 2 conformant",
                         "cc_security_level": "Common Criteria Part 3 conformant EAL 3 augmented by ALC_FLR.1 SOGIS Recognition Agreement"
-                    },
-                    "nscib": {},
-                    "niap": {},
-                    "canada": {}
+                    }
                 },
                 "st_frontpage": {
-                    "anssi": {},
-                    "bsi": {},
-                    "nscib": {},
-                    "niap": {},
-                    "canada": {}
                 },
                 "report_keywords": {
                     "cc_cert_id": {

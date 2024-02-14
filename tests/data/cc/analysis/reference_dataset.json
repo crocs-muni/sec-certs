@@ -101,8 +101,7 @@
           "/Title": "Security Target The Océ Digital Access Controller (DAC) R10.1.5, as used in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products"
         },
         "report_frontpage": {
-          "anssi": {},
-          "bsi": {
+          "DE": {
             "match_rules": [
               "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
             ],
@@ -110,17 +109,9 @@
             "cert_item": "Océ Digital Access Controller (DAC) R10.1.5 for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
             "developer": "Océ Technologies B.V",
             "cert_lab": "BSI"
-          },
-          "nscib": {},
-          "niap": {},
-          "canada": {}
+          }
         },
         "st_frontpage": {
-          "anssi": {},
-          "bsi": {},
-          "nscib": {},
-          "niap": {},
-          "canada": {}
         },
         "report_keywords": {
           "cc_cert_id": {
@@ -678,8 +669,7 @@
           "/Title": "Microsoft Word - Oce Venlo DAC Security Target 2.4.doc"
         },
         "report_frontpage": {
-          "anssi": {},
-          "bsi": {
+          "DE": {
             "match_rules": [
               "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
             ],
@@ -687,17 +677,9 @@
             "cert_item": "Océ Digital Access Controller (DAC) R9.1.6",
             "developer": "Océ Technologies B.V",
             "cert_lab": "BSI"
-          },
-          "nscib": {},
-          "niap": {},
-          "canada": {}
+          }
         },
         "st_frontpage": {
-          "anssi": {},
-          "bsi": {},
-          "nscib": {},
-          "niap": {},
-          "canada": {}
         },
         "report_keywords": {
           "cc_cert_id": {
@@ -1333,8 +1315,7 @@
           "/Title": "Microsoft Word - Oce Venlo DAC Security Target 1.9.doc"
         },
         "report_frontpage": {
-          "anssi": {},
-          "bsi": {
+          "DE": {
             "match_rules": [
               "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
             ],
@@ -1342,17 +1323,9 @@
             "cert_item": "Océ Digital Access Controller (DAC) R 8.1.10",
             "developer": "Océ Technologies B.V",
             "cert_lab": "BSI"
-          },
-          "nscib": {},
-          "niap": {},
-          "canada": {}
+          }
         },
         "st_frontpage": {
-          "anssi": {},
-          "bsi": {},
-          "nscib": {},
-          "niap": {},
-          "canada": {}
         },
         "report_keywords": {
           "cc_cert_id": {
