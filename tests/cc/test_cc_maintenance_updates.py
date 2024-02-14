@@ -43,11 +43,11 @@ def test_download_artifacts(mu_dset: CCDatasetMaintenanceUpdates):
     mu_dset.download_all_artifacts()
     mu = mu_dset["cert_8a5e6bcda602920c_update_559ed93dd80320b5"]
 
-    if not (mu.state.report_download_ok or mu.state.st_download_ok):
+    if not (mu.state.report.download_ok or mu.state.st.download_ok):
         pytest.xfail(reason="Fail due to error on CC server.")
 
-    assert mu.state.report_pdf_hash == "80bada65614c1b037c13efa78996a8910700d0e05a3ca217286f76d7dacefe62"
-    assert mu.state.st_pdf_hash == "d42e4364d037ba742fcd4050a9a84d0e6300f93eb68bcfe8c61f72c429c9ceca"
+    assert mu.state.report.pdf_hash == "80bada65614c1b037c13efa78996a8910700d0e05a3ca217286f76d7dacefe62"
+    assert mu.state.st.pdf_hash == "d42e4364d037ba742fcd4050a9a84d0e6300f93eb68bcfe8c61f72c429c9ceca"
 
 
 def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path, tmp_path: Path):

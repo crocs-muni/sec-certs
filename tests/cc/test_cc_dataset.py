@@ -23,41 +23,52 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         "8a5e6bcda602920c": "fcee91f09bb72a6526a1f94d0ab754a6db3fbe3ba5773cd372df19788bb25292",
     }
 
+    template_cert_pdf_hashes = {
+        "309ac2fd7f2dcf17": "9d38bca310c4d349cc39471e0b75d939cc275db9a75b07b8a365d719cfbedcc5",
+        "8cf86948f02f047d": None,
+        "8a5e6bcda602920c": "4ba78f26f505819183256ca5a6b404fa90c750fe160c41791e4c400f64e2f6d5",
+    }
+
     with TemporaryDirectory() as td:
         toy_dataset.copy_dataset(td)
         toy_dataset.download_all_artifacts()
 
         if not (
-            toy_dataset["309ac2fd7f2dcf17"].state.report_download_ok
-            or toy_dataset["309ac2fd7f2dcf17"].state.st_download_ok
-            or toy_dataset["8cf86948f02f047d"].state.report_download_ok
-            or toy_dataset["8cf86948f02f047d"].state.st_download_ok
-            or toy_dataset["8a5e6bcda602920c"].state.report_download_ok
-            or toy_dataset["8a5e6bcda602920c"].state.st_download_ok
+            toy_dataset["309ac2fd7f2dcf17"].state.report.download_ok
+            or toy_dataset["309ac2fd7f2dcf17"].state.st.download_ok
+            or toy_dataset["309ac2fd7f2dcf17"].state.cert.download_ok
+            or toy_dataset["8cf86948f02f047d"].state.report.download_ok
+            or toy_dataset["8cf86948f02f047d"].state.st.download_ok
+            or toy_dataset["8a5e6bcda602920c"].state.report.download_ok
+            or toy_dataset["8a5e6bcda602920c"].state.st.download_ok
+            or toy_dataset["8a5e6bcda602920c"].state.cert.download_ok
         ):
             pytest.xfail(reason="Fail due to error during download")
 
         toy_dataset.convert_all_pdfs()
 
         for cert in toy_dataset:
-            assert cert.state.report_pdf_hash == template_report_pdf_hashes[cert.dgst]
-            assert cert.state.st_pdf_hash == template_st_pdf_hashes[cert.dgst]
-            assert not cert.state.report_convert_garbage
-            assert not cert.state.st_convert_garbage
-            assert cert.state.report_convert_ok
-            assert cert.state.st_convert_ok
-            assert cert.state.report_txt_path.exists()
-            assert cert.state.st_txt_path.exists()
+            assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
+            assert cert.state.st.pdf_hash == template_st_pdf_hashes[cert.dgst]
+            assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
+            assert not cert.state.report.convert_garbage
+            assert not cert.state.st.convert_garbage
+            assert cert.state.report.convert_ok
+            assert cert.state.st.convert_ok
+            assert cert.state.report.txt_path.exists()
+            assert cert.state.st.txt_path.exists()
+            if cert.cert_link:
+                assert cert.state.cert.txt_path.exists()
 
         template_report_txt_path = data_dir / "report_309ac2fd7f2dcf17.txt"
         template_st_txt_path = data_dir / "target_309ac2fd7f2dcf17.txt"
         assert (
-            abs(toy_dataset["309ac2fd7f2dcf17"].state.st_txt_path.stat().st_size - template_st_txt_path.stat().st_size)
+            abs(toy_dataset["309ac2fd7f2dcf17"].state.st.txt_path.stat().st_size - template_st_txt_path.stat().st_size)
             < 1000
         )
         assert (
             abs(
-                toy_dataset["309ac2fd7f2dcf17"].state.report_txt_path.stat().st_size
+                toy_dataset["309ac2fd7f2dcf17"].state.report.txt_path.stat().st_size
                 - template_report_txt_path.stat().st_size
             )
             < 1000
