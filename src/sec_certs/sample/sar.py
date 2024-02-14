@@ -15,7 +15,7 @@ SAR_CLASS_MAPPING = {
     "ALC": "Life-cycle support",
     "ATE": "Tests",
     "AVA": "Vulnerability assessment",
-    "ACO": "Comoposition",
+    "ACO": "Composition",
 }
 
 SAR_CLASSES = set(SAR_CLASS_MAPPING)
