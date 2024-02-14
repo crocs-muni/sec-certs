@@ -658,7 +658,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         cert_processing.process_parallel(
             CCCertificate.convert_cert_pdf,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of security targets to txt",
+            progress_bar_desc="Converting PDFs of certificates to txt",
         )
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
@@ -702,6 +702,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     def _extract_pdf_metadata(self) -> None:
         self._extract_report_metadata()
         self._extract_target_metadata()
+        self._extract_cert_metadata()
 
     @staged(logger, "Extracting report frontpages")
     def _extract_report_frontpage(self) -> None:
