@@ -49,7 +49,9 @@
 {%- endmacro %}
 
 {% macro render_document_type(document_type) %}
-    {% if document_type == "report" %}
+    {% if document_type == "cert" %}
+        <span>Certificate</span>
+    {% elif document_type == "report" %}
         <span>Certification Report</span>
     {% elif document_type == "target" %}
         <span>Security Target</span>

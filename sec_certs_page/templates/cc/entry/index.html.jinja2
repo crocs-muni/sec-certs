@@ -211,27 +211,72 @@
         <div class="row bg-dark p-3">
             <div class="col-10 mx-auto p-3 py-md-5 text-light">
                 <div class="mb-5">
+                    <div class="mt-5 mb-3">
+                    <h2 class="anchor" id="st-info">Certificate
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge bg-secondary"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="Information automatically extracted from the certificate. Might contain errors.">?</span>
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge rounded-pill {% if cert["state"]["cert"]["download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="{% if cert["state"]["cert"]["download_ok"] %}Certificate was downloaded successfully.{% else %}Certificate download failed, it is probably unavailable.{% endif %}">
+                                <i class="fas fa-download"></i>
+                        </span>
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge rounded-pill {% if cert["state"]["cert"]["convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="{% if cert["state"]["cert"]["convert_ok"] %}Certificate was successfully converted from PDF to text.{% else %}Certificate conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
+                                <i class="fas fa-file-import"></i>
+                        </span>
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                              class="badge rounded-pill {% if cert["state"]["cert"]["extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="{% if cert["state"]["st"]["extract_ok"] %}Keywords and metadata were successfully extracted from the certificate text.{% else %}Keyword or metadata extraction from certificate text failed.{% endif %}">
+                                <i class="fas fa-spell-check"></i>
+                        </span>
+                    </h2>
+
+                    <div class="mt-3 mb-3">
+                        {{ render_local_files(hashid, local_files, cert['cert_link'], None, None, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                    </div>
+
+                    {% if cert["pdf_data"]["cert_keywords"] %}
+                        <h3 class="mt-3">Extracted keywords</h3>
+                        {{ cryptography_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                        {{ device_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                        {{ cc_keywords(cert["pdf_data"]["cert_keywords"], "cert", map_funcs={"cc_sar": render_sars,
+                                                                                               "cc_sfr": render_sfrs}) }}
+                        {{ security_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                        {{ other_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                    {% endif %}
+                    {% if cert["pdf_data"]["cert_metadata"] %}
+                        <h3 class="mt-3">File metadata</h3>
+                        {{ render_pdf_meta(cert["pdf_data"]["cert_metadata"], "Certificate") }}
+                    {% endif %}
+                </div>
+
                     <h2 class="anchor" id="report-info">Certification report
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                               class="badge bg-secondary"
                               data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information automatically extracted from the certificate report. Might contain errors.">?</span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report_download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["report"]["download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report_download_ok"] %}Certification report was downloaded successfully.{% else %}Certification report download failed, it is probably unavailable.{% endif %}">
+                              title="{% if cert["state"]["report"]["download_ok"] %}Certification report was downloaded successfully.{% else %}Certification report download failed, it is probably unavailable.{% endif %}">
                                 <i class="fas fa-download"></i>
                         </span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report_convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["report"]["convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report_convert_ok"] %}Certification report was successfully converted from PDF to text.{% else %}Certification report conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
+                              title="{% if cert["state"]["report"]["convert_ok"] %}Certification report was successfully converted from PDF to text.{% else %}Certification report conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
                                 <i class="fas fa-file-import"></i>
                         </span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report_extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["report"]["extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report_extract_ok"] %}Keywords and metadata were successfully extracted from the certification report text.{% else %}Keyword or metadata extraction from certification report text failed.{% endif %}">
+                              title="{% if cert["state"]["report"]["extract_ok"] %}Keywords and metadata were successfully extracted from the certification report text.{% else %}Keyword or metadata extraction from certification report text failed.{% endif %}">
                                 <i class="fas fa-spell-check"></i>
                         </span>
                     </h2>
@@ -241,12 +286,12 @@
 
                     {% if cert["pdf_data"]["report_keywords"] %}
                         <h3 class="mt-3">Extracted keywords</h3>
-                        {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "cert") }}
-                        {{ device_keywords(cert["pdf_data"]["report_keywords"], "cert") }}
-                        {{ cc_keywords(cert["pdf_data"]["report_keywords"], "cert", map_funcs={"cc_sar": render_sars,
+                        {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                        {{ device_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                        {{ cc_keywords(cert["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
                                                                                                "cc_sfr": render_sfrs}) }}
-                        {{ security_keywords(cert["pdf_data"]["report_keywords"], "cert") }}
-                        {{ other_keywords(cert["pdf_data"]["report_keywords"], "cert") }}
+                        {{ security_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                        {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
                     {% endif %}
                     {% if cert["pdf_data"]["report_metadata"] %}
                         <h3 class="mt-3">File metadata</h3>
@@ -266,21 +311,21 @@
                               data-bs-toggle="tooltip" data-bs-placement="top"
                               title="Information automatically extracted from the security target. Might contain errors.">?</span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["st_download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["st"]["download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st_download_ok"] %}Security target was downloaded successfully.{% else %}Security target download failed, it is probably unavailable.{% endif %}">
+                              title="{% if cert["state"]["st"]["download_ok"] %}Security target was downloaded successfully.{% else %}Security target download failed, it is probably unavailable.{% endif %}">
                                 <i class="fas fa-download"></i>
                         </span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["st_convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["st"]["convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st_convert_ok"] %}Security target was successfully converted from PDF to text.{% else %}Security target conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
+                              title="{% if cert["state"]["st"]["convert_ok"] %}Security target was successfully converted from PDF to text.{% else %}Security target conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
                                 <i class="fas fa-file-import"></i>
                         </span>
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["st_extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
+                              class="badge rounded-pill {% if cert["state"]["st"]["extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
                               data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st_extract_ok"] %}Keywords and metadata were successfully extracted from the security target text.{% else %}Keyword or metadata extraction from security target text failed.{% endif %}">
+                              title="{% if cert["state"]["st"]["extract_ok"] %}Keywords and metadata were successfully extracted from the security target text.{% else %}Keyword or metadata extraction from security target text failed.{% endif %}">
                                 <i class="fas fa-spell-check"></i>
                         </span>
                     </h2>
@@ -302,8 +347,6 @@
                         <h3 class="mt-3">File metadata</h3>
                         {{ render_pdf_meta(cert["pdf_data"]["st_metadata"], "Security target") }}
                     {% endif %}
-
-                    {{ render_frontpage(cert, "st_frontpage", "Security target - Frontpage") }}
 
                     <h3 class="mt-3">References</h3>
                     {{ render_references(network, hashid, "st") }}

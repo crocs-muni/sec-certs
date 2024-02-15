@@ -67,7 +67,7 @@ class CCFulltextSearch(FulltextSearch):
     schema = "cc"
     status_options = {"any", "active", "archived"}
     status_default = "any"
-    type_options = {"any", "report", "target"}
+    type_options = {"any", "cert", "report", "target"}
     type_default = "any"
     categories = cc_categories  # type: ignore
     collection = mongo.db.cc

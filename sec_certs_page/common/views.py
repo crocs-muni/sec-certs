@@ -32,9 +32,11 @@ entry_download_report_pdf = partial(_entry_download_func, document="report", for
 entry_download_report_txt = partial(_entry_download_func, document="report", format="txt")
 entry_download_target_pdf = partial(_entry_download_func, document="target", format="pdf")
 entry_download_target_txt = partial(_entry_download_func, document="target", format="txt")
+entry_download_certificate_pdf = partial(_entry_download_func, document="cert", format="pdf")
+entry_download_certificate_txt = partial(_entry_download_func, document="cert", format="txt")
 
 
-def entry_download_files(hashid, dataset_path, documents=("report", "target"), formats=("pdf", "txt")):
+def entry_download_files(hashid, dataset_path, documents=("report", "target", "cert"), formats=("pdf", "txt")):
     return {
         (document, format): entry_file_path(hashid, dataset_path, document, format).exists()
         for document, format in product(documents, formats)

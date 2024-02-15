@@ -67,6 +67,9 @@
                         <select id="search-type" class="form-control">
                             <option value="any" {% if document_type == "any" %}selected="selected"{% endif %}>Any
                             </option>
+                            <option value="cert" {% if document_type == "cert" %}selected="selected"{% endif %}>
+                                Certificate
+                            </option>
                             <option value="report" {% if document_type == "report" %}selected="selected"{% endif %}>
                                 Certification Report
                             </option>

@@ -7,7 +7,6 @@ from flask import current_app
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
-from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
@@ -106,24 +105,33 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
 
             with sentry_sdk.start_span(op="cc.move", description="Move files"), suppress_child_spans():
                 for cert in dset:
-                    if cert.state.report_pdf_path and cert.state.report_pdf_path.exists():
+                    if cert.state.report.pdf_path and cert.state.report.pdf_path.exists():
                         dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report_pdf_hash:
-                            cert.state.report_pdf_path.replace(dst)
-                    if cert.state.report_txt_path and cert.state.report_txt_path.exists():
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.pdf_hash:
+                            cert.state.report.pdf_path.replace(dst)
+                    if cert.state.report.txt_path and cert.state.report.txt_path.exists():
                         dst = paths["report_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report_txt_hash:
-                            cert.state.report_txt_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
+                            cert.state.report.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "report"))
-                    if cert.state.st_pdf_path and cert.state.st_pdf_path.exists():
+                    if cert.state.st.pdf_path and cert.state.st.pdf_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st_pdf_hash:
-                            cert.state.st_pdf_path.replace(dst)
-                    if cert.state.st_txt_path and cert.state.st_txt_path.exists():
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.pdf_hash:
+                            cert.state.st.pdf_path.replace(dst)
+                    if cert.state.st.txt_path and cert.state.st.txt_path.exists():
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st_txt_hash:
-                            cert.state.st_txt_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
+                            cert.state.st.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "target"))
+                    if cert.state.cert.pdf_path and cert.state.cert.pdf_path.exists():
+                        dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.pdf_hash:
+                            cert.state.ceert.pdf_path.replace(dst)
+                    if cert.state.cert.txt_path and cert.state.cert.txt_path.exists():
+                        dst = paths["cert_txt"] / f"{cert.dgst}.txt"
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
+                            cert.state.cert.txt_path.replace(dst)
+                            to_reindex.add((cert.dgst, "cert"))
         return to_reindex
 
     def dataset_state(self, dset):

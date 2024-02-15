@@ -77,7 +77,7 @@ class Updater:  # pragma: no cover
                 suffix = key[len(out_prefix) :]
                 res[f"output_path{suffix}"] = instance_path / value
 
-        for document, format in product(("report", "target"), ("pdf", "txt")):
+        for document, format in product(("report", "target", "cert"), ("pdf", "txt")):
             path = res["dir_path"] / document / format
             path.mkdir(parents=True, exist_ok=True)
             res[f"{document}_{format}"] = path
