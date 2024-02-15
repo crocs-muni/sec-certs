@@ -126,7 +126,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                     if cert.state.cert.pdf_path and cert.state.cert.pdf_path.exists():
                         dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.pdf_hash:
-                            cert.state.ceert.pdf_path.replace(dst)
+                            cert.state.cert.pdf_path.replace(dst)
                     if cert.state.cert.txt_path and cert.state.cert.txt_path.exists():
                         dst = paths["cert_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
