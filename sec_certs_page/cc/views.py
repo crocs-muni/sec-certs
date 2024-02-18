@@ -19,6 +19,8 @@ from werkzeug.utils import safe_join
 from .. import cache, mongo, sitemap
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
+    entry_download_certificate_pdf,
+    entry_download_certificate_txt,
     entry_download_files,
     entry_download_report_pdf,
     entry_download_report_txt,
@@ -340,6 +342,16 @@ def entry_report_txt(hashid):
 @cc.route("/<string(length=16):hashid>/report.pdf")
 def entry_report_pdf(hashid):
     return entry_download_report_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
+
+
+@cc.route("/<string(length=16):hashid>/cert.txt")
+def entry_cert_txt(hashid):
+    return entry_download_certificate_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
+
+
+@cc.route("/<string(length=16):hashid>/cert.pdf")
+def entry_cert_pdf(hashid):
+    return entry_download_certificate_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/graph.json")
