@@ -23,6 +23,8 @@
             {% set frontpage = cert["pdf_data"][doc_type]["canada"] %}
         {% elif cert["pdf_data"][doc_type]["nscib"] %}
             {% set frontpage = cert["pdf_data"][doc_type]["nscib"] %}
+        {% elif cert["pdf_data"][doc_type][cert["scheme"]] %}
+            {% set frontpage = cert["pdf_data"][doc_type][cert["scheme"]] %}
         {% endif %}
         {% if frontpage %}
             <h3 class="mt-3">Frontpage</h3>
@@ -92,6 +94,42 @@
     {%- else -%}
         {{ sar }}
     {%- endif -%}
+{%- endmacro %}
+
+{% macro render_document_state(state, document_type, document_name) %}
+    {% if document_type in state %}
+        {% set download_ok = state[document_type]["download_ok"] %}
+        {% set convert_ok = state[document_type]["convert_ok"] %}
+        {% set convert_garbage = state[document_type]["convert_garbage"] %}
+        {% set extract_ok = state[document_type]["extract_ok"] %}
+    {% else %}
+        {% set download_ok = state[document_type + "_download_ok"] %}
+        {% set convert_ok = state[document_type + "_convert_ok"] %}
+        {% set convert_garbage = state[document_type + "_convert_garbage"] %}
+        {% set extract_ok = state[document_type + "_extract_ok"] %}
+    {% endif %}
+    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+          class="badge bg-secondary"
+          data-bs-toggle="tooltip" data-bs-placement="top"
+          title="Information automatically extracted from the {{ document_name }}. Might contain errors.">?</span>
+    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+          class="badge rounded-pill {% if download_ok %}bg-success{% else %}bg-warning{% endif %}"
+          data-bs-toggle="tooltip" data-bs-placement="top"
+          title="{% if download_ok %}{{ document_name | capitalize }} was downloaded successfully.{% else %}{{ document_name | capitalize }} download failed, it is probably unavailable.{% endif %}">
+                                <i class="fas fa-download"></i>
+    </span>
+    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+          class="badge rounded-pill {% if convert_ok %}bg-success{% else %}bg-warning{% endif %}"
+          data-bs-toggle="tooltip" data-bs-placement="top"
+          title="{% if convert_ok %}{{ document_name | capitalize }} was successfully converted from PDF to text.{% else %}{{ document_name | capitalize }} conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
+                                <i class="fas fa-file-import"></i>
+    </span>
+    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+          class="badge rounded-pill {% if extract_ok %}bg-success{% else %}bg-warning{% endif %}"
+          data-bs-toggle="tooltip" data-bs-placement="top"
+          title="{% if extract_ok %}Keywords and metadata were successfully extracted from the {{ document_name }} text.{% else %}Keyword or metadata extraction from {{ document_name }} text failed.{% endif %}">
+                                <i class="fas fa-spell-check"></i>
+    </span>
 {%- endmacro %}
 
 {% macro render_pagination(pagination, certs, search=False) %}
@@ -186,15 +224,15 @@
 
             let full = new d3.InternMap([...base, ...nested]);
 
-            let res = d3.sort(d3.map(full, ([name, value]) => ({week: weekParser(name), count:value})), (d) => d.week);
+            let res = d3.sort(d3.map(full, ([name, value]) => ({week: weekParser(name), count: value})), (d) => d.week);
             const svg = d3.create("svg")
                 .attr("viewBox", [0, 0, width, height]);
 
-          svg.append("path")
-              .attr("fill", "none")
-              .attr("stroke", "var(--bs-primary)")
-              .attr("stroke-width", 1.5)
-              .attr("d", line(res));
+            svg.append("path")
+                .attr("fill", "none")
+                .attr("stroke", "var(--bs-primary)")
+                .attr("stroke-width", 1.5)
+                .attr("d", line(res));
 
             svg.append("g")
                 .call(xAxis);

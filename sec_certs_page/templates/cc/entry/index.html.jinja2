@@ -1,7 +1,7 @@
 {% extends "crowdsourced.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "cc/utils.html.jinja2" import cc_keywords, security_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
+{% from "cc/utils.html.jinja2" import cc_keywords, security_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage, render_document_state %}
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
@@ -212,29 +212,8 @@
             <div class="col-10 mx-auto p-3 py-md-5 text-light">
                 <div class="mb-5">
                     <div class="mt-5 mb-3">
-                    <h2 class="anchor" id="st-info">Certificate
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-secondary"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Information automatically extracted from the certificate. Might contain errors.">?</span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["cert"]["download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["cert"]["download_ok"] %}Certificate was downloaded successfully.{% else %}Certificate download failed, it is probably unavailable.{% endif %}">
-                                <i class="fas fa-download"></i>
-                        </span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["cert"]["convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["cert"]["convert_ok"] %}Certificate was successfully converted from PDF to text.{% else %}Certificate conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
-                                <i class="fas fa-file-import"></i>
-                        </span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["cert"]["extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st"]["extract_ok"] %}Keywords and metadata were successfully extracted from the certificate text.{% else %}Keyword or metadata extraction from certificate text failed.{% endif %}">
-                                <i class="fas fa-spell-check"></i>
-                        </span>
+                    <h2 class="anchor" id="cert-info">Certificate
+                        {{ render_document_state(cert["state"], "cert", "certificate") }}
                     </h2>
 
                     <div class="mt-3 mb-3">
@@ -257,28 +236,7 @@
                 </div>
 
                     <h2 class="anchor" id="report-info">Certification report
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-secondary"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Information automatically extracted from the certificate report. Might contain errors.">?</span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report"]["download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report"]["download_ok"] %}Certification report was downloaded successfully.{% else %}Certification report download failed, it is probably unavailable.{% endif %}">
-                                <i class="fas fa-download"></i>
-                        </span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report"]["convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report"]["convert_ok"] %}Certification report was successfully converted from PDF to text.{% else %}Certification report conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
-                                <i class="fas fa-file-import"></i>
-                        </span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["report"]["extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["report"]["extract_ok"] %}Keywords and metadata were successfully extracted from the certification report text.{% else %}Keyword or metadata extraction from certification report text failed.{% endif %}">
-                                <i class="fas fa-spell-check"></i>
-                        </span>
+                        {{ render_document_state(cert["state"], "report", "certification report") }}
                     </h2>
                     <div class="mt-3 mb-3">
                         {{ render_local_files(hashid, local_files, None, cert['report_link'], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
@@ -306,28 +264,7 @@
 
                 <div class="mt-5 mb-3">
                     <h2 class="anchor" id="st-info">Security target
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-secondary"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Information automatically extracted from the security target. Might contain errors.">?</span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["st"]["download_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st"]["download_ok"] %}Security target was downloaded successfully.{% else %}Security target download failed, it is probably unavailable.{% endif %}">
-                                <i class="fas fa-download"></i>
-                        </span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["st"]["convert_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st"]["convert_ok"] %}Security target was successfully converted from PDF to text.{% else %}Security target conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
-                                <i class="fas fa-file-import"></i>
-                        </span>
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge rounded-pill {% if cert["state"]["st"]["extract_ok"] %}bg-success{% else %}bg-warning{% endif %}"
-                              data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="{% if cert["state"]["st"]["extract_ok"] %}Keywords and metadata were successfully extracted from the security target text.{% else %}Keyword or metadata extraction from security target text failed.{% endif %}">
-                                <i class="fas fa-spell-check"></i>
-                        </span>
+                        {{ render_document_state(cert["state"], "st", "security target") }}
                     </h2>
 
                     <div class="mt-3 mb-3">
