@@ -41,7 +41,7 @@ confection==0.1.3
     #   weasel
 contourpy==1.2.0
     # via matplotlib
-cryptography==42.0.0
+cryptography==42.0.2
     # via pypdf
 cycler==0.12.1
     # via matplotlib

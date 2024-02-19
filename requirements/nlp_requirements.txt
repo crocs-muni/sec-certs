@@ -73,7 +73,7 @@ contourpy==1.2.0
     # via
     #   bokeh
     #   matplotlib
-cryptography==42.0.0
+cryptography==42.0.2
     # via pypdf
 cycler==0.12.1
     # via matplotlib
