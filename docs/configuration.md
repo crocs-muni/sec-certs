@@ -44,11 +44,12 @@ import typing
 
 type_hints = typing.get_type_hints(Configuration)
 text = ""
-for field, value in config.__fields__.items():
+for field, value in config.model_fields.items():
     text += f"`{field}`\n\n"
     text += f"- type: `{type_hints[field]}`\n"
     text += f"- default: `{value.default}`\n"
-    text += f"- description: {value.field_info.description}\n"
-    text += f"- env name: `{list(value.field_info.extra['env_names'])[0]}`\n\n"
+    text += f"- description: {value.description}\n"
+    env_var = "SECCERTS_" + field.upper()
+    text += f"- env name: `{env_var}`\n\n"
 glue("text", Markdown(text))
 ```
