@@ -49,6 +49,8 @@ These can be further merged into the following super-categories:
 - **Previous version**: `previous_version` and `re-evaluation`
 - **None**: `None` or `irrelevant`
 
+The complete formal codebook can be found at [Overleaf](https://www.overleaf.com/read/dmcpzcfpgrdg#2d938a).
+
 ###  Inter-annotator agreement
 
 The inter-annotator agreement is measured both with Cohen's Kappa and with percentage. The results are as follows:
