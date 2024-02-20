@@ -130,8 +130,6 @@ docutils==0.19
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
-    # via sec-certs (./../pyproject.toml)
 evaluate==0.4.1
     # via setfit
 executing==2.0.1
@@ -644,9 +642,7 @@ snowballstemmer==2.2.0
 soupsieve==2.5
     # via beautifulsoup4
 spacy==3.7.2
-    # via
-    #   en-core-web-sm
-    #   sec-certs (./../pyproject.toml)
+    # via sec-certs (./../pyproject.toml)
 spacy-legacy==3.0.12
     # via spacy
 spacy-loggers==1.0.5

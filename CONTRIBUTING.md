@@ -35,12 +35,9 @@ Note on single-sourcing the package version: More can be read [here](https://pac
 ### Currently, the release process is as follows
 
 1. Update dependencies with `pre-commit autoupdate`, pin new versions of linters into `pyproject.toml`.
-2. Run `cd requirements && ./compile.sh` to update dependencies.
-3. Use `python -m spacy download en_core_web_sm` to find out the current version of `en_core_web_sm` dependency. Update pyproject.toml link of `en_core_web_sm` dependency with up-to-date link from [GitHub](https://github.com/explosion/spacy-models/releases).
-4. Run `cd requirements && ./compile.sh` **again** to update dependencies.
+2. Run `cd requirements && ./compile.sh` to update dependencies, commit the changes.
 5. Create a release from GitHub UI. Include release notes, add proper version tag and publish the release (or create it from scratch with new tag).
 6. This will automatically update PyPi and DockerHub packages.
-
 
 ## Quality assurance
 
