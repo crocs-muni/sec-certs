@@ -102,7 +102,7 @@
     sec-certs = "sec_certs.cli:main"
 
 [tool.ruff]
-  select = [
+  lint.select = [
     "I",   # isort
     "E",   # pycodestyle
     "W",   # pycodestyle
@@ -113,14 +113,14 @@
     "C4",  # comprehensions
     "SIM",
   ]
-  ignore = [
+  lint.ignore = [
     "E501", # line-length, should be handled by ruff format
   ]
   src = ["src", "tests"]
   line-length = 120
   target-version = "py310"
 
-  [tool.ruff.mccabe]
+  [tool.ruff.lint.mccabe]
     max-complexity = 10
 
   [tool.setuptools.package-data]

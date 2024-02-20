@@ -32,16 +32,16 @@ class CPEMatchCriteria(ComplexSerializableType):
 
     @classmethod
     def from_nist_dict(cls, dct: dict[str, Any]) -> CPEMatchCriteria:
-        if dct.get("versionStartIncluding", None):
+        if dct.get("versionStartIncluding"):
             version_start = ("including", dct["versionStartIncluding"])
         elif dct.get("versionStartExcluding"):
             version_start = ("excluding", dct["versionStartExcluding"])
         else:
             version_start = None
 
-        if dct.get("versionEndIncluding", None):
+        if dct.get("versionEndIncluding"):
             version_end = ("including", dct["versionEndIncluding"])
-        elif dct.get("versionEndExcluding", None):
+        elif dct.get("versionEndExcluding"):
             version_end = ("excluding", dct["versionEndExcluding"])
         else:
             version_end = None

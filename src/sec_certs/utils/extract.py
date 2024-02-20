@@ -727,8 +727,7 @@ def load_text_file(
 
     whole_text = ""
     whole_text_with_newlines = ""
-    lines_included = 0
-    for line in lines:
+    for lines_included, line in enumerate(lines):
         if limit_max_lines != -1 and lines_included >= limit_max_lines:
             break
 
@@ -736,7 +735,6 @@ def load_text_file(
         line = line.replace("\n", "")
         whole_text += line
         whole_text += line_separator
-        lines_included += 1
 
     return whole_text, whole_text_with_newlines, was_unicode_decode_error
 

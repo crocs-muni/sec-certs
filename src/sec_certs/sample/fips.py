@@ -53,7 +53,7 @@ class FIPSHTMLParser:
     def _build_details_dict(self, details_div: Tag) -> dict[str, Any]:
         def parse_single_detail_entry(key, entry):
             normalized_key = DETAILS_KEY_NORMALIZATION_DICT[key]
-            normalization_func = DETAILS_KEY_TO_NORMALIZATION_FUNCTION.get(normalized_key, None)
+            normalization_func = DETAILS_KEY_TO_NORMALIZATION_FUNCTION.get(normalized_key)
             normalized_entry = (
                 FIPSHTMLParser.normalize_string(entry.text) if not normalization_func else normalization_func(entry)
             )
