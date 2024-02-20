@@ -49,7 +49,7 @@ All commits shall pass the lint pipeline of the following tools:
 - Mypy (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 - Ruff (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 
-These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool to register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
+These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/requirements/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool to register git hook that will evalute these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
 It should thus suffice to:
 
