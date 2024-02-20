@@ -45,7 +45,7 @@ coverage[toml]==7.3.2
     # via
     #   pytest-cov
     #   sec-certs (./../pyproject.toml)
-cryptography==41.0.6
+cryptography==42.0.2
     # via pypdf
 cycler==0.12.1
     # via matplotlib
@@ -86,7 +86,7 @@ ipywidgets==8.1.1
     # via sec-certs (./../pyproject.toml)
 jedi==0.19.1
     # via ipython
-jinja2==3.1.2
+jinja2==3.1.3
     # via spacy
 joblib==1.3.2
     # via scikit-learn
@@ -169,7 +169,7 @@ pexpect==4.8.0
     # via ipython
 pikepdf==8.7.1
     # via sec-certs (./../pyproject.toml)
-pillow==10.1.0
+pillow==10.2.0
     # via
     #   matplotlib
     #   pikepdf

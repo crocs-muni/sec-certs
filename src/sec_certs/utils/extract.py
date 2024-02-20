@@ -818,3 +818,12 @@ def get_sums_for_rules_subset(dct: dict | None, path: str) -> dict[str, float]:
     cc_rules_subset_to_search = rules_get_subset(path)
     paths_to_search = extract_key_paths(cc_rules_subset_to_search, path)
     return {x: get_sum_of_values_from_dict_path(dct, x, np.nan) for x in paths_to_search}
+
+
+scheme_frontpage_functions = {
+    "FR": search_only_headers_anssi,
+    "DE": search_only_headers_bsi,
+    "NL": search_only_headers_nscib,
+    "US": search_only_headers_niap,
+    "CA": search_only_headers_canada,
+}

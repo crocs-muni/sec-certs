@@ -6,7 +6,7 @@ from typing import Literal, Optional
 
 import yaml
 from pydantic import AnyHttpUrl, Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Configuration(BaseSettings):
@@ -15,8 +15,7 @@ class Configuration(BaseSettings):
     While not a singleton, the `config` instance from this module is meant to be primarily used.
     """
 
-    class Config:
-        env_prefix = "seccerts_"
+    model_config = SettingsConfigDict(env_prefix="seccerts_")
 
     log_filepath: Path = Field(
         "./cert_processing_log.log",
@@ -122,12 +121,12 @@ class Configuration(BaseSettings):
         """
         Returns keys of the config that have non-default value, i.e. were provided as kwargs, env. vars. or additionaly set.
         """
-        return {key for key, value in Configuration.__fields__.items() if getattr(self, key) != value.default}
+        return {key for key, value in Configuration.model_fields.items() if getattr(self, key) != value.default}
 
     def _set_attrs_from_cfg(self, other_cfg: Configuration, fields_to_set: set[str] | None) -> None:
         if not fields_to_set:
-            fields_to_set = set(Configuration.__fields__.keys())
-        for field in [x for x in other_cfg.__fields__ if x in fields_to_set]:
+            fields_to_set = set(Configuration.model_fields.keys())
+        for field in [x for x in other_cfg.model_fields if x in fields_to_set]:
             setattr(self, field, getattr(other_cfg, field))
 
     def load_from_yaml(self, yaml_path: str | Path) -> None:
@@ -139,7 +138,7 @@ class Configuration(BaseSettings):
         """
         with Path(yaml_path).open("r") as handle:
             data = yaml.safe_load(handle)
-        other_cfg = Configuration.parse_obj(data)
+        other_cfg = Configuration.model_validate(data)
         keys_to_rewrite = set(data.keys()).union(other_cfg._get_nondefault_keys())
         self._set_attrs_from_cfg(other_cfg, keys_to_rewrite)
 

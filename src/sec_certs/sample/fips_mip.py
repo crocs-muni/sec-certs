@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 @total_ordering
 class MIPStatus(Enum):
+    ON_HOLD = "On Hold"
     IN_REVIEW = "In Review"
     REVIEW_PENDING = "Review Pending"
     COORDINATION = "Coordination"

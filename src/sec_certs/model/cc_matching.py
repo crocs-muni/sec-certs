@@ -75,10 +75,10 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         if self._product == cert.name and self._vendor == cert.manufacturer:
             return 99
         # If we match the report hash, return early.
-        if cert.state.report_pdf_hash == self._report_hash and self._report_hash is not None:
+        if cert.state.report.pdf_hash == self._report_hash and self._report_hash is not None:
             return 95
         # If we match the target hash, return early.
-        if cert.state.st_pdf_hash == self._target_hash and self._target_hash is not None:
+        if cert.state.st.pdf_hash == self._target_hash and self._target_hash is not None:
             return 93
 
         # Fuzzy match at the end with some penalization.

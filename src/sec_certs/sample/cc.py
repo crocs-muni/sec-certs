@@ -5,7 +5,6 @@ import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from enum import Enum
 from pathlib import Path
 from typing import Any, ClassVar
 from urllib.parse import unquote_plus, urlparse
@@ -19,7 +18,7 @@ import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
-from sec_certs.sample.cc_certificate_id import canonicalize
+from sec_certs.sample.cc_certificate_id import canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -28,20 +27,7 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers
-from sec_certs.utils.extract import normalize_match_string
-
-HEADERS = {
-    "anssi": sec_certs.utils.extract.search_only_headers_anssi,
-    "bsi": sec_certs.utils.extract.search_only_headers_bsi,
-    "nscib": sec_certs.utils.extract.search_only_headers_nscib,
-    "niap": sec_certs.utils.extract.search_only_headers_niap,
-    "canada": sec_certs.utils.extract.search_only_headers_canada,
-}
-
-
-class ReferenceType(Enum):
-    DIRECT = "direct"
-    INDIRECT = "indirect"
+from sec_certs.utils.extract import normalize_match_string, scheme_frontpage_functions
 
 
 class CCCertificate(
@@ -95,6 +81,62 @@ class CCCertificate(
         def __lt__(self, other):
             return self.maintenance_date < other.maintenance_date
 
+    @dataclass
+    class DocumentState(ComplexSerializableType):
+        download_ok: bool = False  # Whether download went OK
+        convert_garbage: bool = False  # Whether initial conversion resulted in garbage
+        convert_ok: bool = False  # Whether overall conversion went OK (either pdftotext or via OCR)
+        extract_ok: bool = False  # Whether extraction went OK
+
+        pdf_hash: str | None = None
+        txt_hash: str | None = None
+
+        _pdf_path: Path | None = None
+        _txt_path: Path | None = None
+
+        def is_ok_to_download(self, fresh: bool = True) -> bool:
+            return True if fresh else not self.download_ok
+
+        def is_ok_to_convert(self, fresh: bool = True) -> bool:
+            return self.download_ok if fresh else self.download_ok and not self.convert_ok
+
+        def is_ok_to_analyze(self, fresh: bool = True) -> bool:
+            if fresh:
+                return self.download_ok and self.convert_ok
+            else:
+                return self.download_ok and self.convert_ok and not self.extract_ok
+
+        @property
+        def pdf_path(self) -> Path:
+            if not self._pdf_path:
+                raise ValueError(f"pdf_path not set on {type(self)}")
+            return self._pdf_path
+
+        @pdf_path.setter
+        def pdf_path(self, pth: str | Path | None) -> None:
+            self._pdf_path = Path(pth) if pth else None
+
+        @property
+        def txt_path(self) -> Path:
+            if not self._txt_path:
+                raise ValueError(f"txt_path not set on {type(self)}")
+            return self._txt_path
+
+        @txt_path.setter
+        def txt_path(self, pth: str | Path | None) -> None:
+            self._txt_path = Path(pth) if pth else None
+
+        @property
+        def serialized_attributes(self) -> list[str]:
+            return [
+                "download_ok",
+                "convert_garbage",
+                "convert_ok",
+                "extract_ok",
+                "pdf_hash",
+                "txt_hash",
+            ]
+
     @dataclass(init=False)
     class InternalState(ComplexSerializableType):
         """
@@ -102,134 +144,24 @@ class CCCertificate(
         holds information about errors and paths to the files.
         """
 
-        st_download_ok: bool  # Whether target download went OK
-        report_download_ok: bool  # Whether report download went OK
-        st_convert_garbage: bool  # Whether initial target conversion resulted in garbage
-        report_convert_garbage: bool  # Whether initial report conversion resulted in garbage
-        st_convert_ok: bool  # Whether overall target conversion went OK (either pdftotext or via OCR)
-        report_convert_ok: bool  # Whether overall report conversion went OK (either pdftotext or via OCR)
-        st_extract_ok: bool  # Whether target extraction went OK
-        report_extract_ok: bool  # Whether report extraction went OK
-
-        st_pdf_hash: str | None
-        report_pdf_hash: str | None
-        st_txt_hash: str | None
-        report_txt_hash: str | None
-
-        _st_pdf_path: Path | None = None
-        _report_pdf_path: Path | None = None
-        _st_txt_path: Path | None = None
-        _report_txt_path: Path | None = None
+        report: CCCertificate.DocumentState
+        st: CCCertificate.DocumentState
+        cert: CCCertificate.DocumentState
 
         def __init__(
             self,
-            st_download_ok: bool = False,
-            report_download_ok: bool = False,
-            st_convert_garbage: bool = False,
-            report_convert_garbage: bool = False,
-            st_convert_ok: bool = False,
-            report_convert_ok: bool = False,
-            st_extract_ok: bool = False,
-            report_extract_ok: bool = False,
-            st_pdf_hash: str | None = None,
-            report_pdf_hash: str | None = None,
-            st_txt_hash: str | None = None,
-            report_txt_hash: str | None = None,
+            report: CCCertificate.DocumentState | None = None,
+            st: CCCertificate.DocumentState | None = None,
+            cert: CCCertificate.DocumentState | None = None,
         ):
             super().__init__()
-            self.st_download_ok = st_download_ok
-            self.report_download_ok = report_download_ok
-            self.st_convert_garbage = st_convert_garbage
-            self.report_convert_garbage = report_convert_garbage
-            self.st_convert_ok = st_convert_ok
-            self.report_convert_ok = report_convert_ok
-            self.st_extract_ok = st_extract_ok
-            self.report_extract_ok = report_extract_ok
-            self.st_pdf_hash = st_pdf_hash
-            self.report_pdf_hash = report_pdf_hash
-            self.st_txt_hash = st_txt_hash
-            self.report_txt_hash = report_txt_hash
-
-        @property
-        def st_pdf_path(self) -> Path:
-            if not self._st_pdf_path:
-                raise ValueError(f"st_pdf_path not set on {type(self)}")
-            return self._st_pdf_path
-
-        @st_pdf_path.setter
-        def st_pdf_path(self, pth: str | Path | None) -> None:
-            self._st_pdf_path = Path(pth) if pth else None
-
-        @property
-        def report_pdf_path(self) -> Path:
-            if not self._report_pdf_path:
-                raise ValueError(f"report_pdf_path not set on {type(self)}")
-            return self._report_pdf_path
-
-        @report_pdf_path.setter
-        def report_pdf_path(self, pth: str | Path | None) -> None:
-            self._report_pdf_path = Path(pth) if pth else None
-
-        @property
-        def st_txt_path(self) -> Path:
-            if not self._st_txt_path:
-                raise ValueError(f"st_txt_path not set on {type(self)}")
-            return self._st_txt_path
-
-        @st_txt_path.setter
-        def st_txt_path(self, pth: str | Path | None) -> None:
-            self._st_txt_path = Path(pth) if pth else None
-
-        @property
-        def report_txt_path(self) -> Path:
-            if not self._report_txt_path:
-                raise ValueError(f"report_txt_path not set on {type(self)}")
-            return self._report_txt_path
-
-        @report_txt_path.setter
-        def report_txt_path(self, pth: str | Path | None) -> None:
-            self._report_txt_path = Path(pth) if pth else None
+            self.report = report if report is not None else CCCertificate.DocumentState()
+            self.st = st if st is not None else CCCertificate.DocumentState()
+            self.cert = cert if cert is not None else CCCertificate.DocumentState()
 
         @property
         def serialized_attributes(self) -> list[str]:
-            return [
-                "st_download_ok",
-                "report_download_ok",
-                "st_convert_garbage",
-                "report_convert_garbage",
-                "st_convert_ok",
-                "report_convert_ok",
-                "st_extract_ok",
-                "report_extract_ok",
-                "st_pdf_hash",
-                "report_pdf_hash",
-                "st_txt_hash",
-                "report_txt_hash",
-            ]
-
-        def report_is_ok_to_download(self, fresh: bool = True) -> bool:
-            return True if fresh else not self.report_download_ok
-
-        def st_is_ok_to_download(self, fresh: bool = True) -> bool:
-            return True if fresh else not self.st_download_ok
-
-        def report_is_ok_to_convert(self, fresh: bool = True) -> bool:
-            return self.report_download_ok if fresh else self.report_download_ok and not self.report_convert_ok
-
-        def st_is_ok_to_convert(self, fresh: bool = True) -> bool:
-            return self.st_download_ok if fresh else self.st_download_ok and not self.st_convert_ok
-
-        def report_is_ok_to_analyze(self, fresh: bool = True) -> bool:
-            if fresh is True:
-                return self.report_download_ok and self.report_convert_ok
-            else:
-                return self.report_download_ok and self.report_convert_ok and not self.report_extract_ok
-
-        def st_is_ok_to_analyze(self, fresh: bool = True) -> bool:
-            if fresh is True:
-                return self.st_download_ok and self.st_convert_ok
-            else:
-                return self.st_download_ok and self.st_convert_ok and not self.st_extract_ok
+            return ["report", "st", "cert"]
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
@@ -239,139 +171,108 @@ class CCCertificate(
 
         report_metadata: dict[str, Any] | None = field(default=None)
         st_metadata: dict[str, Any] | None = field(default=None)
+        cert_metadata: dict[str, Any] | None = field(default=None)
         report_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
-        st_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
+        st_frontpage: dict[str, dict[str, Any]] | None = field(
+            default=None
+        )  # TODO: Unused, we have no frontpage matching for targets
+        cert_frontpage: dict[str, dict[str, Any]] | None = field(
+            default=None
+        )  # TODO: Unused, we have no frontpage matching for certs
         report_keywords: dict[str, Any] | None = field(default=None)
         st_keywords: dict[str, Any] | None = field(default=None)
+        cert_keywords: dict[str, Any] | None = field(default=None)
         report_filename: str | None = field(default=None)
         st_filename: str | None = field(default=None)
+        cert_filename: str | None = field(default=None)
 
         def __bool__(self) -> bool:
             return any(x is not None for x in vars(self))
-
-        @property
-        def bsi_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to BSI-provided information
-            """
-            return self.report_frontpage.get("bsi", None) if self.report_frontpage else None
-
-        @property
-        def niap_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to niap-provided information
-            """
-            return self.report_frontpage.get("niap", None) if self.report_frontpage else None
-
-        @property
-        def nscib_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to nscib-provided information
-            """
-            return self.report_frontpage.get("nscib", None) if self.report_frontpage else None
-
-        @property
-        def canada_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to canada-provided information
-            """
-            return self.report_frontpage.get("canada", None) if self.report_frontpage else None
-
-        @property
-        def anssi_data(self) -> dict[str, Any] | None:
-            """
-            Returns frontpage data related to ANSSI-provided information
-            """
-            return self.report_frontpage.get("anssi", None) if self.report_frontpage else None
 
         @property
         def cert_lab(self) -> list[str] | None:
             """
             Returns labs for which certificate data was parsed.
             """
+            if not self.report_frontpage:
+                return None
             labs = [
                 data["cert_lab"].split(" ")[0].upper()
-                for data in [self.bsi_data, self.anssi_data, self.niap_data, self.nscib_data, self.canada_data]
-                if data
+                for scheme, data in self.report_frontpage.items()
+                if data and "cert_lab" in data
             ]
             return labs if labs else None
-
-        @property
-        def bsi_cert_id(self) -> str | None:
-            return self.bsi_data.get("cert_id", None) if self.bsi_data else None
-
-        @property
-        def niap_cert_id(self) -> str | None:
-            return self.niap_data.get("cert_id", None) if self.niap_data else None
-
-        @property
-        def nscib_cert_id(self) -> str | None:
-            return self.nscib_data.get("cert_id", None) if self.nscib_data else None
-
-        @property
-        def canada_cert_id(self) -> str | None:
-            return self.canada_data.get("cert_id", None) if self.canada_data else None
-
-        @property
-        def anssi_cert_id(self) -> str | None:
-            return self.anssi_data.get("cert_id", None) if self.anssi_data else None
 
         def frontpage_cert_id(self, scheme: str) -> dict[str, float]:
             """
             Get cert_id candidate from the frontpage of the report.
             """
-            scheme_map = {
-                "DE": self.bsi_cert_id,
-                "US": self.niap_cert_id,
-                "NL": self.nscib_cert_id,
-                "CA": self.canada_cert_id,
-                "FR": self.anssi_cert_id,
-            }
-            if scheme in scheme_map and (candidate := scheme_map[scheme]):
-                return {candidate: 1.0}
-            return {}
+            if not self.report_frontpage:
+                return {}
+            data = self.report_frontpage.get(scheme)
+            if not data:
+                return {}
+            cert_id = data.get("cert_id")
+            if not cert_id:
+                return {}
+            else:
+                return {cert_id: 1.0}
 
         def filename_cert_id(self, scheme: str) -> dict[str, float]:
             """
-            Get cert_id candidates from the matches in the report filename.
+            Get cert_id candidates from the matches in the report filename and cert filename.
             """
-            if not self.report_filename:
+            scheme_filename_rules = rules["cc_filename_cert_id"][scheme]
+            if not scheme_filename_rules:
                 return {}
-            scheme_rules = rules["cc_cert_id"][scheme]
-            matches: Counter = Counter()
-            for rule in scheme_rules:
-                match = re.search(rule, self.report_filename)
-                if match:
-                    cert_id = normalize_match_string(match.group())
-                    matches[cert_id] += 1
-            if not matches:
-                return {}
-            total = max(matches.values())
-            results = {}
-            for candidate, count in matches.items():
-                results[candidate] = count / total
+            scheme_meta = schemes[scheme]
+            results: dict[str, float] = {}
+            for fname in (self.report_filename, self.cert_filename):
+                if not fname:
+                    continue
+
+                matches: Counter = Counter()
+                for rule in scheme_filename_rules:
+                    match = re.search(rule, fname)
+                    if match:
+                        try:
+                            meta = match.groupdict()
+                            cert_id = scheme_meta(meta)
+                            matches[cert_id] += 1
+                        except Exception:
+                            continue
+                if not matches:
+                    continue
+                total = max(matches.values())
+
+                for candidate, count in matches.items():
+                    results.setdefault(candidate, 0)
+                    results[candidate] += count / total
             # TODO count length in weight
             return results
 
         def keywords_cert_id(self, scheme: str) -> dict[str, float]:
             """
-            Get cert_id candidates from the keywords matches in the report.
+            Get cert_id candidates from the keywords matches in the report and cert.
             """
-            if not self.report_keywords:
-                return {}
-            cert_id_matches = self.report_keywords.get("cc_cert_id")
-            if not cert_id_matches:
-                return {}
+            results: dict[str, float] = {}
+            for keywords in (self.report_keywords, self.cert_keywords):
+                if not keywords:
+                    continue
+                cert_id_matches = keywords.get("cc_cert_id")
+                if not cert_id_matches:
+                    continue
 
-            if scheme not in cert_id_matches:
-                return {}
-            matches: Counter = Counter(cert_id_matches[scheme])
-            if not matches:
-                return {}
-            total = max(matches.values())
-            results = {}
-            for candidate, count in matches.items():
-                results[candidate] = count / total
+                if scheme not in cert_id_matches:
+                    continue
+                matches: Counter = Counter(cert_id_matches[scheme])
+                if not matches:
+                    continue
+                total = max(matches.values())
+
+                for candidate, count in matches.items():
+                    results.setdefault(candidate, 0)
+                    results[candidate] += count / total
             # TODO count length in weight
             return results
 
@@ -381,22 +282,27 @@ class CCCertificate(
             """
             scheme_rules = rules["cc_cert_id"][scheme]
             fields = ("/Title", "/Subject")
-            matches: Counter = Counter()
-            for meta_field in fields:
-                field_val = self.report_metadata.get(meta_field) if self.report_metadata else None
-                if not field_val:
+            results: dict[str, float] = {}
+            for metadata in (self.report_metadata, self.cert_metadata):
+                if not metadata:
                     continue
-                for rule in scheme_rules:
-                    match = re.search(rule, field_val)
-                    if match:
-                        cert_id = normalize_match_string(match.group())
-                        matches[cert_id] += 1
-            if not matches:
-                return {}
-            total = max(matches.values())
-            results = {}
-            for candidate, count in matches.items():
-                results[candidate] = count / total
+                matches: Counter = Counter()
+                for meta_field in fields:
+                    field_val = metadata.get(meta_field)
+                    if not field_val:
+                        continue
+                    for rule in scheme_rules:
+                        match = re.search(rule, field_val)
+                        if match:
+                            cert_id = normalize_match_string(match.group())
+                            matches[cert_id] += 1
+                if not matches:
+                    continue
+                total = max(matches.values())
+
+                for candidate, count in matches.items():
+                    results.setdefault(candidate, 0)
+                    results[candidate] += count / total
             # TODO count length in weight
             return results
 
@@ -410,14 +316,28 @@ class CCCertificate(
             candidates: dict[str, float] = defaultdict(lambda: 0.0)
             # TODO: Add heuristic based on ordering of ids (and extracted year + increment)
             # TODO: Add heuristic based on length
+            # TODO: Add heuristic based on id "richness", we want to prefer IDs that have more components.
+            # If we cannot canonicalize, just skip that ID.
             for candidate, count in frontpage_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.5
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.5
+                except Exception:
+                    continue
             for candidate, count in metadata_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.2
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.2
+                except Exception:
+                    continue
             for candidate, count in keywords_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.0
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.0
+                except Exception:
+                    continue
             for candidate, count in filename_id.items():
-                candidates[canonicalize(candidate, scheme)] += count * 1.0
+                try:
+                    candidates[canonicalize(candidate, scheme)] += count * 1.0
+                except Exception:
+                    continue
             return candidates
 
     @dataclass
@@ -486,8 +406,8 @@ class CCCertificate(
         security_level: str | set[str],
         not_valid_before: date | None,
         not_valid_after: date | None,
-        report_link: str,
-        st_link: str,
+        report_link: str | None,
+        st_link: str | None,
         cert_link: str | None,
         manufacturer_web: str | None,
         protection_profiles: set[ProtectionProfile] | None,
@@ -694,13 +614,19 @@ class CCCertificate(
         return extracted_date
 
     @staticmethod
-    def _html_row_get_report_st_links(cell: Tag) -> tuple[str, str]:
+    def _html_row_get_report_st_links(cell: Tag) -> tuple[str | None, str | None]:
         links = cell.find_all("a")
-        assert links[1].get("title").startswith("Certification Report")
-        assert links[2].get("title").startswith("Security Target")
 
-        report_link = CCCertificate.cc_url + links[1].get("href")
-        security_target_link = CCCertificate.cc_url + links[2].get("href")
+        report_link: str | None = None
+        security_target_link: str | None = None
+        for link in links:
+            title = link.get("title")
+            if not title:
+                continue
+            if title.startswith("Certification Report"):
+                report_link = CCCertificate.cc_url + link.get("href")
+            elif title.startswith("Security Target"):
+                security_target_link = CCCertificate.cc_url + link.get("href")
 
         return report_link, security_target_link
 
@@ -787,25 +713,33 @@ class CCCertificate(
         self,
         report_pdf_dir: str | Path | None,
         st_pdf_dir: str | Path | None,
+        cert_pdf_dir: str | Path | None,
         report_txt_dir: str | Path | None,
         st_txt_dir: str | Path | None,
+        cert_txt_dir: str | Path | None,
     ) -> None:
         """
         Sets paths to files given the requested directories
 
         :param Optional[Union[str, Path]] report_pdf_dir: Directory where pdf reports shall be stored
         :param Optional[Union[str, Path]] st_pdf_dir: Directory where pdf security targets shall be stored
+        :param Optional[Union[str, Path]] cert_pdf_dir: Directory where pdf certificates shall be stored
         :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
         :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
+        :param Optional[Union[str, Path]] cert_txt_dir: Directory where txtcertificates shall be stored
         """
         if report_pdf_dir:
-            self.state.report_pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
+            self.state.report.pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
         if st_pdf_dir:
-            self.state.st_pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
+            self.state.st.pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
+        if cert_pdf_dir:
+            self.state.cert.pdf_path = Path(cert_pdf_dir) / (self.dgst + ".pdf")
         if report_txt_dir:
-            self.state.report_txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
+            self.state.report.txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
         if st_txt_dir:
-            self.state.st_txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
+            self.state.st.txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
+        if cert_txt_dir:
+            self.state.cert.txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
 
     @staticmethod
     def download_pdf_report(cert: CCCertificate) -> CCCertificate:
@@ -819,14 +753,14 @@ class CCCertificate(
         if not cert.report_link:
             exit_code = "No link"
         else:
-            exit_code = helpers.download_file(cert.report_link, cert.state.report_pdf_path)
+            exit_code = helpers.download_file(cert.report_link, cert.state.report.pdf_path)
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.report_download_ok = False
+            cert.state.report.download_ok = False
         else:
-            cert.state.report_download_ok = True
-            cert.state.report_pdf_hash = helpers.get_sha256_filepath(cert.state.report_pdf_path)
+            cert.state.report.download_ok = True
+            cert.state.report.pdf_hash = helpers.get_sha256_filepath(cert.state.report.pdf_path)
             cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.report_link).path).split("/")[-1])
         return cert
 
@@ -839,17 +773,39 @@ class CCCertificate(
         :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int = (
-            helpers.download_file(cert.st_link, cert.state.st_pdf_path) if cert.st_link else "No link"
+            helpers.download_file(cert.st_link, cert.state.st.pdf_path) if cert.st_link else "No link"
         )
 
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.st_download_ok = False
+            cert.state.st.download_ok = False
         else:
-            cert.state.st_download_ok = True
-            cert.state.st_pdf_hash = helpers.get_sha256_filepath(cert.state.st_pdf_path)
+            cert.state.st.download_ok = True
+            cert.state.st.pdf_hash = helpers.get_sha256_filepath(cert.state.st.pdf_path)
             cert.pdf_data.st_filename = unquote_plus(str(urlparse(cert.st_link).path).split("/")[-1])
+        return cert
+
+    @staticmethod
+    def download_pdf_cert(cert: CCCertificate) -> CCCertificate:
+        """
+        Downloads pdf of the certificate. Staticmethod to allow for parallelization.
+
+        :param CCCertificate cert: cert to download the pdf of
+        :return CCCertificate: returns the modified certificate with updated state
+        """
+        exit_code: str | int = (
+            helpers.download_file(cert.cert_link, cert.state.cert.pdf_path) if cert.cert_link else "No link"
+        )
+
+        if exit_code != requests.codes.ok:
+            error_msg = f"failed to download certificate from {cert.cert_link}, code: {exit_code}"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
+            cert.state.cert.download_ok = False
+        else:
+            cert.state.cert.download_ok = True
+            cert.state.cert.pdf_hash = helpers.get_sha256_filepath(cert.state.cert.pdf_path)
+            cert.pdf_data.cert_filename = unquote_plus(str(urlparse(cert.cert_link).path).split("/")[-1])
         return cert
 
     @staticmethod
@@ -857,21 +813,21 @@ class CCCertificate(
         """
         Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to download the pdf report for
+        :param CCCertificate cert: cert to convert the pdf report for
         :return CCCertificate: the modified certificate with updated state
         """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
-            cert.state.report_pdf_path, cert.state.report_txt_path
+            cert.state.report.pdf_path, cert.state.report.txt_path
         )
         # If OCR was done the result was garbage
-        cert.state.report_convert_garbage = ocr_done
+        cert.state.report.convert_garbage = ocr_done
         # And put the whole result into convert_ok
-        cert.state.report_convert_ok = ok_result
+        cert.state.report.convert_ok = ok_result
         if not ok_result:
             error_msg = "failed to convert report pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
         else:
-            cert.state.report_txt_hash = helpers.get_sha256_filepath(cert.state.report_txt_path)
+            cert.state.report.txt_hash = helpers.get_sha256_filepath(cert.state.report.txt_path)
         return cert
 
     @staticmethod
@@ -879,34 +835,39 @@ class CCCertificate(
         """
         Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to download the pdf security target for
+        :param CCCertificate cert: cert to convert the pdf security target for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.st_pdf_path, cert.state.st_txt_path)
+        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.st.pdf_path, cert.state.st.txt_path)
         # If OCR was done the result was garbage
-        cert.state.st_convert_garbage = ocr_done
+        cert.state.st.convert_garbage = ocr_done
         # And put the whole result into convert_ok
-        cert.state.st_convert_ok = ok_result
+        cert.state.st.convert_ok = ok_result
         if not ok_result:
             error_msg = "failed to convert security target pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
         else:
-            cert.state.st_txt_hash = helpers.get_sha256_filepath(cert.state.st_txt_path)
+            cert.state.st.txt_hash = helpers.get_sha256_filepath(cert.state.st.txt_path)
         return cert
 
     @staticmethod
-    def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
+    def convert_cert_pdf(cert: CCCertificate) -> CCCertificate:
         """
-        Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
+        Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to extract the metadata for.
+        :param CCCertificate cert: cert to convert the certificate for
         :return CCCertificate: the modified certificate with updated state
         """
-        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st_pdf_path)
-        if response != constants.RETURNCODE_OK:
-            cert.state.st_extract_ok = False
+        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.cert.pdf_path, cert.state.cert.txt_path)
+        # If OCR was done the result was garbage
+        cert.state.cert.convert_garbage = ocr_done
+        # And put the whole result into convert_ok
+        cert.state.cert.convert_ok = ok_result
+        if not ok_result:
+            error_msg = "failed to convert security target pdf->txt"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
         else:
-            cert.state.st_extract_ok = True
+            cert.state.cert.txt_hash = helpers.get_sha256_filepath(cert.state.cert.txt_path)
         return cert
 
     @staticmethod
@@ -917,28 +878,41 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report_pdf_path)
+        response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report.pdf_path)
         if response != constants.RETURNCODE_OK:
-            cert.state.report_extract_ok = False
+            cert.state.report.extract_ok = False
         else:
-            cert.state.report_extract_ok = True
+            cert.state.report.extract_ok = True
         return cert
 
     @staticmethod
-    def extract_st_pdf_frontpage(cert: CCCertificate) -> CCCertificate:
+    def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
         """
-        Extracts data from security target pdf frontpage given the certificate. Staticmethod to allow for parallelization.
+        Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
 
-        :param CCCertificate cert: cert to extract the frontpage data for.
+        :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        cert.pdf_data.st_frontpage = {}
+        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st.pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.st.extract_ok = False
+        else:
+            cert.state.st.extract_ok = True
+        return cert
 
-        for header_type, associated_header_func in HEADERS.items():
-            response, cert.pdf_data.st_frontpage[header_type] = associated_header_func(cert.state.st_txt_path)
+    @staticmethod
+    def extract_cert_pdf_metadata(cert: CCCertificate) -> CCCertificate:
+        """
+        Extracts metadata from certificate pdf given the certificate. Staticmethod to allow for parallelization.
 
-            if response != constants.RETURNCODE_OK:
-                cert.state.st_extract_ok = False
+        :param CCCertificate cert: cert to extract the metadata for.
+        :return CCCertificate: the modified certificate with updated state
+        """
+        response, cert.pdf_data.cert_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.cert.pdf_path)
+        if response != constants.RETURNCODE_OK:
+            cert.state.cert.extract_ok = False
+        else:
+            cert.state.cert.extract_ok = True
         return cert
 
     @staticmethod
@@ -951,25 +925,25 @@ class CCCertificate(
         """
         cert.pdf_data.report_frontpage = {}
 
-        for header_type, associated_header_func in HEADERS.items():
-            response, cert.pdf_data.report_frontpage[header_type] = associated_header_func(cert.state.report_txt_path)
-
+        if cert.scheme in scheme_frontpage_functions:
+            header_func = scheme_frontpage_functions[cert.scheme]
+            response, cert.pdf_data.report_frontpage[cert.scheme] = header_func(cert.state.report.txt_path)
             if response != constants.RETURNCODE_OK:
-                cert.state.report_extract_ok = False
+                cert.state.report.extract_ok = False
         return cert
 
     @staticmethod
     def extract_report_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
-        Matches regular expresions in txt obtained from certification report and extracts the matches into attribute.
+        Matches regular expressions in txt obtained from certification report and extracts the matches into attribute.
         Static method to allow for parallelization
 
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report_txt_path, cc_rules)
+        report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report.txt_path, cc_rules)
         if report_keywords is None:
-            cert.state.report_extract_ok = False
+            cert.state.report.extract_ok = False
         else:
             cert.pdf_data.report_keywords = report_keywords
         return cert
@@ -977,17 +951,33 @@ class CCCertificate(
     @staticmethod
     def extract_st_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
-        Matches regular expresions in txt obtained from security target and extracts the matches into attribute.
+        Matches regular expressions in txt obtained from security target and extracts the matches into attribute.
         Static method to allow for parallelization
 
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st_txt_path, cc_rules)
+        st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st.txt_path, cc_rules)
         if st_keywords is None:
-            cert.state.st_extract_ok = False
+            cert.state.st.extract_ok = False
         else:
             cert.pdf_data.st_keywords = st_keywords
+        return cert
+
+    @staticmethod
+    def extract_cert_pdf_keywords(cert: CCCertificate) -> CCCertificate:
+        """
+        Matches regular expressions in txt obtained from the certificate and extracts the matches into attribute.
+        Static method to allow for parallelization
+
+        :param CCCertificate cert: certificate to extract the keywords for.
+        :return CCCertificate: the modified certificate with extracted keywords.
+        """
+        cert_keywords = sec_certs.utils.extract.extract_keywords(cert.state.cert.txt_path, cc_rules)
+        if cert_keywords is None:
+            cert.state.cert.extract_ok = False
+        else:
+            cert.pdf_data.cert_keywords = cert_keywords
         return cert
 
     def compute_heuristics_version(self) -> None:

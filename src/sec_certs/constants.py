@@ -82,8 +82,9 @@ CC_CANADA_BASE_URL = "https://www.cyber.gc.ca"
 CC_CANADA_API_URL = CC_CANADA_BASE_URL + "/api/cccs/page/v1/get"
 CC_CANADA_CERTIFIED_URL = "/en/tools-services/common-criteria/certified-products"
 CC_CANADA_INEVAL_URL = "/en/tools-services/common-criteria/products-evaluation"
-CC_ANSSI_BASE_URL = "https://www.ssi.gouv.fr"
-CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/en/products/certified-products/"
+CC_ANSSI_BASE_URL = "https://cyber.gouv.fr"
+CC_ANSSI_CERTIFIED_URL = CC_ANSSI_BASE_URL + "/produits-certifies"
+CC_ANSSI_ARCHIVED_URL = CC_ANSSI_BASE_URL + "/produits-certifies-archives"
 CC_BSI_BASE_URL = "https://www.bsi.bund.de/"
 CC_BSI_CERTIFIED_URL = (
     CC_BSI_BASE_URL
@@ -103,7 +104,10 @@ CC_JAPAN_ARCHIVED_SW_URL = CC_JAPAN_BASE_URL + "/software/certified-cert/archive
 CC_JAPAN_INEVAL_URL = CC_JAPAN_BASE_URL + "/prdct-in-eval/in_eval_list.html"
 CC_MALAYSIA_BASE_URL = "https://iscb.cybersecurity.my"
 CC_MALAYSIA_CERTIFIED_URL = (
-    CC_MALAYSIA_BASE_URL + "/index.php/certification/product-certification/mycc/certified-products-and-systems"
+    CC_MALAYSIA_BASE_URL + "/index.php/certification/product-certification/mycc/certified-products-and-systems-5"
+)
+CC_MALAYSIA_ARCHIVED_URL = (
+    CC_MALAYSIA_BASE_URL + "/index.php/certification/product-certification/mycc/archived-certified-products-and-systems"
 )
 CC_MALAYSIA_INEVAL_URL = (
     CC_MALAYSIA_BASE_URL

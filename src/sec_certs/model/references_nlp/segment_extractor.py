@@ -173,9 +173,9 @@ class ReferenceSegmentExtractor:
         - Loads manually annotated samples
         - Combines all of that into single dataframe
         """
-        target_certs = [x for x in certs if x.heuristics.st_references.directly_referencing and x.state.st_txt_path]
+        target_certs = [x for x in certs if x.heuristics.st_references.directly_referencing and x.state.st.txt_path]
         report_certs = [
-            x for x in certs if x.heuristics.report_references.directly_referencing and x.state.report_txt_path
+            x for x in certs if x.heuristics.report_references.directly_referencing and x.state.report.txt_path
         ]
         df_targets = self._build_df(target_certs, "target")
         df_reports = self._build_df(report_certs, "report")
@@ -217,8 +217,8 @@ class ReferenceSegmentExtractor:
                 for key, val in actual_references.items()
             ]
 
-        (certs[0].state.report_txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
-        (certs[0].state.st_txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
+        (certs[0].state.report.txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
+        (certs[0].state.st.txt_path.parent.parent / "txt_processed").mkdir(exist_ok=True, parents=True)
         return list(itertools.chain.from_iterable(get_cert_records(cert, source) for cert in certs))
 
     def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:

@@ -1,6 +1,6 @@
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.9.0
+aiohttp==3.9.2
     # via
     #   datasets
     #   fsspec
@@ -71,7 +71,7 @@ coverage[toml]==7.3.2
     # via
     #   coverage
     #   pytest-cov
-cryptography==41.0.6
+cryptography==42.0.2
     # via pypdf
 cycler==0.12.1
     # via matplotlib
@@ -160,7 +160,7 @@ ipywidgets==8.1.1
     # via sec-certs (./../pyproject.toml)
 jedi==0.19.1
     # via ipython
-jinja2==3.1.2
+jinja2==3.1.3
     # via
     #   myst-parser
     #   spacy
@@ -297,7 +297,7 @@ pexpect==4.8.0
     # via ipython
 pikepdf==8.7.1
     # via sec-certs (./../pyproject.toml)
-pillow==10.1.0
+pillow==10.2.0
     # via
     #   matplotlib
     #   pikepdf
