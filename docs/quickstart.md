@@ -3,7 +3,7 @@
 ::::{tab-set}
 
 :::{tab-item} Common Criteria
-1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
+1. Install the latest version with `pip install -U sec-certs` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
 from sec_certs.dataset.cc import CCDataset
@@ -16,7 +16,7 @@ to obtain to obtain freshly processed dataset from [seccerts.org](https://seccer
 :::
 
 :::{tab-item} FIPS 140
-1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
+1. Install the latest version with `pip install -U sec-certs` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
 from sec_certs.dataset.fips import FIPSDataset

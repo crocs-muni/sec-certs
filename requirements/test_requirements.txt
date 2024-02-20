@@ -62,10 +62,8 @@ deprecated==1.2.14
     # via pikepdf
 distro==1.8.0
     # via tabula-py
-exceptiongroup==1.2.0
-    # via
-    #   ipython
-    #   pytest
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
+    # via sec-certs (./../pyproject.toml)
 executing==2.0.1
     # via stack-data
 fonttools==4.45.0
@@ -282,7 +280,9 @@ smart-open==6.4.0
 soupsieve==2.5
     # via beautifulsoup4
 spacy==3.7.2
-    # via sec-certs (./../pyproject.toml)
+    # via
+    #   en-core-web-sm
+    #   sec-certs (./../pyproject.toml)
 spacy-legacy==3.0.12
     # via spacy
 spacy-loggers==1.0.5
@@ -301,11 +301,6 @@ thinc==8.2.1
     # via spacy
 threadpoolctl==3.2.0
     # via scikit-learn
-tomli==2.0.1
-    # via
-    #   coverage
-    #   pytest
-    #   setuptools-scm
 tornado==6.3.3
     # via
     #   ipykernel
@@ -329,7 +324,6 @@ typer==0.9.0
     #   weasel
 typing-extensions==4.8.0
     # via
-    #   cloudpathlib
     #   pydantic
     #   pydantic-core
     #   setuptools-scm

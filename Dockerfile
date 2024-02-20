@@ -58,8 +58,7 @@ RUN \
   pip3 install -U pip wheel pip-tools && \
   pip-sync requirements/requirements.txt && \
   pip3 install --no-cache notebook jupyterlab && \
-  pip3 install -e . && \
-  python3 -m spacy download en_core_web_sm
+  pip3 install -e .
 
 # just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}

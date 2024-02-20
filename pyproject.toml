@@ -50,6 +50,7 @@
     "ipykernel",
     "ipywidgets",
     "spacy",
+    "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl",
     "pkgconfig",
     "seaborn",
     "pySankeyBeta",
@@ -63,8 +64,8 @@
 
   [project.optional-dependencies]
     dev = [
-      "ruff==0.1.5",
-      "mypy==1.6.1",
+      "ruff==0.2.2",
+      "mypy==1.8.0",
       "types-PyYAML",
       "types-python-dateutil",
       "types-requests",
