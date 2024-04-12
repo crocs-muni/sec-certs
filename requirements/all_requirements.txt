@@ -175,7 +175,7 @@ huggingface-hub==0.19.4
     #   transformers
 identify==2.5.32
     # via pre-commit
-idna==3.4
+idna==3.7
     # via
     #   requests
     #   yarl
