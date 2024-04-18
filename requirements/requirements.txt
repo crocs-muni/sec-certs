@@ -64,7 +64,7 @@ fonttools==4.45.0
     # via matplotlib
 html5lib==1.1
     # via sec-certs (./../pyproject.toml)
-idna==3.4
+idna==3.7
     # via requests
 ipykernel==6.27.0
     # via sec-certs (./../pyproject.toml)

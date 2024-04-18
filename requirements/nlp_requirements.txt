@@ -139,7 +139,7 @@ huggingface-hub==0.19.4
     #   sentence-transformers
     #   tokenizers
     #   transformers
-idna==3.4
+idna==3.7
     # via
     #   requests
     #   yarl
