@@ -58,7 +58,7 @@ class MIPDataset(JSONPathDataset, ComplexSerializableType):
     @classmethod
     def from_web_latest(cls) -> MIPDataset:
         """
-        Get the MIPDataset from seccerts.org
+        Get the MIPDataset from sec-certs.org
         """
         mip_resp = requests.get(config.fips_mip_dataset)
         if mip_resp.status_code != 200:

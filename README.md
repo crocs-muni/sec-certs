@@ -6,8 +6,8 @@ A tool for data scraping and analysis of security certificates from Common Crite
 
 <!-- This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic. -->
 
-[![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org)](https://seccerts.org)
-[![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fseccerts.org/docs/index.html)](https://seccerts.org/docs/index.html)
+[![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fsec-certs.org)](https://sec-certs.org)
+[![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fsec-certs.org/docs/index.html)](https://sec-certs.org/docs/index.html)
 [![PyPI](https://img.shields.io/pypi/v/sec-certs?style=flat-square)](https://pypi.org/project/sec-certs/)
 [![DockerHub](https://img.shields.io/docker/v/seccerts/sec-certs/latest?label=DockerHub&style=flat-square)](https://hub.docker.com/r/seccerts/sec-certs/tags)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sec-certs?label=Python%20versions&style=flat-square)](https://pypi.org/project/sec-certs/)
@@ -16,7 +16,7 @@ A tool for data scraping and analysis of security certificates from Common Crite
 
 ## Installation
 
-Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://seccerts.org/docs/installation.html).
+Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://sec-certs.org/docs/installation.html).
 
 ## Usage
 
@@ -27,7 +27,7 @@ There are two main steps in exploring the world of security certificates:
 
 For the first step, we currently provide CLI. For the second step, we provide simple API that can be used directly inside our Jupyter notebook or locally, together with a fully processed datasets that can be downloaded.
 
-More elaborate usage is described in [docs/quickstart](https://seccerts.org/docs/quickstart.html). Also, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples) either at GitHub or at docs. From docs, you can also run our notebooks in Binder.
+More elaborate usage is described in [docs/quickstart](https://sec-certs.org/docs/quickstart.html). Also, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples) either at GitHub or at docs. From docs, you can also run our notebooks in Binder.
 
 ## Data scraping
 
@@ -35,7 +35,7 @@ Run `sec-certs cc all` for Common Criteria processing, `sec-certs fips all` for 
 
 ## Data analysis
 
-Most probably, you don't want to fully process the certification artifacts by yourself. Instead, you can use our results and explore them as a data structure. An example snippet follows. For more, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples). *Tip*: these can be run with Binder from our [docs](https://seccerts.org/docs/index.html).
+Most probably, you don't want to fully process the certification artifacts by yourself. Instead, you can use our results and explore them as a data structure. An example snippet follows. For more, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples). *Tip*: these can be run with Binder from our [docs](https://sec-certs.org/docs/index.html).
 
 ```python
 from sec_certs.dataset import CCDataset

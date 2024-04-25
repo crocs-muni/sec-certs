@@ -10,7 +10,7 @@ from sec_certs.dataset.cc import CCDataset
 
 dset = CCDataset.from_web_latest()
 ```
-to obtain to obtain freshly processed dataset from [seccerts.org](https://seccerts.org).
+to obtain to obtain freshly processed dataset from [sec-certs.org](https://sec-certs.org).
 
 3. Play with the dataset. See [example notebook](./notebooks/examples/cc.ipynb).
 :::
@@ -23,7 +23,7 @@ from sec_certs.dataset.fips import FIPSDataset
 
 dset = FIPSDataset.from_web_latest()
 ```
-to obtain to obtain freshly processed dataset from [seccerts.org](https://seccerts.org).
+to obtain to obtain freshly processed dataset from [sec-certs.org](https://sec-certs.org).
 
 3. Play with the dataset. See [example notebook](./notebooks/examples/fips.ipynb).
 :::

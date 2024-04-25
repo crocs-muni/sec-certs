@@ -157,7 +157,7 @@ class IUTSnapshot(ComplexSerializableType):
     @classmethod
     def from_web_latest(cls) -> IUTSnapshot:
         """
-        Get a IUT snapshot from seccerts.org.
+        Get a IUT snapshot from sec-certs.org.
         """
         iut_resp = requests.get(config.fips_iut_latest_snapshot)
         if iut_resp.status_code != 200:

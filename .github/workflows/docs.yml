@@ -48,4 +48,4 @@ jobs:
           zip -r docs.zip *
       - name: Push docs to website
         run: |
-          curl -F data=@docs/docs.zip https://seccerts.org/docs/upload?token=${{ secrets.DOCS_AUTH_TOKEN }}
+          curl -F data=@docs/docs.zip https://sec-certs.org/docs/upload?token=${{ secrets.DOCS_AUTH_TOKEN }}

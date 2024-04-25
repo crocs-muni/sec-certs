@@ -43,40 +43,40 @@ class Configuration(BaseSettings):
         99, description="Maximum number of candidate CPE items that may be related to given certificate, >0", gt=0
     )
     cc_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/cc/dataset.json",
+        "https://sec-certs.org/cc/dataset.json",
         description="URL from where to fetch the latest snapshot of fully processed CC dataset.",
     )
     cc_maintenances_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/cc/maintenance_updates.json",
+        "https://sec-certs.org/cc/maintenance_updates.json",
         description="URL from where to fetch the latest snapshot of CC maintenance updates",
     )
     pp_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/static/pp.json",
+        "https://sec-certs.org/static/pp.json",
         description="URL from where to fetch the latest snapshot of the PP dataset.",
     )
     fips_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/fips/dataset.json", description="URL for the latest snapshot of FIPS dataset."
+        "https://sec-certs.org/fips/dataset.json", description="URL for the latest snapshot of FIPS dataset."
     )
     fips_iut_dataset: AnyHttpUrl = Field(
-        "https://seccerts.org/fips/iut/dataset.json", description="URL for the dataset of FIPS IUT data."
+        "https://sec-certs.org/fips/iut/dataset.json", description="URL for the dataset of FIPS IUT data."
     )
     fips_iut_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/fips/iut/latest.json", description="URL for the latest snapshot of FIPS IUT data."
+        "https://sec-certs.org/fips/iut/latest.json", description="URL for the latest snapshot of FIPS IUT data."
     )
     fips_mip_dataset: AnyHttpUrl = Field(
-        "https://seccerts.org/fips/mip/dataset.json", description="URL for the dataset of FIPS MIP data"
+        "https://sec-certs.org/fips/mip/dataset.json", description="URL for the dataset of FIPS MIP data"
     )
     fips_mip_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/fips/mip/latest.json", description="URL for the latest snapshot of FIPS MIP data"
+        "https://sec-certs.org/fips/mip/latest.json", description="URL for the latest snapshot of FIPS MIP data"
     )
     cpe_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/vuln/cpe/cpe.json.gz", description="URL for the latest snapshot of CPEDataset."
+        "https://sec-certs.org/vuln/cpe/cpe.json.gz", description="URL for the latest snapshot of CPEDataset."
     )
     cve_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/vuln/cve/cve.json.gz", description="URL for the latest snapshot of CVEDataset."
+        "https://sec-certs.org/vuln/cve/cve.json.gz", description="URL for the latest snapshot of CVEDataset."
     )
     cpe_match_latest_snapshot: AnyHttpUrl = Field(
-        "https://seccerts.org/vuln/cpe/cpe_match.json.gz",
+        "https://sec-certs.org/vuln/cpe/cpe_match.json.gz",
         description="URL for the latest snapshot of cpe match json.",
     )
     fips_matching_threshold: int = Field(
@@ -112,7 +112,7 @@ class Configuration(BaseSettings):
     nvd_api_key: Optional[str] = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
     preferred_source_nvd_datasets: Literal["sec-certs", "api"] = Field(
         "sec-certs",
-        description="If set to `sec-certs`, will fetch CPE and CVE datasets from seccerts.org."
+        description="If set to `sec-certs`, will fetch CPE and CVE datasets from sec-certs.org."
         + " If set to `api`, will fetch these resources from NVD API. It is advised to set an"
         + " `nvd_api_key` when setting this to `nvd`.",
     )

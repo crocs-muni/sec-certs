@@ -10,7 +10,7 @@ You contribution is warmly welcomed. You can help by:
 
 ## Dependencies
 
-For complete list of system dependencies, see [docs/installation](https://seccerts.org/docs/installation.html).
+For complete list of system dependencies, see [docs/installation](https://sec-certs.org/docs/installation.html).
 
 ### Requirements
 

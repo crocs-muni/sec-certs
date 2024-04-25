@@ -77,7 +77,7 @@ def test_to_pandas(mu_dset: CCDatasetMaintenanceUpdates):
     assert set(df.columns) == set(CCMaintenanceUpdate.pandas_columns) - {"dgst"}
 
 
-@pytest.mark.skip(reason="Will work only with fresh snapshot on seccerts.org")
+@pytest.mark.skip(reason="Will work only with fresh snapshot on sec-certs.org")
 def test_from_web():
     dset = CCDatasetMaintenanceUpdates.from_web_latest()
     assert dset is not None
