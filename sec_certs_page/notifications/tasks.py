@@ -22,7 +22,7 @@ def send_confirmation_email(token):  # pragma: no cover
         email_token=email_token,
     )
     msg = Message(
-        "Confirmation request | seccerts.org",
+        "Confirmation request | sec-certs.org",
         recipients=[email],
         html=body,
         extra_headers={"List-Unsubscribe": f"<{url_for('notify.unsubscribe', token=token, _external=True)}>"},
@@ -39,7 +39,7 @@ def send_unsubscription_email(email):  # pragma: no cover
         return
     email_token = subscription_requests[0]["email_token"]
     body = render_template("notifications/email/unsubscription_email.html.jinja2", email_token=email_token)
-    msg = Message("Unsubscription request | seccerts.org", recipients=[email], html=body)
+    msg = Message("Unsubscription request | sec-certs.org", recipients=[email], html=body)
     mail.send(msg)
     send_unsubscription_email.logger.info(f"Sent unsubscription email for email_token = {email_token}")
 

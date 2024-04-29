@@ -217,7 +217,7 @@ def search():
     return render_template(
         "cc/search/index.html.jinja2",
         **res,
-        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | seccerts.org",
+        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
     )
 
 
@@ -395,7 +395,7 @@ def entry_feed(hashid):
         fg = FeedGenerator()
         fg.id(request.base_url)
         fg.title(doc["name"])
-        fg.author({"name": "sec-certs", "email": "webmaster@seccerts.org"})
+        fg.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
         fg.link({"href": entry_url, "rel": "alternate"})
         fg.link({"href": request.base_url, "rel": "self"})
         fg.icon(url_for("static", filename="img/favicon.png", _external=True))
@@ -405,7 +405,7 @@ def entry_feed(hashid):
         for diff, render in zip(diffs, diff_renders):
             date = tz.localize(diff["timestamp"])
             fe = fg.add_entry()
-            fe.author({"name": "sec-certs", "email": "webmaster@seccerts.org"})
+            fe.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
             fe.title(
                 {
                     "back": "Certificate reappeared",

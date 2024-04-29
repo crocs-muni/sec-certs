@@ -19,7 +19,7 @@ from . import pp
 @pp.route("/")
 @register_breadcrumb(pp, ".", "Protection Profiles")
 def index():
-    return render_template("pp/index.html.jinja2", title="Protection Profiles | seccerts.org")
+    return render_template("pp/index.html.jinja2", title="Protection Profiles | sec-certs.org")
 
 
 @pp.route("/network/")
@@ -140,7 +140,7 @@ def search():
     return render_template(
         "pp/search.html.jinja2",
         **res,
-        title=f"Protection Profile [{res['q']}] ({res['page']}) | seccerts.org",
+        title=f"Protection Profile [{res['q']}] ({res['page']}) | sec-certs.org",
     )
 
 
