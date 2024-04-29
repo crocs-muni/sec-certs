@@ -5,7 +5,7 @@
 {% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
-        {{ cert["web_data"]["module_name"]|default("", true) + " | seccerts.org" }}
+        {{ cert["web_data"]["module_name"]|default("", true) + " | sec-certs.org" }}
     </title>
 {% endblock %}
 {% block head %}
@@ -15,17 +15,17 @@
 {% block metadata %}
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
-    <meta property="twitter:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
+    <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
     <meta property="twitter:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
     <meta property="twitter:description"
           content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
-    <meta property="og:title" content="{{ cert["web_data"]["module_name"]|default("seccerts.org", true) }}"/>
+    <meta property="og:title" content="{{ cert["web_data"]["module_name"]|default("sec-certs.org", true) }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
     <meta property="og:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
     <meta property="og:description"
           content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
-    <meta property="og:site_name" content="seccerts.org"/>
+    <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
 {% block navbar %}
     {{ super() }}

@@ -5,11 +5,11 @@
     {% block head %}
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta name="application-name" content="seccerts.org"/>
-        {% block title %}<title>{{ title|default("seccerts.org") }}</title>{% endblock %}
+        <meta name="application-name" content="sec-certs.org"/>
+        {% block title %}<title>{{ title|default("sec-certs.org") }}</title>{% endblock %}
         {% block metadata %}
-            <meta property="og:title" content="{{ title|default("seccerts.org") }}"/>
-            <meta property="og:description" content="{{ description|default("seccerts.org") }}"/>
+            <meta property="og:title" content="{{ title|default("sec-certs.org") }}"/>
+            <meta property="og:description" content="{{ description|default("sec-certs.org") }}"/>
             <meta property="og:image" content="{{ url_for("static", filename="img/card.png", _external=True) }}"/>
             <meta property="og:url" content="{{ request.url }}"/>
         {% endblock %}
@@ -50,7 +50,7 @@
         <!-- Sentry -->
         <script>
             let envs = {
-                "seccerts.org": "production",
+                "sec-certs.org": "production",
                 "localhost.localdomain": "development"
             }
             Sentry.init({
@@ -71,7 +71,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for("index") }}"><img
                     src="{{ url_for("static", filename="img/logo_dark.svg") }}"
-                    style="height: 2.9rem; margin-top: -2rem; margin-bottom: -1.5rem"/></a> {# seccerts.org #}
+                    style="height: 2.9rem; margin-top: -2rem; margin-bottom: -1.5rem"/></a> {# sec-certs.org #}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">

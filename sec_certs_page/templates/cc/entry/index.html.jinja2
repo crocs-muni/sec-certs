@@ -5,7 +5,7 @@
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
-        {{ cert["name"]|default("", true) + " | seccerts.org" }}
+        {{ cert["name"]|default("", true) + " | sec-certs.org" }}
     </title>
 {% endblock %}
 {% block head %}
@@ -15,15 +15,15 @@
 {% block metadata %}
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
-    <meta property="twitter:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
+    <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
     <meta property="twitter:image" content="{{ url_for("static", filename="img/cc_card.png", _external=True) }}"/>
     <meta property="twitter:description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
-    <meta property="og:title" content="{{ cert["name"]|default("seccerts.org", true) }}"/>
+    <meta property="og:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
     <meta property="og:image" content="{{ url_for("static", filename="img/cc_card.png", _external=True) }}"/>
     <meta property="og:description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
-    <meta property="og:site_name" content="seccerts.org"/>
+    <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
 {% block navbar %}
     {{ super() }}
