@@ -71,7 +71,7 @@ def _get(url: str, session, **kwargs) -> Response:
         conn = session if session else requests
         resp = conn.get(
             url,
-            headers={"User-Agent": "seccerts.org"},
+            headers={"User-Agent": "sec-certs.org"},
             verify=False,
             **kwargs,
             timeout=10,

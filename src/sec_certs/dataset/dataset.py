@@ -368,7 +368,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cpe_dataset = builder.build_dataset(cpe_dataset)
             else:
-                logger.info("Preparing CPEDataset from seccerts.org.")
+                logger.info("Preparing CPEDataset from sec-certs.org.")
                 cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
             cpe_dataset.to_json()
 
@@ -393,7 +393,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cve_dataset = builder.build_dataset(cve_dataset)
             else:
-                logger.info("Preparing CVEDataset from seccerts.org")
+                logger.info("Preparing CVEDataset from sec-certs.org")
                 cve_dataset = CVEDataset.from_web(self.cve_dataset_path)
             cve_dataset.to_json()
 
@@ -415,7 +415,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cpe_match_dict = builder.build_dataset(cpe_match_dict)
             else:
-                logger.info("Preparing CPE Match feed from seccerts.org.")
+                logger.info("Preparing CPE Match feed from sec-certs.org.")
                 with tempfile.TemporaryDirectory() as tmp_dir:
                     dset_path = Path(tmp_dir) / "cpe_match_feed.json.gz"
                     if (

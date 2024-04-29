@@ -260,7 +260,7 @@ class MIPSnapshot(ComplexSerializableType):
     @classmethod
     def from_web_latest(cls) -> MIPSnapshot:
         """
-        Get a MIP snapshot from seccerts.org.
+        Get a MIP snapshot from sec-certs.org.
         """
         mip_resp = requests.get(config.fips_mip_latest_snapshot)
         if mip_resp.status_code != 200:

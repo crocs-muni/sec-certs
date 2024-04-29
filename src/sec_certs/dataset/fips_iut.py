@@ -56,7 +56,7 @@ class IUTDataset(JSONPathDataset, ComplexSerializableType):
     @classmethod
     def from_web_latest(cls) -> IUTDataset:
         """
-        Get the IUTDataset from seccerts.org
+        Get the IUTDataset from sec-certs.org
         """
         iut_resp = requests.get(config.fips_iut_dataset)
         if iut_resp.status_code != 200:

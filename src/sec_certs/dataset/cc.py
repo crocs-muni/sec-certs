@@ -249,7 +249,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @classmethod
     def from_web_latest(cls) -> CCDataset:
         """
-        Fetches the fresh snapshot of CCDataset from seccerts.org
+        Fetches the fresh snapshot of CCDataset from sec-certs.org
         """
         return cls.from_web(config.cc_latest_snapshot, "Downloading CC Dataset", "cc_latest_dataset.json")
 

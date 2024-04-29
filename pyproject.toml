@@ -93,9 +93,9 @@
     ]
 
   [project.urls]
-    Homepage = "https://seccerts.org"
+    Homepage = "https://sec-certs.org"
     GitHub = "https://github.com/crocs-muni/sec-certs/"
-    Documentation = "https://seccerts.org/docs"
+    Documentation = "https://sec-certs.org/docs"
 
   [project.scripts]
     sec-certs = "sec_certs.cli:main"
