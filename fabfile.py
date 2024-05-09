@@ -111,9 +111,9 @@ def deploy(c):
     print("Reloading uWSGI (reloads periodiq)...")
     reload_uwsgi(c)
     ps(c)
-    c.local("curl https://seccerts.org")
-    c.local("curl https://seccerts.org/cc/ftsearch/?q=something&cat=abcdefghijklmop&status=any&type=any")
-    c.local("curl https://seccerts.org/fips/ftsearch/?q=something&cat=abcdef&status=Any&type=any")
+    c.local("curl https://sec-certs.org")
+    c.local("curl https://sec-certs.org/cc/ftsearch/?q=something&cat=abcdefghijklmop&status=any&type=any")
+    c.local("curl https://sec-certs.org/fips/ftsearch/?q=something&cat=abcdef&status=Any&type=any")
 
 
 @task
