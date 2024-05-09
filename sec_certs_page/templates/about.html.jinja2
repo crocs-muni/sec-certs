@@ -12,6 +12,9 @@
         <a class="nav-link" href="#about">About</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="#research">Research</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="#privacy-policy">Privacy policy</a>
     </li>
 {% endblock %}
@@ -37,11 +40,12 @@
                             <li>Stanislav Bobon</li>
                             <li>Adam Janovsky</li>
                             <li>Jiri Michalik</li>
+                            <li>Dominik Macko</li>
                             <li>Jan Jancar</li>
                             <li>Łukasz Chmielewski</li>
                         </ul>
                         <p>A thanks goes to Jaroslav Řezník for their insight into the security certification
-                            landscape.</p>
+                            landscape, and Martin Ukrop for their help on the project.</p>
                         <p>If you would like to contact us, you can do so at <a
                                 href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.</p>
                     </div>
@@ -59,6 +63,7 @@
                                     $("#display-about").click(function () {
                                         $("#about-info").show();
                                         $("#about-sponsors").show();
+                                        $("#about-research").show();
                                         $("#about-toggle").hide();
                                     });
                                 });
@@ -66,7 +71,8 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="col-12 col-md-6" id="about-sponsors" {% if config["ANONYMOUS"] %}style="display: none"{% endif %}>
+                <div class="col-12 col-md-6" id="about-sponsors"
+                     {% if config["ANONYMOUS"] %}style="display: none"{% endif %}>
                     <div class="row">
                         <img class="w-25 m-5" style="background-color: #0E4294"
                              src="{{ url_for("static", filename="img/csfe_logo.png") }}" alt=""/>
@@ -74,6 +80,64 @@
                     </div>
                     <div class="row">
                         <img class="w-100" src="{{ url_for("static", filename="img/eu_logo.jpg") }}" alt=""/>
+                    </div>
+                </div>
+            </div>
+            <div class="row my-5" id="about-research" {% if config["ANONYMOUS"] %}style="display: none"{% endif %}>
+                <div class="col-12 col-md-6">
+                    <h1 class="anchor" id="research">Research</h1>
+                    <p class="lead">
+
+                    </p>
+
+                    <div>
+                        <h3><i class="fas fa-file-alt"></i> sec-certs: Examining the security certification practice for
+                            better vulnerability mitigation</h3>
+                        <p class="fst-italic">Adam Janovsky, Jan Jancar, Petr Svenda, Lukasz Chmielewski, Jiri Michalik, Vashek Matyas</p>
+                        <p>
+                            <a href="https://arxiv.org/abs/2311.17603" class="btn btn-primary" target="_blank" rel="noopener"><i
+                                    class="fas fa-file-alt"></i> Preprint</a>
+                            <a href="https://www.sciencedirect.com/journal/computers-and-security" class="btn btn-secondary" target="_blank" rel="noopener">Computers &amp; Security journal</a>
+                        </p>
+                        <p>Products certified under security certification frameworks such as Common Criteria undergo
+                            significant scrutiny during the costly certification process. Yet, critical vulnerabilities,
+                            including private key recovery (ROCA, Minerva, TPM-Fail...), get discovered in certified
+                            products with high assurance levels. Furthermore, assessing which certified products are
+                            impacted by such vulnerabilities is complicated due to the large amount of unstructured
+                            certification-related data and unclear relationships between the certificates. To address
+                            these problems, we conducted a large-scale automated analysis of Common Criteria and FIPS
+                            140 certificates. We trained unsupervised models to learn which vulnerabilities from NIST's
+                            National Vulnerability Database impact existing certified products and how certified
+                            products reference each other. Our tooling automates the analysis of tens of thousands of
+                            certification-related documents, extracting machine-readable features where manual analysis
+                            is unattainable. Further, we identify the security requirements that are associated with
+                            products being affected by fewer and less severe vulnerabilities (on average). This
+                            indicates which aspects of certification correlate with higher security. We demonstrate how
+                            our tool can be used for better vulnerability mitigation on four case studies of known,
+                            high-profile vulnerabilities. All tools and continuously updated results are available on
+                            this site.</p>
+                    </div>
+                    <div>
+                        <h3><i class="fas fa-file-alt"></i> Chain of trust: Unraveling the references among Common
+                            Criteria certified products</h3>
+                        <p class="fst-italic">Adam Janovsky, Lukasz Chmielewski, Petr Svenda, Jan Jancar, Vashek Matyas</p>
+                        <p>
+                            <a href="https://arxiv.org/abs/2404.14246" class="btn btn-primary" target="_blank" rel="noopener"><i
+                                    class="fas fa-file-alt"></i> Preprint</a>
+                            <a href="https://ifipsec2024.co.uk/" class="btn btn-secondary" target="_blank" rel="noopener">IFIP SEC 2024</a>
+                        </p>
+                        <p>With 5394 security certificates of IT products and systems, the Common Criteria for
+                            Information Technology Security Evaluation have bred an ecosystem entangled with various
+                            kind of relations between the certified products. Yet, the prevalence and nature of
+                            dependencies among Common Criteria certified products remains largely unexplored. This study
+                            devises a novel method for building the graph of references among the Common Criteria
+                            certified products, determining the different contexts of references with a supervised
+                            machine-learning algorithm, and measuring how often the references constitute actual
+                            dependencies between the certified products. With the help of the resulting reference graph,
+                            this work identifies just a dozen of certified components that are relied on by at least 10%
+                            of the whole ecosystem -- making them a prime target for malicious actors. The impact of
+                            their compromise is assessed and potentially problematic references to archived products are
+                            discussed.</p>
                     </div>
                 </div>
             </div>
