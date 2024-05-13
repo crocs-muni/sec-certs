@@ -57,7 +57,7 @@
                         <div class="card h-100">
                             <div class="card-body">
                                 <h4 class="card-title">References</h4>
-                                <p class="card-text">Explore an interactive graph of references in FIPS 140
+                                <p class="card-text" style="margin-bottom: 2.5rem;">Explore an interactive graph of references in FIPS 140
                                     certificates.</p>
                                 <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
                                         class="fas fa-network-wired fa-fw"></i> Go</a>
@@ -79,7 +79,7 @@
                         <div class="card h-100">
                             <div class="card-body">
                                 <h4 class="card-title">Random</h4>
-                                <p class="card-text">Look at a random FIPS 140 certificate.</p>
+                                <p class="card-text" style="margin-bottom: 2.5rem;">Look at a random FIPS 140 certificate.</p>
                                 <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
                                         class="fas fa-dice fa-fw"></i> Go</a>
                             </div>
@@ -103,13 +103,13 @@
                         <p>
                             The dataset was last successfully updated
                             at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
-                            using version {{ last_ok_run["tool_version"] }} of the sec-certs tool
+                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the sec-certs tool
                             and it contains {{ last_ok_run["length"] }} certificates.
                         </p>
                     {% endif %}
                     <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
                             class="fas fa-file-alt"></i>
-                        Download</a>
+                        Main dataset</a>
                 </div>
                 <div class="col-12 col-md-6">
                     <h3 class="anchor" id="mip-iut">MIP and IUT</h3>

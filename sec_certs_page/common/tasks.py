@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime
@@ -8,6 +9,7 @@ from itertools import product
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
+from tempfile import TemporaryDirectory
 from typing import List, Set, Tuple, Type
 
 import sec_certs
@@ -23,7 +25,7 @@ from pymongo import DESCENDING, InsertOne, ReplaceOne
 from sec_certs.dataset.dataset import Dataset
 
 from .. import mail, mongo, redis, whoosh_index
-from .diffs import DiffRenderer, has_symbols
+from .diffs import DiffRenderer
 from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
 
@@ -77,10 +79,14 @@ class Updater:  # pragma: no cover
                 suffix = key[len(out_prefix) :]
                 res[f"output_path{suffix}"] = instance_path / value
 
-        for document, format in product(("report", "target", "cert"), ("pdf", "txt")):
-            path = res["dir_path"] / document / format
-            path.mkdir(parents=True, exist_ok=True)
-            res[f"{document}_{format}"] = path
+        for document in ("report", "target", "cert"):
+            doc_path = res["dir_path"] / document
+            doc_path.mkdir(parents=True, exist_ok=True)
+            res[document] = doc_path
+            for format in ("pdf", "txt"):
+                path = doc_path / format
+                path.mkdir(parents=True, exist_ok=True)
+                res[f"{document}_{format}"] = path
 
         return res
 
@@ -207,6 +213,10 @@ class Updater:  # pragma: no cover
     def reindex(self, to_reindex):
         ...
 
+    @abstractmethod
+    def archive(self, paths):
+        ...
+
     def update(self):
         try:
             from setuptools_scm import get_version
@@ -297,6 +307,7 @@ class Updater:  # pragma: no cover
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
+            self.archive(paths)
         except Exception as e:
             # Store the failure in the update log
             end = datetime.now()
@@ -397,6 +408,55 @@ class Notifier(DiffRenderer):
             # Send out the message
             msg = Message(f"Certificate changes from {run_date}", [email], html=email_html)
             mail.send(msg)
+
+
+class Archiver:
+    """
+    ├── auxiliary_datasets
+    │   ├── cpe_dataset.json
+    │   └── cve_dataset.json
+    ├── cc_mu.json        (only CC)
+    ├── cc_scheme.json    (only CC)
+    ├── certs
+    │   ├── reports
+    │   │   ├── pdf
+    │   │   └── txt
+    │   └── targets
+    │   │   ├── pdf
+    │   │   └── txt
+    │   └── certificates
+    │       ├── pdf
+    │       └── txt
+    ├── cpe_match.json
+    ├── dataset.json
+    └── pp.json          (only CC)
+    """
+
+    def archive(self, path, paths):
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+
+            auxdir = tmpdir / "auxiliary_datasets"
+            auxdir.mkdir()
+            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
+            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
+
+            os.symlink(paths["cpe_match_path"], tmpdir / "cpe_match.json")
+            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+
+            self.archive_custom(paths, tmpdir)
+
+            certs = tmpdir / "certs"
+            certs.mkdir()
+            os.symlink(paths["report"], certs / "reports")
+            os.symlink(paths["target"], certs / "targets")
+            os.symlink(paths["cert"], certs / "certificates")
+
+            shutil.make_archive(path, "gztar", tmpdir)
+
+    @abstractmethod
+    def archive_custom(self, paths, tmpdir):
+        ...
 
 
 def no_simultaneous_execution(lock_name: str, abort=False, timeout=60 * 10):

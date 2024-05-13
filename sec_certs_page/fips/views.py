@@ -84,6 +84,19 @@ def dataset():
     )
 
 
+@fips.route("/fips.tar.gz")
+def dataset_archive():
+    archive_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"]
+    if not archive_path.is_file():
+        return abort(404)
+    return send_file(
+        archive_path,
+        as_attachment=True,
+        mimetype="application/gzip",
+        download_name="fips.tar.gz",
+    )
+
+
 @fips.route("/network/")
 @register_breadcrumb(fips, ".network", "References")
 def network():

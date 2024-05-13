@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import Path
 
 import dramatiq
 import sentry_sdk
@@ -13,7 +14,7 @@ from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Indexer, Notifier, Updater, no_simultaneous_execution
+from ..common.tasks import Archiver, Indexer, Notifier, Updater, no_simultaneous_execution
 from . import fips_types
 
 logger = get_logger(__name__)
@@ -99,6 +100,18 @@ def reindex_collection(to_reindex):  # pragma: no cover
     indexer.reindex(to_reindex)
 
 
+class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
+    def archive_custom(self, paths, tmpdir):
+        pass
+
+
+@dramatiq.actor(max_retries=0, actor_name="fips_archive")
+@no_simultaneous_execution("fips_archive")
+def archive(paths):  # pragma: no cover
+    archiver = FIPSArchiver()
+    archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"], paths)
+
+
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
     def process(self, dset: FIPSDataset, paths):
         to_reindex = set()
@@ -146,6 +159,9 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
 
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
+
+    def archive(self, paths):
+        archive.send(paths)
 
 
 @dramatiq.actor(max_retries=0, time_limit=timedelta(hours=12).total_seconds() * 1000, actor_name="fips_update")

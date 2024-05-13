@@ -140,6 +140,20 @@ def dataset():
     )
 
 
+@cc.route("/cc.tar.gz")
+def dataset_archive():
+    """Common criteria dataset archive API endpoint."""
+    archive_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"]
+    if not archive_path.is_file():
+        return abort(404)
+    return send_file(
+        archive_path,
+        as_attachment=True,
+        mimetype="application/gzip",
+        download_name="cc.tar.gz",
+    )
+
+
 @cc.route("/maintenance_updates.json")
 def maintenance_updates():
     """Common criteria maintenance updates dataset API endpoint."""
