@@ -250,9 +250,30 @@ def compare(one_hashid: str, other_hashid: str):
         return abort(404)
     doc_one = load(raw_one)
     doc_other = load(raw_other)
+    k1_order = [
+        "name",
+        "category",
+        "not_valid_before",
+        "not_valid_after",
+        "scheme",
+        "st_link",
+        "status",
+        "manufacturer",
+        "manufacturer_web",
+        "security_level",
+        "report_link",
+        "cert_link",
+        "protection_profiles",
+        "maintenance_updates",
+        "state",
+        "heuristics",
+        "pdf_data",
+        "_type",
+        "dgst",
+    ]
     return render_template(
         "cc/compare.html.jinja2",
-        changes=render_compare(doc_one, doc_other),
+        changes=render_compare(doc_one, doc_other, k1_order),
         cert_one=doc_one,
         cert_other=doc_other,
         hashid_one=one_hashid,
