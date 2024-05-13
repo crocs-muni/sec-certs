@@ -5,7 +5,7 @@ import pytest
 
 from sec_certs_page import mongo
 from sec_certs_page.cc.tasks import CCNotifier
-from sec_certs_page.common.diffs import apply_explicit_diff
+from sec_certs_page.common.diffs import apply_explicit_diff, render_compare
 from sec_certs_page.common.objformats import freeze, load
 
 
@@ -17,6 +17,16 @@ def test_cc_diff_renders(client):
         diff = load(mongo.db.cc_diff.find_one(id))
         cert = load(mongo.db.cc.find_one(diff["dgst"]))
         assert notifier.render_diff(id["_id"], cert, diff) is not None
+
+
+def test_cc_compare_render(client):
+    all_ids = list(mongo.db.cc.find({}, {"_id": True}))
+    for _ in range(100):
+        idd_one = random.choice(all_ids)
+        cert_one = load(mongo.db.cc.find_one(idd_one))
+        idd_other = random.choice(all_ids)
+        cert_other = load(mongo.db.cc.find_one(idd_other))
+        assert render_compare(cert_one, cert_other, []) is not None
 
 
 @pytest.mark.parametrize("dgst", ["d492f0e3e19d32f6", "2ff8ceac4a6ca519", "0adbded2df213f16", "fb8945b7036e2361"])

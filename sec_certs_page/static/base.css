@@ -6,6 +6,17 @@
     margin-top: 57px;
 }
 
+#compare {
+    font-size: small !important;
+    position: fixed;
+    bottom: 0.7rem;
+    right: 6.7rem;
+}
+
+#compare-icon {
+    padding: .175rem .50rem;
+}
+
 #notifications {
     font-size: small !important;
     position: fixed;

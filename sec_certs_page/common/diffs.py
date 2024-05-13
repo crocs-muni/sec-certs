@@ -202,7 +202,6 @@ def render_compare(one, other, k1_order):
             for k in keys:
                 if k in symbols._all_symbols_:
                     if path in changes:
-                        print("fuuuuck", changes[path])
                         changes[path]["action"] = "modify"
                         if isinstance(o[k], dict):
                             changes[path]["ok"].update(o[k])
@@ -210,7 +209,7 @@ def render_compare(one, other, k1_order):
                             changes[path]["ok"] += o[k]
                     else:
                         changes[path] = {"action": repr(k), "ok": o[k], "a": a, "b": b}
-                    print("action", k, path, o[k], a, b)
+                    # print("action", k, path, o[k], a, b)
                     continue
                 if k not in o:
                     new_path = tuple((*path, k))
@@ -224,7 +223,7 @@ def render_compare(one, other, k1_order):
                         # print("ignoring", tuple((*path, k)))
                         continue
                 walk(o[k], a[k], b[k], tuple((*path, k)))
-        elif isinstance(o, list) and not isinstance(a, list) and not isinstance(b, list):
+        elif isinstance(o, list) and (not isinstance(a, list) or not isinstance(b, list)):
             if path in changes:
                 raise ValueError("Bad diff!")
             changes[path] = {"action": "different", "o": o, "a": a, "b": b}
@@ -239,5 +238,5 @@ def render_compare(one, other, k1_order):
     walk(diff, one, other)
     pairs = list(changes.items())
     # magic
-    pairs.sort(key=lambda pair: (k1_order.index(pair[0][0]), pair[0][1:]))
+    pairs.sort(key=lambda pair: (k1_order.index(pair[0][0]), pair[0][1:]) if pair[0][0] in k1_order else pair[0][0])
     return pairs

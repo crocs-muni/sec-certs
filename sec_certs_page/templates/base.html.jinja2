@@ -216,6 +216,39 @@
                     </div>
                 </div>
             </div>
+            <div class="modal fade" id="compare-modal" tabindex="-1" aria-labelledby="compare-modal-label"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="compare-modal-label">Compare certificates</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="compare-none">
+                                You currently have no selected certificates for comparison. Add certificates on the page
+                                of the certificate. After you do so you will be able to
+                                see them here and compare them.
+                            </p>
+                            <div id="compare-some" style="display: none">
+                                <table class="table">
+                                    <tbody></tbody>
+                                </table>
+                                You can compare two certificates.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button id="compare-add-current" class="btn btn-primary" style="display: none"><i
+                                    class="fas fa-plus"></i>
+                                Add current certificate
+                            </button>
+                            <button id="compare-do" class="btn btn-primary">Compare
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <footer>
                 {% block footer %}
                     <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
@@ -241,7 +274,6 @@
                         </div>
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
                             <p class="fw-light">Check out our <a href="
-
                                     {% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}"
                                                                  target="_blank" rel="noopener">Github</a>.</p>
                             <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
@@ -253,6 +285,17 @@
                                                        title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></p>
                             {% endif %}
                         </div>
+                    </div>
+                    <div id="compare">
+                        <button id="compare-icon" class="btn btn-secondary" title="Compare certificates"
+                                data-bs-toggle="modal" data-bs-target="#compare-modal">
+                            <i class="fas fa-weight-scale" aria-hidden="true"></i>
+                            <span id="compare-pill"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                &nbsp;
+                            <span class="visually-hidden">selected certificates for comparison</span>
+                                </span>
+                        </button>
                     </div>
 
                     <div id="notifications">
@@ -286,50 +329,64 @@
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
-        function remove_cert(event) {
+        function remove_cert(storage_key, event) {
             let elem = $(event.target).parents("tr");
-            let selected = localStorage.getItem("selected_certs_subscription");
+            let selected = localStorage.getItem(storage_key);
             selected = JSON.parse(selected).filter(cert => cert["hashid"] !== elem.data("cert-hashid"));
-            localStorage.setItem("selected_certs_subscription", JSON.stringify(selected));
+            localStorage.setItem(storage_key, JSON.stringify(selected));
             update_state();
         }
 
-        function update_state() {
+        function update_state_core(type, storage_key, action, enable) {
             if (typeof certificate_data !== "undefined") {
-                $("#notification-add-current").show();
+                $(`#${ type }-add-current`).show();
             }
-            let selected = localStorage.getItem("selected_certs_subscription");
+
+            let selected = localStorage.getItem(storage_key);
             if (selected === null) {
-                $("#notification-subscribe").hide();
-                $("#notification-pill").text("0");
+                $(`#${ type }-${ action }`).hide();
+                $(`#${ type }-pill`).text("0");
             } else {
                 selected = JSON.parse(selected);
-                $("#notification-pill").text(selected.length);
-                $("#notification-some tbody tr").remove();
+                $(`#${ type }-pill`).text(selected.length);
+                $(`#${ type }-some tbody tr`).remove();
                 if (selected.length > 0) {
-                    $("#notification-subscribe").show();
-                    $("#notification-none").hide();
-                    $("#notification-some").show();
+                    $(`#${ type }-none`).hide();
+                    $(`#${ type }-some`).show();
                     if (typeof certificate_data !== "undefined") {
                         if (selected.map(cert => cert["hashid"]).includes(certificate_data.hashid)) {
-                            $("#notification-add-current").hide();
+                            $(`#${ type }-add-current`).hide();
                         }
                     }
-                    for (let cert of selected) {
-                        let tr = $("<tr>").data("cert-hashid", cert["hashid"]);
+                    for (let [i, cert] of selected.entries()) {
+                        let tr = $("<tr>").data("cert-hashid", cert["hashid"]).data("cert-type", cert["type"]);
+                        let num = $("<td>").append(`${i + 1}.`);
+                        let cat = $("<td>").append(cert["type"].toUpperCase());
                         let name = $("<td>").append($("<a>").attr("href", cert["url"]).text(cert["name"]));
-                        let but = $("<td>").append($("<button>").addClass("btn btn-danger mx-1").text("Remove").click(remove_cert));
-                        tr.append(name).append(but).appendTo($("#notification-some tbody"));
+                        let but = $("<td>").append($("<button>").addClass("btn btn-danger mx-1").text("Remove").click(_.curry(remove_cert)(storage_key)));
+                        tr.append(num).append(cat).append(name).append(but).appendTo($(`#${ type }-some tbody`));
                     }
                 } else {
-                    $("#notification-subscribe").hide();
-                    $("#notification-none").show();
-                    $("#notification-some").hide();
+                    $(`#${ type }-none`).show();
+                    $(`#${ type }-some`).hide();
+                }
+                if (enable(selected.length)) {
+                    $(`#${ type }-${ action }`).show();
+                } else {
+                    $(`#${ type }-${ action }`).hide();
                 }
             }
         }
 
+        function update_state() {
+            update_state_core("notification", "selected_certs_subscription", "subscribe", (len) => len > 0);
+            update_state_core("compare", "selected_certs_comparison", "do", (len) => len === 2);
+        }
+
         $("#notification-modal").on("show.bs.modal", function () {
+            update_state();
+        });
+        $("#compare-modal").on("show.bs.modal", function () {
             update_state();
         });
         $("#notification-add-current").click(function () {
@@ -342,6 +399,30 @@
             }
             localStorage.setItem("selected_certs_subscription", JSON.stringify(selected));
             update_state();
+        });
+        $("#compare-add-current").click(function () {
+            let selected = localStorage.getItem("selected_certs_comparison");
+            if (selected === null) {
+                selected = [certificate_data];
+            } else {
+                selected = JSON.parse(selected);
+                selected.push(certificate_data);
+            }
+            localStorage.setItem("selected_certs_comparison", JSON.stringify(selected));
+            update_state();
+        });
+        $("#compare-do").click(function () {
+            let selected = localStorage.getItem("selected_certs_comparison");
+            if (selected === null) {
+                //whoops
+                return;
+            }
+            // TODO: Test cert type and handle FIPS.
+            selected = JSON.parse(selected);
+            let url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+            url = url.replace("XXXXXXXXXXXXXXXX", selected[0]["hashid"]);
+            url = url.replace("YYYYYYYYYYYYYYYY", selected[1]["hashid"]);
+            window.location.href = url;
         });
         $("#notification-subscribe").click(function (event) {
             event.preventDefault();
