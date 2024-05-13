@@ -1,7 +1,9 @@
+import string
 from logging import getLogger
 from typing import Mapping, Tuple
 
 from flask import render_template
+from jsondiff import diff as jdiff
 from jsondiff import symbols
 from markupsafe import Markup, escape
 
@@ -189,3 +191,71 @@ class DiffRenderer:
             )
         else:
             raise ValueError("Invalid diff type")
+
+
+def render_compare(one, other):
+    def render_code_template(template_str: str, vjson, **kws) -> Markup:
+        template = Markup(template_str)
+        return template.format(vjson=str(WorkingFormat(vjson).to_storage_format().to_json_mapping()), **kws)
+
+    diff = jdiff(one, other, syntax="symmetric")
+    # print(diff)
+    changes = {}
+    # print("------------")
+
+    def walk(o, a, b, path=()):
+        if isinstance(o, dict) and isinstance(a, dict) and isinstance(b, dict):
+            keys = set().union(o.keys(), a.keys(), b.keys())
+            for k in keys:
+                if k in symbols._all_symbols_:
+                    changes[path] = {"action": repr(k), "ok": o[k], "a": a, "b": b}
+                    # print("action", k, path, o[k], a, b)
+                    continue
+                if k not in o:
+                    new_path = tuple((*path, k))
+                    if k in a and k in b:
+                        changes[new_path] = {"action": "same", "ak": a[k]}
+                        # print("same", new_path, a[k], b[k])
+                        continue
+                    else:
+                        # print("ignoring", tuple((*path, k)))
+                        continue
+                walk(o[k], a[k], b[k], tuple((*path, k)))
+        elif isinstance(o, list) and not isinstance(a, list) and not isinstance(b, list):
+            changes[path] = {"action": "different", "o": o, "a": a, "b": b}
+            # print("leaf", path, o, a, b)
+        elif isinstance(o, (tuple, list, set)):
+            for new_o, new_a, new_b in zip(o, a, b):
+                walk(new_o, new_a, new_b, path)
+        else:
+            pass
+            # print("here", path, o, a, b)
+
+    walk(diff, one, other)
+    k1_order = [
+        "name",
+        "category",
+        "not_valid_before",
+        "not_valid_after",
+        "scheme",
+        "st_link",
+        "status",
+        "manufacturer",
+        "manufacturer_web",
+        "security_level",
+        "report_link",
+        "cert_link",
+        "protection_profiles",
+        "maintenance_updates",
+        "state",
+        "heuristics",
+        "pdf_data",
+        "_type",
+        "dgst",
+    ]
+    pairs = list(changes.items())
+    # magic
+    pairs.sort(key=lambda pair: str(string.ascii_lowercase[k1_order.index(pair[0][0])]) + str(pair[0][1:]))
+    for p in pairs:
+        print(p)
+    return pairs

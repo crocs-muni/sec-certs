@@ -1,0 +1,99 @@
+{% extends "base.html.jinja2" %}
+{% macro render_one(path, one, highlight=None) %}
+    {% if path[-1] == "extracted_sars" %}
+        {% for v in one %}
+            {{ v["family"] }}.{{ v["level"] }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% elif one is mapping %}
+        {% for k, v in one.items() %}
+            {% if highlight and k in highlight %}<b>{{ k }}: {{ v }}</b>{% else %}{{ k }}: {{ v }}{% endif %}{% if not loop.last %}<br/>{% endif %}
+        {% endfor %}
+    {% elif one is string %}
+        {{ one }}
+    {% elif one is sequence %}
+        {% for a in one %}
+            {{ a }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% elif one is iterable %}
+        {% for a in one %}
+            {{ a }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% else %}
+        {{ one }}
+    {% endif %}
+{% endmacro %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="alert alert-warning d-sm-none" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+            </div>
+            <div></div>
+            <div>
+                <h1>Comparing certificates <span
+                        class="badge bg-warning text-dark fs-4"><i class="fas fa-flask"></i> Experimental feature</span>
+                </h1>
+                <p class="lead">You are comparing two certificates. By default, only different attributes are shown. Use
+                    the button below to show/hide all attributes.</p>
+                <div class="col-12 col-md-6">
+                    <button id="toggle-same" class="btn btn-primary">Toggle same</button>
+                </div>
+            </div>
+
+            <div class="row pt-5">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <colgroup>
+                            <col style="width: 40%">
+                            <col style="width: 30%">
+                            <col style="width: 30%">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th class="fs-3">{{ cert_one["name"] }} <br/>{{ cert_one["heuristics"]["cert_id"] }} <a
+                                    href="{{ url_for(".entry", hashid=hashid_one) }}" class="btn btn-primary badge"><i
+                                    class="fas fa-file"></i></a></th>
+                            <th class="fs-3">{{ cert_other["name"] }} <br/>{{ cert_other["heuristics"]["cert_id"] }} <a
+                                    href="{{ url_for(".entry", hashid=hashid_other) }}" class="btn btn-primary badge"><i
+                                    class="fas fa-file"></i></a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for path, val in changes if path[-1] != "_type" %}
+                            {% set action = val["action"] %}
+                            <tr class="action-{{ action }} text-break"
+                                style="{% if action == "same" %}display: none{% endif %}">
+                                <td>{{ path | join("/") }}</td>
+                                {% if action == "same" %}
+                                    <td>{{ render_one(path, val["ak"]) }}</td>
+                                    <td>{{ render_one(path, val["ak"]) }}</td>
+                                {% elif action == "different" %}
+                                    <td class="table-warning fw-bold">{{ render_one(path, val["a"]) }}</td>
+                                    <td class="table-warning fw-bold">{{ render_one(path, val["b"]) }}</td>
+                                {% elif action == "insert" or action == "add" %}
+                                    {# add, discard (set),  insert, delete (list, dict)  #}
+                                    <td class="table-success">{{ render_one(path, val["a"]) }}</td>
+                                    <td class="table-success">
+                                        {{ render_one(path, val["b"], val["ok"]) }}
+                                    </td>
+                                {% elif action == "delete" or action == "discard" %}
+                                    <td class="table-danger">{{ render_one(path, val["a"], val["ok"]) }}</td>
+                                    <td class="table-danger">
+                                        {{ render_one(path, val["b"]) }}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        $("#toggle-same").click(function () {
+            $(".action-same").toggle(500);
+        });
+    </script>
+{% endblock %}

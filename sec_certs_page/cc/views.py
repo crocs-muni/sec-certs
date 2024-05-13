@@ -10,13 +10,14 @@ from feedgen.feed import FeedGenerator
 from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
-from markupsafe import Markup, escape
+from markupsafe import Markup
 from networkx import node_link_data
 from pytz import timezone
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
+from ..common.diffs import render_compare
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     entry_download_certificate_pdf,
@@ -238,6 +239,25 @@ def fulltext_search():
     """Fulltext search for Common Criteria."""
     res = CCFulltextSearch.process_search(request)
     return render_template("cc/search/fulltext.html.jinja2", **res)
+
+
+@cc.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
+def compare(one_hashid: str, other_hashid: str):
+    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+        raw_one = mongo.db.cc.find_one({"_id": one_hashid}, {"_id": 0})
+        raw_other = mongo.db.cc.find_one({"_id": other_hashid}, {"_id": 0})
+    if not raw_one or not raw_other:
+        return abort(404)
+    doc_one = load(raw_one)
+    doc_other = load(raw_other)
+    return render_template(
+        "cc/compare.html.jinja2",
+        changes=render_compare(doc_one, doc_other),
+        cert_one=doc_one,
+        cert_other=doc_other,
+        hashid_one=one_hashid,
+        hashid_other=other_hashid,
+    )
 
 
 @cc.route("/analysis/")
