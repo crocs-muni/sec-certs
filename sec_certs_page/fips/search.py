@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Mapping, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Sequence, Tuple
 
 import pymongo
 import sentry_sdk
@@ -19,8 +19,8 @@ class FIPSBasicSearch(BasicSearch):
 
     @classmethod
     def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int, List[datetime]]:
-        query = {}
-        projection = {
+        query: Dict[str, Any] = {}
+        projection: Dict[str, Any] = {
             "_id": 1,
             "cert_id": 1,
             "web_data.module_name": 1,

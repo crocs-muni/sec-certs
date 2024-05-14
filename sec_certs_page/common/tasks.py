@@ -307,7 +307,7 @@ class Updater:  # pragma: no cover
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
-            self.archive(paths)
+            self.archive({name: str(path) for name, path in paths.items()})
         except Exception as e:
             # Store the failure in the update log
             end = datetime.now()
