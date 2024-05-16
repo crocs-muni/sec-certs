@@ -18,7 +18,7 @@ A tool for data scraping and analysis of security certificates from Common Crite
 
 Two papers related to this tool are accepted for publication. See the arXiv pre-prints below.
 
-> [!IMPORTANT]
+> [!NOTE]
 > - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2023). [sec-certs: Examining the security certification practice for better vulnerability mitigation](https://arxiv.org/abs/2311.17603). To appear in Computers & Security journal.
 > - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., & Matyas, V. (2024). Chain of trust: [Unraveling the references among Common Criteria certified products](https://arxiv.org/abs/2404.14246). To appear in IFIP SEC 2024.
 
