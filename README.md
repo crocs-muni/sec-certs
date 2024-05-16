@@ -14,6 +14,14 @@ A tool for data scraping and analysis of security certificates from Common Crite
 [![Tests](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml?query=branch%3Amain)
 [![Codecov](https://img.shields.io/codecov/c/github/crocs-muni/sec-certs?style=flat-square)](https://app.codecov.io/gh/crocs-muni/sec-certs)
 
+## Paper pre-prints
+
+Two papers related to this tool are accepted for publication. See the arXiv pre-prints below.
+
+> [!NOTE]
+> - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2023). [sec-certs: Examining the security certification practice for better vulnerability mitigation](https://arxiv.org/abs/2311.17603). To appear in Computers & Security journal.
+> - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., & Matyas, V. (2024). Chain of trust: [Unraveling the references among Common Criteria certified products](https://arxiv.org/abs/2404.14246). To appear in IFIP SEC 2024.
+
 ## Installation
 
 Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://sec-certs.org/docs/installation.html).
