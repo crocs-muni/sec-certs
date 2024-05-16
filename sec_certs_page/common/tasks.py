@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import subprocess
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime
@@ -452,7 +453,7 @@ class Archiver:
             os.symlink(paths["target"], certs / "targets")
             os.symlink(paths["cert"], certs / "certificates")
 
-            shutil.make_archive(path, "gztar", tmpdir)
+            subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
 
     @abstractmethod
     def archive_custom(self, paths, tmpdir):
