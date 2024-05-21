@@ -568,7 +568,7 @@ regex==2023.10.3
     # via
     #   nltk
     #   transformers
-requests==2.31.0
+requests==2.32.0
     # via
     #   datasets
     #   datashader
