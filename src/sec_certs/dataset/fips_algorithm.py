@@ -92,8 +92,6 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         n_pages = len(alg_links)
 
         urls = [constants.FIPS_CAVP_URL + "/" + i for i in alg_links]
-        # doesn't work because of  SHA-3 8
-        # urls = [constants.FIPS_ALG_URL.format(alg_type, alg_number) for alg_type, alg_number in algs]
         paths = [output_dir / f"alg_page{i}.html" for i in range(0, n_pages)]
         responses = helpers.download_parallel(urls, paths, progress_bar_desc="Downloading FIPS Algorithm data")
 
@@ -124,25 +122,17 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
                 fields.append("" if div is None else div.find_next_sibling("div").get_text())
             capability_trs = soup.find("table").find("tbody").findAll("tr")
             capabilities = [c.findAll("td")[1].find(["b", "s"]).get_text().strip() for c in capability_trs]
-        return fields[0], fields[1], fields[2], ",".join(capabilities)
+        return fields[0], fields[1], fields[2], ", ".join(capabilities)
 
     @staticmethod
     def parse_algorithms_from_html(html_path: Path) -> set[FIPSAlgorithm]:
-        df = pd.read_html(html_path)[0]
-        df["alg_type"] = df["Validation Number"].map(lambda x: re.sub(r"[0-9\s]", "", x))
-        df["alg_number"] = df["Validation Number"].map(lambda x: re.sub(r"[^0-9]", "", x))
-        #links = list(zip(df['alg_type'], df['alg_number']))
-        links = []
-        with html_path.open("r") as handle:
-            soup = BeautifulSoup(handle, "html5lib")
-            table = soup.find('table').find('tbody')
-            for tr in table.findAll("tr"):
-                if len(tr.findAll("td")) != 4:
-                    td = tr.findAll("td")[0]
-                    links.append(td.find('a')['href'])
-                else:
-                    td = tr.findAll("td")[2]
-                    links.append(td.find('a')['href'])
+        df = pd.read_html(html_path, extract_links="body")[0]
+        df["alg_type"] = df["Validation Number"].map(lambda x: re.sub(r"[0-9\s]", "", x[0]))
+        df["alg_number"] = df["Validation Number"].map(lambda x: re.sub(r"[^0-9]", "", x[0]))
+        links = [x[1] for x in df["Validation Number"]]
+        df["Vendor"] = df["Vendor"].map(lambda x: x[0])
+        df["Implementation"] = df["Implementation"].map(lambda x: x[0])
+        df["Validation Date"] = df["Validation Date"].map(lambda x: x[0])
 
         with TemporaryDirectory() as tmp_dir:
             alg_pages = FIPSAlgorithmDataset.download_algs_data(Path(tmp_dir), links)
@@ -163,8 +153,15 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
 
         df["alg"] = df.apply(
             lambda row: FIPSAlgorithm(
-                row["alg_number"], row["alg_type"], row["Vendor"], row["Implementation"], row["Validation Date"],
-                row["description"], row["version"], row["type"], row["algorithm_capabilities"]
+                row["alg_number"],
+                row["alg_type"],
+                row["Vendor"],
+                row["Implementation"],
+                row["Validation Date"],
+                row["description"],
+                row["version"],
+                row["type"],
+                row["algorithm_capabilities"],
             ),
             axis=1,
         )

@@ -36,7 +36,7 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
         "description",
         "version",
         "type",
-        "algorithm_capabilities"
+        "algorithm_capabilities",
     ]
 
     @property
@@ -51,7 +51,7 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
             self.description,
             self.version,
             self.type,
-            self.algorithm_capabilities
+            self.algorithm_capabilities,
         )
 
     @property
