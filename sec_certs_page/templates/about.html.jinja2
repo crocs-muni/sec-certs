@@ -97,8 +97,27 @@
                         <p>
                             <a href="https://arxiv.org/abs/2311.17603" class="btn btn-primary" target="_blank" rel="noopener"><i
                                     class="fas fa-file-alt"></i> Preprint</a>
-                            <a href="https://www.sciencedirect.com/journal/computers-and-security" class="btn btn-secondary" target="_blank" rel="noopener">Computers &amp; Security journal</a>
+                            <a href="https://doi.org/10.1016/j.cose.2024.103895" class="btn btn-primary" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Computers &amp; Security journal</a>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#paper-1-bib" aria-expanded="false" aria-controls="paper-1-bib">
+                           		<i class="fas fa-quote-right"></i> BibTeX
+                            </button>
                         </p>
+                        <div class="collapse" id="paper-1-bib">
+                        	<div class="card card-body">
+                        	<pre class="select-on-click" title="Click to copy to clipboard">
+@article{sec-certs,
+	title = {sec-certs: Examining the security certification practice for better vulnerability mitigation},
+	journal = {Computers & Security},
+	volume = {143},
+	year = {2024},
+	issn = {0167-4048},
+	doi = {https://doi.org/10.1016/j.cose.2024.103895},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167404824001974},
+	author = {Adam Janovsky and Jan Jancar and Petr Svenda and Łukasz Chmielewski and Jiri Michalik and Vashek Matyas},
+	keywords = {Security certification, Common criteria, Vulnerability assessment, Data analysis, Smartcards}
+}</pre>
+                        	</div>
+                        </div>
                         <p>Products certified under security certification frameworks such as Common Criteria undergo
                             significant scrutiny during the costly certification process. Yet, critical vulnerabilities,
                             including private key recovery (ROCA, Minerva, TPM-Fail...), get discovered in certified
@@ -185,4 +204,44 @@
             </div>
         </main>
     </div>
+    <script>
+		function selectText(ev) {
+	        var e = document, c = ev[0], b, d;
+	        if (e.body.createTextRange) {
+	            b = document.body.createTextRange();
+	            b.moveToElementText(c);
+	            b.select()
+	        } else {
+	            if (window.getSelection) {
+	                d = window.getSelection();
+	                b = document.createRange();
+	                b.selectNodeContents(c);
+	                d.removeAllRanges();
+	                d.addRange(b)
+	            }
+	        }
+	        return $(this)
+	    }
+	    function getSelectionText() {
+		    var b = "";
+		    if (window.getSelection) {
+		        b = window.getSelection().toString()
+		    } else {
+		        if (document.selection && document.selection.type != "Control") {
+		            b = document.selection.createRange().text
+		        }
+		    }
+		    return b;
+		}
+		function copyToClipboard() {
+		    var text = getSelectionText();
+		    if (!text || text.length == 0) {
+		        selectText($(this));
+		        var success = document.execCommand("copy");
+		        if (!success)
+		            console.error("failed to copy text to clipboard :(")
+		    }
+		}
+		$(".select-on-click").on("click", copyToClipboard);
+	</script>
 {% endblock %}
