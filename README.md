@@ -14,12 +14,12 @@ A tool for data scraping and analysis of security certificates from Common Crite
 [![Tests](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml?query=branch%3Amain)
 [![Codecov](https://img.shields.io/codecov/c/github/crocs-muni/sec-certs?style=flat-square)](https://app.codecov.io/gh/crocs-muni/sec-certs)
 
-## Paper pre-prints
+## Papers
 
-Two papers related to this tool are accepted for publication. See the arXiv pre-prints below.
+Two papers related to this tool are accepted for publication.
 
 > [!NOTE]
-> - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2023). [sec-certs: Examining the security certification practice for better vulnerability mitigation](https://arxiv.org/abs/2311.17603). To appear in Computers & Security journal.
+> - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2024). [sec-certs: Examining the security certification practice for better vulnerability mitigation](https://www.sciencedirect.com/science/article/pii/S0167404824001974). *Computers & Security, 143*. https://doi.org/10.1016/j.cose.2024.103895
 > - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., & Matyas, V. (2024). [Chain of trust: Unraveling the references among Common Criteria certified products](https://arxiv.org/abs/2404.14246). To appear in IFIP SEC 2024.
 
 ## Installation
