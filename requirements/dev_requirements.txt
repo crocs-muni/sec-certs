@@ -502,7 +502,7 @@ thinc==8.2.1
     # via spacy
 threadpoolctl==3.2.0
     # via scikit-learn
-tornado==6.3.3
+tornado==6.4.1
     # via
     #   ipykernel
     #   jupyter-client

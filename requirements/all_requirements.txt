@@ -719,7 +719,7 @@ torch==2.1.1
     #   torchvision
 torchvision==0.16.1
     # via sentence-transformers
-tornado==6.3.3
+tornado==6.4.1
     # via
     #   bokeh
     #   ipykernel
