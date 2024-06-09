@@ -58,10 +58,10 @@ class CCCertificate(
 
         def __post_init__(self):
             super().__setattr__(
-                "maintenance_report_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_report_link)
+                "maintenance_report_link", sec_certs.utils.sanitization.sanitize_cc_link(self.maintenance_report_link)
             )
             super().__setattr__(
-                "maintenance_st_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_st_link)
+                "maintenance_st_link", sec_certs.utils.sanitization.sanitize_cc_link(self.maintenance_st_link)
             )
             super().__setattr__(
                 "maintenance_title", sec_certs.utils.sanitization.sanitize_string(self.maintenance_title)
@@ -430,9 +430,9 @@ class CCCertificate(
         self.security_level = sec_certs.utils.sanitization.sanitize_security_levels(security_level)
         self.not_valid_before = sec_certs.utils.sanitization.sanitize_date(not_valid_before)
         self.not_valid_after = sec_certs.utils.sanitization.sanitize_date(not_valid_after)
-        self.report_link = sec_certs.utils.sanitization.sanitize_link(report_link)
-        self.st_link = sec_certs.utils.sanitization.sanitize_link(st_link)
-        self.cert_link = sec_certs.utils.sanitization.sanitize_link(cert_link)
+        self.report_link = sec_certs.utils.sanitization.sanitize_cc_link(report_link)
+        self.st_link = sec_certs.utils.sanitization.sanitize_cc_link(st_link)
+        self.cert_link = sec_certs.utils.sanitization.sanitize_cc_link(cert_link)
         self.manufacturer_web = sec_certs.utils.sanitization.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintenance_updates = maintenance_updates

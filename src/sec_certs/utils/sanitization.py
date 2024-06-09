@@ -23,6 +23,16 @@ def sanitize_link(record: str | None) -> str | None:
     return record.replace(":443", "").replace(" ", "%20").replace("http://", "https://")
 
 
+def sanitize_cc_link(record: str | None) -> str | None:
+    record = sanitize_link(record)
+    if not record:
+        return None
+    record = record.replace("nfs/ccpfiles/", "")
+    if record == "https://www.commoncriteriaportal.org/files/epfiles/":
+        return None
+    return record
+
+
 def sanitize_date(record: pd.Timestamp | date | np.datetime64) -> date | None:
     if pd.isnull(record):
         return None
