@@ -88,8 +88,8 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
         os.symlink(Path(current_app.instance_path) / "pp.json", tmpdir / "pp.json")
 
 
-@dramatiq.actor(max_retries=0, actor_name="cc_archive")
-@no_simultaneous_execution("cc_archive")
+@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=1).total_seconds() * 1000, actor_name="cc_archive")
+@no_simultaneous_execution("cc_archive", timeout=timedelta(hours=1).total_seconds())
 def archive(paths):  # pragma: no cover
     archiver = CCArchiver()
     archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"], paths)

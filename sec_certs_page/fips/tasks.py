@@ -105,8 +105,8 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
         pass
 
 
-@dramatiq.actor(max_retries=0, actor_name="fips_archive")
-@no_simultaneous_execution("fips_archive")
+@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=1).total_seconds() * 1000, actor_name="fips_archive")
+@no_simultaneous_execution("fips_archive", timeout=timedelta(hours=1).total_seconds())
 def archive(paths):  # pragma: no cover
     archiver = FIPSArchiver()
     archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"], paths)
