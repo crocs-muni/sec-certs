@@ -397,7 +397,11 @@ class Notifier(DiffRenderer):
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
                 continue
             # Render diffs into body template
-            email_core_html = render_template("notifications/email/notification_email.html.jinja2", cards=cards)
+            email_core_html = render_template(
+                "notifications/email/notification_email.html.jinja2",
+                cards=cards,
+                email_token=subscriptions[0]["email_token"],
+            )
             # Filter out unused CSS rules
             cleaned_css = filter_css(bootstrap_parsed, email_core_html)
             # Inject final CSS into html
@@ -405,9 +409,9 @@ class Notifier(DiffRenderer):
             css_tag = soup.new_tag("style")
             css_tag.insert(0, soup.new_string(cleaned_css))
             soup.find("meta").insert_after(css_tag)
-            email_html = str(soup)
+            email_html = soup.prettify(formatter="html")
             # Send out the message
-            msg = Message(f"Certificate changes from {run_date}", [email], html=email_html)
+            msg = Message(f"Certificate changes from {run_date} | sec-certs.org", [email], html=email_html)
             mail.send(msg)
 
 

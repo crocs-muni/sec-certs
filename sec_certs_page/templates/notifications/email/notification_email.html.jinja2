@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-TODO: there were changes...
+There were changes in the certificates you follow.
 
 <div class="col-10 mx-auto p-3 py-md-5">
     {% for card in cards %}
@@ -12,6 +13,16 @@ TODO: there were changes...
     {% endfor %}
 </div>
 
-TODO: Unsub link
+<footer>
+    <hr/>
+    <p>
+        To unsubscribe from all notifications
+        <a href="{{ url_for("notify.unsubscribe_all", email_token=email_token) }}">click here</a>.
+    </p>
+    <p>
+        To manage notification subscriptions
+        <a href="{{ url_for("notify.manage", email_token=email_token) }}">click here</a>.
+    </p>
+</footer>
 </body>
 </html>
