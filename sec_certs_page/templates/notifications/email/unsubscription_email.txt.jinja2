@@ -1,0 +1,7 @@
+To unsubscribe from all notifications:
+
+  {{ url_for("notify.unsubscribe_all", email_token=email_token) }}
+
+To manage notification subscriptions:
+
+  {{ url_for("notify.manage", email_token=email_token) }}

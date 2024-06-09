@@ -1,12 +1,10 @@
 import logging
 import os
-import shutil
 import subprocess
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime
 from functools import wraps
-from itertools import product
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
@@ -18,14 +16,14 @@ import sentry_sdk
 from bs4 import BeautifulSoup
 from bson import ObjectId
 from filtercss import filter_css, parse_css
-from flask import current_app, render_template
-from flask_mail import Message
+from flask import current_app, render_template, url_for
 from jsondiff import diff, symbols
 from pkg_resources import get_distribution
 from pymongo import DESCENDING, InsertOne, ReplaceOne
 from sec_certs.dataset.dataset import Dataset
 
 from .. import mail, mongo, redis, whoosh_index
+from ..notifications.utils import Message
 from .diffs import DiffRenderer
 from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
@@ -377,6 +375,7 @@ class Notifier(DiffRenderer):
                 }
             )
             cards = []
+            urls = []
             # Go over the subscriptions for a given email and accumulate its rendered diffs
             for sub in subscriptions:
                 dgst = sub["certificate"]["hashid"]
@@ -393,6 +392,7 @@ class Notifier(DiffRenderer):
                     else:
                         continue
                 cards.append(render)
+                urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
             if not cards:
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
                 continue
@@ -410,8 +410,16 @@ class Notifier(DiffRenderer):
             css_tag.insert(0, soup.new_string(cleaned_css))
             soup.find("meta").insert_after(css_tag)
             email_html = soup.prettify(formatter="html")
+            # Render plaintext part
+            email_plain = render_template(
+                "notifications/email/notification_email.txt.jinja2",
+                email_token=subscriptions[0]["email_token"],
+                urls=urls,
+            )
             # Send out the message
-            msg = Message(f"Certificate changes from {run_date} | sec-certs.org", [email], html=email_html)
+            msg = Message(
+                f"Certificate changes from {run_date} | sec-certs.org", [email], body=email_plain, html=email_html
+            )
             mail.send(msg)
 
 

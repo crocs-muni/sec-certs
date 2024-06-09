@@ -1,11 +1,10 @@
-import logging
 from datetime import datetime, timedelta
 
 import dramatiq
 from flask import render_template, url_for
-from flask_mail import Message
 
 from .. import mail, mongo
+from .utils import Message
 
 
 @dramatiq.actor(max_retries=3, actor_name="send_confirmation_email")
@@ -16,15 +15,21 @@ def send_confirmation_email(token):  # pragma: no cover
         return
     email = subscription_requests[0]["email"]
     email_token = subscription_requests[0]["email_token"]
-    body = render_template(
+    html = render_template(
         "notifications/email/confirmation_email.html.jinja2",
+        token=token,
+        email_token=email_token,
+    )
+    plain = render_template(
+        "notifications/email/confirmation_email.txt.jinja2",
         token=token,
         email_token=email_token,
     )
     msg = Message(
         "Confirmation request | sec-certs.org",
         recipients=[email],
-        html=body,
+        body=plain,
+        html=html,
         extra_headers={"List-Unsubscribe": f"<{url_for('notify.unsubscribe', token=token, _external=True)}>"},
     )
     mail.send(msg)
@@ -38,8 +43,9 @@ def send_unsubscription_email(email):  # pragma: no cover
         send_unsubscription_email.logger.warning("Subscription requests not found, likely a race.")
         return
     email_token = subscription_requests[0]["email_token"]
-    body = render_template("notifications/email/unsubscription_email.html.jinja2", email_token=email_token)
-    msg = Message("Unsubscription request | sec-certs.org", recipients=[email], html=body)
+    html = render_template("notifications/email/unsubscription_email.html.jinja2", email_token=email_token)
+    plain = render_template("notifications/email/unsubscription_email.txt.jinja2", email_token=email_token)
+    msg = Message("Unsubscription request | sec-certs.org", recipients=[email], body=plain, html=html)
     mail.send(msg)
     send_unsubscription_email.logger.info(f"Sent unsubscription email for email_token = {email_token}")
 

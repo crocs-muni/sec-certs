@@ -1,0 +1,15 @@
+There were changes in the certificates you are subscribed to:
+
+{% for url in urls %}
+ * {{ url }}
+{% endfor %}
+
+For a full version of this email, look at its HTML part.
+
+To unsubscribe from all notifications:
+
+  {{ url_for("notify.unsubscribe_all", email_token=email_token) }}
+
+To manage notification subscriptions:
+
+  {{ url_for("notify.manage", email_token=email_token) }}

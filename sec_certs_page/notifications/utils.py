@@ -1,7 +1,9 @@
 import hashlib
 from binascii import unhexlify
+from email.encoders import encode_base64
 
 from flask import current_app
+from flask_mail import Message as FlaskMessage
 
 
 def derive_secret(*items: str, digest_size: int = 16) -> bytes:
@@ -16,3 +18,11 @@ def derive_secret(*items: str, digest_size: int = 16) -> bytes:
 def derive_token(*items: str, digest_size: int = 16) -> str:
     secret = derive_secret(*items, digest_size=digest_size)
     return secret.hex()
+
+
+class Message(FlaskMessage):
+    def _mimetext(self, text, subtype="plain"):
+        res = super()._mimetext(text, subtype)
+        if subtype == "html":
+            return encode_base64(res)
+        return res
