@@ -9,6 +9,7 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <h1>FIPS 140</h1>
+            <h3 class="text-secondary">Search</h3>
             <div class="card mt-3 mt-4 mb-4">
                 <div class="card-body container">
                     <div id="name" class="mt-1 mb-3">
@@ -16,11 +17,20 @@
                         <div class="form-inline">
                             <input id="search" class="form-control mb-2" placeholder="Search" type="search"
                                    value="{{ q|default('', true) }}"/>
-                            <button id="search-btn" class="btn btn-primary">Search</button>
+                            <button id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
+                                Search
+                            </button>
                             <button id="network-btn" class="btn btn-warning"
                                     title="Experimental feature: Display the references network of the resulting certificates."
                                     data-bs-toggle="tooltip"><i
                                     class="fas fa-flask fa-fw fa-spin"></i> Display network
+                            </button>
+                            <button id="extended-btn" class="btn btn-outline-primary" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#extended"
+                                    aria-controls="extended"
+                                    aria-expanded="false"><i
+                                    class="fas fa-sliders"></i> Advanced options
                             </button>
                         </div>
                         <small class="text-muted">Search by certificate name (case-insensitive, e.g. Infineon, card,
@@ -29,16 +39,19 @@
                                target="_blank" rel="noopener">MongoDB $text search</a>, use quotes to specify a phrase
                             and a hyphen-minus prefix to negate a match.</small>
                     </div>
-                    <div id="categories" class="mt-3 mb-3">
-                        <h4>Categories</h4>
-                        <button id="cat-select-all" class="btn btn-outline-primary">Select all</button>
-                        <button id="cat-deselect-all" class="btn btn-outline-primary">Deselect all</button>
-                        <div id="search-categories" class="row">
-                            {% for name, val in categories.items() %}
-                                {% if loop.index0 % 3 == 0 %}
-                                    <div class="col">
-                                {% endif %}
-                            <div class="form-check">
+                    <div id="extended" class="collapse mt-3">
+                        <div id="categories" class="mb-3">
+                            <h4>Categories
+                                <button id="cat-select-all" class="btn btn-outline-primary">Select all</button>
+                                <button id="cat-deselect-all" class="btn btn-outline-primary">Deselect all</button>
+                            </h4>
+
+                            <div id="search-categories" class="row">
+                                {% for name, val in categories.items() %}
+                                    {% if loop.index0 % 3 == 0 %}
+                                        <div class="col">
+                                    {% endif %}
+                                <div class="form-check">
                             <span>
                                 <input id="category-{{ val['id'] }}" type="checkbox" class="form-check-input"
                                        data-id="{{ val['id'] }}" {% if val["selected"] %}checked{% endif %}>
@@ -46,58 +59,57 @@
                                     <i class="fas fa-fw {{ val['icon'] }}"></i> {{ name }}
                                 </label>
                             </span>
-                            </div>
-                            {% if (loop.index0 + 1) % 3 == 0 %}
                                 </div>
-                            {% endif %}
-                            {% endfor %}
+                                {% if (loop.index0 + 1) % 3 == 0 %}
+                                    </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mt-3 mb-3">
+                            <h4><label for="search-status">Status</label></h4>
+                            <select id="search-status" class="form-control">
+                                <option value="Any" {% if status == "Any" %}selected="selected"{% endif %}>Any</option>
+                                <option value="Active" class="text-success"
+                                        {% if status == "active" %}selected="selected"{% endif %}>Active
+                                </option>
+                                <option value="Historical" class="text-warning"
+                                        {% if status == "Historical" %}selected="selected"{% endif %}>Historical
+                                </option>
+                                <option value="Revoked" class="text-danger"
+                                        {% if status == "Revoked" %}selected="selected"{% endif %}>Revoked
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mt-3 mb-3">
+                            <h4><label for="search-sort">Sort</label></h4>
+                            <select id="search-sort" class="form-control">
+                                <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match
+                                </option>
+                                <option value="number" {% if sort == "number" %}selected="selected"{% endif %}>Number
+                                </option>
+                                <option value="first_cert_date"
+                                        {% if sort == "first_cert_date" %}selected="selected"{% endif %}>First
+                                    validation
+                                    date
+                                </option>
+                                <option value="last_cert_date"
+                                        {% if sort == "last_cert_date" %}selected="selected"{% endif %}>Last validation
+                                    date
+                                </option>
+                                <option value="sunset_date"
+                                        {% if sort == "sunset_date" %}selected="selected"{% endif %}>
+                                    Sunset date
+                                </option>
+                                <option value="level" {% if sort == "level" %}selected="selected"{% endif %}>Level
+                                </option>
+                                <option value="vendor" {% if sort == "vendor" %}selected="selected"{% endif %}>Vendor
+                                </option>
+                            </select>
                         </div>
                     </div>
-                    <div class="mt-3 mb-3">
-                        <h4><label for="search-status">Status</label></h4>
-                        <select id="search-status" class="form-control">
-                            <option value="Any" {% if status == "Any" %}selected="selected"{% endif %}>Any</option>
-                            <option value="Active" class="text-success"
-                                    {% if status == "active" %}selected="selected"{% endif %}>Active
-                            </option>
-                            <option value="Historical" class="text-warning"
-                                    {% if status == "Historical" %}selected="selected"{% endif %}>Historical
-                            </option>
-                            <option value="Revoked" class="text-danger"
-                                    {% if status == "Revoked" %}selected="selected"{% endif %}>Revoked
-                            </option>
-                        </select>
-                    </div>
-                    <div class="mt-3 mb-3">
-                        <h4><label for="search-sort">Sort</label></h4>
-                        <select id="search-sort" class="form-control">
-                            <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match</option>
-                            <option value="number" {% if sort == "number" %}selected="selected"{% endif %}>Number
-                            </option>
-                            <option value="first_cert_date"
-                                    {% if sort == "first_cert_date" %}selected="selected"{% endif %}>First validation
-                                date
-                            </option>
-                            <option value="last_cert_date"
-                                    {% if sort == "last_cert_date" %}selected="selected"{% endif %}>Last validation date
-                            </option>
-                            <option value="sunset_date" {% if sort == "sunset_date" %}selected="selected"{% endif %}>
-                                Sunset date
-                            </option>
-                            <option value="level" {% if sort == "level" %}selected="selected"{% endif %}>Level</option>
-                            <option value="vendor" {% if sort == "vendor" %}selected="selected"{% endif %}>Vendor
-                            </option>
-                        </select>
-                    </div>
-
                 </div>
             </div>
-            <style>
-                #search-categories div {
-                    display: flex;
-                    flex-direction: column;
-                }
-            </style>
             <script>
                 function searchParams(additional) {
                     let status = $("#search-status").val();
