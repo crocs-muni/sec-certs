@@ -8,6 +8,8 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    env:
+      SECCERTS_NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
       - name: apt-get update
         run: sudo apt-get update
@@ -31,4 +33,6 @@ jobs:
       - name: Run tests
         run: pytest --cov=sec_certs tests
       - name: Code coverage upload
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
