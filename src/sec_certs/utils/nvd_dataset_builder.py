@@ -323,7 +323,7 @@ class CveNvdDatasetBuilder(NvdDatasetBuilder[CVEDataset]):
 class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
     _ENDPOINT: Final[str] = "CPEMatch"
     _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
-    _RESULTS_PER_PAGE: Final[int] = 5000
+    _RESULTS_PER_PAGE: Final[int] = 500
     _VERSION_KEYS: Final[list[str]] = [
         "versionStartIncluding",
         "versionStartExcluding",
