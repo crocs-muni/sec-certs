@@ -134,46 +134,56 @@
 
 {% macro render_references(network, hashid, type, status_func=None) %}
     {% if network and hashid in network.nodes %}
-        <h3 class="mt-3">References</h3>
-
+        {% set refs = namespace(outgoing=False, incoming=False) %}
         {% set out_edges = network.out_edges(hashid) %}
-        {% if out_edges %}
-            <b>Outgoing</b>
-            <ul class="outgoing-list">
-                {% for edge in out_edges %}
-                    {% set child_node = network.nodes[edge[1]] %}
-                    {% if type in network.edges[edge]["type"] %}
-                        <li>
-                            <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a>
-                            {% if status_func is not none %}
-                                - {{ status_func(child_node["status"]) }}
-                            {% endif %}
-                            - {{ child_node["name"] }}
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        {% endif %}
         {% set in_edges = network.in_edges(hashid) %}
-        {% if in_edges %}
-            <b>Incoming</b>
-            <ul class="incoming-list">
-                {% for edge in in_edges %}
-                    {% set parent_node = network.nodes[edge[0]] %}
-                    {% if type in network.edges[edge]["type"] %}
-                        <li>
-                            <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a>
-                            {% if status_func is not none %}
-                                - {{ status_func(parent_node["status"]) }}
-                            {% endif %}
-                            - {{ parent_node["name"] }}
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        {% endif %}
-        {% if not out_edges and not in_edges %}
-            <p>No references.</p>
+        {% for edge in out_edges %}
+            {% if type in network.edges[edge]["type"] %}
+                {% set refs.outgoing = True %}
+            {% endif %}
+        {% endfor %}
+        {% for edge in in_edges %}
+            {% if type in network.edges[edge]["type"] %}
+                {% set refs.incoming = True %}
+            {% endif %}
+        {% endfor %}
+
+        {% if refs.incoming or refs.outgoing %}
+            <h3 class="mt-3">References</h3>
+            {% if refs.outgoing %}
+                <b>Outgoing</b>
+                <ul class="outgoing-list">
+                    {% for edge in out_edges %}
+                        {% set child_node = network.nodes[edge[1]] %}
+                        {% if type in network.edges[edge]["type"] %}
+                            <li>
+                                <a href="{{ child_node["href"] }}">{{ child_node["certid"] }}</a>
+                                {% if status_func is not none %}
+                                    - {{ status_func(child_node["status"]) }}
+                                {% endif %}
+                                - {{ child_node["name"] }}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if refs.incoming %}
+                <b>Incoming</b>
+                <ul class="incoming-list">
+                    {% for edge in in_edges %}
+                        {% set parent_node = network.nodes[edge[0]] %}
+                        {% if type in network.edges[edge]["type"] %}
+                            <li>
+                                <a href="{{ parent_node["href"] }}">{{ parent_node["certid"] }}</a>
+                                {% if status_func is not none %}
+                                    - {{ status_func(parent_node["status"]) }}
+                                {% endif %}
+                                - {{ parent_node["name"] }}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
         {% endif %}
     {% endif %}
 {%- endmacro %}
