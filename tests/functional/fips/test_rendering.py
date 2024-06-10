@@ -169,3 +169,9 @@ def test_iut(client: FlaskClient):
     assert resp.status_code == 200
     resp = client.get("/fips/iut/entry/CryptoComply")
     assert resp.status_code == 200
+
+
+@pytest.mark.remote
+def test_compare(client: FlaskClient):
+    resp = client.get("/fips/compare/8527a891e2241369/e629fa6598d73276/")
+    assert resp.status_code == 200

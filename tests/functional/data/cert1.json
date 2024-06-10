@@ -620,16 +620,33 @@
   "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0511b.pdf",
   "state": {
     "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
-    "report_convert_ok": true,
-    "report_download_ok": true,
-    "report_extract_ok": true,
-    "report_pdf_hash": "e7c086c70299aca424631061977f57ce10fcdef0c35fb4d176728902f97bb5cd",
-    "report_txt_hash": "3d5038a440a97ef73272230a467d9ca44ab5e8e52a67899980aade1739262c12",
-    "st_convert_ok": true,
-    "st_download_ok": true,
-    "st_extract_ok": false,
-    "st_pdf_hash": "4f952a10b82c8d91e61308ad53fc9a61b487408c6a3a06807bfc62c68ab1f454",
-    "st_txt_hash": "bcda924ae83a838cfff75a31c53b3d461d1e077c3e1139b5bc9082d0ca8b80be"
+    "report": {
+      "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+      "download_ok": true,
+      "convert_garbage": false,
+      "convert_ok": true,
+      "extract_ok": true,
+      "pdf_hash": "e7c086c70299aca424631061977f57ce10fcdef0c35fb4d176728902f97bb5cd",
+      "txt_hash": "3d5038a440a97ef73272230a467d9ca44ab5e8e52a67899980aade1739262c12"
+    },
+    "st": {
+      "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+      "download_ok": true,
+      "convert_garbage": false,
+      "convert_ok": true,
+      "extract_ok": false,
+      "pdf_hash": "4f952a10b82c8d91e61308ad53fc9a61b487408c6a3a06807bfc62c68ab1f454",
+      "txt_hash": "bcda924ae83a838cfff75a31c53b3d461d1e077c3e1139b5bc9082d0ca8b80be"
+    },
+    "cert": {
+      "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+      "download_ok": false,
+      "convert_garbage": false,
+      "convert_ok": false,
+      "extract_ok": false,
+      "pdf_hash": null,
+      "txt_hash": null
+    }
   },
   "status": "archived"
 }

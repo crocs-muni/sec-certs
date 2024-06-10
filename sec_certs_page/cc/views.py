@@ -286,10 +286,12 @@ def compare(one_hashid: str, other_hashid: str):
         "dgst",
     ]
     return render_template(
-        "cc/compare.html.jinja2",
+        "common/compare.html.jinja2",
         changes=render_compare(doc_one, doc_other, k1_order),
         cert_one=doc_one,
         cert_other=doc_other,
+        name_one=doc_one["name"],
+        name_other=doc_other["name"],
         hashid_one=one_hashid,
         hashid_other=other_hashid,
     )

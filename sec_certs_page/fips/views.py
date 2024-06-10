@@ -19,6 +19,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
+from ..common.diffs import render_compare
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     Pagination,
@@ -162,6 +163,28 @@ def search_results():
 def fulltext_search():
     res = FIPSFulltextSearch.process_search(request)
     return render_template("fips/search/fulltext.html.jinja2", **res)
+
+
+@fips.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
+def compare(one_hashid: str, other_hashid: str):
+    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+        raw_one = mongo.db.fips.find_one({"_id": one_hashid}, {"_id": 0})
+        raw_other = mongo.db.fips.find_one({"_id": other_hashid}, {"_id": 0})
+    if not raw_one or not raw_other:
+        return abort(404)
+    doc_one = load(raw_one)
+    doc_other = load(raw_other)
+    k1_order = ["cert_id", "web_data", "pdf_data", "state", "heuristics", "_type", "dgst"]
+    return render_template(
+        "common/compare.html.jinja2",
+        changes=render_compare(doc_one, doc_other, k1_order),
+        cert_one=doc_one,
+        cert_other=doc_other,
+        name_one=doc_one["web_data"]["module_name"],
+        name_other=doc_other["web_data"]["module_name"],
+        hashid_one=one_hashid,
+        hashid_other=other_hashid,
+    )
 
 
 @fips.route("/analysis/")

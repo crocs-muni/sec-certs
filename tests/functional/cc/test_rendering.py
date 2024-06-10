@@ -129,3 +129,9 @@ def test_entry_graph(client: FlaskClient):
     assert nodes[0]["id"] == "602ff222d105acd3"
     links = resp.json["links"]
     assert len(links) == 0
+
+
+@pytest.mark.remote
+def test_compare(client: FlaskClient):
+    resp = client.get("/cc/compare/eb8fabc9b0ad1879/760bf71ae0e88703/")
+    assert resp.status_code == 200
