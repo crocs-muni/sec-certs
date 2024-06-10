@@ -142,6 +142,14 @@
                 {% endif %}
                 {% for result in results %}
                     {% set idd = result["cert"]["heuristics"]["cert_id"]|default("", true) %}
+                    {% set hit = result["hit"] %}
+                    {% if hit["document_type"] == "cert" %}
+                        {% set dtype = "cert-info" %}
+                    {% elif hit["document_type"] == "report" %}
+                        {% set dtype = "report-info" %}
+                    {% elif hit["document_type"] == "target" %}
+                        {% set dtype = "st-info" %}
+                    {% endif %}
                     <div class="my-5">
                         <table class="table table-bordered table-light table-responsive">
                             <colgroup>
@@ -154,10 +162,10 @@
                             <tr>
                                 <td class="pl-1">{{ render_category(result["cert"]["category"]) }}&nbsp;{{ idd }}</td>
                                 <td>
-                                    <a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}">{{ result["hit"]["name"] }}</a>
+                                    <a href="{{ url_for(".entry", hashid=hit["dgst"], _anchor=dtype) }}">{{ hit["name"] }}</a>
                                 </td>
-                                <td>{{ render_document_type(result["hit"]["document_type"]) }}</td>
-                                <td>{{ render_status(result["hit"]["status"]) }}</td>
+                                <td>{{ render_document_type(hit["document_type"]) }}</td>
+                                <td>{{ render_status(hit["status"]) }}</td>
                             </tr>
                             </thead>
                             <tbody style="border-top-color: #dfe0e1">
