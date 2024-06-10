@@ -28,8 +28,12 @@
                                 <div class="form-inline">
                                     <input id="cve-input" class="form-control mb-2" placeholder="CVE ID" type="search"
                                            value=""/>
+                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">CVE-2019-15809</span>.</small>
+                                    <div class="invalid-feedback">
+                                        CVE invalid.
+                                    </div>
                                 </div>
-                                <button id="cve-button" class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Go
+                                <button id="cve-button" class="btn btn-primary mt-2"><i class="fas fa-search fa-fw"></i> Go
                                 </button>
                             </div>
                         </div>
@@ -42,8 +46,13 @@
                                 <div class="form-inline">
                                     <input id="cpe-input" class="form-control mb-2" placeholder="CPE URI" type="search"
                                            value=""/>
+                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*</span>.</small>
+
+                                    <div class="invalid-feedback">
+                                        CPE invalid.
+                                    </div>
                                 </div>
-                                <button id="cpe-button" class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Go
+                                <button id="cpe-button" class="btn btn-primary mt-2"><i class="fas fa-search fa-fw"></i> Go
                                 </button>
                             </div>
                         </div>
@@ -55,6 +64,7 @@
             <div class="row p-3 py-md-5">
                 <div class="col-12 col-md-6">
                     <h3 class="anchor" id="data">Data</h3>
+                    <p>The full and up-to-date datasets used on this site can be downloaded here. They are updated daily.</p>
                     <a href="{{ url_for(".cve_dset") }}" role="button" class="btn btn-primary"><i
                             class="fas fa-file-alt"></i>
                         CVE</a>
@@ -66,11 +76,21 @@
         </div>
         <script>
             function cve_search() {
-                window.location.href = "{{ url_for("vuln.cve", cve_id="") }}" + $("#cve-input").val();
+                let input = $("#cve-input").val();
+                if (!/CVE-[0-9]{4}-[0-9]{1,5}/.test(input)) {
+                    $("#cve-input").addClass("is-invalid");
+                } else {
+                    window.location.href = "{{ url_for("vuln.cve", cve_id="") }}" + input;
+                }
             }
 
             function cpe_search() {
-                window.location.href = "{{ url_for("vuln.cpe", cpe_id="") }}" + $("#cpe-input").val();
+                let input = $("#cpe-input").val();
+                if (input === "") {
+                    $("#cpe-input").addClass("is-invalid");
+                } else {
+                    window.location.href = "{{ url_for("vuln.cpe", cpe_id="") }}" + input;
+                }
             }
 
             $("#cve-button").click(cve_search);
