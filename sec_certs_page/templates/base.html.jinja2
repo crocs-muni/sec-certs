@@ -71,34 +71,30 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for("index") }}"><img
                     src="{{ url_for("static", filename="img/logo_dark.svg") }}"
-                    style="height: 2.9rem; margin-top: -2rem; margin-bottom: -1.5rem"/></a> {# sec-certs.org #}
+                    style="height: 2.9rem; margin-top: -2rem; margin-bottom: -1.5rem" alt="sec-certs.org"/></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% block navbar %}
                     {% endblock %}
                 </ul>
-            </div>
-            {% if search %}
-                <form class="d-flex" action="{{ url_for(".search") }}" method="get">
-                    <input class="form-control me-2" type="search" placeholder="Search" name="q" aria-label="Search">
-                    <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
-                </form>
-            {% endif %}
-            {% if is_admin() %}
-                <div class="mx-2">
-                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4" role="button"><i
+                {% if search %}
+                    <form class="d-flex" action="{{ url_for(".search") }}" method="get">
+                        <input class="form-control me-2" type="search" placeholder="Search" name="q" aria-label="Search">
+                        <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
+                    </form>
+                {% endif %}
+                {% if is_admin() %}
+                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4 nav-button" role="button"><i
                             class="fa fa-user"></i> Admin</a>
-                </div>
-            {% endif %}
-            <div class="mx-2">
-                <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-secondary px-4"
-                   role="button"><i
-                        class="fa fa-file"></i> Docs</a>
+                {% endif %}
+                    <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-secondary px-4 nav-button"
+                       role="button"><i
+                            class="fa fa-file"></i> Docs</a>
             </div>
         </div>
     </nav>

@@ -1,3 +1,14 @@
+.nav-button {
+    margin-right: .5rem !important;
+    margin-left: .5rem !important;
+}
+
+.show .nav-button, .collapsing .nav-button {
+    margin-right: 0 !important;
+    margin-top: .5rem !important;
+    margin-left: 0 !important;
+}
+
 #wrapper {
     overflow-x: hidden;
 }
