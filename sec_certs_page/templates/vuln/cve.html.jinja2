@@ -97,9 +97,9 @@
                                         {% endfor %}
                                         {% if second %}
                                             <b class="vuln-config"
-                                                    style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                               style="{% if configs.shown > 10 %}display: none{% endif %}">
                                                 <br/>running
-                                            on/with<br/></b>
+                                                on/with<br/></b>
                                             {% for cpe in second %}
                                                 {% set configs.shown = configs.shown + 1 %}
                                                 <span class="vuln-config"
@@ -117,7 +117,8 @@
                                 {% endfor %}
                             </ul>
                             {% if configs.rendered %}
-                                <button type="button" id="display-vuln-configs" class="btn btn-outline-primary" style="margin-left: 2rem">
+                                <button type="button" id="display-vuln-configs" class="btn btn-outline-primary"
+                                        style="margin-left: 2rem">
                                     <i class="fas fa-plus"></i> Display all
                                 </button>
                                 <script>
@@ -139,7 +140,6 @@
         </div>
         <div class="row bg-dark p-3">
             <div class="col-10 mx-auto p-3 py-md-5 text-light">
-
                 <div class="mb-3">
                     <h2 class="anchor" id="vulnerable-certs">Vulnerable certificates
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
@@ -147,17 +147,21 @@
                               title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
                     </h2>
                     {% if cc_certs or fips_certs %}
-                    <p>Note that this currently lists only certificates matched to the CVE via its CPEs, it does not
-                        include certificates that directly or indirectly reference the vulnerable certificate.</p>
+                        <p>The CVE was matched to the following certificates. This means the vulnerability likely
+                            affects
+                            said certified devices. However,
+                            this is an automated process that may have false positives and negatives.</p>
                     {% endif %}
 
                     {% if cc_certs %}
                         <div class="my-4" data-cs-name="Vulnerable CC certificates">
-                            <h3>Common Criteria certificates <a style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-warning text-dark text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Experimental feature: Display reference graph with affected certificates highlighted"
-                            href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}"><i
-                                        class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
+                            <h3>Common Criteria certificates <a style="font-size: 0.5em; vertical-align: middle"
+                                                                tabindex="0"
+                                                                class="badge bg-warning text-dark text-decoration-none"
+                                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                                title="Experimental feature: Display reference graph with affected certificates highlighted"
+                                                                href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}"><i
+                                    class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
                             <ul>
                                 {% for cert in cc_certs %}
                                     <li>
@@ -170,10 +174,11 @@
                     {% if fips_certs %}
                         <div class="my-4" data-cs-name="Vulnerable FIPS certificates">
                             <h3>FIPS 140 certificates <a style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-warning text-dark text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Experimental feature: Display reference graph with affected certificates highlighted"
-                            href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}"><i
-                                        class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
+                                                         class="badge bg-warning text-dark text-decoration-none"
+                                                         data-bs-toggle="tooltip" data-bs-placement="top"
+                                                         title="Experimental feature: Display reference graph with affected certificates highlighted"
+                                                         href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}"><i
+                                    class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
                             <ul>
                                 {% for cert in fips_certs %}
                                     <li>
@@ -189,5 +194,54 @@
                 </div>
             </div>
         </div>
+
+        {% if not cc_certs and not fips_certs %}
+            <div class="row p-3">
+                <div class="col-10 mx-auto p-3 py-md-5">
+                    <h2>Looking for more?</h2>
+                    <p class="lead">Explore the landscape of Common Criteria and FIPS 140 certificates.</p>
+                    <div class="row g-4 row-cols-1 row-cols-lg-4">
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Common Criteria</h4>
+                                    <p class="card-text">Want to explore Common Criteria certificates?</p>
+                                    <a href="{{ url_for("cc.index") }}" class="btn btn-primary">Go</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Protection Profiles</h4>
+                                    <p class="card-text">Want to explore Protection Profiles of Common Criteria
+                                        certificates?</p>
+                                    <a href="{{ url_for("pp.index") }}" class="btn btn-primary">Go</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">FIPS 140</h4>
+                                    <p class="card-text">Want to explore FIPS 140-2 and 140-3 certificates?</p>
+                                    <a href="{{ url_for("fips.index") }}" class="btn btn-primary">Go</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Vulnerabilities</h4>
+                                    <p class="card-text">Want to explore how vulnerabilities affect certified
+                                        products?</p>
+                                    <a href="{{ url_for("vuln.index") }}" class="btn btn-primary">Go</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </main>
 {% endblock %}
