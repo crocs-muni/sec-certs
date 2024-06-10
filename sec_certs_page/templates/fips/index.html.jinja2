@@ -106,9 +106,32 @@
                             and it contains {{ last_ok_run["length"] }} certificates.
                         </p>
                     {% endif %}
-                    <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
-                            class="fas fa-file-alt"></i>
-                        Main dataset</a>
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
+                                        class="fas fa-file-alt"></i>
+                                    Main dataset</a>
+                            </td>
+                            <td>
+                                The main dataset is a JSON file with data on the certificates extracted from the
+                                certification artifacts (i.e. PDFs). It does not contain the files themselves.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary">
+                                    <i class="fas fa-file-archive"></i> Full datasset
+                                </a>
+                            </td>
+                            <td>
+                                The full dataset contains the dataset mentioned above as well as the certification
+                                artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
+                                Download this if you want to do your own processing on top of the data provided by our tooling.
+                            </td>
+                        </tr>
+                    </table>
+
                 </div>
                 <div class="col-12 col-md-6">
                     <h3 class="anchor" id="mip-iut">MIP and IUT</h3>
