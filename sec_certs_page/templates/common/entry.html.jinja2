@@ -29,7 +29,7 @@
 {% macro opt_line(name, key, obj, title) %}
     {% if key in obj and obj[key] %}
         <tr data-cs-name="{{ title }} - {{ name }}">
-            <th scope="row">{{ name }}:</th>
+            <th scope="row">{{ name }}</th>
             <td>{{ obj[key] }}</td>
         </tr>
     {% endif %}
@@ -133,6 +133,8 @@
 
 {% macro render_references(network, hashid, type) %}
     {% if network and hashid in network.nodes %}
+        <h3 class="mt-3">References</h3>
+
         {% set out_edges = network.out_edges(hashid) %}
         {% if out_edges %}
             <b>Outgoing</b>
