@@ -253,7 +253,7 @@
 
                         {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
 
-                        {{ render_references(network, hashid, "report") }}
+                        {{ render_references(network, hashid, "report", render_status) }}
                     </div>
 
                     <div class="mt-5 mb-3">
@@ -279,7 +279,7 @@
                             {{ render_pdf_meta(cert["pdf_data"]["st_metadata"], "Security target") }}
                         {% endif %}
 
-                        {{ render_references(network, hashid, "st") }}
+                        {{ render_references(network, hashid, "st", render_status) }}
                     </div>
                 </div>
             </div>

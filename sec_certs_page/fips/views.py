@@ -396,6 +396,9 @@ def entry(hashid):
             local_files = entry_download_files(
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
             )
+        with sentry_sdk.start_span(op="network", description="Find network"):
+            fips_map = get_fips_map()
+            cert_network = fips_map.get(hashid, {})
         return render_template(
             "fips/entry/index.html.jinja2",
             cert=doc,
@@ -407,6 +410,7 @@ def entry(hashid):
             cpes=cpes,
             local_files=local_files,
             json=StorageFormat(raw_doc).to_json_mapping(),
+            network=cert_network,
             policy_link=constants.FIPS_SP_URL.format(doc["cert_id"]),
         )
     else:

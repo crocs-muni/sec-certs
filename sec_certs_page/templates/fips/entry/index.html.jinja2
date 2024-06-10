@@ -272,7 +272,7 @@
                         {{ render_pdf_meta(cert["pdf_data"]["policy_metadata"], "Security policy") }}
                     {% endif %}
 
-                    {{ render_references(network, hashid, "st") }}
+                    {{ render_references(network, hashid, "st", render_status) }}
                 </div>
             </div>
         </div>
@@ -324,7 +324,7 @@
                     <script>
                         let network = createNetwork('network',
                             '{{ url_for(".entry_graph_json", hashid=hashid)}}',
-                            '{{ url_for(".categories") }}',
+                            '{{ url_for(".types") }}',
                             '{{ url_for(".statuses") }}',
                             '{{ url_for(".reference_types") }}',
                             600,
