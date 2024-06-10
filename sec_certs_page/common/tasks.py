@@ -366,14 +366,17 @@ class Notifier(DiffRenderer):
 
         # Go over the subscribed emails
         for email in emails:
-            subscriptions = mongo.db.subs.find(
-                {
-                    "certificate.hashid": {"$in": change_dgsts},
-                    "confirmed": True,
-                    "email": email,
-                    "certificate.type": self.collection,
-                }
+            subscriptions = list(
+                mongo.db.subs.find(
+                    {
+                        "certificate.hashid": {"$in": change_dgsts},
+                        "confirmed": True,
+                        "email": email,
+                        "certificate.type": self.collection,
+                    }
+                )
             )
+            email_token = subscriptions[0]["email_token"]
             cards = []
             urls = []
             # Go over the subscriptions for a given email and accumulate its rendered diffs
@@ -400,7 +403,7 @@ class Notifier(DiffRenderer):
             email_core_html = render_template(
                 "notifications/email/notification_email.html.jinja2",
                 cards=cards,
-                email_token=subscriptions[0]["email_token"],
+                email_token=email_token,
             )
             # Filter out unused CSS rules
             cleaned_css = filter_css(bootstrap_parsed, email_core_html)
@@ -413,7 +416,7 @@ class Notifier(DiffRenderer):
             # Render plaintext part
             email_plain = render_template(
                 "notifications/email/notification_email.txt.jinja2",
-                email_token=subscriptions[0]["email_token"],
+                email_token=email_token,
                 urls=urls,
             )
             # Send out the message
