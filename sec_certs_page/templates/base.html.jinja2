@@ -415,7 +415,20 @@
             }
             // TODO: Test cert type and handle FIPS.
             selected = JSON.parse(selected);
-            let url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+            if (selected.length !== 2) {
+                return;
+            }
+            if (selected[0]["type"] !== selected[1]["type"]) {
+                return;
+            }
+            let cc_url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+            let fips_url = "{{ url_for("fips.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+            let url;
+            if (selected[0]["type"] === "cc") {
+                url = cc_url;
+            } else {
+                url = fips_url;
+            }
             url = url.replace("XXXXXXXXXXXXXXXX", selected[0]["hashid"]);
             url = url.replace("YYYYYYYYYYYYYYYY", selected[1]["hashid"]);
             window.location.href = url;
