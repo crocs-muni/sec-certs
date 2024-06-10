@@ -18,6 +18,7 @@ import sec_certs.utils.pdf
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
+from sec_certs.configuration import config
 from sec_certs.sample.cc_certificate_id import canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -42,8 +43,7 @@ class CCCertificate(
     the certificate can handle itself. `CCDataset` class then instrument this functionality.
     """
 
-    cc_url = "http://www.commoncriteriaportal.org"
-    empty_st_url = "http://www.commoncriteriaportal.org/files/epfiles/"
+    cc_url = "https://www.commoncriteriaportal.org"
 
     @dataclass(eq=True, frozen=True)
     class MaintenanceReport(ComplexSerializableType):
@@ -753,7 +753,7 @@ class CCCertificate(
         if not cert.report_link:
             exit_code = "No link"
         else:
-            exit_code = helpers.download_file(cert.report_link, cert.state.report.pdf_path)
+            exit_code = helpers.download_file(cert.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy)
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
@@ -773,7 +773,9 @@ class CCCertificate(
         :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int = (
-            helpers.download_file(cert.st_link, cert.state.st.pdf_path) if cert.st_link else "No link"
+            helpers.download_file(cert.st_link, cert.state.st.pdf_path, proxy=config.cc_use_proxy)
+            if cert.st_link
+            else "No link"
         )
 
         if exit_code != requests.codes.ok:
@@ -795,7 +797,9 @@ class CCCertificate(
         :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int = (
-            helpers.download_file(cert.cert_link, cert.state.cert.pdf_path) if cert.cert_link else "No link"
+            helpers.download_file(cert.cert_link, cert.state.cert.pdf_path, proxy=config.cc_use_proxy)
+            if cert.cert_link
+            else "No link"
         )
 
         if exit_code != requests.codes.ok:

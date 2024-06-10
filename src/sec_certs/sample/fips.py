@@ -558,7 +558,11 @@ class FIPSCertificate(
 
     @staticmethod
     def download_module(cert: FIPSCertificate) -> FIPSCertificate:
-        if (exit_code := helpers.download_file(cert.module_html_url, cert.state.module_html_path)) != requests.codes.ok:
+        if (
+            exit_code := helpers.download_file(
+                cert.module_html_url, cert.state.module_html_path, proxy=config.fips_use_proxy
+            )
+        ) != requests.codes.ok:
             error_msg = f"failed to download html module from {cert.module_html_url}, code {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.module_download_ok = False
@@ -568,7 +572,11 @@ class FIPSCertificate(
 
     @staticmethod
     def download_policy(cert: FIPSCertificate) -> FIPSCertificate:
-        if (exit_code := helpers.download_file(cert.policy_pdf_url, cert.state.policy_pdf_path)) != requests.codes.ok:
+        if (
+            exit_code := helpers.download_file(
+                cert.policy_pdf_url, cert.state.policy_pdf_path, proxy=config.fips_use_proxy
+            )
+        ) != requests.codes.ok:
             error_msg = f"failed to download pdf policy from {cert.policy_pdf_url}, code {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.policy_download_ok = False
