@@ -74,7 +74,7 @@
                             <i class="fas fa-search fa-fw"></i>
                         </div>
                         <h3>Search</h3>
-                        <p>Search through our extracted certificate data, filter by categories or archived status.
+                        <p>Search through our extracted certificate data, filter by categories or status.
                             Explore the certificates without downloading and reading countless PDFs.</p>
                         <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
                            href="#searchCollapse"
@@ -83,6 +83,15 @@
                             <i class="fas fa-chevron-up"></i></a>
                         <div class="collapse" id="searchCollapse">
                             <div class="bg-dark my-3">
+                                <p>
+                                    Compare certificates using the <span class="fa-stack fa-2x"
+                                                                             style="font-size: 0.8rem">
+                                    <i class="fas fa-square fa-stack-2x text-secondary"
+                                       style="vertical-align: middle"></i>
+                                    <i class="fas fa-scale-balanced fa-stack-1x text-light"
+                                       style="vertical-align: middle"></i>
+                                </span> button to see differences between them.
+                                </p>
                                 <a href="{{ url_for("cc.search") }}" class="btn btn-outline-secondary btn-sm">
                                     CC
                                 </a>
@@ -101,7 +110,7 @@
                         </div>
                         <h3>References</h3>
                         <p>Explore the references between certificates in a graph. A certificate
-                            referencing another certificate usually means that it builds up on top of the referenced
+                            referencing another certificate often means that it builds on top of the referenced
                             certificate.</p>
                         <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
                            href="#networkCollapse"
@@ -147,7 +156,8 @@
                                     notifications about changes in the certificates or vulnerabilities affecting the
                                     certificates.
                                 </p>
-                                <p>Alternatively, use the update feed button <span class="fa-stack fa-2x" style="font-size: 0.8rem">
+                                <p>Alternatively, use the update feed button <span class="fa-stack fa-2x"
+                                                                                   style="font-size: 0.8rem">
                                     <i class="fas fa-square fa-stack-2x text-secondary"
                                        style="vertical-align: middle"></i>
                                     <i class="fas fa-feed fa-stack-1x text-light"
@@ -164,8 +174,7 @@
                             <i class="fas fa-file-alt fa-fw"></i>
                         </div>
                         <h3>Data</h3>
-                        <p>Download our extracted dataset or just data for a particular certificate in a machine
-                            readable format.</p>
+                        <p>Download our extracted dataset in machine-readable format.</p>
                         <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
                            href="#dataCollapse"
                            role="button" aria-expanded="false" aria-controls="dataCollapse">Read more
@@ -173,7 +182,7 @@
                             <i class="fas fa-chevron-up"></i></a>
                         <div class="collapse" id="dataCollapse">
                             <div class="bg-dark my-3">
-                                <p>The full datasets are available on the page of the certification scheme, while
+                                <p>The full datasets are available below, while
                                     individual certificate data is available on each certificate page.
                                 </p>
                                 <a href="{{ url_for("cc.index", _anchor="data") }}"
@@ -200,8 +209,8 @@
                             <i class="fas fa-chevron-up"></i></a>
                         <div class="collapse" id="analysisCollapse">
                             <div class="bg-dark my-3">
-                                <p>The analysis results presented here are preliminary, for more, see the output of the
-                                    <code>sec-certs</code> tool itself.</p>
+                                <p>The analysis results presented here are preliminary, for more, see our
+                                    <a href="{{ url_for("about", _anchor="research") }}">research</a>.</p>
                                 <a href="{{ url_for("cc.analysis") }}"
                                    class="btn btn-outline-secondary btn-sm">
                                     CC
@@ -222,7 +231,7 @@
                             <i class="fas fa-users fa-fw"></i>
                         </div>
                         <h3>Crowdsourcing</h3>
-                        <p>Help us improve this site, let us know where some data is missing or wrong.</p>
+                        <p>Help us improve this site by letting us know where data is missing or wrong.</p>
                         <a class="btn btn-outline-light btn-sm border-secondary" data-bs-toggle="collapse"
                            href="#crowdsourcingCollapse"
                            role="button" aria-expanded="false" aria-controls="crowdsourcingCollapse">Read more
@@ -252,6 +261,7 @@
                     <h3>Do it yourself!</h3>
                     <p>The tools used to create the datasets on this website as well as the datasets themselves are
                         open-source and available on <a href="
+
                                 {% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}">GitHub</a>.
                         Documentation, including a quick-start guide, can be found on
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">this site</a>.
@@ -259,8 +269,8 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <h3>About</h3>
-                    <p>Want to learn more about our research? More information, including the privacy policy of this
-                        site can be found <a href="{{ url_for(".about") }}">here</a>.</p>
+                    <p>Want to learn more about our research? More information, including our publications and
+                        the privacy policy of this site can be found <a href="{{ url_for(".about") }}">here</a>.</p>
                 </div>
             </div>
         </div>
