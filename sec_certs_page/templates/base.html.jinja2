@@ -274,6 +274,7 @@
                                     {% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}"
                                                                  target="_blank" rel="noopener">Github</a>.</p>
                             <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
+                            <p class="fw-light">Running on <a href="https://cloud.metacentrum.cz/" target="_blank" rel="noopener">MetaCentrum Cloud</a>.</p>
                             {% if current_user.is_authenticated %}
                                 <p class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;"
                                                        title="Lemme out"><i class="fas fa-sign-out-alt"></i></a></p>

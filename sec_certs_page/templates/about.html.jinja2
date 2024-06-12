@@ -33,7 +33,7 @@
                             project,
                             <a href="https://research.redhat.com/" target="_blank" rel="noopener">Red Hat Research</a>
                             as well as the Internal grant agency of Masaryk University, project
-                            CZ.02.2.69/0.0/0.0/19_073/0016943.
+                            <a href="https://www.muni.cz/en/research/projects/55367" target="_blank" rel="noopener">CZ.02.2.69/0.0/0.0/19_073/0016943</a>.
                         </p>
                         <ul class="name-list">
                             <li>Petr Svenda</li>
@@ -73,13 +73,24 @@
                 </div>
                 <div class="col-12 col-md-6" id="about-sponsors"
                      {% if config["ANONYMOUS"] %}style="display: none"{% endif %}>
-                    <div class="row">
-                        <img class="w-25 m-5" style="background-color: #0E4294"
-                             src="{{ url_for("static", filename="img/csfe_logo.png") }}" alt=""/>
-                        <img class="w-25 m-5" src="{{ url_for("static", filename="img/redhat_logo.svg") }}" alt=""/>
+                    <h1 class="anchor" id="research">Sponsors</h1>
+                    <div class="row mx-3 mt-5">
+                        <div class="col d-flex justify-content-center align-items-center">
+                            <img class="w-75 mx-auto d-block" style="background-color: #0E4294"
+                                 src="{{ url_for("static", filename="img/csfe_logo.png") }}"
+                                 alt="Cyber Security for Europe"/>
+                        </div>
+                        <div class="col d-flex justify-content-center align-items-center">
+                            <img class="w-100" src="{{ url_for("static", filename="img/redhat_logo.svg") }}"
+                                 alt="RedHat"/>
+                        </div>
+                        <div class="col d-flex justify-content-center align-items-center">
+                            <img class="w-100" src="{{ url_for("static", filename="img/metacentrum_logo.png") }}"
+                                 alt="Metacentrum logo"/>
+                        </div>
                     </div>
                     <div class="row">
-                        <img class="w-100" src="{{ url_for("static", filename="img/eu_logo.jpg") }}" alt=""/>
+                        <img class="w-100" style="margin-left: 0.8rem" src="{{ url_for("static", filename="img/eu_logo.jpg") }}" alt="EU logo"/>
                     </div>
                 </div>
             </div>
@@ -93,17 +104,21 @@
                     <div>
                         <h3><i class="fas fa-file-alt"></i> sec-certs: Examining the security certification practice for
                             better vulnerability mitigation</h3>
-                        <p class="fst-italic">Adam Janovsky, Jan Jancar, Petr Svenda, Lukasz Chmielewski, Jiri Michalik, Vashek Matyas</p>
+                        <p class="fst-italic">Adam Janovsky, Jan Jancar, Petr Svenda, Lukasz Chmielewski, Jiri Michalik,
+                            Vashek Matyas</p>
                         <p>
-                            <a href="https://arxiv.org/abs/2311.17603" class="btn btn-primary" target="_blank" rel="noopener"><i
+                            <a href="https://arxiv.org/abs/2311.17603" class="btn btn-primary" target="_blank"
+                               rel="noopener"><i
                                     class="fas fa-file-alt"></i> Preprint</a>
-                            <a href="https://doi.org/10.1016/j.cose.2024.103895" class="btn btn-primary" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Computers &amp; Security journal</a>
-                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#paper-1-bib" aria-expanded="false" aria-controls="paper-1-bib">
-                           		<i class="fas fa-quote-right"></i> BibTeX
+                            <a href="https://doi.org/10.1016/j.cose.2024.103895" class="btn btn-primary" target="_blank"
+                               rel="noopener"><i class="fas fa-file-alt"></i> Computers &amp; Security journal</a>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#paper-1-bib" aria-expanded="false" aria-controls="paper-1-bib">
+                                <i class="fas fa-quote-right"></i> BibTeX
                             </button>
                         </p>
                         <div class="collapse" id="paper-1-bib">
-                        	<div class="card card-body">
+                            <div class="card card-body">
                         	<pre class="select-on-click" title="Click to copy to clipboard">
 @article{sec-certs,
 	title = {sec-certs: Examining the security certification practice for better vulnerability mitigation},
@@ -116,7 +131,7 @@
 	author = {Adam Janovsky and Jan Jancar and Petr Svenda and Łukasz Chmielewski and Jiri Michalik and Vashek Matyas},
 	keywords = {Security certification, Common criteria, Vulnerability assessment, Data analysis, Smartcards}
 }</pre>
-                        	</div>
+                            </div>
                         </div>
                         <p>Products certified under security certification frameworks such as Common Criteria undergo
                             significant scrutiny during the costly certification process. Yet, critical vulnerabilities,
@@ -139,11 +154,14 @@
                     <div>
                         <h3><i class="fas fa-file-alt"></i> Chain of trust: Unraveling the references among Common
                             Criteria certified products</h3>
-                        <p class="fst-italic">Adam Janovsky, Lukasz Chmielewski, Petr Svenda, Jan Jancar, Vashek Matyas</p>
+                        <p class="fst-italic">Adam Janovsky, Lukasz Chmielewski, Petr Svenda, Jan Jancar, Vashek
+                            Matyas</p>
                         <p>
-                            <a href="https://arxiv.org/abs/2404.14246" class="btn btn-primary" target="_blank" rel="noopener"><i
+                            <a href="https://arxiv.org/abs/2404.14246" class="btn btn-primary" target="_blank"
+                               rel="noopener"><i
                                     class="fas fa-file-alt"></i> Preprint</a>
-                            <a href="https://ifipsec2024.co.uk/" class="btn btn-secondary" target="_blank" rel="noopener">IFIP SEC 2024</a>
+                            <a href="https://ifipsec2024.co.uk/" class="btn btn-secondary" target="_blank"
+                               rel="noopener">IFIP SEC 2024</a>
                         </p>
                         <p>With 5394 security certificates of IT products and systems, the Common Criteria for
                             Information Technology Security Evaluation have bred an ecosystem entangled with various
@@ -205,43 +223,46 @@
         </main>
     </div>
     <script>
-		function selectText(ev) {
-	        var e = document, c = ev[0], b, d;
-	        if (e.body.createTextRange) {
-	            b = document.body.createTextRange();
-	            b.moveToElementText(c);
-	            b.select()
-	        } else {
-	            if (window.getSelection) {
-	                d = window.getSelection();
-	                b = document.createRange();
-	                b.selectNodeContents(c);
-	                d.removeAllRanges();
-	                d.addRange(b)
-	            }
-	        }
-	        return $(this)
-	    }
-	    function getSelectionText() {
-		    var b = "";
-		    if (window.getSelection) {
-		        b = window.getSelection().toString()
-		    } else {
-		        if (document.selection && document.selection.type != "Control") {
-		            b = document.selection.createRange().text
-		        }
-		    }
-		    return b;
-		}
-		function copyToClipboard() {
-		    var text = getSelectionText();
-		    if (!text || text.length == 0) {
-		        selectText($(this));
-		        var success = document.execCommand("copy");
-		        if (!success)
-		            console.error("failed to copy text to clipboard :(")
-		    }
-		}
-		$(".select-on-click").on("click", copyToClipboard);
-	</script>
+        function selectText(ev) {
+            var e = document, c = ev[0], b, d;
+            if (e.body.createTextRange) {
+                b = document.body.createTextRange();
+                b.moveToElementText(c);
+                b.select()
+            } else {
+                if (window.getSelection) {
+                    d = window.getSelection();
+                    b = document.createRange();
+                    b.selectNodeContents(c);
+                    d.removeAllRanges();
+                    d.addRange(b)
+                }
+            }
+            return $(this)
+        }
+
+        function getSelectionText() {
+            var b = "";
+            if (window.getSelection) {
+                b = window.getSelection().toString()
+            } else {
+                if (document.selection && document.selection.type != "Control") {
+                    b = document.selection.createRange().text
+                }
+            }
+            return b;
+        }
+
+        function copyToClipboard() {
+            var text = getSelectionText();
+            if (!text || text.length == 0) {
+                selectText($(this));
+                var success = document.execCommand("copy");
+                if (!success)
+                    console.error("failed to copy text to clipboard :(")
+            }
+        }
+
+        $(".select-on-click").on("click", copyToClipboard);
+    </script>
 {% endblock %}
