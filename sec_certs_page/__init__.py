@@ -32,7 +32,8 @@ from whoosh.index import EmptyIndexError, Index
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration
 
-app: Flask = Flask(__name__, instance_relative_config=True)
+instance_path = os.environ.get("INSTANCE_PATH", None)
+app: Flask = Flask(__name__, instance_path=instance_path, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
