@@ -60,7 +60,7 @@ class Updater:  # pragma: no cover
     skip_update: bool
     dset_class: Type[Dataset]
 
-    def make_dataset_paths(self):  # pragma: no cover
+    def make_dataset_paths(self):
         instance_path = Path(current_app.instance_path)
         ns = current_app.config.get_namespace("DATASET_PATH_")
 
@@ -91,7 +91,7 @@ class Updater:  # pragma: no cover
 
     def process_new_certs(
         self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
-    ) -> Tuple[List[object], List[object]]:  # pragma: no cover
+    ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.new", description="Process new certs."):
@@ -116,7 +116,7 @@ class Updater:  # pragma: no cover
 
     def process_updated_certs(
         self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
-    ) -> Tuple[List[object], List[object]]:  # pragma: no cover
+    ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.updated", description="Process updated certs."):
@@ -168,9 +168,7 @@ class Updater:  # pragma: no cover
             )
         return res_col, res_diff_col
 
-    def process_removed_certs(
-        self, dset: Dataset, removed_ids: Set[str], run_id, timestamp: datetime
-    ) -> List[object]:  # pragma: no cover
+    def process_removed_certs(self, dset: Dataset, removed_ids: Set[str], run_id, timestamp: datetime) -> List[object]:
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.removed", description="Process removed certs."):
             logger.info(f"Processing {len(removed_ids)} removed certificates.")
@@ -426,7 +424,7 @@ class Notifier(DiffRenderer):
             mail.send(msg)
 
 
-class Archiver:
+class Archiver:  # pragma: no cover
     """
     ├── auxiliary_datasets
     │   ├── cpe_dataset.json
@@ -475,7 +473,7 @@ class Archiver:
         ...
 
 
-def no_simultaneous_execution(lock_name: str, abort=False, timeout=60 * 10):
+def no_simultaneous_execution(lock_name: str, abort=False, timeout=60 * 10):  # pragma: no cover
     """
 
     :param lock_name:

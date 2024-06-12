@@ -24,5 +24,5 @@ class Message(FlaskMessage):
     def _mimetext(self, text, subtype="plain"):
         res = super()._mimetext(text, subtype)
         if subtype == "html":
-            return encode_base64(res)
+            encode_base64(res)
         return res
