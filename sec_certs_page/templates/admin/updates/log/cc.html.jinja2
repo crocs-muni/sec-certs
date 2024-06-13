@@ -38,10 +38,12 @@
                             <td>
                                 <i title="meta_sources_parsed"
                                    class="fas fa-align-left {% if log_entry["state"]["meta_sources_parsed"] %}text-success{% else %}text-danger{% endif %}"></i>
-                                <i title="pdfs_downloaded"
-                                   class="fas fa-file-download {% if log_entry["state"]["pdfs_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="artifacts_downloaded"
+                                   class="fas fa-file-download {% if log_entry["state"]["artifacts_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
                                 <i title="pdfs_converted"
                                    class="fas fa-file-pdf {% if log_entry["state"]["pdfs_converted"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="auxiliary_datasets_processed"
+                                   class="fas fa-medical {% if log_entry["state"]["auxiliary_datasets_processed"] %}text-success{% else %}text-danger{% endif %}"></i>
                                 <i title="certs_analyzed"
                                    class="fas fa-glasses {% if log_entry["state"]["certs_analyzed"] %}text-success{% else %}text-danger{% endif %}"></i>
                             </td>

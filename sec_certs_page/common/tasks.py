@@ -259,7 +259,17 @@ class Updater:  # pragma: no cover
             removed_ids = old_ids.difference(current_ids)
             updated_ids = current_ids.intersection(old_ids)
 
-            cert_states = Counter(key for cert in dset for key in cert.state.to_dict() if cert.state.to_dict()[key])
+            cert_states = Counter()
+            for cert in dset:
+                for attr in cert.state.serialized_attributes:
+                    val = getattr(cert.state, attr, False)
+                    if isinstance(val, bool):
+                        cert_states[attr] += val
+                    else:
+                        for other_attr in val.serialized_attributes:
+                            other_val = getattr(val, other_attr, False)
+                            if isinstance(other_val, bool):
+                                cert_states[attr + "_" + other_attr] += other_val
 
             # Store the success in the update log
             end = datetime.now()

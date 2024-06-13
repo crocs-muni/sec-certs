@@ -19,10 +19,12 @@
                 {% if state in run %}
                 <b>State:</b> <i title="meta_sources_parsed"
                                    class="fas fa-align-left {% if run["state"]["meta_sources_parsed"] %}text-success{% else %}text-danger{% endif %}"></i>
-                                <i title="pdfs_downloaded"
-                                   class="fas fa-file-download {% if run["state"]["pdfs_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="artifacts_downloaded"
+                                   class="fas fa-file-download {% if run["state"]["artifacts_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
                                 <i title="pdfs_converted"
                                    class="fas fa-file-pdf {% if run["state"]["pdfs_converted"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="auxiliary_datasets_processed"
+                                   class="fas fa-medical {% if run["state"]["auxiliary_datasets_processed"] %}text-success{% else %}text-danger{% endif %}"></i>
                                 <i title="certs_analyzed"
                                    class="fas fa-glasses {% if run["state"]["certs_analyzed"] %}text-success{% else %}text-danger{% endif %}"></i><br/>
                 {% endif %}
