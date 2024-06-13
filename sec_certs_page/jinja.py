@@ -1,6 +1,7 @@
 import time
 from datetime import date, datetime
 
+import sentry_sdk
 from flag import flag
 from flask import request
 from flask_principal import Permission, RoleNeed
@@ -63,6 +64,20 @@ def flatten(d):
 @app.template_global("is_admin")
 def is_admin():
     return Permission(RoleNeed("admin")).can()
+
+
+@app.template_global("sentry_traceparent")
+def sentry_traceparent():
+    if sentry_sdk.is_initialized():
+        return sentry_sdk.get_traceparent()
+    return None
+
+
+@app.template_global("sentry_baggage")
+def sentry_baggage():
+    if sentry_sdk.is_initialized():
+        return sentry_sdk.get_baggage()
+    return None
 
 
 release = get_default_release()

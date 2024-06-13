@@ -57,9 +57,18 @@
                 dsn: "{{ config['SENTRY_INGEST'] }}",
                 environment: envs[window.location.hostname],
                 release: "{{ get_release() }}",
-                integrations: [new Sentry.BrowserTracing()]
+                integrations: [Sentry.browserTracingIntegration()],
+                tracesSampleRate: 1.0,
             });
         </script>
+        {% set stp = sentry_traceparent() %}
+        {% if stp is not none %}
+            <meta name="sentry-trace" content="{{ stp }}">
+        {% endif %}
+        {% set sb = sentry_baggage() %}
+        {% if sb is not none %}
+            <meta name="baggage" content="{{ sb }}">
+        {% endif %}
         <!-- End Sentry -->
         <meta name="google-site-verification" content="eW6ZAStAlQUFlO_OP8odanoJp_yXBTvIqvlVScyTu3g"/>
         <meta name="google-site-verification" content="B1fKfbvUzeUC3uq6tc_gdJCqgtj1WeL2sYfnIho74MI" />
