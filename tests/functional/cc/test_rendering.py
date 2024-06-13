@@ -29,7 +29,7 @@ def test_search_basic(client: FlaskClient):
     resp = client.get(f"/cc/search/?q={cert_id}&cat=abcdefghijklmop&status=any&sort=match")
     assert resp.status_code == 200
     assert cert_name in resp.data.decode()
-    resp = client.get(f"/cc/search/?q={cert_id}&cat=abcdefghijklmop&status=archived&sort=match")
+    resp = client.get(f"/cc/search/?q={cert_id}&cat=abcdefghijklmop&status=active&sort=match")
     assert resp.status_code == 200
     assert cert_name not in resp.data.decode()
 
@@ -41,7 +41,7 @@ def test_search_pagination(client: FlaskClient):
     resp = client.get(f"/cc/search/results/?q={cert_id}&cat=abcdefghijklmop&status=any&sort=match")
     assert resp.status_code == 200
     assert cert_name in resp.data.decode()
-    resp = client.get(f"/cc/search/results/?q={cert_id}&cat=abcdefghijklmop&status=archived&sort=match")
+    resp = client.get(f"/cc/search/results/?q={cert_id}&cat=abcdefghijklmop&status=active&sort=match")
     assert resp.status_code == 200
     assert cert_name not in resp.data.decode()
 

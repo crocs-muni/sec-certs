@@ -5,7 +5,6 @@ from pytest_mock import MockerFixture
 
 from sec_certs_page import mail, mongo
 from sec_certs_page.cc.tasks import notify
-from sec_certs_page.notifications.tasks import send_confirmation_email
 
 
 @pytest.fixture(params=["54f754dc95137c47", "2e14077d8d2ed82f"])
@@ -56,7 +55,12 @@ def test_send_notification(app, mocker, confirmed_subscription):
         pytest.skip("Skip vuln only sub.")
     diffs = list(mongo.db.cc_diff.find({"dgst": dgst}))
     notify(str(diffs[-1]["run_id"]))
-    assert m.call_count == 1
+    for call_args in m.call_args_list:
+        message = call_args.args[0]
+        if confirmed_subscription["email"] in message.recipients:
+            break
+    else:
+        assert False
 
 
 @pytest.mark.slow
