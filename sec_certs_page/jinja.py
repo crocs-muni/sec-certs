@@ -1,3 +1,4 @@
+import re
 import time
 from datetime import date, datetime
 
@@ -78,6 +79,12 @@ def sentry_baggage():
     if sentry_sdk.is_initialized():
         return sentry_sdk.get_baggage()
     return None
+
+
+@app.template_global("endpoint")
+def endpoint():
+    rule = str(request.url_rule)
+    return re.sub("<.*?>", "*", rule)
 
 
 release = get_default_release()

@@ -57,7 +57,14 @@
                 dsn: "{{ config['SENTRY_INGEST'] }}",
                 environment: envs[window.location.hostname],
                 release: "{{ get_release() }}",
-                integrations: [Sentry.browserTracingIntegration()],
+                integrations: [Sentry.browserTracingIntegration({
+                    beforeStartSpan: (context) => {
+                        return {
+                            ...context,
+                            name: "{{ endpoint() }}"
+                        }
+                    }
+                })],
                 tracesSampleRate: 1.0,
             });
         </script>
