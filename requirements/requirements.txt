@@ -311,7 +311,7 @@ typing-extensions==4.8.0
     #   typer
 tzdata==2023.3
     # via pandas
-urllib3==2.1.0
+urllib3==2.2.2
     # via requests
 wasabi==1.1.2
     # via

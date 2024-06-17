@@ -608,7 +608,7 @@ uc-micro-py==1.0.2
     # via linkify-it-py
 umap-learn[plot]==0.5.5
     # via sec-certs (./../pyproject.toml)
-urllib3==2.1.0
+urllib3==2.2.2
     # via
     #   requests
     #   responses
