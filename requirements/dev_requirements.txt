@@ -420,7 +420,7 @@ rpds-py==0.13.1
     #   referencing
 ruff==0.2.2
     # via sec-certs (./../pyproject.toml)
-scikit-learn==1.3.2
+scikit-learn==1.5.0
     # via sec-certs (./../pyproject.toml)
 scipy==1.11.4
     # via
