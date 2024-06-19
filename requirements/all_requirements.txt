@@ -596,7 +596,7 @@ safetensors==0.4.0
     # via transformers
 scikit-image==0.22.0
     # via umap-learn
-scikit-learn==1.3.2
+scikit-learn==1.5.0
     # via
     #   pynndescent
     #   sec-certs (./../pyproject.toml)
