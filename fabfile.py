@@ -117,25 +117,29 @@ def deploy(c):
 
 
 @task
-def dump(c):
-    """Dump MongoDB data and download them."""
-    print("Dumping...")
-    tmp_dir = c.run("mktemp -d").stdout.strip()
-    try:
-        with c.cd(tmp_dir):
-            c.run("mongodump -d seccerts")
-            c.run("tar --zstd -cf dump.tar.zst dump/")
-            c.get(f"{tmp_dir}/dump.tar.zst", "dump.tar.zst")
-    finally:
-        c.run(f"rm -r '{tmp_dir}'")
-
-
-@task
 def release(c):
+    """Create a new release on Sentry."""
     version = c.local("sentry-cli releases propose-version", hide="both").stdout.strip()
     c.local(f"sentry-cli releases new {version}")
     c.local(f"sentry-cli releases finalize {version}")
     c.local(f"sentry-cli releases set-commits {version} --local")
+
+
+@task
+def dump(c):
+    """Dump MongoDB data and download them."""
+    tmp_dir = c.run("mktemp -d").stdout.strip()
+    try:
+        with c.cd(tmp_dir):
+            print("Dumping...")
+            c.run("mongodump -d seccerts")
+            print("Archiving...")
+            c.run("tar --zstd -cf dump.tar.zst dump/")
+            print("Transmitting...")
+            c.get(f"{tmp_dir}/dump.tar.zst", "dump.tar.zst")
+            print("Done.")
+    finally:
+        c.run(f"rm -r '{tmp_dir}'")
 
 
 @task
