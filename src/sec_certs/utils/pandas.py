@@ -173,7 +173,7 @@ def compute_cve_correlations(
     spearmanr = functools.partial(stats.spearmanr, nan_policy="omit", alternative="less")
 
     df_sar.eal = df_sar.eal.cat.codes
-    df_sar.eal = df_sar.eal.map(lambda x: np.NaN if x == -1 else x)
+    df_sar.eal = df_sar.eal.map(lambda x: np.nan if x == -1 else x)
 
     n_cves_eal_corr, n_cves_eal_pvalue = spearmanr(df_sar.eal, df_sar.n_cves)
     n_cves_corrs = [n_cves_eal_corr]

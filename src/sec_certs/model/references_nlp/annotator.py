@@ -96,6 +96,6 @@ class ReferenceAnnotator:
         df_new["y_proba"] = y_proba
         df_new["y_pred"] = self.predict(df_new.segments)
         df_new["correct"] = df_new.apply(
-            lambda row: row["y_pred"] == row["label"] if not pd.isnull(row["label"]) else np.NaN, axis=1
+            lambda row: row["y_pred"] == row["label"] if not pd.isnull(row["label"]) else np.nan, axis=1
         )
         return df_new
