@@ -459,7 +459,7 @@ class FIPSCertificate(
             def alg_to_number(alg: str) -> str:
                 return "".join([x for x in alg.split("#")[1] if x.isdigit()])
 
-            return {alg_to_number(x) for x in self.algorithms}
+            return {alg_to_number(x) for x in self.algorithms if "#" in x}
 
     @property
     def dgst(self) -> str:
