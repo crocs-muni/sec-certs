@@ -265,7 +265,7 @@ class Updater:  # pragma: no cover
                     val = getattr(cert.state, attr, False)
                     if isinstance(val, bool):
                         cert_states[attr] += val
-                    else:
+                    elif hasattr(val, "serialized_attributes"):
                         for other_attr in val.serialized_attributes:
                             other_val = getattr(val, other_attr, False)
                             if isinstance(other_val, bool):
