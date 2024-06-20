@@ -1,5 +1,6 @@
 """Common Criteria views."""
 import random
+import re
 from operator import itemgetter
 from pathlib import Path
 from urllib.parse import urlencode
@@ -472,7 +473,9 @@ def entry_feed(hashid):
                 }[diff["type"]]
             )
             fe.id(entry_url + "/" + str(diff["_id"]))
-            fe.content(str(render), type="html")
+            s = str(render)
+            stripped = re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", s)
+            fe.content(stripped, type="html")
             fe.published(date)
             fe.updated(date)
             if last_update is None or date > last_update:
