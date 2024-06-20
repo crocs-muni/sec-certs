@@ -126,6 +126,55 @@ def release(c):
 
 
 @task
+def run_cc(c):
+    """Run the CC update task."""
+    print("Sending CC update task.")
+    with c.cd("/var/www/sec-certs/sec-certs"):
+        c.run(
+            as_www_data(
+                [
+                    "env",
+                    "INSTANCE_PATH=/data/flask/instance/",
+                    "python",
+                    "-c",
+                    "'from sec_certs_page.cc.tasks import update_data; update_data.send()'",
+                ],
+                virtual=True,
+            )
+        )
+
+
+@task
+def run_fips(c):
+    """Run the FIPS update task."""
+    print("Sending FIPS update task.")
+    with c.cd("/var/www/sec-certs/sec-certs"):
+        c.run(
+            as_www_data(
+                [
+                    "env",
+                    "INSTANCE_PATH=/data/flask/instance/",
+                    "python",
+                    "-c",
+                    "'from sec_certs_page.fips.tasks import update_data; update_data.send()'",
+                ],
+                virtual=True,
+            )
+        )
+
+
+@task
+def shell(c):
+    """Get Flask shell."""
+    with c.cd("/var/www/sec-certs/sec-certs"):
+        c.run(
+            as_www_data(
+                ["env", "INSTANCE_PATH=/data/flask/instance/", "flask", "-A", "sec_certs_page", "shell"], virtual=True
+            )
+        )
+
+
+@task
 def dump(c):
     """Dump MongoDB data and download them."""
     tmp_dir = c.run("mktemp -d").stdout.strip()
