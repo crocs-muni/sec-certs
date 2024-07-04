@@ -422,6 +422,7 @@ def entry(hashid):
         with sentry_sdk.start_span(op="network", description="Find network"):
             fips_map = get_fips_map()
             cert_network = fips_map.get(hashid, {})
+        name = doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else ""
         return render_template(
             "fips/entry/index.html.jinja2",
             cert=doc,
@@ -435,6 +436,7 @@ def entry(hashid):
             json=StorageFormat(raw_doc).to_json_mapping(),
             network=cert_network,
             policy_link=constants.FIPS_SP_URL.format(doc["cert_id"]),
+            title=f"{name} | sec-certs.org",
         )
     else:
         return abort(404)

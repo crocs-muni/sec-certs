@@ -364,6 +364,7 @@ def entry(hashid):
         with sentry_sdk.start_span(op="network", description="Find network"):
             cc_map = get_cc_map()
             cert_network = cc_map.get(hashid, {})
+        name = doc["name"] if doc["name"] else ""
         return render_template(
             "cc/entry/index.html.jinja2",
             cert=doc,
@@ -377,6 +378,7 @@ def entry(hashid):
             local_files=local_files,
             json=StorageFormat(raw_doc).to_json_mapping(),
             network=cert_network,
+            title=f"{name} | sec-certs.org",
         )
     else:
         return abort(404)

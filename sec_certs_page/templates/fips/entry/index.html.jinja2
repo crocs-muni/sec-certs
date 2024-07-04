@@ -1,6 +1,7 @@
 {% extends "crowdsourced.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
+{% set breadcrumb_title = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
