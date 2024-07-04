@@ -32,7 +32,9 @@ FIPS_BASE_URL = "https://csrc.nist.gov"
 FIPS_CMVP_URL = FIPS_BASE_URL + "/projects/cryptographic-module-validation-program"
 FIPS_CAVP_URL = FIPS_BASE_URL + "/projects/Cryptographic-Algorithm-Validation-Program"
 FIPS_MODULE_URL = FIPS_CMVP_URL + "/certificate/{}"
-FIPS_ALG_SEARCH_URL = FIPS_CAVP_URL + "/validation-search?searchMode=validation&page="
+FIPS_ALG_SEARCH_VALIDATION_URL = FIPS_CAVP_URL + "/validation-search?searchMode=validation&page="
+FIPS_ALG_SEARCH_IMPLEMENTATION_URL = FIPS_CAVP_URL + "/validation-search?searchMode=implementation&page="
+FIPS_ALG_SEARCH_URL = FIPS_ALG_SEARCH_VALIDATION_URL
 FIPS_SP_URL = "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp{}.pdf"
 FIPS_ACTIVE_MODULES_URL = (
     FIPS_CMVP_URL + "/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0"
