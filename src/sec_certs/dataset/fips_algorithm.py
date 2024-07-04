@@ -96,6 +96,9 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
     @staticmethod
     def parse_algorithms_from_html(html_path: Path) -> set[FIPSAlgorithm]:
         df = pd.read_html(html_path)[0]
+        for col in df.columns:
+            if "Order by" in col:
+                df.rename(columns={col: col.split("Order by")[0]}, inplace=True)
         df["alg_type"] = df["Validation Number"].map(lambda x: re.sub(r"[0-9\s]", "", x))
         df["alg_number"] = df["Validation Number"].map(lambda x: re.sub(r"[^0-9]", "", x))
         df["alg"] = df.apply(
