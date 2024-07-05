@@ -49,7 +49,7 @@ catalogue==2.0.10
     #   thinc
 catboost==1.2.2
     # via sec-certs (./../pyproject.toml)
-certifi==2023.11.17
+certifi==2024.7.4
     # via requests
 cffi==1.16.0
     # via cryptography
