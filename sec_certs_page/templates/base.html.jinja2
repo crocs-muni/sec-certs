@@ -88,8 +88,8 @@
             {
             "@type": "ListItem",
             "position": {{ loop.index }},
-            "name": {% if loop.last and breadcrumb_title %}"{{ title }}"{% else %}"{{ breadcrumb.text }}"{% endif %},
-            "item": "{{ request.host_url[:-1] + breadcrumb.url if breadcrumb.url else request.base_url }}"
+            "name": {% if loop.last and breadcrumb_title and title %}{{ title|tojson }}{% else %}{{ breadcrumb.text|tojson }}{% endif %},
+            "item": {{ (request.host_url[:-1] + breadcrumb.url)|tojson if breadcrumb.url else request.base_url|tojson }}
             }{{ ',' if not loop.last }}
           {%- endfor -%}
           ]
