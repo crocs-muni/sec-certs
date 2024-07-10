@@ -820,7 +820,7 @@ xyzservices==2023.10.1
     #   panel
 yarl==1.9.3
     # via aiohttp
-zipp==3.17.0
+zipp==3.19.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
