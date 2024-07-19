@@ -72,13 +72,42 @@ def reload_uwsgi(c):
         resp = c.run("cat /run/uwsgi/app/certs/pid")
         pid = resp.stdout.strip()
         if c.run(f"test -d /proc/{pid}"):
-            print(f"Reloading uwsgi {pid}")
+            print(f"Reloading uWSGI {pid}.")
             c.sudo(f"kill -1 {pid}")
-            print("Reloaded uwsgi")
+            print("Reloaded uWSGI.")
         else:
-            print("uwsgi pidfile found but not running.")
+            print("uWSGI pidfile found but not running.")
     else:
-        print("uwsgi pidfile not found")
+        print("uWSGI pidfile not found.")
+
+
+@task
+def start_uwsgi(c):
+    """Start the uWSGI master."""
+    if c.run("test -f /run/uwsgi/app/certs/pid"):
+        resp = c.run("cat /run/uwsgi/app/certs/pid")
+        pid = resp.stdout.strip()
+        if c.run(f"test -d /proc/{pid}"):
+            print(f"uWSGI is already running (pid = {pid}).")
+            return
+        print("Old pidfile found, starting anyway.")
+    c.sudo("/opt/uwsgi/uwsgi --ini /etc/uwsgi/apps-enabled/certs.ini --daemonize /var/log/uwsgi/app/certs.log")
+
+
+@task
+def stop_uwsgi(c):
+    """Stop the uWSGI master."""
+    if c.run("test -f /run/uwsgi/app/certs/pid"):
+        resp = c.run("cat /run/uwsgi/app/certs/pid")
+        pid = resp.stdout.strip()
+        if c.run(f"test -d /proc/{pid}"):
+            print(f"Stopping uWSGI {pid}.")
+            c.sudo(f"kill -9 {pid}")
+            print("Stopped uWSGI.")
+        else:
+            print("uWSGI pidfile found but not running.")
+    else:
+        print("uWSGI pidfile not found.")
 
 
 @task
@@ -91,6 +120,18 @@ def tail_nginx(c):
 def reload_nginx(c):
     """Reload nginx."""
     c.sudo("systemctl reload nginx")
+
+
+@task
+def start_nginx(c):
+    """Start nginx."""
+    c.sudo("systemctl start nginx")
+
+
+@task
+def stop_nginx(c):
+    """Stop nginx."""
+    c.sudo("systemctl stop nginx")
 
 
 @task
@@ -123,6 +164,20 @@ def release(c):
     c.local(f"sentry-cli releases new {version}")
     c.local(f"sentry-cli releases finalize {version}")
     c.local(f"sentry-cli releases set-commits {version} --local")
+
+
+@task
+def enable_maintenance(c):
+    """Enable maintenannce mode for the site."""
+    with c.cd("/var/www/sec-certs/"):
+        c.run(as_www_data(["cp", "mntnc.html", "maintenance.html"], virtual=False))
+
+
+@task
+def disable_maintenance(c):
+    """Disable maintenannce mode for the site."""
+    with c.cd("/var/www/sec-certs/"):
+        c.run(as_www_data(["rm", "maintenance.html"], virtual=False))
 
 
 @task
