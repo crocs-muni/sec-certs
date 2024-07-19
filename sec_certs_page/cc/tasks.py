@@ -9,6 +9,7 @@ from flask import current_app
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
+from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks import Archiver, Indexer, Notifier, Updater, no_simultaneous_execution
@@ -102,13 +103,17 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"), suppress_child_spans():
                     dset.get_certs_from_web(update_json=False)
-                with sentry_sdk.start_span(
-                    op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
-                ), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(
+                        op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
+                    ),
+                    suppress_child_spans(),
+                ):
                     dset.process_auxiliary_datasets(update_json=False)
-                with sentry_sdk.start_span(
-                    op="cc.download_artifacts", description="Download artifacts"
-                ), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(op="cc.download_artifacts", description="Download artifacts"),
+                    suppress_child_spans(),
+                ):
                     dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="cc.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
                     dset.convert_all_pdfs(update_json=False)
@@ -148,6 +153,16 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
                             cert.state.cert.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "cert"))
+            with sentry_sdk.start_span(op="cc.old_map", description="Update old digest map"), suppress_child_spans():
+                for cert in dset:
+                    if hasattr(cert, "old_dgst"):
+                        mongo.db.cc_old.replace_one(
+                            {"_id": cert.old_dgst}, {"_id": cert.old_dgst, "hashid": cert.dgst}, upsert=True
+                        )
+                    if hasattr(cert, "older_dgst"):
+                        mongo.db.cc_old.replace_one(
+                            {"_id": cert.older_dgst}, {"_id": cert.older_dgst, "hashid": cert.dgst}, upsert=True
+                        )
         return to_reindex
 
     def dataset_state(self, dset):

@@ -1,6 +1,8 @@
 """Common Criteria views."""
+
 import random
 import re
+from functools import wraps
 from operator import itemgetter
 from pathlib import Path
 from urllib.parse import urlencode
@@ -321,15 +323,31 @@ def entry_old(old_id, npath=None):
         redir_path = url_for("cc.entry", hashid=id_map["hashid"])
         if npath:
             redir_path = safe_join(redir_path, npath)
-        return redirect(redir_path)
+        return redirect(redir_path, code=301)
     else:
         return abort(404)
+
+
+def redir_new(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        hashid = request.view_args.get("hashid")
+        if hashid:
+            new = mongo.db.cc_old.find_one({"_id": hashid}, {"hashid": 1})
+            if new:
+                new_args = request.view_args.copy()
+                new_args["hashid"] = new["hashid"]
+                return redirect(url_for(request.endpoint, **new_args), code=301)
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 @cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
     cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]  # type: ignore
 )
+@redir_new
 def entry(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         raw_doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 0})
@@ -385,36 +403,43 @@ def entry(hashid):
 
 
 @cc.route("/<string(length=16):hashid>/target.txt")
+@redir_new
 def entry_target_txt(hashid):
     return entry_download_target_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/target.pdf")
+@redir_new
 def entry_target_pdf(hashid):
     return entry_download_target_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/report.txt")
+@redir_new
 def entry_report_txt(hashid):
     return entry_download_report_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/report.pdf")
+@redir_new
 def entry_report_pdf(hashid):
     return entry_download_report_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/cert.txt")
+@redir_new
 def entry_cert_txt(hashid):
     return entry_download_certificate_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/cert.pdf")
+@redir_new
 def entry_cert_pdf(hashid):
     return entry_download_certificate_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/graph.json")
+@redir_new
 def entry_graph_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
@@ -431,6 +456,7 @@ def entry_graph_json(hashid):
 
 
 @cc.route("/<string(length=16):hashid>/cert.json")
+@redir_new
 def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})
@@ -441,6 +467,7 @@ def entry_json(hashid):
 
 
 @cc.route("/<string(length=16):hashid>/feed.xml")
+@redir_new
 def entry_feed(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         raw_doc = mongo.db.cc.find_one({"_id": hashid})
