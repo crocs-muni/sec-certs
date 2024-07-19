@@ -41,7 +41,7 @@ def test_methods_not_meant_to_be_implemented():
 def test_download_artifacts(mu_dset: CCDatasetMaintenanceUpdates):
     # Conversion and extraction is identical to CC, will not test.
     mu_dset.download_all_artifacts()
-    mu = mu_dset["cert_8a5e6bcda602920c_update_559ed93dd80320b5"]
+    mu = mu_dset["cert_8f08cacb49a742fb_update_559ed93dd80320b5"]
 
     if not (mu.state.report.download_ok or mu.state.st.download_ok):
         pytest.xfail(reason="Fail due to error on CC server.")
@@ -82,4 +82,4 @@ def test_from_web():
     dset = CCDatasetMaintenanceUpdates.from_web_latest()
     assert dset is not None
     assert len(dset) >= 492  # Contents as of November 2022, maintenances should not disappear
-    assert "cert_8a5e6bcda602920c_update_559ed93dd80320b5" in dset  # random cert verified to be present
+    assert "cert_8f08cacb49a742fb_update_559ed93dd80320b5" in dset  # random cert verified to be present

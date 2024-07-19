@@ -15,7 +15,7 @@
   "certs": [
     {
       "_type": "sec_certs.sample.cc.CCCertificate",
-      "dgst": "c30de3192d2e8ec2",
+      "dgst": "3129688580711e08",
       "status": "archived",
       "category": "Other Devices and Systems",
       "name": "Océ Digital Access Controller (DAC) R10.1.5 for use in the Océ VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner products",
@@ -583,7 +583,7 @@
     },
     {
       "_type": "sec_certs.sample.cc.CCCertificate",
-      "dgst": "53fe111411edfa45",
+      "dgst": "2c47b65953dcffb3",
       "status": "archived",
       "category": "Other Devices and Systems",
       "name": "Océ Digital Access Controller (DAC) R9.1.6",
@@ -1229,7 +1229,7 @@
     },
     {
       "_type": "sec_certs.sample.cc.CCCertificate",
-      "dgst": "692e91451741ef49",
+      "dgst": "d1b238729b25d745",
       "status": "archived",
       "category": "Other Devices and Systems",
       "name": "Océ Digital Access Controller R8.1.10",
