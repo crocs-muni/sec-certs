@@ -178,6 +178,7 @@ def test_turkey():
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_usa():
+    pytest.skip()
     certified = CCSchemes.get_usa_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
