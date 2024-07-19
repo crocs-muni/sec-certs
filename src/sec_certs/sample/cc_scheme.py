@@ -65,12 +65,13 @@ __all__ = [
 ]
 
 
-def _get(url: str, session, **kwargs) -> Response:
+def _getq(url: str, params, session=None, **kwargs) -> Response:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=InsecureRequestWarning)
         conn = session if session else requests
         resp = conn.get(
             url,
+            params=params,
             headers={"User-Agent": "sec-certs.org"},
             verify=False,
             **kwargs,
@@ -78,6 +79,10 @@ def _get(url: str, session, **kwargs) -> Response:
         )
     resp.raise_for_status()
     return resp
+
+
+def _get(url: str, session=None, **kwargs) -> Response:
+    return _getq(url, None, session, **kwargs)
 
 
 def _get_page(url: str, session=None) -> BeautifulSoup:
@@ -1444,6 +1449,78 @@ def get_turkey_certified() -> list[dict[str, Any]]:
     return results
 
 
+def _get_usa(args, enhanced: bool, artifacts: bool):  # noqa: C901
+    # TODO: There is more information in the API (like about PPs, etc.)
+    def map_cert(cert, files=None):  # noqa: C901
+        result = {
+            "product": cert["product_name"],
+            "id": f"CCEVS-VR-VID{cert['product_id']}",
+            "url": constants.CC_USA_BASE_URL + f"/product/{cert['product_id']}",
+            "certification_date": cert["certification_date"],
+            "expiration_date": cert["sunset_date"],
+            "category": cert["tech_type"],
+            "vendor": cert["vendor_id_name"],
+            "evaluation_facility": cert["assigned_lab_name"],
+            "scheme": cert["submitting_country_id_code"],
+        }
+        if files:
+            for file in files["eval_files"]:
+                if file["file_label"] == "Validation Report":
+                    dt = datetime.fromisoformat(file["uploaded_on"])
+                    result["id"] += f"-{dt.year}"
+                    result["report_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    if artifacts:
+                        result["report_hash"] = _get_hash(result["report_link"]).hex()
+                elif file["file_label"] == "CC Certificate":
+                    result["cert_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    if artifacts:
+                        result["cert_hash"] = _get_hash(result["cert_link"]).hex()
+                elif file["file_label"] == "Security Target":
+                    result["target_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    if artifacts:
+                        result["target_hash"] = _get_hash(result["target_link"]).hex()
+                elif file["file_label"] == "Assurance Activity Report (AAR)":
+                    result["aar_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    if artifacts:
+                        result["aar_hash"] = _get_hash(result["aar_link"]).hex()
+                elif file["file_label"] == "Administrative Guide (AGD)":
+                    result["agd_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    if artifacts:
+                        result["agd_hash"] = _get_hash(result["agd_link"]).hex()
+
+        return result
+
+    session = requests.session()
+    results = []
+    offset = 0
+    got = 0
+    while True:
+        resp = _getq(
+            constants.CC_USA_PRODUCTS_URL,
+            {"limit": 100, "offset": offset, **args},
+            session,
+        )
+        json = resp.json()
+        count = json["count"]
+        for cert in json["results"]["products"]:
+            got += 1
+            if "from_cc_portal" in cert:
+                continue
+            files = None
+            if enhanced:
+                resp = _getq(
+                    constants.CC_USA_FILES_URL,
+                    {"product_id": cert["product_id"]},
+                    session,
+                )
+                files = resp.json()
+            results.append(map_cert(cert, files))
+        offset += 100
+        if got >= count:
+            break
+    return results
+
+
 def get_usa_certified(  # noqa: C901
     enhanced: bool = True, artifacts: bool = False
 ) -> list[dict[str, Any]]:
@@ -1454,83 +1531,11 @@ def get_usa_certified(  # noqa: C901
     :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
-    soup = _get_page(constants.CC_USA_CERTIFIED_URL)
-    tbody = soup.find("table", class_="tablesorter").find("tbody")
-    results = []
-    for tr in tbody.find_all("tr"):
-        tds = tr.find_all("td")
-        vendor_span = tds[0].find("span", class_="b u")
-        product_link = tds[0].find("a")
-        scheme_img = tds[6].find("img")
-        # Only return the US certifications.
-        if scheme_img["title"] != "USA":
-            continue
-        cert: dict[str, Any] = {
-            "product": sns(product_link.text),
-            "vendor": sns(vendor_span.text),
-            "product_link": urljoin(constants.CC_USA_PRODUCT_URL, product_link["href"]),
-            "id": sns(tds[1].text),
-            "cc_claim": sns(tds[2].text),
-            "cert_lab": sns(tds[3].text),
-            "certification_date": sns(tds[4].text),
-            "assurance_maintenance_date": sns(tds[5].text),
-        }
-        if enhanced:
-            e: dict[str, Any] = {}
-            if not cert["product_link"]:
-                continue
-            cert_page = _get_page(cert["product_link"])
-            details = cert_page.find("div", class_="txt2 lma")
-            for span in details.find_all("span"):
-                title = sns(span.text)
-                if not title:
-                    continue
-                sibling = span.next_sibling
-                value = sns(sibling.text)
-                if "Certificate Date" in title:
-                    e["certification_date"] = value
-                elif "Product Type" in title:
-                    e["product_type"] = value
-                elif "Conformance Claim" in title:
-                    e["cc_claim"] = value
-                elif "Validation Report Number" in title:
-                    e["cert_id"] = value
-                elif "PP Identifier" in title:
-                    e["protection_profile"] = sns(span.find_next_sibling("a").text)
-                elif "CC Testing Lab" in title:
-                    e["evaluation_facility"] = sns(span.find_next_sibling("a").text)
-            links = cert_page.find_all("a", class_="pseudobtn1")
-            for link in links:
-                name = sns(link.text)
-                href = urljoin(constants.CC_USA_BASE_URL, sns(link["href"]))
-                if not name:
-                    continue
-                if "CC Certificate" in name:
-                    e["cert_link"] = href
-                    if artifacts:
-                        e["cert_hash"] = _get_hash(href).hex()
-                elif "Security Target" in name:
-                    e["target_link"] = href
-                    if artifacts:
-                        e["target_hash"] = _get_hash(href).hex()
-                elif "Validation Report" in name:
-                    e["report_link"] = href
-                    if artifacts:
-                        e["report_hash"] = _get_hash(href).hex()
-                elif "Assurance Activity" in name:
-                    e["assurance_activity_link"] = href
-                    if artifacts:
-                        e["assurance_activity_hash"] = _get_hash(href).hex()
-                elif "Administrative Guide" in name:
-                    guides = e.setdefault("administrative_guides", [])
-                    guide = {"link": href}
-                    guides.append(guide)
-                    if artifacts:
-                        guide["hash"] = _get_hash(href).hex()
-            cert["enhanced"] = e
-        results.append(cert)
-    return results
+    return _get_usa(
+        {"certification_status": "Certified", "publish_status": "Published"},
+        enhanced,
+        artifacts,
+    )
 
 
 def get_usa_in_evaluation() -> list[dict[str, Any]]:
@@ -1539,29 +1544,7 @@ def get_usa_in_evaluation() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
-    soup = _get_page(constants.CC_USA_INEVAL_URL)
-    tbody = soup.find("table", class_="tablesorter").find("tbody")
-    results = []
-    for tr in tbody.find_all("tr"):
-        tds = tr.find_all("td")
-        vendor_span = tds[0].find("span", class_="b u")
-        product_name = None
-        for child in tds[0].children:
-            if isinstance(child, NavigableString):
-                product_name = sns(child)
-                break
-        cert = {
-            "vendor": sns(vendor_span.text),
-            "id": sns(tds[1].text),
-            "cc_claim": sns(tds[2].text),
-            "cert_lab": sns(tds[3].text),
-            "kickoff_date": sns(tds[4].text),
-        }
-        if product_name:
-            cert["product"] = product_name
-        results.append(cert)
-    return results
+    return _get_usa({"status": "In Progress", "publish_status": "Published"}, False, False)
 
 
 def get_usa_archived() -> list[dict[str, Any]]:
@@ -1570,33 +1553,7 @@ def get_usa_archived() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    # TODO: Information could be expanded by following the cc_claims (has links to protection profiles).
-    soup = _get_page(constants.CC_USA_ARCHIVED_URL)
-    tbody = soup.find("table", class_="tablesorter").find("tbody")
-    results = []
-    for tr in tbody.find_all("tr"):
-        tds = tr.find_all("td")
-        scheme_img = tds[5].find("img")
-        # Only return the US certifications.
-        if scheme_img["title"] != "USA":
-            continue
-        vendor_span = tds[0].find("span", class_="b u")
-        product_name = None
-        for child in tds[0].children:
-            if isinstance(child, NavigableString):
-                product_name = sns(child)
-                break
-        cert = {
-            "vendor": sns(vendor_span.text),
-            "id": sns(tds[1].text),
-            "cc_claim": sns(tds[2].text),
-            "cert_lab": sns(tds[3].text),
-            "certification_date": sns(tds[4].text),
-        }
-        if product_name:
-            cert["product"] = product_name
-        results.append(cert)
-    return results
+    return _get_usa({"status": "Archived", "publish_status": "Published"}, False, False)
 
 
 class EntryType(Enum):

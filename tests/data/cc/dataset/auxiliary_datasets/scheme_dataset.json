@@ -4,7 +4,7 @@
         "CA": {
             "_type": "sec_certs.sample.cc_scheme.CCScheme",
             "country": "CA",
-            "timestamp": "2024-07-19T17:14:26.369494",
+            "timestamp": "2024-07-19T17:15:33.014552",
             "lists": {
                 "INEVALUATION": [
                     {
