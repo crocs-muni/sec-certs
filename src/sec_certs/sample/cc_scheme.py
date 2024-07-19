@@ -1306,7 +1306,7 @@ def get_spain_certified() -> list[dict[str, Any]]:
             "product_link": urljoin(constants.CC_SPAIN_BASE_URL, tds[0].find("a")["href"]),
             "category": sns(tds[1].text),
             "manufacturer": sns(tds[2].text),
-            "certification_date": sns(tds[3].find("td", class_="djc_value").text),
+            "certification_date": sns(tds[3].text),
         }
         results.append(cert)
     return results
