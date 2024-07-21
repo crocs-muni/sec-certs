@@ -3,6 +3,8 @@ from __future__ import annotations
 import html
 import logging
 from datetime import date
+from pathlib import Path
+from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
@@ -21,6 +23,13 @@ def sanitize_link(record: str | None) -> str | None:
     if not record:
         return None
     return record.replace(":443", "").replace(" ", "%20").replace("http://", "https://")
+
+
+def sanitize_link_fname(record: str | None) -> str | None:
+    if not record:
+        return None
+    parsed = urlparse(record)
+    return Path(parsed.path).name
 
 
 def sanitize_cc_link(record: str | None) -> str | None:

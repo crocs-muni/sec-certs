@@ -34,7 +34,7 @@ from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, serialize
-from sec_certs.utils import helpers
+from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
 
@@ -368,7 +368,14 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             return CCDataset.BASE_URL + relative_path
 
         def _get_primary_key_str(row: Tag):
-            return row["category"] + row["cert_name"] + row["report_link"]
+            return "|".join(
+                [
+                    row["category"],
+                    row["cert_name"],
+                    sanitization.sanitize_link_fname(row["report_link"]) or "None",
+                    sanitization.sanitize_link_fname(row["st_link"]) or "None",
+                ]
+            )
 
         cert_status = "active" if "active" in str(file) else "archived"
 
@@ -408,11 +415,15 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         df_base = df.loc[~df.is_maintenance].copy()
         df_main = df.loc[df.is_maintenance].copy()
 
-        df_base.report_link = df_base.report_link.map(map_ip_to_hostname)
-        df_base.st_link = df_base.st_link.map(map_ip_to_hostname)
+        df_base.report_link = df_base.report_link.map(map_ip_to_hostname).map(sanitization.sanitize_link)
+        df_base.st_link = df_base.st_link.map(map_ip_to_hostname).map(sanitization.sanitize_link)
 
-        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname)
-        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname)
+        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname).map(
+            sanitization.sanitize_link
+        )
+        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname).map(
+            sanitization.sanitize_link
+        )
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=["dgst"]))
