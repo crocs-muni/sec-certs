@@ -18,6 +18,7 @@ from urllib.parse import urljoin
 import requests
 import tabula
 from bs4 import BeautifulSoup, NavigableString, Tag
+from dateutil.parser import isoparse
 from requests import Response
 from urllib3.connectionpool import InsecureRequestWarning
 
@@ -1466,7 +1467,7 @@ def _get_usa(args, enhanced: bool, artifacts: bool):  # noqa: C901
         if files:
             for file in files["eval_files"]:
                 if file["file_label"] == "Validation Report":
-                    dt = datetime.fromisoformat(file["uploaded_on"])
+                    dt = isoparse(file["uploaded_on"])
                     result["id"] += f"-{dt.year}"
                     result["report_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
                     if artifacts:
