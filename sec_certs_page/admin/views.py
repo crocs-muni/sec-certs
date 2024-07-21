@@ -103,7 +103,7 @@ def updates_fips():
     admin,
     ".updates.update",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": str(request.view_args["id"])}],  # type: ignore
 )
 def update_run(id):
     cc_run = mongo.db.cc_log.find_one({"_id": id})
