@@ -236,7 +236,7 @@ def mip_dataset():
     fips,
     ".mip.snapshot",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": str(request.view_args["id"])}],  # type: ignore
 )
 def mip_snapshot(id):
     snapshot = mongo.db.fips_mip.find_one_or_404({"_id": id})
@@ -331,7 +331,7 @@ def iut_dataset():
     fips,
     ".iut.snapshot",
     "",
-    dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["id"]}],  # type: ignore
+    dynamic_list_constructor=lambda *args, **kwargs: [{"text": str(request.view_args["id"])}],  # type: ignore
 )
 def iut_snapshot(id):
     snapshot = mongo.db.fips_iut.find_one_or_404({"_id": id})
