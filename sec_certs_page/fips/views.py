@@ -1,4 +1,5 @@
 """FIPS views."""
+
 import random
 from datetime import datetime
 from operator import itemgetter
@@ -215,6 +216,8 @@ def mip_index():
         total=count,
         css_framework="bootstrap5",
         alignment="center",
+        next_rel="next",
+        prev_rel="prev",
     )
     return render_template("fips/mip/mip_index.html.jinja2", snapshots=mip_snapshots, pagination=pagination)
 
@@ -310,6 +313,8 @@ def iut_index():
         total=count,
         css_framework="bootstrap5",
         alignment="center",
+        next_rel="next",
+        prev_rel="prev",
     )
     return render_template("fips/iut/iut_index.html.jinja2", snapshots=iut_snapshots, pagination=pagination)
 

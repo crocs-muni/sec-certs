@@ -73,6 +73,8 @@ class BasicSearch(ABC):
             css_framework="bootstrap5",
             alignment="center",
             url_callback=callback,
+            next_rel="next",
+            prev_rel="prev",
         )
         return {
             "pagination": pagination,
@@ -207,6 +209,8 @@ class FulltextSearch(ABC):
             total=cls.collection.count_documents({}),
             css_framework="bootstrap5",
             alignment="center",
+            next_rel="next",
+            prev_rel="prev",
         )
         return {
             "pagination": pagination,
