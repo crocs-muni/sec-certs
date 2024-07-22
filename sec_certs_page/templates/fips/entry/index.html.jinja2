@@ -2,6 +2,7 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% set breadcrumb_title = True %}
+{% set canonical = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
@@ -14,6 +15,8 @@
     <script type="text/javascript" src="{{ url_for("static", filename="network.js") }}"></script>
 {% endblock %}
 {% block metadata %}
+	<meta property="description"
+          content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
     <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>

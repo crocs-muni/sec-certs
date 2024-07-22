@@ -1,6 +1,7 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
+{% set canonical = True %}
 {% block navbar %}
     <li class="nav-item">
         <a class="nav-link" href="{{ url_for(".search") }}">Search</a>

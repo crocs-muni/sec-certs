@@ -13,7 +13,7 @@ from . import vuln
 @vuln.route("/")
 @register_breadcrumb(vuln, ".", "Vulnerability information")
 def index():
-    return render_template("vuln/index.html.jinja2")
+    return render_template("vuln/index.html.jinja2", title="Vulnerability information | sec-certs.org")
 
 
 @vuln.route("/cve/cve.json")

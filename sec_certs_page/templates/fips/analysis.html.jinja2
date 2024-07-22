@@ -1,6 +1,10 @@
 {% extends "base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
+{% set canonical = True %}
+{% block title %}
+    <title>FIPS 140 analysis | sec-certs.org</title>
+{% endblock %}
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">

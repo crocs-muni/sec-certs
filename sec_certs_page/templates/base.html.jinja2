@@ -14,6 +14,9 @@
             <meta property="og:url" content="{{ request.url }}"/>
         {% endblock %}
         <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}"/>
+        {% if canonical %}
+        	<link rel="canonical" href="{{ request.base_url if canonical is true else canonical }}" />
+        {% endif %}
         {% assets output="gen/libs.css",
                 "lib/bootstrap.min.css", "lib/fontawesome.min.css", "lib/metropolis.css" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}">

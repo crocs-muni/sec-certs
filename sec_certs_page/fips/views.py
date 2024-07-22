@@ -163,7 +163,11 @@ def search_results():
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
     res = FIPSFulltextSearch.process_search(request)
-    return render_template("fips/search/fulltext.html.jinja2", **res)
+    return render_template(
+        "fips/search/fulltext.html.jinja2",
+        **res,
+        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+    )
 
 
 @fips.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
@@ -219,7 +223,12 @@ def mip_index():
         next_rel="next",
         prev_rel="prev",
     )
-    return render_template("fips/mip/mip_index.html.jinja2", snapshots=mip_snapshots, pagination=pagination)
+    return render_template(
+        "fips/mip/mip_index.html.jinja2",
+        snapshots=mip_snapshots,
+        pagination=pagination,
+        title=f"FIPS 140 Modules in Process ({page}) | sec-certs.org",
+    )
 
 
 @fips.route("/mip/dataset.json")
@@ -243,7 +252,12 @@ def mip_dataset():
 )
 def mip_snapshot(id):
     snapshot = mongo.db.fips_mip.find_one_or_404({"_id": id})
-    return render_template("fips/mip/mip.html.jinja2", snapshot=snapshot)
+    dt = datetime.fromisoformat(snapshot["timestamp"])
+    return render_template(
+        "fips/mip/mip.html.jinja2",
+        snapshot=snapshot,
+        title=f"FIPS 140 MIP snapshot ({dt.strftime('%d.%m.%Y')}) | sec-certs.org",
+    )
 
 
 @fips.route("/mip/<ObjectId:id>.json")
@@ -316,7 +330,12 @@ def iut_index():
         next_rel="next",
         prev_rel="prev",
     )
-    return render_template("fips/iut/iut_index.html.jinja2", snapshots=iut_snapshots, pagination=pagination)
+    return render_template(
+        "fips/iut/iut_index.html.jinja2",
+        snapshots=iut_snapshots,
+        pagination=pagination,
+        title=f"FIPS 140 Implementation Under Test ({page}) | sec-certs.org",
+    )
 
 
 @fips.route("/iut/dataset.json")
@@ -340,7 +359,12 @@ def iut_dataset():
 )
 def iut_snapshot(id):
     snapshot = mongo.db.fips_iut.find_one_or_404({"_id": id})
-    return render_template("fips/iut/iut.html.jinja2", snapshot=snapshot)
+    dt = datetime.fromisoformat(snapshot["timestamp"])
+    return render_template(
+        "fips/iut/iut.html.jinja2",
+        snapshot=snapshot,
+        title=f"FIPS 140 IUT snapshot ({dt.strftime('%d.%m.%Y')}) | sec-certs.org",
+    )
 
 
 @fips.route("/iut/<ObjectId:id>.json")

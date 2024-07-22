@@ -255,7 +255,11 @@ def search_results():
 def fulltext_search():
     """Fulltext search for Common Criteria."""
     res = CCFulltextSearch.process_search(request)
-    return render_template("cc/search/fulltext.html.jinja2", **res)
+    return render_template(
+        "cc/search/fulltext.html.jinja2",
+        **res,
+        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+    )
 
 
 @cc.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
