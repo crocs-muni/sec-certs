@@ -3,7 +3,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import dramatiq
 import sentry_sdk
 from flask import current_app
 from sec_certs.dataset.cc import CCDataset
@@ -12,13 +11,13 @@ from sec_certs.utils.helpers import get_sha256_filepath
 from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, Notifier, Updater, no_simultaneous_execution
+from ..common.tasks import Archiver, Indexer, Notifier, Updater, actor
 from . import cc_categories
 
 logger = logging.getLogger(__name__)
 
 
-class CCMixin:
+class CCMixin:  # pragma: no cover
     def __init__(self):
         self.collection = "cc"
         self.diff_collection = "cc_diff"
@@ -29,7 +28,7 @@ class CCMixin:
         self.cert_schema = "cc"
 
 
-class CCRenderer(DiffRenderer, CCMixin):
+class CCRenderer(DiffRenderer, CCMixin):  # pragma: no cover
     def __init__(self):
         super().__init__()
         self.templates = {
@@ -54,9 +53,8 @@ class CCNotifier(Notifier, CCRenderer):
     pass
 
 
-@dramatiq.actor(max_retries=0, actor_name="cc_notify")
-@no_simultaneous_execution("cc_notify", abort=True)
-def notify(run_id):
+@actor("cc_notify", "cc_notify", "updates", timedelta(hours=1))
+def notify(run_id):  # pragma: no cover
     notifier = CCNotifier()
     notifier.notify(run_id)
 
@@ -75,8 +73,7 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
         }
 
 
-@dramatiq.actor(max_retries=0, actor_name="cc_reindex_collection")
-@no_simultaneous_execution("reindex_collection")
+@actor("cc_reindex_collection", "cc_reindex_collection", "updates", timedelta(hours=4))
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = CCIndexer()
     indexer.reindex(to_reindex)
@@ -89,8 +86,7 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
         os.symlink(Path(current_app.instance_path) / "pp.json", tmpdir / "pp.json")
 
 
-@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=1).total_seconds() * 1000, actor_name="cc_archive")
-@no_simultaneous_execution("cc_archive", timeout=timedelta(hours=1).total_seconds())
+@actor("cc_archive", "cc_archive", "updates", timedelta(hours=4))
 def archive(paths):  # pragma: no cover
     archiver = CCArchiver()
     archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"], paths)
@@ -178,8 +174,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
         archive.send(paths)
 
 
-@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=16).total_seconds() * 1000, actor_name="cc_update")
-@no_simultaneous_execution("cc_update", abort=True, timeout=timedelta(hours=17).total_seconds())
+@actor("cc_update", "cc_update", "updates", timedelta(hours=16))
 def update_data():  # pragma: no cover
     updater = CCUpdater()
     updater.update()

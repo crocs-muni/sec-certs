@@ -3,7 +3,7 @@ import os
 import subprocess
 from abc import abstractmethod
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from operator import itemgetter
 from pathlib import Path
@@ -11,6 +11,7 @@ from shutil import rmtree
 from tempfile import TemporaryDirectory
 from typing import List, Set, Tuple, Type
 
+import dramatiq
 import sec_certs
 import sentry_sdk
 from bs4 import BeautifulSoup
@@ -20,6 +21,8 @@ from flask import current_app, render_template, url_for
 from jsondiff import diff, symbols
 from pkg_resources import get_distribution
 from pymongo import DESCENDING, InsertOne, ReplaceOne
+from redis.exceptions import LockNotOwnedError
+from redis.lock import Lock
 from sec_certs.dataset.dataset import Dataset
 
 from .. import mail, mongo, redis, whoosh_index
@@ -40,7 +43,8 @@ class Indexer:  # pragma: no cover
         ...
 
     def reindex(self, to_reindex):
-        logger.info(f"Reindexing {len(to_reindex)} files.")
+        logger.info(f"Reindexing {len(to_reindex)} {self.cert_schema} files.")
+        updated = 0
         with whoosh_index.writer() as writer:
             for dgst, document in to_reindex:
                 fpath = entry_file_path(dgst, self.dataset_path, document, "txt")
@@ -51,6 +55,8 @@ class Indexer:  # pragma: no cover
                     continue
                 cert = mongo.db[self.cert_schema].find_one({"_id": dgst})
                 writer.update_document(**self.create_document(dgst, document, cert, content))
+                updated += 1
+        logger.info(f"Reindexed {updated} out of {len(to_reindex)} {self.cert_schema} files.")
 
 
 class Updater:  # pragma: no cover
@@ -458,6 +464,7 @@ class Archiver:  # pragma: no cover
 
     def archive(self, path, paths):
         with TemporaryDirectory() as tmpdir:
+            logger.info(f"Archiving {path}")
             tmpdir = Path(tmpdir)
 
             auxdir = tmpdir / "auxiliary_datasets"
@@ -476,15 +483,18 @@ class Archiver:  # pragma: no cover
             os.symlink(paths["target"], certs / "targets")
             os.symlink(paths["cert"], certs / "certificates")
 
+            logger.info("Running tar...")
             subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
+            logger.info(f"Finished archiving {path}")
 
     @abstractmethod
     def archive_custom(self, paths, tmpdir):
         ...
 
 
-def no_simultaneous_execution(lock_name: str, abort=False, timeout=60 * 10):  # pragma: no cover
+def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: float = 60 * 10):  # pragma: no cover
     """
+    A decorator that prevents simultaneous execution of more than one
 
     :param lock_name:
     :param abort: Whether to abort task if lock cannot be acquired immediately.
@@ -495,14 +505,37 @@ def no_simultaneous_execution(lock_name: str, abort=False, timeout=60 * 10):  # 
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            lock = redis.lock(lock_name, timeout=timeout)
+            lock: Lock = redis.lock(lock_name, timeout=timeout)
             acq = lock.acquire(blocking=not abort)
             if not acq:
+                logger.warning(f"Failed to acquire lock: {lock_name}")
                 return
             try:
                 return f(*args, **kwargs)
             finally:
-                lock.release()
+                try:
+                    lock.release()
+                except LockNotOwnedError:
+                    logger.warning(f"Releasing lock late: {lock_name}")
+
+        return wrapper
+
+    return deco
+
+
+def actor(name, lock_name, queue_name, timeout):
+    """
+    Usual dramatiq actor setup.
+    """
+
+    def deco(f):
+        @wraps(f)
+        @dramatiq.actor(
+            actor_name=name, queue_name=queue_name, max_retries=0, time_limit=timeout.total_seconds() * 1000
+        )
+        @no_simultaneous_execution(lock_name, abort=True, timeout=(timeout + timedelta(minutes=10)).total_seconds())
+        def wrapper(*args, **kwargs):
+            return f(*args, **kwargs)
 
         return wrapper
 

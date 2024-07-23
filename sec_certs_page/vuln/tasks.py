@@ -6,7 +6,6 @@ from logging import Logger
 from operator import itemgetter
 from pathlib import Path
 
-import dramatiq
 import sentry_sdk
 from flask import current_app
 from pymongo import ReplaceOne
@@ -16,14 +15,13 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
 
 from ..common.objformats import ObjFormat
-from ..common.tasks import no_simultaneous_execution
+from ..common.tasks import actor
 from . import mongo
 
 logger: Logger = logging.getLogger(__name__)
 
 
-@dramatiq.actor(max_retries=0, actor_name="cve_update", time_limit=timedelta(hours=2).total_seconds() * 1000)
-@no_simultaneous_execution("cve_update", abort=True, timeout=timedelta(hours=4).total_seconds())
+@actor("cve_update", "cve_update", "updates", timedelta(hours=2))
 def update_cve_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
@@ -66,8 +64,7 @@ def update_cve_data() -> None:  # pragma: no cover
         logger.info(f"Cleaned up {res.deleted_count} CVEs.")
 
 
-@dramatiq.actor(max_retries=0, actor_name="cpe_update", time_limit=timedelta(hours=2).total_seconds() * 1000)
-@no_simultaneous_execution("cpe_update", abort=True, timeout=timedelta(hours=4).total_seconds())
+@actor("cpe_update", "cpe_update", "updates", timedelta(hours=2))
 def update_cpe_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
@@ -111,8 +108,7 @@ def update_cpe_data() -> None:  # pragma: no cover
         logger.info(f"Cleaned up {res.deleted_count} CPEs.")
 
 
-@dramatiq.actor(max_retries=0, actor_name="cpe_match_update", time_limit=timedelta(hours=2).total_seconds() * 1000)
-@no_simultaneous_execution("cpe_match_update", abort=True, timeout=timedelta(hours=4).total_seconds())
+@actor("cpe_match_update", "cpe_match_update", "updates", timedelta(hours=2))
 def update_cpe_match_data() -> None:  # pragma: no cover
     instance_path = Path(current_app.instance_path)
     match_path = instance_path / current_app.config["DATASET_PATH_CPE_MATCH"]

@@ -14,13 +14,13 @@ from .. import mongo
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, Notifier, Updater, no_simultaneous_execution
+from ..common.tasks import Archiver, Indexer, Notifier, Updater, actor
 from . import fips_types
 
 logger = get_logger(__name__)
 
 
-class FIPSMixin:
+class FIPSMixin:  # pragma: no cover
     def __init__(self):
         self.collection = "fips"
         self.diff_collection = "fips_diff"
@@ -31,7 +31,7 @@ class FIPSMixin:
         self.cert_schema = "fips"
 
 
-class FIPSRenderer(DiffRenderer, FIPSMixin):
+class FIPSRenderer(DiffRenderer, FIPSMixin):  # pragma: no cover
     def __init__(self):
         super().__init__()
         self.templates = {
@@ -47,27 +47,24 @@ class FIPSRenderer(DiffRenderer, FIPSMixin):
         }
 
 
-class FIPSNotifier(Notifier, FIPSRenderer):
+class FIPSNotifier(Notifier, FIPSRenderer):  # pragma: no cover
     pass
 
 
-@dramatiq.actor(max_retries=0, actor_name="fips_notify")
-@no_simultaneous_execution("fips_notify", abort=True)
+@actor("fips_notify", "fips_notify", "updates", timedelta(hours=1))
 def notify(run_id):  # pragma: no cover
     notifier = FIPSNotifier()
     notifier.notify(run_id)
 
 
-@dramatiq.actor(max_retries=0, actor_name="fips_iut_update")
-@no_simultaneous_execution("fips_iut_update", abort=True)
+@actor("fips_iut_update", "fips_iut_update", "updates", timedelta(hours=1))
 def update_iut_data():  # pragma: no cover
     snapshot = IUTSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
     mongo.db.fips_iut.insert_one(snap_data)
 
 
-@dramatiq.actor(max_retries=0, actor_name="fips_mip_update")
-@no_simultaneous_execution("fips_mip_update", abort=True)
+@actor("fips_mip_update", "fips_mip_update", "updates", timedelta(hours=1))
 def update_mip_data():  # pragma: no cover
     snapshot = MIPSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
@@ -93,8 +90,7 @@ class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
         }
 
 
-@dramatiq.actor(max_retries=0, actor_name="fips_reindex_collection")
-@no_simultaneous_execution("reindex_collection")
+@actor("fips_reindex_collection", "fips_reindex_collection", "updates", timedelta(hours=4))
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = FIPSIndexer()
     indexer.reindex(to_reindex)
@@ -105,8 +101,7 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
         pass
 
 
-@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=1).total_seconds() * 1000, actor_name="fips_archive")
-@no_simultaneous_execution("fips_archive", timeout=timedelta(hours=1).total_seconds())
+@actor("fips_archive", "fips_archive", "updates", timedelta(hours=4))
 def archive(paths):  # pragma: no cover
     archiver = FIPSArchiver()
     archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"], paths)
@@ -164,8 +159,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
         archive.send(paths)
 
 
-@dramatiq.actor(max_retries=0, time_limit=timedelta(hours=16).total_seconds() * 1000, actor_name="fips_update")
-@no_simultaneous_execution("fips_update", abort=True, timeout=timedelta(hours=17).total_seconds())
+@actor("fips_update", "fips_update", "updates", timedelta(hours=16))
 def update_data():  # pragma: no cover
     updater = FIPSUpdater()
     updater.update()
