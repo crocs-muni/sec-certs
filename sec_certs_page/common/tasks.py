@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+import secrets
 import subprocess
 from abc import abstractmethod
 from collections import Counter
@@ -523,6 +525,25 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
     return deco
 
 
+def task(task_name):
+    def deco(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            tid = secrets.token_hex(16)
+            data = {"name": task_name, "start_time": datetime.now().isoformat()}
+            redis.set(tid, json.dumps(data))
+            redis.sadd("tasks", tid)
+            try:
+                return f(*args, **kwargs)
+            finally:
+                redis.srem("tasks", tid)
+                redis.delete(tid)
+
+        return wrapper
+
+    return deco
+
+
 def actor(name, lock_name, queue_name, timeout):
     """
     Usual dramatiq actor setup.
@@ -534,6 +555,7 @@ def actor(name, lock_name, queue_name, timeout):
             actor_name=name, queue_name=queue_name, max_retries=0, time_limit=timeout.total_seconds() * 1000
         )
         @no_simultaneous_execution(lock_name, abort=True, timeout=(timeout + timedelta(minutes=10)).total_seconds())
+        @task(name)
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
 

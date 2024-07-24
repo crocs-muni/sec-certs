@@ -1,10 +1,12 @@
+import json
+
 import pymongo
 from flask import abort, current_app, flash, redirect, render_template, request, session, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, identity_changed
 
-from .. import mongo
+from .. import mongo, redis
 from ..common.objformats import StorageFormat
 from ..common.views import Pagination
 from . import admin
@@ -27,9 +29,13 @@ def index():
 @admin_permission.require()
 @register_breadcrumb(admin, ".tasks", "Tasks")
 def tasks():
-    # TODO: Implmeent this somehow, maybe using custom Redis storage + dramatiq middleware
-    tasks = []
-    return render_template("admin/tasks.html.jinja2", tasks=tasks)
+    tids = redis.smembers("tasks")
+    current_tasks = []
+    for tid in tids:
+        task = redis.get(tid)
+        if task:
+            current_tasks.append(json.loads(task))
+    return render_template("admin/tasks.html.jinja2", tasks=current_tasks)
 
 
 @admin.route("/updates")

@@ -9,7 +9,7 @@
                 {% if tasks %}
                     <ul>
                         {% for task in tasks %}
-                            <li>{{ task["name"] }}, since {{ task["time_start"]|ctime }}</li>
+                            <li>{{ task["name"] }}, since {{ task["start_time"]|fromisoformat|strftime("%d.%m.%Y %H:%M") }}</li>
                         {% endfor %}
                     </ul>
                 {% else %}
