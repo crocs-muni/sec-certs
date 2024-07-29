@@ -530,12 +530,15 @@ def task(task_name):
         @wraps(f)
         def wrapper(*args, **kwargs):
             tid = secrets.token_hex(16)
-            data = {"name": task_name, "start_time": datetime.now().isoformat()}
+            start = datetime.now()
+            data = {"name": task_name, "start_time": start.isoformat()}
+            logger.info(f'Starting task ({task_name}), tid="{tid}"')
             redis.set(tid, json.dumps(data))
             redis.sadd("tasks", tid)
             try:
                 return f(*args, **kwargs)
             finally:
+                logger.info(f'Ending task ({task_name}), tid="{tid}", took {datetime.now() - start}')
                 redis.srem("tasks", tid)
                 redis.delete(tid)
 
