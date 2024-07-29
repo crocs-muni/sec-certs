@@ -4,7 +4,15 @@ from pathlib import Path
 
 import sentry_sdk
 from dramatiq import Middleware
-from dramatiq.middleware import AgeLimit, Callbacks, Pipelines, Retries, ShutdownNotifications, TimeLimit
+from dramatiq.middleware import (
+    AgeLimit,
+    Callbacks,
+    CurrentMessage,
+    Pipelines,
+    Retries,
+    ShutdownNotifications,
+    TimeLimit,
+)
 from dramatiq.results import Results
 from dramatiq.results.backends import RedisBackend, StubBackend
 from flask import Flask
@@ -83,6 +91,7 @@ broker_middleware = [
     AgeLimit(),
     TimeLimit(time_limit=60 * 1000 * 30),
     ShutdownNotifications(),
+    CurrentMessage(),
     Callbacks(),
     Pipelines(),
     Retries(),

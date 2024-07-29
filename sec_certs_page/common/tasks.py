@@ -18,6 +18,10 @@ import sec_certs
 import sentry_sdk
 from bs4 import BeautifulSoup
 from bson import ObjectId
+from dramatiq.common import compute_backoff
+from dramatiq.errors import Retry
+from dramatiq.middleware import CurrentMessage
+from dramatiq.middleware.retries import DEFAULT_MAX_BACKOFF, DEFAULT_MIN_BACKOFF
 from filtercss import filter_css, parse_css
 from flask import current_app, render_template, url_for
 from jsondiff import diff, symbols
@@ -496,7 +500,7 @@ class Archiver:  # pragma: no cover
 
 def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: float = 60 * 10):  # pragma: no cover
     """
-    A decorator that prevents simultaneous execution of more than one
+    A decorator that prevents simultaneous execution of more than one actor.
 
     :param lock_name:
     :param abort: Whether to abort task if lock cannot be acquired immediately.
@@ -519,6 +523,36 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
                     lock.release()
                 except LockNotOwnedError:
                     logger.warning(f"Releasing lock late: {lock_name}")
+
+        return wrapper
+
+    return deco
+
+
+def single_queue(queue_name: str, timeout: float = 60 * 10):  # pragma: no cover
+    """
+    A decorator that prevents simultaneous execution of more than one actor in a queue.
+    It does so  by requeueing the actor.
+
+    """
+
+    def deco(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            msg = CurrentMessage.get_current_message()
+            retries = msg.options.get("retries", 0)
+            lock: Lock = redis.lock(queue_name, timeout=timeout)
+            acq = lock.acquire(blocking=False)
+            if not acq:
+                _, delay = compute_backoff(retries, factor=DEFAULT_MIN_BACKOFF, max_backoff=DEFAULT_MAX_BACKOFF)
+                raise Retry(message=f"Failed to acquire queue lock: {queue_name}", delay=delay)
+            try:
+                return f(*args, **kwargs)
+            finally:
+                try:
+                    lock.release()
+                except LockNotOwnedError:
+                    logger.warning(f"Releasing queue lock late: {queue_name}")
 
         return wrapper
 
@@ -555,9 +589,14 @@ def actor(name, lock_name, queue_name, timeout):
     def deco(f):
         @wraps(f)
         @dramatiq.actor(
-            actor_name=name, queue_name=queue_name, max_retries=0, time_limit=timeout.total_seconds() * 1000
+            actor_name=name,
+            queue_name=queue_name,
+            max_retries=0,
+            retry_when=lambda retries, exc: isinstance(exc, Retry),
+            time_limit=timeout.total_seconds() * 1000,
         )
         @no_simultaneous_execution(lock_name, abort=True, timeout=(timeout + timedelta(minutes=10)).total_seconds())
+        @single_queue(queue_name, timeout=(timeout + timedelta(minutes=10)).total_seconds())
         @task(name)
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
