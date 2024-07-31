@@ -25,9 +25,6 @@ Two publications accompany this project:
 ## Installation
 
 Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://sec-certs.org/docs/installation.html).
-## Installation
-
-Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://sec-certs.org/docs/installation.html).
 
 ## Usage
 
