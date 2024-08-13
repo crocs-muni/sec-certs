@@ -7,7 +7,7 @@ at [seccerts.org](https://seccerts.org) and can be used to serve a page with the
 
 ## Usage
 
-The page uses [MongoDB](https://www.mongodb.com/) as a backend for the certificate data, as well as 
+The page uses [MongoDB](https://www.mongodb.com/) as a backend for the certificate data, as well as
 [dramatiq](https://dramatiq.io/) (using [redis](https://redis.io/) as a backend) as a
 task queue.
 
@@ -20,24 +20,26 @@ task queue.
    ```
 2. Create the `instance` directory.
    ```shell
-   mkdir instance 
+   mkdir instance
    ```
 3. Create a `config.py` file in the `instance` directory, based on the [`example.config.py`](config/example.config.py) file in the repository.
 4. Create a `settings.yaml` file in the `instance` directory, based on the [`example.settings.yaml`](config/example.settings.yaml) file in the repository.
    It is quite important to keep the progress bar setting disabled to not pollute the logs of the webapp.
 5. Start MongoDB and Redis.
-6. Run the Flask app (in production you should likely use [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) 
+6. When running locally, populate MongoDB - tasks `dump` and `restore` in [fabfile.py](./fabfile.py)
+7. Run the Flask app (in production you should likely use [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/)
    and [nginx](https://nginx.org/en/), see the [example config file](config/example.uwsgi.ini)).
    ```shell
    flask -A sec_certs_page run
    ```
-7. Run the dramatiq and periodiq workers.
+8. Run the dramatiq and periodiq workers.
    ```shell
    dramatiq sec_certs_page:broker -p 2 -t 1
    periodiq sec_certs_page:broker -p 2 -t 1
    ```
 
 ### Deployment
+
 Production deployment should use [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) and [nginx](https://nginx.org/en/).
 
 ## Docker
