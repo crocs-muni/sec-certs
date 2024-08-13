@@ -551,13 +551,12 @@ class CCCertificate(
                 f"Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}"
             )
 
+        # Prefer some values from the HTML
+        # Links in CSV are currently (13.08.2024) broken.
+        html_preferred_attrs = {"protection_profiles", "maintenance_updates", "cert_link", "report_link", "st_link"}
+
         for att, val in vars(self).items():
-            if (
-                (not val)
-                or (other_source == "html" and att == "protection_profiles")
-                or (other_source == "html" and att == "maintenance_updates")
-                or (att == "state")
-            ):
+            if (not val) or (other_source == "html" and att in html_preferred_attrs) or (att == "state"):
                 setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):
