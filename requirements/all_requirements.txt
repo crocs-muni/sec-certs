@@ -327,7 +327,7 @@ networkx==3.2.1
     #   scikit-image
     #   sec-certs (./../pyproject.toml)
     #   torch
-nltk==3.8.1
+nltk==3.9
     # via sentence-transformers
 nodeenv==1.8.0
     # via pre-commit
