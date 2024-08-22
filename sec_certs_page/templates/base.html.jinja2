@@ -285,29 +285,13 @@
                 {% block footer %}
                     <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <img id="anonymous-logo" src="{{ url_for("static", filename="img/anonymous_claim.svg") }}"
-                                 alt="Anonymized for review"
-                                 style="width: 100%;{% if not config["ANONYMOUS"] %}display: none{% endif %}"/>
-                            <a id="crocs-logo" href="https://crocs.fi.muni.cz"
-                               style="{% if config["ANONYMOUS"] %}display: none{% endif %}">
+                            <a id="crocs-logo" href="https://crocs.fi.muni.cz">
                                 <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
                                      alt="Centre for Research on Cryptography and Security" style="width: 100%"/>
                             </a>
-                            {% if config["ANONYMOUS"] %}
-                                <script>
-                                    $(function () {
-                                        $("#anonymous-logo").click(function () {
-                                            $("#anonymous-logo").hide();
-                                            $("#crocs-logo").show();
-                                        });
-                                    });
-                                </script>
-                            {% endif %}
                         </div>
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <p class="fw-light">Check out our <a href="
-                                    {% if config["ANONYMOUS"] %}{{ config["ANONYMOUS_GIT"] }}{% else %}https://github.com/crocs-muni/sec-certs{% endif %}"
-                                                                 target="_blank" rel="noopener">Github</a>.</p>
+                            <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener">GitHub</a>.</p>
                             <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
                             <p class="fw-light">Running on <a href="https://cloud.metacentrum.cz/" target="_blank" rel="noopener">MetaCentrum Cloud</a>.</p>
                             {% if current_user.is_authenticated %}
