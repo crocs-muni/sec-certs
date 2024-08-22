@@ -25,7 +25,7 @@
               rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
         <link rel="preload" as="image" href="{{ url_for("static", filename="img/logo_dark.svg") }}">
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
         {% assets output="gen/libs.js",
                 "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/sentry.tracing.min.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -221,8 +221,7 @@
                                             <a href="{{ url_for("about", _anchor="privacy-policy") }}" target="_blank">privacy
                                                 policy</a>.</p>
                                     </div>
-                                    <div id="turnstile" class="cf-turnstile" data-sitekey="{{ config["TURNSTILE_SITEKEY"] }}"
-                                         data-size="invisible"></div>
+                                    <div id="notification-turnstile"></div>
                                 </form>
                                 <p class="invalid-feedback" id="notifications-error"></p>
                             </div>
@@ -468,8 +467,10 @@
                 form.reportValidity();
                 return;
             }
-            turnstile.execute({async: true})
-                .then(({response, key}) => {
+            turnstile.render("#notification-turnstile", {
+                "sitekey": "{{ config["TURNSTILE_SITEKEY"] }}",
+                "response-field": false,
+                "callback": (token) => {
                     let updates;
                     if ($("#notifications-updates-all").prop("checked")) {
                         updates = "all";
@@ -484,7 +485,7 @@
                             "selected": selected,
                             "email": $("#notifications-email").val(),
                             "updates": updates,
-                            "captcha": response
+                            "captcha": token
                         }),
                         headers: {
                             "X-CSRFToken": "{{ csrf_token() }}"
@@ -504,7 +505,8 @@
                             }
                         }
                     })
-                });
+                }
+            });
         });
         update_state();
     });
