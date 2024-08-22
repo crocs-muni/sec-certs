@@ -13,9 +13,9 @@ SENTRY_ENV = "development"  # or "production"
 SENTRY_ERROR_SAMPLE_RATE = 1.0
 SENTRY_TRACES_SAMPLE_RATE = 1.0
 
-# hCaptcha
-HCAPTCHA_SITEKEY = ""
-HCAPTCHA_SECRET = ""
+# Turnstile
+TURNSTILE_SITEKEY = ""
+TURNSTILE_SECRET = ""
 
 # Email
 MAIL_SERVER = "mail.example.com"  # The outgoing SMTP server to use

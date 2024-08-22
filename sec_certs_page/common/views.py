@@ -117,12 +117,11 @@ def validate_captcha(req, json) -> None:  # pragma: no cover
         else:
             raise BadRequest(description="Captcha missing.")
     resp = requests.post(
-        "https://hcaptcha.com/siteverify",
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
         data={
             "response": req.json["captcha"],
-            "secret": current_app.config["HCAPTCHA_SECRET"],
-            "ip": req.remote_addr,
-            "sitekey": current_app.config["HCAPTCHA_SITEKEY"],
+            "secret": current_app.config["TURNSTILE_SECRET"],
+            "remoteip": req.remote_addr,
         },
     )
     result = resp.json()
