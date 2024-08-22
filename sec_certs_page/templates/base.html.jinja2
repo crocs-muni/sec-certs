@@ -24,6 +24,7 @@
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap"
               rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+        <link rel="preload" as="image" href="{{ url_for("static", filename="img/logo_dark.svg") }}">
         <script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
         {% assets output="gen/libs.js",
                 "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/sentry.tracing.min.js" %}
@@ -107,7 +108,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for("index") }}"><img
                     src="{{ url_for("static", filename="img/logo_dark.svg") }}"
-                    style="height: 2.9rem; margin-top: -2rem; margin-bottom: -1.5rem" alt="sec-certs.org"/></a>
+                    style="height: 2.9rem; margin-top: -2rem; margin-bottom: -1.5rem" alt="sec-certs.org" loading="lazy"/></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
