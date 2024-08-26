@@ -54,7 +54,7 @@ def expires_at(when):
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            flask.after_request(after_response)
+            flask.after_this_request(after_response)
             return f(*args, **kwargs)
 
         return wrapper
