@@ -32,6 +32,7 @@ def _entry_download_func(collection, hashid, dataset_path, document, format) -> 
         if file_path.exists():
             if current_app.config["USE_X_ACCEL_REDIRECT"]:
                 response = make_response()
+                response.content_type = {"txt": "text/plain", "pdf": "application/pdf"}[format]
                 response.headers["X-Accel-Redirect"] = entry_file_path_relative(
                     Path(current_app.config["X_ACCEL_REDIRECT_PATH"]), hashid, dataset_path, document, format
                 )
