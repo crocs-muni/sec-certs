@@ -16,8 +16,12 @@ from werkzeug.exceptions import BadRequest
 from .. import mongo
 
 
+def entry_file_path_relative(root, hashid, dataset_path, document, format) -> Path:
+    return root / dataset_path / document / format / f"{hashid}.{format}"
+
+
 def entry_file_path(hashid, dataset_path, document, format) -> Path:
-    return Path(current_app.instance_path) / dataset_path / document / format / f"{hashid}.{format}"
+    return entry_file_path_relative(Path(current_app.instance_path), hashid, dataset_path, document, format)
 
 
 def _entry_download_func(collection, hashid, dataset_path, document, format) -> Response:
@@ -26,7 +30,14 @@ def _entry_download_func(collection, hashid, dataset_path, document, format) -> 
     if doc:
         file_path = entry_file_path(hashid, dataset_path, document, format)
         if file_path.exists():
-            return send_file(file_path)
+            if current_app.config["USE_X_ACCEL_REDIRECT"]:
+                response = make_response()
+                response.headers["X-Accel-Redirect"] = entry_file_path_relative(
+                    Path(current_app.config["X_ACCEL_REDIRECT_PATH"]), hashid, dataset_path, document, format
+                )
+                return response
+            else:
+                return send_file(file_path)
     abort(404)
 
 
