@@ -493,7 +493,7 @@ def entry_feed(hashid):
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=True), diffs))
         fg = FeedGenerator()
         fg.id(request.base_url)
-        fg.title(doc["name"])
+        fg.title(re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", doc["name"]))
         fg.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
         fg.link({"href": entry_url, "rel": "alternate"})
         fg.link({"href": request.base_url, "rel": "self"})
@@ -513,9 +513,8 @@ def entry_feed(hashid):
                     "remove": "Certificate removed",
                 }[diff["type"]]
             )
-            fe.id(entry_url + "/" + str(diff["_id"]))
-            s = str(render)
-            stripped = re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", s)
+            fe.id(entry_url + str(diff["_id"]))
+            stripped = re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", str(render))
             fe.content(stripped, type="html")
             fe.published(date)
             fe.updated(date)
