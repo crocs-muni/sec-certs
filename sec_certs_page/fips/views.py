@@ -14,6 +14,7 @@ from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from markupsafe import Markup
 from networkx import node_link_data
+from periodiq import cron
 from pytz import timezone
 from sec_certs import constants
 from werkzeug.exceptions import BadRequest
@@ -28,6 +29,7 @@ from ..common.views import (
     entry_download_target_pdf,
     entry_download_target_txt,
     entry_file_path,
+    expires_at,
     network_graph_func,
     send_json_attachment,
 )
@@ -472,11 +474,13 @@ def entry(hashid):
 
 
 @fips.route("/<string(length=16):hashid>/target.txt")
+@expires_at(cron("0 12 * * 2"))
 def entry_target_txt(hashid):
     return entry_download_target_txt("fips", hashid, current_app.config["DATASET_PATH_FIPS_DIR"])
 
 
 @fips.route("/<string(length=16):hashid>/target.pdf")
+@expires_at(cron("0 12 * * 2"))
 def entry_target_pdf(hashid):
     return entry_download_target_pdf("fips", hashid, current_app.config["DATASET_PATH_FIPS_DIR"])
 

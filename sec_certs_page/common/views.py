@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import networkx as nx
+import pendulum
 import requests
 import sentry_sdk
 from flask import Response, abort, current_app, jsonify, make_response, request, send_file
@@ -41,6 +42,23 @@ def entry_download_files(hashid, dataset_path, documents=("report", "target", "c
         (document, format): entry_file_path(hashid, dataset_path, document, format).exists()
         for document, format in product(documents, formats)
     }
+
+
+def expires_at(when):
+    def after_response(response):
+        now = pendulum.now()
+        next_run = when.next_valid_date(now)
+        response.expires = next_run
+
+    def deco(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            flask.after_request(after_response)
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    return deco
 
 
 class Pagination(FlaskPagination):

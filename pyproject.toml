@@ -73,6 +73,7 @@
     "click",
     "requests",
     "feedgen",
+    "pendulum",
   ]
 
 [project.optional-dependencies]

@@ -15,6 +15,7 @@ from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from markupsafe import Markup
 from networkx import node_link_data
+from periodiq import cron
 from pytz import timezone
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
@@ -30,6 +31,7 @@ from ..common.views import (
     entry_download_report_txt,
     entry_download_target_pdf,
     entry_download_target_txt,
+    expires_at,
     network_graph_func,
     send_json_attachment,
 )
@@ -408,36 +410,42 @@ def entry(hashid):
 
 @cc.route("/<string(length=16):hashid>/target.txt")
 @redir_new
+@expires_at(cron("0 12 * * 2"))
 def entry_target_txt(hashid):
     return entry_download_target_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/target.pdf")
 @redir_new
+@expires_at(cron("0 12 * * 2"))
 def entry_target_pdf(hashid):
     return entry_download_target_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/report.txt")
 @redir_new
+@expires_at(cron("0 12 * * 2"))
 def entry_report_txt(hashid):
     return entry_download_report_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/report.pdf")
 @redir_new
+@expires_at(cron("0 12 * * 2"))
 def entry_report_pdf(hashid):
     return entry_download_report_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/cert.txt")
 @redir_new
+@expires_at(cron("0 12 * * 2"))
 def entry_cert_txt(hashid):
     return entry_download_certificate_txt("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
 
 @cc.route("/<string(length=16):hashid>/cert.pdf")
 @redir_new
+@expires_at(cron("0 12 * * 2"))
 def entry_cert_pdf(hashid):
     return entry_download_certificate_pdf("cc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
 
