@@ -50,6 +50,7 @@ def expires_at(when):
         now = pendulum.now()
         next_run = when.next_valid_date(now)
         response.expires = next_run
+        return response
 
     def deco(f):
         @wraps(f)
