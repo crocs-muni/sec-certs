@@ -3,6 +3,7 @@ from itertools import product
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+import flask
 import networkx as nx
 import pendulum
 import requests
