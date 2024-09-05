@@ -144,22 +144,21 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         df = df.assign(description=descriptions, version=versions, type=types, algorithm_capabilities=capabilities)
 
         return set(
-    df.apply(
-        lambda row: FIPSAlgorithm(
-            row["alg_number"],
-            row["alg_type"],
-            row["Vendor"],
-            row["Implementation"],
-            row["Validation Date"],
-            row["description"],
-            row["version"],
-            row["type"],
-            row["algorithm_capabilities"],
-        ),
-        axis=1,
-    )
-)
-
+            df.apply(
+                lambda row: FIPSAlgorithm(
+                    row["alg_number"],
+                    row["alg_type"],
+                    row["Vendor"],
+                    row["Implementation"],
+                    row["Validation Date"],
+                    row["description"],
+                    row["version"],
+                    row["type"],
+                    row["algorithm_capabilities"],
+                ),
+                axis=1,
+            )
+        )
 
     def to_pandas(self) -> pd.DataFrame:
         return pd.DataFrame([x.pandas_tuple for x in self], columns=FIPSAlgorithm.pandas_columns).set_index("dgst")

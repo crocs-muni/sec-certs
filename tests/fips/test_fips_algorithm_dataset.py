@@ -36,10 +36,17 @@ def alg_dict() -> dict[str, Any]:
         "vendor": "Hewlett-Packard Development Company, L.P.",
         "implementation_name": "HP Secure Encryption Engine v1.0",
         "validation_date": "7/10/2014",
-        "description": "HP Secure Encryption is a controller-based data encryption solution for HP ProLiant Gen8 or newer servers that protects data at rest on any bulk storage attached to the HP Smart Array controller. The solution comprises our 12G family of HP Smart Array controllers, the HP Physical Security Kit, and the HP Secure Encryption licensing.",
+        "description": "HP Secure Encryption is a controller-based data "
+                       "encryption solution for HP ProLiant Gen8 or newer "
+                       "servers that protects data at rest on any bulk storage"
+                       " attached to the HP Smart Array controller. The "
+                       "solution comprises our 12G family of HP Smart Array "
+                       "controllers, the HP Physical Security Kit, and the HP "
+                       "Secure Encryption licensing.",
         "version": "PM8061",
         "type": "HARDWARE",
-        "algorithm_capabilities": "HMAC-SHA2-256, Counter DRBG, AES-ECB, AES-XTS, SHA2-256",
+        "algorithm_capabilities": "HMAC-SHA2-256, Counter DRBG, "
+                                  "AES-ECB, AES-XTS, SHA2-256",
     }
 
 
