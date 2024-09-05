@@ -1,6 +1,6 @@
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.9.4
+aiohttp==3.10.2
     # via
     #   datasets
     #   fsspec
@@ -49,7 +49,7 @@ catalogue==2.0.10
     #   thinc
 catboost==1.2.2
     # via sec-certs (./../pyproject.toml)
-certifi==2023.11.17
+certifi==2024.7.4
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -92,7 +92,7 @@ coverage[toml]==7.3.2
     # via
     #   pytest-cov
     #   sec-certs (./../pyproject.toml)
-cryptography==42.0.4
+cryptography==43.0.1
     # via pypdf
 cycler==0.12.1
     # via matplotlib
@@ -327,7 +327,7 @@ networkx==3.2.1
     #   scikit-image
     #   sec-certs (./../pyproject.toml)
     #   torch
-nltk==3.8.1
+nltk==3.9
     # via sentence-transformers
 nodeenv==1.8.0
     # via pre-commit
@@ -568,7 +568,7 @@ regex==2023.10.3
     # via
     #   nltk
     #   transformers
-requests==2.31.0
+requests==2.32.0
     # via
     #   datasets
     #   datashader
@@ -596,7 +596,7 @@ safetensors==0.4.0
     # via transformers
 scikit-image==0.22.0
     # via umap-learn
-scikit-learn==1.3.2
+scikit-learn==1.5.0
     # via
     #   pynndescent
     #   sec-certs (./../pyproject.toml)
@@ -713,13 +713,13 @@ toolz==0.12.0
     #   dask
     #   datashader
     #   partd
-torch==2.1.1
+torch==2.2.0
     # via
     #   sentence-transformers
     #   torchvision
 torchvision==0.16.1
     # via sentence-transformers
-tornado==6.3.3
+tornado==6.4.1
     # via
     #   bokeh
     #   ipykernel
@@ -780,7 +780,7 @@ uc-micro-py==1.0.2
     # via linkify-it-py
 umap-learn[plot]==0.5.5
     # via sec-certs (./../pyproject.toml)
-urllib3==2.1.0
+urllib3==2.2.2
     # via
     #   requests
     #   responses
@@ -820,7 +820,7 @@ xyzservices==2023.10.1
     #   panel
 yarl==1.9.3
     # via aiohttp
-zipp==3.17.0
+zipp==3.19.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

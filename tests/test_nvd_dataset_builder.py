@@ -1,10 +1,9 @@
 from datetime import date, datetime, timedelta
-from importlib import resources
+from importlib.resources import files
 from typing import Any
 
 import pytest
 
-import tests.data.common
 from sec_certs.configuration import config
 from sec_certs.dataset import CCDataset, CPEDataset, CVEDataset
 from sec_certs.utils.nvd_dataset_builder import (
@@ -17,7 +16,7 @@ from sec_certs.utils.nvd_dataset_builder import (
 
 @pytest.fixture(autouse=True)
 def load_test_config():
-    with resources.path(tests.data.common, "settings_tests.yml") as path:
+    with files("tests.data.common") / "settings_tests.yml" as path:
         config.load_from_yaml(path)
 
 
@@ -62,7 +61,7 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
         return len(dset["match_strings"])
 
     config.preferred_source_nvd_datasets = "api"
-    with builder_class() as dataset_builder:
+    with builder_class(api_key=config.nvd_api_key) as dataset_builder:
         dataset = dataset_builder._init_new_dataset()
         assert dataset == default_dataset
         last_update = dataset_builder._get_last_update_from_previous_data(dataset)

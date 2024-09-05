@@ -16,7 +16,7 @@
   "certs": [
     {
       "_type": "sec_certs.sample.cc.CCCertificate",
-      "dgst": "309ac2fd7f2dcf17",
+      "dgst": "e3dcf91ef38ddbf0",
       "status": "active",
       "category": "Access Control Devices and Systems",
       "name": "NetIQ Identity Manager 4.7",
@@ -119,7 +119,7 @@
     },
     {
       "_type": "sec_certs.sample.cc.CCCertificate",
-      "dgst": "8cf86948f02f047d",
+      "dgst": "ed7611868f0f9d97",
       "status": "active",
       "category": "Access Control Devices and Systems",
       "name": "Magic SSO V4.0",
@@ -227,7 +227,7 @@
     },
     {
       "_type": "sec_certs.sample.cc.CCCertificate",
-      "dgst": "8a5e6bcda602920c",
+      "dgst": "8f08cacb49a742fb",
       "status": "active",
       "category": "Boundary Protection Devices and Systems",
       "name": "Fortinet FortiGate w/ FortiOS v5.6.7",

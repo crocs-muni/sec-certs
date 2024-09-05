@@ -88,80 +88,22 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         return paths
 
     @staticmethod
-    def download_algs_data(output_dir: Path, alg_links: list[str]) -> list[Path]:
-        n_pages = len(alg_links)
-
-        urls = [constants.FIPS_CAVP_URL + "/" + i for i in alg_links]
-        paths = [output_dir / f"alg_page{i}.html" for i in range(0, n_pages)]
-        responses = helpers.download_parallel(urls, paths, progress_bar_desc="Downloading FIPS Algorithm data")
-
-        failed_tuples = [
-            (url, path) for url, path, resp in zip(urls, paths, responses) if resp != constants.RESPONSE_OK
-        ]
-        if failed_tuples:
-            failed_urls, failed_paths = zip(*failed_tuples)
-            responses = helpers.download_parallel(failed_urls, failed_paths)
-            if any(x != constants.RESPONSE_OK for x in responses):
-                raise ValueError("Failed to download the algorithms data, the dataset won't be constructed.")
-
-        return paths
-
-    @staticmethod
     def get_number_of_html_pages(html_path: Path) -> int:
         with html_path.open("r") as handle:
             soup = BeautifulSoup(handle, "html5lib")
         return int(soup.select("span[data-total-pages]")[0].attrs["data-total-pages"])
 
     @staticmethod
-    def parse_alg_data_from_html(html_path: Path) -> tuple[str, str, str, str]:
-        fields = []
-        with html_path.open("r") as handle:
-            soup = BeautifulSoup(handle, "html5lib")
-            for field in ["Description", "Version", "Type"]:
-                div = soup.find("div", text=field)
-                fields.append("" if div is None else div.find_next_sibling("div").get_text())
-            capability_trs = soup.find("table").find("tbody").findAll("tr")
-            capabilities = [c.findAll("td")[1].find(["b", "s"]).get_text().strip() for c in capability_trs]
-        return fields[0], fields[1], fields[2], ", ".join(capabilities)
-
-    @staticmethod
     def parse_algorithms_from_html(html_path: Path) -> set[FIPSAlgorithm]:
-        df = pd.read_html(html_path, extract_links="body")[0]
-        df["alg_type"] = df["Validation Number"].map(lambda x: re.sub(r"[0-9\s]", "", x[0]))
-        df["alg_number"] = df["Validation Number"].map(lambda x: re.sub(r"[^0-9]", "", x[0]))
-        links = [x[1] for x in df["Validation Number"]]
-        df["Vendor"] = df["Vendor"].map(lambda x: x[0])
-        df["Implementation"] = df["Implementation"].map(lambda x: x[0])
-        df["Validation Date"] = df["Validation Date"].map(lambda x: x[0])
-
-        with TemporaryDirectory() as tmp_dir:
-            alg_pages = FIPSAlgorithmDataset.download_algs_data(Path(tmp_dir), links)
-            descriptions = []
-            versions = []
-            types = []
-            capabilities = []
-            for page in alg_pages:
-                d, v, t, c = FIPSAlgorithmDataset.parse_alg_data_from_html(page)
-                descriptions.append(d)
-                versions.append(v)
-                types.append(t)
-                capabilities.append(c)
-        df = df.assign(description=descriptions)
-        df = df.assign(version=versions)
-        df = df.assign(type=types)
-        df = df.assign(algorithm_capabilities=capabilities)
-
+        df = pd.read_html(html_path)[0]
+        for col in df.columns:
+            if "Order by" in col:
+                df.rename(columns={col: col.split("Order by")[0]}, inplace=True)
+        df["alg_type"] = df["Validation Number"].map(lambda x: re.sub(r"[0-9\s]", "", x))
+        df["alg_number"] = df["Validation Number"].map(lambda x: re.sub(r"[^0-9]", "", x))
         df["alg"] = df.apply(
             lambda row: FIPSAlgorithm(
-                row["alg_number"],
-                row["alg_type"],
-                row["Vendor"],
-                row["Implementation"],
-                row["Validation Date"],
-                row["description"],
-                row["version"],
-                row["type"],
-                row["algorithm_capabilities"],
+                row["alg_number"], row["alg_type"], row["Vendor"], row["Implementation"], row["Validation Date"]
             ),
             axis=1,
         )

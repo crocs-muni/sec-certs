@@ -16,7 +16,7 @@
     "certs": [
         {
             "_type": "sec_certs.sample.cc.CCCertificate",
-            "dgst": "ebd276cca70fd723",
+            "dgst": "ed91ff3e658457fd",
             "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "IBM Security Access Manager for Enterprise Single Sign-On Version 8.2",
@@ -97,7 +97,7 @@
         },
         {
             "_type": "sec_certs.sample.cc.CCCertificate",
-            "dgst": "37e1b22e5933b0ed",
+            "dgst": "95e3850bef32f410",
             "status": "active",
             "category": "Access Control Devices and Systems",
             "name": "IBM WebSphere Application Server (WAS) 7.0",

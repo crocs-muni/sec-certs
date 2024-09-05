@@ -53,7 +53,7 @@ def transitive_vulnerability_dataset(analysis_data_dir) -> CCDataset:
 
 @pytest.fixture
 def random_certificate(processed_cc_dset: CCDataset) -> CCCertificate:
-    return processed_cc_dset["ebd276cca70fd723"]
+    return processed_cc_dset["ed91ff3e658457fd"]
 
 
 def test_match_cpe(random_certificate: CCCertificate):
@@ -162,7 +162,7 @@ def test_single_record_references_heuristics(random_certificate: CCCertificate):
 
 def test_reference_dataset(reference_dataset: CCDataset):
     reference_dataset._compute_references()
-    test_cert = reference_dataset["692e91451741ef49"]
+    test_cert = reference_dataset["d1b238729b25d745"]
 
     assert test_cert.heuristics.report_references.directly_referenced_by == {"BSI-DSZ-CC-0370-2006"}
     assert test_cert.heuristics.report_references.indirectly_referenced_by == {
@@ -175,12 +175,12 @@ def test_reference_dataset(reference_dataset: CCDataset):
 
 def test_direct_transitive_vulnerability_dataset(transitive_vulnerability_dataset: CCDataset):
     transitive_vulnerability_dataset._compute_transitive_vulnerabilities()
-    assert transitive_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.direct_transitive_cves == {"CVE-2013-5385"}
+    assert transitive_vulnerability_dataset["11f77cb31b931a57"].heuristics.direct_transitive_cves == {"CVE-2013-5385"}
 
 
 def test_indirect_transitive_vulnerability_dataset(transitive_vulnerability_dataset: CCDataset):
     transitive_vulnerability_dataset._compute_transitive_vulnerabilities()
-    assert transitive_vulnerability_dataset["d0705c9e6fbaeba3"].heuristics.indirect_transitive_cves == {"CVE-2013-5385"}
+    assert transitive_vulnerability_dataset["11f77cb31b931a57"].heuristics.indirect_transitive_cves == {"CVE-2013-5385"}
 
 
 def test_sar_object():

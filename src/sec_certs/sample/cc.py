@@ -15,9 +15,9 @@ from bs4 import Tag
 
 import sec_certs.utils.extract
 import sec_certs.utils.pdf
-import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
+from sec_certs.configuration import config
 from sec_certs.sample.cc_certificate_id import canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -26,7 +26,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-from sec_certs.utils import helpers
+from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.extract import normalize_match_string, scheme_frontpage_functions
 
 
@@ -42,8 +42,7 @@ class CCCertificate(
     the certificate can handle itself. `CCDataset` class then instrument this functionality.
     """
 
-    cc_url = "http://www.commoncriteriaportal.org"
-    empty_st_url = "http://www.commoncriteriaportal.org/files/epfiles/"
+    cc_url = "https://www.commoncriteriaportal.org"
 
     @dataclass(eq=True, frozen=True)
     class MaintenanceReport(ComplexSerializableType):
@@ -57,16 +56,10 @@ class CCCertificate(
         maintenance_st_link: str | None
 
         def __post_init__(self):
-            super().__setattr__(
-                "maintenance_report_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_report_link)
-            )
-            super().__setattr__(
-                "maintenance_st_link", sec_certs.utils.sanitization.sanitize_link(self.maintenance_st_link)
-            )
-            super().__setattr__(
-                "maintenance_title", sec_certs.utils.sanitization.sanitize_string(self.maintenance_title)
-            )
-            super().__setattr__("maintenance_date", sec_certs.utils.sanitization.sanitize_date(self.maintenance_date))
+            super().__setattr__("maintenance_report_link", sanitization.sanitize_link(self.maintenance_report_link))
+            super().__setattr__("maintenance_st_link", sanitization.sanitize_link(self.maintenance_st_link))
+            super().__setattr__("maintenance_title", sanitization.sanitize_string(self.maintenance_title))
+            super().__setattr__("maintenance_date", sanitization.sanitize_date(self.maintenance_date))
 
         @classmethod
         def from_dict(cls, dct: dict) -> CCCertificate.MaintenanceReport:
@@ -420,20 +413,20 @@ class CCCertificate(
 
         self.status = status
         self.category = category
-        self.name = sec_certs.utils.sanitization.sanitize_string(name)
+        self.name = sanitization.sanitize_string(name)
 
         self.manufacturer = None
         if manufacturer:
-            self.manufacturer = sec_certs.utils.sanitization.sanitize_string(manufacturer)
+            self.manufacturer = sanitization.sanitize_string(manufacturer)
 
         self.scheme = scheme
-        self.security_level = sec_certs.utils.sanitization.sanitize_security_levels(security_level)
-        self.not_valid_before = sec_certs.utils.sanitization.sanitize_date(not_valid_before)
-        self.not_valid_after = sec_certs.utils.sanitization.sanitize_date(not_valid_after)
-        self.report_link = sec_certs.utils.sanitization.sanitize_link(report_link)
-        self.st_link = sec_certs.utils.sanitization.sanitize_link(st_link)
-        self.cert_link = sec_certs.utils.sanitization.sanitize_link(cert_link)
-        self.manufacturer_web = sec_certs.utils.sanitization.sanitize_link(manufacturer_web)
+        self.security_level = sanitization.sanitize_security_levels(security_level)
+        self.not_valid_before = sanitization.sanitize_date(not_valid_before)
+        self.not_valid_after = sanitization.sanitize_date(not_valid_after)
+        self.report_link = sanitization.sanitize_link(report_link)
+        self.st_link = sanitization.sanitize_link(st_link)
+        self.cert_link = sanitization.sanitize_link(cert_link)
+        self.manufacturer_web = sanitization.sanitize_link(manufacturer_web)
         self.protection_profiles = protection_profiles
         self.maintenance_updates = maintenance_updates
         self.state = state if state else self.InternalState()
@@ -445,6 +438,29 @@ class CCCertificate(
         """
         Computes the primary key of the sample using first 16 bytes of SHA-256 digest
         """
+        if not (self.name is not None and self.category is not None):
+            raise RuntimeError("Certificate digest can't be computed, because information is missing.")
+        return helpers.get_first_16_bytes_sha256(
+            "|".join(
+                [
+                    self.category,
+                    self.name,
+                    sanitization.sanitize_link_fname(self.report_link) or "None",
+                    sanitization.sanitize_link_fname(self.st_link) or "None",
+                ]
+            )
+        )
+
+    @property
+    def old_dgst(self) -> str:
+        if not (self.name is not None and self.report_link is not None and self.category is not None):
+            raise RuntimeError("Certificate digest can't be computed, because information is missing.")
+        return helpers.get_first_16_bytes_sha256(
+            self.category + self.name + sanitization.sanitize_cc_link(self.report_link)  # type: ignore
+        )
+
+    @property
+    def older_dgst(self) -> str:
         if not (self.name is not None and self.report_link is not None and self.category is not None):
             raise RuntimeError("Certificate digest can't be computed, because information is missing.")
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
@@ -535,13 +551,12 @@ class CCCertificate(
                 f"Attempting to merge divergent certificates: self[dgst]={self.dgst}, other[dgst]={other.dgst}"
             )
 
+        # Prefer some values from the HTML
+        # Links in CSV are currently (13.08.2024) broken.
+        html_preferred_attrs = {"protection_profiles", "maintenance_updates", "cert_link", "report_link", "st_link"}
+
         for att, val in vars(self).items():
-            if (
-                (not val)
-                or (other_source == "html" and att == "protection_profiles")
-                or (other_source == "html" and att == "maintenance_updates")
-                or (att == "state")
-            ):
+            if (not val) or (other_source == "html" and att in html_preferred_attrs) or (att == "state"):
                 setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):
@@ -753,7 +768,7 @@ class CCCertificate(
         if not cert.report_link:
             exit_code = "No link"
         else:
-            exit_code = helpers.download_file(cert.report_link, cert.state.report.pdf_path)
+            exit_code = helpers.download_file(cert.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy)
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
@@ -773,7 +788,9 @@ class CCCertificate(
         :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int = (
-            helpers.download_file(cert.st_link, cert.state.st.pdf_path) if cert.st_link else "No link"
+            helpers.download_file(cert.st_link, cert.state.st.pdf_path, proxy=config.cc_use_proxy)
+            if cert.st_link
+            else "No link"
         )
 
         if exit_code != requests.codes.ok:
@@ -795,7 +812,9 @@ class CCCertificate(
         :return CCCertificate: returns the modified certificate with updated state
         """
         exit_code: str | int = (
-            helpers.download_file(cert.cert_link, cert.state.cert.pdf_path) if cert.cert_link else "No link"
+            helpers.download_file(cert.cert_link, cert.state.cert.pdf_path, proxy=config.cc_use_proxy)
+            if cert.cert_link
+            else "No link"
         )
 
         if exit_code != requests.codes.ok:

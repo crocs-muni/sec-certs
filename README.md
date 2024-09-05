@@ -14,13 +14,13 @@ A tool for data scraping and analysis of security certificates from Common Crite
 [![Tests](https://img.shields.io/github/actions/workflow/status/crocs-muni/sec-certs/.github/workflows/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/crocs-muni/sec-certs/actions/workflows/tests.yml?query=branch%3Amain)
 [![Codecov](https://img.shields.io/codecov/c/github/crocs-muni/sec-certs?style=flat-square)](https://app.codecov.io/gh/crocs-muni/sec-certs)
 
-## Paper pre-prints
+## Papers
 
-Two papers related to this tool are accepted for publication. See the arXiv pre-prints below.
+Two publications accompany this project:
 
 > [!NOTE]
-> - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2023). [sec-certs: Examining the security certification practice for better vulnerability mitigation](https://arxiv.org/abs/2311.17603). To appear in Computers & Security journal.
-> - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., & Matyas, V. (2024). [Chain of trust: Unraveling the references among Common Criteria certified products](https://arxiv.org/abs/2404.14246). To appear in IFIP SEC 2024.
+> - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2024). **sec-certs: Examining the security certification practice for better vulnerability mitigation**. *Computers & Security, 143*. https://doi.org/10.1016/j.cose.2024.103895
+> - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., Matyas, V. (2024). **Chain of Trust: Unraveling References Among Common Criteria Certified Products**. In: Pitropakis, N., Katsikas, S., Furnell, S., Markantonakis, K. (eds) ICT Systems Security and Privacy Protection. SEC 2024. IFIP Advances in Information and Communication Technology, vol 710. Springer, Cham. https://doi.org/10.1007/978-3-031-65175-5_14
 
 ## Installation
 

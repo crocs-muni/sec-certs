@@ -1,6 +1,6 @@
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.9.4
+aiohttp==3.10.2
     # via
     #   datasets
     #   fsspec
@@ -39,7 +39,7 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2023.11.17
+certifi==2024.7.4
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -69,7 +69,7 @@ coverage[toml]==7.3.2
     # via
     #   coverage
     #   pytest-cov
-cryptography==42.0.4
+cryptography==43.0.1
     # via pypdf
 cycler==0.12.1
     # via matplotlib
@@ -404,7 +404,7 @@ referencing==0.31.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+requests==2.32.0
     # via
     #   datasets
     #   fsspec
@@ -420,7 +420,7 @@ rpds-py==0.13.1
     #   referencing
 ruff==0.2.2
     # via sec-certs (./../pyproject.toml)
-scikit-learn==1.3.2
+scikit-learn==1.5.0
     # via sec-certs (./../pyproject.toml)
 scipy==1.11.4
     # via
@@ -502,7 +502,7 @@ thinc==8.2.1
     # via spacy
 threadpoolctl==3.2.0
     # via scikit-learn
-tornado==6.3.3
+tornado==6.4.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -546,7 +546,7 @@ typing-extensions==4.8.0
     #   typer
 tzdata==2023.3
     # via pandas
-urllib3==2.1.0
+urllib3==2.2.2
     # via
     #   requests
     #   types-requests
@@ -575,7 +575,7 @@ xxhash==3.4.1
     # via datasets
 yarl==1.9.3
     # via aiohttp
-zipp==3.17.0
+zipp==3.19.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

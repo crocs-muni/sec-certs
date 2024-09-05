@@ -11,22 +11,24 @@ from sec_certs.sample.cc import CCCertificate
 
 
 def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
+    for cert in toy_dataset:
+        print(cert.dgst, cert.old_dgst, cert.older_dgst)
     template_report_pdf_hashes = {
-        "309ac2fd7f2dcf17": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
-        "8cf86948f02f047d": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
-        "8a5e6bcda602920c": "e277151e4b279085cd3041ce914ffb3942b43e5ace911c557ad6b8ed764a4ece",
+        "e3dcf91ef38ddbf0": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
+        "ed7611868f0f9d97": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
+        "8f08cacb49a742fb": "e277151e4b279085cd3041ce914ffb3942b43e5ace911c557ad6b8ed764a4ece",
     }
 
     template_st_pdf_hashes = {
-        "309ac2fd7f2dcf17": "b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9",
-        "8cf86948f02f047d": "3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be",
-        "8a5e6bcda602920c": "fcee91f09bb72a6526a1f94d0ab754a6db3fbe3ba5773cd372df19788bb25292",
+        "e3dcf91ef38ddbf0": "b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9",
+        "ed7611868f0f9d97": "3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be",
+        "8f08cacb49a742fb": "fcee91f09bb72a6526a1f94d0ab754a6db3fbe3ba5773cd372df19788bb25292",
     }
 
     template_cert_pdf_hashes = {
-        "309ac2fd7f2dcf17": "9d38bca310c4d349cc39471e0b75d939cc275db9a75b07b8a365d719cfbedcc5",
-        "8cf86948f02f047d": None,
-        "8a5e6bcda602920c": "4ba78f26f505819183256ca5a6b404fa90c750fe160c41791e4c400f64e2f6d5",
+        "e3dcf91ef38ddbf0": "9d38bca310c4d349cc39471e0b75d939cc275db9a75b07b8a365d719cfbedcc5",
+        "ed7611868f0f9d97": None,
+        "8f08cacb49a742fb": "4ba78f26f505819183256ca5a6b404fa90c750fe160c41791e4c400f64e2f6d5",
     }
 
     with TemporaryDirectory() as td:
@@ -34,14 +36,14 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         toy_dataset.download_all_artifacts()
 
         if not (
-            toy_dataset["309ac2fd7f2dcf17"].state.report.download_ok
-            or toy_dataset["309ac2fd7f2dcf17"].state.st.download_ok
-            or toy_dataset["309ac2fd7f2dcf17"].state.cert.download_ok
-            or toy_dataset["8cf86948f02f047d"].state.report.download_ok
-            or toy_dataset["8cf86948f02f047d"].state.st.download_ok
-            or toy_dataset["8a5e6bcda602920c"].state.report.download_ok
-            or toy_dataset["8a5e6bcda602920c"].state.st.download_ok
-            or toy_dataset["8a5e6bcda602920c"].state.cert.download_ok
+            toy_dataset["e3dcf91ef38ddbf0"].state.report.download_ok
+            or toy_dataset["e3dcf91ef38ddbf0"].state.st.download_ok
+            or toy_dataset["e3dcf91ef38ddbf0"].state.cert.download_ok
+            or toy_dataset["ed7611868f0f9d97"].state.report.download_ok
+            or toy_dataset["ed7611868f0f9d97"].state.st.download_ok
+            or toy_dataset["8f08cacb49a742fb"].state.report.download_ok
+            or toy_dataset["8f08cacb49a742fb"].state.st.download_ok
+            or toy_dataset["8f08cacb49a742fb"].state.cert.download_ok
         ):
             pytest.xfail(reason="Fail due to error during download")
 
@@ -60,15 +62,15 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
             if cert.cert_link:
                 assert cert.state.cert.txt_path.exists()
 
-        template_report_txt_path = data_dir / "report_309ac2fd7f2dcf17.txt"
-        template_st_txt_path = data_dir / "target_309ac2fd7f2dcf17.txt"
+        template_report_txt_path = data_dir / "report_e3dcf91ef38ddbf0.txt"
+        template_st_txt_path = data_dir / "target_e3dcf91ef38ddbf0.txt"
         assert (
-            abs(toy_dataset["309ac2fd7f2dcf17"].state.st.txt_path.stat().st_size - template_st_txt_path.stat().st_size)
+            abs(toy_dataset["e3dcf91ef38ddbf0"].state.st.txt_path.stat().st_size - template_st_txt_path.stat().st_size)
             < 1000
         )
         assert (
             abs(
-                toy_dataset["309ac2fd7f2dcf17"].state.report.txt_path.stat().st_size
+                toy_dataset["e3dcf91ef38ddbf0"].state.report.txt_path.stat().st_size
                 - template_report_txt_path.stat().st_size
             )
             < 1000

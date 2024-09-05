@@ -221,4 +221,4 @@ def test_matching(toy_dataset: CCDataset, canada_certified):
 def test_process_dataset(toy_dataset: CCDataset):
     toy_dataset.auxiliary_datasets.scheme_dset = toy_dataset.process_schemes(True, only_schemes={"CA"})
     toy_dataset._compute_scheme_data()
-    assert toy_dataset["8a5e6bcda602920c"].heuristics.scheme_data is not None
+    assert toy_dataset["8f08cacb49a742fb"].heuristics.scheme_data is not None

@@ -16,7 +16,7 @@
     "certs": [
         {
             "_type": "sec_certs.sample.cc_maintenance_update.CCMaintenanceUpdate",
-            "dgst": "cert_8a5e6bcda602920c_update_559ed93dd80320b5",
+            "dgst": "cert_8f08cacb49a742fb_update_559ed93dd80320b5",
             "name": "Fortinet FortiGate w/ FortiOS v5.6.7 Build 6022",
             "report_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20MR%20v1.0e.pdf",
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/383-7-159%20ST%20v1.4%20CCRA.pdf",
@@ -93,7 +93,7 @@
                 "indirect_transitive_cves": null,
                 "scheme_data": null
             },
-            "related_cert_digest": "8a5e6bcda602920c",
+            "related_cert_digest": "8f08cacb49a742fb",
             "maintenance_date": "2019-08-26"
         }
     ]

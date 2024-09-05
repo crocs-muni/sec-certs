@@ -106,6 +106,8 @@ class Configuration(BaseSettings):
         ge=0,
         le=100,
     )
+    cc_use_proxy: bool = Field(False, description="Download CC artifacts through the sec-certs.org proxy.")
+    fips_use_proxy: bool = Field(False, description="Download FIPS artifacts through the sec-certs.org proxy.")
     enable_progress_bars: bool = Field(
         True, description="If true, progress bars will be printed to stdout during computation."
     )

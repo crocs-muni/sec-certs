@@ -22,11 +22,27 @@ from sec_certs.utils.tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
+_PROXIES = {
+    "https://www.commoncriteriaportal.org/": "https://sec-certs.org/proxy/cc/",
+    "https://csrc.nist.gov/": "https://sec-certs.org/proxy/fips/",
+}
+
+
 def download_file(
-    url: str, output: Path, delay: float = 0, show_progress_bar: bool = False, progress_bar_desc: str | None = None
+    url: str,
+    output: Path,
+    delay: float = 0,
+    show_progress_bar: bool = False,
+    progress_bar_desc: str | None = None,
+    proxy: bool = False,
 ) -> str | int:
     try:
         time.sleep(delay)
+        if proxy:
+            for upstream in _PROXIES:
+                if upstream in url:
+                    url = url.replace(upstream, _PROXIES[upstream])
+                    break
         # See https://github.com/psf/requests/issues/3953 for header justification
         r = requests.get(
             url,
